@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event-Related Potentials (ERP) Simulator & Explorer</title>
+    <!-- Tailwind CSS for modern, premium scientific UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        eggplant: '#2e1065'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- KaTeX for high-fidelity rendering of math notation -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <style>
+        /* Custom scrollbar styling for technical feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .text-glow {
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+        }
+        .canvas-container {
+            position: relative;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <div class="flex items-center gap-3">
+                    <span class="flex h-3 w-3 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                    </span>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        Extraction of Event-Related Potentials (ERPs)
+                    </h1>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">
+                    An interactive companion illustrating ensemble signal averaging, continuous multichannel EEG epoching, and wave anatomy.
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700 flex items-center gap-1.5">
+                    <i data-lucide="activity" class="w-3.5 h-3.5 text-indigo-400"></i> Signal Averager Engine Active
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: Live Simulator & Control Deck (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- Dynamic Diagram / Simulation Deck -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl flex flex-col gap-5">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h2 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-4 h-4"></i> Interactive Averaging Simulation
+                    </h2>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-slate-400">Trials ($N$): <strong id="trial-counter" class="text-white text-sm bg-slate-800 px-2 py-0.5 rounded ml-1">0</strong></span>
+                    </div>
+                </div>
+
+                <!-- Simulation Graph Canvas Container -->
+                <div class="canvas-container bg-slate-950 rounded-lg border border-slate-800 p-4">
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 mb-2">
+                        <span>$\text{Amplitude } (\mu\text{V})$</span>
+                        <div class="flex items-center gap-3">
+                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-slate-600 inline-block"></span> Individual Trials (Noise)</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-indigo-500 inline-block"></span> Running Average</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 border-t border-dashed border-emerald-400 inline-block"></span> True Target ERP</span>
+                        </div>
+                    </div>
+                    
+                    <canvas id="erp-canvas" class="w-full h-64 bg-slate-950 rounded block cursor-crosshair"></canvas>
+                    
+                    <!-- X-Axis Labels -->
+                    <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-2">
+                        <span>Stimulus Onset ($t = 0\text{ ms}$)</span>
+                        <span>$100\text{ ms}$</span>
+                        <span>$200\text{ ms}$</span>
+                        <span>$300\text{ ms}$</span>
+                        <span>$400\text{ ms}$</span>
+                        <span>$500\text{ ms}$</span>
+                    </div>
+                </div>
+
+                <!-- Live Control Board -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-900/50 p-4 rounded-lg border border-slate-800">
+                    <!-- Stimulation controls -->
+                    <div class="flex flex-col gap-3">
+                        <span class="text-xs font-semibold text-slate-300">Stimulus Presentation Actions</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="btn-single-trial" class="bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium text-xs py-2.5 px-3 rounded-lg transition flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-500/10">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i> Trigger 1 Trial
+                            </button>
+                            <button id="btn-batch-trials" class="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-medium text-xs py-2.5 px-3 rounded-lg transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="play" class="w-4 h-4" id="batch-icon"></i> Run 50 Trials
+                            </button>
+                        </div>
+                        <button id="btn-reset" class="bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-900/50 text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear Average & Reset
+                        </button>
+                    </div>
+
+                    <!-- Parameter modification sliders -->
+                    <div class="flex flex-col gap-3 text-xs">
+                        <span class="font-semibold text-slate-300">Simulation Variables</span>
+                        
+                        <div>
+                            <div class="flex justify-between mb-1 text-slate-400">
+                                <label for="slider-noise" class="flex items-center gap-1"><i data-lucide="radio" class="w-3.5 h-3.5 text-slate-500"></i> Noise Amplitude (Background EEG):</label>
+                                <span id="val-noise" class="text-indigo-400 font-mono">20 µV</span>
+                            </div>
+                            <input type="range" id="slider-noise" min="5" max="40" value="20" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1 text-slate-400">
+                                <label for="slider-signal" class="flex items-center gap-1"><i data-lucide="waveform" class="w-3.5 h-3.5 text-emerald-500"></i> Signal Amplitude (True ERP):</label>
+                                <span id="val-signal" class="text-emerald-400 font-mono">5 µV</span>
+                            </div>
+                            <input type="range" id="slider-signal" min="1" max="20" value="5" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytical Live Readings -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex flex-col">
+                        <span class="text-[10px] text-slate-500 uppercase tracking-wider">Raw Signal-to-Noise Ratio (SNR)</span>
+                        <span class="text-sm font-semibold text-slate-300 mt-1" id="raw-snr">1 : 4.00</span>
+                        <span class="text-[9px] text-slate-500 mt-0.5">$\text{Ratio} = \frac{\text{Signal}}{\text{Noise}}$ before averaging</span>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex flex-col">
+                        <span class="text-[10px] text-slate-500 uppercase tracking-wider">Noise Reduction Factor</span>
+                        <span class="text-sm font-semibold text-indigo-400 mt-1" id="noise-reduction">1.00x</span>
+                        <span class="text-[9px] text-slate-500 mt-0.5">Proportional to $1 / \sqrt{N}$</span>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex flex-col">
+                        <span class="text-[10px] text-slate-500 uppercase tracking-wider">Estimated Post-Average SNR</span>
+                        <span class="text-sm font-semibold text-emerald-400 mt-1" id="avg-snr">0.25</span>
+                        <span class="text-[9px] text-slate-500 mt-0.5">$\text{SNR}_{\text{post}} = \text{SNR}_{\text{raw}} \cdot \sqrt{N}$</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Continuous Timeline Display (Simulates scrolling multichannel EEG showing triggers) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="pulse" class="w-4 h-4 text-rose-500"></i> Ongoing EEG Recorder Timeline
+                    </h3>
+                    <span class="text-[10px] text-emerald-400 flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Streaming Channel #64</span>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-lg p-2 overflow-hidden relative">
+                    <canvas id="timeline-canvas" class="w-full h-20 bg-slate-950 block"></canvas>
+                    <div class="absolute bottom-2 right-2 text-[9px] text-slate-500 bg-slate-900/90 border border-slate-800 px-1.5 py-0.5 rounded">
+                        Continuous Sweep Speed: 1.0s/div
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    <strong>The Epoching Process:</strong> The scrolling trace above represents the raw background brain rhythm. The red dashed lines represent auditory stimulus onset triggers ($S_1, S_2, \dots$). The signal averager isolates local epochs (time window highlighted by a shaded rectangle) locked directly to these trigger times to run calculations below.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Interactive Waveform Anatomy & Deep Science (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+
+            <!-- Tabbed Interface for Explanations and Wave Anatomy -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden flex flex-col flex-grow">
+                <!-- Navigation Tabs -->
+                <div class="flex border-b border-slate-800 bg-slate-900/60 p-1">
+                    <button id="tab-anatomy-btn" class="flex-1 py-2.5 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 text-indigo-400 bg-slate-850 border border-slate-800/80">
+                        <i data-lucide="activity" class="w-3.5 h-3.5"></i> ERP Wave Anatomy
+                    </button>
+                    <button id="tab-math-btn" class="flex-1 py-2.5 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200">
+                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Biophysics & Math
+                    </button>
+                </div>
+
+                <!-- Tab Content 1: Wave Anatomy (Interactive Waveform Chart matching provided image) -->
+                <div id="tab-anatomy-content" class="p-5 flex flex-col gap-4 flex-grow">
+                    <div class="text-xs text-slate-300">
+                        <p class="leading-relaxed">
+                            A complete human Event-Related Potential (ERP) consists of sequential components categorized by their latency (time delay post-stimulus). Hover or click on the labeled peaks to explore their neurological origins:
+                        </p>
+                    </div>
+
+                    <!-- Interactive SVG Waveform Plot -->
+                    <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 relative">
+                        <div class="absolute top-1 left-2 text-[8px] font-mono text-slate-500 uppercase">Interactive Schematic</div>
+                        <div class="absolute top-1 right-2 text-[8px] font-mono text-slate-500">Amplitude ($\mu\text{V}$) is inverted (- is UP)</div>
+                        
+                        <svg viewBox="0 0 500 240" class="w-full h-auto mt-2 select-none" id="anatomy-svg">
+                            <!-- Background Axis Lines -->
+                            <line x1="10" y1="120" x2="490" y2="120" stroke="#1e293b" stroke-width="1.5" /> <!-- Baseline -->
+                            <line x1="70" y1="15" x2="70" y2="225" stroke="#1e293b" stroke-width="1.5" stroke-dasharray="2,2"/> <!-- Stimulus Onset -->
+                            
+                            <!-- X Axis Arrows and Markers -->
+                            <path d="M 490 120 L 485 116 M 490 120 L 485 124" stroke="#475569" stroke-width="1.5" />
+                            <text x="75" y="235" fill="#64748b" font-size="9" font-family="sans-serif">Stimulus Onset</text>
+                            <text x="450" y="112" fill="#64748b" font-size="9" font-family="sans-serif">600 ms</text>
+                            
+                            <!-- Classical Cortical ERP Components (P1, N1, P2, N2, P3) -->
+                            <!-- Note: -Y is up, +Y is down in EEG plots (Standard Clinical Convention) -->
+                            <path d="M 10 120 
+                                     L 70 120 
+                                     C 90 120, 95 140, 110 140 
+                                     C 125 140, 135 70, 150 70 
+                                     C 180 70, 200 160, 230 160 
+                                     C 250 160, 255 100, 270 100 
+                                     C 290 100, 310 190, 350 190 
+                                     C 420 190, 450 120, 490 120" 
+                                  fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+                            <!-- Interactive Component Hotspots/Points -->
+                            <!-- 1. Cortical P1 -->
+                            <g class="cursor-pointer group select-all" onclick="selectComponent('p1')" transform="translate(110, 140)">
+                                <circle r="6" fill="#f59e0b" class="animate-pulse opacity-60 group-hover:opacity-100 transition" />
+                                <circle r="3.5" fill="#f59e0b" />
+                                <text y="15" text-anchor="middle" class="fill-amber-400 font-bold text-[9px]">P1</text>
+                            </g>
+
+                            <!-- 2. Cortical N1 -->
+                            <g class="cursor-pointer group" onclick="selectComponent('n1')" transform="translate(150, 70)">
+                                <circle r="6" fill="#10b981" class="opacity-0 group-hover:opacity-100 transition" />
+                                <circle r="3.5" fill="#10b981" />
+                                <text y="-10" text-anchor="middle" class="fill-emerald-400 font-bold text-[9px]">N1</text>
+                            </g>
+
+                            <!-- 3. Cortical P2 -->
+                            <g class="cursor-pointer group" onclick="selectComponent('p2')" transform="translate(230, 160)">
+                                <circle r="6" fill="#10b981" class="opacity-0 group-hover:opacity-100 transition" />
+                                <circle r="3.5" fill="#10b981" />
+                                <text y="15" text-anchor="middle" class="fill-emerald-400 font-bold text-[9px]">P2</text>
+                            </g>
+
+                            <!-- 4. Cortical N2 -->
+                            <g class="cursor-pointer group" onclick="selectComponent('n2')" transform="translate(270, 100)">
+                                <circle r="6" fill="#0ea5e9" class="opacity-0 group-hover:opacity-100 transition" />
+                                <circle r="3.5" fill="#0ea5e9" />
+                                <text y="-10" text-anchor="middle" class="fill-sky-400 font-bold text-[9px]">N2</text>
+                            </g>
+
+                            <!-- 5. Late Cognitive P300 -->
+                            <g class="cursor-pointer group" onclick="selectComponent('p3')" transform="translate(350, 190)">
+                                <circle r="7" fill="#8b5cf6" class="animate-pulse opacity-75 group-hover:opacity-100 transition" />
+                                <circle r="4" fill="#8b5cf6" />
+                                <text y="16" text-anchor="middle" class="fill-violet-400 font-bold text-[9px] tracking-wide">P3 (P300)</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Selected Component Information Panel -->
+                    <div id="component-detail-box" class="bg-slate-950 border border-slate-800 p-4 rounded-lg flex flex-col gap-1 transition-all">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 mb-1.5">
+                            <span class="text-xs uppercase font-mono text-slate-500">Selected ERP Component</span>
+                            <span id="comp-latency" class="text-[10px] bg-slate-800 text-indigo-400 px-2 py-0.5 rounded font-mono font-bold">40 - 60 ms</span>
+                        </div>
+                        <h4 id="comp-title" class="text-sm font-bold text-white">Cortical P1 (P50 Wave)</h4>
+                        <p id="comp-desc" class="text-xs text-slate-400 leading-relaxed mt-1">
+                            An early sensory positive component reflecting initial processing in the primary auditory cortex. It is often used to study sensory gating (e.g., the brain's ability to filter out redundant auditory information).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tab Content 2: Math and Biophysics Description -->
+                <div id="tab-math-content" class="p-5 flex flex-col gap-4 hidden overflow-y-auto max-h-[420px]">
+                    <div class="flex flex-col gap-3 text-xs leading-relaxed text-slate-300">
+                        <div class="border-l-2 border-indigo-500 pl-3 py-0.5">
+                            <h4 class="font-bold text-white">The Signal-to-Noise Problem</h4>
+                            <p class="mt-1">
+                                Background EEG activity (alpha, beta, delta, theta waves) typically ranges between $20\,\mu\text{V}$ and $100\,\mu\text{V}$. In contrast, cognitive sensory ERPs are buried at values between $1\,\mu\text{V}$ and $10\,\mu\text{V}$. Individual stimulus trials look identical to random background noise.
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-indigo-500 pl-3 py-0.5 mt-2">
+                            <h4 class="font-bold text-white">The Averaging Formulation</h4>
+                            <p class="mt-1">
+                                An ongoing recording is divided into stimulus-locked trials $S_j(t) = s(t) + n_j(t)$, where $s(t)$ is the consistent time-locked ERP wave (signal), and $n_j(t)$ is the random uncorrelated noise (background EEG) on trial $j$.
+                            </p>
+                            <p class="mt-2 bg-slate-950 p-2 rounded text-center border border-slate-800 text-white font-mono text-xs">
+                                $$\text{Average}(t) = \frac{1}{N} \sum_{j=1}^{N} S_j(t) = s(t) + \frac{1}{N}\sum_{j=1}^{N} n_j(t)$$
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-indigo-500 pl-3 py-0.5 mt-2">
+                            <h4 class="font-bold text-white">Mathematical Noise Suppression</h4>
+                            <p class="mt-1">
+                                Assuming the background EEG noise $n_j(t)$ is Gaussian with a mean of zero and variance of $\sigma^2$, and is completely uncorrelated across trials, the variance of the averaged noise goes down with $N$ trials:
+                            </p>
+                            <p class="mt-2 bg-slate-950 p-2 rounded text-center border border-slate-800 text-white font-mono text-xs">
+                                $$\sigma_{\text{average}} = \frac{\sigma}{\sqrt{N}}$$
+                            </p>
+                            <p class="mt-2">
+                                Thus, with 100 trials, background noise is suppressed by a factor of $\sqrt{100} = 10$, bringing a $20\,\mu\text{V}$ noise down to a manageable $2\,\mu\text{V}$, revealing the pure sensory ERP.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer elements inside card -->
+                <div class="mt-auto border-t border-slate-800 bg-slate-950 p-4 flex items-center justify-between">
+                    <span class="text-[10px] text-slate-500 flex items-center gap-1">
+                        <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-slate-500"></i> Faraday Cage Shielding Active
+                    </span>
+                    <span class="text-[10px] text-slate-500">
+                        Differential Amplifiers: $N = 64$
+                    </span>
+                </div>
+            </div>
+
+            <!-- Block containing mathematical interactive proof -->
+            <div class="bg-gradient-to-br from-indigo-950/40 to-slate-900 border border-indigo-900/40 p-5 rounded-xl flex flex-col gap-3">
+                <h4 class="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+                    <i data-lucide="calculator" class="w-4 h-4"></i> Interactive Noise Reduction Theorem
+                </h4>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    By adjusting the sliders, you change the parameters of the simulation in real time. Standard clinical recordings aim for a target post-average Signal-to-Noise Ratio (SNR) of at least <strong>$1.5$ to $2.0$</strong> to make safe clinical judgments.
+                </p>
+                <div class="bg-slate-950/80 border border-slate-800 rounded-lg p-3 text-xs flex flex-col gap-2">
+                    <div class="flex justify-between border-b border-slate-800 pb-1.5 text-slate-400">
+                        <span>$\text{Target ERP Signal}$</span>
+                        <span id="math-sig" class="text-white font-mono">5.0 µV</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-1.5 text-slate-400">
+                        <span>$\text{Background EEG Noise Level} / \sqrt{N}$</span>
+                        <span id="math-noise" class="text-white font-mono">20.0 µV</span>
+                    </div>
+                    <div class="flex justify-between pt-0.5 text-slate-300 font-bold">
+                        <span class="text-indigo-400 font-semibold flex items-center gap-1">Calculated Quality Factor:</span>
+                        <span id="math-quality" class="text-rose-400 font-mono">Unsatisfactory</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer of Page -->
+    <footer class="border-t border-slate-800 bg-slate-950/80 py-4 px-6 mt-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+            <p>© 2026 Interactive Neurophysiology Simulator. Built for advanced computational cognitive neuroscience research.</p>
+            <div class="flex items-center gap-4">
+                <a href="#" class="hover:text-slate-300 transition">Faraday Cage Theory</a>
+                <a href="#" class="hover:text-slate-300 transition">Differential Amplification</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive JS Script Logic -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Canvas Setup for ERP Simulation Plot
+        const canvas = document.getElementById('erp-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Canvas Setup for Continuous Timeline Scrolling
+        const timelineCanvas = document.getElementById('timeline-canvas');
+        const tlCtx = timelineCanvas.getContext('2d');
+
+        // UI State Elements
+        const trialCounter = document.getElementById('trial-counter');
+        const sliderNoise = document.getElementById('slider-noise');
+        const sliderSignal = document.getElementById('slider-signal');
+        const valNoise = document.getElementById('val-noise');
+        const valSignal = document.getElementById('val-signal');
+
+        const rawSnrReadout = document.getElementById('raw-snr');
+        const noiseRedReadout = document.getElementById('noise-reduction');
+        const avgSnrReadout = document.getElementById('avg-snr');
+
+        const mathSig = document.getElementById('math-sig');
+        const mathNoise = document.getElementById('math-noise');
+        const mathQuality = document.getElementById('math-quality');
+
+        // Simulation parameters
+        let numTrials = 0;
+        let signalAmp = parseFloat(sliderSignal.value);
+        let noiseAmp = parseFloat(sliderNoise.value);
+        const dataLength = 300; // Number of sampling points spanning 500 ms
+
+        // Store accumulated mathematical trials
+        let sumBuffer = new Float32Array(dataLength);
+        let currentAverage = new Float32Array(dataLength);
+        let latestTrial = new Float32Array(dataLength);
+        let trueERP = new Float32Array(dataLength);
+
+        // Timeline continuous scrolling buffer variables
+        const timelineLength = 1000;
+        const timelineBuffer = new Float32Array(timelineLength);
+        let globalSample = 0;
+        let lastNoiseVal = 0;
+        let activeERPs = []; 
+        let activeTriggers = []; 
+        let nextTriggerCountdown = 100;
+
+        // Resize Canvas to fit containers smoothly
+        function resizeCanvases() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = 240 * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+            const tlRect = timelineCanvas.getBoundingClientRect();
+            timelineCanvas.width = tlRect.width * window.devicePixelRatio;
+            timelineCanvas.height = 80 * window.devicePixelRatio;
+            tlCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            
+            drawPlots();
+        }
+
+        // Generate synthetic true underlying ERP waveform (Late cognitive components)
+        function updateTrueERP() {
+            // Re-creates classic components (P50, N100, P200, P300, SW)
+            for (let i = 0; i < dataLength; i++) {
+                const ms = (i / dataLength) * 500; // 0 to 500ms
+                
+                // P50 peak (positive, down on standard inverted plots)
+                const p50 = 0.5 * Math.exp(-Math.pow((ms - 50) / 12, 2));
+                // N100 (prominent negative peak)
+                const n100 = -1.2 * Math.exp(-Math.pow((ms - 100) / 22, 2));
+                // P200 (positive peak)
+                const p200 = 0.8 * Math.exp(-Math.pow((ms - 180) / 30, 2));
+                // N200 (negative peak)
+                const n200 = -0.5 * Math.exp(-Math.pow((ms - 230) / 20, 2));
+                // P300 (massive cognitive late positive wave)
+                const p300 = 1.6 * Math.exp(-Math.pow((ms - 320) / 60, 2));
+                
+                // Combine and scale with current Signal Slider value
+                trueERP[i] = (p50 + n100 + p200 + n200 + p300) * (signalAmp / 2);
+            }
+        }
+
+        // Generate high-fidelity autoregressive (AR-1) biological brain rhythm
+        function generateNewEEGValue() {
+            globalSample++;
+            
+            // First-order Autoregressive process filters white noise into realistic pink/brown EEG noise
+            // Clamp lastNoiseVal to prevent rare runaway random walk spikes
+            lastNoiseVal = lastNoiseVal * 0.94 + (Math.random() - 0.5) * 1.15;
+            if (lastNoiseVal > 6.0) lastNoiseVal = 6.0;
+            if (lastNoiseVal < -6.0) lastNoiseVal = -6.0;
+            
+            // Background biological oscillatory bands (slow delta, alpha spindle, fast beta ripple)
+            const delta = Math.sin(globalSample * 0.008) * 2.5;
+            const alpha = Math.sin(globalSample * 0.045) * 1.5;
+            const beta = Math.sin(globalSample * 0.18) * 0.25;
+            
+            let erpContribution = 0;
+
+            // Superimpose any active time-locked stimulus potentials physically traveling with their triggers
+            activeERPs = activeERPs.filter(erp => {
+                const age = globalSample - erp.startSample;
+                if (age >= 300) return false; // An epoch lasts 300 samples (500 ms at ~1.67ms/sample)
+                
+                const ms = age * 1.67; 
+                const p50 = 0.5 * Math.exp(-Math.pow((ms - 50) / 12, 2));
+                const n100 = -1.2 * Math.exp(-Math.pow((ms - 100) / 22, 2));
+                const p200 = 0.8 * Math.exp(-Math.pow((ms - 180) / 30, 2));
+                const n200 = -0.5 * Math.exp(-Math.pow((ms - 230) / 20, 2));
+                const p300 = 1.6 * Math.exp(-Math.pow((ms - 320) / 60, 2));
+                
+                erpContribution += (p50 + n100 + p200 + n200 + p300) * (signalAmp / 2);
+                return true;
+            });
+
+            const backgroundEEG = (delta + alpha + beta + lastNoiseVal) * (noiseAmp / 6.0);
+            return backgroundEEG + erpContribution;
+        }
+
+        // Pre-initialize the buffer so it looks active instantly on load
+        function prefillEEGTimeline() {
+            for (let i = 0; i < timelineLength; i++) {
+                timelineBuffer[i] = generateNewEEGValue();
+            }
+        }
+
+        // Generate single noisy experimental trial
+        function createSingleTrial() {
+            numTrials++;
+            // Generate unique, independent random phase offsets for each oscillating component in this trial.
+            // This prevents systematic background rhythms from acting as a false time-locked signal.
+            const tempPhaseAlpha = Math.random() * Math.PI * 2;
+            const tempPhaseDelta = Math.random() * Math.PI * 2;
+            
+            for (let i = 0; i < dataLength; i++) {
+                // Get high quality filtered background noise values with trial-independent phases
+                const alpha = Math.sin(i * 0.15 + tempPhaseAlpha) * 1.0;
+                const delta = Math.sin(i * 0.02 + tempPhaseDelta) * 2.2;
+                const randomRipple = (Math.random() - 0.5) * 2.0;
+                const noise = (alpha + delta + randomRipple) * (noiseAmp / 4.5);
+
+                latestTrial[i] = trueERP[i] + noise;
+                
+                // Add to average accumulator buffer
+                sumBuffer[i] += latestTrial[i];
+                currentAverage[i] = sumBuffer[i] / numTrials;
+            }
+            updateMetrics();
+            drawPlots();
+        }
+
+        // Batch trials simulation running state
+        let batchInterval = null;
+        let batchTrialsCount = 0;
+
+        function runBatchTrials() {
+            const batchBtn = document.getElementById('btn-batch-trials');
+            const batchIcon = document.getElementById('batch-icon');
+            
+            if (batchInterval) {
+                clearInterval(batchInterval);
+                batchInterval = null;
+                batchBtn.classList.remove('bg-indigo-600', 'text-white');
+                batchBtn.classList.add('bg-slate-800', 'text-slate-100');
+                batchIcon.setAttribute('data-lucide', 'play');
+                lucide.createIcons();
+                return;
+            }
+
+            // Start ticking trials
+            batchBtn.classList.remove('bg-slate-800', 'text-slate-100');
+            batchBtn.classList.add('bg-emerald-600', 'text-white', 'hover:bg-emerald-500');
+            batchIcon.setAttribute('data-lucide', 'pause');
+            lucide.createIcons();
+
+            batchTrialsCount = 0;
+            batchInterval = setInterval(() => {
+                createSingleTrial();
+                batchTrialsCount++;
+                if (batchTrialsCount >= 50) {
+                    clearInterval(batchInterval);
+                    batchInterval = null;
+                    batchBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500', 'text-white');
+                    batchBtn.classList.add('bg-slate-800', 'text-slate-100');
+                    batchIcon.setAttribute('data-lucide', 'play');
+                    lucide.createIcons();
+                }
+            }, 50);
+        }
+
+        // Clear all collected traces
+        function resetSimulation() {
+            numTrials = 0;
+            sumBuffer.fill(0);
+            currentAverage.fill(0);
+            latestTrial.fill(0);
+            if (batchInterval) {
+                clearInterval(batchInterval);
+                batchInterval = null;
+                const batchBtn = document.getElementById('btn-batch-trials');
+                const batchIcon = document.getElementById('batch-icon');
+                batchBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500', 'text-white');
+                batchBtn.classList.add('bg-slate-800', 'text-slate-100');
+                batchIcon.setAttribute('data-lucide', 'play');
+                lucide.createIcons();
+            }
+            updateMetrics();
+            drawPlots();
+        }
+
+        // Calculation panel updates matching formal neurophysiological standards
+        function updateMetrics() {
+            trialCounter.innerText = numTrials;
+
+            // Raw SNR calculation: signal amp compared directly to raw noise
+            const rawSNRVal = signalAmp / noiseAmp;
+            rawSnrReadout.innerText = `1 : ${(noiseAmp / signalAmp).toFixed(2)}`;
+
+            // Noise Reduction: root of N
+            const reductionFactor = Math.sqrt(numTrials || 1);
+            noiseRedReadout.innerText = `${reductionFactor.toFixed(2)}x`;
+
+            // Post-Average SNR calculation
+            const postAvgSNR = rawSNRVal * reductionFactor;
+            avgSnrReadout.innerText = postAvgSNR.toFixed(2);
+            if (postAvgSNR < 0.5) {
+                avgSnrReadout.className = 'text-sm font-semibold text-rose-500 mt-1';
+            } else if (postAvgSNR < 1.5) {
+                avgSnrReadout.className = 'text-sm font-semibold text-amber-500 mt-1';
+            } else {
+                avgSnrReadout.className = 'text-sm font-semibold text-emerald-400 mt-1';
+            }
+
+            // Theorem and verification box updates
+            mathSig.innerText = `${signalAmp.toFixed(1)} µV`;
+            const remNoise = (noiseAmp / reductionFactor);
+            mathNoise.innerText = `${remNoise.toFixed(2)} µV`;
+
+            if (numTrials === 0) {
+                mathQuality.innerText = "No Data Collected";
+                mathQuality.className = "text-slate-400 font-mono";
+            } else if (postAvgSNR < 1.0) {
+                mathQuality.innerText = "Unsatisfactory (Highly Obscured)";
+                mathQuality.className = "text-rose-500 font-mono";
+            } else if (postAvgSNR < 1.8) {
+                mathQuality.innerText = "Acceptable Clinical Resolution";
+                mathQuality.className = "text-amber-400 font-mono";
+            } else {
+                mathQuality.innerText = "Premium Research Quality";
+                mathQuality.className = "text-emerald-400 font-mono text-glow";
+            }
+        }
+
+        // Main Rendering loop of standard canvas traces
+        function drawPlots() {
+            const w = canvas.width / window.devicePixelRatio;
+            const h = canvas.height / window.devicePixelRatio;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Draw horizontal zero baseline grid line
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, h / 2);
+            ctx.lineTo(w, h / 2);
+            ctx.stroke();
+
+            // Dynamic Adaptive Scaling for the Averaging Display (zooms in as noise is suppressed)
+            const currentNoise = numTrials > 0 ? (noiseAmp / Math.sqrt(numTrials)) : noiseAmp;
+            let yMax = Math.ceil((signalAmp + currentNoise * 2.5) / 10) * 10;
+            if (yMax < 10) yMax = 10;
+
+            // Draw microvolt amplitude boundaries
+            ctx.fillStyle = '#64748b';
+            ctx.font = '10px monospace';
+            ctx.fillText(`+${yMax} µV`, 5, 18);
+            ctx.fillText(`-${yMax} µV`, 5, h - 10);
+
+            const scale = (h / 2) / yMax;
+            const mapX = (idx) => (idx / dataLength) * w;
+            const mapY = (val) => {
+                // Map mathematical value to Canvas Y coordinate
+                return h / 2 - (val * scale);
+            };
+
+            // 1. Draw raw latest trial if exists
+            if (numTrials > 0) {
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.18)'; // Translucent light red
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(mapX(0), mapY(latestTrial[0]));
+                for (let i = 1; i < dataLength; i++) {
+                    ctx.lineTo(mapX(i), mapY(latestTrial[i]));
+                }
+                ctx.stroke();
+            }
+
+            // 2. Draw ground truth target ERP
+            ctx.strokeStyle = 'rgba(52, 211, 153, 0.55)'; // Dashed emerald green representation
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 4]);
+            ctx.beginPath();
+            ctx.moveTo(mapX(0), mapY(trueERP[0]));
+            for (let i = 1; i < dataLength; i++) {
+                ctx.lineTo(mapX(i), mapY(trueERP[i]));
+            }
+            ctx.stroke();
+            ctx.setLineDash([]); // Restore solid stroke
+
+            // 3. Draw active running average signal line
+            if (numTrials > 0) {
+                ctx.strokeStyle = '#6366f1'; // Premium bold indigo
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(mapX(0), mapY(currentAverage[0]));
+                for (let i = 1; i < dataLength; i++) {
+                    ctx.lineTo(mapX(i), mapY(currentAverage[i]));
+                }
+                ctx.stroke();
+            } else {
+                // Suggest user triggers simulation
+                ctx.fillStyle = '#475569';
+                ctx.font = '12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Click "Trigger 1 Trial" to begin ensemble averaging...', w / 2, h / 2 - 10);
+                ctx.textAlign = 'start';
+            }
+        }
+
+        // Animating the ongoing EEG Timeline
+        function animateTimeline() {
+            const tw = timelineCanvas.width / window.devicePixelRatio;
+            const th = timelineCanvas.height / window.devicePixelRatio;
+
+            tlCtx.clearRect(0, 0, tw, th);
+
+            // Background visual grid
+            tlCtx.strokeStyle = '#0f172a';
+            tlCtx.lineWidth = 1;
+            for (let i = 0; i < tw; i += 40) {
+                tlCtx.beginPath();
+                tlCtx.moveTo(i, 0);
+                tlCtx.lineTo(i, th);
+                tlCtx.stroke();
+            }
+
+            // Center horizontal reference line
+            tlCtx.strokeStyle = '#111827';
+            tlCtx.beginPath();
+            tlCtx.moveTo(0, th / 2);
+            tlCtx.lineTo(tw, th / 2);
+            tlCtx.stroke();
+
+            // Progress sample buffer leftward (Native micro-optimized offset shift)
+            const scrollSpeed = 2; // samples per frame
+            timelineBuffer.copyWithin(0, scrollSpeed);
+            for (let i = 0; i < scrollSpeed; i++) {
+                timelineBuffer[timelineLength - scrollSpeed + i] = generateNewEEGValue();
+            }
+
+            // Trigger manager: schedule random stimuli sequentially
+            nextTriggerCountdown -= scrollSpeed;
+            if (nextTriggerCountdown <= 0) {
+                const triggerSample = globalSample;
+                activeTriggers.push({
+                    sampleIndex: triggerSample,
+                    num: activeTriggers.length + 1
+                });
+                activeERPs.push({
+                    startSample: triggerSample
+                });
+                // Random interval (350 to 550 samples apart to prevent collision overlap)
+                nextTriggerCountdown = 350 + Math.random() * 200;
+            }
+
+            // Prune off-screen elements
+            if (activeTriggers.length > 20) {
+                activeTriggers.shift();
+            }
+
+            // Adaptive Gain Control: Compute the scaleY factor dynamically.
+            // This prevents waveforms from clipping outside visual boundaries when sliders are at their maximums.
+            const maxExpectedVoltage = (noiseAmp * 1.3) + (signalAmp * 1.2);
+            const scaleX = tw / timelineLength;
+            const scaleY = (th / 2) / Math.max(12, maxExpectedVoltage); // Maps peak expected voltages to canvas edges
+
+            // Draw shaded Highlight Epoch Blocks (0-500ms segment window starting from the trigger)
+            activeTriggers.forEach(trigger => {
+                const age = globalSample - trigger.sampleIndex;
+                const xTrigger = tw - (age * scaleX);
+                const epochWidth = 300 * scaleX; // 300 samples wide (500 ms)
+
+                // Render epoch background only if visually active inside viewport boundaries
+                if (xTrigger + epochWidth > 0 && xTrigger < tw) {
+                    tlCtx.fillStyle = 'rgba(99, 102, 241, 0.06)';
+                    tlCtx.fillRect(xTrigger, 0, epochWidth, th);
+                    tlCtx.strokeStyle = 'rgba(99, 102, 241, 0.18)';
+                    tlCtx.lineWidth = 1;
+                    tlCtx.strokeRect(xTrigger, 0, epochWidth, th);
+                }
+            });
+
+            // Draw the continuous scrolling EEG wave
+            tlCtx.strokeStyle = '#4f46e5';
+            tlCtx.lineWidth = 1.3;
+            tlCtx.beginPath();
+            tlCtx.moveTo(0, th / 2 - (timelineBuffer[0] * scaleY));
+            for (let s = 1; s < timelineLength; s++) {
+                tlCtx.lineTo(s * scaleX, th / 2 - (timelineBuffer[s] * scaleY));
+            }
+            tlCtx.stroke();
+
+            // Overlay vertical stimulus trigger lines and text labels
+            activeTriggers.forEach(trigger => {
+                const age = globalSample - trigger.sampleIndex;
+                const xTrigger = tw - (age * scaleX);
+
+                if (xTrigger > 0 && xTrigger < tw) {
+                    // Vertical red stimulus trigger indicator line
+                    tlCtx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
+                    tlCtx.lineWidth = 1;
+                    tlCtx.setLineDash([3, 3]);
+                    tlCtx.beginPath();
+                    tlCtx.moveTo(xTrigger, 0);
+                    tlCtx.lineTo(xTrigger, th);
+                    tlCtx.stroke();
+                    tlCtx.setLineDash([]);
+
+                    // Trigger title tag
+                    tlCtx.fillStyle = '#ef4444';
+                    tlCtx.font = 'bold 8px monospace';
+                    tlCtx.fillText(`S${trigger.num}`, xTrigger + 5, 12);
+                }
+            });
+
+            requestAnimationFrame(animateTimeline);
+        }
+
+        // Interactive Waveform Anatomy Details Database
+        const erpComponents = {
+            p1: {
+                title: "Cortical P1 (P50 Wave)",
+                latency: "40 - 60 ms",
+                desc: "An early sensory positive component reflecting initial processing in the primary auditory cortex. It is often used to study sensory gating (e.g., the brain's ability to filter out redundant auditory information)."
+            },
+            n1: {
+                title: "Cortical N1 (N100 Wave)",
+                latency: "80 - 120 ms",
+                desc: "A major negative sensory wave generated in the secondary auditory cortex. N1 is highly sensitive to physical stimulus properties (loudness, frequency) and serves as an index of active auditory attention gating and orienting responses."
+            },
+            p2: {
+                title: "Cortical P2 (P200 Wave)",
+                latency: "150 - 220 ms",
+                desc: "A prominent positive cortical peak closely paired with N1. It relates to feature classification, training/learning effects, and auditory signal analysis. It indicates that the brain has successfully registered the stimulus characteristics."
+            },
+            n2: {
+                title: "Cortical N2 (N200 Wave)",
+                latency: "200 - 300 ms",
+                desc: "A negative deflection often associated with cognitive control, conflict monitoring, and novelty detection. It is prominent in tasks requiring response inhibition (like the Go/No-Go task)."
+            },
+            p3: {
+                title: "Cognitive P3 / P300 Wave",
+                latency: "250 - 600 ms",
+                desc: "A massive, widely researched cognitive component. The P300 represents template match evaluation, target stimulus detection, surprise, and task relevance. Its amplitude correlates with attentional resource allocation, while its latency reflects cognitive processing speed."
+            }
+        };
+
+        // Select an anatomical part of the waveform
+        function selectComponent(id) {
+            const info = erpComponents[id];
+            if (!info) return;
+
+            document.getElementById('comp-title').innerText = info.title;
+            document.getElementById('comp-latency').innerText = info.latency;
+            document.getElementById('comp-desc').innerText = info.desc;
+            
+            // Add subtle pulse highlight animation to panel
+            const p = document.getElementById('component-detail-box');
+            p.classList.remove('border-slate-800');
+            p.classList.add('border-indigo-500', 'bg-indigo-950/20');
+            setTimeout(() => {
+                p.classList.remove('border-indigo-500', 'bg-indigo-950/20');
+                p.classList.add('border-slate-800');
+            }, 500);
+        }
+
+        // Attach action events
+        document.getElementById('btn-single-trial').addEventListener('click', createSingleTrial);
+        document.getElementById('btn-batch-trials').addEventListener('click', runBatchTrials);
+        document.getElementById('btn-reset').addEventListener('click', resetSimulation);
+
+        // Slider listeners
+        sliderNoise.addEventListener('input', (e) => {
+            noiseAmp = parseFloat(e.target.value);
+            valNoise.innerText = `${noiseAmp.toFixed(0)} µV`;
+            updateMetrics();
+            drawPlots();
+        });
+
+        sliderSignal.addEventListener('input', (e) => {
+            signalAmp = parseFloat(e.target.value);
+            valSignal.innerText = `${signalAmp.toFixed(0)} µV`;
+            updateTrueERP();
+            updateMetrics();
+            drawPlots();
+        });
+
+        // Tab selection logic
+        const tabAnatomyBtn = document.getElementById('tab-anatomy-btn');
+        const tabMathBtn = document.getElementById('tab-math-btn');
+        const tabAnatomyContent = document.getElementById('tab-anatomy-content');
+        const tabMathContent = document.getElementById('tab-math-content');
+
+        tabAnatomyBtn.addEventListener('click', () => {
+            tabAnatomyBtn.classList.add('text-indigo-400', 'bg-slate-850', 'border', 'border-slate-800/80');
+            tabAnatomyBtn.classList.remove('text-slate-400');
+            tabMathBtn.classList.remove('text-indigo-400', 'bg-slate-850', 'border', 'border-slate-800/80');
+            tabMathBtn.classList.add('text-slate-400');
+            
+            tabAnatomyContent.classList.remove('hidden');
+            tabMathContent.classList.add('hidden');
+        });
+
+        tabMathBtn.addEventListener('click', () => {
+            tabMathBtn.classList.add('text-indigo-400', 'bg-slate-850', 'border', 'border-slate-800/80');
+            tabMathBtn.classList.remove('text-slate-400');
+            tabAnatomyBtn.classList.remove('text-indigo-400', 'bg-slate-850', 'border', 'border-slate-800/80');
+            tabAnatomyBtn.classList.add('text-slate-400');
+            
+            tabMathContent.classList.remove('hidden');
+            tabAnatomyContent.classList.add('hidden');
+        });
+
+        // Initialize state on page load
+        window.onload = function() {
+            // Safe execution of KaTeX auto-rendering once the body has fully parsed
+            if (typeof renderMathInElement === 'function') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError : false
+                });
+            }
+
+            updateTrueERP();
+            updateMetrics();
+            
+            // Prefill timeline so it isn't flat initially
+            prefillEEGTimeline();
+
+            // Set initial canvases sizes
+            resizeCanvases();
+            window.addEventListener('resize', resizeCanvases);
+
+            // Start timeline continuous scroll animation
+            animateTimeline();
+        }
+    </script>
+</body>
+</html>
