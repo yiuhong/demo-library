@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuroscience & Cognitive Science Demo Library</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+            text-align: center;
+            margin: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .menu-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Styling links to look like elegant, clickable buttons */
+        .menu-button {
+            display: block;
+            background-color: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+        }
+
+        .menu-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .menu-button:active {
+            transform: translateY(0);
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.85rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Teaching Materials</h1>
+        <p>Select an interactive demonstration from the library below:</p>
+        
+        <nav class="menu-grid">
+            <a href="noematachograph.html" class="menu-button">Noematachograph Demonstration</a>
+            <a href="eeg_illustration.html" class="menu-button">EEG Illustration</a>
+            <a href="fnirs_mechanism.html" class="menu-button">fNIRS Mechanism</a>
+        </nav>
+
+        <footer>
+            <p>Interactive Learning Modules &copy; 2026</p>
+        </footer>
+    </div>
+
+</body>
+</html>
