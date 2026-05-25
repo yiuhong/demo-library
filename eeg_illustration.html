@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive EEG Biophysics Simulator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax Configuration and Script for LaTeX rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            options: {
+                enableMenu: false
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- Header Section -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-600 rounded-lg shadow-lg shadow-indigo-500/30">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+                        EEG Biophysics Explorer
+                    </h1>
+                    <p class="text-xs text-slate-400">Interactive simulation of synaptic dipole generation & volume conduction</p>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="flex items-center gap-4 text-xs code-font">
+                <div class="bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-1.5 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>SIGNAL LEVEL: <span id="stat-microvolts" class="text-emerald-400 font-bold">~12 µV</span></span>
+                </div>
+                <div class="bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-1.5 flex items-center gap-2">
+                    <span>SYNCHRONY: <span id="stat-sync" class="text-indigo-400 font-bold">50%</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Controls (4 cols) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            
+            <!-- Panel 1: Simulation Controls -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-5">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-semibold text-slate-200 flex items-center gap-2 text-sm uppercase tracking-wider">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                        Physiological Variables
+                    </h2>
+                    <span class="text-xs bg-slate-800 px-2 py-0.5 rounded text-indigo-300 font-medium">Real-time</span>
+                </div>
+
+                <!-- Synchrony Slider -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-300 font-medium flex items-center gap-1">
+                            Neural Synchrony
+                            <span class="group relative cursor-pointer text-slate-400 hover:text-slate-200">
+                                ⓘ
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed">
+                                    How aligned the electrical dipoles of individual neurons are in time and phase. Higher synchrony dramatically increases constructive interference.
+                                </span>
+                            </span>
+                        </span>
+                        <span id="val-synchrony" class="code-font text-indigo-400 font-bold">50%</span>
+                    </div>
+                    <input type="range" id="slider-synchrony" min="0" max="100" value="50" class="w-full accent-indigo-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-slate-500">
+                        <span>Asynchronous (Noise)</span>
+                        <span>Fully Coherent</span>
+                    </div>
+                </div>
+
+                <!-- Active Neuron Population Slider -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-300 font-medium flex items-center gap-1">
+                            Active Pyramidal Cells
+                            <span class="group relative cursor-pointer text-slate-400 hover:text-slate-200">
+                                ⓘ
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed">
+                                    The number of aligned cortical pyramidal cells firing. EEG requires tens of thousands of active cells to generate a readable signal.
+                                </span>
+                            </span>
+                        </span>
+                        <span id="val-neurons" class="code-font text-purple-400 font-bold">5,000</span>
+                    </div>
+                    <input type="range" id="slider-neurons" min="500" max="15000" step="500" value="5000" class="w-full accent-purple-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-slate-500">
+                        <span>Few (Local Spike)</span>
+                        <span>Massive (Macro EEG)</span>
+                    </div>
+                </div>
+
+                <!-- Impedance Slider -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-300 font-medium flex items-center gap-1">
+                            Impedance
+                            <span class="group relative cursor-pointer text-slate-400 hover:text-slate-200">
+                                ⓘ
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed">
+                                    The overall resistance of tissue layers (particularly the skull). Higher values act as a spatial low-pass filter, reducing and smearing the electrical field.
+                                </span>
+                            </span>
+                        </span>
+                        <span id="val-impedance" class="code-font text-pink-400 font-bold">120 kΩ</span>
+                    </div>
+                    <input type="range" id="slider-impedance" min="20" max="300" value="120" class="w-full accent-pink-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-slate-500 font-medium">
+                        <span>Low</span>
+                        <span>High</span>
+                    </div>
+                </div>
+
+                <!-- Speed / Animation Pace Control Slider -->
+                <div class="space-y-2 pt-2 border-t border-slate-800/80">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-300 font-medium flex items-center gap-1">
+                            Simulation Speed
+                            <span class="group relative cursor-pointer text-slate-400 hover:text-slate-200">
+                                ⓘ
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed">
+                                    Slows down or speeds up the temporal flow of charges, dipole fields, and the oscilloscope sweep to make real-time analysis easier.
+                                </span>
+                            </span>
+                        </span>
+                        <span id="val-speed" class="code-font text-emerald-400 font-bold">0.4x</span>
+                    </div>
+                    <input type="range" id="slider-speed" min="0.1" max="1.5" step="0.05" value="0.4" class="w-full accent-emerald-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-slate-500">
+                        <span>Slow-motion (0.1x)</span>
+                        <span>Fast (1.5x)</span>
+                    </div>
+                </div>
+
+                <!-- Synapse Configuration Toggle -->
+                <div class="space-y-2 pt-2 border-t border-slate-800">
+                    <label class="text-xs text-slate-400 font-medium">Synaptic Activation State</label>
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <button id="btn-epsp" class="py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 bg-indigo-500/10 border-indigo-500/40 text-indigo-300 shadow-md shadow-indigo-500/5">
+                            Excitatory (EPSP)
+                            <div class="text-[9px] font-normal opacity-75 mt-0.5">Apical Influx (-) / Soma Source (+)</div>
+                        </button>
+                        <button id="btn-ipsp" class="py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700/50">
+                            Inhibitory (IPSP)
+                            <div class="text-[9px] font-normal opacity-75 mt-0.5">Apical Efflux (+) / Soma Sink (-)</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Simulation Controls (Play/Pause/Reset) -->
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+                    <button id="btn-play" class="flex items-center justify-center gap-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-lg text-xs font-medium transition-all">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+                        <span>Pause</span>
+                    </button>
+                    <button id="btn-step" class="flex items-center justify-center gap-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                        <span>Step</span>
+                    </button>
+                    <button id="btn-reset" class="flex items-center justify-center gap-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"/></svg>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel 2: Interactive Tutorials -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+                <h3 class="font-semibold text-slate-200 flex items-center gap-2 text-sm uppercase tracking-wider">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    Guided Physics Concepts
+                </h3>
+                <div class="flex flex-col gap-2">
+                    <button onclick="loadTutorial('dipole')" class="tutorial-btn active flex flex-col items-start gap-1 p-2.5 rounded-lg border border-indigo-500/30 bg-indigo-500/5 text-left transition-all hover:bg-indigo-500/10">
+                        <span class="text-xs font-semibold text-indigo-300">1. The Synaptic Dipole</span>
+                        <span class="text-[10px] text-slate-400">Learn how EPSPs and IPSPs create positive/negative voltage poles along a pyramidal cell.</span>
+                    </button>
+                    <button onclick="loadTutorial('synchrony')" class="tutorial-btn flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-800 bg-slate-950 text-left transition-all hover:bg-slate-800">
+                        <span class="text-xs font-semibold text-purple-300">2. Why Synchrony is Crucial</span>
+                        <span class="text-[10px] text-slate-400">Discover how out-of-phase signals cancel each other, while synchronous firing builds observable scalp voltages.</span>
+                    </button>
+                    <button onclick="loadTutorial('conduction')" class="tutorial-btn flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-800 bg-slate-950 text-left transition-all hover:bg-slate-800">
+                        <span class="text-xs font-semibold text-pink-300">3. Volume Conduction & Filtering</span>
+                        <span class="text-[10px] text-slate-400">See how cerebrospinal fluid, bone, and skin disperse and low-pass filter electrical fields.</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Center Column: Main Live Interactive Biophysics Visualization (5 cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex-grow flex flex-col relative">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></span>
+                        <h2 class="font-semibold text-slate-200 text-sm">Head Cross-Section & Neurons</h2>
+                    </div>
+                    <div class="text-[10px] text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-700/50">
+                        🔍 Click on tissues or charges to inspect
+                    </div>
+                </div>
+
+                <!-- Simulation Canvas Wrapper -->
+                <div class="relative flex-grow min-h-[480px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
+                    <canvas id="canvas-biophysics" class="absolute inset-0 w-full h-full cursor-crosshair"></canvas>
+                    
+                    <!-- Dynamic Layer Tag Float (changes on hover or click) -->
+                    <div id="canvas-overlay-tag" class="absolute top-3 left-3 bg-slate-950 border border-slate-700 text-[10px] text-slate-300 px-2.5 py-1.5 rounded shadow-2xl pointer-events-none transition-opacity duration-200 opacity-0 z-40"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Graphs, Amplifiers & Details (3 cols) -->
+        <section class="lg:col-span-3 flex flex-col gap-6">
+            
+            <!-- Real-time Oscilloscope (Graph) -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-slate-200 flex items-center gap-2 text-xs uppercase tracking-wider">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        Amplified EEG Output
+                    </h3>
+                    <div class="flex items-center gap-2 text-[10px] text-slate-500">
+                        <span class="inline-block w-2 h-2 bg-emerald-500/40 rounded-full animate-pulse"></span>
+                        <span>0.5s Epoch</span>
+                    </div>
+                </div>
+
+                <!-- Scope Canvas -->
+                <div class="relative h-32 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                    <canvas id="canvas-oscilloscope" class="absolute inset-0 w-full h-full"></canvas>
+                    <div class="absolute left-10 top-2 code-font text-[9px] bg-slate-900/90 border border-slate-800 px-1 py-0.5 rounded text-emerald-400/80 z-10">60Hz Notch Active</div>
+                    <div class="absolute right-2 bottom-2 code-font text-[9px] bg-slate-900/90 border border-slate-800 px-1 py-0.5 rounded text-slate-500 z-10" id="scale-indicator">10 µV / div</div>
+                </div>
+
+                <!-- Live Signal Analytics -->
+                <div class="grid grid-cols-2 gap-2 text-center text-xs code-font bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                    <div class="border-r border-slate-800">
+                        <div class="text-[9px] text-slate-500">PEAK-TO-PEAK</div>
+                        <div class="text-emerald-400 font-bold" id="val-peak">12.4 µV</div>
+                    </div>
+                    <div>
+                        <div class="text-[9px] text-slate-500">SIGNAL NOISE RATIO</div>
+                        <div class="text-indigo-400 font-bold" id="val-snr">4.2 dB</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contextual Inspector (updates when clicking layers or items) -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex-grow flex flex-col gap-4 min-h-[280px]">
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+                    <div class="p-1 rounded bg-indigo-500/10 text-indigo-400" id="inspector-icon">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider">Anatomy & Biophysics</h3>
+                        <p class="text-[9px] text-slate-500">Inspection panel</p>
+                    </div>
+                </div>
+
+                <!-- Inspector Dynamic Content -->
+                <div class="flex-grow flex flex-col justify-between gap-4" id="inspector-content">
+                    <div class="space-y-3">
+                        <h4 class="text-sm font-semibold text-indigo-400" id="inspector-title">Welcome to EEG Biophysics</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed" id="inspector-desc">
+                            This simulator visualizes the micro-scale electrical phenomena that build up the macro-scale EEG waveforms measured by clinical and scientific systems. 
+                        </p>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Click on the <strong>Head Cross-Section</strong> layers or use the <strong>Guided Physics Concepts</strong> to begin investigating how electrical currents propagate through the skull.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-850 space-y-1.5" id="inspector-bio-fact">
+                        <span class="text-[10px] font-semibold text-indigo-300 uppercase tracking-wider block">Key Biophysics Fact</span>
+                        <p class="text-[10px] text-slate-400 leading-normal">
+                            Individual action potentials (spikes) do not generate EEG signals. Instead, EEG is formed by the spatial summation of slower synaptic potentials (EPSPs and IPSPs).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer / Sources Info -->
+    <footer class="border-t border-slate-900 bg-slate-950 px-6 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div>
+                <span>Based on Freeman (2004a, b) biophysical models of cortical dipoles.</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span>Created as a high-fidelity educational tool</span>
+                <span>•</span>
+                <span class="flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                    Interactive Vector Renderer
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive JS Simulation Engine -->
+    <script>
+        // Setup state variables
+        let isRunning = true;
+        let lastTime = 0;
+        let animationFrameId;
+        
+        // Simulation parameters controlled by sliders
+        const state = {
+            synchrony: 50, // 0 to 100
+            activeNeurons: 5000, // 500 to 15000
+            skullImpedance: 120, // 20 to 300 kOhm
+            synapseType: 'EPSP', // 'EPSP' or 'IPSP'
+            selectedLayer: 'scalp',
+            speed: 0.4, // Simulation speed multiplier (decreased to 0.4x by default for smooth legibility)
+            baseFrequency: 4, // Physiological base frequency lowered from 9Hz to a calmer 4Hz (Theta) for tracking
+            time: 0,
+            simStep: 0,
+            voltageHistory: [],
+            dipolePhaseOffsets: [] // Store individual neuron offsets
+        };
+
+        // Initialize historical voltage array (for oscilloscope)
+        const maxHistory = 400;
+        for (let i = 0; i < maxHistory; i++) {
+            state.voltageHistory.push(0);
+        }
+
+        // Biophysics Layers Properties
+        const layers = {
+            scalp: {
+                title: "Scalp (Skin)",
+                color: "#e2b697",
+                highlightColor: "#ffcfb0",
+                startY: 0.12,
+                endY: 0.16,
+                desc: "The scalp provides a medium with medium-to-low conductivity. By the time electrical potentials reach the electrode sitting on the scalp, the signal is dramatically attenuated, typically measuring between 10 to 100 microvolts (µV) peak-to-peak.",
+                fact: "Conductive gel is applied under scalp electrodes to decrease electrical skin-to-metal impedance, ensuring cleaner voltage readouts."
+            },
+            skull: {
+                title: "Skull (Bone)",
+                color: "#e2cc97",
+                highlightColor: "#ffe5b0",
+                startY: 0.16,
+                endY: 0.28,
+                desc: "The skull acts as a highly resistive tissue layer (high impedance). It drastically attenuates (reduces the strength of) electrical fields and behaves as a low-pass spatial filter, smearing/blurring localized brain electrical signals over a larger area.",
+                fact: "Due to the skull's high resistance, adjacent electrodes record highly correlated activity, a process mathematically described as 'Volume Conduction'."
+            },
+            dura: {
+                title: "Dura Mater",
+                color: "#adc4cc",
+                highlightColor: "#cae2eb",
+                startY: 0.28,
+                endY: 0.31,
+                desc: "The outermost meningeal layer. It is a tough, non-elastic, fibrous membrane wrapping tightly around the brain. Mechanically protective but highly vascularized, presenting unique electrical resistance characteristics.",
+                fact: "In intracranial EEG (electrocorticography, ECoG), electrodes are placed beneath the dura directly on the cortex, reading signals 10 times larger than surface EEG."
+            },
+            subarachnoid: {
+                title: "Subarachnoid Space (CSF)",
+                color: "#7fa6b3",
+                highlightColor: "#9ec2cf",
+                startY: 0.31,
+                endY: 0.37,
+                desc: "Contains the Cerebrospinal Fluid (CSF). CSF is a highly conductive liquid medium. While bone attenuates, CSF shunt currents laterally, causing further spreading of the electrical field lines before they reach the skull.",
+                fact: "The yellow web-like structures shown here are arachnoid trabeculae, which bridge the subarachnoid space and suspend the brain in fluid."
+            },
+            pia: {
+                title: "Pia Mater",
+                color: "#b07f89",
+                highlightColor: "#cf9ea8",
+                startY: 0.37,
+                endY: 0.39,
+                desc: "A highly delicate, thin vascular envelope that closely hugs the outer contours of the cerebral cortex. It represents the ultimate boundary between neural extracellular space and fluid-filled spaces.",
+                fact: "The pia mater possesses a very low electrical impedance, facilitating almost direct conduction of field signals into the subarachnoid CSF."
+            },
+            cortex: {
+                title: "Cerebral Cortex (Layer V Pyramidal Cells)",
+                color: "#3f333c",
+                highlightColor: "#594955",
+                startY: 0.39,
+                endY: 1.0,
+                desc: "This is the gray matter containing the pyramidal cell populations. To create a measurable EEG signal, large populations of thousands of aligned pyramidal neurons must fire synchronously. Action potentials are too short (1ms) and randomly aligned to summate. Slower dendritic potentials (EPSPs/IPSPs lasting 10-100ms) summate beautifully.",
+                fact: "Cortical Layer V pyramidal cells are perpendicular to the surface. Their alignment allows their individual current dipoles to act as a parallel battery array."
+            },
+            dipole: {
+                title: "The Synaptic Dipole",
+                color: "#818cf8",
+                highlightColor: "#a5b4fc",
+                desc: "When excitatory neurotransmitters (like glutamate) are released at apical dendrites, positive sodium (Na+) ions flow inside the cell. This creates an extracellular negative sink near the dendrite and a relative positive source at the cell body (soma). This separation of charge forms a primary physical current dipole.",
+                fact: "Excitatory synapses (EPSPs) on apical dendrites create a dipole with negative charge at the top, while Inhibitory synapses (IPSPs) flip this polarity!"
+            }
+        };
+
+        // Generate specific phase offsets for visual neurons
+        const NUM_VISUAL_NEURONS = 12;
+        const visualNeurons = [];
+        for (let i = 0; i < NUM_VISUAL_NEURONS; i++) {
+            visualNeurons.push({
+                xOffsetPercent: 12 + (i * 7.5), // Space across cortex
+                phaseOffset: Math.random() * Math.PI * 2, // Desynchronization element
+                amplitudeFactor: 0.6 + Math.random() * 0.8,
+                neuronId: i
+            });
+        }
+
+        // Document DOM elements
+        const sliderSynchrony = document.getElementById('slider-synchrony');
+        const sliderNeurons = document.getElementById('slider-neurons');
+        const sliderImpedance = document.getElementById('slider-impedance');
+        const sliderSpeed = document.getElementById('slider-speed');
+        
+        const valSynchrony = document.getElementById('val-synchrony');
+        const valNeurons = document.getElementById('val-neurons');
+        const valImpedance = document.getElementById('val-impedance');
+        const valSpeed = document.getElementById('val-speed');
+        
+        const statMicrovolts = document.getElementById('stat-microvolts');
+        const statSync = document.getElementById('stat-sync');
+        const valPeak = document.getElementById('val-peak');
+        const valSnr = document.getElementById('val-snr');
+
+        const btnEPSP = document.getElementById('btn-epsp');
+        const btnIPSP = document.getElementById('btn-ipsp');
+        const btnPlay = document.getElementById('btn-play');
+        const btnStep = document.getElementById('btn-step');
+        const btnReset = document.getElementById('btn-reset');
+
+        const canvasBiophysics = document.getElementById('canvas-biophysics');
+        const canvasOscilloscope = document.getElementById('canvas-oscilloscope');
+        const overlayTag = document.getElementById('canvas-overlay-tag');
+
+        const inspectorTitle = document.getElementById('inspector-title');
+        const inspectorDesc = document.getElementById('inspector-desc');
+        const inspectorFact = document.querySelector('#inspector-bio-fact p');
+        const inspectorIcon = document.getElementById('inspector-icon');
+
+        // Setup canvases context
+        const ctxBio = canvasBiophysics.getContext('2d');
+        const ctxOsc = canvasOscilloscope.getContext('2d');
+
+        // High-DPI canvas adjustment
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            
+            // Biophysics canvas
+            const widthBio = canvasBiophysics.parentElement.clientWidth;
+            const heightBio = canvasBiophysics.parentElement.clientHeight || 500;
+            canvasBiophysics.width = widthBio * dpr;
+            canvasBiophysics.height = heightBio * dpr;
+            ctxBio.scale(dpr, dpr);
+
+            // Oscilloscope canvas
+            const widthOsc = canvasOscilloscope.parentElement.clientWidth;
+            const heightOsc = canvasOscilloscope.parentElement.clientHeight || 128;
+            canvasOscilloscope.width = widthOsc * dpr;
+            canvasOscilloscope.height = heightOsc * dpr;
+            ctxOsc.scale(dpr, dpr);
+        }
+
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // Control Panel Listeners
+        sliderSynchrony.addEventListener('input', (e) => {
+            state.synchrony = parseInt(e.target.value);
+            valSynchrony.textContent = `${state.synchrony}%`;
+            statSync.textContent = `${state.synchrony}%`;
+        });
+
+        sliderNeurons.addEventListener('input', (e) => {
+            state.activeNeurons = parseInt(e.target.value);
+            valNeurons.textContent = state.activeNeurons.toLocaleString();
+        });
+
+        sliderImpedance.addEventListener('input', (e) => {
+            state.skullImpedance = parseInt(e.target.value);
+            valImpedance.textContent = `${state.skullImpedance} kΩ`;
+        });
+
+        sliderSpeed.addEventListener('input', (e) => {
+            state.speed = parseFloat(e.target.value);
+            valSpeed.textContent = `${state.speed.toFixed(1)}x`;
+        });
+
+        btnEPSP.addEventListener('click', () => {
+            state.synapseType = 'EPSP';
+            btnEPSP.className = "py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 bg-indigo-500/10 border-indigo-500/40 text-indigo-300 shadow-md shadow-indigo-500/5";
+            btnIPSP.className = "py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700/50";
+            updateInspectorToLayer('dipole');
+        });
+
+        btnIPSP.addEventListener('click', () => {
+            state.synapseType = 'IPSP';
+            btnIPSP.className = "py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 bg-pink-500/10 border-pink-500/40 text-pink-300 shadow-md shadow-pink-500/5";
+            btnEPSP.className = "py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700/50";
+            updateInspectorToLayer('dipole');
+        });
+
+        btnPlay.addEventListener('click', () => {
+            isRunning = !isRunning;
+            if (isRunning) {
+                btnPlay.innerHTML = `
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    <span>Pause</span>
+                `;
+                btnPlay.className = "flex items-center justify-center gap-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all";
+                requestAnimationFrame(loop);
+            } else {
+                btnPlay.innerHTML = `
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+                    <span>Play</span>
+                `;
+                btnPlay.className = "flex items-center justify-center gap-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-medium transition-all";
+            }
+        });
+
+        btnStep.addEventListener('click', () => {
+            if (!isRunning) {
+                state.simStep += 0.05 * state.speed;
+                state.time += 0.05 * state.speed;
+                calculateNextVoltage();
+                drawSim();
+            }
+        });
+
+        btnReset.addEventListener('click', () => {
+            state.time = 0;
+            state.simStep = 0;
+            state.voltageHistory.fill(0);
+            drawSim();
+        });
+
+        // Inspector Info Updates
+        function updateInspectorToLayer(layerId) {
+            const data = layers[layerId];
+            if (!data) return;
+            state.selectedLayer = layerId;
+
+            inspectorTitle.textContent = data.title;
+            inspectorTitle.style.color = data.highlightColor || data.color;
+            inspectorDesc.innerHTML = data.desc;
+            inspectorFact.innerHTML = data.fact;
+
+            // Trigger MathJax rendering if it's initialized on the window object
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise([inspectorDesc]).catch((err) => console.log(err));
+            }
+
+            // Change icon background temporarily
+            inspectorIcon.style.color = data.color;
+            inspectorIcon.className = "p-1 rounded bg-slate-800 text-indigo-400 transition-transform duration-300 scale-110";
+            setTimeout(() => {
+                inspectorIcon.className = "p-1 rounded bg-indigo-500/10 text-indigo-400 transition-transform duration-300 scale-100";
+            }, 300);
+
+            drawSim(); // Refresh colors
+        }
+
+        // Map Click events on Canvas
+        canvasBiophysics.addEventListener('mousemove', handleCanvasHover);
+        canvasBiophysics.addEventListener('mousedown', handleCanvasClick);
+
+        // Track and clear tooltip triggers
+        canvasBiophysics.addEventListener('mouseleave', () => {
+            overlayTag.style.opacity = '0';
+        });
+
+        function getCanvasMouseCoords(e) {
+            const rect = canvasBiophysics.getBoundingClientRect();
+            return {
+                x: (e.clientX - rect.left),
+                y: (e.clientY - rect.top)
+            };
+        }
+
+        function detectLayerAtY(yFraction) {
+            for (const [key, value] of Object.entries(layers)) {
+                if (value.startY !== undefined && yFraction >= value.startY && yFraction <= value.endY) {
+                    return key;
+                }
+            }
+            return 'cortex'; // Default to cortex for lower half of coordinates
+        }
+
+        function handleCanvasHover(e) {
+            const coords = getCanvasMouseCoords(e);
+            const yFraction = coords.y / (canvasBiophysics.height / (window.devicePixelRatio || 1));
+            const layerKey = detectLayerAtY(yFraction);
+            
+            if (layerKey && layers[layerKey]) {
+                overlayTag.style.opacity = '1';
+                overlayTag.style.left = `${e.clientX - canvasBiophysics.getBoundingClientRect().left + 15}px`;
+                overlayTag.style.top = `${e.clientY - canvasBiophysics.getBoundingClientRect().top + 10}px`;
+                overlayTag.textContent = layers[layerKey].title;
+            } else {
+                overlayTag.style.opacity = '0';
+            }
+        }
+
+        function handleCanvasClick(e) {
+            const coords = getCanvasMouseCoords(e);
+            const yFraction = coords.y / (canvasBiophysics.height / (window.devicePixelRatio || 1));
+            const layerKey = detectLayerAtY(yFraction);
+            
+            if (layerKey) {
+                updateInspectorToLayer(layerKey);
+            }
+        }
+
+        // Tutorial Loaders
+        function loadTutorial(concept) {
+            // Remove active classes
+            document.querySelectorAll('.tutorial-btn').forEach(btn => {
+                btn.className = "tutorial-btn flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-800 bg-slate-950 text-left transition-all hover:bg-slate-800";
+            });
+
+            // Set clicked active
+            const currentButton = event.currentTarget;
+            currentButton.className = "tutorial-btn active flex flex-col items-start gap-1 p-2.5 rounded-lg border border-indigo-500/30 bg-indigo-500/5 text-left transition-all hover:bg-indigo-500/10";
+
+            if (concept === 'dipole') {
+                sliderSynchrony.value = 40;
+                sliderNeurons.value = 3000;
+                state.synchrony = 40;
+                state.activeNeurons = 3000;
+                valSynchrony.textContent = "40%";
+                valNeurons.textContent = "3,000";
+                state.synapseType = 'EPSP';
+                btnEPSP.click(); // Trigger synaptic active visuals
+                updateInspectorToLayer('dipole');
+            } else if (concept === 'synchrony') {
+                sliderSynchrony.value = 100;
+                sliderNeurons.value = 10000;
+                state.synchrony = 100;
+                state.activeNeurons = 10000;
+                valSynchrony.textContent = "100%";
+                valNeurons.textContent = "10,000";
+                updateInspectorToLayer('cortex');
+            } else if (concept === 'conduction') {
+                sliderImpedance.value = 260;
+                state.skullImpedance = 260;
+                valImpedance.textContent = "260 kΩ";
+                updateInspectorToLayer('skull');
+            }
+        }
+
+        // ----------------- PHYSICS MATH ENGINE -----------------
+        function calculateNextVoltage() {
+            // Sum of potentials generated by active pyramidal cells.
+            // When synchrony is high (100%), they summate constructively: V_total = N * V_neuron.
+            // When synchrony is low (0%), they summate destructively/randomly: V_total = sqrt(N) * V_neuron + Noise.
+            
+            const baseFrequency = state.baseFrequency; // Alpha/Beta band oscillation (reduced to 4Hz for enhanced trace readability)
+            const t = state.time;
+            
+            // Individual cell signal strength (approx 0.015 microvolts at surface per neuron)
+            const dipolePotential = state.synapseType === 'EPSP' ? -0.015 : 0.015; // Negative at apical dendrite for EPSP
+            
+            // Generate coherent (synchronous) component
+            const syncFactor = state.synchrony / 100;
+            const synchronousPopulation = state.activeNeurons * syncFactor;
+            const syncSignal = synchronousPopulation * dipolePotential * Math.sin(2 * Math.PI * baseFrequency * t);
+            
+            // Generate asynchronous component (destructive interference / noise-like random walk)
+            const asyncPopulation = state.activeNeurons * (1 - syncFactor);
+            // Math physics derivation: random walk of N phasors scales by square root of N
+            let asyncSignal = Math.sqrt(asyncPopulation) * dipolePotential * (
+                Math.sin(2 * Math.PI * (baseFrequency * 1.1) * t) + 
+                Math.cos(2 * Math.PI * (baseFrequency * 0.7) * t + 1.5)
+            ) * 1.5;
+
+            // Skull low-pass filtering and volume conduction attenuation
+            // High impedance reduces amplitude exponentially (simulating passive sheet volume conduction)
+            const dampingFactor = Math.max(0.05, 1 - (state.skullImpedance / 340));
+            
+            // Background scalp electrode thermal/amplifier noise (~0.5 - 2 uV)
+            const backgroundNoise = (Math.random() - 0.5) * 1.8;
+
+            // Complete raw scalp reading (attenuated signal + noise)
+            let totalVoltage = (syncSignal + asyncSignal) * dampingFactor + backgroundNoise;
+
+            // Cap limits of physics
+            totalVoltage = Math.min(Math.max(totalVoltage, -110), 110);
+
+            // Save to scrolling array
+            state.voltageHistory.push(totalVoltage);
+            if (state.voltageHistory.length > maxHistory) {
+                state.voltageHistory.shift();
+            }
+
+            // Real-time metrics calculations
+            const peak = Math.abs(totalVoltage) * 2;
+            statMicrovolts.textContent = `~${Math.abs(totalVoltage).toFixed(1)} µV`;
+            valPeak.textContent = `${peak.toFixed(1)} µV`;
+            
+            // Dynamic Signal-to-noise ratio calculation
+            const powerSignal = Math.pow((syncSignal * dampingFactor), 2);
+            const powerNoise = Math.pow(backgroundNoise, 2) + Math.pow((asyncSignal * dampingFactor), 2);
+            const snr = powerSignal > 0 ? (10 * Math.log10(powerSignal / (powerNoise || 1))) : -10;
+            valSnr.textContent = `${snr.toFixed(1)} dB`;
+        }
+
+
+        // ----------------- RENDERING ENGINE -----------------
+        function drawSim() {
+            const dpr = window.devicePixelRatio || 1;
+            const w = canvasBiophysics.width / dpr;
+            const h = canvasBiophysics.height / dpr;
+
+            ctxBio.clearRect(0, 0, w, h);
+
+            // Draw Head Anatomy Layers
+            for (const [key, layer] of Object.entries(layers)) {
+                if (layer.startY === undefined) continue;
+
+                const startY = layer.startY * h;
+                const endY = layer.endY * h;
+                const layerHeight = endY - startY;
+
+                // Color configuration: Highlight currently selected layer
+                const isSelected = state.selectedLayer === key;
+                ctxBio.fillStyle = isSelected ? layer.highlightColor : layer.color;
+                ctxBio.fillRect(0, startY, w, layerHeight);
+
+                // Draw layer labels & lines
+                ctxBio.strokeStyle = 'rgba(15, 23, 42, 0.4)';
+                ctxBio.lineWidth = 1;
+                ctxBio.strokeRect(0, startY, w, layerHeight);
+
+                // Anatomical Specific details rendering
+                if (key === 'skull') {
+                    // Draw spongy bone textures inside skull
+                    ctxBio.fillStyle = 'rgba(120, 100, 70, 0.15)';
+                    for (let i = 10; i < w; i += 30) {
+                        ctxBio.beginPath();
+                        ctxBio.arc(i + (Math.sin(i) * 5), startY + (layerHeight / 2), 4 + Math.sin(i) * 2, 0, Math.PI * 2);
+                        ctxBio.fill();
+                    }
+                } else if (key === 'subarachnoid') {
+                    // Draw arachnoid trabeculae (web structures)
+                    ctxBio.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+                    ctxBio.lineWidth = 1.5;
+                    ctxBio.beginPath();
+                    for (let i = 15; i < w; i += 35) {
+                        ctxBio.moveTo(i, startY);
+                        ctxBio.lineTo(i + 15, endY);
+                        ctxBio.moveTo(i + 15, startY);
+                        ctxBio.lineTo(i, endY);
+                    }
+                    ctxBio.stroke();
+                } else if (key === 'scalp') {
+                    // Draw hair follicles
+                    ctxBio.strokeStyle = 'rgba(40, 40, 50, 0.3)';
+                    ctxBio.lineWidth = 1.5;
+                    for (let i = 25; i < w; i += 50) {
+                        ctxBio.beginPath();
+                        ctxBio.moveTo(i, startY);
+                        ctxBio.quadraticCurveTo(i - 10, startY - 12, i - 15, startY - 8);
+                        ctxBio.stroke();
+                    }
+                }
+            }
+
+            // Draw Cortical Pyramidal Cells
+            const cortexStartY = layers.cortex.startY * h;
+            const cortexEndY = h;
+
+            visualNeurons.forEach((neuron) => {
+                const nx = (neuron.xOffsetPercent / 100) * w;
+                const ny = cortexStartY + 45; // Soma depth
+
+                // Dipole phase & charge movement
+                const syncCoherence = state.synchrony / 100;
+                // If 100% synchrony, all neurons share exactly the same system phase. Otherwise offset is active.
+                const phase = (2 * Math.PI * state.baseFrequency * state.time) + (neuron.phaseOffset * (1 - syncCoherence));
+                
+                // Excitatory EPSP vs Inhibitory IPSP flip
+                const polarization = state.synapseType === 'EPSP' ? 1 : -1;
+                const chargeOffset = Math.sin(phase) * polarization;
+
+                // Render field lines radiating outwards (Only when active)
+                if (Math.abs(chargeOffset) > 0.15) {
+                    ctxBio.strokeStyle = chargeOffset > 0 ? 'rgba(99, 102, 241, 0.12)' : 'rgba(236, 72, 153, 0.12)';
+                    ctxBio.lineWidth = 1;
+                    
+                    // Draw field arcs
+                    ctxBio.beginPath();
+                    ctxBio.arc(nx, ny + 35, 60 * Math.abs(chargeOffset), Math.PI * 1.1, Math.PI * 1.9);
+                    ctxBio.stroke();
+
+                    ctxBio.beginPath();
+                    ctxBio.arc(nx, ny + 35, 110 * Math.abs(chargeOffset), Math.PI * 1.1, Math.PI * 1.9);
+                    ctxBio.stroke();
+                }
+
+                // Draw Pyramidal Cell Body (Triangle pointing upwards)
+                ctxBio.fillStyle = 'rgba(234, 179, 8, 0.85)';
+                ctxBio.beginPath();
+                ctxBio.moveTo(nx, ny); // Top tip
+                ctxBio.lineTo(nx - 7, ny + 16); // Left base
+                ctxBio.lineTo(nx + 7, ny + 16); // Right base
+                ctxBio.closePath();
+                ctxBio.fill();
+
+                // Draw Basal Dendrites (Root branches)
+                ctxBio.strokeStyle = 'rgba(234, 179, 8, 0.7)';
+                ctxBio.lineWidth = 1.5;
+                ctxBio.beginPath();
+                ctxBio.moveTo(nx - 4, ny + 14);
+                ctxBio.lineTo(nx - 14, ny + 26);
+                ctxBio.moveTo(nx + 4, ny + 14);
+                ctxBio.lineTo(nx + 14, ny + 26);
+                
+                // Draw Axon (leaving base downwards)
+                ctxBio.moveTo(nx, ny + 16);
+                ctxBio.lineTo(nx, ny + 55);
+                ctxBio.stroke();
+
+                // Draw Long Apical Dendrite (Reaching up to Layer I/II)
+                const dendriteTopY = cortexStartY + 10;
+                ctxBio.strokeStyle = 'rgba(234, 179, 8, 0.9)';
+                ctxBio.lineWidth = 2.2;
+                ctxBio.beginPath();
+                ctxBio.moveTo(nx, ny);
+                ctxBio.lineTo(nx, dendriteTopY);
+                
+                // Dendrite apical branches
+                ctxBio.moveTo(nx, dendriteTopY + 12);
+                ctxBio.lineTo(nx - 12, dendriteTopY - 2);
+                ctxBio.moveTo(nx, dendriteTopY + 12);
+                ctxBio.lineTo(nx + 12, dendriteTopY - 2);
+                ctxBio.stroke();
+
+                // Draw active charges along the neuron
+                const apicalChargeY = dendriteTopY + 15;
+                const somaChargeY = ny + 24;
+
+                ctxBio.font = 'bold 11px Inter, sans-serif';
+                ctxBio.textAlign = 'center';
+                ctxBio.textBaseline = 'middle';
+
+                // Determine EPSP polarity values
+                if (chargeOffset > 0) { // Top negative, Bottom positive
+                    // Apical Sink (-)
+                    ctxBio.fillStyle = '#ef4444'; // Red circle for negative charge sink
+                    ctxBio.beginPath();
+                    ctxBio.arc(nx, apicalChargeY, 6, 0, Math.PI*2);
+                    ctxBio.fill();
+                    ctxBio.fillStyle = '#ffffff';
+                    ctxOsc.shadowBlur = 0;
+                    ctxBio.fillText('−', nx, apicalChargeY - 0.5);
+
+                    // Soma Source (+)
+                    ctxBio.fillStyle = '#3b82f6'; // Blue circle for positive source
+                    ctxBio.beginPath();
+                    ctxBio.arc(nx, somaChargeY, 6, 0, Math.PI*2);
+                    ctxBio.fill();
+                    ctxBio.fillStyle = '#ffffff';
+                    ctxBio.fillText('+', nx, somaChargeY);
+                } else if (chargeOffset < -0.1) { // Flipped polarity
+                    // Apical Source (+)
+                    ctxBio.fillStyle = '#3b82f6';
+                    ctxBio.beginPath();
+                    ctxBio.arc(nx, apicalChargeY, 6, 0, Math.PI*2);
+                    ctxBio.fill();
+                    ctxBio.fillStyle = '#ffffff';
+                    ctxBio.fillText('+', nx, apicalChargeY);
+
+                    // Soma Sink (-)
+                    ctxBio.fillStyle = '#ef4444';
+                    ctxBio.beginPath();
+                    ctxBio.arc(nx, somaChargeY, 6, 0, Math.PI*2);
+                    ctxBio.fill();
+                    ctxBio.fillStyle = '#ffffff';
+                    ctxBio.fillText('−', nx, somaChargeY - 0.5);
+                }
+            });
+
+            // Draw EEG Surface Electrode
+            const electrodeX = w / 2;
+            const electrodeY = layers.scalp.startY * h;
+
+            // Render physical Electrode disc
+            ctxBio.fillStyle = '#94a3b8';
+            ctxBio.strokeStyle = '#cbd5e1';
+            ctxBio.lineWidth = 2;
+            ctxBio.beginPath();
+            ctxBio.moveTo(electrodeX - 22, electrodeY);
+            ctxBio.quadraticCurveTo(electrodeX, electrodeY - 8, electrodeX + 22, electrodeY);
+            ctxBio.closePath();
+            ctxBio.fill();
+            ctxBio.stroke();
+
+            // Highlight gel layer beneath electrode
+            ctxBio.fillStyle = 'rgba(56, 189, 248, 0.6)';
+            ctxBio.fillRect(electrodeX - 16, electrodeY, 32, 2.5);
+
+            // Animated pulsing indicator showing electrode reception
+            const lastReading = state.voltageHistory[state.voltageHistory.length - 1];
+            if (Math.abs(lastReading) > 3) {
+                ctxBio.strokeStyle = lastReading > 0 ? 'rgba(59, 130, 246, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+                ctxBio.lineWidth = 3;
+                ctxBio.beginPath();
+                ctxBio.arc(electrodeX, electrodeY - 4, 18 + Math.abs(lastReading) * 0.5, Math.PI, 0);
+                ctxBio.stroke();
+            }
+
+            // Lead wire going up to Amplifier
+            ctxBio.strokeStyle = '#cbd5e1';
+            ctxBio.lineWidth = 1.5;
+            ctxBio.beginPath();
+            ctxBio.moveTo(electrodeX, electrodeY - 6);
+            ctxBio.bezierCurveTo(electrodeX, electrodeY - 35, electrodeX + 45, electrodeY - 30, w - 50, 25);
+            ctxBio.stroke();
+
+            // Render Amplifier/EEG module icon
+            const ampX = w - 80;
+            const ampY = 12;
+            ctxBio.fillStyle = '#1e293b';
+            ctxBio.strokeStyle = '#334155';
+            ctxBio.lineWidth = 2;
+            ctxBio.beginPath();
+            ctxBio.roundRect(ampX, ampY, 70, 32, 6);
+            ctxBio.fill();
+            ctxBio.stroke();
+
+            // Amplifier dynamic glowing LED
+            ctxBio.fillStyle = Math.abs(lastReading) > 10 ? '#ef4444' : '#10b981';
+            ctxBio.beginPath();
+            ctxBio.arc(ampX + 12, ampY + 16, 3, 0, Math.PI * 2);
+            ctxBio.fill();
+
+            ctxBio.fillStyle = '#f8fafc';
+            ctxBio.font = '10px "JetBrains Mono", monospace';
+            ctxBio.textAlign = 'left';
+            ctxBio.fillText('EEG AMP', ampX + 22, ampY + 19);
+
+            // Draw Highlight layer outline for overall visualization polish
+            if (state.selectedLayer && layers[state.selectedLayer].startY !== undefined) {
+                const target = layers[state.selectedLayer];
+                ctxBio.strokeStyle = 'rgba(129, 140, 248, 0.8)';
+                ctxBio.lineWidth = 2;
+                ctxBio.strokeRect(1, target.startY * h, w - 2, (target.endY - target.startY) * h);
+            }
+        }
+
+        // Draw Oscilloscope Waveforms
+        function drawOscilloscope() {
+            const dpr = window.devicePixelRatio || 1;
+            const w = canvasOscilloscope.width / dpr;
+            const h = canvasOscilloscope.height / dpr;
+
+            ctxOsc.clearRect(0, 0, w, h);
+
+            // Draw oscilloscope background grids
+            ctxOsc.strokeStyle = 'rgba(30, 41, 59, 0.8)';
+            ctxOsc.lineWidth = 0.8;
+            
+            // Verticals
+            for (let i = 30; i < w; i += 40) {
+                ctxOsc.beginPath();
+                ctxOsc.moveTo(i, 0);
+                ctxOsc.lineTo(i, h);
+                ctxOsc.stroke();
+            }
+            // Horizontals
+            for (let j = 0; j < h; j += 25) {
+                ctxOsc.beginPath();
+                ctxOsc.moveTo(30, j);
+                ctxOsc.lineTo(w, j);
+                ctxOsc.stroke();
+            }
+
+            // Draw X and Y Axes
+            ctxOsc.strokeStyle = 'rgba(148, 163, 184, 0.8)'; // slate-400
+            ctxOsc.lineWidth = 1.5;
+            
+            // Y-axis
+            ctxOsc.beginPath();
+            ctxOsc.moveTo(30, 0);
+            ctxOsc.lineTo(30, h);
+            ctxOsc.stroke();
+
+            // X-axis (Center horizontal)
+            ctxOsc.beginPath();
+            ctxOsc.moveTo(30, h / 2);
+            ctxOsc.lineTo(w, h / 2);
+            ctxOsc.stroke();
+
+            // Axis Labels
+            ctxOsc.fillStyle = 'rgba(148, 163, 184, 0.8)';
+            ctxOsc.font = '9px "JetBrains Mono", monospace';
+            ctxOsc.textAlign = 'right';
+            ctxOsc.textBaseline = 'middle';
+
+            // Y-axis ticks
+            const yTicks = [40, 20, -20, -40];
+            yTicks.forEach(val => {
+                const yPos = (h / 2) - (val * 1.5);
+                ctxOsc.fillText(val > 0 ? `+${val}` : val, 26, yPos);
+                ctxOsc.beginPath();
+                ctxOsc.moveTo(28, yPos);
+                ctxOsc.lineTo(32, yPos);
+                ctxOsc.stroke();
+            });
+            ctxOsc.fillText('0', 26, h / 2);
+            
+            // Y-axis Unit
+            ctxOsc.textAlign = 'left';
+            ctxOsc.textBaseline = 'top';
+            ctxOsc.fillText('µV', 34, 4);
+
+            // X-axis Unit
+            ctxOsc.textAlign = 'right';
+            ctxOsc.textBaseline = 'bottom';
+            ctxOsc.fillText('Time →', w - 4, (h / 2) - 4);
+
+            // Render scrolling EEG waveform
+            ctxOsc.strokeStyle = '#10b981'; // Phosphor green
+            ctxOsc.lineWidth = 1.8;
+            ctxOsc.beginPath();
+
+            const length = state.voltageHistory.length;
+            const graphWidth = w - 30; // Account for the Y-axis offset
+            for (let i = 0; i < length; i++) {
+                const x = 30 + (i / maxHistory) * graphWidth;
+                
+                // Center-zero voltage graph scaling
+                const voltage = state.voltageHistory[i];
+                const y = (h / 2) - (voltage * 1.5); 
+                
+                if (i === 0) {
+                    ctxOsc.moveTo(x, y);
+                } else {
+                    ctxOsc.lineTo(x, y);
+                }
+            }
+            ctxOsc.stroke();
+
+            // Glow trailing sweep cursor dot
+            if (length > 0) {
+                const x = 30 + ((length - 1) / maxHistory) * graphWidth;
+                const y = (h / 2) - (state.voltageHistory[length - 1] * 1.5);
+                ctxOsc.fillStyle = '#34d399';
+                ctxOsc.beginPath();
+                ctxOsc.arc(x, y, 4, 0, Math.PI * 2);
+                ctxOsc.fill();
+            }
+        }
+
+        // Main animation loop
+        function loop(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const elapsed = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+
+            if (isRunning) {
+                // Advance continuous physics engine calculations scaled by the Speed Multiplier
+                state.time += elapsed * state.speed;
+                state.simStep++;
+                calculateNextVoltage();
+            }
+
+            // Draw both components
+            drawSim();
+            drawOscilloscope();
+
+            if (isRunning) {
+                animationFrameId = requestAnimationFrame(loop);
+            }
+        }
+
+        // Initialize and kick off loops
+        updateInspectorToLayer('scalp');
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>

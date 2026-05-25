@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Franciscus Donders’ Noematachograph</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+        :root {
+            --brass-dark: #5c4716;
+            --brass-med: #b5a642;
+            --brass-light: #f9f1b2;
+            --bg-dark: #0a0a0a;
+            --panel-bg: rgba(20, 18, 15, 0.85);
+            --neon-green: #39ff14;
+            --neon-orange: #ff7300;
+            --neon-red: #ff3333;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-dark);
+            font-family: 'Crimson Text', serif;
+            color: #dcdcdc;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Atmospheric blurred background */
+        .environment-bg {
+            position: absolute;
+            top: -5%;
+            left: -5%;
+            width: 110%;
+            height: 110%;
+            background-image: url('https://images.unsplash.com/photo-1601662528567-526cd06f3598?q=80&w=1920&auto=format&fit=crop'); /* Vintage science/lab vibe */
+            background-size: cover;
+            background-position: center;
+            filter: blur(12px) brightness(0.25) sepia(0.4);
+            z-index: 0;
+        }
+
+        .vignette {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, transparent 30%, #000 90%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Main Dashboard UI */
+        #dashboard {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--brass-dark);
+            background: linear-gradient(90deg, transparent, rgba(181, 166, 66, 0.1), transparent);
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            margin: 0;
+            font-size: 2.2rem;
+            color: var(--brass-light);
+            text-shadow: 0 0 10px rgba(249, 241, 178, 0.3);
+            letter-spacing: 2px;
+        }
+
+        p.subtitle {
+            margin: 5px 0 0 0;
+            font-style: italic;
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            min-height: 0; /* Important for flex-child canvas sizing */
+        }
+
+        /* Canvas Container */
+        #canvas-wrapper {
+            flex: 1;
+            position: relative;
+            border: 3px solid var(--brass-dark);
+            border-radius: 4px;
+            background: #000;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,1);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Vintage Engraved Brass Calculation Sheet as an HTML overlay to prevent overlapping */
+        .brass-plate {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 320px;
+            background: #1a1306;
+            border: 3px solid var(--brass-med);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.8);
+            border-radius: 4px;
+            padding: 18px;
+            font-family: 'Crimson Text', serif;
+            color: var(--brass-light);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .brass-plate.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .brass-plate::before {
+            content: '';
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            border: 1px solid var(--brass-dark);
+            pointer-events: none;
+        }
+
+        .brass-plate h4 {
+            font-family: 'Cinzel', serif;
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(181, 166, 66, 0.3);
+            padding-bottom: 6px;
+            color: var(--brass-light);
+        }
+
+        .brass-plate p {
+            margin: 6px 0;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .formula-box {
+            font-style: italic;
+            font-weight: bold;
+            color: #ffd8b3;
+            margin: 12px 0 8px 0 !important;
+            font-size: 1.05rem !important;
+        }
+
+        .result-box {
+            font-family: 'Cinzel', serif;
+            font-size: 1.15rem !important;
+            color: var(--neon-red);
+            font-weight: bold;
+            border-top: 1px dashed rgba(181, 166, 66, 0.2);
+            padding-top: 8px;
+            margin-top: 10px !important;
+        }
+
+        /* Controls Panel */
+        #controls {
+            width: 320px;
+            background: var(--panel-bg);
+            border: 1px solid var(--brass-dark);
+            border-radius: 4px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--brass-med);
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            border-bottom: 1px dashed var(--brass-dark);
+            padding-bottom: 5px;
+        }
+
+        button {
+            background: linear-gradient(to bottom, #2a2415, #14110a);
+            border: 1px solid var(--brass-med);
+            color: var(--brass-light);
+            font-family: 'Cinzel', serif;
+            padding: 12px 15px;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        }
+
+        button:hover {
+            background: linear-gradient(to bottom, #3a321d, #1f1a0f);
+            box-shadow: 0 0 15px rgba(181, 166, 66, 0.4);
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .legend {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .color-box {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 0 8px currentColor;
+        }
+        
+        .box-green { background: var(--neon-green); color: var(--neon-green); }
+        .box-orange { background: var(--neon-orange); color: var(--neon-orange); }
+        .box-red { background: var(--neon-red); color: var(--neon-red); }
+
+        .status {
+            margin-top: auto;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="environment-bg"></div>
+    <div class="vignette"></div>
+
+    <div id="dashboard">
+        <header>
+            <h1>Noematachograph</h1>
+            <p class="subtitle">Franciscus Donders' Mental Chronometry Experiment (1868)</p>
+        </header>
+
+        <div class="main-content">
+            <div id="canvas-wrapper">
+                <canvas id="experimentCanvas"></canvas>
+                
+                <!-- Vintage Engraved Brass Plate (HTML Overlay) -->
+                <div id="calcPlate" class="brass-plate">
+                    <h4>Chronometric Analysis</h4>
+                    <p style="color: var(--neon-green); font-size: 1.05rem; font-weight: bold; margin-bottom: 12px;">Total Clock Cycles Counted (N) = 80 cycles</p>
+                    <p>Tuning Fork Frequency (f) = 261 Hz <br><small style="color: #aaa; font-style: italic;">(Middle C: Exactly 261 vibrations per second. One cycle = 3.83ms)</small></p>
+                    <p class="formula-box" style="margin-top: 15px !important;">Formula:  Δt = N × (1 / f)</p>
+                    <p class="result-box">Δt = 80 × 3.83 ms = 306.4 ms</p>
+                </div>
+            </div>
+
+            <div id="controls">
+                <div class="control-group">
+                    <h3>Apparatus Controls</h3>
+                    <button id="btnToggleRot">Start Cylinder Rotation</button>
+                    <button id="btnHighlight">Measure Reaction Time</button>
+                    <button id="btnToggleAudio">Enable Audio</button>
+                </div>
+
+                <div class="control-group" style="margin-top: 15px;">
+                    <h3>Legend</h3>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="color-box box-green"></div>
+                            <span>Tuning Fork (261 Hz Clock)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-box box-orange"></div>
+                            <span>Acoustic Envelope (Phonautograph)</span>
+                        </div>
+                        <div class="legend-item" style="margin-top: 10px;">
+                            <div class="color-box box-red"></div>
+                            <span>Mental Processing Time</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #aaa; margin-top: 10px; line-height: 1.4;">
+                        <strong>What is 261 Hz?</strong> It represents the musical pitch <strong>Middle C</strong>. Striking this fork creates 261 rapid back-and-forth oscillations per second, etching a time ruler where each wave peak marks exactly <strong>3.83 milliseconds</strong> of elapsed time.
+                    </p>
+                </div>
+
+                <div class="status" id="statusDisplay">
+                    Cylinder: Stationary<br>
+                    Time offset: 0ms
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('experimentCanvas');
+        const ctx = canvas.getContext('2d');
+        const btnToggleRot = document.getElementById('btnToggleRot');
+        const btnHighlight = document.getElementById('btnHighlight');
+        const btnToggleAudio = document.getElementById('btnToggleAudio');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const calcPlate = document.getElementById('calcPlate');
+
+        // State variables
+        let width = 0;
+        let height = 0;
+        let isRotating = false;
+        let showHighlight = false;
+        let timeOffset = 0; // Represents scroll position
+        let scrollInterval = null; // Track the scrolling animation
+        const rotationSpeed = 3; // pixels per frame
+        
+        // Data Configuration
+        const totalDuration = 3000; // Total length of our "ribbon" in pixels
+        const stimulusStart = 800;
+        const stimulusWidth = 150;
+        const responseStart = 1600; // Target reaction time highlight
+        const responseWidth = 120;
+        
+        // Pre-generate the acoustic envelope data
+        const acousticData = new Array(totalDuration).fill(0);
+        
+        function generateEnvelope(start, width, maxAmplitude, complexity) {
+            for (let i = 0; i < width; i++) {
+                // Envelope shape (fade in, hold, fade out)
+                let envelope = Math.sin((i / width) * Math.PI); 
+                // Add noise/jaggedness
+                let noise = 0;
+                for(let j=1; j<=complexity; j++) {
+                    noise += (Math.random() - 0.5) * (maxAmplitude / j) * Math.sin(i * j * 0.1);
+                }
+                acousticData[start + i] = noise * envelope;
+            }
+        }
+
+        // Generate 'Stimulus Shout (A)' - Larger spike
+        generateEnvelope(stimulusStart, stimulusWidth, 120, 5);
+        
+        // Generate 'Subject Response (B)' - Slightly smaller spike
+        generateEnvelope(responseStart, responseWidth, 90, 4);
+
+        // --- AUDIO SYNTHESIS (WEB AUDIO API) ---
+        let audioCtx = null;
+        let tuningForkOsc = null;
+        let tuningForkGain = null;
+        let isAudioEnabled = false;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                tuningForkOsc = audioCtx.createOscillator();
+                tuningForkOsc.type = 'sine';
+                tuningForkOsc.frequency.value = 261; // 261 Hz clock
+                
+                tuningForkGain = audioCtx.createGain();
+                tuningForkGain.gain.value = 0;
+                
+                tuningForkOsc.connect(tuningForkGain);
+                tuningForkGain.connect(audioCtx.destination);
+                tuningForkOsc.start();
+            }
+        }
+
+        function updateAudioState() {
+            if (!audioCtx) return;
+            if (isAudioEnabled && isRotating) {
+                tuningForkGain.gain.setTargetAtTime(0.1, audioCtx.currentTime, 0.05);
+            } else {
+                tuningForkGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+            }
+        }
+
+        function playAcousticSpike(isStimulus) {
+            if (!isAudioEnabled || !audioCtx) return;
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            // Simulating a voice shout "Ki!" 
+            osc.type = isStimulus ? 'sawtooth' : 'square'; 
+            osc.frequency.setValueAtTime(isStimulus ? 150 : 200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
+            
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        // Resize handler
+        function resize() {
+            const wrapper = document.getElementById('canvas-wrapper');
+            width = wrapper.clientWidth;
+            height = wrapper.clientHeight;
+            
+            // Handle high DPI displays for crisp rendering
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            draw(); // Redraw immediately on resize
+        }
+        window.addEventListener('resize', resize);
+
+        // --- DRAWING FUNCTIONS ---
+
+        function drawSootCylinder() {
+            // Draw the metallic cylinder base (dark velvety soot)
+            const sootGradient = ctx.createLinearGradient(0, 0, 0, height);
+            sootGradient.addColorStop(0, '#0a0a0a'); // Top edge
+            sootGradient.addColorStop(0.2, '#1a1a1a'); // Upper reflection
+            sootGradient.addColorStop(0.5, '#050505'); // Middle shadow
+            sootGradient.addColorStop(0.8, '#1a1a1a'); // Lower reflection
+            sootGradient.addColorStop(1, '#000000'); // Bottom edge
+            
+            ctx.fillStyle = sootGradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // Add fine noise texture for the "matte soot" look
+            ctx.fillStyle = 'rgba(255,255,255,0.015)';
+            for(let i=0; i<1000; i++) {
+                ctx.fillRect(Math.random() * width, Math.random() * height, 2, 2);
+            }
+        }
+
+        function drawStylus(x, y, glowColor) {
+            ctx.save();
+            
+            // Stylus arm shadow
+            ctx.shadowColor = 'rgba(0,0,0,0.8)';
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetX = -5;
+            ctx.shadowOffsetY = 10;
+
+            // Draw arm (extending to the right edge)
+            const brassGradient = ctx.createLinearGradient(x, y - 10, x, y + 10);
+            brassGradient.addColorStop(0, '#5c4716');
+            brassGradient.addColorStop(0.5, '#f9f1b2');
+            brassGradient.addColorStop(1, '#8a6a1c');
+
+            ctx.beginPath();
+            ctx.moveTo(x, y); // Needle tip
+            ctx.lineTo(x + 40, y - 8); // Taper
+            ctx.lineTo(width, y - 12); // Back to right edge
+            ctx.lineTo(width, y + 12);
+            ctx.lineTo(x + 40, y + 8);
+            ctx.closePath();
+            ctx.fillStyle = brassGradient;
+            ctx.fill();
+
+            // Needle Tip details
+            ctx.beginPath();
+            ctx.arc(x + 35, y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#b5a642';
+            ctx.fill();
+
+            // Glowing tip
+            ctx.shadowColor = glowColor;
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(x, y, 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        function drawTraces() {
+            const y1 = height * 0.35; // Tuning fork Y
+            const y2 = height * 0.65; // Acoustic Y
+            const drawX = width * 0.85; // X position where styluses rest
+
+            ctx.save();
+            ctx.lineWidth = 2.5;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+
+            // --- Trace 1: Tuning Fork (Green Sine) ---
+            // Set 1 cycle = exactly 10px wide via frequency coefficient (2*PI / 10 = 0.62831853)
+            ctx.beginPath();
+            ctx.shadowColor = 'var(--neon-green)';
+            ctx.shadowBlur = 12;
+            ctx.strokeStyle = '#c4ffc4'; // Bright core
+
+            for (let x = 0; x < drawX; x++) {
+                // Calculate absolute position on the virtual ribbon (scrolling left)
+                let ribbonPos = timeOffset - (drawX - x); 
+                let y = y1 + Math.sin(ribbonPos * 0.62831853) * 15; // Tighter, authentic vibration trace
+                
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // --- Trace 2: Acoustic Envelope (Orange Spikes) ---
+            ctx.beginPath();
+            ctx.shadowColor = 'var(--neon-orange)';
+            ctx.shadowBlur = 16; // Increased glow depth
+            ctx.strokeStyle = '#ffa64d'; // Warm, vibrant neon orange core to match the legend
+
+            for (let x = 0; x < drawX; x++) {
+                let ribbonPos = Math.floor(timeOffset - (drawX - x));
+                let envelopeY = 0;
+                
+                if(ribbonPos >= 0 && ribbonPos < totalDuration) {
+                    envelopeY = acousticData[ribbonPos];
+                }
+
+                let y = y2 + envelopeY;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.restore();
+
+            // --- Labels (etched in soot) ---
+            ctx.save();
+            ctx.font = 'italic 16px "Crimson Text"';
+            ctx.textAlign = 'left';
+            
+            // Labels scroll smoothly with the timeline and are color-coded to match the legend
+            let labelX1 = drawX - (timeOffset - 200); 
+            if(labelX1 > 20 && labelX1 < width) {
+                ctx.fillStyle = 'rgba(57, 255, 20, 0.85)'; // Neon Green Label
+                ctx.fillText("Tuning Fork (261 Hz Clock)", labelX1, y1 - 40);
+            }
+            
+            ctx.fillStyle = 'rgba(255, 115, 0, 0.85)'; // Neon Orange Labels
+            let labelX2 = drawX - (timeOffset - stimulusStart) + 50;
+            if(labelX2 > 20 && labelX2 < width) ctx.fillText("Stimulus Shout (A)", labelX2, y2 - 70);
+
+            let labelX3 = drawX - (timeOffset - responseStart) + 50;
+            if(labelX3 > 20 && labelX3 < width) ctx.fillText("Subject Response (B)", labelX3, y2 - 70);
+            
+            ctx.restore();
+
+            // --- Hardware Styluses ---
+            // Draw them resting exactly at the drawing point
+            drawStylus(drawX, y1, 'var(--neon-green)');
+            drawStylus(drawX, y2, 'var(--neon-orange)');
+        }
+
+        function drawMeasurementHighlight() {
+            if (!showHighlight) return;
+
+            const drawX = width * 0.85;
+            const y1 = height * 0.35; // Tuning fork trace level
+            
+            // Calculate screen X coordinates based on physics mapping: x = drawX - (timeOffset - ribbonPos)
+            let screenX1 = drawX - (timeOffset - stimulusStart);
+            let screenX2 = drawX - (timeOffset - responseStart);
+
+            // Only draw if the box is visible on screen
+            if (screenX2 > 0 && screenX1 < width) {
+                ctx.save();
+                
+                // Translucent red box
+                ctx.fillStyle = 'rgba(255, 51, 51, 0.12)';
+                ctx.fillRect(screenX1, 0, (screenX2 - screenX1), height);
+                
+                // Vertical boundary lines
+                ctx.strokeStyle = 'rgba(255, 51, 51, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                
+                ctx.beginPath();
+                ctx.moveTo(screenX1, 0); ctx.lineTo(screenX1, height);
+                ctx.moveTo(screenX2, 0); ctx.lineTo(screenX2, height);
+                ctx.stroke();
+
+                // --- Visual Wave Cycle Counter Ticks ---
+                ctx.save();
+                ctx.fillStyle = 'rgba(57, 255, 20, 0.95)';
+                ctx.font = 'bold 11px monospace';
+                ctx.textAlign = 'center';
+                
+                // 10 pixels = 1 wave cycle. Map ticks across the interval
+                for (let c = 0; c <= 80; c += 10) {
+                    let cyclePos = stimulusStart + (c * 10);
+                    let tickX = drawX - (timeOffset - cyclePos);
+                    
+                    if (tickX >= screenX1 && tickX <= screenX2) {
+                        // Draw a small vertical tick line marking the cycle interval
+                        ctx.strokeStyle = 'rgba(57, 255, 20, 0.5)';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([]);
+                        ctx.beginPath();
+                        ctx.moveTo(tickX, y1 - 25);
+                        ctx.lineTo(tickX, y1 + 25);
+                        ctx.stroke();
+                        
+                        // Wave count label (0λ, 10λ, ..., 80λ)
+                        ctx.fillText(`${c}λ`, tickX, y1 - 28);
+                    }
+                }
+                ctx.restore();
+
+                // Dimension Arrow and Text
+                let midY = height * 0.82;
+                ctx.setLineDash([]);
+                ctx.strokeStyle = 'rgba(255, 51, 51, 0.8)';
+                ctx.lineWidth = 2;
+                
+                // Draw Line
+                ctx.beginPath();
+                ctx.moveTo(screenX1 + 10, midY);
+                ctx.lineTo(screenX2 - 10, midY);
+                ctx.stroke();
+
+                // Left Arrowhead
+                ctx.beginPath();
+                ctx.moveTo(screenX1 + 10, midY);
+                ctx.lineTo(screenX1 + 25, midY - 6);
+                ctx.lineTo(screenX1 + 25, midY + 6);
+                ctx.fillStyle = 'rgba(255, 51, 51, 0.8)';
+                ctx.fill();
+
+                // Right Arrowhead
+                ctx.beginPath();
+                ctx.moveTo(screenX2 - 10, midY);
+                ctx.lineTo(screenX2 - 25, midY - 6);
+                ctx.lineTo(screenX2 - 25, midY + 6);
+                ctx.fill();
+
+                // Reaction Time Text
+                ctx.fillStyle = '#ff9999';
+                ctx.font = 'bold 20px "Cinzel"';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.shadowColor = 'black';
+                ctx.shadowBlur = 5;
+                
+                let midX = screenX1 + (screenX2 - screenX1) / 2;
+                ctx.fillText("Δt = Reaction Time", midX, midY - 10);
+                
+                ctx.font = 'italic 16px "Crimson Text"';
+                let ms = Math.floor(((responseStart - stimulusStart) / 10) * (1000/261)); 
+                ctx.fillText(`~${ms} milliseconds`, midX, midY + 25);
+
+                ctx.restore();
+            }
+        }
+
+        // --- MAIN LOOP ---
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            
+            drawSootCylinder();
+            drawMeasurementHighlight(); 
+            drawTraces();               
+
+            // Update logic
+            if (isRotating) {
+                let previousOffset = timeOffset;
+                timeOffset += rotationSpeed;
+
+                // Sound triggers when passing spikes
+                if (previousOffset < stimulusStart && timeOffset >= stimulusStart) {
+                    playAcousticSpike(true);
+                }
+                if (previousOffset < responseStart && timeOffset >= responseStart) {
+                    playAcousticSpike(false);
+                }
+
+                // Loop the animation if it goes too far
+                if(timeOffset > totalDuration + width) {
+                    timeOffset = -width * 0.5;
+                }
+                statusDisplay.innerHTML = `Cylinder: Rotating<br>Offset: ${Math.floor(timeOffset)}px`;
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // --- CONTROLS ---
+
+        btnToggleRot.addEventListener('click', () => {
+            // Cancel any active smooth-scrolling from the highlight tool
+            if (scrollInterval) {
+                clearInterval(scrollInterval);
+                scrollInterval = null;
+            }
+
+            isRotating = !isRotating;
+            btnToggleRot.textContent = isRotating ? "Pause Cylinder" : "Start Cylinder Rotation";
+            if(!isRotating) {
+                statusDisplay.innerHTML = `Cylinder: Stationary<br>Offset: ${Math.floor(timeOffset)}px`;
+            }
+            updateAudioState();
+        });
+
+        btnHighlight.addEventListener('click', () => {
+            showHighlight = !showHighlight;
+            btnHighlight.textContent = showHighlight ? "Hide Measurement" : "Measure Reaction Time";
+            
+            // Clear any existing scroll animations to prevent them from fighting
+            if (scrollInterval) {
+                clearInterval(scrollInterval);
+                scrollInterval = null;
+            }
+
+            if (showHighlight) {
+                // Fade in the responsive HTML calculation plate
+                calcPlate.classList.add('visible');
+
+                // Auto-pause and scroll to the exact spot to show the highlight beautifully
+                isRotating = false;
+                updateAudioState();
+                btnToggleRot.textContent = "Start Cylinder Rotation";
+                
+                // Target offset places the center of the two spikes in the center of the screen
+                const drawX = width * 0.85;
+                const centerSpikes = stimulusStart + (responseStart - stimulusStart) / 2;
+                // Solve targetOffset so ribbonPos of centerSpikes is centered at (width/2)
+                const targetOffset = drawX - (width / 2) + centerSpikes;
+                
+                // Simple smooth scroll animation to target
+                scrollInterval = setInterval(() => {
+                    let diff = targetOffset - timeOffset;
+                    if(Math.abs(diff) < 2) {
+                        timeOffset = targetOffset;
+                        clearInterval(scrollInterval);
+                        scrollInterval = null;
+                    } else {
+                        timeOffset += diff * 0.1; // ease out
+                    }
+                }, 16);
+                
+                statusDisplay.innerHTML = `Cylinder: Stationary (Analysis Mode)<br>Highlight Active`;
+            } else {
+                // Fade out the calculation plate
+                calcPlate.classList.remove('visible');
+            }
+        });
+
+        btnToggleAudio.addEventListener('click', () => {
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            isAudioEnabled = !isAudioEnabled;
+            btnToggleAudio.textContent = isAudioEnabled ? "Disable Audio" : "Enable Audio";
+            btnToggleAudio.style.color = isAudioEnabled ? "var(--neon-green)" : "var(--brass-light)";
+            btnToggleAudio.style.borderColor = isAudioEnabled ? "var(--neon-green)" : "var(--brass-med)";
+            updateAudioState();
+        });
+
+        // Initialize
+        setTimeout(() => {
+            resize(); // Trigger initial resize and draw
+            
+            // Set initial offset to show a flat line before the stimulus
+            timeOffset = stimulusStart - (width * 0.3); 
+        }, 100);
+
+    </script>
+</body>
+</html>

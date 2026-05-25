@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fNIRS Mechanism Simulator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+        }
+
+        /* Glassmorphism utility classes */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-panel-glow {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header Section -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/30">
+                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-indigo-400 to-rose-400 bg-clip-text text-transparent">
+                        fNIRS Explorer
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">Functional Near-Infrared Spectroscopy Mechanism & Physics Simulator</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button id="btn-trigger-activation" class="px-5 py-2.5 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-semibold rounded-xl text-sm transition-all transform hover:scale-[1.03] active:scale-95 shadow-lg shadow-rose-500/20 flex items-center gap-2">
+                    <svg class="w-4 h-4 animate-ping absolute" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke-width="2" />
+                    </svg>
+                    <svg class="w-4 h-4 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Trigger Neural Activation</span>
+                </button>
+                <button id="btn-reset" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl transition flex items-center justify-center" title="Reset Simulation">
+                    <span class="text-xs font-semibold">Reset</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Interactive Simulation Visualization (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- Biological / Physical Interactive Canvas -->
+            <div class="glass-panel glass-panel-glow rounded-3xl overflow-hidden flex flex-col">
+                <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+                        <h2 class="font-bold text-sm tracking-wide uppercase text-slate-300">Anatomical Model</h2>
+                    </div>
+                </div>
+
+                <!-- Simulation Viewport -->
+                <div class="relative bg-slate-950/80 flex-grow aspect-[4/3] flex items-center justify-center">
+                    <canvas id="simulation-canvas" class="w-full h-full block cursor-pointer"></canvas>
+                    
+                    <!-- Labels Layer (HTML positioning overlay for sleekness) -->
+                    <div class="absolute inset-0 pointer-events-none p-4 select-none">
+                        <div class="absolute top-4 left-6 bg-rose-500/10 border border-rose-500/20 backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-bold text-rose-300 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                            NIRS Emitter (690nm + 830nm)
+                        </div>
+                        <div class="absolute top-4 right-6 bg-cyan-500/10 border border-cyan-500/20 backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-bold text-cyan-300 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
+                            NIRS Detector
+                        </div>
+                        
+                        <!-- Blood Vessel Network Label -->
+                        <div class="absolute bottom-4 left-6 bg-red-500/10 border border-red-500/20 backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-bold text-red-400 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                            Blood Vessel Flow (O₂Hb & HHb)
+                        </div>
+
+                        <!-- Layer indicators -->
+                        <div class="absolute right-4 bottom-24 text-[10px] font-mono text-slate-500 flex flex-col items-end gap-1">
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#8d5b4c]"></span> Scalp</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#dcdcdc]"></span> Skull</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#5b9fb0]"></span> CSF</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#244b36]"></span> Brain Tissue</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Console for Simulator -->
+                <div class="p-6 bg-slate-900/40 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div>
+                        <span class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Optode System Wavelengths</span>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 text-xs font-bold rounded-lg border text-blue-400 border-blue-500/20 bg-blue-500/5">690 nm (HHb Target)</span>
+                            <span class="text-xs text-slate-500 font-bold">+</span>
+                            <span class="px-2.5 py-1 text-xs font-bold rounded-lg border text-rose-400 border-rose-500/20 bg-rose-500/5">830 nm (O₂Hb Target)</span>
+                        </div>
+                        <span class="text-[10px] text-slate-500 mt-1 block">Simultaneous emission allows multi-hemoglobin state sorting.</span>
+                    </div>
+
+                    <div class="bg-slate-950/40 rounded-xl p-3 border border-slate-800 flex justify-between items-center">
+                        <div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest font-mono">Laser Optic Core</div>
+                            <div class="text-xs font-bold text-slate-300">Continuous Pulsed Acquisition</div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                            <span class="text-[11px] font-mono text-emerald-400 font-semibold">Acquiring</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hemoglobin Details and Dynamic Capillary Model -->
+            <div class="glass-panel rounded-3xl p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded bg-rose-500"></span> 
+                        Oxyhemoglobin (O₂Hb)
+                    </h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Highly oxygenated blood entering the tissue. In near-infrared spectroscopy, <span class="text-rose-400 font-semibold">830 nm</span> light is primarily absorbed by O₂Hb because of its specific chemical properties and oxygenated state.
+                    </p>
+                    <div class="mt-4 flex items-center gap-3 bg-rose-500/5 border border-rose-500/10 rounded-xl p-3">
+                        <div class="w-12 h-12 shrink-0 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 font-bold text-[9px] text-center leading-tight p-1">
+                            Oxygen<br>Level
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest">Active State</div>
+                            <div class="text-xs font-bold text-slate-300">Rises rapidly during activation</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded bg-blue-500"></span> 
+                        Deoxyhemoglobin (HHb)
+                    </h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Deoxygenated blood returning through capillary networks. <span class="text-blue-400 font-semibold">690 nm</span> light exhibits higher optical absorption for HHb, making it the primary target wavelength for detecting oxygen depletion.
+                    </p>
+                    <div class="mt-4 flex items-center gap-3 bg-blue-500/5 border border-blue-500/10 rounded-xl p-3">
+                        <div class="w-12 h-12 shrink-0 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-[9px] text-center leading-tight p-1">
+                            Oxygen<br>Level
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest">Active State</div>
+                            <div class="text-xs font-bold text-slate-300">Drops slightly as oxygen flushes in</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Graphs & Educational Steps (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- Real-time Signal Output Graph -->
+            <div class="glass-panel glass-panel-glow rounded-3xl p-6 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="font-bold text-sm tracking-wide uppercase text-slate-300">fNIRS Signal Display</h2>
+                        <p class="text-[11px] text-slate-400">Concentration Changes (&Delta;O₂Hb, &Delta;HHb, &Delta;[HbT]) over time</p>
+                    </div>
+                    <span id="activation-badge" class="px-2 py-0.5 text-[10px] rounded-full border border-slate-700 bg-slate-800 text-slate-400 uppercase font-mono tracking-widest">
+                        Resting
+                    </span>
+                </div>
+                
+                <div class="h-48 relative">
+                    <canvas id="chart-signal"></canvas>
+                </div>
+                
+                <!-- Micro dashboard showing instantaneous parameters (Rounded strictly to 1 decimal place without -0.0) -->
+                <div class="grid grid-cols-3 gap-2.5 pt-2 border-t border-slate-800/80">
+                    <div class="bg-rose-500/5 border border-rose-500/10 rounded-xl p-2.5 text-center">
+                        <div class="text-[10px] text-rose-400 font-bold uppercase tracking-wide">&Delta;O₂Hb</div>
+                        <div id="metric-hbo" class="text-lg font-mono font-extrabold text-rose-500">0.0</div>
+                        <div class="text-[9px] text-slate-500">&mu;M * mm</div>
+                    </div>
+                    <div class="bg-blue-500/5 border border-blue-500/10 rounded-xl p-2.5 text-center">
+                        <div class="text-[10px] text-blue-400 font-bold uppercase tracking-wide">&Delta;HHb</div>
+                        <div id="metric-hbr" class="text-lg font-mono font-extrabold text-blue-500">0.0</div>
+                        <div class="text-[9px] text-slate-500">&mu;M * mm</div>
+                    </div>
+                    <div class="bg-purple-500/5 border border-purple-500/10 rounded-xl p-2.5 text-center">
+                        <div class="text-[10px] text-purple-400 font-bold uppercase tracking-wide">&Delta;[HbT]</div>
+                        <div id="metric-hbt" class="text-lg font-mono font-extrabold text-purple-500">0.0</div>
+                        <div class="text-[9px] text-slate-500">Total Blood Vol</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optical Absorption Spectra Chart -->
+            <div class="glass-panel rounded-3xl p-6">
+                <div>
+                    <h2 class="font-bold text-sm tracking-wide uppercase text-slate-300">Optical Absorption Spectrum</h2>
+                    <p class="text-[11px] text-slate-400 mb-3">Extinction coefficient of O₂Hb and HHb across NIR window</p>
+                </div>
+                <div class="h-40 relative">
+                    <canvas id="chart-spectra"></canvas>
+                </div>
+                <p class="text-[10px] text-slate-400 leading-relaxed mt-2 italic">
+                    Note the crossover point (isosbestic point) at approximately <span class="font-semibold">800 nm</span>, where extinction coefficients for both oxygenation states are equal.
+                </p>
+            </div>
+
+            <!-- Interactive Guide & Step-by-Step Explanation -->
+            <div class="glass-panel rounded-3xl p-6 flex-grow flex flex-col justify-between">
+                <div>
+                    <h2 class="font-bold text-sm tracking-wide uppercase text-slate-300 mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        Interactive Science Guide
+                    </h2>
+                    
+                    <!-- Vertical steps tracker -->
+                    <div class="space-y-4">
+                        <div id="step-1" class="step-card border-l-2 border-emerald-500 bg-emerald-500/5 p-3 rounded-r-xl transition cursor-pointer">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Step 1</span>
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            </div>
+                            <h4 class="text-xs font-bold text-slate-200 mt-1">Neurovascular Coupling</h4>
+                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                                Clicking "Trigger Neural Activation" stimulates neurons. This triggers localized oxygen consumption and triggers a rapid increase of regional cerebral blood flow.
+                            </p>
+                        </div>
+
+                        <div id="step-2" class="step-card border-l-2 border-slate-700 bg-slate-900/40 p-3 rounded-r-xl transition cursor-pointer">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Step 2</span>
+                                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+                            </div>
+                            <h4 class="text-xs font-bold text-slate-300 mt-1">The Near-Infrared Window</h4>
+                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                                Living tissues are transparent to NIR light (650-900nm), allowing photons to penetrate scalp, skull, and CSF, reaching up to 1-2cm into cerebral cortex.
+                            </p>
+                        </div>
+
+                        <div id="step-3" class="step-card border-l-2 border-slate-700 bg-slate-900/40 p-3 rounded-r-xl transition cursor-pointer">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Step 3</span>
+                                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+                            </div>
+                            <h4 class="text-xs font-bold text-slate-300 mt-1">Modified Beer-Lambert Law</h4>
+                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                                Because light scatters in a banana-shaped path, the modified Beer-Lambert Law calculates relative concentration changes of O₂Hb and HHb based on optical density changes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-950/60 py-4 px-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>&copy; 2026 Interactive Neuro-Engineering Simulations</span>
+            <div class="flex gap-4">
+                <a href="https://en.wikipedia.org/wiki/Functional_near-infrared_spectroscopy" target="_blank" class="hover:text-slate-300 transition">Wikipedia Details</a>
+                <a href="https://link.springer.com/referenceworkentry/10.1007/978-3-319-19395-3_1" target="_blank" class="hover:text-slate-300 transition">Optics Basics</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Simulation Javascript -->
+    <script>
+        // Constants & Configuration
+        const TWO_PI = Math.PI * 2;
+        
+        // Fixed sensor angle boundaries on scalp circle (Adjusted closer together)
+        const emitterAngle = Math.PI * 1.38;   
+        const detectorAngle = Math.PI * 1.62;  
+
+        // Setup State
+        const state = {
+            activeWavelength: 690, 
+            photonRate: 15,       
+            scatterIntensity: 5,  
+            isActivated: false,
+            activationTimer: 0,
+            
+            // Internal vascular drive representing regional dilation and flow state (0 to 1)
+            vascularDrive: 0,
+            
+            // Physiologically calibrated resting baseline values
+            // Base speed=0.003, spawn interval=12 frames. 
+            // In zone (0.24 PI rads): ~20.9 cells total.
+            baseO2Hb: 12.54, // 20.9 * 60%
+            baseHHb: 8.36,   // 20.9 * 40%
+            
+            // Real-time moving averages of cells physically existing inside the detection path
+            hboSmooth: 12.54,
+            hbrSmooth: 8.36,
+            
+            // Final calibrated delta signals
+            currentHbO: 0, 
+            currentHbR: 0,
+            
+            simTime: 0,
+            photons: [],
+            neuronSparks: [],
+            bloodCells: []
+        };
+
+        // Initialize blood vessel with proper resting density so signals start at a perfect flat baseline
+        function initBloodCells() {
+            state.bloodCells = [];
+            const startAngle = Math.PI * 1.15;
+            const endAngle = Math.PI * 1.85;
+            // Spawn distance matches resting frame interval (12) * resting speed (0.003)
+            for (let a = startAngle; a <= endAngle; a += 0.036) {
+                const isO2Hb = Math.random() < 0.6; // 60% O2Hb at rest
+                state.bloodCells.push({
+                    angle: a,
+                    rOffset: (Math.random() - 0.5) * 8,
+                    type: isO2Hb ? 'O2Hb' : 'HHb',
+                    speed: 0.003
+                });
+            }
+        }
+        initBloodCells();
+
+        // Canvas Setup
+        const canvas = document.getElementById('simulation-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Handle Canvas Resizing dynamically
+        function resizeCanvas() {
+            const rect = canvas.parentNode.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Canvas Geometry Coordinates
+        function getGeometry() {
+            const w = Math.max(10, canvas.width);
+            const h = Math.max(10, canvas.height);
+            const centerX = w / 2;
+            const centerY = h + 100;
+            
+            const rScalp = Math.max(5, h * 0.9);
+            const rSkull = Math.max(4, h * 0.84);
+            const rCsf = Math.max(3, h * 0.81);
+            const rBrain = Math.max(2, h * 0.78);
+
+            const emitterX = centerX + Math.cos(emitterAngle) * rScalp;
+            const emitterY = centerY + Math.sin(emitterAngle) * rScalp;
+            const detectorX = centerX + Math.cos(detectorAngle) * rScalp;
+            const detectorY = centerY + Math.sin(detectorAngle) * rScalp;
+
+            return {
+                w, h,
+                centerX, centerY,
+                rScalp, rSkull, rCsf, rBrain,
+                emitterX, emitterY,
+                detectorX, detectorY
+            };
+        }
+
+        // Initialize Signal Chart
+        const ctxSignal = document.getElementById('chart-signal').getContext('2d');
+        const signalChart = new Chart(ctxSignal, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 40}, (_, i) => ''),
+                datasets: [
+                    {
+                        label: 'ΔO₂Hb (Oxyhemoglobin)',
+                        data: Array(40).fill(0),
+                        borderColor: '#f43f5e',
+                        backgroundColor: 'rgba(244, 63, 94, 0.05)',
+                        borderWidth: 2.5,
+                        pointRadius: 0,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'ΔHHb (Deoxyhemoglobin)',
+                        data: Array(40).fill(0),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        borderWidth: 2.5,
+                        pointRadius: 0,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Δ[HbT] (Total Blood Volume)',
+                        borderColor: '#a855f7',
+                        data: Array(40).fill(0),
+                        borderDash: [5, 5],
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        tension: 0.3,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#94a3b8',
+                            boxWidth: 12,
+                            font: { size: 10, family: 'Plus Jakarta Sans' }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: -1.0, // Strictly locked minimum
+                        max: 3.0,  // Strictly locked maximum
+                        title: {
+                            display: true,
+                            text: 'Concentration Change (μM · mm)',
+                            color: '#64748b',
+                            font: { size: 9, family: 'Plus Jakarta Sans', weight: 'bold' }
+                        },
+                        grid: { color: 'rgba(51, 65, 85, 0.2)' },
+                        ticks: { 
+                            color: '#64748b', 
+                            font: { size: 9 },
+                            stepSize: 0.5 // Locked, stable step size interval
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (relative)',
+                            color: '#64748b',
+                            font: { size: 9, family: 'Plus Jakarta Sans', weight: 'bold' }
+                        },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Initialize Absorption Spectra Chart
+        const ctxSpectra = document.getElementById('chart-spectra').getContext('2d');
+        const spectraChart = new Chart(ctxSpectra, {
+            type: 'line',
+            data: {
+                labels: [650, 690, 720, 750, 780, 800, 810, 830, 860, 900],
+                datasets: [
+                    {
+                        label: 'O₂Hb (Oxy)',
+                        data: [0.15, 0.22, 0.35, 0.55, 0.78, 0.95, 1.05, 1.25, 1.55, 1.95],
+                        borderColor: '#f43f5e',
+                        borderWidth: 2.5,
+                        tension: 0.4,
+                        pointRadius: (context) => {
+                            const val = context.chart.data.labels[context.dataIndex];
+                            return (val === 690 || val === 830) ? 6 : 0;
+                        },
+                        pointBackgroundColor: '#f43f5e'
+                    },
+                    {
+                        label: 'HHb (Deoxy)',
+                        data: [1.85, 1.45, 1.15, 0.92, 0.85, 0.95, 1.02, 1.05, 0.98, 0.88],
+                        borderColor: '#3b82f6',
+                        borderWidth: 2.5,
+                        tension: 0.4,
+                        pointRadius: (context) => {
+                            const val = context.chart.data.labels[context.dataIndex];
+                            return (val === 690 || val === 830) ? 6 : 0;
+                        },
+                        pointBackgroundColor: '#3b82f6'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#94a3b8',
+                            boxWidth: 10,
+                            font: { size: 9 }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        title: { display: true, text: 'Extinction coeff (ε)', color: '#64748b', font: { size: 9 } },
+                        grid: { color: 'rgba(51, 65, 85, 0.2)' },
+                        ticks: { color: '#64748b', font: { size: 8 } }
+                    },
+                    x: {
+                        title: { display: true, text: 'Wavelength (nm)', color: '#64748b', font: { size: 9 } },
+                        grid: { color: 'rgba(51, 65, 85, 0.1)' },
+                        ticks: { color: '#64748b', font: { size: 8 } }
+                    }
+                }
+            }
+        });
+
+        // Trigger Activation Click
+        const btnActivation = document.getElementById('btn-trigger-activation');
+        const activationBadge = document.getElementById('activation-badge');
+
+        btnActivation.addEventListener('click', () => {
+            if (!state.isActivated) {
+                state.isActivated = true;
+                state.activationTimer = 180; // duration in frames (~3 seconds)
+                activationBadge.className = "px-2 py-0.5 text-[10px] rounded-full border border-rose-500 bg-rose-500/20 text-rose-300 uppercase font-mono tracking-widest animate-pulse";
+                activationBadge.textContent = "ACTIVATED";
+                triggerNeuronSparks();
+            }
+        });
+
+        function triggerNeuronSparks() {
+            const geo = getGeometry();
+            for (let i = 0; i < 25; i++) {
+                const angle = Math.PI * 1.25 + Math.random() * Math.PI * 0.5; 
+                const r = geo.rBrain - Math.random() * 50 - 20;
+                const x = geo.centerX + Math.cos(angle) * r;
+                const y = geo.centerY + Math.sin(angle) * r;
+                state.neuronSparks.push({
+                    x, y,
+                    alpha: 1.0,
+                    size: Math.random() * 4 + 2,
+                    dx: (Math.random() - 0.5) * 1.5,
+                    dy: (Math.random() - 0.5) * 1.5
+                });
+            }
+        }
+
+        // Reset Simulator State
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            state.isActivated = false;
+            state.activationTimer = 0;
+            state.vascularDrive = 0;
+            state.hboSmooth = state.baseO2Hb;
+            state.hbrSmooth = state.baseHHb;
+            state.currentHbO = 0;
+            state.currentHbR = 0;
+            state.photons = [];
+            state.neuronSparks = [];
+            initBloodCells();
+            
+            activationBadge.className = "px-2 py-0.5 text-[10px] rounded-full border border-slate-700 bg-slate-800 text-slate-400 uppercase font-mono tracking-widest";
+            activationBadge.textContent = "Resting";
+            
+            signalChart.data.datasets[0].data = Array(40).fill(0);
+            signalChart.data.datasets[1].data = Array(40).fill(0);
+            signalChart.data.datasets[2].data = Array(40).fill(0);
+            signalChart.update();
+        });
+
+        // Interactive Steps Clicking
+        const steps = ['step-1', 'step-2', 'step-3'];
+        steps.forEach((stepId) => {
+            document.getElementById(stepId).addEventListener('click', () => {
+                steps.forEach(id => {
+                    const el = document.getElementById(id);
+                    el.className = "step-card border-l-2 border-slate-700 bg-slate-900/40 p-3 rounded-r-xl transition cursor-pointer";
+                    el.querySelector('span:nth-child(2)').className = "w-2 h-2 rounded-full bg-slate-700";
+                });
+                const activeEl = document.getElementById(stepId);
+                activeEl.className = "step-card border-l-2 border-emerald-500 bg-emerald-500/5 p-3 rounded-r-xl transition cursor-pointer";
+                activeEl.querySelector('span:nth-child(2)').className = "w-2 h-2 rounded-full bg-emerald-400";
+            });
+        });
+
+        // Clean value formatting function to avoid -0.0 and stabilize resting baseline
+        function formatSignalValue(val) {
+            const rounded = Math.round(val * 10) / 10;
+            if (rounded === 0 || Object.is(rounded, -0)) {
+                return "0.0";
+            }
+            return rounded.toFixed(1);
+        }
+
+        // Hemodynamic Response updates dynamically based on physical cells tracking
+        function updateHemodynamics() {
+            // 1. Manage simulated neural vascular activation state
+            if (state.isActivated) {
+                state.vascularDrive += (1.0 - state.vascularDrive) * 0.015; // Smooth onset dilation
+                state.activationTimer--;
+                if (state.activationTimer <= 0) {
+                    state.isActivated = false;
+                    activationBadge.className = "px-2 py-0.5 text-[10px] rounded-full border border-slate-700 bg-slate-800 text-slate-400 uppercase font-mono tracking-widest";
+                    activationBadge.textContent = "RESTING";
+                }
+            } else {
+                state.vascularDrive += (0.0 - state.vascularDrive) * 0.005; // Gradual decay to rest
+            }
+
+            // 2. Count ACTUAL cells physically currently inside the banana detection arc
+            let hboInZone = 0;
+            let hbrInZone = 0;
+            state.bloodCells.forEach(cell => {
+                if (cell.angle >= emitterAngle && cell.angle <= detectorAngle) {
+                    if (cell.type === 'O2Hb') {
+                        hboInZone++;
+                    } else {
+                        hbrInZone++;
+                    }
+                }
+            });
+
+            // 3. Smooth the readings to emulate instrumental/biological integration delay
+            state.hboSmooth += (hboInZone - state.hboSmooth) * 0.05;
+            state.hbrSmooth += (hbrInZone - state.hbrSmooth) * 0.05;
+
+            // 4. Map the physical count deviations to scientific metric scale
+            const scaleFactor = 0.08;
+            const targetDeltaO2Hb = (state.hboSmooth - state.baseO2Hb) * scaleFactor;
+            const targetDeltaHHb = (state.hbrSmooth - state.baseHHb) * scaleFactor;
+
+            // 5. Add minute instrumental drift / physiological background noise
+            const noiseFactor = state.isActivated ? 1.0 : 0.4;
+            const driftOxy = Math.sin(state.simTime * 0.015) * 0.05 + (Math.random() * 0.02 - 0.01) * noiseFactor;
+            const driftDeoxy = Math.sin(state.simTime * 0.015 + Math.PI) * 0.02 + (Math.random() * 0.01 - 0.005) * noiseFactor;
+
+            // Compute final display outputs
+            state.currentHbO = targetDeltaO2Hb + driftOxy;
+            state.currentHbR = targetDeltaHHb + driftDeoxy;
+
+            // Update instant dashboard metrics
+            document.getElementById('metric-hbo').textContent = formatSignalValue(state.currentHbO);
+            document.getElementById('metric-hbr').textContent = formatSignalValue(state.currentHbR);
+            document.getElementById('metric-hbt').textContent = formatSignalValue(state.currentHbO + state.currentHbR);
+        }
+
+        // Add physical properties of photons
+        class Photon {
+            constructor(startX, startY, wavelength, isGuided = false) {
+                this.x = startX;
+                this.y = startY;
+                this.wl = wavelength;
+                this.isGuided = isGuided;
+                this.active = true;
+                
+                if (this.isGuided) {
+                    this.t = 0;
+                    this.speed = 0.01 + Math.random() * 0.01;
+                    this.offsetX = (Math.random() - 0.5) * 16;
+                    this.offsetY = (Math.random() - 0.5) * 16;
+                } else {
+                    this.angle = emitterAngle + Math.PI / 2 + (Math.random() - 0.5) * 0.4;
+                    this.speed = Math.random() * 2 + 3;
+                    this.life = 100;
+                }
+                this.pathHistory = [{x: startX, y: startY}];
+            }
+
+            update(geo) {
+                if (!this.active) return;
+
+                if (this.isGuided) {
+                    this.t += this.speed;
+                    if (this.t >= 1) {
+                        this.t = 1;
+                        this.active = false;
+                        detectorFlash = 8; // Trigger flash upon arrival
+                        return;
+                    }
+
+                    // Quadratic Bezier formula mapping standard banana path
+                    const ctrlX = geo.centerX;
+                    const ctrlY = (geo.emitterY + geo.detectorY) / 2 + (geo.rScalp - geo.rBrain) * 3.2; 
+                    
+                    const bX = (1 - this.t) * (1 - this.t) * geo.emitterX + 2 * (1 - this.t) * this.t * ctrlX + this.t * this.t * geo.detectorX;
+                    const bY = (1 - this.t) * (1 - this.t) * geo.emitterY + 2 * (1 - this.t) * this.t * ctrlY + this.t * this.t * geo.detectorY;
+
+                    const spreadFactor = Math.sin(this.t * Math.PI);
+                    this.x = bX + this.offsetX * spreadFactor;
+                    this.y = bY + this.offsetY * spreadFactor;
+
+                    this.pathHistory.push({x: this.x, y: this.y});
+                    if (this.pathHistory.length > 15) {
+                        this.pathHistory.shift();
+                    }
+                } else {
+                    const vx = Math.cos(this.angle) * this.speed;
+                    const vy = Math.sin(this.angle) * this.speed;
+                    this.x += vx;
+                    this.y += vy;
+
+                    this.pathHistory.push({x: this.x, y: this.y});
+                    if (this.pathHistory.length > 25) {
+                        this.pathHistory.shift();
+                    }
+
+                    const dx = this.x - geo.centerX;
+                    const dy = this.y - geo.centerY;
+                    const currentRadius = Math.sqrt(dx * dx + dy * dy);
+
+                    const scatterModifier = state.scatterIntensity * 0.15;
+                    this.angle += (Math.random() - 0.5) * scatterModifier;
+
+                    if (currentRadius < geo.rBrain) {
+                        let absorptionProb = 0.025;
+                        if (this.wl === 690) {
+                            absorptionProb += (0.03 + (state.currentHbR * -0.01)); 
+                        } else if (this.wl === 830) {
+                            absorptionProb += (0.03 + (state.currentHbO * 0.01));
+                        }
+                        if (Math.random() < absorptionProb) this.active = false;
+                    } else if (currentRadius > geo.rScalp) {
+                        this.angle += Math.PI; 
+                        if (Math.random() < 0.1) this.active = false;
+                    }
+
+                    const distToDetector = Math.hypot(this.x - geo.detectorX, this.y - geo.detectorY);
+                    if (distToDetector < 25) {
+                        this.active = false;
+                        detectorFlash = 8;
+                    }
+
+                    this.life--;
+                    if (this.life <= 0) {
+                        this.active = false;
+                    }
+                }
+            }
+
+            draw() {
+                if (!this.active) return;
+                
+                ctx.beginPath();
+                ctx.moveTo(this.pathHistory[0].x, this.pathHistory[0].y);
+                for (let i = 1; i < this.pathHistory.length; i++) {
+                    ctx.lineTo(this.pathHistory[i].x, this.pathHistory[i].y);
+                }
+                ctx.strokeStyle = this.wl === 690 ? 'rgba(59, 130, 246, 0.25)' : 'rgba(244, 63, 94, 0.25)';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.isGuided ? 2.5 : 1.8, 0, TWO_PI);
+                ctx.fillStyle = this.wl === 690 ? '#3b82f6' : '#f43f5e';
+                ctx.shadowColor = this.wl === 690 ? '#3b82f6' : '#f43f5e';
+                ctx.shadowBlur = this.isGuided ? 6 : 2;
+                ctx.fill();
+                ctx.shadowBlur = 0; 
+            }
+        }
+
+        let detectorFlash = 0;
+
+        function drawAnatomicalLayers(geo) {
+            ctx.beginPath();
+            ctx.arc(geo.centerX, geo.centerY, geo.rBrain, Math.PI, Math.PI * 2);
+            ctx.fillStyle = '#0f1f1a';
+            ctx.strokeStyle = '#244b36';
+            ctx.lineWidth = 3;
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            const steps = 60;
+            const stepAngle = Math.PI / steps;
+            ctx.moveTo(geo.centerX - geo.rBrain, geo.centerY);
+            for (let i = 0; i <= steps; i++) {
+                const angle = Math.PI + i * stepAngle;
+                const rWavy = Math.max(1, geo.rBrain - 15 + Math.sin(i * 1.5) * 8);
+                const wx = geo.centerX + Math.cos(angle) * rWavy;
+                const wy = geo.centerY + Math.sin(angle) * rWavy;
+                ctx.lineTo(wx, wy);
+            }
+            ctx.strokeStyle = '#1d3b2a';
+            ctx.fillStyle = '#0a1411';
+            ctx.lineWidth = 2;
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(geo.centerX, geo.centerY, geo.rCsf, Math.PI, Math.PI * 2);
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(geo.centerX, geo.centerY, (geo.rCsf + geo.rSkull)/2, Math.PI, Math.PI * 2);
+            ctx.strokeStyle = '#5b9fb0';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(geo.centerX, geo.centerY, geo.rSkull, Math.PI, Math.PI * 2);
+            ctx.strokeStyle = '#dcdcdc';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(geo.centerX, geo.centerY, geo.rScalp, Math.PI, Math.PI * 2);
+            ctx.strokeStyle = '#8d5b4c';
+            ctx.lineWidth = 10;
+            ctx.stroke();
+        }
+
+        function drawBloodVessel(geo) {
+            const rVessel = geo.rBrain * 0.85; 
+            const startAngle = Math.PI * 1.15;
+            const endAngle = Math.PI * 1.85;
+
+            ctx.save();
+            const wallThickness = Math.max(4, geo.rBrain * 0.12);
+            
+            ctx.lineWidth = wallThickness;
+            ctx.strokeStyle = 'rgba(15, 23, 42, 0.4)'; 
+            ctx.beginPath();
+            ctx.arc(geo.centerX, geo.centerY, rVessel, startAngle, endAngle);
+            ctx.stroke();
+            
+            ctx.lineWidth = 1.5;
+            const wallGlowOpacity = 0.2 + state.vascularDrive * 0.4;
+            ctx.strokeStyle = `rgba(244, 63, 94, ${wallGlowOpacity})`;
+            ctx.beginPath();
+            ctx.arc(geo.centerX, geo.centerY, Math.max(0.1, rVessel - wallThickness / 2), startAngle, endAngle);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(geo.centerX, geo.centerY, rVessel + wallThickness / 2, startAngle, endAngle);
+            ctx.stroke();
+
+            // Spawn physics - Active levels shift the density heavily to O2Hb
+            const spawnRate = Math.max(4, Math.floor(12 - state.vascularDrive * 8));
+            if (state.simTime % spawnRate === 0) {
+                const spawnAngle = startAngle - 0.05;
+                const isO2Hb = Math.random() < (0.6 + state.vascularDrive * 0.36); 
+                
+                state.bloodCells.push({
+                    angle: spawnAngle,
+                    rOffset: (Math.random() - 0.5) * (wallThickness - 6),
+                    type: isO2Hb ? 'O2Hb' : 'HHb',
+                    speed: 0.003 + state.vascularDrive * 0.001
+                });
+            }
+
+            for (let i = state.bloodCells.length - 1; i >= 0; i--) {
+                let cell = state.bloodCells[i];
+                cell.angle += cell.speed;
+                
+                if (cell.angle > endAngle + 0.05) {
+                    state.bloodCells.splice(i, 1);
+                    continue;
+                }
+
+                const safeRadius = Math.max(0.1, rVessel + cell.rOffset);
+                const x = geo.centerX + Math.cos(cell.angle) * safeRadius;
+                const y = geo.centerY + Math.sin(cell.angle) * safeRadius;
+
+                ctx.beginPath();
+                ctx.arc(x, y, Math.max(1, wallThickness * 0.15), 0, TWO_PI);
+                
+                if (cell.type === 'O2Hb') {
+                    ctx.fillStyle = '#f43f5e';
+                    ctx.shadowColor = '#f43f5e';
+                } else {
+                    ctx.fillStyle = '#3b82f6';
+                    ctx.shadowColor = '#3b82f6';
+                }
+                ctx.shadowBlur = 6;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            const labelTargetX = geo.centerX + Math.cos(Math.PI * 1.5) * rVessel;
+            const labelTargetY = geo.centerY + Math.sin(Math.PI * 1.5) * rVessel;
+            
+            ctx.moveTo(labelTargetX - 15, labelTargetY + 15);
+            ctx.lineTo(labelTargetX - 60, labelTargetY + 50);
+            ctx.lineTo(labelTargetX - 110, labelTargetY + 50);
+            ctx.stroke();
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = 'bold 10px "Plus Jakarta Sans", sans-serif';
+            ctx.textAlign = 'right';
+            ctx.shadowColor = '#000';
+            ctx.shadowBlur = 2;
+            ctx.fillText('Flowing O₂Hb & HHb', labelTargetX - 115, labelTargetY + 53);
+            ctx.restore();
+        }
+
+        function drawBananaPath(geo) {
+            const r0 = Math.max(0.1, 50);
+            const r1 = Math.max(r0 + 1, geo.rScalp - 20);
+
+            ctx.save();
+            try {
+                const grad = ctx.createRadialGradient(geo.centerX, geo.centerY - 50, r0, geo.centerX, geo.centerY - 50, r1);
+                grad.addColorStop(0, 'rgba(234, 179, 8, 0.0)');
+                grad.addColorStop(0.7, 'rgba(234, 179, 8, 0.06)');
+                grad.addColorStop(0.85, 'rgba(234, 179, 8, 0.18)'); 
+                grad.addColorStop(1, 'rgba(234, 179, 8, 0.0)');
+
+                ctx.beginPath();
+                ctx.arc(geo.centerX, geo.centerY, Math.max(0.1, geo.rScalp - 5), emitterAngle, detectorAngle);
+                ctx.lineTo(geo.detectorX, geo.detectorY);
+                ctx.arc(geo.centerX, geo.centerY, Math.max(0.1, geo.rBrain - 25), detectorAngle, emitterAngle, true);
+                ctx.closePath();
+                ctx.fillStyle = grad;
+                ctx.fill();
+            } catch (e) {
+                console.warn("Gradient drawing skipped: ", e.message);
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(geo.emitterX, geo.emitterY);
+            const ctrlX = geo.centerX;
+            const ctrlY = (geo.emitterY + geo.detectorY) / 2 + (geo.rScalp - geo.rBrain) * 3.2;
+            ctx.quadraticCurveTo(ctrlX, ctrlY, geo.detectorX, geo.detectorY);
+            
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([6, 6]);
+            ctx.shadowColor = 'rgba(251, 191, 36, 0.6)';
+            ctx.shadowBlur = 6;
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function loop() {
+            ctx.fillStyle = '#070a13';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const geo = getGeometry();
+
+            // Run central math
+            updateHemodynamics();
+
+            drawAnatomicalLayers(geo);
+            drawBloodVessel(geo);
+            drawBananaPath(geo);
+
+            if (state.simTime % Math.max(1, Math.floor(30 - state.photonRate)) === 0) {
+                const waveEmission = Math.random() > 0.5 ? 690 : 830;
+                const isGuided = Math.random() < 0.45;
+                state.photons.push(new Photon(geo.emitterX, geo.emitterY, waveEmission, isGuided));
+            }
+
+            for (let i = state.photons.length - 1; i >= 0; i--) {
+                const p = state.photons[i];
+                p.update(geo);
+                p.draw();
+                if (!p.active) state.photons.splice(i, 1);
+            }
+
+            for (let i = state.neuronSparks.length - 1; i >= 0; i--) {
+                const s = state.neuronSparks[i];
+                s.x += s.dx;
+                s.y += s.dy;
+                s.alpha -= 0.015;
+                if (s.alpha <= 0) {
+                    state.neuronSparks.splice(i, 1);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.size, 0, TWO_PI);
+                    ctx.fillStyle = `rgba(251, 191, 36, ${s.alpha})`;
+                    ctx.shadowColor = '#fbbf24';
+                    ctx.shadowBlur = 8;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            ctx.save();
+            ctx.translate(geo.emitterX, geo.emitterY);
+            ctx.rotate(emitterAngle + Math.PI / 2);
+            ctx.fillStyle = '#f43f5e';
+            ctx.fillRect(-10, -3, 20, 6);
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(-6, -15, 12, 12);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(-6, -15, 12, 12);
+            ctx.strokeStyle = '#f43f5e';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, -15);
+            ctx.quadraticCurveTo(-15, -45, -30, -35);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(geo.detectorX, geo.detectorY);
+            ctx.rotate(detectorAngle + Math.PI / 2);
+            ctx.fillStyle = '#22d3ee';
+            ctx.fillRect(-10, -3, 20, 6);
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(-6, -15, 12, 12);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(-6, -15, 12, 12);
+            ctx.strokeStyle = '#22d3ee';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, -15);
+            ctx.quadraticCurveTo(15, -45, 30, -35);
+            ctx.stroke();
+            
+            if (detectorFlash > 0) {
+                ctx.beginPath();
+                ctx.arc(0, 0, detectorFlash * 2.5, 0, TWO_PI);
+                ctx.strokeStyle = `rgba(34, 211, 238, ${detectorFlash / 8})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                detectorFlash--;
+            }
+            ctx.restore();
+
+            if (state.simTime % 15 === 0) {
+                signalChart.data.datasets[0].data.push(state.currentHbO);
+                signalChart.data.datasets[0].data.shift();
+                
+                signalChart.data.datasets[1].data.push(state.currentHbR);
+                signalChart.data.datasets[1].data.shift();
+
+                signalChart.data.datasets[2].data.push(state.currentHbO + state.currentHbR);
+                signalChart.data.datasets[2].data.shift();
+                
+                signalChart.update('none'); 
+            }
+
+            state.simTime++;
+            requestAnimationFrame(loop);
+        }
+
+        // Start Loop
+        loop();
+    </script>
+</body>
+</html>
