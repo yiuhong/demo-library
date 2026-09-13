@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boxplot and outliers</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --box-fill: #bfdbfe;
+            --line-color: #1e293b;
+            --point-color: #ef4444;
+            --bg-color: #f8fafc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--line-color);
+            margin-bottom: 5px;
+        }
+
+        .explanation {
+            text-align: center;
+            color: #475569;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Controls Styles */
+        .controls-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-weight: 600;
+        }
+
+        .sample-badge {
+            background: #e0e7ff;
+            color: #1e40af;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Distribution Buttons */
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #eff6ff;
+        }
+
+        .btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* SVG Chart Area */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 650px;
+            margin: 20px 0;
+            overflow: visible;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        .svg-label {
+            font-family: sans-serif;
+            font-size: 14px;
+            fill: var(--line-color);
+        }
+        
+        .fence-label {
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+        
+        .data-point {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Boxplot and outliers</h1>
+    <p class="explanation">
+        <strong>Are outliers not the min and max?</strong> The absolute minimum and maximum <em>are</em> the actual extremes of the data. 
+        However, in a boxplot, the whiskers only extend to the lowest and highest typical values within a mathematically expected range (Tukey's Fences). 
+        Any values falling outside this range are plotted as individual <strong>outliers</strong>.
+    </p>
+    
+    <div class="container">
+        <div class="controls-group">
+            <div class="controls">
+                <span style="color: #64748b;">Distribution Shape:</span>
+                <div class="btn-group">
+                    <button class="btn" id="btn-negative">Negative Skew</button>
+                    <button class="btn active" id="btn-normal">Normal</button>
+                    <button class="btn" id="btn-positive">Positive Skew</button>
+                </div>
+                <span class="sample-badge">Sample Size: <strong>n = 100</strong></span>
+            </div>
+            <div class="controls">
+                <span style="color: #64748b;">Hide Data Points</span>
+                <label class="switch">
+                    <input type="checkbox" id="dataToggle" checked>
+                    <span class="slider"></span>
+                </label>
+                <span>Show Data Points</span>
+                
+                <span style="color: #64748b; margin-left: 20px;">Hide Outliers</span>
+                <label class="switch">
+                    <input type="checkbox" id="outlierToggle" checked>
+                    <span class="slider"></span>
+                </label>
+                <span>Show Outliers</span>
+            </div>
+        </div>
+
+        <div class="chart-container" id="chart">
+            <!-- SVG will be injected here by JavaScript -->
+        </div>
+
+        <div class="stats-grid" id="stats">
+            <!-- Stats will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Helper to generate perfectly dispersed arrays
+        function createDataset(qMin, q1, q2, q3, qMax) {
+            let data = [];
+            for(let i=0; i<25; i++) data.push(Math.round(qMin + (q1 - qMin) * (i/24)));
+            for(let i=0; i<25; i++) data.push(Math.round(q1 + (q2 - q1) * (i/24)));
+            for(let i=0; i<25; i++) data.push(Math.round(q2 + (q3 - q2) * (i/24)));
+            for(let i=0; i<25; i++) data.push(Math.round(q3 + (qMax - q3) * (i/24)));
+            return data;
+        }
+
+        // Define 3 distribution profiles (100 points each)
+        const distributions = {
+            negative: {
+                base: createDataset(45, 75, 100, 112, 125),
+                outlierReplacements: { indices: [0, 1, 2], values: [5, 10, 15] }
+            },
+            normal: {
+                base: createDataset(35, 55, 70, 85, 105),
+                outlierReplacements: { indices: [0, 1, 98, 99], values: [2, 8, 132, 138] }
+            },
+            positive: {
+                base: createDataset(15, 28, 40, 65, 95),
+                outlierReplacements: { indices: [97, 98, 99], values: [125, 130, 135] }
+            }
+        };
+
+        // Populate the "withOutliers" arrays by modifying specific indices
+        for (let key in distributions) {
+            let dist = distributions[key];
+            dist.withOutliers = [...dist.base];
+            dist.outlierReplacements.indices.forEach((idx, i) => {
+                dist.withOutliers[idx] = dist.outlierReplacements.values[i];
+            });
+        }
+
+        // UI State
+        let currentDist = 'normal';
+        let showPoints = true;
+        let useOutliers = true;
+
+        // Helper function to calculate median safely
+        const getMedian = (arr) => {
+            const mid = Math.floor(arr.length / 2);
+            return arr.length % 2 !== 0 ? arr[mid] : (arr[mid - 1] + arr[mid]) / 2;
+        };
+
+        // Central calculation function
+        function calculateStats(data) {
+            const sorted = [...data].sort((a,b) => a-b);
+            
+            const q2 = getMedian(sorted);
+            const lowerHalf = sorted.slice(0, Math.floor(sorted.length / 2));
+            const upperHalf = sorted.slice(Math.ceil(sorted.length / 2));
+            const q1 = getMedian(lowerHalf);
+            const q3 = getMedian(upperHalf);
+            
+            const iqr = q3 - q1;
+            
+            const lowerFence = q1 - 1.5 * iqr; 
+            const upperFence = q3 + 1.5 * iqr; 
+            
+            const outliers = sorted.filter(d => d < lowerFence || d > upperFence);
+            const regularData = sorted.filter(d => d >= lowerFence && d <= upperFence);
+            
+            const minWhisker = Math.min(...regularData);
+            const maxWhisker = Math.max(...regularData);
+            
+            const absoluteMin = sorted[0];
+            const absoluteMax = sorted[sorted.length - 1];
+            const range = absoluteMax - absoluteMin;
+
+            return { q1, q2, q3, iqr, lowerFence, upperFence, outliers, regularData, minWhisker, maxWhisker, absoluteMin, absoluteMax, range, raw: sorted };
+        }
+
+        // Configuration for drawing
+        const axisMin = 0;
+        const axisMax = 140; 
+        const chartRange = axisMax - axisMin;
+        
+        const width = 600; 
+        const height = 650;
+        const padding = 60;
+        const centerX = width / 2;
+        const boxWidth = 80;
+
+        function mapY(value) {
+            return height - padding - ((value - axisMin) / chartRange) * (height - 2 * padding);
+        }
+
+        function drawChart() {
+            const distData = distributions[currentDist];
+            const activeDataset = useOutliers ? distData.withOutliers : distData.base;
+            const stats = calculateStats(activeDataset);
+            const pointsOpacity = showPoints ? '1' : '0';
+
+            let svgContent = `<svg viewBox="0 0 ${width} ${height}">
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--primary)" />
+                    </marker>
+                </defs>`;
+
+            // 0. Draw Y-axis
+            const axisX = padding;
+            svgContent += `<line x1="${axisX}" y1="${height - padding + 10}" x2="${axisX}" y2="${padding - 10}" stroke="var(--line-color)" stroke-width="2"/>`;
+            
+            for(let i = 0; i <= 140; i += 10) {
+                const y = mapY(i);
+                svgContent += `<line x1="${axisX - 5}" y1="${y}" x2="${axisX}" y2="${y}" stroke="var(--line-color)" stroke-width="2"/>`;
+                svgContent += `<text x="${axisX - 10}" y="${y + 5}" class="svg-label" text-anchor="end">${i}</text>`;
+            }
+
+            // 1. Prepare Left-Side Labels (Fences & Outliers)
+            const leftLabels = [];
+
+            if (stats.outliers.length > 0) {
+                const clampLower = Math.max(stats.lowerFence, axisMin - 10);
+                const clampUpper = Math.min(stats.upperFence, axisMax + 10);
+                
+                // Fence dashed lines across box area
+                svgContent += `<line x1="${centerX - 60}" y1="${mapY(clampLower)}" x2="${centerX + 60}" y2="${mapY(clampLower)}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8,4"/>`;
+                svgContent += `<line x1="${centerX - 60}" y1="${mapY(clampUpper)}" x2="${centerX + 60}" y2="${mapY(clampUpper)}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8,4"/>`;
+
+                leftLabels.push({
+                    text: 'Upper Fence (+1.5x IQR)',
+                    y: mapY(clampUpper),
+                    color: '#64748b',
+                    fontStyle: 'italic',
+                    fontWeight: 'normal'
+                });
+
+                leftLabels.push({
+                    text: 'Lower Fence (-1.5x IQR)',
+                    y: mapY(clampLower),
+                    color: '#64748b',
+                    fontStyle: 'italic',
+                    fontWeight: 'normal'
+                });
+
+                const upperOutliers = stats.outliers.filter(d => d > stats.upperFence);
+                if (upperOutliers.length > 0) {
+                    const midVal = (Math.min(...upperOutliers) + Math.max(...upperOutliers)) / 2;
+                    leftLabels.push({
+                        text: 'Outliers',
+                        y: mapY(midVal),
+                        color: 'var(--point-color)',
+                        fontStyle: 'normal',
+                        fontWeight: 'bold'
+                    });
+                }
+
+                const lowerOutliers = stats.outliers.filter(d => d < stats.lowerFence);
+                if (lowerOutliers.length > 0) {
+                    const midVal = (Math.min(...lowerOutliers) + Math.max(...lowerOutliers)) / 2;
+                    leftLabels.push({
+                        text: 'Outliers',
+                        y: mapY(midVal),
+                        color: 'var(--point-color)',
+                        fontStyle: 'normal',
+                        fontWeight: 'bold'
+                    });
+                }
+            }
+
+            // Deconflict Left-Side Labels
+            leftLabels.sort((a, b) => a.y - b.y);
+            const minLeftGap = 22;
+            for (let i = 1; i < leftLabels.length; i++) {
+                if (leftLabels[i].y - leftLabels[i - 1].y < minLeftGap) {
+                    leftLabels[i].y = leftLabels[i - 1].y + minLeftGap;
+                }
+            }
+
+            // Draw Left-Side Labels
+            const leftX = centerX - 65;
+            leftLabels.forEach(lbl => {
+                svgContent += `<text x="${leftX}" y="${lbl.y + 4}" class="fence-label" text-anchor="end" fill="${lbl.color}" font-style="${lbl.fontStyle}" font-weight="${lbl.fontWeight}">${lbl.text}</text>`;
+            });
+
+            // 2. Draw Whiskers Line
+            svgContent += `<line x1="${centerX}" y1="${mapY(stats.minWhisker)}" x2="${centerX}" y2="${mapY(stats.maxWhisker)}" stroke="#1e293b" stroke-width="3" stroke-dasharray="6,4"/>`;
+
+            // 3. Draw Box (Q1 to Q3)
+            const boxTop = mapY(stats.q3);
+            const boxBottom = mapY(stats.q1);
+            svgContent += `<rect x="${centerX - boxWidth/2}" y="${boxTop}" width="${boxWidth}" height="${boxBottom - boxTop}" fill="var(--box-fill)" stroke="var(--line-color)" stroke-width="3" rx="4"/>`;
+
+            // 4. Draw Median Line (Q2)
+            svgContent += `<line x1="${centerX - boxWidth/2}" y1="${mapY(stats.q2)}" x2="${centerX + boxWidth/2}" y2="${mapY(stats.q2)}" stroke="var(--line-color)" stroke-width="4"/>`;
+
+            // 5. Draw Whisker Caps
+            const whiskerWidth = 40;
+            svgContent += `<line x1="${centerX - whiskerWidth/2}" y1="${mapY(stats.minWhisker)}" x2="${centerX + whiskerWidth/2}" y2="${mapY(stats.minWhisker)}" stroke="var(--line-color)" stroke-width="3"/>`;
+            svgContent += `<line x1="${centerX - whiskerWidth/2}" y1="${mapY(stats.maxWhisker)}" x2="${centerX + whiskerWidth/2}" y2="${mapY(stats.maxWhisker)}" stroke="var(--line-color)" stroke-width="3"/>`;
+
+            // 6. Prepare Right-Side Labels
+            const rightLabels = [
+                { name: 'Q3', y: mapY(stats.q3), sub: '75% of data below' },
+                { name: 'Q2 (Median)', y: mapY(stats.q2), sub: '50% of data below' },
+                { name: 'Q1', y: mapY(stats.q1), sub: '25% of data below' }
+            ];
+
+            const upperOutliersExist = stats.outliers.some(d => d > stats.upperFence);
+            const lowerOutliersExist = stats.outliers.some(d => d < stats.lowerFence);
+
+            if (upperOutliersExist) {
+                rightLabels.push({ name: 'Max', y: mapY(stats.absoluteMax), sub: 'Absolute highest value' });
+                rightLabels.push({ name: 'Upper Whisker', y: mapY(stats.maxWhisker), sub: 'Highest typical value' });
+            } else {
+                rightLabels.push({ name: 'Max', y: mapY(stats.absoluteMax), sub: 'Absolute highest value' });
+            }
+
+            if (lowerOutliersExist) {
+                rightLabels.push({ name: 'Lower Whisker', y: mapY(stats.minWhisker), sub: 'Lowest typical value' });
+                rightLabels.push({ name: 'Min', y: mapY(stats.absoluteMin), sub: 'Absolute lowest value' });
+            } else {
+                rightLabels.push({ name: 'Min', y: mapY(stats.absoluteMin), sub: 'Absolute lowest value' });
+            }
+
+            // Deconflict Right-Side Labels
+            rightLabels.sort((a, b) => a.y - b.y);
+            const minRightGap = 28;
+            for (let i = 1; i < rightLabels.length; i++) {
+                if (rightLabels[i].y - rightLabels[i - 1].y < minRightGap) {
+                    rightLabels[i].y = rightLabels[i - 1].y + minRightGap;
+                }
+            }
+
+            // Draw Right-Side Labels
+            const labelOffset = boxWidth/2 + 25; 
+            rightLabels.forEach(lbl => {
+                svgContent += `<text x="${centerX + labelOffset}" y="${lbl.y - 2}" class="svg-label" text-anchor="start" font-weight="bold">${lbl.name}</text>`;
+                svgContent += `<text x="${centerX + labelOffset}" y="${lbl.y + 14}" class="svg-label" text-anchor="start" font-size="12px" fill="#64748b">${lbl.sub}</text>`;
+            });
+
+            // 7. Draw Data Points
+            stats.regularData.forEach((val, index) => {
+                const pseudoRandom = Math.sin(index * 12.9898) * 43758.5453;
+                const jitter = (pseudoRandom - Math.floor(pseudoRandom) - 0.5) * 60; 
+                
+                svgContent += `<circle class="data-point" style="opacity: ${pointsOpacity}" cx="${centerX + jitter}" cy="${mapY(val)}" r="3.5" fill="var(--point-color)" stroke="white" stroke-width="0.5"/>`;
+            });
+            
+            stats.outliers.forEach((val, index) => {
+                const jitter = (index % 2 === 0 ? 1 : -1) * 12;
+                svgContent += `<circle class="data-point" style="opacity: ${pointsOpacity}" cx="${centerX + jitter}" cy="${mapY(val)}" r="4.5" fill="var(--point-color)" stroke="var(--line-color)" stroke-width="1.5"/>`;
+            });
+
+            // Annotate IQR on left
+            const iqrX = centerX - boxWidth/2 - 25;
+            svgContent += `<line x1="${iqrX}" y1="${mapY(stats.q1)}" x2="${iqrX}" y2="${mapY(stats.q3)}" stroke="var(--primary)" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>`;
+            svgContent += `<text x="${iqrX - 10}" y="${mapY((stats.q1+stats.q3)/2) + 5}" class="svg-label" text-anchor="end" fill="var(--primary)" font-weight="bold" font-size="14px">IQR (${stats.iqr})</text>`;
+
+            svgContent += `</svg>`;
+            document.getElementById('chart').innerHTML = svgContent;
+        }
+
+        function renderStats() {
+            const distData = distributions[currentDist];
+            const activeDataset = useOutliers ? distData.withOutliers : distData.base;
+            const stats = calculateStats(activeDataset);
+
+            const statsData = [
+                { label: 'Absolute Min', value: stats.absoluteMin },
+                { label: 'Q1 (25th Pct)', value: stats.q1 },
+                { label: 'Median (Q2)', value: stats.q2 },
+                { label: 'Q3 (75th Pct)', value: stats.q3 },
+                { label: 'Absolute Max', value: stats.absoluteMax },
+                { label: 'Range', value: stats.range },
+                { label: 'IQR', value: stats.iqr }
+            ];
+
+            const statsHtml = statsData.map(stat => `
+                <div class="stat-card">
+                    <div class="stat-label">${stat.label}</div>
+                    <div class="stat-value">${stat.value}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('stats').innerHTML = statsHtml;
+        }
+
+        // Event Listeners
+        document.getElementById('dataToggle').addEventListener('change', function(e) {
+            showPoints = e.target.checked;
+            const points = document.querySelectorAll('.data-point');
+            points.forEach(point => {
+                point.style.opacity = showPoints ? '1' : '0';
+            });
+        });
+
+        document.getElementById('outlierToggle').addEventListener('change', function(e) {
+            useOutliers = e.target.checked;
+            drawChart();
+            renderStats();
+        });
+
+        const distButtons = document.querySelectorAll('.btn');
+        distButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                distButtons.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                currentDist = e.target.id.split('-')[1];
+                
+                drawChart();
+                renderStats();
+            });
+        });
+
+        // Initialize
+        drawChart();
+        renderStats();
+    </script>
+</body>
+</html>
