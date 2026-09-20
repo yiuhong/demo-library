@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central Limit Theorem Simulation</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX for rendering mathematical formulas beautifully -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" 
+        onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto space-y-6">
+        
+        <!-- Header & Explanation Section -->
+        <header class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h1 class="text-3xl font-bold text-slate-900 mb-4">The Central Limit Theorem (CLT)</h1>
+            <p class="mb-4 leading-relaxed text-slate-700">
+                The Central Limit Theorem states that if you draw repeated samples of size $n$ from <strong>any</strong> population distribution (even heavily skewed ones), the distribution of those sample means will approach a normal distribution (a bell curve) as $n$ gets larger.
+            </p>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-lg mt-4">
+                <h2 class="font-bold text-blue-900 mb-2">The Standard Error (SE)</h2>
+                <p class="text-sm text-blue-900 leading-relaxed mb-3">
+                    The standard deviation of this resulting sampling distribution is called the <strong>Standard Error (SE)</strong>. It is calculated by dividing the population's standard deviation ($\sigma$) by the square root of the sample size ($n$):
+                </p>
+                <div class="text-xl text-center my-4 text-blue-950 bg-blue-100 py-3 rounded-lg w-fit mx-auto px-8">
+                    $$SE = \frac{\sigma}{\sqrt{n}}$$
+                </div>
+                <p class="text-sm text-blue-900 leading-relaxed">
+                    This mathematically proves why larger sample sizes yield tighter, more precise estimates of the population mean: as the sample size $n$ (the denominator $\sqrt{n}$) grows, the error shrinks, clustering the sample means closer to the true population mean.
+                </p>
+                
+                <div class="mt-4 pt-4 border-t border-blue-200">
+                    <p class="text-xs text-blue-800 leading-relaxed">
+                        <strong>Note on Real-World Application:</strong> This simulation uses the exact mathematical truth ($\sigma$) because we defined the population. In the real world, the true population standard deviation is rarely known, so statisticians must estimate it using the standard deviation of their single sample ($s$). In practice, the formula becomes $SE \approx \frac{s}{\sqrt{n}}$.
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Interactive Controls Section -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-6">Simulation Parameters</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- Distribution Selector -->
+                <div class="space-y-2">
+                    <label class="flex justify-between text-sm font-medium text-slate-700">
+                        <span>Population Distribution</span>
+                    </label>
+                    <select id="dist-select" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 cursor-pointer outline-none transition-opacity">
+                        <option value="exponential">Exponential (Skewed)</option>
+                        <option value="uniform">Uniform (Flat)</option>
+                        <option value="normal">Normal (Bell Curve)</option>
+                        <option value="bimodal">Bimodal (Two Peaks)</option>
+                    </select>
+                    <p class="text-xs text-slate-500">The underlying shape of the population.</p>
+                </div>
+
+                <!-- Sample Size Slider -->
+                <div class="space-y-2">
+                    <label class="flex justify-between text-sm font-medium text-slate-700">
+                        <span>Sample Size ($n$)</span>
+                        <span id="n-val" class="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">30</span>
+                    </label>
+                    <input type="range" id="sample-size" min="2" max="150" value="30" class="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none transition-opacity">
+                    <p class="text-xs text-slate-500">Number of observations drawn in each single sample.</p>
+                </div>
+
+                <!-- Number of Samples Slider -->
+                <div class="space-y-2">
+                    <label class="flex justify-between text-sm font-medium text-slate-700">
+                        <span>Number of Samples</span>
+                        <span id="iterations-val" class="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">500</span>
+                    </label>
+                    <input type="range" id="iterations" min="50" max="2000" step="10" value="500" class="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none transition-opacity">
+                    <p class="text-xs text-slate-500">Total times we draw a sample of size $n$ and record its mean.</p>
+                </div>
+
+            </div>
+            
+            <div class="mt-8 flex flex-wrap gap-4">
+                <button id="run-btn" class="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors flex-1 md:flex-none text-center">
+                    Run Simulation
+                </button>
+                <button id="reset-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors flex-1 md:flex-none text-center border border-slate-300">
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Visualizations Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Population Canvas (Left) -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-slate-800">Population Distribution</h3>
+                    <p id="pop-desc" class="text-sm text-slate-500 mb-1">A highly skewed Exponential distribution.<br> <span class="font-mono bg-slate-100 px-1 rounded">Mean ($\mu$) = 40</span> | <span class="font-mono bg-slate-100 px-1 rounded">Std Dev ($\sigma$) = 40.00</span></p>
+                </div>
+                <div class="relative w-full aspect-[4/3] flex-grow">
+                    <canvas id="pop-canvas" width="800" height="600" class="absolute inset-0 w-full h-full object-contain border border-slate-200 bg-slate-50 rounded-lg"></canvas>
+                </div>
+            </div>
+
+            <!-- Sampling Distribution Canvas (Right) -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-slate-800">Sampling Distribution of the Mean</h3>
+                    <p class="text-sm text-slate-500">Histogram of sample means with theoretical normal overlay.</p>
+                </div>
+                
+                <div class="relative w-full aspect-[4/3] mb-6 flex-grow">
+                    <canvas id="sample-canvas" width="800" height="600" class="absolute inset-0 w-full h-full object-contain border border-slate-200 bg-slate-50 rounded-lg"></canvas>
+                </div>
+                
+                <!-- Statistical Results Output -->
+                <div class="w-full bg-slate-50 p-5 rounded-lg border border-slate-200 text-sm">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-3 mb-3">
+                        <span class="text-slate-600 font-medium">Theoretical Standard Error <span class="text-xs text-slate-400">($\frac{40}{\sqrt{n}}$)</span>:</span>
+                        <span id="theo-se" class="font-mono font-bold text-lg text-slate-900">--</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-600 font-medium">Empirical Standard Error <span class="text-xs text-slate-400">(Actual Std Dev of means)</span>:</span>
+                        <span id="emp-se" class="font-mono font-bold text-lg text-indigo-700">--</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Definitions for distinct mathematical population distributions
+        const distributions = {
+            exponential: {
+                name: "Exponential",
+                desc: "A highly skewed Exponential distribution.",
+                mean: 40,
+                sd: 40,
+                minX: 0,
+                maxX: 160,
+                // Inverse transform sampling
+                generate: () => -Math.log(1.0 - Math.random()) * 40,
+                pdf: (x) => (1/40) * Math.exp(-(1/40) * x)
+            },
+            uniform: {
+                name: "Uniform",
+                desc: "A completely flat Uniform distribution [10, 90].",
+                mean: 50,
+                sd: 80 / Math.sqrt(12),
+                minX: 0,
+                maxX: 100,
+                generate: () => 10 + Math.random() * 80,
+                pdf: (x) => (x >= 10 && x <= 90) ? 1/80 : 0
+            },
+            normal: {
+                name: "Normal",
+                desc: "A standard symmetrical Normal distribution.",
+                mean: 50,
+                sd: 15,
+                minX: 0,
+                maxX: 100,
+                // Box-Muller transform for normal distribution
+                generate: () => {
+                    let u = 0, v = 0;
+                    while(u === 0) u = Math.random();
+                    while(v === 0) v = Math.random();
+                    return 50 + 15 * (Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v));
+                },
+                pdf: (x) => (1 / (15 * Math.sqrt(2 * Math.PI))) * Math.exp(-Math.pow(x - 50, 2) / (2 * 15 * 15))
+            },
+            bimodal: {
+                name: "Bimodal",
+                desc: "A Bimodal distribution with two distinct opposing peaks.",
+                mean: 50,
+                sd: Math.sqrt(Math.pow(25, 2) + Math.pow(8, 2)), // Standard deviation of mixture
+                minX: 0,
+                maxX: 100,
+                // 50/50 chance to sample from two separate Normal distributions
+                generate: () => {
+                    let u = 0, v = 0;
+                    while(u === 0) u = Math.random();
+                    while(v === 0) v = Math.random();
+                    let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+                    return Math.random() < 0.5 ? 25 + 8 * z : 75 + 8 * z;
+                },
+                pdf: (x) => {
+                    const p1 = (1 / (8 * Math.sqrt(2 * Math.PI))) * Math.exp(-Math.pow(x - 25, 2) / (2 * 8 * 8));
+                    const p2 = (1 / (8 * Math.sqrt(2 * Math.PI))) * Math.exp(-Math.pow(x - 75, 2) / (2 * 8 * 8));
+                    return 0.5 * p1 + 0.5 * p2;
+                }
+            }
+        };
+
+        // Track the current active distribution state
+        let currentDist = distributions.exponential;
+
+        // DOM Elements setup
+        const canvasPop = document.getElementById('pop-canvas');
+        const ctxPop = canvasPop.getContext('2d');
+        const canvasSample = document.getElementById('sample-canvas');
+        const ctxSample = canvasSample.getContext('2d');
+        
+        const sliderN = document.getElementById('sample-size');
+        const sliderIters = document.getElementById('iterations');
+        const valN = document.getElementById('n-val');
+        const valIters = document.getElementById('iterations-val');
+        const btnRun = document.getElementById('run-btn');
+        const btnReset = document.getElementById('reset-btn');
+
+        // Dynamically update UI labels when sliders move
+        sliderN.addEventListener('input', (e) => {
+            valN.innerText = e.target.value;
+        });
+        sliderIters.addEventListener('input', (e) => valIters.innerText = e.target.value);
+
+        // Handle swapping the population distribution
+        const selectDist = document.getElementById('dist-select');
+        const popDesc = document.getElementById('pop-desc');
+
+        selectDist.addEventListener('change', (e) => {
+            currentDist = distributions[e.target.value];
+            
+            // Update description and force KaTeX to re-render formulas
+            popDesc.innerHTML = `${currentDist.desc}<br> <span class="font-mono bg-slate-100 px-1 rounded">Mean ($\\mu$) = ${currentDist.mean}</span> | <span class="font-mono bg-slate-100 px-1 rounded">Std Dev ($\\sigma$) = ${currentDist.sd.toFixed(2)}</span>`;
+            if (window.renderMathInElement) {
+                renderMathInElement(popDesc, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});
+            }
+            
+            // Redraw everything and reset state
+            drawPopulation();
+            btnReset.click();
+        });
+
+        // 1. Draw Population Distribution (Theoretical Curve)
+        function drawPopulation() {
+            ctxPop.clearRect(0, 0, canvasPop.width, canvasPop.height);
+            const width = canvasPop.width;
+            const height = canvasPop.height;
+            const padding = 60; // Increased padding for higher resolution canvas
+            const minX = currentDist.minX;
+            const maxX = currentDist.maxX; 
+            
+            // Dynamically find peak Y density to scale the chart bounds properly
+            let maxYDensity = 0;
+            for (let x = minX; x <= maxX; x += 0.5) {
+                maxYDensity = Math.max(maxYDensity, currentDist.pdf(x));
+            }
+            maxYDensity = maxYDensity * 1.15; // Add 15% padding above the peak
+            
+            // Draw axes
+            ctxPop.beginPath();
+            ctxPop.moveTo(padding, padding);
+            ctxPop.lineTo(padding, height - padding);
+            ctxPop.lineTo(width - padding, height - padding);
+            ctxPop.strokeStyle = '#94a3b8'; // Tailwind slate-400
+            ctxPop.lineWidth = 4;
+            ctxPop.stroke();
+
+            // Draw axis labels
+            ctxPop.fillStyle = '#64748b'; // Tailwind slate-500
+            ctxPop.font = '24px sans-serif';
+            ctxPop.textAlign = 'center';
+            ctxPop.fillText('Value (x)', width / 2, height - 15);
+            
+            ctxPop.save();
+            ctxPop.translate(20, height / 2);
+            ctxPop.rotate(-Math.PI / 2);
+            ctxPop.fillText('Probability Density', 0, 0);
+            ctxPop.restore();
+
+            // Draw probability density curve
+            ctxPop.beginPath();
+            for (let x = minX; x <= maxX; x += 0.5) {
+                const y = currentDist.pdf(x);
+                
+                // Map mathematical coordinates to canvas pixel coordinates
+                const canvasX = padding + ((x - minX) / (maxX - minX)) * (width - 2 * padding);
+                const canvasY = (height - padding) - (y / maxYDensity) * (height - 2 * padding);
+                
+                if (x === minX) ctxPop.moveTo(canvasX, canvasY);
+                else ctxPop.lineTo(canvasX, canvasY);
+            }
+            
+            ctxPop.strokeStyle = '#f43f5e'; // Tailwind rose-500
+            ctxPop.lineWidth = 6;
+            ctxPop.stroke();
+
+            // Fill area under the curve for visual appeal
+            ctxPop.lineTo(width - padding, height - padding);
+            ctxPop.lineTo(padding, height - padding);
+            ctxPop.fillStyle = 'rgba(244, 63, 94, 0.15)'; // Transparent rose
+            ctxPop.fill();
+        }
+
+        let animationId = null;
+
+        // 2.5 Draw Empty Axes for Sampling Distribution (Used on Reset)
+        function drawEmptySampleAxes() {
+            ctxSample.clearRect(0, 0, canvasSample.width, canvasSample.height);
+            const width = canvasSample.width;
+            const height = canvasSample.height;
+            const padding = 60;
+            
+            // Draw Axes
+            ctxSample.beginPath();
+            ctxSample.moveTo(padding, padding);
+            ctxSample.lineTo(padding, height - padding);
+            ctxSample.lineTo(width - padding, height - padding);
+            ctxSample.strokeStyle = '#94a3b8';
+            ctxSample.lineWidth = 4;
+            ctxSample.stroke();
+            
+            // Draw axis labels
+            ctxSample.fillStyle = '#64748b'; 
+            ctxSample.font = '24px sans-serif';
+            ctxSample.textAlign = 'center';
+            ctxSample.fillText('Sample Mean', width / 2, height - 15);
+        }
+
+        // 2. Draw Histogram (Empirical) and Normal Overlay (Theoretical)
+        function drawHistogramAndOverlay(means, sampleSize, totalIterations) {
+            ctxSample.clearRect(0, 0, canvasSample.width, canvasSample.height);
+            
+            const width = canvasSample.width;
+            const height = canvasSample.height;
+            const padding = 60;
+            
+            // Match horizontal scale exactly to Population chart to visually demonstrate tightening
+            const minX = currentDist.minX;
+            const maxX = currentDist.maxX;
+            const numBins = 50;
+            const binWidth = (maxX - minX) / numBins;
+            
+            let bins = new Array(numBins).fill(0);
+            let actualMaxBinCount = 0;
+            
+            // Bin the sampled means to create frequency data for histogram
+            means.forEach(mean => {
+                if (mean >= minX && mean <= maxX) {
+                    let binIndex = Math.floor((mean - minX) / binWidth);
+                    if (binIndex === numBins) binIndex--; // Edge case for exact max value
+                    bins[binIndex]++;
+                    
+                    // Keep track of the tallest bar we've encountered
+                    if (bins[binIndex] > actualMaxBinCount) {
+                        actualMaxBinCount = bins[binIndex];
+                    }
+                }
+            });
+            
+            // Calculate theoretical normal to establish expected scaling
+            const theoreticalSE = currentDist.sd / Math.sqrt(sampleSize);
+            const peakDensity = 1 / (theoreticalSE * Math.sqrt(2 * Math.PI));
+            const maxExpectedCount = peakDensity * totalIterations * binWidth;
+
+            // Scale Y dynamically based on the highest point (theoretical curve OR actual histogram peak)
+            // This prevents histogram bars from shooting off the top of the canvas at low sample sizes
+            const maxScaleCount = Math.max(maxExpectedCount, actualMaxBinCount);
+            const scaleY = (height - 2 * padding) / (maxScaleCount * 1.15); // Add 15% padding above highest element
+
+            // Draw Axes
+            ctxSample.beginPath();
+            ctxSample.moveTo(padding, padding);
+            ctxSample.lineTo(padding, height - padding);
+            ctxSample.lineTo(width - padding, height - padding);
+            ctxSample.strokeStyle = '#94a3b8';
+            ctxSample.lineWidth = 4;
+            ctxSample.stroke();
+            
+            // Draw axis labels
+            ctxSample.fillStyle = '#64748b'; 
+            ctxSample.font = '24px sans-serif';
+            ctxSample.textAlign = 'center';
+            ctxSample.fillText('Sample Mean', width / 2, height - 15);
+
+            // Draw Y-axis label
+            ctxSample.save();
+            ctxSample.translate(20, height / 2);
+            ctxSample.rotate(-Math.PI / 2);
+            ctxSample.fillText('Frequency / Density', 0, 0);
+            ctxSample.restore();
+
+            // Draw Histogram Bars
+            ctxSample.fillStyle = 'rgba(99, 102, 241, 0.7)'; // Tailwind indigo-500 transparent
+            ctxSample.strokeStyle = 'white';
+            ctxSample.lineWidth = 2;
+
+            for (let i = 0; i < numBins; i++) {
+                if (bins[i] > 0) {
+                    const barHeight = bins[i] * scaleY;
+                    const x = padding + (i / numBins) * (width - 2 * padding);
+                    const y = height - padding - barHeight;
+                    const w = (width - 2 * padding) / numBins;
+                    
+                    ctxSample.fillRect(x, y, w, barHeight);
+                    ctxSample.strokeRect(x, y, w, barHeight);
+                }
+            }
+
+            // Draw Theoretical Normal Distribution Overlay
+            ctxSample.beginPath();
+            for (let x = minX; x <= maxX; x += 0.5) {
+                // Standard Normal PDF formula
+                const exponent = -Math.pow(x - currentDist.mean, 2) / (2 * Math.pow(theoreticalSE, 2));
+                const yDensity = (1 / (theoreticalSE * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
+                
+                // USE TOTAL ITERATIONS HERE so the green target line stays at the final height
+                const expectedCount = yDensity * totalIterations * binWidth;
+                
+                const canvasX = padding + ((x - minX) / (maxX - minX)) * (width - 2 * padding);
+                const canvasY = height - padding - (expectedCount * scaleY);
+                
+                if (x === minX) ctxSample.moveTo(canvasX, canvasY);
+                else ctxSample.lineTo(canvasX, canvasY);
+            }
+            
+            ctxSample.strokeStyle = '#10b981'; // Tailwind emerald-500
+            ctxSample.lineWidth = 6;
+            ctxSample.stroke();
+            
+            // Add Legend to Canvas
+            ctxSample.font = '20px sans-serif';
+            ctxSample.textAlign = 'right';
+            
+            ctxSample.fillStyle = 'rgba(99, 102, 241, 0.7)';
+            ctxSample.fillRect(width - padding - 220, padding + 10, 20, 20);
+            ctxSample.fillStyle = '#334155'; // slate-700
+            ctxSample.fillText('Simulated Means', width - padding - 10, padding + 27);
+            
+            ctxSample.strokeStyle = '#10b981';
+            ctxSample.lineWidth = 4;
+            ctxSample.beginPath();
+            ctxSample.moveTo(width - padding - 220, padding + 50);
+            ctxSample.lineTo(width - padding - 200, padding + 50);
+            ctxSample.stroke();
+            ctxSample.fillText('Theoretical Normal', width - padding - 10, padding + 57);
+        }
+
+        // 3. Core Simulation Logic with Animation
+        function runSimulation() {
+            // Cancel any currently running animation
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+
+            // Give button visual feedback
+            btnRun.innerText = "Simulating...";
+            btnRun.disabled = true;
+            btnRun.classList.add("opacity-75", "cursor-not-allowed");
+
+            // Disable inputs during simulation to prevent UI state mismatches
+            sliderN.disabled = true;
+            sliderIters.disabled = true;
+            selectDist.disabled = true;
+            sliderN.classList.add("opacity-60", "cursor-not-allowed");
+            sliderIters.classList.add("opacity-60", "cursor-not-allowed");
+            selectDist.classList.add("opacity-60", "cursor-not-allowed");
+
+            const n = parseInt(sliderN.value);
+            const totalIterations = parseInt(sliderIters.value);
+            
+            // Setup initial values
+            let sampleMeans = [];
+            let sumOfMeans = 0;
+            let sumOfSquares = 0; // Added for O(1) running variance calculation
+            let currentIter = 0;
+
+            const theoreticalSE = currentDist.sd / Math.sqrt(n);
+            document.getElementById('theo-se').innerText = theoreticalSE.toFixed(4);
+            document.getElementById('emp-se').innerText = "0.0000";
+            
+            // We batch samples together so the animation is smooth and performant
+            const batchSize = Math.max(1, Math.floor(totalIterations / 90));
+
+            function animateFrame() {
+                // Step 1: Draw a batch of samples
+                for (let b = 0; b < batchSize && currentIter < totalIterations; b++) {
+                    let sampleSum = 0;
+                    for (let j = 0; j < n; j++) {
+                        sampleSum += currentDist.generate();
+                    }
+                    const mean = sampleSum / n;
+                    sampleMeans.push(mean);
+                    sumOfMeans += mean;
+                    sumOfSquares += mean * mean; // Track squares
+                    currentIter++;
+                }
+
+                // Step 2: Calculate Empirical Standard Error incrementally
+                if (currentIter > 1) {
+                    // Using the running sum of squares formula for sample variance:
+                    // Variance = (SumOfSquares - (Sum^2 / N)) / (N - 1)
+                    const variance = (sumOfSquares - (sumOfMeans * sumOfMeans) / currentIter) / (currentIter - 1);
+                    
+                    // Guard against tiny negative variances caused by floating point inaccuracies
+                    const empiricalSE = Math.sqrt(Math.max(0, variance)); 
+                    document.getElementById('emp-se').innerText = empiricalSE.toFixed(4);
+                }
+
+                // Step 3: Draw current state
+                drawHistogramAndOverlay(sampleMeans, n, totalIterations);
+
+                // Step 4: Check if we need more frames
+                if (currentIter < totalIterations) {
+                    animationId = requestAnimationFrame(animateFrame);
+                } else {
+                    // Reset button state on completion
+                    btnRun.innerText = "Run Simulation";
+                    btnRun.disabled = false;
+                    btnRun.classList.remove("opacity-75", "cursor-not-allowed");
+                    
+                    // Re-enable inputs
+                    sliderN.disabled = false;
+                    sliderIters.disabled = false;
+                    selectDist.disabled = false;
+                    sliderN.classList.remove("opacity-60", "cursor-not-allowed");
+                    sliderIters.classList.remove("opacity-60", "cursor-not-allowed");
+                    selectDist.classList.remove("opacity-60", "cursor-not-allowed");
+                    
+                    animationId = null;
+                }
+            }
+
+            // Start the animation
+            animationId = requestAnimationFrame(animateFrame);
+        }
+
+        // 4. Initialize and bind events
+        btnRun.addEventListener('click', runSimulation);
+        
+        btnReset.addEventListener('click', () => {
+            if (animationId) cancelAnimationFrame(animationId);
+            
+            btnRun.innerText = "Run Simulation";
+            btnRun.disabled = false;
+            btnRun.classList.remove("opacity-75", "cursor-not-allowed");
+
+            // Re-enable inputs if interrupted
+            sliderN.disabled = false;
+            sliderIters.disabled = false;
+            selectDist.disabled = false;
+            sliderN.classList.remove("opacity-60", "cursor-not-allowed");
+            sliderIters.classList.remove("opacity-60", "cursor-not-allowed");
+            selectDist.classList.remove("opacity-60", "cursor-not-allowed");
+
+            // Reset UI controls
+            sliderN.value = 30;
+            sliderIters.value = 500;
+            valN.innerText = 30;
+            valIters.innerText = 500;
+            
+            drawEmptySampleAxes(); // Draw axes instead of leaving a completely blank canvas
+            document.getElementById('theo-se').innerText = '--';
+            document.getElementById('emp-se').innerText = '--';
+        });
+
+        // Run setup functions on window load
+        window.onload = () => {
+            // Render the theoretical population distribution immediately
+            drawPopulation();
+            
+            // Draw empty axes for the sampling distribution placeholder
+            btnReset.click(); 
+            
+            // Automatically run the first simulation so the user isn't staring at a blank chart
+            runSimulation();
+        };
+
+    </script>
+</body>
+</html>
