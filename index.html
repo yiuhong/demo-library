@@ -10,6 +10,7 @@
             --accent-color: #3498db;
             --bg-color: #f8f9fa;
             --text-color: #333;
+            --search-bg: #edf2f7;
         }
 
         body {
@@ -21,91 +22,205 @@
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
             min-height: 100vh;
         }
 
         .container {
+            /* Increased width to accommodate grid columns */
             width: 100%;
-            max-width: 600px;
+            max-width: 900px; 
             background: #ffffff;
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+            margin: 40px 20px;
+        }
+
+        .header-section {
             text-align: center;
-            margin: 20px;
+            margin-bottom: 30px;
         }
 
         h1 {
             color: var(--primary-color);
             margin-bottom: 10px;
-            font-size: 2rem;
+            font-size: 2.2rem;
         }
 
         p {
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
-        .menu-grid {
+        /* Search Bar Styling */
+        .search-container {
+            margin-bottom: 40px;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+        }
+
+        #searchInput {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 30px;
+            background-color: var(--search-bg);
+            transition: all 0.3s ease;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .category-section {
+            margin-bottom: 40px;
+        }
+
+        .category-section h2 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            margin-top: 0;
+        }
+
+        /* Responsive Grid: The key to scalability */
+        .menu-grid {
+            display: grid;
+            /* Automatically creates columns based on available space. 
+               Items will never be smaller than 250px wide. */
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 15px;
         }
 
-        /* Styling links to look like elegant, clickable buttons */
         .menu-button {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background-color: var(--accent-color);
             color: white;
             text-decoration: none;
             padding: 15px 20px;
             border-radius: 8px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 600;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+            text-align: center;
+            min-height: 50px; /* Ensures buttons are uniform in height even with short text */
         }
 
         .menu-button:hover {
             background-color: #2980b9;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
         }
 
         .menu-button:active {
             transform: translateY(0);
         }
+        
+        .no-results {
+            display: none;
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            padding: 20px;
+        }
 
         footer {
-            margin-top: 40px;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
             font-size: 0.85rem;
             color: #999;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Teaching Materials</h1>
-        <p>Select an interactive demonstration from the library below:</p>
+        <div class="header-section">
+            <h1>Teaching Materials</h1>
+            <p>Select an interactive demonstration from the library below.</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search for a demo or topic...">
+        </div>
         
-        <nav class="menu-grid">
-            <a href="noematachograph.html" class="menu-button">Noematachograph Demonstration</a>
-            <a href="eeg_illustration.html" class="menu-button">EEG Illustration</a>
-            <a href="fnirs_mechanism.html" class="menu-button">fNIRS Mechanism</a>
-            <a href="EEG_signal_decomposition.html" class="menu-button">EEG Signal Decomposition</a>
-            <a href="erp_demo.html" class="menu-button">ERP Demo</a>
-            <a href="mean_mode_median_dot_plot.html" class="menu-button">Mean, Median, and Mode on a Dot Plot</a>
-            <a href="boxplot_outliers.html" class="menu-button">Boxplot and outliers</a>
-            <a href="boxplot_histogram.html" class="menu-button">Boxplot and histogram</a>
-            <a href="nlp_psychotherapy.html" class="menu-button">Natural language processing (NLP) in psychotherapy</a>
-        </nav>
+        <div id="noResults" class="no-results">
+            No demonstrations found matching your search.
+        </div>
+
+        <div class="category-section" id="neuro-category">
+            <h2>Neuroscience</h2>
+            <nav class="menu-grid">
+                <a href="noematachograph.html" class="menu-button">Noematachograph Demonstration</a>
+                <a href="eeg_illustration.html" class="menu-button">EEG Illustration</a>
+                <a href="fnirs_mechanism.html" class="menu-button">fNIRS Mechanism</a>
+                <a href="EEG_signal_decomposition.html" class="menu-button">EEG Signal Decomposition</a>
+                <a href="erp_demo.html" class="menu-button">ERP Demo</a>
+            </nav>
+        </div>
+
+        <div class="category-section" id="stats-category">
+            <h2>Statistics</h2>
+            <nav class="menu-grid">
+                <a href="mean_mode_median_dot_plot.html" class="menu-button">Mean, Median, and Mode on a Dot Plot</a>
+                <a href="boxplot_outliers.html" class="menu-button">Boxplot and Outliers</a>
+                <a href="boxplot_histogram.html" class="menu-button">Boxplot and Histogram</a>
+            </nav>
+        </div>
+
+        <div class="category-section" id="clinical-category">
+            <h2>Personality Psychology</h2>
+            <nav class="menu-grid">
+                <a href="nlp_psychotherapy.html" class="menu-button">Natural Language Processing (NLP) in Psychotherapy</a>
+            </nav>
+        </div>
 
         <footer>
             <p>Yiu Hong Ko &copy; 2026</p>
         </footer>
     </div>
 
+    <script>
+        // Simple search functionality for scalability
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const categories = document.querySelectorAll('.category-section');
+            let totalVisibleDemos = 0;
+
+            categories.forEach(category => {
+                const buttons = category.querySelectorAll('.menu-button');
+                let hasVisibleButtons = false;
+
+                buttons.forEach(button => {
+                    const text = button.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        button.style.display = 'flex';
+                        hasVisibleButtons = true;
+                        totalVisibleDemos++;
+                    } else {
+                        button.style.display = 'none';
+                    }
+                });
+
+                // Hide the whole category if no buttons match the search
+                category.style.display = hasVisibleButtons ? 'block' : 'none';
+            });
+
+            // Show 'no results' message if nothing matches
+            document.getElementById('noResults').style.display = totalVisibleDemos === 0 ? 'block' : 'none';
+        });
+    </script>
 </body>
 </html>
