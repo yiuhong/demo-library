@@ -7,7 +7,7 @@
     <style>
         :root {
             --primary-color: #2c3e50;
-            --accent-color: #3498db;
+            --accent-color: #2980b9; /* Slightly darker to improve text contrast for accessibility */
             --bg-color: #f8f9fa;
             --text-color: #333;
             --search-bg: #edf2f7;
@@ -90,12 +90,38 @@
             margin-top: 0;
         }
 
+        .sub-category-section {
+            margin-left: 15px; /* Indents the sub-categories slightly */
+            margin-bottom: 25px;
+        }
+
+        .sub-category-section h3 {
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 15px;
+            margin-top: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Adds a tiny accent dot next to sub-category titles */
+        .sub-category-section h3::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
         /* Responsive Grid: The key to scalability */
         .menu-grid {
             display: grid;
             /* Automatically creates columns based on available space. 
-               Items will never be smaller than 250px wide. */
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+               min(100%, 260px) ensures it doesn't overflow on small mobile screens. */
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
             gap: 15px;
         }
 
@@ -142,6 +168,20 @@
             color: #999;
             text-align: center;
         }
+
+        /* Mobile Responsiveness Rules */
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px 20px;
+                margin: 20px 10px;
+            }
+            .sub-category-section {
+                margin-left: 0;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -153,7 +193,7 @@
         </div>
 
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search for a demo or topic...">
+            <input type="text" id="searchInput" aria-label="Search for a demo or topic" placeholder="Search for a demo or topic...">
         </div>
         
         <div id="noResults" class="no-results">
@@ -161,29 +201,55 @@
         </div>
 
         <div class="category-section" id="neuro-category">
-            <h2>Neuroscience</h2>
-            <nav class="menu-grid">
-                <a href="noematachograph.html" class="menu-button">Noematachograph Demonstration</a>
-                <a href="eeg_illustration.html" class="menu-button">EEG Illustration</a>
-                <a href="fnirs_mechanism.html" class="menu-button">fNIRS Mechanism</a>
-                <a href="EEG_signal_decomposition.html" class="menu-button">EEG Signal Decomposition</a>
-                <a href="erp_demo.html" class="menu-button">ERP Demo</a>
-            </nav>
+            <h2>Neuroscience & Imaging</h2>
+            
+            <div class="sub-category-section">
+                <h3>General & Behavioral</h3>
+                <nav class="menu-grid">
+                    <a href="noematachograph.html" class="menu-button">Noematachograph Demonstration</a>
+                </nav>
+            </div>
+
+            <div class="sub-category-section">
+                <h3>Electroencephalography(EEG)</h3>
+                <nav class="menu-grid">
+                    <a href="eeg_illustration.html" class="menu-button">EEG Illustration</a>
+                    <a href="EEG_signal_decomposition.html" class="menu-button">EEG Signal Decomposition</a>
+                    <a href="erp_demo.html" class="menu-button">ERP Demo</a>
+                </nav>
+            </div>
+
+            <div class="sub-category-section">
+                <h3>Functional Near-Infrared Spectroscopy (fNIRS) </h3>
+                <nav class="menu-grid">
+                    <a href="fnirs_mechanism.html" class="menu-button">fNIRS Mechanism</a>
+                </nav>
+            </div>
         </div>
 
         <div class="category-section" id="stats-category">
-            <h2>Statistics</h2>
-            <nav class="menu-grid">
-                <a href="mean_mode_median_dot_plot.html" class="menu-button">Mean, Median, and Mode on a Dot Plot</a>
-                <a href="boxplot_outliers.html" class="menu-button">Boxplot and Outliers</a>
-                <a href="boxplot_histogram.html" class="menu-button">Boxplot and Histogram</a>
-            </nav>
+            <h2>Statistics & Data Visualization</h2>
+            
+            <div class="sub-category-section">
+                <h3>Descriptive Statistics</h3>
+                <nav class="menu-grid">
+                    <a href="mean_mode_median_dot_plot.html" class="menu-button">Mean, Median, and Mode on a Dot Plot</a>
+                </nav>
+            </div>
+
+            <div class="sub-category-section">
+                <h3>Data Visualization</h3>
+                <nav class="menu-grid">
+                    <a href="boxplot_outliers.html" class="menu-button">Boxplot and outliers</a>
+                    <a href="boxplot_histogram.html" class="menu-button">Boxplot and histogram</a>
+                </nav>
+            </div>
         </div>
 
         <div class="category-section" id="clinical-category">
             <h2>Personality Psychology</h2>
             <nav class="menu-grid">
-                <a href="nlp_psychotherapy.html" class="menu-button">Natural Language Processing (NLP) in Psychotherapy</a>
+                <a href="nlp_psychotherapy.html" class="menu-button">Natural language processing (NLP) in psychotherapy</a>
             </nav>
         </div>
 
@@ -193,29 +259,31 @@
     </div>
 
     <script>
-        // Simple search functionality for scalability
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
-            const categories = document.querySelectorAll('.category-section');
+            const allButtons = document.querySelectorAll('.menu-button');
             let totalVisibleDemos = 0;
 
-            categories.forEach(category => {
-                const buttons = category.querySelectorAll('.menu-button');
-                let hasVisibleButtons = false;
+            // 1. Filter individual buttons
+            allButtons.forEach(button => {
+                if (button.textContent.toLowerCase().includes(searchTerm)) {
+                    button.style.display = ''; // Clear inline style to fallback to CSS defaults safely
+                    totalVisibleDemos++;
+                } else {
+                    button.style.display = 'none';
+                }
+            });
 
-                buttons.forEach(button => {
-                    const text = button.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
-                        button.style.display = 'flex';
-                        hasVisibleButtons = true;
-                        totalVisibleDemos++;
-                    } else {
-                        button.style.display = 'none';
-                    }
-                });
+            // 2. Hide/Show Sub-categories (hide if all inner buttons are hidden)
+            document.querySelectorAll('.sub-category-section').forEach(sub => {
+                const hasVisible = Array.from(sub.querySelectorAll('.menu-button')).some(btn => btn.style.display !== 'none');
+                sub.style.display = hasVisible ? 'block' : 'none';
+            });
 
-                // Hide the whole category if no buttons match the search
-                category.style.display = hasVisibleButtons ? 'block' : 'none';
+            // 3. Hide/Show Main Categories (hide if all inner buttons are hidden)
+            document.querySelectorAll('.category-section').forEach(category => {
+                const hasVisible = Array.from(category.querySelectorAll('.menu-button')).some(btn => btn.style.display !== 'none');
+                category.style.display = hasVisible ? 'block' : 'none';
             });
 
             // Show 'no results' message if nothing matches
