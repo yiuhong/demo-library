@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI in Therapy: Transcript Analysis</title>
+    
+    <!-- Load Tailwind CSS for beautiful, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Compromise.js - A lightweight client-side NLP engine -->
+    <script src="https://unpkg.com/compromise"></script>
+    
+    <!-- Google Fonts for better readability -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Custom tooltip styles for the text X-Ray */
+        .term-hover {
+            position: relative;
+            cursor: help;
+            transition: all 0.2s ease;
+            display: inline-block; /* Ensure tags don't break awkwardly across lines */
+        }
+        .term-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        /* Improve readability of the annotated text block */
+        #annotatedText {
+            line-height: 2.5; 
+        }
+        /* Add keyframes for the result area animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-up {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
+
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <!-- Header Section -->
+        <div class="bg-teal-600 p-6 md:p-8 text-white">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">AI in Therapy: Transcript Analysis 🛋️</h1>
+            <p class="text-teal-100 text-lg mb-4">
+                This tool demonstrates <strong>Natural Language Processing (NLP)</strong>.
+            </p>
+            <div class="bg-teal-700 p-4 rounded-lg text-sm leading-relaxed">
+                <p><strong>Keyword Tagging vs. NLP:</strong> Simple keyword taggers blindly look for individual words. If a patient says <em>"I am not angry"</em>, a keyword tagger just sees "angry" and flags it, leading to incorrect assessments. True NLP understands context and grammar, grouping modifiers together (like "not angry" or "didn't panic") to capture the actual meaning as a single phrase.</p>
+            </div>
+        </div>
+
+        <div class="p-6 md:p-8">
+            <!-- Step 1: Input -->
+            <div class="mb-8">
+                <div class="flex justify-between items-end mb-2">
+                    <h2 class="text-xl font-bold text-gray-800">1. Input Session Transcript</h2>
+                    <button onclick="loadExample()" class="text-sm text-teal-600 hover:text-teal-800 font-medium px-3 py-1 rounded bg-teal-50 hover:bg-teal-100 transition-colors">Load Random Example</button>
+                </div>
+                <p class="text-gray-500 text-sm mb-3">Paste a snippet of a simulated therapy transcript, or write a sentence expressing a struggle.</p>
+                <textarea id="inputText" rows="5" 
+                    class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg resize-y shadow-sm"
+                    placeholder="Enter transcript snippet here..."></textarea>
+                
+                <button onclick="processText()" 
+                    class="mt-4 w-full md:w-auto px-8 py-3 bg-teal-600 text-white font-semibold rounded-xl hover:bg-teal-700 active:bg-teal-800 transition-colors shadow-md flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Analyze Transcript
+                </button>
+            </div>
+
+            <!-- Step 2: The Analysis (Hidden by default until processed) -->
+            <div id="resultsArea" class="hidden fade-in-up">
+                <hr class="my-8 border-gray-200">
+                
+                <h2 class="text-xl font-bold text-gray-800 mb-4">2. NLP Analysis 🔍</h2>
+                <p class="text-gray-600 mb-4 text-sm md:text-base">Hover over the highlighted words to see how the NLP engine mapped psychological patterns and handled context.</p>
+                
+                <!-- Legend -->
+                <div class="flex flex-wrap gap-2 md:gap-3 mb-6 text-xs md:text-sm">
+                    <span class="px-2 py-1 rounded bg-rose-100 text-rose-800 border border-rose-200 shadow-sm">Emotion</span>
+                    <span class="px-2 py-1 rounded bg-amber-100 text-amber-800 border border-amber-200 shadow-sm">Absolutist (Distortion)</span>
+                    <span class="px-2 py-1 rounded bg-sky-100 text-sky-800 border border-sky-200 shadow-sm">Stressor/Topic</span>
+                    <span class="px-2 py-1 rounded bg-indigo-100 text-indigo-800 border border-indigo-200 shadow-sm">Self-Focus</span>
+                </div>
+
+                <!-- Highlighted Text Container -->
+                <div id="annotatedText" class="p-4 md:p-6 bg-gray-50 border border-gray-200 rounded-xl text-lg md:text-xl mb-8 whitespace-pre-wrap break-words">
+                    <!-- Javascript will inject spans here -->
+                </div>
+
+                <h2 class="text-xl font-bold text-gray-800 mb-4">3. Psychological Features Extracted 🧠</h2>
+                <p class="text-gray-600 mb-6 text-sm md:text-base">By mapping specific lexicons and understanding basic grammar structure, the engine structures unstructured text data.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    <!-- Emotions Card -->
+                    <div class="bg-white border border-rose-200 rounded-xl p-4 shadow-sm relative overflow-hidden flex flex-col h-full">
+                         <div class="absolute top-0 left-0 w-1 h-full bg-rose-400"></div>
+                        <h3 class="font-bold text-rose-800 border-b border-rose-100 pb-2 mb-3 truncate">🎭 Emotions</h3>
+                        <ul id="listEmotions" class="space-y-1 text-gray-700 flex-grow"></ul>
+                    </div>
+                    
+                    <!-- Distortions Card -->
+                    <div class="bg-white border border-amber-200 rounded-xl p-4 shadow-sm relative overflow-hidden flex flex-col h-full">
+                         <div class="absolute top-0 left-0 w-1 h-full bg-amber-400"></div>
+                        <h3 class="font-bold text-amber-800 border-b border-amber-100 pb-2 mb-3 truncate">⚠️ Absolutes</h3>
+                        <ul id="listAbsolutes" class="space-y-1 text-gray-700 flex-grow"></ul>
+                    </div>
+                    
+                    <!-- Stressors Card -->
+                    <div class="bg-white border border-sky-200 rounded-xl p-4 shadow-sm relative overflow-hidden flex flex-col h-full">
+                         <div class="absolute top-0 left-0 w-1 h-full bg-sky-400"></div>
+                        <h3 class="font-bold text-sky-800 border-b border-sky-100 pb-2 mb-3 truncate">🎯 Stressors</h3>
+                        <ul id="listStressors" class="space-y-1 text-gray-700 flex-grow"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set a default example when the page loads
+        const defaultText = "I always feel completely overwhelmed when my boss criticizes me at work. Nobody ever listens to my side.";
+        document.getElementById('inputText').value = defaultText;
+
+        function loadExample() {
+            // Enhanced array with more complex negation examples to demonstrate the NLP engine's capability
+            const examples = [
+                // Original standard examples
+                "My husband and I are fighting constantly. I feel so exhausted and sad, and nothing seems to get better in our marriage, but whatever.",
+                "I must be perfect at school, otherwise I am a total failure. The pressure makes me incredibly anxious, but I guess everybody does it, so I should be fine.",
+                "I never sleep well anymore because I am constantly worried and stressed out about money and debt. It's not my fault the costs keep rising.",
+                
+                // NEW Examples focusing heavily on Negation and Context
+                "I am definitely not depressed. I am just tired from work. I rarely feel anxious nowadays, but my family constantly tells me otherwise.",
+                "People think I am stressed about my debt, but I didn't panic when I saw the bill. I am not worried at all, it's really not a big deal.",
+                "My wife keeps saying I need help, but I am not overwhelmed. I did not get angry during the argument, she is just exaggerating.",
+                "I'm not hopeless about my health, I just never seem to catch a break. The doctor said I'm not fine, but I don't feel exhausted like they claim.",
+                "I rarely feel happy at my job anymore, but I wouldn't say I am completely depressed. I am just not fine with how my colleagues treat me.",
+                "I didn't feel numb when my parents told me the news. I was actually quite sad. But I am not scared of the future, despite what everyone thinks.",
+                "It's frustrating when they say I am always angry. I am not angry, I just want them to listen. It did not happen the way my boss described it."
+            ];
+            
+            // Pick a random example different from the current one (if possible)
+            let currentText = document.getElementById('inputText').value;
+            let randomExample = currentText;
+            
+            // Simple loop to ensure a new example is picked if there's more than 1 option
+            let attempts = 0;
+            while(randomExample === currentText && attempts < 5) {
+                 randomExample = examples[Math.floor(Math.random() * examples.length)];
+                 attempts++;
+            }
+            
+            document.getElementById('inputText').value = randomExample;
+            
+            // Clear the results area when a new example is loaded to encourage re-analysis
+            document.getElementById('resultsArea').classList.add('hidden');
+        }
+
+        function processText() {
+            const rawText = document.getElementById('inputText').value;
+            
+            if (!rawText.trim()) {
+                document.getElementById('resultsArea').classList.add('hidden');
+                return; 
+            }
+
+            // Helper function to prevent HTML injection layout breaks from user input
+            const escapeHTML = (str) => {
+                if (!str) return '';
+                return str.replace(/[&<>'"]/g, tag => ({
+                    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+                }[tag]));
+            };
+
+            // --- 1. Feed text into the NLP Engine ---
+            const doc = window.nlp(rawText);
+
+            // TRUE NLP STEP: Group modifiers with the words they modify
+            // Use Compromise's native #Negative tag to accurately catch all negations (not, didn't, won't, etc.)
+            const negationModifiers = '(#Negative|never|rarely)';
+            const emotionWords = '(anxious|sad|depressed|angry|happy|overwhelmed|stressed|fear|scared|worried|tired|exhausted|hopeless|worthless|frustrated|numb|panic)';
+
+            // Apply custom lexicons for psychological features by tagging matched phrases
+            doc.match(`${negationModifiers}? (feel|get|seem)? ${emotionWords}`).tag('Emotion');
+            doc.match('(always|never|everyone|nobody|everything|nothing|must|should|impossible|terrible|awful|ruined|perfect|completely|total|constantly)').tag('Absolutist');
+            doc.match('(work|boss|job|money|debt|family|wife|husband|partner|kids|school|marriage|health|sleep|colleagues|parents)').tag('Stressor');
+            doc.match('(i|me|my|mine|myself)').tag('SelfFocus');
+
+            // --- 2. Build the "X-Ray" Annotated View ---
+            let annotatedHtml = '';
+            
+            const sentenceData = doc.json();
+            
+            sentenceData.forEach(sentence => {
+                sentence.terms.forEach((term) => {
+                    const hasTag = (tag) => term.tags && term.tags.some(t => t.toLowerCase() === tag.toLowerCase());
+                    
+                    // Base classes for highlighted terms - removed borders to allow contiguous words to look grouped
+                    let classes = "term-hover px-1 py-0.5 rounded transition-colors ";
+                    let tooltip = "Tag: ";
+                    let isHighlighted = true;
+                    
+                    // Priority tagging for visual hierarchy
+                    if (hasTag('Emotion')) {
+                        classes += "bg-rose-100 text-rose-800 font-semibold";
+                        tooltip += "Emotion Identified (Includes context)";
+                    } else if (hasTag('Absolutist')) {
+                        classes += "bg-amber-100 text-amber-800 font-semibold";
+                        tooltip += "Absolutist Language (Potential Cognitive Distortion)";
+                    } else if (hasTag('Stressor')) {
+                        classes += "bg-sky-100 text-sky-800 font-semibold";
+                        tooltip += "Subject/Stressor";
+                    } else if (hasTag('SelfFocus')) {
+                        classes += "bg-indigo-50 text-indigo-800 border border-indigo-200 border-dashed";
+                        tooltip += "Self-Referential Pronoun";
+                    } else {
+                        // Unhighlighted words
+                        isHighlighted = false;
+                        classes = "text-gray-700"; 
+                        tooltip = "";
+                    }
+
+                    // Append the formatted word to our HTML string safely.
+                    // term.pre and term.post hold spaces and punctuation.
+                    const safePre = escapeHTML(term.pre);
+                    const safeText = escapeHTML(term.text);
+                    const safePost = escapeHTML(term.post);
+
+                    if (isHighlighted) {
+                        annotatedHtml += `${safePre}<span class="${classes}" title="${tooltip}">${safeText}</span>${safePost}`;
+                    } else {
+                        // Don't add complex classes to normal words to keep HTML clean
+                        annotatedHtml += `${safePre}<span class="${classes}">${safeText}</span>${safePost}`;
+                    }
+                });
+            });
+
+            document.getElementById('annotatedText').innerHTML = annotatedHtml.trim();
+
+            // --- 3. Extract Lists of Data ---
+            // Use Sets to get unique values, converting to lower case for consistency
+            const getUnique = (tag) => [...new Set(doc.match(tag).out('array').map(s => s.toLowerCase().trim()))].sort();
+            
+            const emotions = getUnique('#Emotion');
+            const absolutes = getUnique('#Absolutist');
+            const stressors = getUnique('#Stressor');
+
+            // Helper function to render bullet lists with specific styling based on category
+            const renderList = (array, elementId, emptyMessage, dotColorClass) => {
+                const el = document.getElementById(elementId);
+                if (array.length === 0) {
+                    el.innerHTML = `<li class="text-gray-400 italic text-sm py-1">${emptyMessage}</li>`;
+                } else {
+                    el.innerHTML = array.map(item => `
+                        <li class="flex items-center gap-2 capitalize text-sm md:text-base py-0.5">
+                            <span class="w-2 h-2 rounded-full ${dotColorClass}"></span>
+                            ${escapeHTML(item)}
+                        </li>
+                    `).join('');
+                }
+            };
+            
+            renderList(emotions, 'listEmotions', 'No emotions detected', 'bg-rose-400');
+            renderList(absolutes, 'listAbsolutes', 'No absolutist words detected', 'bg-amber-400');
+            renderList(stressors, 'listStressors', 'No key stressors detected', 'bg-sky-400');
+
+            // --- 4. Show the Results Area ---
+            document.getElementById('resultsArea').classList.remove('hidden');
+            
+            // Smooth scroll to results if on mobile
+            if(window.innerWidth < 768) {
+                setTimeout(() => {
+                    document.getElementById('resultsArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        }
+
+        // Allow pressing "Enter" in the textarea to trigger the analysis (Ctrl+Enter or Cmd+Enter is usually better for textareas to allow multiline)
+        document.getElementById('inputText').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                processText();
+            }
+        });
+        
+        // Update placeholder to hint at keyboard shortcut
+        const isMac = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0;
+        document.getElementById('inputText').placeholder = `Enter transcript snippet here... (Press ${isMac ? 'Cmd' : 'Ctrl'} + Enter to analyze)`;
+    </script>
+</body>
+</html>
