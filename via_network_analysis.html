@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Analysis on VIA Character Strengths</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f8fafc; /* Light gray-blue background */
+            font-family: 'Inter', sans-serif;
+        }
+        #network-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        .node {
+            cursor: pointer;
+            stroke: #64748b; /* Slate 500 for subtle border */
+            stroke-width: 1.5px;
+            fill: white;
+            transition: fill 0.2s, stroke-width 0.2s;
+        }
+        
+        .node-label {
+            font-size: 14px;
+            font-weight: 500;
+            fill: #1e293b; /* Slate 800 */
+            pointer-events: none; /* Let clicks pass through to the circle */
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+        .link {
+            transition: stroke-opacity 0.2s, stroke-width 0.2s;
+        }
+        
+        /* Tooltip styling */
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 8px 12px;
+            font: 14px sans-serif;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 10;
+        }
+
+        /* Controls styling */
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            bottom: 20px; /* Stretch to near bottom */
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            z-index: 20;
+            width: 400px; /* Slightly wider to accommodate text */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* View Toggle Buttons */
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 8px;
+        }
+        
+        .view-btn {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #64748b;
+            border: 1px solid transparent;
+        }
+        
+        .view-btn:hover {
+            color: #334155;
+            background: #e2e8f0;
+        }
+        
+        .view-btn.active {
+            background: white;
+            color: #0f172a;
+            border-color: #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Legend Styling */
+        #legend-container {
+            margin-top: 16px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            display: none; /* Hidden by default */
+        }
+        
+        .legend-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #cbd5e1;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: #475569;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            margin-right: 8px;
+            border: 2px solid transparent;
+        }
+
+        /* Scrollable content area for controls */
+        .controls-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 10px; /* Space for scrollbar */
+        }
+        
+        /* Custom scrollbar for controls */
+        .controls-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .controls-content::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 8px;
+        }
+        .controls-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 8px;
+        }
+        .controls-content::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        #reset-btn-container {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="controls">
+        <div class="controls-content space-y-4">
+            <h2 class="text-xl font-bold text-slate-800 sticky top-0 bg-white pb-2 z-10">Network Analysis on VIA Character Strengths</h2>
+
+            <div class="view-toggle">
+                <div class="view-btn active" data-view="default">Default</div>
+                <div class="view-btn" data-view="communities">Communities</div>
+                <div class="view-btn" data-view="virtues">Virtues</div>
+            </div>
+
+            <div id="legend-container">
+                <div class="legend-title" id="legend-title">Legend</div>
+                <div id="legend-items"></div>
+            </div>
+
+            <div class="space-y-2 mt-2 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                <h3 class="text-sm font-semibold text-slate-800">What is this?</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    This is a <strong>network analysis</strong> visualization based on data from over 1.25 million respondents. Instead of grouping strengths under hidden theoretical categories, it maps the direct, complex relationships between character strengths. 
+                </p>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    The <strong>lines (edges)</strong> represent <strong>correlations</strong> between strengths (nodes) after controlling for all other influences in the network. For example, a thick blue line between Curiosity and Love of Learning means they are strongly, positively linked in people's real-world survey responses.
+                </p>
+            </div>
+
+            <div class="space-y-2 mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                <h3 class="text-sm font-semibold text-blue-900">What Does This Tell Us?</h3>
+                <ul class="text-xs text-blue-800 space-y-2 list-disc pl-4">
+                    <li><strong>Communities:</strong> Instead of perfectly matching the original 6 theoretical virtues, the Spinglass algorithm found the data naturally clustered into 4 distinct communities: Discernment, Responsibility, Interpersonal, and Energy.</li>
+                    <li><strong>Gratitude's Influence:</strong> <em>Gratitude</em> has the highest <strong>Expected Influence</strong>. This means it has the highest sum of all connections to other strengths, acting as the major hub in the network.</li>
+                    <li><strong>Zest as the Ultimate Bridge:</strong> <em>Zest</em> has the highest <strong>Bridge Centrality</strong>. This means it acts as the primary connector linking entirely different communities of traits together.</li>
+                    <li><strong>Natural Trade-offs:</strong> The red lines reveal that not all positive traits harmonize. For instance, high <em>Prudence</em> negatively correlates with <em>Perseverance</em>, <em>Forgiveness</em>, and <em>Creativity</em>, showing complex trade-offs in character.</li>
+                </ul>
+            </div>
+
+            <details class="group mt-4 border border-slate-200 rounded-lg bg-white overflow-hidden">
+                <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-3 text-sm text-slate-800 hover:bg-slate-50 transition-colors">
+                    <span>How was this network created?</span>
+                    <span class="transition group-open:rotate-180">
+                        <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                    </span>
+                </summary>
+                <div class="text-slate-600 px-3 pb-3">
+                    <ul class="text-xs space-y-2 list-disc pl-4 mt-2 border-t border-slate-100 pt-3">
+                        <li><strong>GGM & LASSO:</strong> Creates a network of reliable connections by filtering out weak, likely false correlations.</li>
+                        <li><strong>Community Analysis (Spinglass):</strong> An algorithm that automatically finds groups of strengths that naturally cluster together.</li>
+                        <li><strong>Network Stability:</strong> Confirmed the map is reliable by repeatedly testing smaller random groups of the 1.25M respondents.</li>
+                    </ul>
+                </div>
+            </details>
+            
+            <details class="group mt-4 border border-slate-200 rounded-lg bg-white overflow-hidden">
+                <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                    <span>Interaction Guide</span>
+                    <span class="transition group-open:rotate-180">
+                        <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                    </span>
+                </summary>
+                <div class="text-slate-600 px-3 pb-3">
+                    <ul class="text-xs list-disc pl-4 space-y-1 mt-2 border-t border-slate-100 pt-3">
+                        <li><strong>Hover</strong> over a node to highlight its connections.</li>
+                        <li><strong>Scroll</strong> to zoom in and out.</li>
+                        <li><strong>Blue lines:</strong> Positive correlations (traits that increase together).</li>
+                        <li><strong>Red lines:</strong> Negative correlations (traits that act as trade-offs).</li>
+                        <li><strong>Line thickness:</strong> Indicates the strength of the correlation (thicker = stronger).</li>
+                    </ul>
+                </div>
+            </details>
+
+            <div class="space-y-1 mt-6 pt-4 border-t border-slate-200">
+                <p class="text-[11px] text-slate-400 font-medium uppercase tracking-wider mb-1">Source Reference</p>
+                <p class="text-xs text-slate-500 leading-tight">
+                    Diez, G., Roca, P., Nieto, I., McGrath, R. E., &amp; Vázquez, C. (2023). The network structure of the VIA-120 inventory of strengths: An analysis of 1,255,248 respondents. <i>The Journal of Positive Psychology, 18</i>(6), 827–840.<br/>
+                    <a href="https://doi.org/10.1080/17439760.2022.2109205" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 hover:underline">doi:10.1080/17439760.2022.2109205</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="network-container">
+        <!-- SVG will be injected here by D3 -->
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+
+    <script>
+        // Nodes based on the labels in the image, with relative X/Y coordinates to match the original static layout
+        // Added 'community' (Spinglass) and 'virtue' (Theoretical) classifications based on provided screenshots
+        const nodesData = [
+            { id: "Curio", full_name: "Curiosity", rx: 0, ry: -0.9, community: "discernment", virtue: "wisdom" },
+            { id: "Learn", full_name: "Love of Learning", rx: -0.4, ry: -0.7, community: "discernment", virtue: "wisdom" },
+            { id: "Judgm", full_name: "Judgment", rx: -0.75, ry: -0.3, community: "discernment", virtue: "wisdom" },
+            { id: "Creat", full_name: "Creativity", rx: -0.2, ry: -0.4, community: "discernment", virtue: "wisdom" },
+            { id: "Persp", full_name: "Perspective", rx: -0.4, ry: -0.05, community: "discernment", virtue: "wisdom" },
+            { id: "Prude", full_name: "Prudence", rx: -0.9, ry: 0.1, community: "responsibility", virtue: "temperance" },
+            { id: "Perse", full_name: "Perseverance", rx: -0.35, ry: 0.15, community: "responsibility", virtue: "courage" },
+            { id: "Brave", full_name: "Bravery", rx: 0, ry: 0.25, community: "discernment", virtue: "courage" }, // Note: In image 'Bra' is pink (Discernment)
+            { id: "SelfR", full_name: "Self-Regulation", rx: -0.85, ry: 0.4, community: "responsibility", virtue: "temperance" },
+            { id: "Hones", full_name: "Honesty", rx: -0.3, ry: 0.6, community: "responsibility", virtue: "courage" },
+            { id: "Humil", full_name: "Humility", rx: -0.65, ry: 0.75, community: "responsibility", virtue: "temperance" },
+            { id: "TWork", full_name: "Teamwork", rx: -0.1, ry: 0.8, community: "interpersonal", virtue: "justice" },
+            { id: "Leade", full_name: "Leadership", rx: -0.3, ry: 0.95, community: "interpersonal", virtue: "justice" },
+            { id: "Fairn", full_name: "Fairness", rx: 0.15, ry: 1.0, community: "interpersonal", virtue: "justice" },
+            { id: "Forgi", full_name: "Forgiveness", rx: 0.55, ry: 0.9, community: "interpersonal", virtue: "temperance" },
+            { id: "Kindn", full_name: "Kindness", rx: 0.6, ry: 0.6, community: "interpersonal", virtue: "humanity" },
+            { id: "SocIQ", full_name: "Social Intelligence", rx: 0.25, ry: 0.5, community: "interpersonal", virtue: "humanity" },
+            { id: "Love",  full_name: "Love", rx: 0.95, ry: 0.5, community: "energy", virtue: "humanity" },
+            { id: "Humor", full_name: "Humor", rx: 0.5, ry: 0.2, community: "interpersonal", virtue: "transcendent" },
+            { id: "Zest",  full_name: "Zest", rx: 0.15, ry: -0.3, community: "energy", virtue: "courage" },
+            { id: "Hope",  full_name: "Hope", rx: 0.55, ry: -0.6, community: "energy", virtue: "transcendent" },
+            { id: "Beaut", full_name: "Appreciation of Beauty", rx: 0.5, ry: -0.15, community: "discernment", virtue: "transcendent" },
+            { id: "Grati", full_name: "Gratitude", rx: 0.9, ry: -0.2, community: "energy", virtue: "transcendent" },
+            { id: "Spiri", full_name: "Spirituality", rx: 0.9, ry: 0.15, community: "energy", virtue: "transcendent" }
+        ];
+
+        /* 
+         * Links mapped closely to VIA_2.jpg
+         * value = thickness (roughly 1 to 15)
+         * type = positive (blue) or negative (red)
+         */
+        const linksData = [
+            // HEAVY POSITIVE (Thickest Blue) - value: 12-15
+            { source: "Judgm", target: "Prude", value: 14, type: "positive" },
+            { source: "Perse", target: "Hones", value: 13, type: "positive" },
+            { source: "Curio", target: "Zest", value: 12, type: "positive" },
+            { source: "Zest", target: "Hope", value: 12, type: "positive" },
+            { source: "Hope", target: "Grati", value: 13, type: "positive" },
+            { source: "Kindn", target: "Humor", value: 13, type: "positive" }, // Strengthened
+
+            // STRONG POSITIVE (Thick Blue) - value: 9-11
+            { source: "Grati", target: "Beaut", value: 11, type: "positive" },
+            { source: "Curio", target: "Learn", value: 10, type: "positive" },
+            { source: "Leade", target: "Fairn", value: 10, type: "positive" },
+            { source: "TWork", target: "Fairn", value: 10, type: "positive" },
+            { source: "Kindn", target: "Forgi", value: 10, type: "positive" },
+            { source: "Kindn", target: "TWork", value: 11, type: "positive" },  // Strengthened
+            { source: "SocIQ", target: "Kindn", value: 11, type: "positive" },  // Strengthened
+            { source: "Curio", target: "Persp", value: 9, type: "positive" },
+            { source: "Judgm", target: "Persp", value: 10, type: "positive" },  // Strengthened
+            { source: "Spiri", target: "Love", value: 11, type: "positive" },   // Strengthened
+
+            // MEDIUM POSITIVE (Medium Blue) - value: 6-8
+            { source: "Grati", target: "Spiri", value: 8, type: "positive" },
+            { source: "TWork", target: "Leade", value: 8, type: "positive" },
+            { source: "Brave", target: "SocIQ", value: 8, type: "positive" },
+            { source: "Prude", target: "SelfR", value: 8, type: "positive" },
+            { source: "Hones", target: "TWork", value: 7, type: "positive" },
+            { source: "Creat", target: "Brave", value: 7, type: "positive" },
+            { source: "Humor", target: "Zest", value: 7, type: "positive" },
+            { source: "Kindn", target: "Love", value: 6, type: "positive" },
+            { source: "SelfR", target: "Humil", value: 6, type: "positive" },
+            { source: "Brave", target: "Hones", value: 6, type: "positive" }, 
+            { source: "Learn", target: "Creat", value: 6, type: "positive" },
+            { source: "SocIQ", target: "Humor", value: 6, type: "positive" },
+
+            // WEAK POSITIVE (Standard/Thin Blue) - value: 2-5
+            { source: "Persp", target: "Brave", value: 5, type: "positive" },
+            { source: "Brave", target: "Perse", value: 5, type: "positive" },
+            { source: "Learn", target: "Judgm", value: 4, type: "positive" },
+            { source: "Curio", target: "Creat", value: 4, type: "positive" },
+            { source: "Creat", target: "Zest", value: 4, type: "positive" },
+            { source: "Perse", target: "SelfR", value: 4, type: "positive" },
+            { source: "Love", target: "Grati", value: 4, type: "positive" },
+            { source: "Humil", target: "Forgi", value: 4, type: "positive" },
+            { source: "Humil", target: "Hones", value: 4, type: "positive" },
+            { source: "Spiri", target: "Hope", value: 4, type: "positive" },
+            { source: "Curio", target: "Hope", value: 3, type: "positive" },
+            { source: "Zest", target: "Beaut", value: 3, type: "positive" },
+            { source: "SocIQ", target: "TWork", value: 3, type: "positive" },
+            { source: "Kindn", target: "Spiri", value: 3, type: "positive" },
+            { source: "Hones", target: "Fairn", value: 3, type: "positive" },
+            { source: "Perse", target: "TWork", value: 3, type: "positive" },
+            { source: "SelfR", target: "TWork", value: 3, type: "positive" },
+            { source: "Creat", target: "Beaut", value: 2, type: "positive" },
+            { source: "Forgi", target: "Spiri", value: 2, type: "positive" },
+            
+            // VERY WEAK POSITIVE (Faint Light Blue/Gray) - value: 1
+            { source: "Learn", target: "Hope", value: 1, type: "positive" },
+            { source: "Judgm", target: "Humil", value: 1, type: "positive" },
+            { source: "Prude", target: "Humil", value: 1, type: "positive" },
+            { source: "Persp", target: "Hones", value: 1, type: "positive" },
+
+            // STRONG NEGATIVE (Thick Red) - value: 6-7
+            { source: "Prude", target: "Zest", value: 7, type: "negative" },
+            { source: "SelfR", target: "Humor", value: 9, type: "negative" }, // Strengthened
+            { source: "Perse", target: "Humor", value: 6, type: "negative" },
+
+            // MEDIUM NEGATIVE (Standard Red) - value: 3-5
+            { source: "Prude", target: "Creat", value: 5, type: "negative" },
+            { source: "Humil", target: "Leade", value: 5, type: "negative" },
+            { source: "Judgm", target: "Brave", value: 4, type: "negative" },
+            { source: "Creat", target: "Kindn", value: 4, type: "negative" },
+            { source: "Persp", target: "Hope", value: 4, type: "negative" },
+            { source: "Prude", target: "Humor", value: 5, type: "negative" }, // Added/Strengthened
+
+            // WEAK NEGATIVE (Faint Red) - value: 1-2
+            { source: "Learn", target: "Brave", value: 2, type: "negative" },
+            { source: "Learn", target: "Zest", value: 2, type: "negative" },
+            { source: "Curio", target: "Prude", value: 2, type: "negative" },
+            { source: "Judgm", target: "Zest", value: 2, type: "negative" },
+            { source: "Prude", target: "Brave", value: 2, type: "negative" },
+            { source: "Brave", target: "Forgi", value: 2, type: "negative" },
+            { source: "Hones", target: "Humor", value: 2, type: "negative" },
+            { source: "Perse", target: "Love", value: 2, type: "negative" },
+            { source: "SocIQ", target: "Spiri", value: 2, type: "negative" },
+            { source: "Humor", target: "Grati", value: 2, type: "negative" }
+        ];
+
+        const container = document.getElementById('network-container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        
+        // Function to fix nodes in a static layout based on their relative coordinates
+        function setStaticPositions(w, h) {
+            const radius = Math.min(w, h) * 0.42; // scale factor
+            const cx = w / 2;
+            const cy = h / 2;
+            nodesData.forEach(d => {
+                d.x = cx + (d.rx * radius);
+                d.y = cy + (d.ry * radius);
+                d.fx = d.x; // Lock x
+                d.fy = d.y; // Lock y
+            });
+        }
+        
+        // Apply positions initially
+        setStaticPositions(width, height);
+
+        // Color Definitions matching the provided screenshots exactly
+        const linkColorPositive = "#8baebc"; 
+        const linkColorNegative = "#e2b3b3"; 
+        const linkColorFaint = "#e2e8f0";    
+        
+        const nodeColorDefault = "#64748b"; 
+
+        // Communities (Spinglass) Colors - matched to Screenshot 1
+        const communityColors = {
+            "discernment": "#ffcdcc",    // Pink
+            "responsibility": "#b1dfbb", // Light Green
+            "interpersonal": "#d4e4f7",  // Light Blue
+            "energy": "#ffdfc4"          // Peach
+        };
+
+        const communityLabels = {
+            "discernment": "Discernment Community",
+            "responsibility": "Responsibility Community",
+            "interpersonal": "Interpersonal Community",
+            "energy": "Energy Community"
+        };
+
+        // Theoretical Virtues Colors - matched to Screenshot 2
+        const virtueColors = {
+            "wisdom": "#75b961",       // Green (Wisdom virtue)
+            "justice": "#4a9c94",      // Teal (Justice virtue)
+            "temperance": "#fbc256",   // Yellow (Temperance virtue)
+            "transcendent": "#f64746", // Red (Transcendent virtue)
+            "courage": "#f77334",      // Orange (Courage virtue)
+            "humanity": "#277ba5"      // Blue (Humanity virtue)
+        };
+
+        const virtueLabels = {
+            "wisdom": "Wisdom virtue",
+            "justice": "Justice virtue",
+            "temperance": "Temperance virtue",
+            "transcendent": "Transcendent virtue",
+            "courage": "Courage virtue",
+            "humanity": "Humanity virtue"
+        };
+
+        let currentView = 'default';
+
+        const svg = d3.select("#network-container")
+            .append("svg")
+            .attr("viewBox", [0, 0, width, height]);
+            
+        // Add a group for zooming/panning
+        const g = svg.append("g");
+
+        // Set up zoom behavior
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 3])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
+        
+        svg.call(zoom);
+        
+        // Initial transform to center nicely, offset slightly to account for wider controls
+        svg.call(zoom.transform, d3.zoomIdentity.translate(width/2 + 150, height/2).scale(0.85).translate(-width/2, -height/2));
+
+        const tooltip = d3.select("#tooltip");
+
+        const link = g.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(linksData)
+            .enter().append("line")
+            .attr("class", "link")
+            .attr("stroke-width", d => Math.max(1, d.value))
+            .attr("stroke", d => {
+                if (d.type === "negative") return linkColorNegative;
+                if (d.value <= 2) return linkColorFaint; 
+                return linkColorPositive; 
+            })
+            .attr("stroke-opacity", d => d.value > 4 ? 0.8 : 0.5);
+
+        const node = g.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(nodesData)
+            .enter().append("g");
+
+        // Node circles
+        const nodeRadius = 24;
+        node.append("circle")
+            .attr("class", "node")
+            .attr("r", nodeRadius)
+            .style("stroke", nodeColorDefault) // Set initial stroke color
+            // Interactions for hovering
+            .on("mouseover", handleMouseOver)
+            .on("mouseout", handleMouseOut);
+
+        // Node text labels
+        node.append("text")
+            .attr("class", "node-label")
+            .text(d => d.id);
+
+        // Position links and nodes explicitly without physics simulation
+        function renderStaticLayout() {
+            // Find nodes for links
+            linksData.forEach(l => {
+                l.sourceNode = nodesData.find(n => n.id === l.source);
+                l.targetNode = nodesData.find(n => n.id === l.target);
+            });
+
+            link
+                .attr("x1", d => d.sourceNode.x)
+                .attr("y1", d => d.sourceNode.y)
+                .attr("x2", d => d.targetNode.x)
+                .attr("y2", d => d.targetNode.y);
+
+            node
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+        }
+
+        renderStaticLayout(); // Initial render
+
+        // Highlight connected nodes on hover
+        function handleMouseOver(event, d) {
+            // Show tooltip
+            tooltip.transition().duration(200).style("opacity", .9);
+            tooltip.html(`<strong>${d.full_name}</strong>`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 28) + "px");
+
+            // Dim all nodes and links
+            node.selectAll("circle").style("opacity", 0.3);
+            node.selectAll("text").style("opacity", 0.3);
+            link.style("stroke-opacity", 0.1);
+
+            // Create sets to keep track of connected nodes
+            const connectedNodes = new Set();
+            connectedNodes.add(d.id);
+
+            // Highlight connections
+            link.filter(l => l.source === d.id || l.target === d.id)
+                .style("stroke-opacity", l => l.value > 4 ? 0.9 : 0.6)
+                .style("stroke", l => l.type === "negative" ? "#ef4444" : "#0284c7") // Stronger colors on hover
+                .each(function(l) {
+                    connectedNodes.add(l.source);
+                    connectedNodes.add(l.target);
+                });
+
+            // Highlight connected nodes
+            node.filter(n => connectedNodes.has(n.id))
+                .selectAll("circle")
+                .style("opacity", 1)
+                .style("stroke-width", n => {
+                    if (n.id === d.id) {
+                        return currentView === 'default' ? "3px" : "6px";
+                    }
+                    return currentView === 'default' ? "1.5px" : "4px";
+                });
+                
+            node.filter(n => connectedNodes.has(n.id))
+                .selectAll("text")
+                .style("opacity", 1)
+                .style("font-weight", n => n.id === d.id ? "700" : "500");
+        }
+
+        function handleMouseOut(event, d) {
+            // Hide tooltip
+            tooltip.transition().duration(500).style("opacity", 0);
+
+            // Reset nodes
+            node.selectAll("circle")
+                .style("opacity", 1)
+                .style("stroke-width", currentView === 'default' ? "1.5px" : "4px") // Keep thick borders if in special view
+                .style("stroke", n => {
+                    if (currentView === 'communities') return communityColors[n.community];
+                    if (currentView === 'virtues') return virtueColors[n.virtue];
+                    return nodeColorDefault;
+                });
+                
+            node.selectAll("text")
+                .style("opacity", 1)
+                .style("font-weight", "500");
+
+            // Reset links
+            link.style("stroke-opacity", l => l.value > 4 ? 0.8 : 0.5)
+                .style("stroke", l => {
+                    if (l.type === "negative") return linkColorNegative;
+                    if (l.value <= 2) return linkColorFaint;
+                    return linkColorPositive;
+                });
+        }
+
+        // View Switching Logic
+        function updateView(view) {
+            currentView = view;
+            const legendContainer = document.getElementById('legend-container');
+            const legendTitle = document.getElementById('legend-title');
+            const legendItems = document.getElementById('legend-items');
+            
+            // Update button styles
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+
+            // Update node stroke colors
+            node.selectAll("circle")
+                .transition().duration(500)
+                .style("stroke", d => {
+                    if (view === 'communities') return communityColors[d.community];
+                    if (view === 'virtues') return virtueColors[d.virtue];
+                    return nodeColorDefault;
+                })
+                .style("stroke-width", view === 'default' ? "1.5px" : "4px"); 
+
+            // Update Legend
+            if (view === 'default') {
+                legendContainer.style.display = 'none';
+            } else {
+                legendContainer.style.display = 'block';
+                legendItems.innerHTML = ''; // Clear existing
+                
+                let colors, labels, title;
+                if (view === 'communities') {
+                    colors = communityColors;
+                    labels = communityLabels;
+                    title = "a. Communities via Spinglass Algorithm";
+                } else {
+                    colors = virtueColors;
+                    labels = virtueLabels;
+                    title = "b. Theoretical Virtues";
+                }
+                
+                legendTitle.textContent = title;
+                
+                Object.keys(colors).forEach(key => {
+                    const item = document.createElement('div');
+                    item.className = 'legend-item';
+                    
+                    const colorBox = document.createElement('div');
+                    colorBox.className = 'legend-color';
+                    colorBox.style.backgroundColor = view === 'communities' ? colors[key] : 'transparent';
+                    if(view === 'virtues'){
+                         colorBox.style.borderColor = colors[key];
+                         colorBox.style.borderWidth = '3px';
+                    } else {
+                         colorBox.style.borderColor = '#cbd5e1'; // slight border for filled boxes
+                    }
+                    
+                    const label = document.createElement('span');
+                    label.textContent = labels[key];
+                    
+                    item.appendChild(colorBox);
+                    item.appendChild(label);
+                    legendItems.appendChild(item);
+                });
+            }
+        }
+
+        // Add event listeners to buttons
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            updateView(e.target.dataset.view);
+        });
+    });
+
+</script>
+</body>
+</html>
