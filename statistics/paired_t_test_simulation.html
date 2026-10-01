@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paired Samples: Sampling Distribution of Mean Differences</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .container-box {
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            background-color: white;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-piece {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .pair-card {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* SVG Chart Styles */
+        .bar {
+            fill: #8b5cf6; /* Purple theme for differences */
+            opacity: 0.7;
+            transition: height 0.2s, y 0.2s;
+        }
+        
+        .bar:hover {
+            opacity: 1;
+        }
+
+        .axis-label {
+            font-size: 11px;
+            fill: #64748b;
+        }
+        
+        .axis-title {
+            font-size: 13px;
+            font-weight: 600;
+            fill: #475569;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); opacity: 1; z-index: 20; }
+            50% { transform: scale(3); box-shadow: 0 0 10px 5px rgba(245, 158, 11, 0); opacity: 1; z-index: 20; background-color: #f59e0b; }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); opacity: 0.6; z-index: 1; }
+        }
+        .pulse-highlight {
+            animation: pulse 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
+    <div class="max-w-7xl w-full">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-extrabold text-slate-800 mb-2">Paired Samples (Dependent $t$-test) Simulation</h1>
+            <p class="text-slate-600 max-w-4xl mx-auto text-sm md:text-base">
+                Demonstrating the sampling distribution of <strong>mean differences</strong> ($\bar{d}$). 
+                We simulate 1000 individuals, each with a Pre-test and Post-test score. The population of <em>difference scores</em> ($D = X_{post} - X_{pre}$) has a true mean $\mu_D = 5$ and standard deviation $\sigma_D = 10$. 
+                We repeatedly draw 10 pairs to find the sample mean difference.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column: The Population Containers -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-bold text-slate-700">Population ($N=1000$)</h2>
+                </div>
+                
+                <!-- Callout Banner explaining subject linkage -->
+                <div class="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-2 rounded-lg mb-3 flex items-start gap-1.5">
+                    <span class="text-base">💡</span>
+                    <span><strong>Linked Subject Concept:</strong> Each participant ($P$) is measured twice. <strong>Hover over any dot</strong> in either box to highlight that exact same participant's twin score!</span>
+                </div>
+
+                <div class="flex flex-col gap-3 mb-2">
+                    <!-- Pre-test Box -->
+                    <div class="bg-blue-50/50 border border-blue-100 rounded-lg p-2">
+                        <div class="flex justify-between items-center text-[11px] uppercase tracking-wider font-bold text-blue-800 mb-1.5 px-1">
+                            <span>Pre-test Scores</span>
+                            <span class="bg-blue-200/50 px-1.5 py-0.5 rounded">$\mu_{pre} = 50$</span>
+                        </div>
+                        <div id="pop-pre-container" class="container-box h-20 w-full relative bg-white">
+                            <!-- Pre pieces injected here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Post-test Box -->
+                    <div class="bg-emerald-50/50 border border-emerald-100 rounded-lg p-2">
+                        <div class="flex justify-between items-center text-[11px] uppercase tracking-wider font-bold text-emerald-800 mb-1.5 px-1">
+                            <span>Post-test Scores</span>
+                            <span class="bg-emerald-200/50 px-1.5 py-0.5 rounded">$\mu_{post} = 55$</span>
+                        </div>
+                        <div id="pop-post-container" class="container-box h-20 w-full relative bg-white">
+                            <!-- Post pieces injected here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-[11px] font-bold text-slate-500 mt-2 mb-1 text-center uppercase tracking-wider bg-slate-100 py-1 rounded">
+                    Distribution of Differences ($D = Post - Pre$)
+                    <span class="ml-2 text-purple-600">$\mu_D = 5, \sigma_D = 10$</span>
+                </div>
+                <div id="pop-dist-chart" class="h-32 w-full mt-auto"></div>
+            </div>
+
+            <!-- Middle Column: The Sampling Process -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-between">
+                <h2 class="text-lg font-bold text-slate-700 w-full mb-2">Current Sample ($n=10$ pairs)</h2>
+                
+                <div class="w-full flex-grow flex flex-col items-center justify-center space-y-4">
+                    <div class="w-full">
+                        <div class="flex justify-between text-[10px] text-slate-400 font-bold uppercase px-2 mb-1">
+                            <span>Participant ID</span>
+                            <span>Pre $\rightarrow$ Post</span>
+                            <span class="text-purple-500">Diff ($D$)</span>
+                        </div>
+                        <div id="sample-display" class="flex flex-wrap gap-2 justify-center min-h-[120px] w-full bg-slate-50 rounded-lg p-3 border border-slate-200 content-start">
+                            <!-- Drawn pair cards appear here -->
+                            <div class="text-slate-400 italic flex items-center justify-center w-full h-full text-sm">
+                                Waiting to sample pairs...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-center w-full bg-white border border-slate-100 rounded-lg p-2 shadow-sm">
+                        <div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-wide font-bold mb-0.5" title="Mean of differences">Mean ($\bar{d}$)</div>
+                            <div id="current-mean" class="text-2xl font-extrabold text-purple-600 h-8 flex items-center justify-center">--</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-wide font-bold mb-0.5" title="Standard Deviation of differences">SD ($s_D$)</div>
+                            <div id="current-sd" class="text-2xl font-extrabold text-emerald-600 h-8 flex items-center justify-center">--</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-wide font-bold mb-0.5" title="Standard Error (s_D / √n)">Est. SE</div>
+                            <div id="current-se" class="text-2xl font-extrabold text-blue-600 h-8 flex items-center justify-center">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full mt-4 space-y-2">
+                    <button id="btn-draw-one" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4 rounded-lg transition shadow-sm flex items-center justify-center gap-2 text-sm">
+                        Simulate 1 Experiment (Draw 10)
+                    </button>
+                    <button id="btn-draw-all" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg transition shadow-sm flex items-center justify-center gap-2 text-sm">
+                        Simulate All 100 Experiments
+                    </button>
+                     <button id="btn-reset" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2 px-4 rounded-lg transition text-sm">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: Sampling Distribution -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-slate-700">Sampling Distribution</h2>
+                    <span class="text-xs font-semibold bg-purple-100 px-2 py-1 rounded text-purple-700" id="stats-counter">0 / 100 Exp.</span>
+                </div>
+                
+                <div class="flex-grow flex flex-col">
+                    <div id="sampling-dist-chart" class="flex-grow w-full min-h-[200px]"></div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mt-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <div>
+                        <div class="text-[10px] text-slate-500 uppercase font-bold leading-tight mb-1">Mean of Means ($\mu_{\bar{d}}$)</div>
+                        <div class="text-lg font-bold text-slate-800" id="stat-mean-of-means">--</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-slate-500 uppercase font-bold leading-tight mb-1" title="SD of the sample means">Empirical SE</div>
+                        <div class="text-lg font-bold text-slate-800" id="stat-emp-se">--</div>
+                    </div>
+                    <div class="col-span-2 border-t border-slate-200 pt-2">
+                        <div class="text-[10px] text-slate-500 uppercase font-bold leading-tight mb-1" title="Average of Est. SE">Avg. Estimated SE (using $s_D$)</div>
+                        <div class="flex items-baseline gap-2">
+                            <div class="text-lg font-bold text-blue-700" id="stat-est-se">--</div>
+                            <div class="text-[10px] font-semibold text-slate-400">Theoretical ($\sigma_D/\sqrt{n}$): ~3.16</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Explanation Panel -->
+        <div class="mt-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h3 class="text-base font-bold text-slate-800 mb-2">Connecting to the Paired $t$-test</h3>
+            <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                In a paired (dependent) $t$-test, each subject is measured twice (Pre and Post). Notice how a single sample draws a linked pair from both populations simultaneously. The test evaluates the <strong>difference scores</strong> ($D$) within each pair.
+            </p>
+            
+            <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-4">
+                <h4 class="text-sm font-bold text-indigo-900 mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Why is a Paired t-test identical to a One-Sample t-test?
+                </h4>
+                <p class="text-indigo-800 text-sm leading-relaxed mb-3">
+                    A paired-samples $t$-test is mathematically identical to performing a <strong>one-sample $t$-test</strong> on the column of difference scores. Here is why:
+                </p>
+                <ul class="list-disc pl-5 text-sm text-indigo-800 space-y-2">
+                    <li><strong>Null Hypothesis Transformation:</strong> The paired $t$-test tests whether the mean of Pre-test scores equals the mean of Post-test scores ($H_0: \mu_{pre} = \mu_{post}$). By subtracting them ($D = Post - Pre$), this is exactly equivalent to testing if the mean of the differences is zero ($H_0: \mu_D = 0$).</li>
+                    <li><strong>Removing Between-Subject Variance:</strong> Since we are testing the same individual twice, their baseline performance is "subtracted out". We no longer care about the variance in the Pre-test box or the Post-test box individually; we <em>only</em> care about the variance of the difference scores ($s_D$).</li>
+                    <li><strong>The Formula:</strong> The test statistic is calculated as $t = \frac{\bar{d} - \mu_0}{s_D / \sqrt{n}}$. If our null hypothesis is no change, then $\mu_0 = 0$, simplifying the numerator to just $\bar{d}$. This is the exact formula for a one-sample $t$-test against 0.</li>
+                </ul>
+            </div>
+            
+            <p class="text-slate-600 text-sm leading-relaxed">
+                As you draw samples, the <strong>Estimated Standard Error</strong> ($s_D / \sqrt{n}$) varies from sample to sample because it relies on the sample's standard deviation ($s_D$). However, across 100 simulations, the average of these estimated standard errors closely approximates the true standard error (the empirical standard deviation of the sampling distribution on the right).
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // --- Constants & State ---
+        const POPULATION_SIZE = 1000;
+        const POP_PRE_MEAN = 50;
+        const POP_PRE_SD = 15;
+        const POP_MEAN_DIFF = 5;
+        const POP_STD_DEV_DIFF = 10;
+        const SAMPLE_SIZE = 10;
+        const TOTAL_EXPERIMENTS = 100;
+        
+        let population = [];
+        let sampleMeans = [];
+        let sampleSEs = [];
+        let isAnimating = false;
+        
+        // Box-Muller transform for normal distribution
+        function randomNormal(mean, stdDev) {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random();
+            while(v === 0) v = Math.random();
+            let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+            return mean + z * stdDev;
+        }
+
+        function generatePopulation() {
+            population = [];
+            for (let i = 0; i < POPULATION_SIZE; i++) {
+                // Generate a base pre-test score
+                let pre = randomNormal(POP_PRE_MEAN, POP_PRE_SD);
+                // Generate a true difference score
+                let diff = randomNormal(POP_MEAN_DIFF, POP_STD_DEV_DIFF);
+                // Post-test is naturally Pre + Diff
+                let post = pre + diff;
+
+                population.push({
+                    id: i,
+                    pre: pre,
+                    post: post,
+                    diff: diff,
+                    pre_x: Math.random() * 96 + 2, 
+                    pre_y: Math.random() * 90 + 5,
+                    post_x: Math.random() * 96 + 2,
+                    post_y: Math.random() * 90 + 5
+                });
+            }
+        }
+
+        function calculateMean(arr) {
+            if (arr.length === 0) return 0;
+            return arr.reduce((sum, val) => sum + val, 0) / arr.length;
+        }
+
+        function calculateStdDev(arr, mean) {
+            if (arr.length <= 1) return 0;
+            let variance = arr.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (arr.length - 1);
+            return Math.sqrt(Math.max(0, variance));
+        }
+
+        const preContainerEl = document.getElementById('pop-pre-container');
+        const postContainerEl = document.getElementById('pop-post-container');
+        const sampleDisplayEl = document.getElementById('sample-display');
+        const currentMeanEl = document.getElementById('current-mean');
+        const currentSdEl = document.getElementById('current-sd');
+        const currentSeEl = document.getElementById('current-se');
+        const btnDrawOne = document.getElementById('btn-draw-one');
+        const btnDrawAll = document.getElementById('btn-draw-all');
+        const btnReset = document.getElementById('btn-reset');
+
+        function initVisualization() {
+            generatePopulation();
+            
+            // Draw Physical Containers (Sample of 300 pieces for performance)
+            preContainerEl.innerHTML = '';
+            postContainerEl.innerHTML = '';
+            
+            const visualPop = population.slice(0, 300);
+            visualPop.forEach(p => {
+                // Pre Piece
+                const prePiece = document.createElement('div');
+                prePiece.className = 'score-piece bg-blue-500 cursor-pointer';
+                prePiece.style.left = `${p.pre_x}%`;
+                prePiece.style.top = `${p.pre_y}%`;
+                prePiece.id = `pre-piece-${p.id}`;
+                prePiece.title = `Participant #${p.id + 1}: Pre=${p.pre.toFixed(1)}, Post=${p.post.toFixed(1)}`;
+                
+                // Synchronized hover event
+                prePiece.addEventListener('mouseenter', () => highlightPair(p.id, true));
+                prePiece.addEventListener('mouseleave', () => highlightPair(p.id, false));
+                preContainerEl.appendChild(prePiece);
+
+                // Post Piece
+                const postPiece = document.createElement('div');
+                postPiece.className = 'score-piece bg-emerald-500 cursor-pointer';
+                postPiece.style.left = `${p.post_x}%`;
+                postPiece.style.top = `${p.post_y}%`;
+                postPiece.id = `post-piece-${p.id}`;
+                postPiece.title = `Participant #${p.id + 1}: Post=${p.post.toFixed(1)}, Pre=${p.pre.toFixed(1)}`;
+
+                // Synchronized hover event
+                postPiece.addEventListener('mouseenter', () => highlightPair(p.id, true));
+                postPiece.addEventListener('mouseleave', () => highlightPair(p.id, false));
+                postContainerEl.appendChild(postPiece);
+            });
+
+            drawPopulationChart();
+            initSamplingDistChart();
+            resetStats();
+        }
+
+        // Highlight corresponding pair on hover across boxes
+        function highlightPair(id, active) {
+            const preEl = document.getElementById(`pre-piece-${id}`);
+            const postEl = document.getElementById(`post-piece-${id}`);
+            if (active) {
+                if (preEl) { preEl.classList.add('pulse-highlight'); preEl.style.transform = 'scale(2.2)'; }
+                if (postEl) { postEl.classList.add('pulse-highlight'); postEl.style.transform = 'scale(2.2)'; }
+            } else {
+                if (preEl) { preEl.classList.remove('pulse-highlight'); preEl.style.transform = 'scale(1)'; }
+                if (postEl) { postEl.classList.remove('pulse-highlight'); postEl.style.transform = 'scale(1)'; }
+            }
+        }
+
+        function resetStats() {
+            sampleMeans = [];
+            sampleSEs = [];
+            updateStatsUI();
+            sampleDisplayEl.innerHTML = '<div class="text-slate-400 italic flex items-center justify-center w-full h-full text-sm">Waiting to sample pairs...</div>';
+            
+            currentMeanEl.innerText = '--';
+            currentMeanEl.classList.remove('text-purple-600');
+            currentSdEl.innerText = '--';
+            currentSdEl.classList.remove('text-emerald-600');
+            currentSeEl.innerText = '--';
+            currentSeEl.classList.remove('text-blue-600');
+            
+            if (sampY && sampSvg) {
+                 sampY.domain([0, 10]);
+                 sampSvg.select('#samp-y-axis').transition().duration(300).call(d3.axisLeft(sampY));
+            }
+            
+            updateSamplingDistChart();
+            
+            btnDrawOne.disabled = false;
+            btnDrawAll.disabled = false;
+            btnDrawOne.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnDrawAll.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function updateStatsUI() {
+            document.getElementById('stats-counter').innerText = `${sampleMeans.length} / ${TOTAL_EXPERIMENTS} Exp.`;
+            
+            if (sampleMeans.length > 0) {
+                const meanOfMeans = calculateMean(sampleMeans);
+                const empSE = calculateStdDev(sampleMeans, meanOfMeans);
+                const avgEstSE = calculateMean(sampleSEs);
+                
+                document.getElementById('stat-mean-of-means').innerText = meanOfMeans.toFixed(2);
+                document.getElementById('stat-emp-se').innerText = sampleMeans.length > 1 ? empSE.toFixed(2) : '--';
+                document.getElementById('stat-est-se').innerText = avgEstSE.toFixed(2);
+            } else {
+                document.getElementById('stat-mean-of-means').innerText = '--';
+                document.getElementById('stat-emp-se').innerText = '--';
+                document.getElementById('stat-est-se').innerText = '--';
+            }
+
+            if (sampleMeans.length >= TOTAL_EXPERIMENTS) {
+                btnDrawOne.disabled = true;
+                btnDrawAll.disabled = true;
+                btnDrawOne.classList.add('opacity-50', 'cursor-not-allowed');
+                btnDrawAll.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        let popChart, sampChart;
+        const popMargin = {top: 10, right: 10, bottom: 20, left: 30};
+        const sampMargin = {top: 20, right: 20, bottom: 35, left: 35};
+
+        function drawPopulationChart() {
+            const container = d3.select('#pop-dist-chart');
+            container.selectAll('*').remove();
+            
+            const width = container.node().getBoundingClientRect().width - popMargin.left - popMargin.right;
+            const height = container.node().getBoundingClientRect().height - popMargin.top - popMargin.bottom;
+
+            const svg = container.append('svg')
+                .attr('width', width + popMargin.left + popMargin.right)
+                .attr('height', height + popMargin.top + popMargin.bottom)
+                .append('g')
+                .attr('transform', `translate(${popMargin.left},${popMargin.top})`);
+
+            const x = d3.scaleLinear().domain([-30, 40]).range([0, width]);
+            
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(6))
+                .attr('class', 'axis-label');
+
+            const histogram = d3.bin().value(d => d.diff).domain(x.domain()).thresholds(x.ticks(25));
+            const bins = histogram(population);
+
+            const y = d3.scaleLinear().range([height, 0]).domain([0, d3.max(bins, d => d.length)]);
+
+            svg.append('g').call(d3.axisLeft(y).ticks(3)).attr('class', 'axis-label');
+
+            svg.selectAll("rect").data(bins).join("rect")
+                .attr("class", "bar").attr("x", 1)
+                .attr("transform", d => `translate(${x(d.x0)},${y(d.length)})`)
+                .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+                .attr("height", d => height - y(d.length))
+                .style("fill", "#cbd5e1");
+        }
+
+        let sampX, sampY, sampSvg, sampHistogram, sampWidth, sampHeight;
+
+        function initSamplingDistChart() {
+            const container = d3.select('#sampling-dist-chart');
+            container.selectAll('*').remove();
+            
+            const rect = container.node().getBoundingClientRect();
+            sampWidth = rect.width - sampMargin.left - sampMargin.right;
+            sampHeight = rect.height - sampMargin.top - sampMargin.bottom;
+
+            sampSvg = container.append('svg')
+                .attr('width', sampWidth + sampMargin.left + sampMargin.right)
+                .attr('height', sampHeight + sampMargin.top + sampMargin.bottom)
+                .append('g')
+                .attr('transform', `translate(${sampMargin.left},${sampMargin.top})`);
+
+            sampX = d3.scaleLinear().domain([-5, 15]).range([0, sampWidth]);
+            
+            sampSvg.append('g').attr('transform', `translate(0,${sampHeight})`)
+                .call(d3.axisBottom(sampX)).attr('class', 'axis-label');
+
+            sampSvg.append("text").attr("transform", `translate(${sampWidth/2}, ${sampHeight + sampMargin.top + 10})`)
+                .style("text-anchor", "middle").attr('class', 'axis-title').text("Sample Mean Difference");
+
+            sampY = d3.scaleLinear().range([sampHeight, 0]).domain([0, 10]);
+            sampSvg.append('g').attr('id', 'samp-y-axis').call(d3.axisLeft(sampY).ticks(5)).attr('class', 'axis-label');
+                
+            sampSvg.append("text").attr("transform", "rotate(-90)").attr("y", 0 - sampMargin.left)
+                .attr("x",0 - (sampHeight / 2)).attr("dy", "1em")
+                .style("text-anchor", "middle").attr('class', 'axis-title').text("Frequency");
+
+            sampHistogram = d3.bin().domain(sampX.domain()).thresholds(sampX.ticks(20));
+        }
+
+        function updateSamplingDistChart(animateLast = false) {
+            const bins = sampHistogram(sampleMeans);
+            
+            const maxFreq = d3.max(bins, d => d.length);
+            if (maxFreq > sampY.domain()[1]) {
+                sampY.domain([0, maxFreq + 2]);
+                sampSvg.select('#samp-y-axis').transition().duration(300).call(d3.axisLeft(sampY).ticks(5));
+            }
+
+            const bars = sampSvg.selectAll(".samp-bar").data(bins);
+
+            const barsEnter = bars.enter().append("rect").attr("class", "samp-bar bar")
+                .attr("x", 1).attr("transform", d => `translate(${sampX(d.x0)},${sampHeight})`)
+                .attr("width", d => Math.max(0, sampX(d.x1) - sampX(d.x0) - 1)).attr("height", 0);
+            
+            bars.merge(barsEnter)
+                .transition().duration(animateLast ? 300 : 0)
+                .attr("transform", d => `translate(${sampX(d.x0)},${sampY(d.length)})`)
+                .attr("height", d => sampHeight - sampY(d.length))
+                .style("fill", (d, i) => {
+                    if (animateLast && sampleMeans.length > 0) {
+                        const lastMean = sampleMeans[sampleMeans.length - 1];
+                        if (lastMean >= d.x0 && lastMean < d.x1) return "#f59e0b"; // Highlight newly added
+                    }
+                    return "#a855f7"; // Purple
+                })
+                .on("end", function(d) {
+                     if (animateLast) d3.select(this).transition().duration(500).style("fill", "#a855f7");
+                });
+
+            bars.exit().remove();
+        }
+        
+        async function drawSampleAnimated() {
+            if (isAnimating || sampleMeans.length >= TOTAL_EXPERIMENTS) return;
+            isAnimating = true;
+            btnDrawOne.disabled = true;
+            btnDrawAll.disabled = true;
+
+            sampleDisplayEl.innerHTML = '';
+            currentMeanEl.innerText = '...';
+            currentMeanEl.className = 'text-2xl font-extrabold text-slate-400 h-8 flex items-center justify-center animate-pulse';
+            currentSdEl.innerText = '...';
+            currentSdEl.className = 'text-2xl font-extrabold text-slate-400 h-8 flex items-center justify-center animate-pulse';
+            currentSeEl.innerText = '...';
+            currentSeEl.className = 'text-2xl font-extrabold text-slate-400 h-8 flex items-center justify-center animate-pulse';
+
+            let currentSample = [];
+            
+            for (let i = 0; i < SAMPLE_SIZE; i++) {
+                const randIndex = Math.floor(Math.random() * POPULATION_SIZE);
+                const picked = population[randIndex];
+                currentSample.push(picked.diff);
+
+                // Highlight Pre
+                const preVisEl = document.getElementById(`pre-piece-${picked.id}`);
+                if (preVisEl) {
+                    preVisEl.classList.add('pulse-highlight');
+                    setTimeout(() => preVisEl.classList.remove('pulse-highlight'), 600);
+                }
+
+                // Highlight Post
+                const postVisEl = document.getElementById(`post-piece-${picked.id}`);
+                if (postVisEl) {
+                    postVisEl.classList.add('pulse-highlight');
+                    setTimeout(() => postVisEl.classList.remove('pulse-highlight'), 600);
+                }
+
+                // Create Pair Card UI with Participant ID badge
+                const pairCard = document.createElement('div');
+                pairCard.className = 'pair-card bg-white border border-slate-200 rounded p-1.5 shadow-sm w-16 flex flex-col items-center transform scale-0';
+                
+                const sign = picked.diff > 0 ? '+' : '';
+                const diffColor = picked.diff >= 0 ? 'text-purple-600' : 'text-red-500';
+                
+                pairCard.innerHTML = `
+                    <div class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1 rounded mb-1">P#${picked.id + 1}</div>
+                    <div class="flex justify-between w-full text-[10px] px-0.5">
+                        <span class="text-blue-600 font-bold">${picked.pre.toFixed(0)}</span>
+                        <span class="text-slate-300">→</span>
+                        <span class="text-emerald-600 font-bold">${picked.post.toFixed(0)}</span>
+                    </div>
+                    <div class="w-full border-t border-slate-100 my-1"></div>
+                    <div class="text-[11px] font-extrabold ${diffColor} leading-none">${sign}${picked.diff.toFixed(1)}</div>
+                `;
+                sampleDisplayEl.appendChild(pairCard);
+
+                await new Promise(r => setTimeout(r, 40));
+                pairCard.classList.remove('scale-0');
+                pairCard.classList.add('scale-100');
+                
+                await new Promise(r => setTimeout(r, 80)); 
+            }
+
+            // Calculations
+            const mean = calculateMean(currentSample);
+            const sd = calculateStdDev(currentSample, mean);
+            const se = sd / Math.sqrt(SAMPLE_SIZE); // Paired t-test SE formula
+            
+            sampleMeans.push(mean);
+            sampleSEs.push(se);
+            
+            currentMeanEl.className = 'text-2xl font-extrabold text-purple-600 h-8 flex items-center justify-center';
+            currentMeanEl.innerText = mean.toFixed(2);
+            
+            currentSdEl.className = 'text-2xl font-extrabold text-emerald-600 h-8 flex items-center justify-center';
+            currentSdEl.innerText = sd.toFixed(2);
+
+            currentSeEl.className = 'text-2xl font-extrabold text-blue-600 h-8 flex items-center justify-center';
+            currentSeEl.innerText = se.toFixed(2);
+
+            updateStatsUI();
+            updateSamplingDistChart(true); 
+
+            isAnimating = false;
+            
+            if (sampleMeans.length < TOTAL_EXPERIMENTS) {
+                btnDrawOne.disabled = false;
+                btnDrawAll.disabled = false;
+            }
+        }
+
+        function drawRemainingFast() {
+            if (isAnimating || sampleMeans.length >= TOTAL_EXPERIMENTS) return;
+            isAnimating = true;
+            
+            const remaining = TOTAL_EXPERIMENTS - sampleMeans.length;
+            let lastSamplePairs = [];
+            let lastMean = 0, lastSd = 0, lastSe = 0;
+            
+            for (let i = 0; i < remaining; i++) {
+                let sampleDiffs = [];
+                let samplePairs = [];
+                for (let j = 0; j < SAMPLE_SIZE; j++) {
+                     const randIndex = Math.floor(Math.random() * POPULATION_SIZE);
+                     const picked = population[randIndex];
+                     sampleDiffs.push(picked.diff);
+                     samplePairs.push(picked);
+                }
+                const mean = calculateMean(sampleDiffs);
+                const sd = calculateStdDev(sampleDiffs, mean);
+                const se = sd / Math.sqrt(SAMPLE_SIZE);
+                
+                sampleMeans.push(mean);
+                sampleSEs.push(se);
+
+                if (i === remaining - 1) {
+                    lastSamplePairs = samplePairs;
+                    lastMean = mean;
+                    lastSd = sd;
+                    lastSe = se;
+                }
+            }
+
+            // Display pair cards for the final experiment generated in the batch
+            sampleDisplayEl.innerHTML = '';
+            lastSamplePairs.forEach(picked => {
+                const pairCard = document.createElement('div');
+                pairCard.className = 'pair-card bg-white border border-slate-200 rounded p-1.5 shadow-sm w-16 flex flex-col items-center';
+                
+                const sign = picked.diff > 0 ? '+' : '';
+                const diffColor = picked.diff >= 0 ? 'text-purple-600' : 'text-red-500';
+                
+                pairCard.innerHTML = `
+                    <div class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1 rounded mb-1">P#${picked.id + 1}</div>
+                    <div class="flex justify-between w-full text-[10px] px-0.5">
+                        <span class="text-blue-600 font-bold">${picked.pre.toFixed(0)}</span>
+                        <span class="text-slate-300">→</span>
+                        <span class="text-emerald-600 font-bold">${picked.post.toFixed(0)}</span>
+                    </div>
+                    <div class="w-full border-t border-slate-100 my-1"></div>
+                    <div class="text-[11px] font-extrabold ${diffColor} leading-none">${sign}${picked.diff.toFixed(1)}</div>
+                `;
+                sampleDisplayEl.appendChild(pairCard);
+            });
+
+            // Display numerical stats for the final sample
+            currentMeanEl.className = 'text-2xl font-extrabold text-purple-600 h-8 flex items-center justify-center';
+            currentMeanEl.innerText = lastMean.toFixed(2);
+            
+            currentSdEl.className = 'text-2xl font-extrabold text-emerald-600 h-8 flex items-center justify-center';
+            currentSdEl.innerText = lastSd.toFixed(2);
+
+            currentSeEl.className = 'text-2xl font-extrabold text-blue-600 h-8 flex items-center justify-center';
+            currentSeEl.innerText = lastSe.toFixed(2);
+
+            updateStatsUI();
+            updateSamplingDistChart(false);
+
+            isAnimating = false;
+        }
+
+        btnDrawOne.addEventListener('click', drawSampleAnimated);
+        btnDrawAll.addEventListener('click', drawRemainingFast);
+        btnReset.addEventListener('click', resetStats);
+
+        window.addEventListener('resize', () => {
+            drawPopulationChart();
+            initSamplingDistChart();
+            updateSamplingDistChart();
+        });
+
+        window.onload = initVisualization;
+    </script>
+</body>
+</html>

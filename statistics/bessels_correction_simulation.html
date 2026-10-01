@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bessel's Correction Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Added MathJax for LaTeX rendering -->
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        startup: {
+            typeset: false // We will manually trigger typesetting
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .canvas-container { position: relative; height: 350px; width: 100%; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-slate-800 p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md overflow-hidden border border-slate-100">
+        <!-- Header -->
+        <div class="bg-indigo-600 p-6 text-white">
+            <h1 class="text-2xl font-bold mb-2">Understanding Bessel's Correction ($n-1$)</h1>
+            <p class="text-indigo-100 text-sm max-w-4xl">
+                This simulation draws repeated random samples from a population. We calculate the variance for each sample using both the biased ($n$ denominator) and unbiased ($n-1$ denominator) formulas. Watch how the running average of the unbiased estimates converges on the true population variance, while the biased estimates systematically fall short.
+            </p>
+        </div>
+
+        <div class="p-6">
+            <!-- Controls Section -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 bg-slate-50 p-5 rounded-lg border border-slate-200 shadow-sm">
+                
+                <div>
+                    <label for="sampleSize" class="block text-sm font-medium text-slate-700 mb-1">
+                        Sample Size ($n$): <span id="sampleSizeVal" class="font-bold text-indigo-600">30</span>
+                    </label>
+                    <input type="range" id="sampleSize" min="30" max="200" value="30" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                    <p class="text-xs text-slate-500 mt-1">Restricted to $\ge 30$ to keep the chart scale legible.</p>
+                </div>
+
+                <div>
+                    <label for="numSamples" class="block text-sm font-medium text-slate-700 mb-1">
+                        Samples per Draw: <span id="numSamplesVal" class="font-bold text-indigo-600">10</span>
+                    </label>
+                    <input type="range" id="numSamples" min="1" max="100" value="10" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                    <p class="text-xs text-slate-500 mt-1">How many random samples to generate per click.</p>
+                </div>
+
+                <div class="flex items-end space-x-3">
+                    <button id="drawBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm">
+                        Draw Samples
+                    </button>
+                    <button id="resetBtn" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Dashboard -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <!-- Population Truth -->
+                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-center flex flex-col justify-center">
+                    <div class="text-xs text-emerald-600 font-bold uppercase tracking-wide mb-1">True Population Variance</div>
+                    <div class="text-3xl font-bold text-emerald-800" id="trueVarianceDisplay">100.00</div>
+                    <div class="text-xs text-emerald-600 mt-1 font-medium">Population Mean: 50</div>
+                </div>
+
+                <!-- Simulation Progress -->
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg text-center flex flex-col justify-center">
+                    <div class="text-xs text-slate-500 font-bold uppercase tracking-wide mb-1">Total Samples Drawn</div>
+                    <div class="text-3xl font-bold text-slate-800" id="totalSamplesDisplay">0</div>
+                </div>
+
+                <!-- Biased Estimate (n) -->
+                <div class="bg-rose-50 border border-rose-200 p-4 rounded-lg text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
+                    <div class="text-xs text-rose-600 font-bold uppercase tracking-wide mb-1">Avg. Biased Var. (Div by $n$)</div>
+                    <div class="text-3xl font-bold text-rose-800" id="biasedAvgDisplay">0.00</div>
+                    <div class="text-xs text-rose-600 mt-1 font-medium">Systematic Underestimate</div>
+                </div>
+
+                <!-- Unbiased Estimate (n-1) -->
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <div class="text-xs text-blue-600 font-bold uppercase tracking-wide mb-1">Avg. Unbiased Var. (Div $n-1$)</div>
+                    <div class="text-3xl font-bold text-blue-800" id="unbiasedAvgDisplay">0.00</div>
+                    <div class="text-xs text-blue-600 mt-1 font-medium">Bessel's Correction</div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="mb-6 border border-slate-200 rounded-lg p-5 bg-white shadow-sm">
+                <h3 class="text-lg font-semibold text-slate-800 mb-2 text-center">Convergence of Variance Estimates</h3>
+                <div class="canvas-container">
+                    <canvas id="varianceChart"></canvas>
+                </div>
+                <p class="text-sm text-center text-slate-500 mt-4 max-w-3xl mx-auto">
+                    The chart shows the running average of the variance estimates as more samples are drawn. 
+                    Notice how the blue line ($n-1$) converges to the true variance (green dashed line), while the red line ($n$) stays below it. The individual scatter points show the high variability of single samples.
+                </p>
+            </div>
+
+            <!-- Single Sample Explanation View -->
+            <div class="bg-slate-50 border border-slate-200 p-5 rounded-lg shadow-sm">
+                <h3 class="text-md font-semibold text-slate-800 border-b border-slate-200 pb-2 mb-3">Latest Sample Details</h3>
+                <div id="latestSampleDetails" class="text-sm">
+                    <p class="text-slate-500 italic">Draw samples to see calculation details here.</p>
+                </div>
+            </div>
+
+            <!-- Minimization Property Visualization -->
+            <div class="mt-6 border border-slate-200 rounded-lg p-5 bg-white shadow-sm" id="parabolaContainer" style="display: none;">
+                <h3 class="text-md font-semibold text-slate-800 border-b border-slate-200 pb-2 mb-3">Why $n-1$? The Minimization Property of the Mean</h3>
+                <p class="text-sm text-slate-600 mb-4">
+                    Mathematically, the sample mean is the <strong>exact point that minimizes the sum of squared deviations</strong>. If you calculate the sum of squares around <em>any other number</em> (including the true population mean), the result will form a U-shaped parabola and will be larger. Because we don't know the population mean, we are forced to use the sample mean, which artificially shrinks our variance estimate. Dividing by $n-1$ corrects for this artificial shrinkage!
+                </p>
+                <div class="canvas-container relative h-64 w-full">
+                    <canvas id="ssParabolaChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- State ---
+        const POP_MEAN = 50;
+        const POP_STDDEV = 10;
+        const TRUE_VARIANCE = Math.pow(POP_STDDEV, 2);
+
+        let totalSamples = 0;
+        let runningSumBiased = 0;
+        let runningSumUnbiased = 0;
+        let biasedCloserCount = 0; // Track how often biased is randomly closer
+
+        // Data arrays for the charts
+        let chartLabels = [];
+        let chartDataBiased = [];
+        let chartDataUnbiased = [];
+        let chartDataTruth = [];
+        
+        let chartScatterBiased = [];
+        let chartScatterUnbiased = [];
+
+        // Chart.js Instances
+        let myChart;
+        let parabolaChart;
+
+        let isMathJaxRendering = false;
+        let mathJaxQueue = Promise.resolve();
+
+        // --- DOM Elements ---
+        const sampleSizeInput = document.getElementById('sampleSize');
+        const numSamplesInput = document.getElementById('numSamples');
+        const sampleSizeVal = document.getElementById('sampleSizeVal');
+        const numSamplesVal = document.getElementById('numSamplesVal');
+        const drawBtn = document.getElementById('drawBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        const totalSamplesDisplay = document.getElementById('totalSamplesDisplay');
+        const biasedAvgDisplay = document.getElementById('biasedAvgDisplay');
+        const unbiasedAvgDisplay = document.getElementById('unbiasedAvgDisplay');
+        const latestSampleDetails = document.getElementById('latestSampleDetails');
+
+        // --- Helper Functions ---
+        
+        function randomNormal(mean, stdDev) {
+            let u1 = 0, u2 = 0;
+            while (u1 === 0) u1 = Math.random(); 
+            while (u2 === 0) u2 = Math.random();
+            const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+            return z0 * stdDev + mean;
+        }
+
+        function calculateSampleStats(sample) {
+            const n = sample.length;
+            if (n < 2) return null; 
+
+            const sum = sample.reduce((acc, val) => acc + val, 0);
+            const mean = sum / n;
+
+            let ss = 0;
+            for (let i = 0; i < n; i++) {
+                ss += Math.pow(sample[i] - mean, 2);
+            }
+
+            const biasedVar = ss / n;
+            const unbiasedVar = ss / (n - 1);
+
+            return { mean, biasedVar, unbiasedVar, ss };
+        }
+
+        // --- Core Simulation Logic ---
+        
+        function runSimulationStep() {
+            const n = parseInt(sampleSizeInput.value);
+            const numDraws = parseInt(numSamplesInput.value);
+            
+            let lastSampleStats = null;
+            let lastSampleData = null;
+
+            for (let i = 0; i < numDraws; i++) {
+                const sample = [];
+                for (let j = 0; j < n; j++) {
+                    sample.push(randomNormal(POP_MEAN, POP_STDDEV));
+                }
+
+                const stats = calculateSampleStats(sample);
+                
+                if (Math.abs(stats.biasedVar - TRUE_VARIANCE) < Math.abs(stats.unbiasedVar - TRUE_VARIANCE)) {
+                    biasedCloserCount++;
+                }
+
+                totalSamples++;
+                runningSumBiased += stats.biasedVar;
+                runningSumUnbiased += stats.unbiasedVar;
+
+                lastSampleStats = stats;
+                lastSampleData = sample;
+
+                // Downsample chart line updates for performance on massive draws, but always get the last one
+                if (totalSamples <= 100 || totalSamples % Math.ceil(numDraws/5) === 0 || i === numDraws - 1) {
+                    const currentAvgBiased = runningSumBiased / totalSamples;
+                    const currentAvgUnbiased = runningSumUnbiased / totalSamples;
+                    
+                    chartLabels.push(totalSamples);
+                    chartDataBiased.push(currentAvgBiased);
+                    chartDataUnbiased.push(currentAvgUnbiased);
+                    chartDataTruth.push(TRUE_VARIANCE);
+                    
+                    chartScatterBiased.push({x: totalSamples, y: stats.biasedVar});
+                    chartScatterUnbiased.push({x: totalSamples, y: stats.unbiasedVar});
+                }
+            }
+
+            updateDashboard(lastSampleStats, lastSampleData, n);
+            updateChart();
+        }
+
+        // --- UI Updates ---
+
+        function updateDashboard(latestStats, latestSample, n) {
+            totalSamplesDisplay.innerText = totalSamples;
+            
+            const avgBiased = runningSumBiased / totalSamples;
+            const avgUnbiased = runningSumUnbiased / totalSamples;
+            
+            biasedAvgDisplay.innerText = avgBiased.toFixed(2);
+            unbiasedAvgDisplay.innerText = avgUnbiased.toFixed(2);
+
+            if (latestStats && latestSample) {
+                
+                let sampleStr = '';
+                if (latestSample.length > 10) {
+                    sampleStr = latestSample.slice(0, 10).map(v => v.toFixed(1)).join(', ') + `, ... (+${latestSample.length - 10} more)`;
+                } else {
+                    sampleStr = latestSample.map(v => v.toFixed(1)).join(', ');
+                }
+                
+                const biasedDist = Math.abs(latestStats.biasedVar - TRUE_VARIANCE);
+                const unbiasedDist = Math.abs(latestStats.unbiasedVar - TRUE_VARIANCE);
+                const biasedIsCloser = biasedDist < unbiasedDist;
+                
+                let comparisonHtml = "";
+                if (biasedIsCloser) {
+                    comparisonHtml = `<div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg shadow-sm">
+                        <p class="text-sm text-amber-800 font-bold mb-1">Interesting Observation:</p>
+                        <p class="text-sm text-amber-700">For this specific random sample, the <strong>biased</strong> estimate (${latestStats.biasedVar.toFixed(2)}) happened to be closer to the true variance (${TRUE_VARIANCE}) than the unbiased estimate (${latestStats.unbiasedVar.toFixed(2)}).</p>
+                        <p class="text-xs text-amber-600 mt-2">Across all ${totalSamples} samples drawn so far, the biased estimate randomly happened to be closer <strong>${((biasedCloserCount/totalSamples)*100).toFixed(1)}%</strong> of the time. However, on <em>average</em>, the unbiased estimate remains mathematically correct.</p>
+                    </div>`;
+                } else {
+                    comparisonHtml = `<div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg shadow-sm">
+                        <p class="text-sm text-slate-700">For this sample, the unbiased estimate was closer to the true variance.</p>
+                        <p class="text-xs text-slate-500 mt-1">Across all ${totalSamples} samples drawn so far, the biased estimate randomly happened to be closer <strong>${((biasedCloserCount/totalSamples)*100).toFixed(1)}%</strong> of the time.</p>
+                    </div>`;
+                }
+
+                const html = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="mb-1"><span class="font-semibold text-slate-700">Data Points:</span> <span class="font-mono text-xs">[${sampleStr}]</span></p>
+                            <p class="mb-1"><span class="font-semibold text-slate-700">Sample Mean ($\\bar{x}$):</span> ${latestStats.mean.toFixed(2)}</p>
+                            <p><span class="font-semibold text-rose-600">Sum of Squares (SS):</span> ${latestStats.ss.toFixed(2)}</p>
+                            <p class="text-xs mt-3 text-slate-600 border-l-2 border-indigo-300 pl-3 italic">
+                                Because the data points cluster around their <em>own</em> sample mean (${latestStats.mean.toFixed(2)}) rather than the true population mean (${POP_MEAN}), the Sum of Squares (${latestStats.ss.toFixed(2)}) is artificially minimized.
+                            </p>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-rose-50 p-3 rounded-lg border border-rose-100 shadow-sm ${biasedIsCloser ? 'ring-2 ring-amber-400' : ''}">
+                                <span class="font-semibold text-rose-800 text-sm uppercase tracking-wide">Biased Calculation:</span><br>
+                                <div class="mt-2 text-lg">$\\frac{SS}{n} = \\frac{${latestStats.ss.toFixed(2)}}{${n}} = \\mathbf{${latestStats.biasedVar.toFixed(2)}}$</div>
+                            </div>
+                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 shadow-sm ${!biasedIsCloser ? 'ring-2 ring-blue-400' : ''}">
+                                <span class="font-semibold text-blue-800 text-sm uppercase tracking-wide">Unbiased Calculation (Correction):</span><br>
+                                <div class="mt-2 text-lg">$\\frac{SS}{n-1} = \\frac{${latestStats.ss.toFixed(2)}}{${n-1}} = \\mathbf{${latestStats.unbiasedVar.toFixed(2)}}$</div>
+                            </div>
+                        </div>
+                    </div>
+                    ${comparisonHtml}
+                `;
+                latestSampleDetails.innerHTML = html;
+
+                document.getElementById('parabolaContainer').style.display = 'block';
+                updateParabola(latestSample, latestStats.mean);
+
+                // Safely queue MathJax rendering to avoid errors on rapid clicks
+                if (window.MathJax) {
+                    mathJaxQueue = mathJaxQueue.then(() => {
+                        MathJax.typesetClear([latestSampleDetails]);
+                        return MathJax.typesetPromise([latestSampleDetails]);
+                    }).catch((err) => console.log('MathJax error: ', err.message));
+                }
+            }
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('varianceChart').getContext('2d');
+            
+            if (chartLabels.length === 0) {
+                chartLabels.push(0);
+                chartDataTruth.push(TRUE_VARIANCE);
+                chartDataBiased.push(null);
+                chartDataUnbiased.push(null);
+            }
+            
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        {
+                            label: `Avg Biased Var (/n)`,
+                            data: chartDataBiased,
+                            borderColor: '#ef4444', 
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 0, 
+                            tension: 0.1,
+                            order: 1
+                        },
+                        {
+                            label: `Avg Unbiased Var (/n-1)`,
+                            data: chartDataUnbiased,
+                            borderColor: '#3b82f6', 
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            tension: 0.1,
+                            order: 2,
+                            spanGaps: true 
+                        },
+                        {
+                            label: 'True Population Variance (σ²)',
+                            data: chartDataTruth,
+                            borderColor: '#10b981', 
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false,
+                            order: 3
+                        },
+                        {
+                            type: 'scatter',
+                            label: 'Individual Biased Var',
+                            data: chartScatterBiased,
+                            backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                            borderColor: 'transparent',
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            order: 4
+                        },
+                        {
+                            type: 'scatter',
+                            label: 'Individual Unbiased Var',
+                            data: chartScatterUnbiased,
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            borderColor: 'transparent',
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            order: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 0 },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Number of Samples Drawn', font: { weight: 'bold' } },
+                            ticks: { maxTicksLimit: 10 }
+                        },
+                        y: {
+                            title: { display: true, text: 'Variance Estimate', font: { weight: 'bold' } },
+                            suggestedMin: TRUE_VARIANCE * 0.4,
+                            suggestedMax: TRUE_VARIANCE * 1.6
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true, // Forces circles in legend
+                                boxWidth: 10
+                            }
+                        },
+                        tooltip: { mode: 'index', intersect: false }
+                    }
+                }
+            });
+        }
+
+        function initParabolaChart() {
+            const ctx = document.getElementById('ssParabolaChart').getContext('2d');
+            parabolaChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Sum of Squared Deviations (SS)',
+                            data: [],
+                            borderColor: '#94a3b8',
+                            backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: true,
+                            tension: 0.4,
+                            order: 3
+                        },
+                        {
+                            type: 'scatter',
+                            label: 'SS around Sample Mean (x̄) - Always the Minimum!',
+                            data: [],
+                            backgroundColor: '#3b82f6', 
+                            borderColor: '#1e3a8a',
+                            borderWidth: 2,
+                            pointRadius: 7,
+                            pointHoverRadius: 9,
+                            order: 1
+                        },
+                        {
+                            type: 'scatter',
+                            label: 'SS around True Pop. Mean (μ) - Always Higher',
+                            data: [],
+                            backgroundColor: '#10b981', 
+                            borderColor: '#064e3b',
+                            borderWidth: 2,
+                            pointRadius: 7,
+                            pointHoverRadius: 9,
+                            order: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 400 },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: { display: true, text: 'Candidate Center Point (c)', font: { weight: 'bold' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Sum of Squares: Σ(x - c)²', font: { weight: 'bold' } }
+                        }
+                    },
+                    plugins: {
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                usePointStyle: true, 
+                                boxWidth: 10
+                            } 
+                        },
+                        tooltip: { 
+                            callbacks: { 
+                                label: (ctx) => `${ctx.dataset.label}: SS = ${ctx.raw.y.toFixed(2)} at center = ${ctx.raw.x.toFixed(2)}`
+                            } 
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            const MAX_POINTS = 500;
+            if (chartLabels.length > MAX_POINTS) {
+                const sliceAmount = chartLabels.length - MAX_POINTS;
+                chartLabels.splice(0, sliceAmount);
+                chartDataBiased.splice(0, sliceAmount);
+                chartDataUnbiased.splice(0, sliceAmount);
+                chartDataTruth.splice(0, sliceAmount);
+                chartScatterBiased.splice(0, sliceAmount);
+                chartScatterUnbiased.splice(0, sliceAmount);
+            }
+            myChart.update();
+        }
+
+        function updateParabola(sample, sampleMean) {
+            const centerDiff = Math.abs(sampleMean - POP_MEAN);
+            const padding = Math.max(5, centerDiff * 2); 
+            const minX = Math.min(sampleMean, POP_MEAN) - padding;
+            const maxX = Math.max(sampleMean, POP_MEAN) + padding;
+
+            const parabolaData = [];
+            for (let c = minX; c <= maxX; c += (maxX - minX) / 50) {
+                let sumSq = 0;
+                for (let i = 0; i < sample.length; i++) {
+                    sumSq += Math.pow(sample[i] - c, 2);
+                }
+                parabolaData.push({x: c, y: sumSq});
+            }
+
+            let ssSampleMean = 0;
+            let ssPopMean = 0;
+            for (let i = 0; i < sample.length; i++) {
+                ssSampleMean += Math.pow(sample[i] - sampleMean, 2);
+                ssPopMean += Math.pow(sample[i] - POP_MEAN, 2);
+            }
+
+            parabolaChart.data.datasets[0].data = parabolaData;
+            parabolaChart.data.datasets[1].data = [{x: sampleMean, y: ssSampleMean}];
+            parabolaChart.data.datasets[2].data = [{x: POP_MEAN, y: ssPopMean}];
+            parabolaChart.update();
+        }
+
+        function resetSimulation() {
+            totalSamples = 0;
+            runningSumBiased = 0;
+            runningSumUnbiased = 0;
+            biasedCloserCount = 0; 
+            
+            chartLabels.length = 0;
+            chartDataBiased.length = 0;
+            chartDataUnbiased.length = 0;
+            chartDataTruth.length = 0;
+            chartScatterBiased.length = 0;
+            chartScatterUnbiased.length = 0;
+
+            chartLabels.push(0);
+            chartDataTruth.push(TRUE_VARIANCE);
+            chartDataBiased.push(null);
+            chartDataUnbiased.push(null);
+
+            totalSamplesDisplay.innerText = "0";
+            biasedAvgDisplay.innerText = "0.00";
+            unbiasedAvgDisplay.innerText = "0.00";
+            latestSampleDetails.innerHTML = '<p class="text-slate-500 italic">Draw samples to see calculation details here.</p>';
+
+            document.getElementById('parabolaContainer').style.display = 'none';
+
+            updateChart();
+            
+            // Queue an initial typeset for the reset state
+            if (window.MathJax) {
+                mathJaxQueue = mathJaxQueue.then(() => {
+                    return MathJax.typesetPromise();
+                });
+            }
+        }
+
+        // --- Event Listeners ---
+        sampleSizeInput.addEventListener('input', (e) => {
+            sampleSizeVal.innerText = e.target.value;
+        });
+
+        sampleSizeInput.addEventListener('change', (e) => {
+            resetSimulation(); 
+        });
+
+        numSamplesInput.addEventListener('input', (e) => {
+            numSamplesVal.innerText = e.target.value;
+        });
+
+        drawBtn.addEventListener('click', runSimulationStep);
+        resetBtn.addEventListener('click', resetSimulation);
+
+        window.onload = () => {
+            sampleSizeVal.innerText = sampleSizeInput.value;
+            numSamplesVal.innerText = numSamplesInput.value;
+            
+            // Trigger initial MathJax rendering for the static content
+            if (window.MathJax) {
+                 MathJax.typesetPromise();
+            }
+
+            initChart();
+            initParabolaChart();
+        };
+
+    </script>
+</body>
+</html>

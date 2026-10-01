@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Independent t-test Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .container-box {
+            border: 2px solid #cbd5e1;
+            border-radius: 0.5rem;
+            background-color: white;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-piece {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .drawn-piece {
+            width: 30px;
+            height: 30px;
+            font-size: 11px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* SVG Chart Styles */
+        .bar {
+            fill: #ef4444; /* Red theme for diffs */
+            opacity: 0.7;
+            transition: height 0.2s, y 0.2s;
+        }
+        
+        .bar:hover { opacity: 1; }
+
+        .axis-label { font-size: 12px; fill: #64748b; }
+        .axis-title { font-size: 13px; font-weight: 600; fill: #475569; }
+
+        @keyframes pulse-blue { 0% { transform: scale(1); box-shadow: 0 0 0px #3b82f6;} 50% { transform: scale(1.5); box-shadow: 0 0 10px #3b82f6;} 100% { transform: scale(1); } }
+        @keyframes pulse-emerald { 0% { transform: scale(1); box-shadow: 0 0 0px #10b981;} 50% { transform: scale(1.5); box-shadow: 0 0 10px #10b981;} 100% { transform: scale(1); } }
+        
+        .highlight-pop1 { animation: pulse-blue 0.4s ease; z-index: 10; opacity: 1; }
+        .highlight-pop2 { animation: pulse-emerald 0.4s ease; z-index: 10; opacity: 1; }
+
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked {
+            transform: translateX(100%);
+            border-color: #3b82f6;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
+    <div class="max-w-7xl w-full">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-extrabold text-slate-800 mb-2">Independent t-test Simulation</h1>
+            <p class="text-slate-600 max-w-4xl mx-auto">
+                Demonstrating the sampling distribution of the difference between <strong>two independent sample means</strong> ($\bar{X}_2 - \bar{X}_1$). 
+                Compare how Standard Error is computed using Welch's vs Student's t-test under different variance and sample size conditions.
+            </p>
+        </header>
+
+        <div class="mb-6 flex flex-wrap justify-center gap-6 items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 w-full">
+            <!-- Test Type -->
+            <div class="flex items-center">
+                <span class="mr-3 text-sm font-semibold text-slate-700">Test Type:</span>
+                <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" name="toggle" id="test-type-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 top-0 left-0 transition-all duration-300"/>
+                    <label for="test-type-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
+                </div>
+                <span id="test-type-label" class="text-sm font-bold text-blue-600 w-24">Student's $t$</span>
+            </div>
+            
+            <div class="w-px h-8 bg-slate-200 hidden md:block"></div>
+
+            <!-- Variances -->
+            <div class="flex items-center">
+                <span class="mr-3 text-sm font-semibold text-slate-700">Variances:</span>
+                <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" id="variance-toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 top-0 left-0 transition-all duration-300"/>
+                    <label for="variance-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
+                </div>
+                <span id="variance-label" class="text-sm font-bold text-red-500 w-20">Unequal</span>
+            </div>
+
+            <div class="w-px h-8 bg-slate-200 hidden md:block"></div>
+
+            <!-- Sample Sizes -->
+            <div class="flex items-center">
+                <span class="mr-3 text-sm font-semibold text-slate-700">Sample Sizes:</span>
+                <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" id="samplesize-toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 top-0 left-0 transition-all duration-300"/>
+                    <label for="samplesize-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
+                </div>
+                <span id="samplesize-label" class="text-sm font-bold text-red-500 w-20">Unequal</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6 items-stretch">
+            
+            <!-- Left Column: TWO Population Containers -->
+            <div class="lg:col-span-4 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-4 h-full">
+                
+                <!-- Population 1 -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-md font-bold text-blue-700">Pop 1: Control</h2>
+                        <span id="pop1-params" class="text-[11px] font-semibold bg-blue-50 px-2 py-1 rounded text-blue-600">$\mu_1 = 50, \sigma_1 = 5, n_1 = 25$</span>
+                    </div>
+                    <div id="pop1-container" class="container-box h-32 w-full relative bg-slate-50"></div>
+                </div>
+
+                <!-- Population 2 -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-md font-bold text-emerald-700">Pop 2: Treatment</h2>
+                        <span id="pop2-params" class="text-[11px] font-semibold bg-emerald-50 px-2 py-1 rounded text-emerald-600">$\mu_2 = 60, \sigma_2 = 20, n_2 = 5$</span>
+                    </div>
+                    <div id="pop2-container" class="container-box h-32 w-full relative bg-slate-50"></div>
+                </div>
+                
+                <div class="mt-auto bg-slate-50 p-3 rounded-lg border border-slate-100 text-center">
+                    <span class="text-sm font-semibold text-slate-700">True Mean Difference:</span>
+                    <span class="text-lg font-bold text-red-600 ml-2">$\mu_2 - \mu_1 = +10$</span>
+                </div>
+            </div>
+
+            <!-- Middle Column: The Sampling Process -->
+            <div class="lg:col-span-4 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col h-full">
+                <h2 class="text-lg font-bold text-slate-700 w-full mb-4 text-center">Current Independent Samples</h2>
+                
+                <div class="w-full flex-grow flex flex-col items-center justify-start space-y-4">
+                    
+                    <!-- Sample 1 Output -->
+                    <div class="w-full flex flex-col items-center">
+                        <div id="sample1-display" class="flex flex-wrap justify-center min-h-[45px] w-full bg-blue-50/50 rounded-t-lg p-2 border border-b-0 border-blue-200">
+                             <span class="text-slate-400 text-xs italic mt-2">Waiting to draw Pop 1...</span>
+                        </div>
+                        <div class="w-full grid grid-cols-2 bg-blue-100 rounded-b-lg p-2 border border-blue-200 text-center text-sm">
+                            <div><span class="text-blue-700 font-semibold mr-1">$\bar{X}_1:$</span> <span id="s1-mean" class="font-bold">--</span></div>
+                            <div><span class="text-blue-700 font-semibold mr-1">$s_1:$</span> <span id="s1-sd" class="font-bold">--</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Sample 2 Output -->
+                    <div class="w-full flex flex-col items-center">
+                        <div id="sample2-display" class="flex flex-wrap justify-center min-h-[45px] w-full bg-emerald-50/50 rounded-t-lg p-2 border border-b-0 border-emerald-200">
+                            <span class="text-slate-400 text-xs italic mt-2">Waiting to draw Pop 2...</span>
+                        </div>
+                        <div class="w-full grid grid-cols-2 bg-emerald-100 rounded-b-lg p-2 border border-emerald-200 text-center text-sm">
+                            <div><span class="text-emerald-700 font-semibold mr-1">$\bar{X}_2:$</span> <span id="s2-mean" class="font-bold">--</span></div>
+                            <div><span class="text-emerald-700 font-semibold mr-1">$s_2:$</span> <span id="s2-sd" class="font-bold">--</span></div>
+                        </div>
+                    </div>
+                </div> <!-- Closes flex-grow inner wrapper -->
+                
+                <!-- Combined Difference Output -->
+                <div class="w-full grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-200">
+                    <div class="text-center">
+                        <div class="text-[11px] text-slate-500 uppercase font-semibold mb-1" title="X2 - X1">Mean Diff ($\bar{X}_2 - \bar{X}_1$)</div>
+                        <div id="current-diff" class="text-3xl font-extrabold text-red-600 h-10 flex items-center justify-center">--</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="se-label" class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Student's Est. SE</div>
+                        <div id="current-se" class="text-2xl font-extrabold text-purple-600 h-10 flex items-center justify-center">--</div>
+                    </div>
+                </div>
+
+                <div class="w-full mt-4 space-y-2">
+                    <button id="btn-draw-one" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-sm">
+                        Draw Independent Samples (1 Exp)
+                    </button>
+                    <button id="btn-draw-all" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-lg transition shadow-sm">
+                        Simulate All 1000 Exp
+                    </button>
+                    <button id="btn-reset" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-1 px-4 rounded-lg transition">
+                        Reset
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Right Column: Sampling Distribution -->
+            <div class="lg:col-span-4 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col h-full">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-md font-bold text-slate-700">Distributions</h2>
+                    <span class="text-xs font-semibold bg-red-100 px-2 py-1 rounded text-red-700" id="stats-counter">0 / 1000 Exp.</span>
+                </div>
+                
+                <!-- Chart 1: Mean Diff -->
+                <div class="text-[11px] font-semibold text-slate-500 text-center uppercase tracking-wider mb-1">Mean Diff ($\bar{X}_2 - \bar{X}_1$)</div>
+                <div class="flex-grow flex flex-col relative w-full mb-3" style="min-height: 300px;">
+                    <div id="sampling-dist-chart" class="absolute inset-0 w-full h-full"></div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mt-auto pt-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <div>
+                        <div class="text-[10px] text-slate-500 uppercase leading-tight mb-1">Mean of Mean Diffs</div>
+                        <div class="text-lg font-bold text-slate-800" id="stat-mean-of-means">--</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-slate-500 uppercase leading-tight mb-1" title="SD of the differences">Empirical SE</div>
+                        <div class="text-lg font-bold text-slate-800" id="stat-emp-se">--</div>
+                    </div>
+                    <div class="col-span-2 border-t border-slate-200 pt-2 flex justify-between items-baseline">
+                        <div>
+                            <div id="avg-se-label" class="text-[10px] text-slate-500 uppercase leading-tight mb-1">Avg. Student's Est. SE</div>
+                            <div class="text-lg font-bold text-purple-700" id="stat-est-se">--</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[10px] text-slate-500 uppercase leading-tight mb-1">Theoretical SE</div>
+                            <div id="theoretical-se-label" class="text-sm font-bold text-slate-600">~4.34</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                
+        </div> <!-- Close Main Grid -->
+            
+            <!-- Explanation Panel -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 w-full mt-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Standard Error in Independent Groups</h3>
+            <p id="explanation-text-1" class="text-slate-600 text-sm leading-relaxed mb-3">
+                    Student's t-test assumes equal variances. It calculates a pooled variance ($s_p^2$) which is a weighted average of the two sample variances based on their degrees of freedom ($n-1$).
+                </p>
+                <p id="explanation-formula" class="text-slate-600 text-sm leading-relaxed mb-3">
+                    Student's standard error formula: $$\text{SE} = \sqrt{s_p^2 \left(\frac{1}{n_1} + \frac{1}{n_2}\right)}$$ where $$s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}$$
+                </p>
+                <p id="explanation-text-2" class="text-slate-600 text-sm leading-relaxed">
+                    Notice that because we draw unequal sample sizes ($n_1=15, n_2=10$) and variances ($\sigma_1=10, \sigma_2=20$), the pooled variance leans heavily toward the smaller variance of the larger sample (Pop 1). This causes Student's SE to consistently underestimate the true error!
+                </p>
+        </div>
+            
+    </div> <!-- Close Max-w Container -->
+
+    <script>
+        // --- Constants & State ---
+        const POP_SIZE = 1000;
+        const RENDER_LIMIT = 200;
+        const POP1_MEAN = 50;
+        const POP2_MEAN = 60;
+        const TOTAL_EXPERIMENTS = 1000;
+        
+        let POP1_SD = 5;
+        let POP2_SD = 20;
+        let SAMPLE_SIZE_1 = 25;
+        let SAMPLE_SIZE_2 = 5;
+        
+        let pop1 = [], pop2 = [];
+        let sampleDifferences = [];
+        let sampleSEs = [];
+        let sampleStandardDeviations = []; 
+        let isAnimating = false;
+        let useWelch = false; // default to Student's t-test
+
+        const toggleCheckbox = document.getElementById('test-type-toggle');
+        const toggleLabel = document.getElementById('test-type-label');
+        const varianceToggle = document.getElementById('variance-toggle');
+        const samplesizeToggle = document.getElementById('samplesize-toggle');
+        
+        function updateDescriptions() {
+            document.getElementById('pop1-params').innerHTML = `$\\mu_1 = 50, \\sigma_1 = ${POP1_SD}, n_1 = ${SAMPLE_SIZE_1}$`;
+            document.getElementById('pop2-params').innerHTML = `$\\mu_2 = 60, \\sigma_2 = ${POP2_SD}, n_2 = ${SAMPLE_SIZE_2}$`;
+            
+            if(useWelch) {
+                document.getElementById('explanation-text-1').innerText = "Welch's t-test does not assume equal variances. Because the samples are completely independent, the variance of their difference is simply the sum of their individual estimated variances.";
+                document.getElementById('explanation-formula').innerHTML = "Welch's standard error formula: $$\\text{SE} = \\sqrt{\\frac{s_1^2}{n_1} + \\frac{s_2^2}{n_2}}$$";
+                document.getElementById('explanation-text-2').innerHTML = "This formula is robust when population variances and sample sizes are unequal. Notice how Welch's average SE correctly tracks the empirical spread of the distribution!";
+            } else {
+                document.getElementById('explanation-text-1').innerText = "Student's t-test assumes equal variances. It calculates a pooled variance ($s_p^2$) which is a weighted average of the two sample variances based on their degrees of freedom ($n-1$).";
+                document.getElementById('explanation-formula').innerHTML = "Student's standard error formula: $$\\text{SE} = \\sqrt{s_p^2 \\left(\\frac{1}{n_1} + \\frac{1}{n_2}\\right)}$$ where $$s_p^2 = \\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}$$";
+                
+                if (POP1_SD !== POP2_SD && SAMPLE_SIZE_1 !== SAMPLE_SIZE_2) {
+                    document.getElementById('explanation-text-2').innerHTML = `Notice that because we draw mismatched sample sizes ($n_1=${SAMPLE_SIZE_1}, n_2=${SAMPLE_SIZE_2}$) and variances ($\\sigma_1=${POP1_SD}, \\sigma_2=${POP2_SD}$), the pooled variance leans entirely toward the smaller variance of the larger sample (Pop 1). This causes Student's SE to massively underestimate the true error!`;
+                } else if (POP1_SD !== POP2_SD) {
+                    document.getElementById('explanation-text-2').innerHTML = `With equal sample sizes but unequal variances ($\\sigma_1=${POP1_SD}, \\sigma_2=${POP2_SD}$), Student's t-test is slightly more robust, but still not perfectly calibrated compared to Welch's.`;
+                } else if (SAMPLE_SIZE_1 !== SAMPLE_SIZE_2) {
+                    document.getElementById('explanation-text-2').innerHTML = `With equal variances but unequal sample sizes ($n_1=${SAMPLE_SIZE_1}, n_2=${SAMPLE_SIZE_2}$), Student's t-test performs reasonably well because the pooled variance accurately reflects the true shared variance.`;
+                } else {
+                    document.getElementById('explanation-text-2').innerHTML = `With equal variances ($\\sigma_1=\\sigma_2=${POP1_SD}$) and equal sample sizes ($n_1=n_2=${SAMPLE_SIZE_1}$), Student's t-test is perfectly valid. The pooled variance is simply the direct average of the two sample variances.`;
+                }
+            }
+            
+            if(window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise();
+        }
+
+        // --- Math Functions for t-distribution ---
+        function logGamma(z) {
+            let c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+            let sum = 1.000000000190015;
+            let y = z; let x = z;
+            let step = 2.5066282746310005;
+            for (let i = 0; i < 6; i++) { y++; sum += c[i] / y; }
+            let temp = x + 5.5;
+            temp -= (x + 0.5) * Math.log(temp);
+            return -temp + Math.log(step * sum / x);
+        }
+
+        function tPdf(t, df) {
+            let num = Math.exp(logGamma((df + 1) / 2));
+            let den = Math.sqrt(df * Math.PI) * Math.exp(logGamma(df / 2));
+            return (num / den) * Math.pow(1 + (t * t) / df, -(df + 1) / 2);
+        }
+
+        function updateTheoreticalSE() {
+            const var1 = POP1_SD * POP1_SD;
+            const var2 = POP2_SD * POP2_SD;
+            let theoreticalSE = 0;
+            
+            if(useWelch) {
+                 theoreticalSE = Math.sqrt(var1/SAMPLE_SIZE_1 + var2/SAMPLE_SIZE_2);
+            } else {
+                const pooledVar = ((SAMPLE_SIZE_1 - 1) * var1 + (SAMPLE_SIZE_2 - 1) * var2) / (SAMPLE_SIZE_1 + SAMPLE_SIZE_2 - 2);
+                theoreticalSE = Math.sqrt(pooledVar * (1/SAMPLE_SIZE_1 + 1/SAMPLE_SIZE_2));
+            }
+            
+            document.getElementById('theoretical-se-label').innerText = `~${theoreticalSE.toFixed(2)}`;
+        }
+
+        toggleCheckbox.addEventListener('change', function() {
+            useWelch = this.checked;
+            
+            if(useWelch) {
+                toggleLabel.innerHTML = "Welch's $t$";
+                toggleLabel.className = "text-sm font-bold text-emerald-600 w-24";
+                document.getElementById('se-label').innerText = "Welch's Est. SE";
+                document.getElementById('avg-se-label').innerText = "Avg. Welch's Est. SE";
+            } else {
+                toggleLabel.innerHTML = "Student's $t$";
+                toggleLabel.className = "text-sm font-bold text-blue-600 w-24";
+                document.getElementById('se-label').innerText = "Student's Est. SE";
+                document.getElementById('avg-se-label').innerText = "Avg. Student's Est. SE";
+            }
+            
+            updateDescriptions();
+            updateTheoreticalSE();
+
+            // Recalculate SEs for all existing drawn samples without resetting the experiment
+            sampleSEs = [];
+            sampleDifferences.forEach((diff, idx) => {
+                const sds = sampleStandardDeviations[idx];
+                const se = calculateSE(sds.sd1, SAMPLE_SIZE_1, sds.sd2, SAMPLE_SIZE_2, useWelch);
+                sampleSEs.push(se);
+            });
+            
+            // Update UI for the latest sample if it exists
+            if (sampleSEs.length > 0) {
+                document.getElementById('current-se').innerText = sampleSEs[sampleSEs.length - 1].toFixed(2);
+            }
+
+            updateStatsUI(); 
+            updateSamplingDistChart(); 
+        });
+
+        varianceToggle.addEventListener('change', function() {
+            const isUnequal = this.checked;
+            if(isUnequal) {
+                POP1_SD = 5; POP2_SD = 20;
+                document.getElementById('variance-label').innerText = "Unequal";
+                document.getElementById('variance-label').className = "text-sm font-bold text-red-500 w-20";
+            } else {
+                POP1_SD = 15; POP2_SD = 15;
+                document.getElementById('variance-label').innerText = "Equal";
+                document.getElementById('variance-label').className = "text-sm font-bold text-emerald-600 w-20";
+            }
+            applySimulationParameters();
+        });
+
+        samplesizeToggle.addEventListener('change', function() {
+            const isUnequal = this.checked;
+            if(isUnequal) {
+                SAMPLE_SIZE_1 = 25; SAMPLE_SIZE_2 = 5;
+                document.getElementById('samplesize-label').innerText = "Unequal";
+                document.getElementById('samplesize-label').className = "text-sm font-bold text-red-500 w-20";
+            } else {
+                SAMPLE_SIZE_1 = 15; SAMPLE_SIZE_2 = 15;
+                document.getElementById('samplesize-label').innerText = "Equal";
+                document.getElementById('samplesize-label').className = "text-sm font-bold text-emerald-600 w-20";
+            }
+            applySimulationParameters();
+        });
+
+        function applySimulationParameters() {
+            if (isAnimating) return;
+            updateDescriptions();
+            updateTheoreticalSE();
+            initVisualization(); // Regenerates populations and resets stats seamlessly
+        }
+        
+        function randomNormal(mean, stdDev) {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random();
+            while(v === 0) v = Math.random();
+            let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+            return mean + z * stdDev;
+        }
+
+        // Generate theoretical datasets
+        function generatePopulations() {
+            pop1 = []; pop2 = [];
+            for (let i = 0; i < POP_SIZE; i++) {
+                let v1 = randomNormal(POP1_MEAN, POP1_SD);
+                pop1.push({ id: i, value: v1, x: Math.random()*90+5, y: Math.random()*80+10 });
+                
+                let v2 = randomNormal(POP2_MEAN, POP2_SD);
+                pop2.push({ id: i, value: v2, x: Math.random()*90+5, y: Math.random()*80+10 });
+            }
+        }
+
+        // Statistical calculations
+        function calculateMean(arr) {
+            if (arr.length === 0) return 0;
+            return arr.reduce((sum, val) => sum + val, 0) / arr.length;
+        }
+
+        function calculateStdDev(arr, mean) {
+            if (arr.length <= 1) return 0;
+            let variance = arr.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (arr.length - 1);
+            return Math.sqrt(Math.max(0, variance));
+        }
+
+        function calculateSE(sd1, n1, sd2, n2, isWelch) {
+            if (isWelch) {
+                return Math.sqrt(Math.pow(sd1, 2)/n1 + Math.pow(sd2, 2)/n2);
+            } else {
+                const sp_squared = ((n1 - 1)*Math.pow(sd1, 2) + (n2 - 1)*Math.pow(sd2, 2)) / (n1 + n2 - 2);
+                return Math.sqrt(sp_squared * (1/n1 + 1/n2));
+            }
+        }
+
+        const p1Cont = document.getElementById('pop1-container');
+        const p2Cont = document.getElementById('pop2-container');
+        const s1Disp = document.getElementById('sample1-display');
+        const s2Disp = document.getElementById('sample2-display');
+        
+        function initVisualization() {
+            generatePopulations();
+            
+            p1Cont.innerHTML = ''; p2Cont.innerHTML = '';
+            
+            // Only render a subset to prevent DOM bloat, but data pool retains full POP_SIZE
+            pop1.slice(0, RENDER_LIMIT).forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'score-piece'; el.style.backgroundColor = '#60a5fa'; // Blue
+                el.style.left = `${p.x}%`; el.style.top = `${p.y}%`; el.id = `p1-${p.id}`;
+                p1Cont.appendChild(el);
+            });
+
+            pop2.slice(0, RENDER_LIMIT).forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'score-piece'; el.style.backgroundColor = '#34d399'; // Emerald
+                el.style.left = `${p.x}%`; el.style.top = `${p.y}%`; el.id = `p2-${p.id}`;
+                p2Cont.appendChild(el);
+            });
+
+            initSamplingDistChart();
+            resetStats();
+        }
+
+        function resetStats() {
+            // Prevent reset during active animation frames to avoid array corruption (Race condition fix)
+            if (isAnimating) return; 
+
+            sampleDifferences = []; sampleSEs = []; sampleStandardDeviations = [];
+            
+            s1Disp.innerHTML = '<span class="text-slate-400 text-xs italic mt-2">Waiting...</span>';
+            s2Disp.innerHTML = '<span class="text-slate-400 text-xs italic mt-2">Waiting...</span>';
+            
+            document.getElementById('s1-mean').innerText = '--';
+            document.getElementById('s1-sd').innerText = '--';
+            document.getElementById('s2-mean').innerText = '--';
+            document.getElementById('s2-sd').innerText = '--';
+            
+            document.getElementById('current-diff').innerText = '--';
+            document.getElementById('current-se').innerText = '--';
+            
+            if (sampY && sampSvg) {
+                 sampY.domain([0, 10]);
+                 sampSvg.select('#samp-y-axis').transition().duration(300).call(d3.axisLeft(sampY));
+            }
+            updateStatsUI();
+            updateSamplingDistChart();
+        }
+
+        function updateStatsUI() {
+            document.getElementById('stats-counter').innerText = `${sampleDifferences.length} / ${TOTAL_EXPERIMENTS} Exp.`;
+            
+            if (sampleDifferences.length > 0) {
+                const meanOfDiffs = calculateMean(sampleDifferences);
+                const empSE = calculateStdDev(sampleDifferences, meanOfDiffs);
+                const avgEstSE = calculateMean(sampleSEs);
+                
+                document.getElementById('stat-mean-of-means').innerText = meanOfDiffs.toFixed(2);
+                document.getElementById('stat-emp-se').innerText = sampleDifferences.length > 1 ? empSE.toFixed(2) : '--';
+                document.getElementById('stat-est-se').innerText = avgEstSE.toFixed(2);
+            } else {
+                document.getElementById('stat-mean-of-means').innerText = '--';
+                document.getElementById('stat-emp-se').innerText = '--';
+                document.getElementById('stat-est-se').innerText = '--';
+            }
+
+            // Sync button states reliably
+            const isMax = sampleDifferences.length >= TOTAL_EXPERIMENTS;
+            document.getElementById('btn-draw-one').disabled = isMax || isAnimating;
+            document.getElementById('btn-draw-all').disabled = isMax || isAnimating;
+            document.getElementById('btn-reset').disabled = isAnimating;
+            
+            // Disable settings toggles during animation to prevent breaking state
+            document.getElementById('test-type-toggle').disabled = isAnimating;
+            document.getElementById('variance-toggle').disabled = isAnimating;
+            document.getElementById('samplesize-toggle').disabled = isAnimating;
+        }
+
+        let sampX, sampY, sampSvg, sampHistogram, sampWidth, sampHeight;
+        const sampMargin = {top: 15, right: 20, bottom: 25, left: 35};
+
+        function initSamplingDistChart() {
+            // --- Mean Diff Chart Setup ---
+            const container = d3.select('#sampling-dist-chart');
+            container.selectAll('*').remove();
+            const rect = container.node().getBoundingClientRect();
+            sampWidth = rect.width - sampMargin.left - sampMargin.right;
+            sampHeight = rect.height - sampMargin.top - sampMargin.bottom;
+
+            sampSvg = container.append('svg')
+                .attr('width', sampWidth + sampMargin.left + sampMargin.right)
+                .attr('height', sampHeight + sampMargin.top + sampMargin.bottom)
+                .append('g').attr('transform', `translate(${sampMargin.left},${sampMargin.top})`);
+
+            // Domain around true diff (+10), standard error is ~9.0, so 10 +/- 30 accommodates most data
+            sampX = d3.scaleLinear().domain([-20, 40]).range([0, sampWidth]);
+            sampSvg.append('g').attr('transform', `translate(0,${sampHeight})`)
+                .call(d3.axisBottom(sampX)).attr('class', 'axis-label');
+
+            sampY = d3.scaleLinear().range([sampHeight, 0]).domain([0, 10]);
+            sampSvg.append('g').attr('id', 'samp-y-axis').call(d3.axisLeft(sampY).ticks(4)).attr('class', 'axis-label');
+
+            sampHistogram = d3.bin().domain(sampX.domain()).thresholds(sampX.ticks(40));
+        }
+
+        function updateSamplingDistChart(animateLast = false) {
+            // --- Update Mean Diff Chart ---
+            const bins = sampHistogram(sampleDifferences);
+            
+            const maxFreq = d3.max(bins, d => d.length);
+            if (maxFreq > sampY.domain()[1]) {
+                sampY.domain([0, maxFreq + 2]);
+                sampSvg.select('#samp-y-axis').transition().duration(300).call(d3.axisLeft(sampY));
+            }
+
+            const bars = sampSvg.selectAll(".samp-bar").data(bins);
+            const barsEnter = bars.enter().append("rect").attr("class", "samp-bar bar")
+                .attr("x", 1).attr("transform", d => `translate(${sampX(d.x0)},${sampHeight})`)
+                .attr("width", d => Math.max(0, sampX(d.x1) - sampX(d.x0) - 1)).attr("height", 0);
+            
+            bars.merge(barsEnter)
+                .transition().duration(animateLast ? 300 : 0)
+                .attr("transform", d => `translate(${sampX(d.x0)},${sampY(d.length)})`)
+                .attr("height", d => sampHeight - sampY(d.length))
+                .style("fill", (d, i) => {
+                    if (animateLast && sampleDifferences.length > 0) {
+                        const lastVal = sampleDifferences[sampleDifferences.length - 1];
+                        // Bug Fix: Check absolute inclusion via array method directly mapped by D3 v7
+                        if (d.includes(lastVal)) return "#f59e0b"; // Highlight Amber
+                    }
+                    return "#ef4444"; // Red
+                }).on("end", function(d) {
+                     // Fade smoothly out of the amber highlight back to red
+                     if (animateLast && sampleDifferences.length > 0) {
+                         const lastVal = sampleDifferences[sampleDifferences.length - 1];
+                         if (d.includes(lastVal)) {
+                             d3.select(this).transition().duration(500).style("fill", "#ef4444");
+                         }
+                     }
+                });
+
+            bars.exit().remove();
+        }
+
+        async function drawSampleAnimated() {
+            if (isAnimating || sampleDifferences.length >= TOTAL_EXPERIMENTS) return;
+            isAnimating = true;
+            updateStatsUI();
+
+            s1Disp.innerHTML = ''; s2Disp.innerHTML = '';
+            document.getElementById('current-diff').innerText = '...';
+            document.getElementById('current-se').innerText = '...';
+
+            let s1 = [], s2 = [];
+            
+            for (let i = 0; i < SAMPLE_SIZE_1; i++) {
+                const picked = pop1[Math.floor(Math.random() * POP_SIZE)];
+                s1.push(picked.value);
+                const vis = document.getElementById(`p1-${picked.id}`) || document.getElementById(`p1-${picked.id % RENDER_LIMIT}`);
+                if (vis) { vis.classList.add('highlight-pop1'); setTimeout(() => vis.classList.remove('highlight-pop1'), 400); }
+                
+                const piece = document.createElement('div');
+                piece.className = 'drawn-piece bg-blue-500 scale-0 transform transition-transform';
+                piece.innerText = picked.value.toFixed(0);
+                s1Disp.appendChild(piece);
+                await new Promise(r => setTimeout(r, 20));
+                piece.classList.remove('scale-0'); piece.classList.add('scale-100');
+            }
+
+            let m1 = calculateMean(s1), sd1 = calculateStdDev(s1, m1);
+            document.getElementById('s1-mean').innerText = m1.toFixed(1);
+            document.getElementById('s1-sd').innerText = sd1.toFixed(1);
+
+            for (let i = 0; i < SAMPLE_SIZE_2; i++) {
+                const picked = pop2[Math.floor(Math.random() * POP_SIZE)];
+                s2.push(picked.value);
+                const vis = document.getElementById(`p2-${picked.id}`) || document.getElementById(`p2-${picked.id % RENDER_LIMIT}`);
+                if (vis) { vis.classList.add('highlight-pop2'); setTimeout(() => vis.classList.remove('highlight-pop2'), 400); }
+                
+                const piece = document.createElement('div');
+                piece.className = 'drawn-piece bg-emerald-500 scale-0 transform transition-transform';
+                piece.innerText = picked.value.toFixed(0);
+                s2Disp.appendChild(piece);
+                await new Promise(r => setTimeout(r, 20));
+                piece.classList.remove('scale-0'); piece.classList.add('scale-100');
+            }
+
+            let m2 = calculateMean(s2), sd2 = calculateStdDev(s2, m2);
+            document.getElementById('s2-mean').innerText = m2.toFixed(1);
+            document.getElementById('s2-sd').innerText = sd2.toFixed(1);
+
+            // Calculate Difference and SE based on selected test
+            const diff = m2 - m1;
+            const se = calculateSE(sd1, SAMPLE_SIZE_1, sd2, SAMPLE_SIZE_2, useWelch);
+            
+            sampleDifferences.push(diff);
+            sampleSEs.push(se);
+            sampleStandardDeviations.push({sd1: sd1, sd2: sd2});
+
+            document.getElementById('current-diff').innerText = diff > 0 ? `+${diff.toFixed(2)}` : diff.toFixed(2);
+            document.getElementById('current-se').innerText = se.toFixed(2);
+
+            isAnimating = false;
+            updateStatsUI();
+            updateSamplingDistChart(true);
+        }
+
+        function drawRemainingFast() {
+            if (isAnimating || sampleDifferences.length >= TOTAL_EXPERIMENTS) return;
+            
+            isAnimating = true;
+            updateStatsUI();
+            
+            const remaining = TOTAL_EXPERIMENTS - sampleDifferences.length;
+            
+            s1Disp.innerHTML = '<span class="text-slate-400 text-xs font-semibold mt-2">Batch simulation completed.</span>';
+            s2Disp.innerHTML = '<span class="text-slate-400 text-xs font-semibold mt-2">Batch simulation completed.</span>';
+            
+            let lastM1, lastSD1, lastM2, lastSD2, lastDiff, lastSE;
+            const trueDiff = POP2_MEAN - POP1_MEAN;
+
+            for (let i = 0; i < remaining; i++) {
+                let s1 = [], s2 = [];
+                for(let j=0; j<SAMPLE_SIZE_1; j++) s1.push(pop1[Math.floor(Math.random()*POP_SIZE)].value);
+                for(let j=0; j<SAMPLE_SIZE_2; j++) s2.push(pop2[Math.floor(Math.random()*POP_SIZE)].value);
+                
+                lastM1 = calculateMean(s1); lastSD1 = calculateStdDev(s1, lastM1);
+                lastM2 = calculateMean(s2); lastSD2 = calculateStdDev(s2, lastM2);
+                
+                lastDiff = lastM2 - lastM1;
+                lastSE = calculateSE(lastSD1, SAMPLE_SIZE_1, lastSD2, SAMPLE_SIZE_2, useWelch);
+                
+                sampleDifferences.push(lastDiff);
+                sampleSEs.push(lastSE);
+                sampleStandardDeviations.push({sd1: lastSD1, sd2: lastSD2});
+            }
+
+            document.getElementById('s1-mean').innerText = lastM1.toFixed(1);
+            document.getElementById('s1-sd').innerText = lastSD1.toFixed(1);
+            document.getElementById('s2-mean').innerText = lastM2.toFixed(1);
+            document.getElementById('s2-sd').innerText = lastSD2.toFixed(1);
+            document.getElementById('current-diff').innerText = lastDiff > 0 ? `+${lastDiff.toFixed(2)}` : lastDiff.toFixed(2);
+            document.getElementById('current-se').innerText = lastSE.toFixed(2);
+
+            isAnimating = false;
+            updateStatsUI();
+            updateSamplingDistChart(false);
+        }
+
+        document.getElementById('btn-draw-one').addEventListener('click', drawSampleAnimated);
+        document.getElementById('btn-draw-all').addEventListener('click', drawRemainingFast);
+        document.getElementById('btn-reset').addEventListener('click', resetStats);
+
+        window.addEventListener('resize', () => {
+            initSamplingDistChart();
+            updateSamplingDistChart();
+        });
+
+        window.onload = () => {
+            updateDescriptions();
+            updateTheoreticalSE();
+            initVisualization();
+        };
+    </script>
+</body>
+</html>
