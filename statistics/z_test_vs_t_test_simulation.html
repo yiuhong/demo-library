@@ -37,7 +37,7 @@
         
         <!-- Sidebar Controls -->
         <div class="w-full md:w-1/3 bg-slate-50 p-6 border-b md:border-b-0 md:border-r border-slate-200">
-            <h1 class="text-2xl font-bold mb-2 text-slate-800">z-distribution vs t-distribution</h1>
+            <h1 class="text-2xl font-bold mb-2 text-slate-800">z-distribution vs <br> t-distribution</h1>
             <p class="text-sm text-slate-500 mb-6 leading-relaxed">
                 Explore how substituting population standard deviation ($\sigma$) with sample standard deviation ($s$) changes the test statistic distribution from Normal to Student's t.
             </p>
@@ -85,6 +85,23 @@
                 </div>
             </div>
 
+            <!-- Display Options -->
+            <div class="mb-6 p-4 bg-white rounded-lg border border-slate-200 shadow-sm">
+                <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-3">Display Options</h2>
+                <div class="flex flex-col space-y-3">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="show-z" class="sr-only peer" checked>
+                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                      <span class="ml-3 text-sm font-medium text-slate-700">Show Z-Distribution</span>
+                    </label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="show-t" class="sr-only peer" checked>
+                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                      <span class="ml-3 text-sm font-medium text-slate-700">Show t-Distribution</span>
+                    </label>
+                </div>
+            </div>
+
             <button id="run-sim" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:-translate-y-0.5">
                 Run Simulation
             </button>
@@ -98,11 +115,26 @@
         <!-- Main Visualization Area -->
         <div class="w-full md:w-2/3 p-6 flex flex-col bg-white">
             
-            <div class="flex-grow relative min-h-[400px]">
-                <canvas id="distributionChart"></canvas>
+            <div class="flex-grow flex flex-col space-y-6 min-h-[600px]">
+                <!-- Sampling Distribution Panel -->
+                <div class="flex-1 relative min-h-[250px] border-b border-slate-100 pb-6">
+                    <canvas id="samplingDistChart"></canvas>
+                </div>
+                
+                <!-- Test Statistic Distribution Panel -->
+                <div class="flex-1 relative min-h-[300px]">
+                    <canvas id="distributionChart"></canvas>
+                </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
+                    <h3 class="font-semibold text-emerald-800 mb-2 flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
+                        Sampling Distribution
+                    </h3>
+                    <p class="text-sm text-emerald-900 opacity-80">Distribution of raw sample means ($\bar{x}$). Narrows as sample size ($n$) increases due to a smaller standard error.</p>
+                </div>
                 <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
                     <h3 class="font-semibold text-blue-800 mb-2 flex items-center">
                         <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
@@ -117,7 +149,7 @@
                     </h3>
                     <p class="text-sm text-orange-900 opacity-80">Heavier tails than normal, depends on $df = n - 1$. Approaches normal as $n$ increases.</p>
                 </div>
-                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 col-span-1 md:col-span-2">
+                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200 col-span-1 md:col-span-2 lg:col-span-3">
                      <h3 class="font-semibold text-slate-800 mb-2 flex items-center">
                         <div class="w-3 h-3 rounded-sm bg-slate-400 mr-2"></div>
                         Simulated Statistics
@@ -148,8 +180,9 @@
         
         const runSimBtn = document.getElementById('run-sim');
 
-        // Chart instance
+        // Chart instances
         let distChart = null;
+        let samplingChart = null;
 
         // Helper function to generate normal random variables (Box-Muller transform)
         function randomNormal(mean = 0, stdev = 1) {
@@ -177,6 +210,7 @@
             const n = parseInt(sampleSizeInput.value);
             const simulations = parseInt(numSimInput.value);
 
+            let meanStats = [];
             let zStats = [];
             let tStats = [];
 
@@ -188,6 +222,8 @@
 
                 const sampleMean = calculateMean(sample);
                 const sampleSd = calculateSampleSd(sample, sampleMean);
+                
+                meanStats.push(sampleMean);
 
                 // Calculate Z-statistic (using known population sigma)
                 // Z = (x_bar - mu) / (sigma / sqrt(n))
@@ -206,7 +242,7 @@
                 }
             }
 
-            return { zStats, tStats, n };
+            return { meanStats, zStats, tStats, n };
         }
 
         // Create histogram bins
@@ -235,8 +271,10 @@
             const step = (maxVal - minVal) / numPoints;
             const df = Math.max(1, n - 1);
 
-            for (let x = minVal; x <= maxVal; x += step) {
-                labels.push(x.toFixed(2));
+            for (let x = minVal; x <= maxVal + step/10; x += step) {
+                // Prevent -0.00 label rendering
+                let labelX = Math.abs(x) < 1e-10 ? 0 : x;
+                labels.push(labelX.toFixed(2));
                 try {
                     zCurve.push(jStat.normal.pdf(x, 0, 1));
                     tCurve.push(jStat.studentt.pdf(x, df));
@@ -248,11 +286,139 @@
 
             return { labels, zCurve, tCurve };
         }
+        
+        function generateSamplingCurve(n, minVal = -3, maxVal = 3, numPoints = 120) {
+            const labels = [];
+            const curve = [];
+            const step = (maxVal - minVal) / numPoints;
+            const se = 1.0 / Math.sqrt(n); // Standard error of the mean
+
+            for (let x = minVal; x <= maxVal + step/10; x += step) {
+                let labelX = Math.abs(x) < 1e-10 ? 0 : x;
+                labels.push(labelX.toFixed(2));
+                try {
+                    curve.push(jStat.normal.pdf(x, 0, se));
+                } catch(e) {
+                    curve.push(0);
+                }
+            }
+            return { labels, curve };
+        }
 
         function updateChart() {
             const n = parseInt(sampleSizeInput.value);
-            const { zStats, tStats } = runSimulation();
+            const { meanStats, zStats, tStats } = runSimulation();
             
+            // --- 1. Sampling Distribution Chart ---
+            const sMinX = -3;
+            const sMaxX = 3;
+            const sNumBins = 50;
+            const sBinWidth = (sMaxX - sMinX) / sNumBins;
+            
+            const meanDensity = createHistogram(meanStats, sMinX, sMaxX, sNumBins);
+            const sCurveData = generateSamplingCurve(n, sMinX, sMaxX, 100);
+            
+            const sBinCenters = [];
+            for (let i = 0; i < sNumBins; i++) {
+                sBinCenters.push((sMinX + (i + 0.5) * sBinWidth).toFixed(2));
+            }
+
+            if (samplingChart) {
+                samplingChart.destroy();
+            }
+            
+            const sCtx = document.getElementById('samplingDistChart').getContext('2d');
+            samplingChart = new Chart(sCtx, {
+                type: 'line',
+                data: {
+                    labels: sCurveData.labels,
+                    datasets: [
+                        {
+                            label: `Theoretical N(0, 1/√${n})`,
+                            data: sCurveData.curve,
+                            borderColor: 'rgba(16, 185, 129, 1)', // emerald-500
+                            backgroundColor: 'rgba(16, 185, 129, 0)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            order: 1
+                        },
+                        {
+                            label: 'Simulated Sample Means',
+                            data: sCurveData.labels.map(l => {
+                                let closestDist = Infinity;
+                                let val = null;
+                                for(let i=0; i<sBinCenters.length; i++){
+                                    let dist = Math.abs(parseFloat(l) - parseFloat(sBinCenters[i]));
+                                    if(dist < closestDist && dist < sBinWidth/2){
+                                        closestDist = dist;
+                                        val = meanDensity[i];
+                                    }
+                                }
+                                return val;
+                            }),
+                            type: 'bar',
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: 'rgba(16, 185, 129, 0.4)',
+                            borderWidth: 1,
+                            barPercentage: 1.0,
+                            categoryPercentage: 1.0,
+                            order: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Sampling Distribution of the Mean (x̄)',
+                            font: { size: 15, family: "'Inter', sans-serif" },
+                            padding: { bottom: 10 }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true, boxWidth: 8, font: { family: "'Inter', sans-serif" } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: (tooltipItems) => `Sample Mean: ${tooltipItems[0].label}`,
+                                label: (context) => {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null && !isNaN(context.parsed.y)) {
+                                        label += context.parsed.y.toFixed(4);
+                                    } else { return null; }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Sample Mean Value', font: { weight: 'bold', size: 12 } },
+                            ticks: {
+                                maxTicksLimit: 11,
+                                callback: function(value, index, values) {
+                                    return this.getLabelForValue(value);
+                                }
+                            },
+                            grid: { display: false }
+                        },
+                        y: {
+                            title: { display: true, text: 'Density', font: { weight: 'bold', size: 12 } },
+                            beginAtZero: true
+                            // Auto scales to accommodate high peaks at large sample sizes
+                        }
+                    },
+                    animation: { duration: 300 }
+                }
+            });
+
+            // --- 2. Test Statistic Distribution Chart ---
             const minX = -5;
             const maxX = 5;
             const numBins = 60;
@@ -271,6 +437,9 @@
                 distChart.destroy();
             }
 
+            const showZ = document.getElementById('show-z').checked;
+            const showT = document.getElementById('show-t').checked;
+
             const ctx = document.getElementById('distributionChart').getContext('2d');
             
             distChart = new Chart(ctx, {
@@ -287,7 +456,8 @@
                             pointRadius: 0,
                             borderDash: [5, 5],
                             tension: 0.4,
-                            order: 1
+                            order: 1,
+                            hidden: !showZ
                         },
                         {
                             label: `Theoretical t (df=${n-1})`,
@@ -297,7 +467,8 @@
                             borderWidth: 2,
                             pointRadius: 0,
                             tension: 0.4,
-                            order: 2
+                            order: 2,
+                            hidden: !showT
                         },
                         {
                             label: 'Simulated Z (Known σ)',
@@ -319,7 +490,8 @@
                             borderWidth: 1,
                             barPercentage: 1.0,
                             categoryPercentage: 1.0,
-                            order: 3
+                            order: 3,
+                            hidden: !showZ
                         },
                          {
                             label: 'Simulated t (Estimated s)',
@@ -341,7 +513,8 @@
                             borderWidth: 1,
                             barPercentage: 1.0,
                             categoryPercentage: 1.0,
-                            order: 4
+                            order: 4,
+                            hidden: !showT
                         }
                     ]
                 },
@@ -402,10 +575,7 @@
                         },
                         y: {
                             title: {
-                                display: {
-                                    display: true,
-                                    text: 'Density'
-                                },
+                                display: true,
                                 text: 'Density',
                                 font: { weight: 'bold' }
                             },
@@ -450,6 +620,23 @@
                     runSimBtn.disabled = false;
                     runSimBtn.classList.remove('opacity-75');
                 }, 10);
+            });
+
+            // Toggle visibility without re-running simulation
+            document.getElementById('show-z').addEventListener('change', (e) => {
+                if (distChart) {
+                    distChart.data.datasets[0].hidden = !e.target.checked;
+                    distChart.data.datasets[2].hidden = !e.target.checked;
+                    distChart.update();
+                }
+            });
+
+            document.getElementById('show-t').addEventListener('change', (e) => {
+                if (distChart) {
+                    distChart.data.datasets[1].hidden = !e.target.checked;
+                    distChart.data.datasets[3].hidden = !e.target.checked;
+                    distChart.update();
+                }
             });
         }
 
