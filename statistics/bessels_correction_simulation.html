@@ -7,12 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Added MathJax for LaTeX rendering -->
     <script>
       window.MathJax = {
         tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
         startup: {
-            typeset: false // We will manually trigger typesetting
+            typeset: false // We will manually trigger typesetting to prevent rendering conflicts
         }
       };
     </script>
@@ -28,6 +27,13 @@
     </style>
 </head>
 <body class="text-slate-800 p-4 md:p-8">
+
+    <button id="fullscreenToggleBtn" class="fixed top-4 right-4 md:top-6 md:right-6 z-50 bg-slate-800 hover:bg-slate-700 text-white rounded-lg py-2 px-3 shadow-md flex items-center transition-colors duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+        </svg>
+        <span class="hidden sm:inline text-sm font-medium">Fullscreen</span>
+    </button>
 
     <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md overflow-hidden border border-slate-100">
         <!-- Header -->
@@ -68,7 +74,6 @@
                 </div>
             </div>
 
-            <!-- Stats Dashboard -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                 <!-- Population Truth -->
                 <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-center flex flex-col justify-center">
@@ -100,7 +105,6 @@
                 </div>
             </div>
 
-            <!-- Chart Section -->
             <div class="mb-6 border border-slate-200 rounded-lg p-5 bg-white shadow-sm">
                 <h3 class="text-lg font-semibold text-slate-800 mb-2 text-center">Convergence of Variance Estimates</h3>
                 <div class="canvas-container">
@@ -143,14 +147,12 @@
         let totalSamples = 0;
         let runningSumBiased = 0;
         let runningSumUnbiased = 0;
-        let biasedCloserCount = 0; // Track how often biased is randomly closer
+        let biasedCloserCount = 0; 
 
-        // Data arrays for the charts
-        let chartLabels = [];
+        // Data arrays for the charts (pure {x, y} coordinate format for linear scale rendering)
         let chartDataBiased = [];
         let chartDataUnbiased = [];
         let chartDataTruth = [];
-        
         let chartScatterBiased = [];
         let chartScatterUnbiased = [];
 
@@ -158,7 +160,6 @@
         let myChart;
         let parabolaChart;
 
-        let isMathJaxRendering = false;
         let mathJaxQueue = Promise.resolve();
 
         // --- DOM Elements ---
@@ -173,9 +174,9 @@
         const biasedAvgDisplay = document.getElementById('biasedAvgDisplay');
         const unbiasedAvgDisplay = document.getElementById('unbiasedAvgDisplay');
         const latestSampleDetails = document.getElementById('latestSampleDetails');
+        const fullscreenToggleBtn = document.getElementById('fullscreenToggleBtn');
 
         // --- Helper Functions ---
-        
         function randomNormal(mean, stdDev) {
             let u1 = 0, u2 = 0;
             while (u1 === 0) u1 = Math.random(); 
@@ -202,8 +203,6 @@
             return { mean, biasedVar, unbiasedVar, ss };
         }
 
-        // --- Core Simulation Logic ---
-        
         function runSimulationStep() {
             const n = parseInt(sampleSizeInput.value);
             const numDraws = parseInt(numSamplesInput.value);
@@ -230,15 +229,14 @@
                 lastSampleStats = stats;
                 lastSampleData = sample;
 
-                // Downsample chart line updates for performance on massive draws, but always get the last one
+                // Downsample chart line updates for performance on massive draws
                 if (totalSamples <= 100 || totalSamples % Math.ceil(numDraws/5) === 0 || i === numDraws - 1) {
                     const currentAvgBiased = runningSumBiased / totalSamples;
                     const currentAvgUnbiased = runningSumUnbiased / totalSamples;
                     
-                    chartLabels.push(totalSamples);
-                    chartDataBiased.push(currentAvgBiased);
-                    chartDataUnbiased.push(currentAvgUnbiased);
-                    chartDataTruth.push(TRUE_VARIANCE);
+                    chartDataBiased.push({x: totalSamples, y: currentAvgBiased});
+                    chartDataUnbiased.push({x: totalSamples, y: currentAvgUnbiased});
+                    chartDataTruth.push({x: totalSamples, y: TRUE_VARIANCE});
                     
                     chartScatterBiased.push({x: totalSamples, y: stats.biasedVar});
                     chartScatterUnbiased.push({x: totalSamples, y: stats.unbiasedVar});
@@ -248,8 +246,6 @@
             updateDashboard(lastSampleStats, lastSampleData, n);
             updateChart();
         }
-
-        // --- UI Updates ---
 
         function updateDashboard(latestStats, latestSample, n) {
             totalSamplesDisplay.innerText = totalSamples;
@@ -315,7 +311,7 @@
                 document.getElementById('parabolaContainer').style.display = 'block';
                 updateParabola(latestSample, latestStats.mean);
 
-                // Safely queue MathJax rendering to avoid errors on rapid clicks
+                // Queue MathJax safely to prevent crash on rapid clicks
                 if (window.MathJax) {
                     mathJaxQueue = mathJaxQueue.then(() => {
                         MathJax.typesetClear([latestSampleDetails]);
@@ -328,17 +324,13 @@
         function initChart() {
             const ctx = document.getElementById('varianceChart').getContext('2d');
             
-            if (chartLabels.length === 0) {
-                chartLabels.push(0);
-                chartDataTruth.push(TRUE_VARIANCE);
-                chartDataBiased.push(null);
-                chartDataUnbiased.push(null);
+            if (chartDataTruth.length === 0) {
+                chartDataTruth.push({x: 0, y: TRUE_VARIANCE});
             }
             
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: chartLabels,
                     datasets: [
                         {
                             label: `Avg Biased Var (/n)`,
@@ -399,8 +391,14 @@
                     animation: { duration: 0 },
                     scales: {
                         x: {
+                            type: 'linear', // Bug Fix: Forces robust mapping for scatter dots + array shifting
                             title: { display: true, text: 'Number of Samples Drawn', font: { weight: 'bold' } },
-                            ticks: { maxTicksLimit: 10 }
+                            ticks: { 
+                                maxTicksLimit: 10,
+                                callback: function(value) {
+                                    if (value % 1 === 0) return value; // Only show whole integer labels
+                                }
+                            }
                         },
                         y: {
                             title: { display: true, text: 'Variance Estimate', font: { weight: 'bold' } },
@@ -412,11 +410,11 @@
                         legend: {
                             position: 'top',
                             labels: {
-                                usePointStyle: true, // Forces circles in legend
+                                usePointStyle: true, 
                                 boxWidth: 10
                             }
                         },
-                        tooltip: { mode: 'index', intersect: false }
+                        tooltip: { mode: 'nearest', intersect: false }
                     }
                 }
             });
@@ -496,9 +494,9 @@
 
         function updateChart() {
             const MAX_POINTS = 500;
-            if (chartLabels.length > MAX_POINTS) {
-                const sliceAmount = chartLabels.length - MAX_POINTS;
-                chartLabels.splice(0, sliceAmount);
+            // Splice old data out to prevent the chart from drastically lagging the browser
+            if (chartDataTruth.length > MAX_POINTS) {
+                const sliceAmount = chartDataTruth.length - MAX_POINTS;
                 chartDataBiased.splice(0, sliceAmount);
                 chartDataUnbiased.splice(0, sliceAmount);
                 chartDataTruth.splice(0, sliceAmount);
@@ -542,17 +540,13 @@
             runningSumUnbiased = 0;
             biasedCloserCount = 0; 
             
-            chartLabels.length = 0;
             chartDataBiased.length = 0;
             chartDataUnbiased.length = 0;
             chartDataTruth.length = 0;
             chartScatterBiased.length = 0;
             chartScatterUnbiased.length = 0;
 
-            chartLabels.push(0);
-            chartDataTruth.push(TRUE_VARIANCE);
-            chartDataBiased.push(null);
-            chartDataUnbiased.push(null);
+            chartDataTruth.push({x: 0, y: TRUE_VARIANCE});
 
             totalSamplesDisplay.innerText = "0";
             biasedAvgDisplay.innerText = "0.00";
@@ -563,11 +557,37 @@
 
             updateChart();
             
-            // Queue an initial typeset for the reset state
             if (window.MathJax) {
                 mathJaxQueue = mathJaxQueue.then(() => {
                     return MathJax.typesetPromise();
                 });
+            }
+        }
+
+        function toggleFullscreen() {
+            const docElm = document.documentElement;
+            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                // Enter fullscreen
+                if (docElm.requestFullscreen) {
+                    docElm.requestFullscreen();
+                } else if (docElm.msRequestFullscreen) {
+                    docElm.msRequestFullscreen();
+                } else if (docElm.mozRequestFullScreen) {
+                    docElm.mozRequestFullScreen();
+                } else if (docElm.webkitRequestFullScreen) {
+                    docElm.webkitRequestFullScreen();
+                }
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitCancelFullScreen) {
+                    document.webkitCancelFullScreen();
+                }
             }
         }
 
@@ -576,9 +596,7 @@
             sampleSizeVal.innerText = e.target.value;
         });
 
-        sampleSizeInput.addEventListener('change', (e) => {
-            resetSimulation(); 
-        });
+        sampleSizeInput.addEventListener('change', () => resetSimulation());
 
         numSamplesInput.addEventListener('input', (e) => {
             numSamplesVal.innerText = e.target.value;
@@ -586,12 +604,12 @@
 
         drawBtn.addEventListener('click', runSimulationStep);
         resetBtn.addEventListener('click', resetSimulation);
+        fullscreenToggleBtn.addEventListener('click', toggleFullscreen);
 
         window.onload = () => {
             sampleSizeVal.innerText = sampleSizeInput.value;
             numSamplesVal.innerText = numSamplesInput.value;
             
-            // Trigger initial MathJax rendering for the static content
             if (window.MathJax) {
                  MathJax.typesetPromise();
             }
