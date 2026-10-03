@@ -33,7 +33,14 @@
 </head>
 <body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
 
-    <div class="max-w-6xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+    <button id="fullscreen-btn" class="fixed top-4 right-4 md:top-6 md:right-6 z-50 bg-slate-800 text-white px-3 py-2 rounded-lg shadow-md hover:bg-slate-700 transition-colors flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+        </svg>
+        <span class="hidden sm:inline text-sm font-medium">Fullscreen</span>
+    </button>
+
+    <div class="max-w-6xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row mt-8 md:mt-0">
         
         <!-- Sidebar Controls -->
         <div class="w-full md:w-1/3 bg-slate-50 p-6 border-b md:border-b-0 md:border-r border-slate-200">
@@ -204,6 +211,7 @@
             const sumSqDiffs = arr.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
             return Math.sqrt(sumSqDiffs / (arr.length - 1));
         }
+
         function runSimulation() {
             const mu = 0;
             const sigma = 1.0;
@@ -636,6 +644,28 @@
                     distChart.data.datasets[1].hidden = !e.target.checked;
                     distChart.data.datasets[3].hidden = !e.target.checked;
                     distChart.update();
+                }
+            });
+
+            // Fullscreen Toggle functionality
+            document.getElementById('fullscreen-btn').addEventListener('click', () => {
+                const doc = window.document;
+                const docEl = doc.documentElement;
+
+                // Vendor prefixes mapped for broader cross-browser support
+                const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+                const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+                if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                    // Enter fullscreen
+                    if (requestFullScreen) {
+                        requestFullScreen.call(docEl);
+                    }
+                } else {
+                    // Exit fullscreen
+                    if (cancelFullScreen) {
+                        cancelFullScreen.call(doc);
+                    }
                 }
             });
         }
