@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sampling Distributions of the Sample Mean (under $H_0$ and $H_1$)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.6/jstat.min.js"></script>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8fafc;
+        color: #1e293b;
+    }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 520px;
+        }
+
+        :root {
+            --h0-color: #3b82f6; /* Blue for Null Hypothesis */
+            --h1-color: #ef4444; /* Red for Alternative Hypothesis */
+            --alpha-color: #8b5cf6; /* Purple for Alpha (Type I Error) */
+            --beta-color: #f59e0b; /* Amber for Beta (Type II Error) */
+            --power-color: #10b981; /* Green for Power */
+        }
+
+        .axis-label {
+            font-size: 12px;
+            fill: #64748b;
+        }
+        
+        .axis path, .axis line {
+            stroke: #cbd5e1;
+        }
+
+        input[type=range] {
+            accent-color: #4f46e5;
+        }
+
+        .chart-tooltip {
+            position: absolute;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #4f46e5;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="p-6 md:p-10 max-w-6xl mx-auto">
+    <!-- Floating Fullscreen Button -->
+    <button id="fullscreen-btn" class="fixed top-4 right-4 md:top-6 md:right-6 z-50 bg-slate-800 hover:bg-slate-700 text-white p-2 md:px-4 md:py-2 rounded-lg shadow-lg flex items-center gap-2 transition-colors duration-200" title="Toggle Fullscreen">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"/>
+        </svg>
+        <span class="hidden sm:inline font-medium text-sm">Fullscreen</span>
+    </button>
+
+    <header class="mb-8 text-center md:text-left">
+        <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Understanding Statistical Power</h1>
+        <p class="text-slate-600 max-w-3xl">Interact with the parameters below to see how they affect the distributions of the Null (H₀) and Alternative (H₁) hypotheses, and consequently, the probabilities of different outcomes in a statistical test.</p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Controls Panel -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-6 h-fit">
+            <h2 class="text-xl font-semibold text-slate-800 border-b pb-2">Parameters</h2>
+            
+            <!-- Significance Level (Alpha) -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label for="alpha-slider" class="text-sm font-medium text-slate-700">Significance Level (α)</label>
+                    <span id="alpha-val" class="text-sm font-bold text-indigo-600">0.05</span>
+                </div>
+                <input type="range" id="alpha-slider" min="0.01" max="0.20" step="0.01" value="0.05" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                <p class="text-xs text-slate-500 mt-1">Probability of rejecting H₀ when it is true (Type I Error).</p>
+            </div>
+
+            <!-- Null Mean -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label for="mu0-slider" class="text-sm font-medium text-slate-700">Null Mean (μ₀)</label>
+                    <span id="mu0-val" class="text-sm font-bold text-indigo-600">0.0</span>
+                </div>
+                <input type="range" id="mu0-slider" min="-10" max="10" step="0.5" value="0.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                <p class="text-xs text-slate-500 mt-1">The hypothesized mean under H₀.</p>
+            </div>
+
+            <!-- Alternative Mean -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label for="mu1-slider" class="text-sm font-medium text-slate-700">Alternative Mean (μ₁)</label>
+                    <span id="mu1-val" class="text-sm font-bold text-indigo-600">2.0</span>
+                </div>
+                <input type="range" id="mu1-slider" min="-10" max="15" step="0.5" value="2.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                <p class="text-xs text-slate-500 mt-1">While H₁ is usually "μ ≠ μ₀", power calculation requires a specific assumed true mean.</p>
+            </div>
+
+            <!-- Cohen's d Explanation Card -->
+            <div class="bg-indigo-50/60 p-3.5 rounded-xl border border-indigo-100 flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-semibold text-slate-800">Cohen's d (Effect Size)</span>
+                    <span id="cohens-d-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">Small (d = 0.40)</span>
+                </div>
+                
+                <!-- Live Formula Step-by-Step -->
+                <div class="bg-white p-2 rounded-lg border border-indigo-100 text-center font-mono text-xs text-slate-700 shadow-sm">
+                    d = <span class="text-slate-400">|μ₁ - μ₀| / σ</span> = |<span id="formula-mu1">2.0</span> - <span id="formula-mu0">0.0</span>| / <span id="formula-sd">5.0</span> = <span id="formula-d" class="font-bold text-indigo-600">0.40</span>
+                </div>
+
+                <p class="text-[11px] text-slate-600 leading-snug">
+                    <strong class="text-slate-700">What it means:</strong> Cohen's <em>d</em> measures the distance between μ₀ and μ₁ in units of standard deviation (σ). It represents the true strength of the effect in the population, independently of sample size (n).
+                </p>
+
+                <div class="flex justify-between text-[10px] text-slate-400 border-t border-indigo-100/60 pt-1.5">
+                    <span>Small: d ≈ 0.2</span>
+                    <span>Medium: d ≈ 0.5</span>
+                    <span>Large: d ≈ 0.8</span>
+                </div>
+            </div>
+
+            <!-- Population Standard Deviation -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label for="sd-slider" class="text-sm font-medium text-slate-700">Population Std Dev (σ)</label>
+                    <span id="sd-val" class="text-sm font-bold text-indigo-600">5.0</span>
+                </div>
+                <input type="range" id="sd-slider" min="1" max="10" step="0.5" value="5.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                <p class="text-xs text-slate-500 mt-1">Variability in the population data.</p>
+            </div>
+
+            <!-- Sample Size (affects standard error) -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label for="sample-size-slider" class="text-sm font-medium text-slate-700">Sample Size (n)</label>
+                    <span id="sample-size-val" class="text-sm font-bold text-indigo-600">30</span>
+                </div>
+                <input type="range" id="sample-size-slider" min="5" max="150" step="1" value="30" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                <p class="text-xs text-slate-500 mt-1">Standard Error (SE) = σ / √n = <span id="se-calc-val" class="font-semibold text-slate-700">0.91</span></p>
+            </div>
+            
+            <!-- Directionality -->
+            <div>
+                 <span class="text-sm font-medium text-slate-700 block mb-2">Test Type</span>
+                 <div class="flex gap-4">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="test-type" value="two-tailed" class="text-indigo-600 focus:ring-indigo-500">
+                        <span class="ml-2 text-sm text-slate-700">Two-tailed</span>
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="test-type" value="one-tailed" checked class="text-indigo-600 focus:ring-indigo-500">
+                        <span class="ml-2 text-sm text-slate-700">One-tailed</span>
+                    </label>
+                 </div>
+            </div>
+
+            <!-- Visibility Toggles -->
+            <div class="border-t pt-4 mt-2">
+                <span class="text-sm font-medium text-slate-700 block mb-3">Show Distributions</span>
+                <div class="flex flex-col gap-3">
+                    <!-- H0 Toggle -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-slate-600 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block opacity-80"></span> Null (H₀)
+                        </span>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggle-h0" id="toggle-h0" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-200 ease-in-out border-slate-300 z-10 top-0 left-0 checked:left-auto checked:border-indigo-600"/>
+                            <label for="toggle-h0" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
+                        </div>
+                    </div>
+                    <!-- H1 Toggle -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-slate-600 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500 inline-block opacity-80"></span> Alternative (H₁)
+                        </span>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggle-h1" id="toggle-h1" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-200 ease-in-out border-slate-300 z-10 top-0 left-0 checked:left-auto checked:border-indigo-600"/>
+                            <label for="toggle-h1" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            
+            <!-- Visualization -->
+            <div id="chart-wrapper" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative">
+                <div class="flex flex-wrap justify-between items-center mb-4 gap-2 pr-12">
+                    <h2 class="text-xl font-semibold text-slate-800">Sampling Distributions of the Sample Mean (under H₀ and H₁)</h2>
+                    <!-- Legend -->
+                    <div class="flex flex-wrap gap-3 text-xs">
+                        <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block mr-1 opacity-80"></span> Null (H₀)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-red-500 inline-block mr-1 opacity-80"></span> Alternative (H₁)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded bg-purple-500 inline-block mr-1 opacity-80"></span> α (Type I)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded bg-amber-500 inline-block mr-1 opacity-80"></span> β (Type II)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded bg-emerald-500 inline-block mr-1 opacity-80"></span> Power (1-β)</div>
+                    </div>
+                </div>
+                <div id="chart" class="chart-container"></div>
+                <div id="chart-tooltip" class="chart-tooltip bg-slate-900/90 text-white text-xs p-2 rounded-lg shadow-xl opacity-0 z-10 border border-slate-700"></div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                
+                <!-- Confidence (1-Alpha) -->
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-5 transition-opacity"></div>
+                    <div class="text-blue-600 text-xs font-semibold uppercase tracking-wider mb-1">True Negative</div>
+                    <div class="text-slate-700 text-sm mb-2">Confidence Level (1-α)</div>
+                    <div id="stat-confidence" class="text-2xl font-bold text-blue-700">95.0%</div>
+                    <p class="text-[10px] text-slate-500 mt-2 leading-tight">Correctly failing to reject H₀ when it is true.</p>
+                </div>
+
+                <!-- Alpha (Type 1) -->
+                <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-purple-500 opacity-0 group-hover:opacity-5 transition-opacity"></div>
+                    <div class="text-purple-600 text-xs font-semibold uppercase tracking-wider mb-1">False Positive</div>
+                    <div class="text-slate-700 text-sm mb-2">Type I Error (α)</div>
+                    <div id="stat-alpha" class="text-2xl font-bold text-purple-700">5.0%</div>
+                    <p class="text-[10px] text-slate-500 mt-2 leading-tight">Incorrectly rejecting H₀ when it is actually true.</p>
+                </div>
+
+                <!-- Beta (Type 2) -->
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-amber-500 opacity-0 group-hover:opacity-5 transition-opacity"></div>
+                    <div class="text-amber-600 text-xs font-semibold uppercase tracking-wider mb-1">False Negative</div>
+                    <div class="text-slate-700 text-sm mb-2">Type II Error (β)</div>
+                    <div id="stat-beta" class="text-2xl font-bold text-amber-700">--.-%</div>
+                    <p class="text-[10px] text-slate-500 mt-2 leading-tight">Failing to reject H₀ when H₁ is actually true.</p>
+                </div>
+
+                <!-- Power (1-Beta) -->
+                <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-emerald-500 opacity-0 group-hover:opacity-5 transition-opacity"></div>
+                    <div class="text-emerald-600 text-xs font-semibold uppercase tracking-wider mb-1">True Positive</div>
+                    <div class="text-slate-700 text-sm mb-2">Power (1-β)</div>
+                    <div id="stat-power" class="text-2xl font-bold text-emerald-700">--.-%</div>
+                    <p class="text-[10px] text-slate-500 mt-2 leading-tight">Correctly rejecting H₀ when H₁ is actually true.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initial parameters
+        let params = {
+            alpha: 0.05,
+            mu0: 0.0,
+            mu1: 2.0,
+            n: 30,
+            populationSd: 5.0,
+            testType: 'one-tailed',
+            showH0: true,
+            showH1: true
+        };
+
+        // Derived metrics
+        let metrics = {
+            mu0: 0,
+            mu1: 0,
+            se: 0,
+            criticalValue1: 0,
+            criticalValue2: null,
+            beta: 0,
+            power: 0
+        };
+
+        function erf(x) {
+            const a1 =  0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+            const a4 = -1.453152027, a5 = 1.061405429, p  = 0.3275911;
+            const sign = x < 0 ? -1 : 1;
+            x = Math.abs(x);
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+            return sign * y;
+        }
+
+        function stdNormalCDF(x) {
+            return 0.5 * (1 + erf(x / Math.SQRT2));
+        }
+
+        function normalCDF(x, mean, stdDev) {
+            return stdNormalCDF((x - mean) / stdDev);
+        }
+
+        function normalPDF(x, mean, stdDev) {
+            const factor = 1 / (stdDev * Math.sqrt(2 * Math.PI));
+            const exponent = -Math.pow(x - mean, 2) / (2 * Math.pow(stdDev, 2));
+            return factor * Math.exp(exponent);
+        }
+
+        function stdNormalInv(p) {
+            if (window.jStat && window.jStat.normal && window.jStat.normal.inv) {
+                return jStat.normal.inv(p, 0, 1);
+            }
+            if (p <= 0) return -Infinity;
+            if (p >= 1) return Infinity;
+            if (p < 0.5) return -approxInv(1 - p);
+            return approxInv(p);
+
+            function approxInv(q) {
+                const t = Math.sqrt(-2 * Math.log(1 - q));
+                const c0 = 2.515517, c1 = 0.802853, c2 = 0.010328;
+                const d1 = 1.432788, d2 = 0.189269, d3 = 0.001308;
+                return t - ((c2 * t + c1) * t + c0) / (((d3 * t + d2) * t + d1) * t + 1);
+            }
+        }
+
+        const container = document.getElementById('chart');
+        let width = container.clientWidth;
+        let height = container.clientHeight;
+        const margin = { top: 40, right: 30, bottom: 45, left: 55 };
+        let innerWidth = width - margin.left - margin.right;
+        let innerHeight = height - margin.top - margin.bottom;
+
+        const svg = d3.select("#chart").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const clipRect = svg.append("defs").append("clipPath")
+            .attr("id", "chart-clip")
+            .append("rect")
+            .attr("width", innerWidth)
+            .attr("height", innerHeight);
+
+        // Tooltip element
+        const tooltip = d3.select("#chart-tooltip");
+
+        // Scales
+        const xScale = d3.scaleLinear().range([0, innerWidth]);
+        const yScale = d3.scaleLinear().range([innerHeight, 0]);
+
+        // Axes groups
+        const xAxisG = g.append("g")
+            .attr("class", "axis x-axis")
+            .attr("transform", `translate(0,${innerHeight})`);
+            
+        const yAxisG = g.append("g")
+            .attr("class", "axis y-axis");
+
+        // Axis labels
+        const xAxisLabel = g.append("text")
+            .attr("class", "axis-label x-axis-label")
+            .attr("x", innerWidth / 2)
+            .attr("y", innerHeight + 38)
+            .attr("text-anchor", "middle")
+            .attr("font-weight", "500")
+            .text("Sample Mean (x̄)");
+            
+        const yAxisLabel = g.append("text")
+            .attr("class", "axis-label y-axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -innerHeight / 2)
+            .attr("y", -38)
+            .attr("text-anchor", "middle")
+            .attr("font-weight", "500")
+            .text("Probability Density");
+
+        const alphaAreaRight = g.append("path").attr("class", "alpha-area-right").attr("fill", "var(--alpha-color)").attr("opacity", 0.55).attr("clip-path", "url(#chart-clip)");
+        const alphaAreaLeft = g.append("path").attr("class", "alpha-area-left").attr("fill", "var(--alpha-color)").attr("opacity", 0.55).attr("clip-path", "url(#chart-clip)");
+        const betaArea = g.append("path").attr("class", "beta-area").attr("fill", "var(--beta-color)").attr("opacity", 0.55).attr("clip-path", "url(#chart-clip)");
+        const powerAreaRight = g.append("path").attr("class", "power-area-right").attr("fill", "var(--power-color)").attr("opacity", 0.45).attr("clip-path", "url(#chart-clip)");
+        const powerAreaLeft = g.append("path").attr("class", "power-area-left").attr("fill", "var(--power-color)").attr("opacity", 0.45).attr("clip-path", "url(#chart-clip)");
+
+        const h0Area = g.append("path").attr("class", "h0-area").attr("fill", "var(--h0-color)").attr("opacity", 0.08).attr("clip-path", "url(#chart-clip)");
+        const h1Area = g.append("path").attr("class", "h1-area").attr("fill", "var(--h1-color)").attr("opacity", 0.08).attr("clip-path", "url(#chart-clip)");
+        const h0Line = g.append("path").attr("class", "h0-line").attr("fill", "none").attr("stroke", "var(--h0-color)").attr("stroke-width", 2.5).attr("clip-path", "url(#chart-clip)");
+        const h1Line = g.append("path").attr("class", "h1-line").attr("fill", "none").attr("stroke", "var(--h1-color)").attr("stroke-width", 2.5).attr("clip-path", "url(#chart-clip)");
+        
+        // Mean and critical value lines
+        const mu0Line = g.append("line").attr("stroke", "var(--h0-color)").attr("stroke-dasharray", "4,4").attr("stroke-width", 1.5).attr("opacity", 0.8).attr("clip-path", "url(#chart-clip)");
+        const mu1Line = g.append("line").attr("stroke", "var(--h1-color)").attr("stroke-dasharray", "4,4").attr("stroke-width", 1.5).attr("opacity", 0.8).attr("clip-path", "url(#chart-clip)");
+        const critLine1 = g.append("line").attr("stroke", "#1e293b").attr("stroke-width", 2).attr("stroke-dasharray", "2,2").attr("clip-path", "url(#chart-clip)");
+        const critLine2 = g.append("line").attr("stroke", "#1e293b").attr("stroke-width", 2).attr("stroke-dasharray", "2,2").attr("clip-path", "url(#chart-clip)").style("display", "none");
+
+        // Labels
+        const critLabel1 = g.append("text").attr("fill", "#1e293b").attr("font-size", "11px").attr("font-weight", "600").attr("text-anchor", "middle").attr("y", -10);
+        const critLabel2 = g.append("text").attr("fill", "#1e293b").attr("font-size", "11px").attr("font-weight", "600").attr("text-anchor", "middle").attr("y", -10).style("display", "none");
+
+        const h0Label = g.append("text").attr("class", "h0-label").attr("fill", "var(--h0-color)").attr("font-size", "13px").attr("font-weight", "700").attr("text-anchor", "middle").text("Null (H₀)");
+        const h1Label = g.append("text").attr("class", "h1-label").attr("fill", "var(--h1-color)").attr("font-size", "13px").attr("font-weight", "700").attr("text-anchor", "middle").text("Alternative (H₁)");
+
+        // Interactive hover tracker
+        const hoverLine = g.append("line").attr("stroke", "#64748b").attr("stroke-dasharray", "2,2").attr("stroke-width", 1).style("opacity", 0).attr("clip-path", "url(#chart-clip)");
+        const hoverDotH0 = g.append("circle").attr("r", 4).attr("fill", "var(--h0-color)").style("opacity", 0).attr("clip-path", "url(#chart-clip)");
+        const hoverDotH1 = g.append("circle").attr("r", 4).attr("fill", "var(--h1-color)").style("opacity", 0).attr("clip-path", "url(#chart-clip)");
+        const overlay = g.append("rect").attr("width", innerWidth).attr("height", innerHeight).attr("fill", "none").attr("pointer-events", "all");
+
+        function calculateMetrics() {
+            metrics.mu0 = params.mu0;
+            metrics.mu1 = params.mu1;
+            metrics.se = params.populationSd / Math.sqrt(params.n);
+
+            if (params.testType === 'one-tailed') {
+                const isLeftTailed = params.mu1 < params.mu0;
+                
+                if (isLeftTailed) {
+                    const zCrit = stdNormalInv(params.alpha);
+                    metrics.criticalValue1 = metrics.mu0 + zCrit * metrics.se;
+                    metrics.criticalValue2 = null;
+                    metrics.beta = 1 - normalCDF(metrics.criticalValue1, metrics.mu1, metrics.se);
+                } else {
+                    const zCrit = stdNormalInv(1 - params.alpha);
+                    metrics.criticalValue1 = metrics.mu0 + zCrit * metrics.se;
+                    metrics.criticalValue2 = null;
+                    metrics.beta = normalCDF(metrics.criticalValue1, metrics.mu1, metrics.se);
+                }
+            } else {
+                const zCrit = stdNormalInv(1 - params.alpha / 2);
+                metrics.criticalValue1 = metrics.mu0 + zCrit * metrics.se; // Upper bound
+                metrics.criticalValue2 = metrics.mu0 - zCrit * metrics.se; // Lower bound
+
+                const probBelowUpper = normalCDF(metrics.criticalValue1, metrics.mu1, metrics.se);
+                const probBelowLower = normalCDF(metrics.criticalValue2, metrics.mu1, metrics.se);
+                metrics.beta = Math.max(0, probBelowUpper - probBelowLower);
+            }
+
+            metrics.power = Math.max(0, Math.min(1, 1 - metrics.beta));
+        }
+
+        function updateChart() {
+            calculateMetrics();
+
+            // Display Standard Error & Cohen's d calculation
+            const diff = Math.abs(params.mu1 - params.mu0);
+            const cohensD = diff / params.populationSd;
+            
+            document.getElementById('se-calc-val').innerText = metrics.se.toFixed(2);
+            document.getElementById('formula-mu1').innerText = params.mu1.toFixed(1);
+            document.getElementById('formula-mu0').innerText = params.mu0.toFixed(1);
+            document.getElementById('formula-sd').innerText = params.populationSd.toFixed(1);
+            document.getElementById('formula-d').innerText = cohensD.toFixed(2);
+
+            // Update Cohen's d benchmark badge
+            const badge = document.getElementById('cohens-d-badge');
+            let interpretation = "Negligible";
+            let badgeClass = "bg-slate-100 text-slate-700 border-slate-200";
+
+            if (cohensD >= 0.8) {
+                interpretation = "Large";
+                badgeClass = "bg-emerald-100 text-emerald-800 border-emerald-200";
+            } else if (cohensD >= 0.5) {
+                interpretation = "Medium";
+                badgeClass = "bg-blue-100 text-blue-800 border-blue-200";
+            } else if (cohensD >= 0.2) {
+                interpretation = "Small";
+                badgeClass = "bg-indigo-100 text-indigo-800 border-indigo-200";
+            }
+
+            badge.innerText = `${interpretation} (d = ${cohensD.toFixed(2)})`;
+            badge.className = `px-2 py-0.5 text-[10px] font-bold rounded-full border ${badgeClass}`;
+
+            // Calculate x domain ensuring visibility of H0, H1, and critical values
+            let bounds = [
+                params.mu0 - 3.8 * metrics.se,
+                params.mu0 + 3.8 * metrics.se,
+                params.mu1 - 3.8 * metrics.se,
+                params.mu1 + 3.8 * metrics.se,
+                metrics.criticalValue1
+            ];
+            if (metrics.criticalValue2 !== null) {
+                bounds.push(metrics.criticalValue2);
+            }
+
+            const minX = d3.min(bounds);
+            const maxX = d3.max(bounds);
+            const xPadding = (maxX - minX) * 0.05;
+
+            xScale.domain([minX - xPadding, maxX + xPadding]);
+
+            // Density peak calculation
+            const maxDensity = normalPDF(params.mu0, params.mu0, metrics.se);
+            yScale.domain([0, maxDensity * 1.15]);
+
+            // Redraw axes
+            xAxisG.call(d3.axisBottom(xScale).ticks(8).tickFormat(d3.format(".2f")));
+            yAxisG.call(d3.axisLeft(yScale).ticks(6).tickFormat(d3.format(".2f")));
+
+            // Generate fine resolution points for curve rendering
+            const numPoints = 300;
+            const xDomain = xScale.domain();
+            const step = (xDomain[1] - xDomain[0]) / numPoints;
+            const xValues = d3.range(xDomain[0], xDomain[1] + step, step);
+
+            const h0Data = xValues.map(x => ({ x, y: normalPDF(x, params.mu0, metrics.se) }));
+            const h1Data = xValues.map(x => ({ x, y: normalPDF(x, params.mu1, metrics.se) }));
+
+            const lineGen = d3.line()
+                .x(d => xScale(d.x))
+                .y(d => yScale(d.y));
+
+            const areaGen = d3.area()
+                .x(d => xScale(d.x))
+                .y0(innerHeight)
+                .y1(d => yScale(d.y));
+
+            // Render distribution lines & background areas
+            if (params.showH0) {
+                h0Line.datum(h0Data).attr("d", lineGen).style("display", null);
+                h0Area.datum(h0Data).attr("d", areaGen).style("display", null);
+                mu0Line.attr("x1", xScale(params.mu0)).attr("x2", xScale(params.mu0)).attr("y1", 0).attr("y2", innerHeight).style("display", null);
+                h0Label.style("display", null);
+            } else {
+                h0Line.style("display", "none");
+                h0Area.style("display", "none");
+                mu0Line.style("display", "none");
+                h0Label.style("display", "none");
+            }
+
+            if (params.showH1) {
+                h1Line.datum(h1Data).attr("d", lineGen).style("display", null);
+                h1Area.datum(h1Data).attr("d", areaGen).style("display", null);
+                mu1Line.attr("x1", xScale(params.mu1)).attr("x2", xScale(params.mu1)).attr("y1", 0).attr("y2", innerHeight).style("display", null);
+                h1Label.style("display", null);
+            } else {
+                h1Line.style("display", "none");
+                h1Area.style("display", "none");
+                mu1Line.style("display", "none");
+                h1Label.style("display", "none");
+            }
+
+            // Position peak labels avoiding overlap when mu0 and mu1 are close
+            const xPosH0 = xScale(params.mu0);
+            const xPosH1 = xScale(params.mu1);
+            const yPosPeakH0 = yScale(maxDensity);
+            const labelDist = Math.abs(xPosH0 - xPosH1);
+
+            if (params.showH0) {
+                h0Label.attr("x", xPosH0).attr("y", yPosPeakH0 - 12);
+            }
+
+            if (params.showH1) {
+                // If peaks are close (< 90px), offset H1 label higher to avoid collision
+                const yOffsetH1 = (labelDist < 90 && params.showH0) ? yPosPeakH0 - 32 : yPosPeakH0 - 12;
+                h1Label.attr("x", xPosH1).attr("y", yOffsetH1);
+            }
+
+            // Render Shaded Statistical Error & Power Regions
+            if (params.testType === 'one-tailed') {
+                const isLeftTailed = params.mu1 < params.mu0;
+                
+                if (isLeftTailed) {
+                    // Alpha Region (Left tail under H0)
+                    const alphaDataLeft = h0Data.filter(d => d.x <= metrics.criticalValue1);
+                    alphaAreaLeft.datum(alphaDataLeft).attr("d", areaGen).style("display", params.showH0 ? null : "none");
+                    alphaAreaRight.style("display", "none");
+
+                    // Beta Region (Right of critical value under H1)
+                    const betaData = h1Data.filter(d => d.x >= metrics.criticalValue1);
+                    betaArea.datum(betaData).attr("d", areaGen).style("display", params.showH1 ? null : "none");
+
+                    // Power Region (Left of critical value under H1)
+                    const powerDataLeft = h1Data.filter(d => d.x <= metrics.criticalValue1);
+                    powerAreaLeft.datum(powerDataLeft).attr("d", areaGen).style("display", params.showH1 ? null : "none");
+                    powerAreaRight.style("display", "none");
+                } else {
+                    // Alpha Region (Right tail under H0)
+                    const alphaDataRight = h0Data.filter(d => d.x >= metrics.criticalValue1);
+                    alphaAreaRight.datum(alphaDataRight).attr("d", areaGen).style("display", params.showH0 ? null : "none");
+                    alphaAreaLeft.style("display", "none");
+
+                    // Beta Region (Left of critical value under H1)
+                    const betaData = h1Data.filter(d => d.x <= metrics.criticalValue1);
+                    betaArea.datum(betaData).attr("d", areaGen).style("display", params.showH1 ? null : "none");
+
+                    // Power Region (Right of critical value under H1)
+                    const powerDataRight = h1Data.filter(d => d.x >= metrics.criticalValue1);
+                    powerAreaRight.datum(powerDataRight).attr("d", areaGen).style("display", params.showH1 ? null : "none");
+                    powerAreaLeft.style("display", "none");
+                }
+
+                // Single Critical Line
+                critLine1.attr("x1", xScale(metrics.criticalValue1)).attr("x2", xScale(metrics.criticalValue1)).attr("y1", 0).attr("y2", innerHeight).style("display", null);
+                critLabel1.attr("x", xScale(metrics.criticalValue1)).text(`c = ${metrics.criticalValue1.toFixed(2)}`).style("display", null);
+
+                critLine2.style("display", "none");
+                critLabel2.style("display", "none");
+            } else {
+                // Two-tailed test
+                const cUpper = metrics.criticalValue1;
+                const cLower = metrics.criticalValue2;
+
+                // Alpha Regions (both upper and lower tails under H0)
+                const alphaDataRight = h0Data.filter(d => d.x >= cUpper);
+                const alphaDataLeft = h0Data.filter(d => d.x <= cLower);
+                alphaAreaRight.datum(alphaDataRight).attr("d", areaGen).style("display", params.showH0 ? null : "none");
+                alphaAreaLeft.datum(alphaDataLeft).attr("d", areaGen).style("display", params.showH0 ? null : "none");
+
+                // Beta Region (between cLower and cUpper under H1)
+                const betaData = h1Data.filter(d => d.x >= cLower && d.x <= cUpper);
+                betaArea.datum(betaData).attr("d", areaGen).style("display", params.showH1 ? null : "none");
+
+                // Power Regions (outside [cLower, cUpper] under H1)
+                const powerDataRight = h1Data.filter(d => d.x >= cUpper);
+                const powerDataLeft = h1Data.filter(d => d.x <= cLower);
+                powerAreaRight.datum(powerDataRight).attr("d", areaGen).style("display", params.showH1 ? null : "none");
+                powerAreaLeft.datum(powerDataLeft).attr("d", areaGen).style("display", params.showH1 ? null : "none");
+
+                // Two Critical Lines
+                critLine1.attr("x1", xScale(cUpper)).attr("x2", xScale(cUpper)).attr("y1", 0).attr("y2", innerHeight).style("display", null);
+                critLabel1.attr("x", xScale(cUpper)).text(`c₂ = ${cUpper.toFixed(2)}`).style("display", null);
+
+                critLine2.attr("x1", xScale(cLower)).attr("x2", xScale(cLower)).attr("y1", 0).attr("y2", innerHeight).style("display", null);
+                critLabel2.attr("x", xScale(cLower)).text(`c₁ = ${cLower.toFixed(2)}`).style("display", null);
+            }
+
+            // Update Stat Cards Text
+            document.getElementById('stat-confidence').innerText = `${((1 - params.alpha) * 100).toFixed(1)}%`;
+            document.getElementById('stat-alpha').innerText = `${(params.alpha * 100).toFixed(1)}%`;
+            document.getElementById('stat-beta').innerText = `${(metrics.beta * 100).toFixed(1)}%`;
+            document.getElementById('stat-power').innerText = `${(metrics.power * 100).toFixed(1)}%`;
+        }
+
+        overlay.on("mousemove", function(event) {
+            const [mouseX] = d3.pointer(event, this);
+            const xVal = xScale.invert(mouseX);
+            
+            const densityH0 = normalPDF(xVal, params.mu0, metrics.se);
+            const densityH1 = normalPDF(xVal, params.mu1, metrics.se);
+
+            hoverLine.attr("x1", mouseX).attr("x2", mouseX).attr("y1", 0).attr("y2", innerHeight).style("opacity", 1);
+
+            if (params.showH0) {
+                hoverDotH0.attr("cx", mouseX).attr("cy", yScale(densityH0)).style("opacity", 1);
+            } else {
+                hoverDotH0.style("opacity", 0);
+            }
+
+            if (params.showH1) {
+                hoverDotH1.attr("cx", mouseX).attr("cy", yScale(densityH1)).style("opacity", 1);
+            } else {
+                hoverDotH1.style("opacity", 0);
+            }
+
+            let tooltipContent = `<strong>Sample Mean (x̄):</strong> ${xVal.toFixed(2)}<br/>`;
+            if (params.showH0) tooltipContent += `<span style="color:var(--h0-color)">●</span> f(x̄ | H₀): ${densityH0.toFixed(3)}<br/>`;
+            if (params.showH1) tooltipContent += `<span style="color:var(--h1-color)">●</span> f(x̄ | H₁): ${densityH1.toFixed(3)}`;
+
+            tooltip.html(tooltipContent)
+                .style("left", `${event.pageX + 15}px`)
+                .style("top", `${event.pageY - 28}px`)
+                .style("opacity", 1);
+        }).on("mouseleave", function() {
+            hoverLine.style("opacity", 0);
+            hoverDotH0.style("opacity", 0);
+            hoverDotH1.style("opacity", 0);
+            tooltip.style("opacity", 0);
+        });
+
+        document.getElementById('alpha-slider').addEventListener('input', (e) => {
+            params.alpha = parseFloat(e.target.value);
+            document.getElementById('alpha-val').innerText = params.alpha.toFixed(2);
+            updateChart();
+        });
+
+        document.getElementById('mu0-slider').addEventListener('input', (e) => {
+            params.mu0 = parseFloat(e.target.value);
+            document.getElementById('mu0-val').innerText = params.mu0.toFixed(1);
+            updateChart();
+        });
+
+        document.getElementById('mu1-slider').addEventListener('input', (e) => {
+            params.mu1 = parseFloat(e.target.value);
+            document.getElementById('mu1-val').innerText = params.mu1.toFixed(1);
+            updateChart();
+        });
+
+        document.getElementById('sd-slider').addEventListener('input', (e) => {
+            params.populationSd = parseFloat(e.target.value);
+            document.getElementById('sd-val').innerText = params.populationSd.toFixed(1);
+            updateChart();
+        });
+
+        document.getElementById('sample-size-slider').addEventListener('input', (e) => {
+            params.n = parseInt(e.target.value);
+            document.getElementById('sample-size-val').innerText = params.n;
+            updateChart();
+        });
+
+        document.querySelectorAll('input[name="test-type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                params.testType = e.target.value;
+                updateChart();
+            });
+        });
+
+        document.getElementById('toggle-h0').addEventListener('change', (e) => {
+            params.showH0 = e.target.checked;
+            updateChart();
+        });
+
+        document.getElementById('toggle-h1').addEventListener('change', (e) => {
+            params.showH1 = e.target.checked;
+            updateChart();
+        });
+
+        window.addEventListener('resize', () => {
+            width = container.clientWidth;
+            height = container.clientHeight;
+            innerWidth = width - margin.left - margin.right;
+            innerHeight = height - margin.top - margin.bottom;
+
+            svg.attr("width", width).attr("height", height);
+            clipRect.attr("width", innerWidth).attr("height", innerHeight);
+
+            xScale.range([0, innerWidth]);
+            yScale.range([innerHeight, 0]);
+
+            xAxisG.attr("transform", `translate(0,${innerHeight})`);
+            xAxisLabel.attr("x", innerWidth / 2).attr("y", innerHeight + 38);
+            yAxisLabel.attr("x", -innerHeight / 2);
+            overlay.attr("width", innerWidth).attr("height", innerHeight);
+
+            updateChart();
+        });
+
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        });
+
+        const handleFullscreenChange = () => {
+            const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            fullscreenBtn.querySelector('span').innerText = isFS ? "Exit Fullscreen" : "Fullscreen";
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+        // Initial Chart Render
+        updateChart();
+    </script>
+</body>
+</html>
