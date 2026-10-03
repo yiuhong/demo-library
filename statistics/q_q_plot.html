@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q-Q Plot for Normality Examination</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1024px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        .axis text {
+            font-size: 12px;
+            fill: #64748b;
+        }
+        .axis path,
+        .axis line {
+            stroke: #cbd5e1;
+        }
+        
+        .axis-label {
+            font-size: 14px;
+            font-weight: 600;
+            fill: #475569;
+        }
+
+        .dot {
+            fill: #3b82f6;
+            fill-opacity: 0.6;
+            stroke: #2563eb;
+            stroke-width: 1px;
+            transition: all 0.5s ease-in-out;
+        }
+        
+        .dot:hover {
+            fill: #ef4444;
+            fill-opacity: 1;
+            r: 6;
+        }
+
+        .reference-line {
+            stroke: #ef4444;
+            stroke-width: 2;
+            stroke-dasharray: 4;
+        }
+
+        .bar {
+            fill: #cbd5e1;
+            transition: all 0.5s ease-in-out;
+        }
+        
+        .bar-outline {
+             stroke: white;
+             stroke-width: 1px;
+        }
+        
+        .grid line {
+            stroke: #e2e8f0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .grid path {
+            stroke-width: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background-color: white;
+            color: #475569;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: #f1f5f9;
+        }
+
+        button.active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+        }
+
+        .info-panel {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 4px;
+        }
+        
+        .info-panel h3 {
+            margin-top: 0;
+            color: #166534;
+        }
+        
+        #dynamic-description {
+            font-style: italic;
+            color: #475569;
+        }
+        
+        .tooltip {
+            position: absolute;
+            text-align: left;
+            padding: 8px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<button id="fullscreen-btn" class="fixed top-4 right-4 md:top-6 md:right-6 z-50 flex items-center gap-2 bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg hover:bg-slate-700 transition-colors">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+    </svg>
+    <span class="hidden sm:inline font-medium text-sm">Fullscreen</span>
+</button>
+
+<div class="container">
+    <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">Interactive Q-Q Plot Explorer</h1>
+    <p class="text-center text-slate-600 mb-6">Visualizing Normality with Quantile-Quantile Plots and Marginal Histograms</p>
+
+    <div class="info-panel text-sm text-slate-700">
+        <h3>How to read this plot:</h3>
+        <p class="mb-2">A Normal Q-Q (Quantile-Quantile) plot compares the distribution of your data against a theoretical normal distribution.</p>
+        <ul class="list-disc pl-5 space-y-1">
+            <li><strong>X-axis:</strong> Theoretical Quantiles from a standard normal distribution (Z-scores). (The histogram below shows this perfect bell curve).</li>
+            <li><strong>Y-axis:</strong> Sample Quantiles from the chosen data distribution. (The histogram on the left shows the shape of the data).</li>
+            <li><strong>Reference Line:</strong> The red dashed line connects the 25th and 75th percentiles (the middle 50%). If the blue dots fall closely along this line, the data is normally distributed.</li>
+        </ul>
+        <p class="mt-3 font-semibold">Current State: <span id="dynamic-description">Normal Distribution - Dots align with the reference line.</span></p>
+    </div>
+
+    <div class="flex items-center justify-center mb-4 gap-3">
+        <span class="text-slate-600 font-medium text-sm">Raw Data</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="standardize-toggle" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+        </label>
+        <span class="text-slate-600 font-medium text-sm">Standardized Data</span>
+    </div>
+
+    <div class="btn-group">
+        <button id="btn-normal" class="active" onclick="updateData('normal')">Normal Distribution</button>
+        <button id="btn-pos-skew" onclick="updateData('pos-skew')">Positively Skewed (Right-tailed)</button>
+        <button id="btn-neg-skew" onclick="updateData('neg-skew')">Negatively Skewed (Left-tailed)</button>
+        <button id="btn-heavy-tails" onclick="updateData('heavy-tails')">Heavy Tails</button>
+        <button id="btn-light-tails" onclick="updateData('light-tails')">Light Tails</button>
+    </div>
+
+    <div class="chart-container" id="chart-div">
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+</div>
+
+<script>
+    const container = document.getElementById('chart-div');
+    const width = 800;
+    const height = 800;
+    
+    const margin = { top: 40, right: 40, bottom: 40, left: 40 };
+    const histSize = 120;
+    const gap = 15;
+    
+    const scatterWidth = width - margin.left - margin.right - histSize - gap;
+    const scatterHeight = height - margin.top - margin.bottom - histSize - gap;
+
+    const n = 150;
+
+    const svg = d3.select("#chart-div")
+        .append("svg")
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("preserveAspectRatio", "xMidYMid meet")
+        .style("width", "100%")
+        .style("height", "100%");
+
+    svg.append("defs").append("clipPath")
+        .attr("id", "scatter-clip")
+        .append("rect")
+        .attr("width", scatterWidth)
+        .attr("height", scatterHeight);
+
+    // Main scatter plot group
+    const scatterGroup = svg.append("g")
+        .attr("transform", `translate(${margin.left + histSize + gap}, ${margin.top})`);
+
+    // Top histogram group (Theoretical X - rendered at the bottom)
+    const topHistGroup = svg.append("g")
+        .attr("transform", `translate(${margin.left + histSize + gap}, ${margin.top + scatterHeight + gap})`);
+
+    // Left histogram group (Sample Y)
+    const leftHistGroup = svg.append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+    let xScale, yScale, xHistScale, yHistScale;
+    let xAxisGroup, yAxisGroup, refLine;
+    let dotGroup, topBarGroup, leftBarGroup;
+    let yAxisGridGroup; 
+    let xHistData = []; 
+    let cachedRawData = []; 
+
+    const tooltip = d3.select("#tooltip");
+
+    let currentType = 'normal';
+    let isStandardized = true;
+
+    function randomNormal(mean = 0, stdDev = 1) {
+        let u = 1 - Math.random();
+        let v = Math.random();
+        let z = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+        return z * stdDev + mean;
+    }
+
+    function getTheoreticalQuantiles(n) {
+        const quantiles = [];
+        for (let i = 1; i <= n; i++) {
+            const p = (i - 0.5) / n;
+            quantiles.push(approximateInverseNormalCDF(p));
+        }
+        return quantiles;
+    }
+
+    function approximateInverseNormalCDF(p) {
+        const a1 = -3.969683028665376e+01, a2 =  2.209460984245205e+02,
+              a3 = -2.759285104469687e+02, a4 =  1.383577518672690e+02,
+              a5 = -3.066479806614716e+01, a6 =  2.506628277459239e+00;
+        const b1 = -5.447609879822406e+01, b2 =  1.615858368580409e+02,
+              b3 = -1.556989798598866e+02, b4 =  6.680131188771972e+01,
+              b5 = -1.328068155288572e+01;
+        const c1 = -7.784894002430293e-03, c2 = -3.223964580411365e-01,
+              c3 = -2.400758277161838e+00, c4 = -2.549732539343734e+00,
+              c5 =  4.374664141464968e+00, c6 =  2.938163982698783e+00;
+        const d1 =  7.784695709041462e-03, d2 =  3.224671290700398e-01,
+              d3 =  2.445134137142996e+00, d4 =  3.754408661907416e+00;
+        
+        const p_low = 0.02425;
+        const p_high = 1 - p_low;
+        let q, r, x;
+
+        if (p < p_low) {
+            q = Math.sqrt(-2 * Math.log(p));
+            x = (((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6) / ((((d1*q+d2)*q+d3)*q+d4)*q+1);
+        } else if (p <= p_high) {
+            q = p - 0.5;
+            r = q * q;
+            x = (((((a1*r+a2)*r+a3)*r+a4)*r+a5)*r+a6)*q / (((((b1*r+b2)*r+b3)*r+b4)*r+b5)*r+1);
+        } else {
+            q = Math.sqrt(-2 * Math.log(1 - p));
+            x = -(((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6) / ((((d1*q+d2)*q+d3)*q+d4)*q+1);
+        }
+        return x;
+    }
+
+    function generateRawData(type) {
+        let rawData = [];
+        
+        switch(type) {
+            case 'normal':
+                for(let i=0; i<n; i++) rawData.push(randomNormal(0, 1));
+                break;
+            case 'pos-skew':
+                for(let i=0; i<n; i++) {
+                    let val = Math.exp(randomNormal(0, 0.6));
+                    rawData.push(val - 1.2); 
+                }
+                break;
+            case 'neg-skew':
+                for(let i=0; i<n; i++) {
+                    let val = -Math.exp(randomNormal(0, 0.6));
+                    rawData.push(val + 1.2);
+                }
+                break;
+            case 'heavy-tails':
+                for(let i=0; i<n; i++) {
+                    let isHeavy = Math.random() < 0.2;
+                    rawData.push(randomNormal(0, isHeavy ? 3 : 0.8));
+                }
+                break;
+            case 'light-tails':
+                for(let i=0; i<n; i++) {
+                    let val = (Math.random() + Math.random() + Math.random() - 1.5) * 2;
+                    rawData.push(val);
+                }
+                break;
+        }
+        // Randomize order so visualization scatter doesn't animate linearly
+        return rawData.sort(() => Math.random() - 0.5);
+    }
+
+    function processData() {
+        let sampleData = [];
+        
+        if (isStandardized) {
+            let mean = cachedRawData.reduce((a, b) => a + b, 0) / n;
+            let std = Math.sqrt(cachedRawData.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / n);
+            
+            for(let i=0; i<n; i++) {
+                sampleData.push((cachedRawData[i] - mean) / std);
+            }
+        } else {
+            sampleData = [...cachedRawData];
+        }
+
+        sampleData.sort((a, b) => a - b);
+        const theoreticalQuantiles = getTheoreticalQuantiles(n);
+        
+        const pairedData = theoreticalQuantiles.map((t, i) => ({
+            theoretical: t,
+            sample: sampleData[i]
+        }));
+
+        return { pairedData, sampleData, theoreticalQuantiles };
+    }
+
+    function initChart() {
+        cachedRawData = generateRawData('normal');
+        const initData = processData();
+        const pairedData = initData.pairedData;
+        xHistData = initData.theoreticalQuantiles; 
+
+        xScale = d3.scaleLinear()
+            .domain([-3.5, 3.5])
+            .range([0, scatterWidth]);
+
+        yScale = d3.scaleLinear()
+            .domain([-4.5, 4.5]) 
+            .range([scatterHeight, 0]);
+
+        const xAxis = d3.axisBottom(xScale);
+        const yAxis = d3.axisLeft(yScale);
+
+        xAxisGroup = scatterGroup.append("g")
+            .attr("class", "axis")
+            .attr("transform", `translate(0, ${scatterHeight})`)
+            .call(xAxis);
+
+        yAxisGroup = scatterGroup.append("g")
+            .attr("class", "axis")
+            .call(yAxis);
+            
+        scatterGroup.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("x", scatterWidth / 2)
+            .attr("y", scatterHeight + gap + histSize + 30)
+            .text("Theoretical Quantiles (Normal Z-Scores)");
+            
+        scatterGroup.append("text")
+            .attr("id", "y-axis-label")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -(histSize + gap + 25))
+            .attr("x", -scatterHeight / 2)
+            .text("Sample Quantiles (Standardized Z-Scores)");
+
+        yAxisGridGroup = scatterGroup.append("g")
+            .attr("class", "grid y-grid");
+
+        refLine = scatterGroup.append("line")
+            .attr("class", "reference-line")
+            .attr("x1", xScale(-3.5))
+            .attr("y1", yScale(-3.5))
+            .attr("x2", xScale(3.5))
+            .attr("y2", yScale(3.5));
+
+        dotGroup = scatterGroup.append("g")
+            .attr("clip-path", "url(#scatter-clip)");
+        topBarGroup = topHistGroup.append("g");
+        leftBarGroup = leftHistGroup.append("g");
+
+        render(initData);
+        drawTopHistogram(xHistData); 
+    }
+
+    function drawTopHistogram(data) {
+        const histogram = d3.histogram()
+            .domain(xScale.domain())
+            .thresholds(xScale.ticks(20));
+        const bins = histogram(data);
+
+        xHistScale = d3.scaleLinear()
+            .domain([0, d3.max(bins, d => d.length)])
+            .range([0, histSize]);
+
+        topBarGroup.selectAll("rect")
+            .data(bins)
+            .enter()
+            .append("rect")
+            .attr("class", "bar bar-outline")
+            .attr("x", 1)
+            .attr("transform", d => `translate(${xScale(d.x0)}, 0)`) 
+            .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
+            .attr("height", d => xHistScale(d.length))
+            .style("fill", "#94a3b8"); 
+            
+        topHistGroup.append("line")
+            .attr("x1", 0).attr("x2", scatterWidth)
+            .attr("y1", 0).attr("y2", 0)
+            .attr("stroke", "#cbd5e1");
+    }
+
+    function drawLeftHistogram(data) {
+        const histogram = d3.histogram()
+            .domain(yScale.domain())
+            .thresholds(yScale.ticks(20));
+        const bins = histogram(data);
+
+        yHistScale = d3.scaleLinear()
+            .domain([0, d3.max(bins, d => d.length)])
+            .range([histSize, 0]); 
+
+        const bars = leftBarGroup.selectAll("rect")
+            .data(bins);
+
+        bars.enter()
+            .append("rect")
+            .attr("class", "bar bar-outline")
+            .attr("y", 1)
+            .attr("transform", d => `translate(${histSize}, ${yScale(d.x1)})`)
+            .attr("height", d => Math.max(0, Math.abs(yScale(d.x0) - yScale(d.x1)) - 1))
+            .attr("width", 0)
+            .merge(bars)
+            .transition()
+            .duration(750)
+            .attr("transform", d => `translate(${yHistScale(d.length)}, ${yScale(d.x1)})`)
+            .attr("height", d => Math.max(0, Math.abs(yScale(d.x0) - yScale(d.x1)) - 1))
+            .attr("width", d => histSize - yHistScale(d.length));
+
+        bars.exit().remove();
+        
+        if(leftHistGroup.select(".baseline").empty()) {
+            leftHistGroup.append("line")
+                .attr("class", "baseline")
+                .attr("x1", histSize).attr("x2", histSize)
+                .attr("y1", 0).attr("y2", scatterHeight)
+                .attr("stroke", "#cbd5e1");
+        }
+    }
+
+    function render(dataObj) {
+        const pairedData = dataObj.pairedData;
+        
+        d3.select("#y-axis-label").text(isStandardized ? "Sample Quantiles (Standardized Z-Scores)" : "Sample Quantiles (Raw Values)");
+        
+        // Dynamically adjust bounds
+        const maxVal = d3.max(pairedData, d => d.sample);
+        const minVal = d3.min(pairedData, d => d.sample);
+        
+        let yDomainMin = Math.min(-4.5, minVal - (Math.abs(minVal) * 0.1));
+        let yDomainMax = Math.max(4.5, maxVal + (Math.abs(maxVal) * 0.1));
+        
+        yScale.domain([yDomainMin, yDomainMax]);
+        yAxisGroup.transition().duration(750).call(d3.axisLeft(yScale));
+
+        const yAxisGrid = d3.axisLeft(yScale)
+            .tickSize(-scatterWidth)
+            .tickFormat('')
+            .ticks(10);
+        yAxisGridGroup.transition().duration(750).call(yAxisGrid);
+        
+        // Robust Line based on Quartiles
+        let q1Index = Math.floor(n * 0.25);
+        let q3Index = Math.floor(n * 0.75);
+        let sampleQ1 = pairedData[q1Index].sample;
+        let sampleQ3 = pairedData[q3Index].sample;
+        let theoQ1 = pairedData[q1Index].theoretical;
+        let theoQ3 = pairedData[q3Index].theoretical;
+
+        let m = (sampleQ3 - sampleQ1) / (theoQ3 - theoQ1);
+        let c = sampleQ1 - m * theoQ1;
+
+        refLine.transition().duration(750)
+            .attr("y1", yScale(m * (-3.5) + c))
+            .attr("y2", yScale(m * (3.5) + c));
+
+        const dots = dotGroup.selectAll("circle")
+            .data(pairedData);
+
+        dots.enter()
+            .append("circle")
+            .attr("class", "dot")
+            .attr("r", 4)
+            .attr("cx", scatterWidth / 2)
+            .attr("cy", scatterHeight / 2)
+            .on("mouseover", function(event, d) {
+                d3.select(this).classed("hovered", true);
+                tooltip.transition().duration(200).style("opacity", .9);
+                tooltip.html(`Theoretical: ${d.theoretical.toFixed(2)}<br/>Sample: ${d.sample.toFixed(2)}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d) {
+                d3.select(this).classed("hovered", false);
+                tooltip.transition().duration(500).style("opacity", 0);
+            })
+            .merge(dots)
+            .transition()
+            .duration(750)
+            .attr("cx", d => Math.max(0, Math.min(scatterWidth, xScale(d.theoretical))))
+            .attr("cy", d => yScale(d.sample));
+
+        dots.exit().remove();
+
+        drawLeftHistogram(dataObj.sampleData);
+    }
+
+    function updateDescriptions(type) {
+        currentType = type;
+        document.querySelectorAll('.btn-group button').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${type}`).classList.add('active');
+
+        const descEl = document.getElementById('dynamic-description');
+        switch(type) {
+            case 'normal':
+                descEl.innerHTML = "<strong>Normal Distribution:</strong> Points align closely along the straight reference line. Both histograms look like symmetrical bell curves.";
+                descEl.style.color = "#166534"; 
+                break;
+            case 'pos-skew':
+                descEl.innerHTML = "<strong>Positively Skewed (Right-tailed):</strong> Points curve upwards at both ends forming a 'U' shape. Notice the heavy bunching at the bottom of the left histogram.";
+                descEl.style.color = "#b91c1c"; 
+                break;
+            case 'neg-skew':
+                descEl.innerHTML = "<strong>Negatively Skewed (Left-tailed):</strong> Points curve downwards at both ends forming an inverted 'U'. Notice the heavy bunching at the top of the left histogram.";
+                descEl.style.color = "#b91c1c";
+                break;
+            case 'heavy-tails':
+                descEl.innerHTML = "<strong>Heavy Tails (Leptokurtic):</strong> Points form an 'S' shape. The ends dip below the line on the left and rise above it on the right. More extreme values exist than expected.";
+                descEl.style.color = "#c2410c"; 
+                break;
+            case 'light-tails':
+                descEl.innerHTML = "<strong>Light Tails (Platykurtic):</strong> Points form an inverted 'S' shape. Data lacks extreme values compared to a normal distribution.";
+                descEl.style.color = "#0369a1"; 
+                break;
+        }
+    }
+
+    function updateData(type, forceRegenerate = true) {
+        if (forceRegenerate) {
+            cachedRawData = generateRawData(type);
+        }
+        
+        updateDescriptions(type);
+        
+        const newData = processData();
+        render(newData);
+    }
+
+    document.getElementById('standardize-toggle').addEventListener('change', (e) => {
+        isStandardized = e.target.checked;
+        // Re-process the SAME cached data points without generating new random ones to see the effect clearly
+        updateData(currentType, false);
+    });
+
+    initChart();
+
+    // Fullscreen Toggle Logic
+    const fsBtn = document.getElementById('fullscreen-btn');
+    const fsText = fsBtn.querySelector('span');
+
+    fsBtn.addEventListener('click', () => {
+        const elem = document.documentElement;
+        
+        if (!document.fullscreenElement && !document.mozFullScreenElement && 
+            !document.webkitFullscreenElement && !document.msFullscreenElement) {
+            // Request Fullscreen
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            }
+        } else {
+            // Exit Fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        }
+    });
+
+    const updateFsText = () => {
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+            fsText.textContent = "Exit Fullscreen";
+        } else {
+            fsText.textContent = "Fullscreen";
+        }
+    };
+
+    document.addEventListener('fullscreenchange', updateFsText);
+    document.addEventListener('webkitfullscreenchange', updateFsText);
+    document.addEventListener('mozfullscreenchange', updateFsText);
+    document.addEventListener('MSFullscreenChange', updateFsText);
+</script>
+
+</body>
+</html>
