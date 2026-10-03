@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skewed Distribution vs Normal Distribution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+        }
+        .axis-label {
+            font-size: 12px;
+            fill: #64748b;
+        }
+        .tick text {
+            fill: #64748b;
+        }
+        .tick line {
+            stroke: #e2e8f0;
+        }
+        .domain {
+            stroke: #cbd5e1;
+        }
+        .reference-line {
+            stroke: #94a3b8;
+            stroke-dasharray: 4;
+        }
+        .line-normal {
+            fill: none;
+            stroke: #3b82f6; /* Blue */
+            stroke-width: 2;
+        }
+        .area-normal {
+            fill: #3b82f6;
+            opacity: 0.1;
+        }
+        .line-skewed-base {
+            fill: none;
+            stroke: #94a3b8; /* Muted gray for below diagonal */
+            stroke-width: 2.5;
+            opacity: 0.7;
+        }
+        .area-skewed-base {
+            fill: #cbd5e1;
+            opacity: 0.2;
+        }
+        .line-skewed-highlight {
+            fill: none;
+            stroke: #ef4444; /* Red for above diagonal */
+            stroke-width: 2.5;
+        }
+        .area-skewed-highlight {
+            fill: #ef4444;
+            opacity: 0.2;
+        }
+        .chart-tooltip {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.9);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 50;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            transform: translate(-50%, -100%);
+            white-space: nowrap;
+            margin-top: -20px;
+            transition: opacity 0.1s ease-out;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center">
+
+    <!-- Floating Fullscreen Button -->
+    <button id="fullscreen-btn" class="fixed top-4 right-4 md:top-6 md:right-6 z-50 bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-colors text-sm font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+        <span class="hidden sm:inline">Fullscreen</span>
+    </button>
+
+    <!-- Interactive Hover Tooltip -->
+    <div id="cursor-tooltip" class="chart-tooltip"></div>
+
+    <div class="max-w-6xl w-full">
+        <header class="mb-8 text-center md:text-left">
+            <h1 class="text-3xl font-bold mb-2">Skewed vs. Normal Distribution</h1>
+            <p class="text-slate-600 max-w-3xl">
+                Explore how a skewed distribution deviates from a theoretical normal distribution. 
+                Adjust the skewness parameter to see the effect on the density curves and the Quantile-Quantile (Q-Q) plot.
+                Toggle between Raw Scores and Standardized Scores (Mean=0, Variance=1) to see how standardization aligns the shapes.
+            </p>
+        </header>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-4 w-full md:w-1/2">
+                    <label for="skew-slider" class="font-semibold whitespace-nowrap">Skewness (&alpha;):</label>
+                    <input type="range" id="skew-slider" min="-10" max="10" step="0.5" value="4" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    <span id="skew-value" class="font-mono bg-slate-100 px-2 py-1 rounded text-sm w-12 text-center">4.0</span>
+                </div>
+                <div class="text-sm text-slate-500">
+                    <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span> Normal
+                    <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-1 ml-3"></span> Skewed
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-6 border-t border-slate-100 pt-4">
+                <div class="flex items-center">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-x" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                        <span class="ml-3 text-sm font-medium text-slate-700">X-Axis Unit (Normal): <span id="label-x" class="font-bold text-blue-600">Standardized</span></span>
+                    </label>
+                </div>
+                <div class="flex items-center">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-y" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                        <span class="ml-3 text-sm font-medium text-slate-700">Y-Axis Unit (Skewed): <span id="label-y" class="font-bold text-red-600">Standardized</span></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOXPLOT PANEL -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-8 flex flex-col">
+            <h2 class="text-lg font-semibold mb-1 text-center">Boxplots (Normal vs. Skewed)</h2>
+            <p class="text-xs text-slate-500 text-center mb-2">
+                Compare the medians (center lines), Interquartile Ranges (boxes), and <span class="font-bold text-slate-700">Outliers (circles)</span>. 
+                Because the skewed distribution is tightly packed in the middle, its box is narrower, which causes its heavy tail to be classified as statistical outliers.
+            </p>
+            <div id="boxplot-chart" class="w-full h-[140px] relative"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Density Plot Panel -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                <h2 class="text-lg font-semibold mb-1 text-center">1. Density Curves</h2>
+                <p class="text-xs text-slate-500 text-center mb-4">
+                    Regions in <span class="font-bold text-red-500">Red</span> show where skewed concentration is higher than normal.
+                </p>
+                <div id="density-chart" class="chart-container flex-grow"></div>
+            </div>
+
+            <!-- CDF Plot Panel -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                <h2 class="text-lg font-semibold mb-1 text-center">2. Cumulative (CDF)</h2>
+                <p class="text-xs text-slate-500 text-center mb-4">
+                    The horizontal gap between the curves reveals the exact difference in values at any given percentile.
+                </p>
+                <div id="cdf-chart" class="chart-container flex-grow"></div>
+            </div>
+
+            <!-- Q-Q Plot Panel -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                <h2 class="text-lg font-semibold mb-1 text-center">3. Q-Q Plot</h2>
+                <p class="text-xs text-slate-500 text-center mb-4">
+                    Plots the exact horizontal gaps from the CDF. Points in <span class="font-bold text-red-500">Red</span> indicate Skewed > Normal.
+                </p>
+                <div id="qq-chart" class="chart-container flex-grow"></div>
+            </div>
+
+        </div>
+
+        <!-- NEW: Explanation of Concavity -->
+        <div class="bg-blue-50 border border-blue-100 p-6 rounded-xl shadow-sm mt-8 mb-4">
+            <h2 class="text-lg font-bold text-blue-900 mb-2">Reading the Curve: Concavity & The CDF Gap</h2>
+            <p class="text-sm text-blue-800 mb-3">
+                Notice how the Q-Q plot isn't just a straight line, but often forms a distinct curve. This curvature—mathematically called <strong>concavity</strong>—maps directly to how the horizontal gap between the curves changes on the CDF plot.
+            </p>
+            <ul class="text-sm text-blue-800 space-y-3 list-disc list-inside mb-4">
+                <li>
+                    <strong>Curving Upwards (U-Shape / Positive Skew):</strong> When the Q-Q plot accelerates upwards, the Skewed values are growing faster than the Normal values. Look at the top-right of the CDF: the Red curve becomes flatter than the Blue curve and stretches far to the right. Because it climbs slower, the horizontal gap between Blue and Red rapidly <em>widens</em> as you move up. This expanding gap is what plots as a steep upward curve on the Q-Q chart!
+                </li>
+                <li>
+                    <strong>Curving Downwards (Arch / Negative Skew):</strong> Try setting the Skewness slider to a negative number. The Q-Q plot now arches downwards. On the CDF, look at the bottom-left. The horizontal gap is widest at the lowest percentiles and <em>narrows</em> as you move up. Because the Skewed distribution is catching up to the Normal distribution, the slope on the Q-Q plot flattens out.
+                </li>
+            </ul>
+
+            <h3 class="text-md font-bold text-blue-900 mt-5 mb-2">The "Density Trap": Why Height Doesn't Equal Concavity</h3>
+            <p class="text-sm text-blue-800 mb-0">
+                It is tempting to look at the Density plot and assume that when the Red curve dips <em>below</em> the Blue curve, the Q-Q plot should curve downwards. However, lower density just means the data is spread thinly. If the data is spread thin, you have to travel much further along the X-axis to collect the next 5% of data. Therefore, a lower density actually creates a <strong>steeper slope</strong> on the Q-Q plot, not a dip! Concavity is driven by the widening or narrowing of the horizontal gap on the CDF, rather than which density curve is currently taller.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // --- Math & Statistics Functions ---
+
+        // Error function (erf) approximation
+        function erf(x) {
+            const sign = (x >= 0) ? 1 : -1;
+            x = Math.abs(x);
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+            return sign * y;
+        }
+
+        // Inverse Error Function (erfinv) approximation
+        function erfinv(x) {
+            const a = 8 * (Math.PI - 3) / (3 * Math.PI * (4 - Math.PI));
+            const b = Math.log(1 - x * x);
+            const c = b / 2 + (2 / (Math.PI * a));
+            return Math.sign(x) * Math.sqrt(Math.sqrt((c * c) - b / a) - c);
+        }
+
+        // Standard Normal CDF (Phi)
+        function standardNormalCDF(x) {
+            return 0.5 * (1 + erf(x / Math.SQRT2));
+        }
+
+        // Standard Normal PDF (phi)
+        function standardNormalPDF(x) {
+            return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
+        }
+
+        // General Normal PDF
+        function normalPDF(x, mean = 0, sd = 1) {
+            const z = (x - mean) / sd;
+            return (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * z * z);
+        }
+
+        // Skew Normal PDF
+        function skewNormalPDF(x, xi = 0, omega = 1, alpha = 0) {
+            const z = (x - xi) / omega;
+            return (2 / omega) * standardNormalPDF(z) * standardNormalCDF(alpha * z);
+        }
+
+        // Box-Muller transform for generating standard normal random variables
+        function randomNormal() {
+            let u1 = 0, u2 = 0;
+            while (u1 === 0) u1 = Math.random();
+            while (u2 === 0) u2 = Math.random();
+            const R = Math.sqrt(-2.0 * Math.log(u1));
+            const theta = 2.0 * Math.PI * u2;
+            return [R * Math.cos(theta), R * Math.sin(theta)]; 
+        }
+
+        // Generate Skew Normal Random Variate using Azzalini's method 
+        function transformSkewNormal(u0, v, xi = 0, omega = 1, alpha = 0) {
+            if (alpha === 0) {
+                return xi + omega * u0;
+            }
+            const delta = alpha / Math.sqrt(1 + alpha * alpha);
+            const z = delta * Math.abs(u0) + Math.sqrt(1 - delta * delta) * v;
+            return xi + omega * z;
+        }
+
+        // Generate theoretical quantiles for standard normal distribution
+        function qnorm(p) {
+            return Math.SQRT2 * erfinv(2 * p - 1);
+        }
+
+        // --- Chart Generation Variables ---
+        
+        const N = 2500; 
+        let currentAlpha = 4;
+        let baseNormals = []; 
+        
+        // Expose parameters globally for the interactive crosshair
+        let currentSampleData = [];
+        let currentNormalData = [];
+        let currentXi = 0;
+        let currentOmega = 1;
+        let currentNormMean = 0;
+        let currentNormSD = 1;
+        
+        // Define wider ranges to prevent extreme tails from being clipped visually
+        const xMin = -6;
+        const xMax = 6;
+        
+        // Chart dimensions
+        const margin = {top: 20, right: 30, bottom: 40, left: 50};
+        let chartWidth, chartHeight;
+        let boxplotWidth, boxplotHeight;
+        
+        // SVG selections
+        let svgDensity, svgCDF, svgQQ, svgBoxplot;
+        let densityX, densityY;
+        let cdfX, cdfY;
+        let qqX, qqY;
+        let boxplotX, boxplotY;
+        let focusDensity, focusCDF, focusQQ, focusBoxplot; 
+        
+        function initCharts() {
+            const containerDensity = document.getElementById('density-chart');
+            const containerCDF = document.getElementById('cdf-chart');
+            const containerQQ = document.getElementById('qq-chart');
+            const containerBoxplot = document.getElementById('boxplot-chart');
+            
+            chartWidth = containerDensity.clientWidth - margin.left - margin.right;
+            chartHeight = containerDensity.clientHeight - margin.top - margin.bottom;
+            boxplotWidth = containerBoxplot.clientWidth - margin.left - margin.right;
+            boxplotHeight = containerBoxplot.clientHeight - margin.top - 20; 
+
+            // Generate stable normal pairs for Q-Q plot if not already generated
+            if (baseNormals.length === 0) {
+                for(let i=0; i<N; i++) {
+                    baseNormals.push(randomNormal());
+                }
+            }
+
+            // --- Setup Density Plot ---
+            svgDensity = d3.select("#density-chart")
+                .append("svg")
+                .attr("width", chartWidth + margin.left + margin.right)
+                .attr("height", chartHeight + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            svgDensity.append("defs").append("clipPath")
+                .attr("id", "clip-density")
+                .append("rect")
+                .attr("y", -20)
+                .attr("width", chartWidth)
+                .attr("height", chartHeight + 40);
+
+            densityX = d3.scaleLinear().domain([xMin, xMax]).range([0, chartWidth]);
+            densityY = d3.scaleLinear().domain([0, 0.55]).range([chartHeight, 0]); 
+
+            svgDensity.append("g")
+                .attr("transform", `translate(0,${chartHeight})`)
+                .call(d3.axisBottom(densityX))
+                .append("text")
+                .attr("x", chartWidth / 2)
+                .attr("y", 35)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "middle")
+                .text("Value (x)");
+
+            svgDensity.append("g")
+                .call(d3.axisLeft(densityY))
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -40)
+                .attr("x", -chartHeight / 2)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "middle")
+                .text("Density");
+
+            svgDensity.append("path")
+                .attr("class", "area-normal")
+                .attr("clip-path", "url(#clip-density)");
+                
+            svgDensity.append("path")
+                .attr("class", "line-normal")
+                .attr("clip-path", "url(#clip-density)");
+
+            svgDensity.append("defs").append("clipPath")
+                .attr("id", "highlight-clip");
+
+            svgDensity.append("path").attr("class", "area-skewed-base").attr("clip-path", "url(#clip-density)");
+            svgDensity.append("path").attr("class", "line-skewed-base").attr("clip-path", "url(#clip-density)");
+
+            const highlightGroup = svgDensity.append("g").attr("clip-path", "url(#clip-density)");
+            highlightGroup.append("path").attr("class", "area-skewed-highlight").attr("clip-path", "url(#highlight-clip)");
+            highlightGroup.append("path").attr("class", "line-skewed-highlight").attr("clip-path", "url(#highlight-clip)");
+
+            // --- Setup CDF Plot ---
+            svgCDF = d3.select("#cdf-chart")
+                .append("svg")
+                .attr("width", chartWidth + margin.left + margin.right)
+                .attr("height", chartHeight + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            svgCDF.append("defs").append("clipPath")
+                .attr("id", "clip-cdf")
+                .append("rect")
+                .attr("y", -20)
+                .attr("width", chartWidth)
+                .attr("height", chartHeight + 40);
+
+            cdfX = d3.scaleLinear().domain([xMin, xMax]).range([0, chartWidth]);
+            cdfY = d3.scaleLinear().domain([0, 1]).range([chartHeight, 0]);
+
+            svgCDF.append("g")
+                .attr("transform", `translate(0,${chartHeight})`)
+                .call(d3.axisBottom(cdfX))
+                .append("text")
+                .attr("x", chartWidth / 2)
+                .attr("y", 35)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "middle")
+                .text("Value (x)");
+
+            svgCDF.append("g")
+                .call(d3.axisLeft(cdfY).ticks(5))
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -40)
+                .attr("x", -chartHeight / 2)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "middle")
+                .text("Cumulative Probability (p)");
+
+            svgCDF.append("path").attr("class", "line-cdf-normal").attr("clip-path", "url(#clip-cdf)").style("fill", "none").style("stroke", "#3b82f6").style("stroke-width", 2);
+            svgCDF.append("path").attr("class", "line-cdf-skewed").attr("clip-path", "url(#clip-cdf)").style("fill", "none").style("stroke", "#ef4444").style("stroke-width", 2.5);
+
+            // --- Setup Q-Q Plot ---
+            svgQQ = d3.select("#qq-chart")
+                .append("svg")
+                .attr("width", chartWidth + margin.left + margin.right)
+                .attr("height", chartHeight + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            svgQQ.append("defs").append("clipPath")
+                .attr("id", "clip-qq")
+                .append("rect")
+                .attr("y", -20)
+                .attr("width", chartWidth)
+                .attr("height", chartHeight + 40);
+
+            qqX = d3.scaleLinear().domain([xMin, xMax]).range([0, chartWidth]);
+            qqY = d3.scaleLinear().domain([xMin, xMax]).range([chartHeight, 0]);
+
+            svgQQ.append("g")
+                .attr("transform", `translate(0,${chartHeight})`)
+                .call(d3.axisBottom(qqX))
+                .append("text")
+                .attr("x", chartWidth / 2)
+                .attr("y", 35)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "middle")
+                .text("Theoretical Quantiles (Normal)");
+
+            svgQQ.append("g")
+                .call(d3.axisLeft(qqY))
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -40)
+                .attr("x", -chartHeight / 2)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "middle")
+                .text("Sample Quantiles (Skewed)");
+
+            svgQQ.append("line")
+                .attr("class", "reference-line")
+                .attr("clip-path", "url(#clip-qq)")
+                .attr("x1", qqX(xMin))
+                .attr("y1", qqY(xMin))
+                .attr("x2", qqX(xMax))
+                .attr("y2", qqY(xMax));
+                
+            svgQQ.append("g").attr("id", "qq-points").attr("clip-path", "url(#clip-qq)");
+
+            // --- Setup Boxplot ---
+            svgBoxplot = d3.select("#boxplot-chart")
+                .append("svg")
+                .attr("width", boxplotWidth + margin.left + margin.right)
+                .attr("height", boxplotHeight + margin.top + 20)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+                
+            boxplotX = d3.scaleLinear().domain([xMin, xMax]).range([0, boxplotWidth]);
+            boxplotY = d3.scaleBand().domain(["Normal", "Skewed"]).range([0, boxplotHeight]).padding(0.3);
+
+            svgBoxplot.append("g")
+                .attr("transform", `translate(0,${boxplotHeight})`)
+                .call(d3.axisBottom(boxplotX));
+                
+            svgBoxplot.append("g")
+                .call(d3.axisLeft(boxplotY));
+
+            svgBoxplot.append("defs").append("clipPath")
+                .attr("id", "clip-boxplot")
+                .append("rect")
+                .attr("y", -15)
+                .attr("width", boxplotWidth)
+                .attr("height", boxplotHeight + 30);
+                
+            svgBoxplot.append("g").attr("id", "boxplot-group").attr("clip-path", "url(#clip-boxplot)");
+
+            // --- Setup Interactive Crosshairs ---
+            focusDensity = svgDensity.append("g").style("display", "none");
+            focusDensity.append("line").attr("class", "hover-line-red").style("stroke", "#ef4444").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusDensity.append("line").attr("class", "hover-line-blue").style("stroke", "#3b82f6").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusDensity.append("circle").attr("class", "circle-blue").attr("r", 5).style("fill", "#3b82f6").style("stroke", "white").style("stroke-width", 1.5);
+            focusDensity.append("circle").attr("class", "circle-red").attr("r", 5).style("fill", "#ef4444").style("stroke", "white").style("stroke-width", 1.5);
+
+            focusCDF = svgCDF.append("g").style("display", "none");
+            focusCDF.append("line").attr("class", "hover-line-y").style("stroke", "#94a3b8").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusCDF.append("line").attr("class", "hover-line-x-red").style("stroke", "#ef4444").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusCDF.append("line").attr("class", "hover-line-x-blue").style("stroke", "#3b82f6").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusCDF.append("circle").attr("class", "circle-blue").attr("r", 5).style("fill", "#3b82f6").style("stroke", "white").style("stroke-width", 1.5);
+            focusCDF.append("circle").attr("class", "circle-red").attr("r", 5).style("fill", "#ef4444").style("stroke", "white").style("stroke-width", 1.5);
+
+            focusQQ = svgQQ.append("g").style("display", "none");
+            focusQQ.append("line").attr("class", "hover-line-x").style("stroke", "#94a3b8").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusQQ.append("line").attr("class", "hover-line-y-red").style("stroke", "#ef4444").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusQQ.append("line").attr("class", "hover-line-y-blue").style("stroke", "#3b82f6").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusQQ.append("circle").attr("class", "circle-blue").attr("r", 5).style("fill", "#3b82f6").style("stroke", "white").style("stroke-width", 1.5);
+            focusQQ.append("circle").attr("class", "circle-red").attr("r", 5).style("fill", "#ef4444").style("stroke", "white").style("stroke-width", 1.5);
+
+            focusBoxplot = svgBoxplot.append("g").style("display", "none");
+            focusBoxplot.append("line").attr("class", "hover-line-red").style("stroke", "#ef4444").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusBoxplot.append("line").attr("class", "hover-line-blue").style("stroke", "#3b82f6").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+
+            const tooltip = d3.select("#cursor-tooltip");
+
+            // Unified hover binder so you can interact with any chart
+            const bindHover = (svgNode, xScale, dataType) => {
+                svgNode.append("rect")
+                    .attr("width", chartWidth)
+                    .attr("height", chartHeight)
+                    .style("fill", "none")
+                    .style("pointer-events", "all")
+                    .on("mouseover", () => { 
+                        focusDensity.style("display", null); 
+                        focusCDF.style("display", null);
+                        focusQQ.style("display", null); 
+                        focusBoxplot.style("display", null); 
+                        tooltip.style("opacity", 1);
+                    })
+                    .on("mouseout mouseleave touchend touchcancel", () => { 
+                        focusDensity.style("display", "none"); 
+                        focusCDF.style("display", "none");
+                        focusQQ.style("display", "none"); 
+                        focusBoxplot.style("display", "none"); 
+                        tooltip.style("opacity", 0);
+                    })
+                    .on("mousemove touchmove", function(event) {
+                        event.preventDefault();
+                        if(!currentSampleData || currentSampleData.length === 0 || !currentNormalData || currentNormalData.length === 0) return;
+                        
+                        // Support for touch devices
+                        let pageX = event.pageX;
+                        let pageY = event.pageY;
+                        if (event.touches && event.touches.length > 0) {
+                            pageX = event.touches[0].pageX;
+                            pageY = event.touches[0].pageY;
+                        }
+                        
+                        const coords = d3.pointer(event);
+                        const x0 = xScale.invert(coords[0]);
+                        
+                        const targetData = dataType === 'normal' ? currentNormalData : currentSampleData;
+                        const bisect = d3.bisector(d => d).left;
+                        let idx = bisect(targetData, x0);
+                        if (idx >= targetData.length) idx = targetData.length - 1;
+                        if (idx < 0) idx = 0;
+
+                        const p = (idx + 0.5) / targetData.length;
+                        const theoretical = qnorm(p) * currentNormSD + currentNormMean;
+                        const actualVal = currentSampleData[idx];
+
+                        // Update Tooltip Content and Position
+                        tooltip.html(`
+                            <div class="font-bold mb-1.5 border-b border-slate-600 pb-1.5 text-center">Quantile: ${(p * 100).toFixed(1)}%</div>
+                            <div class="flex justify-between gap-6 text-red-400 mb-1"><span>Actual (Skewed):</span> <span class="font-mono">${actualVal.toFixed(3)}</span></div>
+                            <div class="flex justify-between gap-6 text-blue-400"><span>Expected (Normal):</span> <span class="font-mono">${theoretical.toFixed(3)}</span></div>
+                    `)
+                    .style("left", pageX + "px")
+                    .style("top", pageY + "px");
+
+                    // Update Density crosshair
+                    focusDensity.select(".hover-line-red").attr("x1", densityX(actualVal)).attr("x2", densityX(actualVal)).attr("y1", 0).attr("y2", chartHeight);
+                    focusDensity.select(".hover-line-blue").attr("x1", densityX(theoretical)).attr("x2", densityX(theoretical)).attr("y1", 0).attr("y2", chartHeight);
+                    focusDensity.select(".circle-red").attr("cx", densityX(actualVal)).attr("cy", densityY(skewNormalPDF(actualVal, currentXi, currentOmega, currentAlpha)));
+                    focusDensity.select(".circle-blue").attr("cx", densityX(theoretical)).attr("cy", densityY(normalPDF(theoretical, currentNormMean, currentNormSD)));
+
+                    // Update CDF crosshairs
+                    focusCDF.select(".hover-line-y").attr("x1", 0).attr("x2", chartWidth).attr("y1", cdfY(p)).attr("y2", cdfY(p));
+                    focusCDF.select(".hover-line-x-red").attr("x1", cdfX(actualVal)).attr("x2", cdfX(actualVal)).attr("y1", cdfY(p)).attr("y2", chartHeight);
+                    focusCDF.select(".hover-line-x-blue").attr("x1", cdfX(theoretical)).attr("x2", cdfX(theoretical)).attr("y1", cdfY(p)).attr("y2", chartHeight);
+                    focusCDF.select(".circle-red").attr("cx", cdfX(actualVal)).attr("cy", cdfY(p));
+                    focusCDF.select(".circle-blue").attr("cx", cdfX(theoretical)).attr("cy", cdfY(p));
+
+                    // Update Boxplot crosshair
+                    focusBoxplot.select(".hover-line-red").attr("x1", boxplotX(actualVal)).attr("x2", boxplotX(actualVal)).attr("y1", 0).attr("y2", boxplotHeight);
+                    focusBoxplot.select(".hover-line-blue").attr("x1", boxplotX(theoretical)).attr("x2", boxplotX(theoretical)).attr("y1", 0).attr("y2", boxplotHeight);
+
+                    // Update Q-Q crosshairs
+                    focusQQ.select(".hover-line-x").attr("x1", qqX(theoretical)).attr("x2", qqX(theoretical)).attr("y1", 0).attr("y2", chartHeight);
+                    focusQQ.select(".hover-line-y-red").attr("x1", 0).attr("x2", chartWidth).attr("y1", qqY(actualVal)).attr("y2", qqY(actualVal));
+                    focusQQ.select(".hover-line-y-blue").attr("x1", 0).attr("x2", chartWidth).attr("y1", qqY(theoretical)).attr("y2", qqY(theoretical));
+                    focusQQ.select(".circle-red").attr("cx", qqX(theoretical)).attr("cy", qqY(actualVal));
+                    focusQQ.select(".circle-blue").attr("cx", qqX(theoretical)).attr("cy", qqY(theoretical));
+                });
+        };
+
+            // Allow user to hover over any chart to drive the visualization
+            bindHover(svgDensity, densityX, 'skewed');
+            bindHover(svgCDF, cdfX, 'skewed');
+            bindHover(svgQQ, qqX, 'normal'); // Q-Q plot X-axis drives based on the normal data!
+        }
+
+        function updateCharts(alpha) {
+            const isXStd = document.getElementById('toggle-x').checked;
+            const isYStd = document.getElementById('toggle-y').checked;
+
+            document.getElementById('label-x').textContent = isXStd ? "Standardized" : "Raw Score";
+            document.getElementById('label-y').textContent = isYStd ? "Standardized" : "Raw Score";
+
+            const delta = alpha / Math.sqrt(1 + alpha * alpha);
+            const meanZ = delta * Math.sqrt(2 / Math.PI);
+            const varZ = 1 - 2 * (delta * delta) / Math.PI;
+            const sdZ = Math.sqrt(varZ);
+            
+            const normMean = isXStd ? 0 : meanZ;
+            const normSD = isXStd ? 1 : sdZ;
+
+            const xi = isYStd ? -meanZ / sdZ : 0;
+            const omega = isYStd ? 1 / sdZ : 1;
+
+            currentXi = xi;
+            currentOmega = omega;
+            currentAlpha = alpha;
+            currentNormMean = normMean;
+            currentNormSD = normSD;
+            
+            // 1. Update Density Plot
+            const normalData = d3.range(xMin - 1, xMax + 2, 0.05).map(x => ({
+                x: x,
+                y: normalPDF(x, normMean, normSD)
+            }));
+
+            const skewedData = d3.range(xMin - 1, xMax + 2, 0.05).map(x => ({
+                x: x, 
+                y: skewNormalPDF(x, xi, omega, alpha)
+            })).filter(d => d.y > 0.0001);
+
+            const areaGenerator = d3.area()
+                .x(d => densityX(d.x))
+                .y0(chartHeight)
+                .y1(d => densityY(d.y))
+                .curve(d3.curveBasis);
+                
+            const lineGenerator = d3.line()
+                .x(d => densityX(d.x))
+                .y(d => densityY(d.y))
+                .curve(d3.curveBasis);
+
+            svgDensity.select(".area-normal").datum(normalData).attr("d", areaGenerator);
+            svgDensity.select(".line-normal").datum(normalData).attr("d", lineGenerator);
+
+            svgDensity.select(".area-skewed-base").datum(skewedData).attr("d", areaGenerator);
+            svgDensity.select(".line-skewed-base").datum(skewedData).attr("d", lineGenerator);
+
+            svgDensity.select(".area-skewed-highlight").datum(skewedData).attr("d", areaGenerator);
+            svgDensity.select(".line-skewed-highlight").datum(skewedData).attr("d", lineGenerator);
+
+
+            // 2. Update Boxplots
+            const normalSampleData = [];
+            for (let i = 0; i < N; i++) {
+                const p = (i + 0.5) / N;
+                normalSampleData.push(qnorm(p) * normSD + normMean);
+            }
+            currentNormalData = normalSampleData;
+            
+            currentSampleData = baseNormals.map(pair => transformSkewNormal(pair[0], pair[1], xi, omega, alpha));
+            currentSampleData.sort(d3.ascending);
+
+            // Update CDF Plot Data
+            const cdfDataNormal = [];
+            const cdfDataSkewed = [];
+            for (let i = 0; i < N; i++) {
+                const p = (i + 0.5) / N;
+                cdfDataNormal.push({ x: normalSampleData[i], y: p });
+                cdfDataSkewed.push({ x: currentSampleData[i], y: p });
+            }
+
+            const cdfLineGenerator = d3.line()
+                .x(d => cdfX(d.x))
+                .y(d => cdfY(d.y));
+
+            svgCDF.select(".line-cdf-normal").datum(cdfDataNormal).attr("d", cdfLineGenerator);
+            svgCDF.select(".line-cdf-skewed").datum(cdfDataSkewed).attr("d", cdfLineGenerator);
+
+            // Calculate Boxplot Statistics including Outliers
+            const getBoxplotStats = (data) => {
+                const q1 = d3.quantile(data, 0.25);
+                const median = d3.quantile(data, 0.5);
+                const q3 = d3.quantile(data, 0.75);
+                const iqr = q3 - q1;
+                const lowerFence = q1 - 1.5 * iqr;
+                const upperFence = q3 + 1.5 * iqr;
+                
+                // Whiskers stop at the highest/lowest data point within the fences
+                const min = d3.min(data.filter(d => d >= lowerFence));
+                const max = d3.max(data.filter(d => d <= upperFence));
+                
+                // Track points that fall outside the fences
+                const outliers = data.filter(d => d < lowerFence || d > upperFence);
+                
+                return {q1, median, q3, min, max, outliers};
+            };
+            
+            const stats = [
+                { type: "Normal", color: "#3b82f6", bg: "rgba(59, 130, 246, 0.1)", ...getBoxplotStats(normalSampleData) },
+                { type: "Skewed", color: "#ef4444", bg: "rgba(239, 68, 68, 0.1)", ...getBoxplotStats(currentSampleData) }
+            ];
+            
+            const boxGroup = svgBoxplot.select("#boxplot-group");
+            const boxes = boxGroup.selectAll(".box").data(stats);
+            
+            const boxesEnter = boxes.enter().append("g").attr("class", "box");
+            
+            boxesEnter.append("rect").attr("class", "box-rect");
+            boxesEnter.append("line").attr("class", "median-line");
+            boxesEnter.append("line").attr("class", "whisker-left");
+            boxesEnter.append("line").attr("class", "whisker-right");
+            boxesEnter.append("line").attr("class", "cap-left");
+            boxesEnter.append("line").attr("class", "cap-right");
+            boxesEnter.append("g").attr("class", "outlier-group");
+            
+            const boxesMerge = boxesEnter.merge(boxes);
+            const halfBand = boxplotY.bandwidth() / 2;
+            
+            boxesMerge.select(".box-rect")
+                .attr("x", d => boxplotX(d.q1))
+                .attr("y", d => boxplotY(d.type))
+                .attr("width", d => boxplotX(d.q3) - boxplotX(d.q1))
+                .attr("height", boxplotY.bandwidth())
+                .style("stroke", d => d.color)
+                .style("fill", d => d.bg)
+                .style("stroke-width", 2);
+                
+            boxesMerge.select(".median-line")
+                .attr("x1", d => boxplotX(d.median))
+                .attr("x2", d => boxplotX(d.median))
+                .attr("y1", d => boxplotY(d.type))
+                .attr("y2", d => boxplotY(d.type) + boxplotY.bandwidth())
+                .style("stroke", d => d.color)
+                .style("stroke-width", 2.5);
+                
+            boxesMerge.select(".whisker-left")
+                .attr("x1", d => boxplotX(d.min))
+                .attr("x2", d => boxplotX(d.q1))
+                .attr("y1", d => boxplotY(d.type) + halfBand)
+                .attr("y2", d => boxplotY(d.type) + halfBand)
+                .style("stroke", d => d.color)
+                .style("stroke-width", 1.5)
+                .style("stroke-dasharray", "4,4");
+                
+            boxesMerge.select(".whisker-right")
+                .attr("x1", d => boxplotX(d.q3))
+                .attr("x2", d => boxplotX(d.max))
+                .attr("y1", d => boxplotY(d.type) + halfBand)
+                .attr("y2", d => boxplotY(d.type) + halfBand)
+                .style("stroke", d => d.color)
+                .style("stroke-width", 1.5)
+                .style("stroke-dasharray", "4,4");
+
+            boxesMerge.select(".cap-left")
+                .attr("x1", d => boxplotX(d.min))
+                .attr("x2", d => boxplotX(d.min))
+                .attr("y1", d => boxplotY(d.type) + halfBand - 6)
+                .attr("y2", d => boxplotY(d.type) + halfBand + 6)
+                .style("stroke", d => d.color)
+                .style("stroke-width", 1.5);
+                
+            boxesMerge.select(".cap-right")
+                .attr("x1", d => boxplotX(d.max))
+                .attr("x2", d => boxplotX(d.max))
+                .attr("y1", d => boxplotY(d.type) + halfBand - 6)
+                .attr("y2", d => boxplotY(d.type) + halfBand + 6)
+                .style("stroke", d => d.color)
+                .style("stroke-width", 1.5);
+
+            // Draw Outliers
+            const outlierCircles = boxesMerge.select(".outlier-group").selectAll(".outlier")
+                .data(d => d.outliers.map(val => ({ val: val, color: d.color, type: d.type })));
+                
+            outlierCircles.enter()
+                .append("circle")
+                .attr("class", "outlier")
+                .attr("r", 2)
+                .style("fill", "none")
+                .style("stroke-width", 1)
+                .merge(outlierCircles)
+                .attr("cx", d => boxplotX(d.val))
+                .attr("cy", d => boxplotY(d.type) + halfBand)
+                .style("stroke", d => d.color)
+                .style("opacity", 0.4);
+                
+            outlierCircles.exit().remove();
+
+
+            // 3. Update Q-Q Plot 
+            let regions = [];
+            let inRegion = false;
+            let startX = xMin;
+            
+            for (let i = 0; i < N; i++) {
+                const p = (i + 0.5) / N;
+                const theoretical = qnorm(p) * normSD + normMean;
+                const sample = currentSampleData[i];
+                const isAbove = sample > theoretical;
+                
+                if (isAbove && !inRegion) {
+                    inRegion = true;
+                    startX = sample;
+                } else if (!isAbove && inRegion) {
+                    inRegion = false;
+                    regions.push({ start: startX, end: sample });
+                }
+            }
+            if (inRegion) {
+                regions.push({ start: startX, end: xMax });
+            }
+            
+            if (regions.length > 0 && currentSampleData[0] > (qnorm(0.5 / N) * normSD + normMean)) regions[0].start = xMin - 1;
+            if (regions.length > 0 && currentSampleData[N-1] > (qnorm((N - 0.5) / N) * normSD + normMean)) regions[regions.length - 1].end = xMax + 1;
+
+            const clipGroup = svgDensity.select("#highlight-clip");
+            const rects = clipGroup.selectAll("rect").data(regions);
+            
+            rects.enter().append("rect")
+                .merge(rects)
+                .attr("y", 0)
+                .attr("height", chartHeight)
+                .attr("x", d => densityX(d.start))
+                .attr("width", d => Math.max(0, densityX(d.end) - densityX(d.start)));
+                
+            rects.exit().remove();
+
+            // Generate exact 1:1 data points for both Normal and Skewed arrays
+            const qqDataSkewed = [];
+            const qqDataNormal = [];
+            for(let i = 0; i < N; i++) {
+                const p = (i + 0.5) / N;
+                const theoretical = qnorm(p) * normSD + normMean;
+                
+                qqDataSkewed.push({
+                    theoretical: theoretical,
+                    sample: currentSampleData[i]
+                });
+                
+                qqDataNormal.push({
+                    theoretical: theoretical,
+                    sample: normalSampleData[i] // Match the blue boxplot data
+                });
+            }
+
+            // Draw the Normal Distribution Data Points (Forms the diagonal baseline)
+            const pointsNormal = svgQQ.select("#qq-points").selectAll(".qq-point-normal")
+                .data(qqDataNormal);
+
+            pointsNormal.enter()
+                .append("circle")
+                .attr("class", "qq-point-normal")
+                .attr("r", 1.5)
+                .merge(pointsNormal)
+                .attr("cx", d => qqX(d.theoretical))
+                .attr("cy", d => qqY(d.sample))
+                .style("fill", "#3b82f6")
+                .style("opacity", 0.15); // Lighter opacity to serve as a baseline
+
+            pointsNormal.exit().remove();
+
+            // Draw the Skewed Distribution Data Points
+            const pointsSkewed = svgQQ.select("#qq-points").selectAll(".qq-point-skewed")
+                .data(qqDataSkewed);
+
+            pointsSkewed.enter()
+                .append("circle")
+                .attr("class", "qq-point-skewed")
+                .attr("r", 2.5)
+                .merge(pointsSkewed)
+                .attr("cx", d => qqX(d.theoretical))
+                .attr("cy", d => qqY(d.sample))
+                .style("fill", d => d.sample > d.theoretical ? "#ef4444" : "#94a3b8")
+                .style("opacity", d => d.sample > d.theoretical ? "0.8" : "0.4");
+
+            pointsSkewed.exit().remove();
+        }
+
+        const slider = document.getElementById('skew-slider');
+        const displayValue = document.getElementById('skew-value');
+        
+        slider.addEventListener('input', function() {
+            currentAlpha = parseFloat(this.value);
+            displayValue.textContent = currentAlpha.toFixed(1);
+            updateCharts(currentAlpha);
+        });
+
+        document.getElementById('toggle-x').addEventListener('change', () => updateCharts(currentAlpha));
+        document.getElementById('toggle-y').addEventListener('change', () => updateCharts(currentAlpha));
+
+        window.onload = function() {
+            initCharts();
+            updateCharts(currentAlpha);
+        };
+        
+        window.addEventListener('resize', () => {
+            d3.select("#density-chart").selectAll("*").remove();
+            d3.select("#cdf-chart").selectAll("*").remove();
+            d3.select("#qq-chart").selectAll("*").remove();
+            d3.select("#boxplot-chart").selectAll("*").remove();
+            
+            initCharts();
+            updateCharts(currentAlpha);
+        });
+
+        // Fullscreen functionality
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        fullscreenBtn.addEventListener('click', () => {
+            const doc = window.document;
+            const docEl = doc.documentElement;
+
+            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+            if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                requestFullScreen.call(docEl);
+            }
+            else {
+                cancelFullScreen.call(doc);
+            }
+        });
+
+    </script>
+</body>
+</html>
