@@ -97,8 +97,15 @@
 
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
-    <div class="max-w-6xl w-full">
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center relative">
+    <button id="btn-fullscreen" class="fixed top-4 right-4 md:top-6 md:right-6 bg-slate-800 hover:bg-slate-900 text-white p-2 md:px-4 md:py-2 rounded-lg transition shadow-md z-50 flex items-center justify-center gap-2" title="Toggle Fullscreen">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        <span class="hidden sm:inline text-sm font-bold">Fullscreen</span>
+    </button>
+
+    <div class="max-w-6xl w-full mt-4 md:mt-0">
         <header class="mb-8 text-center">
             <h1 class="text-3xl font-extrabold text-slate-800 mb-2">Horowitz (1974) Simulation</h1>
             <p class="text-slate-600 max-w-3xl mx-auto">
@@ -108,7 +115,6 @@
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left Column: The Population Container -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold text-slate-700">Population (1000 pieces)</h2>
@@ -133,7 +139,6 @@
                 <div id="pop-dist-chart" class="h-32 w-full mt-auto"></div>
             </div>
 
-            <!-- Middle Column: The Sampling Process -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-between">
                 <h2 class="text-lg font-bold text-slate-700 w-full mb-4">Current Sample ($n=10$)</h2>
                 
@@ -180,7 +185,6 @@
                 </div>
             </div>
 
-            <!-- Right Column: Sampling Distribution -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold text-slate-700">Sampling Distribution</h2>
@@ -211,7 +215,6 @@
             </div>
         </div>
         
-        <!-- Explanation Panel -->
         <div class="mt-8 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
             <h3 class="text-lg font-bold text-slate-800 mb-2">The Central Limit Theorem in Action</h3>
             <p class="text-slate-600 text-sm leading-relaxed mb-3">
@@ -228,7 +231,6 @@
     </div>
 
     <script>
-        // --- Constants & State ---
         const POPULATION_SIZE = 1000;
         const POP_MEAN = 50;
         const POP_STD_DEV = 15.8;
@@ -249,13 +251,13 @@
         const btnDrawOne = document.getElementById('btn-draw-one');
         const btnDrawAll = document.getElementById('btn-draw-all');
         const btnReset = document.getElementById('btn-reset');
+        const btnFullscreen = document.getElementById('btn-fullscreen');
         const statsCounterEl = document.getElementById('stats-counter');
         const statMeanOfMeansEl = document.getElementById('stat-mean-of-means');
         const statEmpSeEl = document.getElementById('stat-emp-se');
         const statEstSeEl = document.getElementById('stat-est-se');
 
         // --- Math Helpers ---
-        // Box-Muller transform for normal distribution
         function randomNormal(mean, stdDev) {
             let u = 0, v = 0;
             while(u === 0) u = Math.random();
@@ -264,24 +266,18 @@
             return mean + z * stdDev;
         }
 
-        // Simpler, faster approximation for large numbers if needed, but Box-Muller is fine here.
         function generatePopulation() {
             population = [];
             for (let i = 0; i < POPULATION_SIZE; i++) {
-                // Generate roughly normal scores, bounded 0-100, mean 50, sd ~15.8
                 let val = Math.round(randomNormal(POP_MEAN, POP_STD_DEV));
-                // Clamp to 0-100 just in case
                 val = Math.max(0, Math.min(100, val));
                 population.push({
                     id: i,
                     value: val,
-                    // Random starting position for visualization, kept within bounds
                     x: Math.random() * 90 + 5, 
                     y: Math.random() * 90 + 5
                 });
             }
-            // Sort to ensure specific distribution characteristics aren't totally skewed
-            // Though random is fine for this sim.
         }
 
         function calculateMean(arr) {
@@ -292,24 +288,18 @@
         function calculateStdDev(arr, mean) {
             if (arr.length <= 1) return 0;
             let variance = arr.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (arr.length - 1);
-            // Ensure variance is not negative due to floating-point errors
             variance = Math.max(0, variance);
             return Math.sqrt(variance);
         }
 
-        // --- Color Helper ---
-        // Maps a score 0-100 to a color (reddish for low, bluish for high, purplish middle)
         function getColorForScore(score) {
-            // HSL from 0 (red) to 240 (blue)
             const hue = (score / 100) * 240; 
             return `hsl(${hue}, 70%, 50%)`;
         }
 
-        // --- Initialization ---
         function initVisualization() {
             generatePopulation();
             
-            // 1. Draw Physical Container (Sample of 300 pieces for performance, representing 1000)
             containerEl.innerHTML = '';
             const visualPop = population.slice(0, 300);
             visualPop.forEach(p => {
@@ -318,17 +308,12 @@
                 piece.style.left = `${p.x}%`;
                 piece.style.top = `${p.y}%`;
                 piece.style.backgroundColor = getColorForScore(p.value);
-                // piece.innerText = p.value; // Too cluttered
                 piece.id = `pop-piece-${p.id}`;
                 containerEl.appendChild(piece);
             });
 
-            // 2. Draw Population Distribution Chart
             drawPopulationChart();
-            
-            // 3. Setup empty Sampling Distribution Chart
             initSamplingDistChart();
-            
             resetStats();
         }
 
@@ -345,7 +330,6 @@
             currentSeEl.innerText = '--';
             currentSeEl.classList.remove('text-purple-600');
             
-            // Reset Y scale domain
             if (sampY && sampSvg) {
                  sampY.domain([0, 10]);
                  sampSvg.select('#samp-y-axis').transition().duration(300).call(d3.axisLeft(sampY));
@@ -353,7 +337,6 @@
             
             updateSamplingDistChart();
             
-            // Re-enable buttons
             btnDrawOne.disabled = false;
             btnDrawAll.disabled = false;
             btnDrawOne.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -385,7 +368,6 @@
             }
         }
 
-        // --- D3 Charts Setup ---
         let popChart, sampChart;
         const popMargin = {top: 10, right: 10, bottom: 20, left: 30};
         const sampMargin = {top: 20, right: 20, bottom: 40, left: 40};
@@ -403,7 +385,6 @@
                 .append('g')
                 .attr('transform', `translate(${popMargin.left},${popMargin.top})`);
 
-            // X axis
             const x = d3.scaleLinear()
                 .domain([0, 100])
                 .range([0, width]);
@@ -413,15 +394,13 @@
                 .call(d3.axisBottom(x).ticks(5))
                 .attr('class', 'axis-label');
 
-            // Histogram
             const histogram = d3.bin()
                 .value(d => d.value)
                 .domain(x.domain())
-                .thresholds(x.ticks(20)); // 20 bins
+                .thresholds(x.ticks(20));
 
             const bins = histogram(population);
 
-            // Y axis
             const y = d3.scaleLinear()
                 .range([height, 0])
                 .domain([0, d3.max(bins, d => d.length)]);
@@ -430,7 +409,6 @@
                 .call(d3.axisLeft(y).ticks(3))
                 .attr('class', 'axis-label');
 
-            // append the bar rectangles to the svg element
             svg.selectAll("rect")
                 .data(bins)
                 .join("rect")
@@ -439,7 +417,7 @@
                 .attr("transform", d => `translate(${x(d.x0)},${y(d.length)})`)
                 .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
                 .attr("height", d => height - y(d.length))
-                .style("fill", "#94a3b8"); // Gray for population
+                .style("fill", "#94a3b8");
         }
 
         let sampX, sampY, sampSvg, sampHistogram, sampWidth, sampHeight;
@@ -458,7 +436,6 @@
                 .append('g')
                 .attr('transform', `translate(${sampMargin.left},${sampMargin.top})`);
 
-            // X axis: Means should fall roughly between 30 and 70 (3 SDs of mean of means)
             sampX = d3.scaleLinear()
                 .domain([30, 70]) 
                 .range([0, sampWidth]);
@@ -474,7 +451,6 @@
                 .attr('class', 'axis-title')
                 .text("Sample Mean Score");
 
-            // Y axis setup (domain will update dynamically)
             sampY = d3.scaleLinear().range([sampHeight, 0]).domain([0, 10]);
             
             sampSvg.append('g')
@@ -491,52 +467,45 @@
                 .attr('class', 'axis-title')
                 .text("Frequency");
 
-            // Define Histogram generator
             sampHistogram = d3.bin()
                 .domain(sampX.domain())
-                .thresholds(sampX.ticks(20)); // Bins
+                .thresholds(sampX.ticks(20));
         }
 
         function updateSamplingDistChart(animateLast = false) {
             const bins = sampHistogram(sampleMeans);
             
-            // Update Y scale if needed
             const maxFreq = d3.max(bins, d => d.length);
             if (maxFreq > sampY.domain()[1]) {
                 sampY.domain([0, maxFreq + 2]);
                 sampSvg.select('#samp-y-axis').transition().duration(300).call(d3.axisLeft(sampY));
             }
 
-            // Join data to rects
             const bars = sampSvg.selectAll(".samp-bar")
                 .data(bins);
 
-            // Enter new bars
             const barsEnter = bars.enter()
                 .append("rect")
                 .attr("class", "samp-bar bar")
                 .attr("x", 1)
-                .attr("transform", d => `translate(${sampX(d.x0)},${sampHeight})`) // Start at bottom
+                .attr("transform", d => `translate(${sampX(d.x0)},${sampHeight})`) 
                 .attr("width", d => Math.max(0, sampX(d.x1) - sampX(d.x0) - 1))
                 .attr("height", 0);
             
-            // Update existing and new bars
             bars.merge(barsEnter)
                 .transition().duration(animateLast ? 300 : 0)
                 .attr("transform", d => `translate(${sampX(d.x0)},${sampY(d.length)})`)
                 .attr("height", d => sampHeight - sampY(d.length))
                 .style("fill", (d, i) => {
-                    // Highlight the bin containing the most recently added mean if animating
                     if (animateLast && sampleMeans.length > 0) {
                         const lastMean = sampleMeans[sampleMeans.length - 1];
                         if (lastMean >= d.x0 && lastMean < d.x1) {
-                            return "#f59e0b"; // Amber highlight
+                            return "#f59e0b";
                         }
                     }
-                    return "#3b82f6"; // Default Blue
+                    return "#3b82f6";
                 })
                 .on("end", function(d) {
-                    // Revert highlight back to blue after animation
                      if (animateLast) {
                         d3.select(this).transition().duration(500).style("fill", "#3b82f6");
                      }
@@ -545,9 +514,6 @@
             bars.exit().remove();
         }
 
-        // --- Simulation Logic ---
-        
-        // Simulates drawing one sample of n=10 with UI animation
         async function drawSampleAnimated() {
             if (isAnimating || sampleMeans.length >= TOTAL_STUDENTS) return;
             isAnimating = true;
@@ -569,36 +535,30 @@
 
             let currentSample = [];
             
-            // Simulate drawing 10 pieces sequentially for visual effect
             for (let i = 0; i < SAMPLE_SIZE; i++) {
-                // Draw with replacement
                 const randIndex = Math.floor(Math.random() * POPULATION_SIZE);
                 const picked = population[randIndex];
                 currentSample.push(picked.value);
 
-                // Highlight in population container (if it's one of the rendered ones)
                 const visEl = document.getElementById(`pop-piece-${picked.id}`);
                 if (visEl) {
                     visEl.classList.add('pulse-highlight');
                     setTimeout(() => visEl.classList.remove('pulse-highlight'), 500);
                 }
 
-                // Add to sample display
                 const pieceUI = document.createElement('div');
                 pieceUI.className = 'drawn-piece transform scale-0';
                 pieceUI.style.backgroundColor = getColorForScore(picked.value);
                 pieceUI.innerText = picked.value;
                 sampleDisplayEl.appendChild(pieceUI);
 
-                // Animate entry
                 await new Promise(r => setTimeout(r, 50));
                 pieceUI.classList.remove('scale-0');
                 pieceUI.classList.add('scale-100');
                 
-                await new Promise(r => setTimeout(r, 100)); // Delay between draws
+                await new Promise(r => setTimeout(r, 100));
             }
 
-            // Calculate Mean, SD, and Estimated SE
             const mean = calculateMean(currentSample);
             const sd = calculateStdDev(currentSample, mean);
             const se = sd / Math.sqrt(SAMPLE_SIZE);
@@ -606,7 +566,6 @@
             sampleMeans.push(mean);
             sampleSEs.push(se);
             
-            // Update UI for mean
             currentMeanEl.classList.remove('text-slate-400', 'animate-pulse');
             currentMeanEl.classList.add('text-blue-600');
             
@@ -616,7 +575,6 @@
             currentSeEl.classList.remove('text-slate-400', 'animate-pulse');
             currentSeEl.classList.add('text-purple-600');
             
-            // Count up animation for mean
             let start = 0;
             const duration = 500;
             const startTime = performance.now();
@@ -625,7 +583,6 @@
                 function updateNumber(currentTime) {
                     const elapsed = currentTime - startTime;
                     const progress = Math.min(elapsed / duration, 1);
-                    // easeOutQuart
                     const ease = 1 - Math.pow(1 - progress, 4);
                     const currentVal = (mean * ease).toFixed(1);
                     currentMeanEl.innerText = currentVal;
@@ -642,9 +599,8 @@
             currentSdEl.innerText = sd.toFixed(2);
             currentSeEl.innerText = se.toFixed(2);
 
-            // Update Statistics and Chart
             updateStatsUI();
-            updateSamplingDistChart(true); // Animate chart update
+            updateSamplingDistChart(true); 
 
             isAnimating = false;
             
@@ -654,17 +610,16 @@
             }
         }
 
-        // Fast simulation for remaining students without drawing animations
         function drawRemainingFast() {
             if (isAnimating || sampleMeans.length >= TOTAL_STUDENTS) return;
             isAnimating = true;
             
             const remaining = TOTAL_STUDENTS - sampleMeans.length;
             
-            sampleDisplayEl.innerHTML = '<div class="text-slate-400 italic flex items-center justify-center w-full h-full text-sm">Fast simulation complete.</div>';
-            currentMeanEl.innerText = 'Fast Fwd';
-            currentSdEl.innerText = '--';
-            currentSeEl.innerText = '--';
+            let lastSample = [];
+            let lastMean = 0;
+            let lastSd = 0;
+            let lastSe = 0;
             
             for (let i = 0; i < remaining; i++) {
                 let sample = [];
@@ -678,10 +633,39 @@
                 
                 sampleMeans.push(mean);
                 sampleSEs.push(se);
+
+                if (i === remaining - 1) {
+                    lastSample = sample;
+                    lastMean = mean;
+                    lastSd = sd;
+                    lastSe = se;
+                }
             }
 
+            // Immediately display the last simulated sample
+            sampleDisplayEl.innerHTML = '';
+            lastSample.forEach(val => {
+                const pieceUI = document.createElement('div');
+                pieceUI.className = 'drawn-piece';
+                pieceUI.style.backgroundColor = getColorForScore(val);
+                pieceUI.innerText = val;
+                sampleDisplayEl.appendChild(pieceUI);
+            });
+
+            currentMeanEl.innerText = lastMean.toFixed(2);
+            currentMeanEl.classList.remove('text-slate-400');
+            currentMeanEl.classList.add('text-blue-600');
+            
+            currentSdEl.innerText = lastSd.toFixed(2);
+            currentSdEl.classList.remove('text-slate-400');
+            currentSdEl.classList.add('text-emerald-600');
+            
+            currentSeEl.innerText = lastSe.toFixed(2);
+            currentSeEl.classList.remove('text-slate-400');
+            currentSeEl.classList.add('text-purple-600');
+
             updateStatsUI();
-            updateSamplingDistChart(false); // No animation for mass update, too chaotic
+            updateSamplingDistChart(false); 
 
             isAnimating = false;
         }
@@ -691,6 +675,26 @@
         btnDrawOne.addEventListener('click', drawSampleAnimated);
         btnDrawAll.addEventListener('click', drawRemainingFast);
         btnReset.addEventListener('click', resetStats);
+        
+        btnFullscreen.addEventListener('click', () => {
+            const doc = window.document;
+            const docEl = doc.documentElement;
+            
+            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+            
+            if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                if (requestFullScreen) {
+                    requestFullScreen.call(docEl).catch(err => {
+                        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                    });
+                }
+            } else {
+                if (cancelFullScreen) {
+                    cancelFullScreen.call(doc);
+                }
+            }
+        });
 
         // Handle window resize for charts
         window.addEventListener('resize', () => {
