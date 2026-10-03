@@ -209,18 +209,22 @@
             active: false,
             source: null,
             hoveredValue: 0,
-            hoveredDataset: null,
             zVal: 0,
-            tVal: 0,
-            meanZ: 0,
-            meanT: 0
+            tVal: 0
         };
 
+        // Syncs the test statistic chart (bottom) when the sampling chart (top) is hovered.
         function syncOtherChart(sourceChart, sourceElements) {
             if (isSyncing) return;
             isSyncing = true;
 
-            const targetChart = sourceChart.canvas.id === 'samplingDistChart' ? distChart : samplingChart;
+            // Only Top -> Bottom syncing is allowed now
+            if (sourceChart.canvas.id === 'distributionChart') {
+                isSyncing = false;
+                return; 
+            }
+
+            const targetChart = distChart;
             
             if (!targetChart || !sourceElements || sourceElements.length === 0) {
                 if (window.syncState) window.syncState.active = false;
@@ -228,11 +232,6 @@
                     distChart.setActiveElements([]);
                     distChart.tooltip.setActiveElements([], {x: 0, y: 0});
                     distChart.update('none');
-                }
-                if (samplingChart) {
-                    samplingChart.setActiveElements([]);
-                    samplingChart.tooltip.setActiveElements([], {x: 0, y: 0});
-                    samplingChart.update('none');
                 }
                 isSyncing = false;
                 return;
@@ -246,58 +245,30 @@
             const sourceVal = sourceLabels[sourceIndex];
 
             // Calculate Expected Sample Standard Deviation E[s] for a normal distribution.
-            // Formula uses jStat for the log-gamma function to prevent large sample size overflow.
-            // Since our simulation population sigma = 1, we can multiply by 1.
             const expectedS = 1.0 * Math.sqrt(2 / (n - 1)) * Math.exp(jStat.gammaln(n / 2) - jStat.gammaln((n - 1) / 2));
 
             const activeElements = [];
 
-            if (sourceChart.canvas.id === 'samplingDistChart') {
-                window.syncState.source = 'top';
-                window.syncState.hoveredValue = sourceVal;
-                
-                // Map a single Sample Mean to its specific Z and Assumed t values
-                window.syncState.zVal = sourceVal * Math.sqrt(n);
-                window.syncState.tVal = sourceVal / (expectedS / Math.sqrt(n));
+            window.syncState.source = 'top';
+            window.syncState.hoveredValue = sourceVal;
+            
+            // Map a single Sample Mean to its specific Z and Assumed t values
+            window.syncState.zVal = sourceVal * Math.sqrt(n);
+            window.syncState.tVal = sourceVal / (expectedS / Math.sqrt(n));
 
-                let closestZIndex = 0, minZDiff = Infinity;
-                let closestTIndex = 0, minTDiff = Infinity;
-                
-                targetLabels.forEach((label, i) => {
-                    if (Math.abs(label - window.syncState.zVal) < minZDiff) { minZDiff = Math.abs(label - window.syncState.zVal); closestZIndex = i; }
-                    if (Math.abs(label - window.syncState.tVal) < minTDiff) { minTDiff = Math.abs(label - window.syncState.tVal); closestTIndex = i; }
-                });
+            let closestZIndex = 0, minZDiff = Infinity;
+            let closestTIndex = 0, minTDiff = Infinity;
+            
+            targetLabels.forEach((label, i) => {
+                if (Math.abs(label - window.syncState.zVal) < minZDiff) { minZDiff = Math.abs(label - window.syncState.zVal); closestZIndex = i; }
+                if (Math.abs(label - window.syncState.tVal) < minTDiff) { minTDiff = Math.abs(label - window.syncState.tVal); closestTIndex = i; }
+            });
 
-                // Highlight Z datasets (blue) and t datasets (orange) at their distinct calculated locations
-                if (targetChart.isDatasetVisible(0)) activeElements.push({ datasetIndex: 0, index: closestZIndex });
-                if (targetChart.isDatasetVisible(1)) activeElements.push({ datasetIndex: 1, index: closestTIndex });
-                if (targetChart.isDatasetVisible(2)) activeElements.push({ datasetIndex: 2, index: closestZIndex });
-                if (targetChart.isDatasetVisible(3)) activeElements.push({ datasetIndex: 3, index: closestTIndex });
-
-            } else {
-                window.syncState.source = 'bottom';
-                window.syncState.hoveredValue = sourceVal;
-                window.syncState.hoveredDataset = sourceElements[0].datasetIndex;
-                
-                // Map a single Test Statistic to the Sample Means that would produce it
-                window.syncState.meanZ = sourceVal / Math.sqrt(n);
-                window.syncState.meanT = sourceVal * (expectedS / Math.sqrt(n));
-
-                let closestMeanZIndex = 0, minMeanZDiff = Infinity;
-                let closestMeanTIndex = 0, minMeanTDiff = Infinity;
-
-                targetLabels.forEach((label, i) => {
-                    if (Math.abs(label - window.syncState.meanZ) < minMeanZDiff) { minMeanZDiff = Math.abs(label - window.syncState.meanZ); closestMeanZIndex = i; }
-                    if (Math.abs(label - window.syncState.meanT) < minMeanTDiff) { minMeanTDiff = Math.abs(label - window.syncState.meanT); closestMeanTIndex = i; }
-                });
-
-                // Highlight the specific implied mean based on which distribution is hovered
-                const isHoveringZ = window.syncState.hoveredDataset === 0 || window.syncState.hoveredDataset === 2;
-                const targetIndex = isHoveringZ ? closestMeanZIndex : closestMeanTIndex;
-
-                if (targetChart.isDatasetVisible(0)) activeElements.push({ datasetIndex: 0, index: targetIndex });
-                if (targetChart.isDatasetVisible(1)) activeElements.push({ datasetIndex: 1, index: targetIndex });
-            }
+            // Highlight Z datasets (blue) and t datasets (orange) at their distinct calculated locations
+            if (targetChart.isDatasetVisible(0)) activeElements.push({ datasetIndex: 0, index: closestZIndex });
+            if (targetChart.isDatasetVisible(1)) activeElements.push({ datasetIndex: 1, index: closestTIndex });
+            if (targetChart.isDatasetVisible(2)) activeElements.push({ datasetIndex: 2, index: closestZIndex });
+            if (targetChart.isDatasetVisible(3)) activeElements.push({ datasetIndex: 3, index: closestTIndex });
 
             targetChart.setActiveElements(activeElements);
             
@@ -314,13 +285,14 @@
         }
 
         const handleChartHover = (e, elements, chart) => {
+            if (chart.canvas.id === 'distributionChart') return; // Ignore bottom chart
             syncOtherChart(chart, elements);
         };
 
         // Helper function to generate normal random variables (Box-Muller transform)
         function randomNormal(mean = 0, stdev = 1) {
             let u = 0, v = 0;
-            while(u === 0) u = Math.random(); // Converting [0,1) to (0,1)
+            while(u === 0) u = Math.random(); 
             while(v === 0) v = Math.random();
             const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
             return z * stdev + mean;
@@ -335,7 +307,6 @@
         function calculateSampleSd(arr, mean) {
             if (arr.length <= 1) return 0;
             const sumSqDiffs = arr.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
-            // using n-1 for sample standard deviation
             return Math.sqrt(sumSqDiffs / (arr.length - 1));
         }
 
@@ -352,7 +323,6 @@
 
             for (let i = 0; i < simulations; i++) {
                 let sample = [];
-                // Generate a random sample of size n from N(mu, sigma)
                 for (let j = 0; j < n; j++) {
                     sample.push(randomNormal(mu, sigma));
                 }
@@ -362,20 +332,14 @@
                 
                 meanStats.push(sampleMean);
 
-                // Calculate Z-statistic (using known population sigma)
-                // Z = (x_bar - mu) / (sigma / sqrt(n))
+                // Calculate Z-statistic
                 const z = (sampleMean - mu) / (sigma / Math.sqrt(n));
-                if (!isNaN(z) && isFinite(z)) {
-                    zStats.push(z);
-                }
+                if (!isNaN(z) && isFinite(z)) zStats.push(z);
 
-                // Calculate t-statistic (using sample sd 's')
-                // t = (x_bar - mu) / (s / sqrt(n))
+                // Calculate t-statistic
                 if (sampleSd > 0) {
                     const t = (sampleMean - mu) / (sampleSd / Math.sqrt(n));
-                    if (!isNaN(t) && isFinite(t)) {
-                        tStats.push(t);
-                    }
+                    if (!isNaN(t) && isFinite(t)) tStats.push(t);
                 }
             }
 
@@ -390,15 +354,12 @@
             data.forEach(val => {
                 if (val >= minVal && val < maxVal) {
                     const binIndex = Math.floor((val - minVal) / binWidth);
-                    if(binIndex >= 0 && binIndex < numBins) {
-                        bins[binIndex]++;
-                    }
+                    if(binIndex >= 0 && binIndex < numBins) bins[binIndex]++;
                 }
             });
 
             const totalCount = data.length;
             if (totalCount === 0) return bins;
-            // Normalize to density so area under histogram roughly equals 1
             return bins.map(count => count / (totalCount * binWidth));
         }
 
@@ -411,29 +372,24 @@
             const df = Math.max(1, n - 1);
 
             for (let x = minVal; x <= maxVal + step/10; x += step) {
-                // Prevent -0.00 label rendering
                 let labelX = Math.abs(x) < 1e-10 ? 0 : x;
                 labels.push(labelX.toFixed(2));
                 try {
-                    // PDF for Standard Normal
                     zCurve.push(jStat.normal.pdf(x, 0, 1));
-                    // PDF for Student's t
                     tCurve.push(jStat.studentt.pdf(x, df));
                 } catch(e) {
                     zCurve.push(0);
                     tCurve.push(0);
                 }
             }
-
             return { labels, zCurve, tCurve };
         }
         
-        // Generate theoretical sampling distribution of the mean
         function generateSamplingCurve(n, minVal = -3, maxVal = 3, numPoints = 120) {
             const labels = [];
             const curve = [];
             const step = (maxVal - minVal) / numPoints;
-            const se = 1.0 / Math.sqrt(n); // Standard error of the mean
+            const se = 1.0 / Math.sqrt(n); 
 
             for (let x = minVal; x <= maxVal + step/10; x += step) {
                 let labelX = Math.abs(x) < 1e-10 ? 0 : x;
@@ -478,7 +434,7 @@
                         {
                             label: `Theoretical N(0, 1/√${n})`,
                             data: sCurveData.curve,
-                            borderColor: 'rgba(16, 185, 129, 1)', // emerald-500
+                            borderColor: 'rgba(16, 185, 129, 1)',
                             backgroundColor: 'rgba(16, 185, 129, 0)',
                             borderWidth: 2,
                             pointRadius: 0,
@@ -489,7 +445,6 @@
                         {
                             label: 'Simulated Sample Means',
                             data: sCurveData.labels.map(l => {
-                                // Map histogram bin centers to chart labels for rendering as a bar overlay
                                 let closestDist = Infinity;
                                 let val = null;
                                 for(let i=0; i<sBinCenters.length; i++){
@@ -531,9 +486,6 @@
                             displayColors: false,
                             callbacks: {
                                 title: (items) => {
-                                    if (window.syncState && window.syncState.active && window.syncState.source === 'bottom') {
-                                        return `Implied Sample Mean: ${items[0].label}`;
-                                    }
                                     return `Sample Mean: ${items[0].label}`;
                                 },
                                 label: (context) => null
@@ -552,7 +504,6 @@
                         y: {
                             title: { display: true, text: 'Density', font: { weight: 'bold', size: 12 } },
                             beginAtZero: true
-                            // Auto scales y-axis to accommodate high peaks at large sample sizes
                         }
                     },
                     animation: { duration: 300 }
@@ -662,11 +613,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    onHover: handleChartHover,
+                    hover: { mode: null }, // Disable native hover active highlighting completely
                     plugins: {
                         title: {
                             display: true,
@@ -683,6 +630,7 @@
                             }
                         },
                         tooltip: {
+                            events: [], // Disables tooltips from popping up on direct mouseover. Only allows programmatic toggling
                             displayColors: false,
                             callbacks: {
                                 title: (items) => {
@@ -693,17 +641,12 @@
                                 },
                                 label: (context) => {
                                     if (window.syncState && window.syncState.active && window.syncState.source === 'top') {
-                                        // Only return text for datasets 0 and 1 (lines) to prevent duplicates from datasets 2 and 3 (bars)
                                         if (context.datasetIndex === 0) {
                                             return `Z-Statistic: ${window.syncState.zVal.toFixed(2)}`;
                                         } else if (context.datasetIndex === 1) {
                                             return `t-Statistic: ${window.syncState.tVal.toFixed(2)}`;
                                         }
-                                        return null;
                                     }
-                                    // Normal hover (direct interaction with bottom chart)
-                                    if (context.datasetIndex === 0) return `Z-Statistic: ${context.label}`;
-                                    if (context.datasetIndex === 1) return `t-Statistic: ${context.label}`;
                                     return null;
                                 }
                             }
@@ -758,12 +701,10 @@
                 }
             ];
 
-            // Attach listeners to sliders for real-time updates
             inputs.forEach(({el, valEl, format, extra}) => {
                 el.addEventListener('input', () => {
                     valEl.innerText = format(el.value);
                     if(extra) extra();
-                    // Debounce chart updates slightly to prevent lag during fast dragging
                     clearTimeout(el.updateTimeout);
                     el.updateTimeout = setTimeout(() => {
                         updateChart();
@@ -771,7 +712,6 @@
                 });
             });
 
-            // Run simulation button listener
             runSimBtn.addEventListener('click', () => {
                 const btnOriginalText = runSimBtn.innerText;
                 runSimBtn.innerText = "Simulating...";
@@ -786,12 +726,10 @@
                 }, 10);
             });
 
-            // Prevent page scrolling when scrubbing the chart on mobile devices
             const preventScroll = (e) => e.preventDefault();
             document.getElementById('samplingDistChart').addEventListener('touchmove', preventScroll, { passive: false });
             document.getElementById('distributionChart').addEventListener('touchmove', preventScroll, { passive: false });
 
-            // Clear tooltips and highlights if mouse moves entirely off either canvas
             const clearCrosshair = () => {
                 if (samplingChart) {
                     samplingChart.setActiveElements([]);
@@ -807,7 +745,6 @@
             document.getElementById('samplingDistChart').addEventListener('mouseout', clearCrosshair);
             document.getElementById('distributionChart').addEventListener('mouseout', clearCrosshair);
 
-            // Toggle visibility without re-running simulation
             document.getElementById('show-z').addEventListener('change', (e) => {
                 if (distChart) {
                     distChart.data.datasets[0].hidden = !e.target.checked;
@@ -824,12 +761,10 @@
                 }
             });
 
-            // Fullscreen Toggle functionality
             document.getElementById('fullscreen-btn').addEventListener('click', () => {
                 const doc = window.document;
                 const docEl = doc.documentElement;
 
-                // Vendor prefixes mapped for broader cross-browser support
                 const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
                 const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
@@ -841,11 +776,9 @@
             });
         }
 
-        // Initialize simulation and charts on window load
         window.addEventListener('DOMContentLoaded', () => {
             setupEventListeners();
             
-            // Trigger initial calculation for Expected Sample SD so it shows on load
             const n = parseInt(sampleSizeInput.value);
             const expectedS = 1.0 * Math.sqrt(2 / (n - 1)) * Math.exp(jStat.gammaln(n / 2) - jStat.gammaln((n - 1) / 2));
             if (document.getElementById('es-val')) document.getElementById('es-val').innerText = expectedS.toFixed(2);
