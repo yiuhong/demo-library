@@ -1,325 +1,279 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo Library</title>
+    <title>Teaching Materials Library - Yiu Hong Ko</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <!-- Absolute links pointing to your main website's assets -->
+    <link rel="stylesheet" href="https://yiuhong.github.io/assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="https://yiuhong.github.io/assets/css/noscript.css" /></noscript>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --accent-color: #2980b9; /* Slightly darker to improve text contrast for accessibility */
-            --bg-color: #f8f9fa;
-            --text-color: #333;
-            --search-bg: #edf2f7;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            /* Increased width to accommodate grid columns */
-            width: 100%;
-            max-width: 900px; 
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-            margin: 40px 20px;
-        }
-
-        .header-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 10px;
-            font-size: 2.2rem;
-        }
-
-        p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        /* Search Bar Styling */
+        /* Custom styles designed to adapt smoothly to both light and dark themes */
         .search-container {
-            margin-bottom: 40px;
+            margin: 0 0 3em 0;
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
         }
 
         #searchInput {
             width: 100%;
-            max-width: 500px;
-            padding: 12px 20px;
-            font-size: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 30px;
-            background-color: var(--search-bg);
-            transition: all 0.3s ease;
-        }
-
-        #searchInput:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            background-color: #fff;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            max-width: 600px;
         }
 
         .category-section {
-            margin-bottom: 40px;
-        }
-
-        .category-section h2 {
-            font-size: 1.3rem;
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 8px;
-            margin-bottom: 20px;
-            margin-top: 0;
+            margin-bottom: 4em;
         }
 
         .sub-category-section {
-            margin-left: 15px; /* Indents the sub-categories slightly */
-            margin-bottom: 25px;
+            margin-bottom: 2em;
+            background: rgba(128, 128, 128, 0.05);
+            padding: 1.5em;
+            border-radius: 8px;
+            border-left: 4px solid rgba(128, 128, 128, 0.35);
         }
 
         .sub-category-section h3 {
-            font-size: 1.1rem;
-            color: #4a5568;
-            margin-bottom: 15px;
-            margin-top: 0;
-            font-weight: 600;
+            margin-bottom: 1em;
             display: flex;
             align-items: center;
         }
 
-        /* Adds a tiny accent dot next to sub-category titles */
-        .sub-category-section h3::before {
-            content: '';
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            background-color: var(--accent-color);
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        /* Responsive Grid: The key to scalability */
         .menu-grid {
             display: grid;
-            /* Automatically creates columns based on available space. 
-               min(100%, 260px) ensures it doesn't overflow on small mobile screens. */
-            grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1em;
         }
 
         .menu-button {
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: var(--accent-color);
-            color: white;
-            text-decoration: none;
-            padding: 15px 20px;
-            border-radius: 8px;
-            font-size: 1.05rem;
-            font-weight: 600;
+            background-color: transparent;
+            border: 1px solid rgba(128, 128, 128, 0.25);
+            padding: 1em;
+            border-radius: 4px;
+            font-size: 0.9rem;
             transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
             text-align: center;
-            min-height: 50px; /* Ensures buttons are uniform in height even with short text */
+            min-height: 4em;
+            text-decoration: none;
+            color: inherit;
         }
 
         .menu-button:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
-        }
-
-        .menu-button:active {
-            transform: translateY(0);
+            background-color: rgba(128, 128, 128, 0.1);
+            border-color: rgba(128, 128, 128, 0.6);
         }
         
         .no-results {
             display: none;
-            text-align: center;
-            color: #718096;
+            text-align: left;
             font-style: italic;
-            padding: 20px;
-        }
-
-        footer {
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-size: 0.85rem;
-            color: #999;
-            text-align: center;
-        }
-
-        /* Mobile Responsiveness Rules */
-        @media (max-width: 600px) {
-            .container {
-                padding: 25px 20px;
-                margin: 20px 10px;
-            }
-            .sub-category-section {
-                margin-left: 0;
-            }
-            h1 {
-                font-size: 1.8rem;
-            }
+            padding: 2em;
+            background: rgba(128, 128, 128, 0.05);
+            border-radius: 8px;
+            margin-bottom: 2em;
         }
     </style>
 </head>
-<body>
+<body class="is-preload">
 
-    <div class="container">
-        <div class="header-section">
-            <h1>Teaching Materials Library</h1>
-            <p>A collection of interactive demonstrations and teaching materials designed for exploring concepts in psychology, neuroscience, and statistics.</p>
+    <!-- Sidebar -->
+    <section id="sidebar">
+        <div class="inner">
+            <nav>
+                <ul>
+                    <li><a href="https://yiuhong.github.io/#intro">Home</a></li>
+                    <li><a href="https://yiuhong.github.io/#one">Research & Publications</a></li>
+                    <li><a href="https://yiuhong.github.io/#two">Teaching & Mentorship</a></li>
+                    <li><a href="https://yiuhong.github.io/#three">Contact</a></li>
+                    <li><a href="#" class="active">Demo Library</a></li>
+                </ul>
+            </nav>
         </div>
+    </section>
 
-        <div class="search-container">
-            <input type="text" id="searchInput" aria-label="Search for a demo or topic" placeholder="Search for a demo or topic...">
-        </div>
-        
-        <div id="noResults" class="no-results">
-            No demonstrations found matching your search.
-        </div>
+    <!-- Wrapper -->
+    <div id="wrapper">
 
-        <div class="category-section" id="cognitive-category">
-            <h2>Cognitive Psychology</h2>
-            
-            <div class="sub-category-section">
-                <h3>Mental Chronometry</h3>
-                <nav class="menu-grid">
-                    <a href="cognitive_psychology/noematachograph.html" class="menu-button">Noematachograph</a>
-                </nav>
+        <!-- Intro Section -->
+        <section id="intro" class="wrapper style1 fade-up">
+            <div class="inner">
+                <h1>Teaching Materials Library</h1>
+                <p>A collection of interactive demonstrations and teaching materials designed for exploring concepts in psychology, neuroscience, and statistics.</p>
+                
+                <div class="search-container">
+                    <input type="text" id="searchInput" aria-label="Search for a demo or topic" placeholder="Search for a demo or topic...">
+                </div>
+                
+                <div id="noResults" class="no-results">
+                    No demonstrations found matching your search. Try adjusting your keywords.
+                </div>
             </div>
-        </div>
+        </section>
 
-        <div class="category-section" id="neuro-category">
-            <h2>Neuroscience</h2>
+        <!-- Content Area -->
+        <section class="wrapper style2 fade-up">
+            <div class="inner">
+                
+                <div class="category-section" id="cognitive-category">
+                    <h2>Cognitive Psychology</h2>
+                    
+                    <div class="sub-category-section">
+                        <h3>Mental Chronometry</h3>
+                        <nav class="menu-grid">
+                            <a href="cognitive_psychology/noematachograph.html" class="menu-button">Noematachograph</a>
+                        </nav>
+                    </div>
+                </div>
 
-            <div class="sub-category-section">
-                <h3>Electroencephalography (EEG)</h3>
-                <nav class="menu-grid">
-                    <a href="neuroscience/eeg_illustration.html" class="menu-button">EEG Illustration</a>
-                    <a href="neuroscience/EEG_signal_decomposition.html" class="menu-button">EEG Signal Decomposition</a>
-                    <a href="neuroscience/erp_demo.html" class="menu-button">Event-related potential (ERP)</a>
-                </nav>
+                <div class="category-section" id="neuro-category">
+                    <h2>Neuroscience</h2>
+
+                    <div class="sub-category-section">
+                        <h3>Electroencephalography (EEG)</h3>
+                        <nav class="menu-grid">
+                            <a href="neuroscience/eeg_illustration.html" class="menu-button">EEG Illustration</a>
+                            <a href="neuroscience/EEG_signal_decomposition.html" class="menu-button">EEG Signal Decomposition</a>
+                            <a href="neuroscience/erp_demo.html" class="menu-button">Event-related potential (ERP)</a>
+                        </nav>
+                    </div>
+
+                    <div class="sub-category-section">
+                        <h3>Functional Near-Infrared Spectroscopy (fNIRS)</h3>
+                        <nav class="menu-grid">
+                            <a href="neuroscience/fnirs_mechanism.html" class="menu-button">fNIRS Mechanism</a>
+                        </nav>
+                    </div>
+                </div>
             </div>
+        </section>
 
-            <div class="sub-category-section">
-                <h3>Functional Near-Infrared Spectroscopy (fNIRS)</h3>
-                <nav class="menu-grid">
-                    <a href="neuroscience/fnirs_mechanism.html" class="menu-button">fNIRS Mechanism</a>
-                </nav>
+        <section class="wrapper style3 fade-up">
+            <div class="inner">
+                <div class="category-section" id="stats-category">
+                    <h2>Statistics</h2>
+                    
+                    <div class="sub-category-section">
+                        <h3>Descriptive Statistics</h3>
+                        <nav class="menu-grid">
+                            <a href="statistics/mean_mode_median_dot_plot.html" class="menu-button">Mean, Median, and Mode on a Dot Plot</a>
+                            <a href="statistics/bessels_correction_simulation.html" class="menu-button">Bessel's correction</a>
+                            <a href="statistics/moments_as_averages.html" class="menu-button">Moments</a>
+                        </nav>
+                    </div>
+
+                    <div class="sub-category-section">
+                        <h3>Data Visualization</h3>
+                        <nav class="menu-grid">
+                            <a href="statistics/boxplot_outliers.html" class="menu-button">Boxplot and Outliers</a>
+                            <a href="statistics/boxplot_histogram.html" class="menu-button">Boxplot and Histogram</a>
+                            <a href="statistics/q_q_plot.html" class="menu-button">Q-Q Plot</a>
+                            <a href="statistics/skewed_distribution.html" class="menu-button">Skewed Distribution</a>
+                        </nav>
+                    </div>
+
+                    <div class="sub-category-section">
+                        <h3>Inferential Statistics</h3>
+                        <nav class="menu-grid">
+                            <a href="statistics/building_normal_distribution.html" class="menu-button">Building Normal Distribution</a>
+                            <a href="statistics/central_limit_theorem.html" class="menu-button">Central Limit Theorem (CLT)</a>
+                            <a href="statistics/horowitz_1974_simulation_CLT.html" class="menu-button">Horowitz (1974) Simulation of CLT</a>
+                            <a href="statistics/z_distribution_vs_t_distribution.html" class="menu-button">Z-Distribution vs t-Distribution</a>
+                            <a href="statistics/paired_t_test_simulation.html" class="menu-button">Paired Sample t-Test</a>
+                            <a href="statistics/independent_t_test_simulation.html" class="menu-button">Independent Samples t-Test</a>
+                            <a href="statistics/statistical_power.html" class="menu-button">Statistical Power</a>
+                            <a href="statistics/power_curve.html" class="menu-button">Power Curve</a>
+                        </nav>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <div class="category-section" id="stats-category">
-            <h2>Statistics</h2>
-            
-            <div class="sub-category-section">
-                <h3>Descriptive Statistics</h3>
-                <nav class="menu-grid">
-                    <a href="statistics/mean_mode_median_dot_plot.html" class="menu-button">Mean, Median, and Mode on a Dot Plot</a>
-                    <a href="statistics/bessels_correction_simulation.html" class="menu-button">Bessel's correction</a>
-                    <a href="statistics/moments_as_averages.html" class="menu-button">Moments</a>
-                </nav>
+        <section class="wrapper style1 fade-up">
+            <div class="inner">
+                <div class="category-section" id="personality-category">
+                    <h2>Personality Psychology</h2>
+                    
+                    <div class="sub-category-section">
+                        <h3>Psychoanalysis</h3>
+                        <nav class="menu-grid">
+                            <a href="personality_psychology/nlp_psychotherapy.html" class="menu-button">Natural Language Processing (NLP) in Psychotherapy</a>
+                        </nav>
+                    </div>
+
+                    <div class="sub-category-section">
+                        <h3>Personality Traits</h3>
+                        <nav class="menu-grid">
+                            <a href="personality_psychology/lexical_approach.html" class="menu-button">Lexical Approach</a>
+                        </nav>
+                    </div>
+                </div>
             </div>
+        </section>
 
-            <div class="sub-category-section">
-                <h3>Data Visualization</h3>
-                <nav class="menu-grid">
-                    <a href="statistics/boxplot_outliers.html" class="menu-button">Boxplot and Outliers</a>
-                    <a href="statistics/boxplot_histogram.html" class="menu-button">Boxplot and Histogram</a>
-                    <a href="statistics/q_q_plot.html" class="menu-button">Q-Q Plot</a>
-                    <a href="statistics/skewed_distribution.html" class="menu-button">Skewed Distribution</a>
-                </nav>
-            </div>
-
-            <div class="sub-category-section">
-                <h3>Inferential Statistics</h3>
-                <nav class="menu-grid">
-                    <a href="statistics/building_normal_distribution.html" class="menu-button">Building Normal Distribution</a>
-                    <a href="statistics/central_limit_theorem.html" class="menu-button">Central Limit Theorem (CLT)</a>
-                    <a href="statistics/horowitz_1974_simulation_CLT.html" class="menu-button">Horowitz (1974) Simulation of CLT</a>
-                    <a href="statistics/z_distribution_vs_t_distribution.html" class="menu-button">Z-Distribution vs t-Distribution</a>
-                    <a href="statistics/paired_t_test_simulation.html" class="menu-button">Paired Sample t-Test</a>
-                    <a href="statistics/independent_t_test_simulation.html" class="menu-button">Independent Samples t-Test</a>
-                    <a href="statistics/statistical_power.html" class="menu-button">Statistical Power</a>
-                    <a href="statistics/power_curve.html" class="menu-button">Power Curve</a>
-                </nav>
-            </div>
-        </div>
-
-        <div class="category-section" id="personality-category">
-            <h2>Personality Psychology</h2>
-            
-            <div class="sub-category-section">
-                <h3>Psychoanalysis</h3>
-                <nav class="menu-grid">
-                    <a href="personality_psychology/nlp_psychotherapy.html" class="menu-button">Natural Language Processing (NLP) in Psychotherapy</a>
-                </nav>
-            </div>
-
-            <div class="sub-category-section">
-                <h3>Personality Traits</h3>
-                <nav class="menu-grid">
-                    <a href="personality_psychology/lexical_approach.html" class="menu-button">Lexical Approach</a>
-                </nav>
-            </div>
-        </div>
-
-        <footer>
-            <p><a href="https://yiuhong.github.io/">Yiu Hong Ko</a> &copy; 2026</p>
-        </footer>
     </div>
 
+    <!-- Footer -->
+    <footer id="footer" class="wrapper style1-alt">
+        <div class="inner">
+            <ul class="menu">
+                <li>&copy; Yiu Hong Ko 2026. All rights reserved.</li>
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Scripts with absolute links pointing to your main website -->
+    <script src="https://yiuhong.github.io/assets/js/jquery.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/jquery.scrollex.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/jquery.scrolly.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/browser.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/breakpoints.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/util.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/main.js"></script>
+    
+    <!-- Custom Search Script (Refactored for Stability) -->
     <script>
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
-            const allButtons = document.querySelectorAll('.menu-button');
             let totalVisibleDemos = 0;
 
             // 1. Filter individual buttons
-            allButtons.forEach(button => {
+            document.querySelectorAll('.menu-button').forEach(button => {
                 if (button.textContent.toLowerCase().includes(searchTerm)) {
-                    button.style.display = ''; // Clear inline style to fallback to CSS defaults safely
+                    button.style.display = ''; 
                     totalVisibleDemos++;
                 } else {
                     button.style.display = 'none';
                 }
             });
 
-            // 2. Hide/Show Sub-categories (hide if all inner buttons are hidden)
+            // 2. Hide/Show Sub-categories
             document.querySelectorAll('.sub-category-section').forEach(sub => {
                 const hasVisible = Array.from(sub.querySelectorAll('.menu-button')).some(btn => btn.style.display !== 'none');
-                sub.style.display = hasVisible ? 'block' : 'none';
+                sub.style.display = hasVisible ? '' : 'none';
             });
 
-            // 3. Hide/Show Main Categories (hide if all inner buttons are hidden)
+            // 3. Hide/Show Main Categories
             document.querySelectorAll('.category-section').forEach(category => {
-                const hasVisible = Array.from(category.querySelectorAll('.menu-button')).some(btn => btn.style.display !== 'none');
-                category.style.display = hasVisible ? 'block' : 'none';
+                const hasVisible = Array.from(category.querySelectorAll('.sub-category-section')).some(sub => sub.style.display !== 'none');
+                category.style.display = hasVisible ? '' : 'none';
             });
 
-            // Show 'no results' message if nothing matches
+            // 4. Hide/Show Layout Wrappers (Prevents blank spacing blocks)
+            document.querySelectorAll('section.wrapper').forEach(wrapper => {
+                if (wrapper.id === 'intro') return; // Always keep the header visible
+                const hasVisible = Array.from(wrapper.querySelectorAll('.category-section')).some(cat => cat.style.display !== 'none');
+                wrapper.style.display = hasVisible ? '' : 'none';
+            });
+
+            // 5. Show/Hide No Results Warning
             document.getElementById('noResults').style.display = totalVisibleDemos === 0 ? 'block' : 'none';
         });
     </script>
