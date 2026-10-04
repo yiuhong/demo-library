@@ -23,8 +23,23 @@
         #searchInput {
             width: 100%;
             max-width: 600px;
+            color: #ffffff; /* Active text color */
         }
 
+        /* Ensure placeholder text is grayed out */
+        #searchInput::placeholder {
+            color: rgba(255, 255, 255, 0.4) !important;
+            opacity: 1; /* Firefox */
+        }
+        
+        #searchInput:-ms-input-placeholder { /* Internet Explorer 10-11 */
+            color: rgba(255, 255, 255, 0.4) !important;
+        }
+        
+        #searchInput::-ms-input-placeholder { /* Microsoft Edge */
+            color: rgba(255, 255, 255, 0.4) !important;
+        }
+        
         .category-section {
             margin-bottom: 4em;
         }
@@ -240,30 +255,45 @@
     
     <!-- Custom Search Script (Refactored for Stability) -->
     <script>
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
+        const searchInput = document.getElementById('searchInput');
+
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
             let totalVisibleDemos = 0;
 
-            // 1. Filter individual buttons
-            document.querySelectorAll('.menu-button').forEach(button => {
-                if (button.textContent.toLowerCase().includes(searchTerm)) {
-                    button.style.display = ''; 
-                    totalVisibleDemos++;
-                } else {
-                    button.style.display = 'none';
-                }
-            });
-
-            // 2. Hide/Show Sub-categories
-            document.querySelectorAll('.sub-category-section').forEach(sub => {
-                const hasVisible = Array.from(sub.querySelectorAll('.menu-button')).some(btn => btn.style.display !== 'none');
-                sub.style.display = hasVisible ? '' : 'none';
-            });
-
-            // 3. Hide/Show Main Categories
+            // 1. Process Categories and Sub-categories first to establish context
             document.querySelectorAll('.category-section').forEach(category => {
-                const hasVisible = Array.from(category.querySelectorAll('.sub-category-section')).some(sub => sub.style.display !== 'none');
-                category.style.display = hasVisible ? '' : 'none';
+                const categoryTitleMatch = category.querySelector('h2').textContent.toLowerCase().includes(searchTerm);
+                
+                category.querySelectorAll('.sub-category-section').forEach(sub => {
+                    const subTitleMatch = sub.querySelector('h3').textContent.toLowerCase().includes(searchTerm);
+                    let subHasVisibleButtons = false;
+
+                    // Evaluate buttons within this sub-category
+                    sub.querySelectorAll('.menu-button').forEach(button => {
+                        const buttonTextMatch = button.textContent.toLowerCase().includes(searchTerm);
+                        
+                        // Show button if:
+                        // 1. Search is empty
+                        // 2. Button text matches
+                        // 3. Sub-category title matches (show all buttons in sub-category)
+                        // 4. Category title matches (show all buttons in category)
+                        if (searchTerm === '' || buttonTextMatch || subTitleMatch || categoryTitleMatch) {
+                            button.style.display = '';
+                            subHasVisibleButtons = true;
+                            totalVisibleDemos++;
+                        } else {
+                            button.style.display = 'none';
+                        }
+                    });
+
+                    // Hide/Show Sub-categories
+                    sub.style.display = subHasVisibleButtons ? '' : 'none';
+                });
+
+                // Hide/Show Main Categories
+                const categoryHasVisibleSubs = Array.from(category.querySelectorAll('.sub-category-section')).some(sub => sub.style.display !== 'none');
+                category.style.display = categoryHasVisibleSubs ? '' : 'none';
             });
 
             // 4. Hide/Show Layout Wrappers (Prevents blank spacing blocks)
@@ -274,7 +304,7 @@
             });
 
             // 5. Show/Hide No Results Warning
-            document.getElementById('noResults').style.display = totalVisibleDemos === 0 ? 'block' : 'none';
+            document.getElementById('noResults').style.display = (totalVisibleDemos === 0 && searchTerm !== '') ? 'block' : 'none';
         });
     </script>
 </body>
