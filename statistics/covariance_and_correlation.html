@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Covariance and Correlation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Add MathJax for beautiful math rendering -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        /* Point interaction styles */
+        .point {
+            cursor: grab;
+            transition: r 0.2s ease, stroke-width 0.2s ease, fill 0.2s ease;
+            touch-action: none; /* Prevents mobile scrolling while dragging points */
+        }
+        
+        .point:active {
+            cursor: grabbing;
+        }
+
+        .point:hover {
+            r: 9;
+            stroke-width: 2.5;
+            fill: #4338ca; /* darker indigo on hover */
+        }
+
+        /* Custom Toggle Switch Styles based on sibling selectors */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #3b82f6;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #3b82f6;
+        }
+        .toggle-checkbox {
+            right: 0;
+            z-index: 1;
+            border-color: #e2e8f0;
+            transition: all 0.3s;
+        }
+        .toggle-label {
+            width: 3rem;
+            height: 1.5rem;
+            background-color: #cbd5e1;
+            border-radius: 9999px;
+            transition: all 0.3s;
+        }
+        .toggle-circle {
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: white;
+            border-radius: 50%;
+            top: 0.125rem;
+            left: 0.125rem;
+            transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-checkbox:checked ~ .toggle-circle {
+            transform: translateX(1.5rem);
+        }
+
+        /* D3 transitions */
+        .area-rect {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col md:flex-row text-slate-800">
+
+    <!-- Fullscreen Button -->
+    <button id="fullscreen-btn" class="fixed top-4 right-4 md:top-6 md:right-6 z-50 bg-slate-800 hover:bg-slate-700 text-white py-2 px-3 rounded-lg shadow-lg flex items-center gap-2 transition-colors active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+        <span class="hidden sm:inline text-sm font-medium">Fullscreen</span>
+    </button>
+
+    <!-- Sidebar / Controls -->
+    <div class="w-full md:w-80 lg:w-96 bg-white shadow-xl flex flex-col z-10 border-r border-slate-200 h-1/3 md:h-full overflow-y-auto shrink-0">
+        <div class="p-5 border-b border-slate-100 bg-slate-50/50">
+            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                Covariance and Correlation
+            </h1>
+            <p class="text-sm text-slate-500 mt-2 leading-relaxed">Drag the points on the grid to observe real-time changes in deviations, covariance, and correlation.</p>
+        </div>
+        
+        <div class="p-5 flex-1 flex flex-col gap-6">
+            <!-- Toggles Section -->
+            <div class="space-y-4">
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Visual Layers</h2>
+                
+                <label class="flex items-center cursor-pointer relative group">
+                    <div class="relative w-12 h-6 rounded-full bg-slate-200 mr-3 shrink-0">
+                        <input type="checkbox" id="toggle-x-dev" class="sr-only toggle-checkbox" checked>
+                        <div class="toggle-label absolute inset-0 cursor-pointer group-hover:bg-slate-400"></div>
+                        <div class="toggle-circle absolute cursor-pointer"></div>
+                    </div>
+                    <div class="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex items-center gap-2">
+                        <div class="w-3 h-0.5 bg-blue-500"></div> Show X Deviations
+                    </div>
+                </label>
+
+                <label class="flex items-center cursor-pointer relative group">
+                    <div class="relative w-12 h-6 rounded-full bg-slate-200 mr-3 shrink-0">
+                        <input type="checkbox" id="toggle-y-dev" class="sr-only toggle-checkbox" checked>
+                        <div class="toggle-label absolute inset-0 cursor-pointer group-hover:bg-slate-400"></div>
+                        <div class="toggle-circle absolute cursor-pointer"></div>
+                    </div>
+                    <div class="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex items-center gap-2">
+                        <div class="w-0.5 h-3 bg-amber-500"></div> Show Y Deviations
+                    </div>
+                </label>
+
+                <label class="flex items-center cursor-pointer relative group">
+                    <div class="relative w-12 h-6 rounded-full bg-slate-200 mr-3 shrink-0">
+                        <input type="checkbox" id="toggle-cov-area" class="sr-only toggle-checkbox" checked>
+                        <div class="toggle-label absolute inset-0 cursor-pointer group-hover:bg-slate-400"></div>
+                        <div class="toggle-circle absolute cursor-pointer"></div>
+                    </div>
+                    <div class="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">
+                        Show Covariance Areas
+                    </div>
+                </label>
+
+                <label class="flex items-center cursor-pointer relative group">
+                    <div class="relative w-12 h-6 rounded-full bg-slate-200 mr-3 shrink-0">
+                        <input type="checkbox" id="toggle-trendline" class="sr-only toggle-checkbox" checked>
+                        <div class="toggle-label absolute inset-0 cursor-pointer group-hover:bg-slate-400"></div>
+                        <div class="toggle-circle absolute cursor-pointer"></div>
+                    </div>
+                    <div class="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex items-center gap-2">
+                        <div class="w-4 h-0 bg-transparent border-t-2 border-dashed border-purple-500"></div> Show Trendline
+                    </div>
+                </label>
+            </div>
+
+            <!-- Stats Board Section -->
+            <div class="space-y-4 pt-4 border-t border-slate-100">
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Statistics</h2>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-50/80 p-3 rounded-lg border border-slate-100 shadow-sm">
+                        <div class="text-xs text-slate-500 mb-1 font-medium">Mean of X (<span class="text-blue-600">x̄</span>)</div>
+                        <div id="stat-mean-x" class="text-lg font-bold text-slate-700 font-mono">0.00</div>
+                    </div>
+                    <div class="bg-slate-50/80 p-3 rounded-lg border border-slate-100 shadow-sm">
+                        <div class="text-xs text-slate-500 mb-1 font-medium">Mean of Y (<span class="text-amber-600">ȳ</span>)</div>
+                        <div id="stat-mean-y" class="text-lg font-bold text-slate-700 font-mono">0.00</div>
+                    </div>
+                    
+                    <div class="bg-slate-50/80 p-3 rounded-lg border border-slate-100 shadow-sm">
+                        <div class="text-xs text-slate-500 mb-1 font-medium">Variance X (s²x)</div>
+                        <div id="stat-var-x" class="text-lg font-bold text-slate-700 font-mono">0.00</div>
+                    </div>
+                    <div class="bg-slate-50/80 p-3 rounded-lg border border-slate-100 shadow-sm">
+                        <div class="text-xs text-slate-500 mb-1 font-medium">Variance Y (s²y)</div>
+                        <div id="stat-var-y" class="text-lg font-bold text-slate-700 font-mono">0.00</div>
+                    </div>
+                </div>
+
+                <!-- Core Metrics -->
+                <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mt-2 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full -mr-8 -mt-8 blur-xl"></div>
+                    <div class="flex justify-between items-end mb-3 relative z-10">
+                        <div class="text-sm font-semibold text-indigo-900">Covariance <span class="text-xs font-normal opacity-70 block">s(x,y)</span></div>
+                        <div id="stat-cov" class="text-2xl font-bold text-indigo-700 font-mono tracking-tight">0.00</div>
+                    </div>
+                    <div class="h-px w-full bg-indigo-200/50 my-2"></div>
+                    <div class="flex justify-between items-end relative z-10">
+                        <div class="text-sm font-semibold text-purple-900">Correlation <span class="text-xs font-normal opacity-70 block">Pearson's r</span></div>
+                        <div id="stat-cor" class="text-2xl font-bold text-purple-700 font-mono tracking-tight">0.000</div>
+                    </div>
+                </div>
+
+                <!-- Mathematical Formulae -->
+                <div class="mt-4 bg-slate-50/80 p-4 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Mathematical Formulae</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-xs text-slate-500 mb-1 font-medium">Sample Covariance ($s_{xy}$)</div>
+                            <div class="text-sm text-slate-700 flex justify-center py-1">
+                                $$ s_{xy} = \frac{\sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})}{n-1} $$
+                            </div>
+                            <p class="text-[11px] text-slate-500 leading-relaxed mt-1 text-center">
+                                Measures joint variability. Averages the product of deviations (the colored areas) to indicate the direction of the relationship.
+                            </p>
+                        </div>
+                        <div class="h-px w-full bg-slate-200"></div>
+                        <div>
+                            <div class="text-xs text-slate-500 mb-1 font-medium">Pearson Correlation ($r$)</div>
+                            <div class="text-sm text-slate-700 flex justify-center py-1">
+                                $$ r = \frac{s_{xy}}{s_x s_y} $$
+                            </div>
+                            <p class="text-[11px] text-slate-500 leading-relaxed mt-1 text-center">
+                                Normalizes covariance using the standard deviations ($s_x, s_y$) to a strict -1 to 1 scale. <strong>Because variables physically cannot vary together more than they vary individually, the denominator ($s_x s_y$) acts as the absolute maximum mathematical limit of joint variation.</strong>
+                            </p>
+                        </div>
+                        <div class="h-px w-full bg-slate-200"></div>
+                        <div>
+                            <div class="text-xs text-slate-500 mb-1 font-medium">Trendline Slope ($m$)</div>
+                            <div class="text-sm text-slate-700 flex justify-center py-1">
+                                $$ m = r \times \frac{s_y}{s_x} $$
+                            </div>
+                            <p class="text-[11px] text-slate-500 leading-relaxed mt-1 text-center">
+                                Correlation ($r$) acts as the <strong>standardized slope</strong>. If you strip away the messiness of real-world units (by converting data to Z-scores where $s_x = 1$ and $s_y = 1$), the slope of the regression line perfectly equals $r$.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 bg-white p-3.5 border border-slate-200 rounded-lg text-xs text-slate-600 leading-relaxed shadow-sm">
+                    <div class="flex items-start gap-2 mb-2">
+                        <span class="shrink-0 w-3.5 h-3.5 mt-0.5 bg-emerald-100 border border-emerald-400 rounded-sm"></span> 
+                        <p><strong class="text-emerald-700">Positive Area:</strong> Point is above both means or below both means. Increases covariance.</p>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="shrink-0 w-3.5 h-3.5 mt-0.5 bg-rose-100 border border-rose-400 rounded-sm"></span> 
+                        <p><strong class="text-rose-700">Negative Area:</strong> Point is above one mean but below the other. Decreases covariance.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-auto pt-4 pb-2">
+                <button id="reset-btn" class="w-full py-3 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-all shadow-sm active:scale-[0.98]">
+                    Reset Points
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chart Area -->
+    <div class="flex-1 h-2/3 md:h-full relative p-4 md:p-6 lg:p-8 bg-slate-100/50" id="chart-wrapper">
+        <div class="w-full h-full bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden relative flex flex-col" id="chart-container">
+            <svg id="viz" class="w-full h-full absolute inset-0"></svg>
+        </div>
+    </div>
+
+    <script>
+        // UI State
+        let showXDev = true;
+        let showYDev = true;
+        let showCovArea = true;
+        let showTrendline = true;
+
+        // Chart configuration
+        const domainMax = 100;
+        
+        // Initial Data Points (simulating a positive correlation initially)
+        const initialData = [
+            { id: 1, x: 20, y: 30 },
+            { id: 2, x: 35, y: 40 },
+            { id: 3, x: 50, y: 55 },
+            { id: 4, x: 70, y: 65 },
+            { id: 5, x: 80, y: 85 },
+            { id: 6, x: 85, y: 60 },
+            { id: 7, x: 40, y: 20 },
+        ];
+        
+        let data = JSON.parse(JSON.stringify(initialData));
+
+        // SVG and D3 Selections
+        const container = document.getElementById('chart-container');
+        const svg = d3.select("#viz");
+        
+        let width, height, margin, innerWidth, innerHeight;
+        let xScale, yScale;
+        
+        // SVG Group Elements (Layering order matters)
+        const gGrid = svg.append("g").attr("class", "grid-layer");
+        const gAreas = svg.append("g").attr("class", "areas-layer");
+        const gRegression = svg.append("g").attr("class", "regression-layer");
+        const gAxes = svg.append("g").attr("class", "axes-layer");
+        const gDeviations = svg.append("g").attr("class", "deviations-layer");
+        const gMeans = svg.append("g").attr("class", "means-layer");
+        const gPoints = svg.append("g").attr("class", "points-layer");
+
+        // D3 Drag Behavior (Declared globally to avoid re-creation memory leaks in render())
+        const dragBehavior = d3.drag()
+            .subject(function(event, d) {
+                // Correctly map data coordinates to pixel coordinates for the drag origin
+                return { x: xScale(d.x), y: yScale(d.y) };
+            })
+            .on("start", function(event, d) {
+                d3.select(this)
+                    .raise()
+                    .attr("stroke", "#1e293b")
+                    .attr("stroke-width", 3)
+                    .attr("r", 9);
+            })
+            .on("drag", function(event, d) {
+                let newX = xScale.invert(event.x);
+                let newY = yScale.invert(event.y);
+                
+                // Constrain to chart domain boundaries
+                d.x = Math.max(0, Math.min(domainMax, newX));
+                d.y = Math.max(0, Math.min(domainMax, newY));
+                
+                // Re-render synchronously during drag for immediate feedback
+                render(); 
+            })
+            .on("end", function(event, d) {
+                d3.select(this)
+                    .attr("stroke", "#fff")
+                    .attr("stroke-width", 2)
+                    .attr("r", 7);
+            });
+
+        // Statistics Calculations
+        function calculateStats() {
+            const n = data.length;
+            if (n < 2) return null;
+
+            const sumX = d3.sum(data, d => d.x);
+            const sumY = d3.sum(data, d => d.y);
+            
+            const meanX = sumX / n;
+            const meanY = sumY / n;
+
+            // Variances (Sample variance, divide by n-1)
+            const devX = data.map(d => d.x - meanX);
+            const devY = data.map(d => d.y - meanY);
+            
+            const sumSqX = d3.sum(devX, dx => dx * dx);
+            const sumSqY = d3.sum(devY, dy => dy * dy);
+            
+            const varX = sumSqX / (n - 1);
+            const varY = sumSqY / (n - 1);
+            
+            // Covariance
+            const sumCrossProd = d3.sum(data, (d, i) => devX[i] * devY[i]);
+            const cov = sumCrossProd / (n - 1);
+            
+            // Correlation
+            const sdX = Math.sqrt(varX);
+            const sdY = Math.sqrt(varY);
+            let cor = 0;
+            if (sdX > 0 && sdY > 0) {
+                cor = cov / (sdX * sdY);
+            }
+
+            return { meanX, meanY, varX, varY, cov, cor, sdX, sdY };
+        }
+
+        // Update DOM with statistics
+        function updateStatUI(stats) {
+            document.getElementById('stat-mean-x').textContent = stats.meanX.toFixed(1);
+            document.getElementById('stat-mean-y').textContent = stats.meanY.toFixed(1);
+            
+            // Format variance nicely, avoiding huge decimals if large
+            document.getElementById('stat-var-x').textContent = stats.varX > 100 ? Math.round(stats.varX) : stats.varX.toFixed(2);
+            document.getElementById('stat-var-y').textContent = stats.varY > 100 ? Math.round(stats.varY) : stats.varY.toFixed(2);
+            
+            const covEl = document.getElementById('stat-cov');
+            const formattedCov = Math.abs(stats.cov) > 100 ? Math.round(stats.cov) : stats.cov.toFixed(2);
+            covEl.textContent = formattedCov;
+            
+            if (stats.cov > 1) covEl.className = "text-2xl font-bold font-mono tracking-tight text-emerald-600";
+            else if (stats.cov < -1) covEl.className = "text-2xl font-bold font-mono tracking-tight text-rose-600";
+            else covEl.className = "text-2xl font-bold font-mono tracking-tight text-indigo-700";
+
+            const corEl = document.getElementById('stat-cor');
+            corEl.textContent = stats.cor.toFixed(3);
+            
+            if (stats.cor > 0.1) corEl.className = "text-2xl font-bold font-mono tracking-tight text-emerald-600";
+            else if (stats.cor < -0.1) corEl.className = "text-2xl font-bold font-mono tracking-tight text-rose-600";
+            else corEl.className = "text-2xl font-bold font-mono tracking-tight text-purple-700";
+        }
+
+        function initChart() {
+            // Get dimensions from parent container
+            const rect = container.getBoundingClientRect();
+            width = rect.width;
+            height = rect.height;
+            
+            // Responsive margins
+            const isMobile = width < 600;
+            margin = { 
+                top: 30, 
+                right: 30, 
+                bottom: isMobile ? 50 : 60, 
+                left: isMobile ? 50 : 60 
+            };
+            
+            innerWidth = width - margin.left - margin.right;
+            innerHeight = height - margin.top - margin.bottom;
+
+            if(innerWidth < 0 || innerHeight < 0) return; // Prevent errors on tiny screens/initial load
+
+            // Setup scales
+            xScale = d3.scaleLinear().domain([0, domainMax]).range([0, innerWidth]).nice();
+            yScale = d3.scaleLinear().domain([0, domainMax]).range([innerHeight, 0]).nice();
+
+            // Apply margin translation to all groups
+            svg.selectAll("g").attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            drawAxes();
+            render();
+        }
+
+        function drawAxes() {
+            gAxes.selectAll("*").remove();
+            gGrid.selectAll("*").remove();
+
+            // Grid lines configuration
+            const numTicks = width < 500 ? 5 : 10;
+            const xGrid = d3.axisBottom(xScale).tickSize(-innerHeight).tickFormat("").ticks(numTicks);
+            const yGrid = d3.axisLeft(yScale).tickSize(-innerWidth).tickFormat("").ticks(numTicks);
+            
+            gGrid.append("g")
+                .attr("class", "grid-lines-x")
+                .attr("transform", `translate(0,${innerHeight})`)
+                .call(xGrid)
+                .call(g => g.selectAll("line")
+                    .attr("stroke", "#f1f5f9")
+                    .attr("stroke-dasharray", "4,4")
+                )
+                .call(g => g.select(".domain").remove());
+                
+            gGrid.append("g")
+                .attr("class", "grid-lines-y")
+                .call(yGrid)
+                .call(g => g.selectAll("line")
+                    .attr("stroke", "#f1f5f9")
+                    .attr("stroke-dasharray", "4,4")
+                )
+                .call(g => g.select(".domain").remove());
+
+            // Axes configuration
+            const xAxis = d3.axisBottom(xScale).ticks(numTicks);
+            const yAxis = d3.axisLeft(yScale).ticks(numTicks);
+
+            const xAxisGroup = gAxes.append("g")
+                .attr("transform", `translate(0,${innerHeight})`)
+                .call(xAxis);
+                
+            xAxisGroup.select(".domain").attr("stroke", "#94a3b8").attr("stroke-width", 2);
+            xAxisGroup.selectAll(".tick line").attr("stroke", "#cbd5e1");
+            xAxisGroup.selectAll(".tick text").attr("fill", "#64748b").attr("font-family", "Inter").attr("font-size", "11px");
+
+            const yAxisGroup = gAxes.append("g")
+                .call(yAxis);
+                
+            yAxisGroup.select(".domain").attr("stroke", "#94a3b8").attr("stroke-width", 2);
+            yAxisGroup.selectAll(".tick line").attr("stroke", "#cbd5e1");
+            yAxisGroup.selectAll(".tick text").attr("fill", "#64748b").attr("font-family", "Inter").attr("font-size", "11px");
+                
+            // Axis Labels
+            gAxes.append("text")
+                .attr("x", innerWidth / 2)
+                .attr("y", innerHeight + margin.bottom - 15)
+                .attr("fill", "#475569")
+                .attr("text-anchor", "middle")
+                .attr("font-size", "13px")
+                .attr("font-weight", "600")
+                .attr("letter-spacing", "0.05em")
+                .text("VARIABLE X");
+
+            gAxes.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 15)
+                .attr("x", -innerHeight / 2)
+                .attr("fill", "#475569")
+                .attr("text-anchor", "middle")
+                .attr("font-size", "13px")
+                .attr("font-weight", "600")
+                .attr("letter-spacing", "0.05em")
+                .text("VARIABLE Y");
+        }
+
+        function render() {
+            const stats = calculateStats();
+            if (!stats) return;
+            
+            updateStatUI(stats);
+            const { meanX, meanY } = stats;
+
+            // --- 1. Draw Means ---
+            // Mean X Line
+            const meanXLine = gMeans.selectAll(".mean-x").data([meanX]);
+            meanXLine.enter().append("line").attr("class", "mean-x")
+                .merge(meanXLine)
+                .attr("y1", 0).attr("y2", innerHeight)
+                .attr("stroke", "#2563eb").attr("stroke-width", 2).attr("stroke-dasharray", "6,4").attr("opacity", 0.7)
+                .attr("x1", d => xScale(d)).attr("x2", d => xScale(d));
+            
+            // Mean Y Line
+            const meanYLine = gMeans.selectAll(".mean-y").data([meanY]);
+            meanYLine.enter().append("line").attr("class", "mean-y")
+                .merge(meanYLine)
+                .attr("x1", 0).attr("x2", innerWidth)
+                .attr("stroke", "#d97706").attr("stroke-width", 2).attr("stroke-dasharray", "6,4").attr("opacity", 0.7)
+                .attr("y1", d => yScale(d)).attr("y2", d => yScale(d));
+
+            // --- 2. Draw Covariance Areas ---
+            const areas = gAreas.selectAll("rect").data(showCovArea ? data : [], d => d.id);
+            
+            areas.exit().remove();
+            
+            areas.enter().append("rect")
+                .attr("class", "area-rect")
+                .merge(areas)
+                .attr("x", d => Math.min(xScale(meanX), xScale(d.x)))
+                .attr("y", d => Math.min(yScale(meanY), yScale(d.y)))
+                .attr("width", d => Math.abs(xScale(d.x) - xScale(meanX)))
+                .attr("height", d => Math.abs(yScale(d.y) - yScale(meanY)))
+                .attr("fill", d => {
+                    const isPositive = (d.x - meanX) * (d.y - meanY) >= 0;
+                    return isPositive ? "#34d399" : "#fb7185"; // emerald-400 : rose-400
+                })
+                .attr("opacity", 0.15)
+                .attr("stroke", d => {
+                    const isPositive = (d.x - meanX) * (d.y - meanY) >= 0;
+                    return isPositive ? "#059669" : "#e11d48"; // emerald-600 : rose-600
+                })
+                .attr("stroke-width", 1)
+                .attr("rx", 2); 
+
+            // --- 2.5. Draw Trendline (Correlation) ---
+            // The regression line directly visualizes the linear correlation
+            const trendline = gRegression.selectAll(".trendline").data(showTrendline ? [stats] : []);
+            
+            trendline.exit().remove();
+            
+            trendline.enter().append("line")
+                .attr("class", "trendline")
+                .merge(trendline)
+                .attr("x1", d => xScale(0))
+                .attr("y1", d => {
+                    // Slope (m) = r * (sy/sx)
+                    const m = d.sdX !== 0 ? d.cor * (d.sdY / d.sdX) : 0;
+                    // Intercept (b) = mean(y) - m * mean(x)
+                    const b = d.meanY - m * d.meanX;
+                    return yScale(b);
+                })
+                .attr("x2", d => xScale(domainMax))
+                .attr("y2", d => {
+                    const m = d.sdX !== 0 ? d.cor * (d.sdY / d.sdX) : 0;
+                    const b = d.meanY - m * d.meanX;
+                    // Y value at the far right edge of the chart (x = domainMax)
+                    return yScale(m * domainMax + b);
+                })
+                .attr("stroke", "#8b5cf6") // purple-500 (matches correlation stat box)
+                .attr("stroke-width", 2.5)
+                .attr("stroke-dasharray", "8,6")
+                .attr("opacity", 0.9);
+
+            // --- 3. Draw Deviations ---
+            const xDevs = gDeviations.selectAll(".x-dev").data(showXDev ? data : [], d => d.id);
+            xDevs.exit().remove();
+            xDevs.enter().append("line").attr("class", "x-dev")
+                .merge(xDevs)
+                .attr("x1", d => xScale(meanX))
+                .attr("x2", d => xScale(d.x))
+                .attr("y1", d => yScale(d.y))
+                .attr("y2", d => yScale(d.y))
+                .attr("stroke", "#3b82f6") 
+                .attr("stroke-width", 2)
+                .attr("opacity", 0.6)
+                .attr("stroke-linecap", "round");
+
+            const yDevs = gDeviations.selectAll(".y-dev").data(showYDev ? data : [], d => d.id);
+            yDevs.exit().remove();
+            yDevs.enter().append("line").attr("class", "y-dev")
+                .merge(yDevs)
+                .attr("x1", d => xScale(d.x))
+                .attr("x2", d => xScale(d.x))
+                .attr("y1", d => yScale(meanY))
+                .attr("y2", d => yScale(d.y))
+                .attr("stroke", "#f59e0b") 
+                .attr("stroke-width", 2)
+                .attr("opacity", 0.6)
+                .attr("stroke-linecap", "round");
+
+            // --- 4. Draw Points (Draggable) ---
+            const points = gPoints.selectAll("circle.point").data(data, d => d.id);
+            
+            points.exit().remove();
+            
+            points.enter().append("circle")
+                .attr("class", "point")
+                .attr("r", 7)
+                .attr("fill", "#4f46e5")
+                .attr("stroke", "#fff")
+                .attr("stroke-width", 2)
+                .style("filter", "drop-shadow(0px 3px 3px rgba(0,0,0,0.2))")
+                .call(dragBehavior)
+                .merge(points)
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y));
+        }
+
+        // Event Listeners for Toggles
+        document.getElementById('toggle-x-dev').addEventListener('change', (e) => {
+            showXDev = e.target.checked;
+            render();
+        });
+
+        document.getElementById('toggle-y-dev').addEventListener('change', (e) => {
+            showYDev = e.target.checked;
+            render();
+        });
+
+        document.getElementById('toggle-cov-area').addEventListener('change', (e) => {
+            showCovArea = e.target.checked;
+            render();
+        });
+        
+        document.getElementById('toggle-trendline').addEventListener('change', (e) => {
+            showTrendline = e.target.checked;
+            render();
+        });
+
+        // Reset Button
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            // Deep copy initial data
+            data = JSON.parse(JSON.stringify(initialData));
+            render();
+            
+            // Add a brief animation to the points to indicate reset
+            gPoints.selectAll("circle")
+                .transition().duration(400).ease(d3.easeElastic)
+                .attr("r", 9)
+                .transition().duration(200)
+                .attr("r", 7);
+        });
+
+        // Fullscreen Toggle Logic
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+            const doc = document.documentElement;
+            
+            // Check if we are currently in fullscreen mode (cross-browser checks)
+            const isFullscreen = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+            
+            if (!isFullscreen) {
+                // Enter fullscreen
+                if (doc.requestFullscreen) {
+                    doc.requestFullscreen();
+                } else if (doc.msRequestFullscreen) {
+                    doc.msRequestFullscreen();
+                } else if (doc.mozRequestFullScreen) {
+                    doc.mozRequestFullScreen();
+                } else if (doc.webkitRequestFullscreen) {
+                    doc.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        });
+
+        // Use ResizeObserver for robust responsiveness based on container size, not just window
+        const resizeObserver = new ResizeObserver(entries => {
+            window.requestAnimationFrame(() => {
+                if (entries.length > 0) {
+                    initChart();
+                }
+            });
+        });
+
+        resizeObserver.observe(container);
+
+        setTimeout(initChart, 50);
+        
+    </script>
+</body>
+</html>
