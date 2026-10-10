@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A target analogy of the confidence intervals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+        .step-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            opacity: 0.6;
+        }
+        .step-card.active {
+            border-left-color: #3b82f6;
+            opacity: 1;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateX(4px);
+        }
+        .step-card:hover:not(.active) {
+            opacity: 0.8;
+            transform: translateX(2px);
+        }
+        .bullseye-center { fill: #ef4444; }
+        .target-ring {
+            fill: none;
+            stroke: #334155;
+            stroke-dasharray: 4, 4;
+        }
+        .dart, .ci-mean {
+            transition: fill 0.3s, opacity 0.3s;
+        }
+        .dart-halo {
+            fill: rgba(59, 130, 246, 0.1);
+            stroke: #3b82f6;
+            stroke-width: 2px;
+            transition: fill 0.4s ease, stroke 0.4s ease;
+        }
+        .halo-hit {
+            fill: rgba(16, 185, 129, 0.15);
+            stroke: #10b981;
+        }
+        .halo-miss {
+            fill: rgba(244, 63, 94, 0.15);
+            stroke: #f43f5e;
+        }
+        .multiplier-btn, .shooter-btn {
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .multiplier-btn {
+            background: #e2e8f0;
+            color: #475569;
+        }
+        .multiplier-btn.active {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);
+        }
+        .shooter-btn {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+        }
+        .shooter-btn.active {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 max-w-[1600px] mx-auto h-screen flex flex-col">
+
+    <header class="mb-4 flex flex-col md:flex-row justify-between items-center md:items-start shrink-0 gap-4">
+        <div class="text-center md:text-left">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-800 mb-1">A target analogy of the confidence intervals</h1>
+            <p class="text-base text-slate-600">The logic behind a confidence interval is like guessing where the bullseye is by looking at where a dart lands.</p>
+        </div>
+        <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-200 text-xs text-slate-700 font-mono flex flex-col gap-1 min-w-[250px]">
+            <div class="flex justify-between"><span class="font-bold text-slate-500 mr-4">Standard Error (SE):</span> <span>σ / √n</span></div>
+            <div class="flex justify-between"><span class="font-bold text-slate-500 mr-4">Margin of Error (MOE):</span> <span>Z × SE</span></div>
+            <div class="flex justify-between"><span class="font-bold text-slate-500 mr-4">Confidence Interval:</span> <span>x̄ ± MOE</span></div>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-grow min-h-0">
+        
+        <!-- PANEL 1: Controls & Story (Left) -->
+        <div class="lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-1 pb-4">
+            
+            <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-100">
+                <h3 class="font-bold text-emerald-900 mb-1 text-sm">Shooter Skill (Standard Error)</h3>
+                <div class="flex gap-1 justify-center mt-2">
+                    <button class="shooter-btn" data-skill="0.5">Good</button>
+                    <button class="shooter-btn active" data-skill="1.0">Avg</button>
+                    <button class="shooter-btn" data-skill="1.8">Bad</button>
+                </div>
+            </div>
+
+            <div class="bg-indigo-50 rounded-xl p-3 border border-indigo-100">
+                <h3 class="font-bold text-indigo-900 mb-1 text-sm">Range (Multiplier)</h3>
+                <div class="flex gap-1 justify-center mt-2">
+                    <button class="multiplier-btn active" data-mult="1">68% (1 SE)</button>
+                    <button class="multiplier-btn" data-mult="1.96">95% (1.96 SE)</button>
+                    <button class="multiplier-btn" data-mult="3">99.7% (3 SE)</button>
+                </div>
+            </div>
+
+            <!-- Step 1 -->
+            <div class="step-card active" id="step1" onclick="setMode(1)">
+                <h2 class="text-lg font-bold mb-1 text-slate-800">1. Multiple shots (samples)</h2>
+                <div class="text-xs text-slate-600 space-y-1">
+                    <p>We see the True Mean (Red Center) casting a range that traps predictable sample means (Blue Dots).</p>
+                    <p class="font-semibold text-blue-700 mt-2 bg-blue-50 p-1.5 rounded border border-blue-100">Note: This central circle shows the Margin of Error based on the Standard Error (SE). It visualizes the sampling distribution, not a Confidence Interval.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card" id="step2" onclick="setMode(2)">
+                <h2 class="text-lg font-bold mb-1 text-slate-800">2. One shot (sample)</h2>
+                <div class="text-xs text-slate-600 space-y-1">
+                    <p>You only get one sample. We reverse it: Draw the range around the single dart. Does it capture the invisible center?</p>
+                    <p class="font-semibold text-indigo-700 mt-2 bg-indigo-50 p-1.5 rounded border border-indigo-100">Click on any dot or line in either graph to select it and test if its confidence interval captures the true mean!</p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card" id="step3" onclick="setMode(3)">
+                <h2 class="text-lg font-bold mb-1 text-slate-800">3. The Long Run</h2>
+                <div class="text-xs text-slate-600 space-y-1">
+                    <p>Drawing ranges around all 100 samples. <strong class="text-emerald-600">Green ranges</strong> succeed. <strong class="text-rose-600">Red ranges</strong> fail.</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-auto">
+                <button onclick="generateData(); updateVisualization();" class="bg-slate-800 hover:bg-slate-900 text-white w-full py-2 rounded-lg text-sm font-semibold transition-colors shadow">
+                    Generate New Data
+                </button>
+            </div>
+        </div>
+
+        <!-- PANEL 2: 2D Target Analogy (Middle) -->
+        <div class="lg:col-span-4 bg-white rounded-xl shadow-md border border-slate-200 flex flex-col h-full min-h-[400px] overflow-hidden relative">
+            
+            <!-- Target Header & Floating Stats -->
+            <div class="bg-slate-50 border-b border-slate-200 p-2 text-center z-10 shrink-0 flex justify-between items-center px-4">
+                <h3 class="font-bold text-slate-700 text-xs uppercase tracking-wide">2D Target Analogy</h3>
+                <div class="flex gap-4 text-[10px] text-right">
+                    <div><span class="text-slate-400 font-bold uppercase">Mult:</span> <span id="statMultiplier" class="font-bold text-slate-700">1.96 SE</span></div>
+                    <div id="scoreBoard" style="opacity: 0; transition: opacity 0.3s;"><span class="text-slate-400 font-bold uppercase">Hits:</span> <span id="statCaptured" class="font-bold text-emerald-600">-- / 100</span></div>
+                </div>
+            </div>
+
+            <!-- SVG Container for 2D -->
+            <div id="svg-container" class="w-full h-full flex-grow bg-white relative"></div>
+        </div>
+
+        <!-- PANEL 3: 1D Confidence Intervals (Right) -->
+        <div class="lg:col-span-5 bg-white rounded-xl shadow-md border border-slate-200 flex flex-col h-full min-h-[400px] overflow-hidden relative">
+            
+            <!-- CI Header -->
+            <div class="bg-slate-50 border-b border-slate-200 p-2 text-center z-10 shrink-0">
+                <h3 class="font-bold text-slate-700 text-xs uppercase tracking-wide">Confidence interval plot</h3>
+            </div>
+
+            <!-- SVG Container for 1D -->
+            <div id="ci-container" class="w-full h-full flex-grow bg-white"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Variables ---
+        let currentMode = 1; 
+        let currentMultiplier = 1; 
+        let currentShooterFactor = 1.0; 
+        const NUM_DARTS = 100;
+        let BASE_STANDARD_ERROR = 30; 
+        let darts = [];
+        let currentDartIndex = 0; 
+        let CI_TOP_MARGIN = 90; // Space reserved for the normal distribution curves
+        
+        // --- D3 Setup: 2D Target ---
+        const container = document.getElementById('svg-container');
+        let width = container.clientWidth;
+        let height = container.clientHeight;
+        BASE_STANDARD_ERROR = Math.min(width, height) / 12;
+        
+        const svg = d3.select("#svg-container").append("svg").attr("width", width).attr("height", height);
+        let centerX = width / 2;
+        let centerY = height / 2;
+
+        const targetGroup = svg.append("g").attr("class", "layer-target");
+        const haloGroup = svg.append("g").attr("class", "layer-halos");
+        const dartsGroup = svg.append("g").attr("class", "layer-darts");
+        const bullseyeGroup = svg.append("g").attr("class", "layer-bullseye");
+
+        // --- D3 Setup: 1D CI Plot ---
+        const ciContainer = document.getElementById('ci-container');
+        let ciWidth = ciContainer.clientWidth;
+        let ciHeight = ciContainer.clientHeight;
+        
+        const ciSvg = d3.select("#ci-container").append("svg").attr("width", ciWidth).attr("height", ciHeight);
+        let ciCenterX = ciWidth / 2;
+        
+        const ciBgGroup = ciSvg.append("g").attr("class", "ci-bg");
+        const ciDistGroup = ciSvg.append("g").attr("class", "ci-dist"); // NEW layer for distributions
+        const ciProjectionGroup = ciSvg.append("g").attr("class", "ci-projection-layer"); // NEW layer for drop lines
+        const ciLinesGroup = ciSvg.append("g").attr("class", "ci-lines");
+        const ciDotsGroup = ciSvg.append("g").attr("class", "ci-dots");
+
+        // --- STREAMING_CHUNK: Math & Data Generation ---
+        function getSE() {
+            return BASE_STANDARD_ERROR * currentShooterFactor;
+        }
+
+        function randomNormal(mean, stdDev) {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random();
+            while(v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v) * stdDev + mean;
+        }
+
+        // Generate SVG Path for a normal distribution bell curve
+        function generateNormalPath(meanX, stdDev, maxHeight, baseY) {
+            let path = "";
+            const widthSpan = stdDev * 4; // Span 4 standard deviations left/right
+            const steps = 60;
+            
+            path += `M ${meanX - widthSpan} ${baseY} `;
+            for (let i = 0; i <= steps; i++) {
+                const x = meanX - widthSpan + (2 * widthSpan * (i / steps));
+                const z = (x - meanX) / stdDev;
+                const y = baseY - maxHeight * Math.exp(-0.5 * z * z);
+                path += `L ${x} ${y} `;
+            }
+            path += `L ${meanX + widthSpan} ${baseY} Z`;
+            return path;
+        }
+
+        function generateData() {
+            darts = [];
+            for(let i = 0; i < NUM_DARTS; i++) {
+                const zScore = Math.abs(randomNormal(0, 1));
+                const angle = Math.random() * 2 * Math.PI;
+                darts.push({ id: i, zScore: zScore, angle: angle });
+            }
+            
+            // Fix dart 0 for a clean Mode 2 example
+            darts[0] = { id: 0, zScore: 0.8, angle: Math.PI / 4 };
+            currentDartIndex = 0; 
+            
+            // Pre-calculate properties for exact mapping between 2D and 1D
+            darts.forEach(d => {
+                // Determine left/right assignment to preserve visual mapping
+                d.sign1D = Math.cos(d.angle) >= 0 ? 1 : -1;
+                // Use the exact standard error multiplier to sort them beautifully (S-Curve)
+                d.seValue1D = d.zScore * d.sign1D; 
+            });
+
+            // Sort purely for visual arrangement on the 1D Y-axis
+            let sortedDarts = [...darts].sort((a, b) => a.seValue1D - b.seValue1D);
+            sortedDarts.forEach((d, i) => { d.sortedIndex = i; });
+
+            updateDartCoordinates();
+        }
+
+        // --- STREAMING_CHUNK: Coordinate Updates ---
+        function updateDartCoordinates() {
+            const activeSE = getSE();
+            const usableHeight = ciHeight - CI_TOP_MARGIN - 15; // Account for top margin
+            const ySpacing = usableHeight / (NUM_DARTS + 1);
+
+            darts.forEach(d => {
+                // 2D Distance (Absolute physical distance from center)
+                d.dist = d.zScore * activeSE;
+                
+                // 2D Coordinates
+                d.x = centerX + d.dist * Math.cos(d.angle);
+                d.y = centerY + d.dist * Math.sin(d.angle);
+                
+                // 1D Coordinates (Preserving exact distance to ensure hit/miss logic perfectly matches)
+                d.ciX = ciCenterX + (d.dist * d.sign1D);
+                d.ciY = CI_TOP_MARGIN + 10 + ((d.sortedIndex + 1) * ySpacing);
+            });
+        }
+
+        // --- STREAMING_CHUNK: Static Background Rendering ---
+        function drawBackground() {
+            const fixedScale = BASE_STANDARD_ERROR;
+            
+            // --- 2D Target Background ---
+            targetGroup.selectAll("*").remove();
+            const maxRings = 7; 
+            for(let i=1; i<=maxRings; i++) {
+                targetGroup.append("circle")
+                    .attr("class", "target-ring")
+                    .attr("cx", centerX).attr("cy", centerY)
+                    .attr("r", i * fixedScale)
+                    .style("stroke", "#334155")
+                    .style("opacity", 0.4);
+            }
+
+            bullseyeGroup.selectAll("*").remove();
+            bullseyeGroup.append("circle")
+                .attr("cx", centerX).attr("cy", centerY).attr("r", 7)
+                .attr("fill", "white").attr("stroke", "#ef4444").attr("stroke-width", 2);
+            bullseyeGroup.append("circle")
+                .attr("cx", centerX).attr("cy", centerY).attr("r", 3)
+                .attr("class", "bullseye-center");
+
+            // --- 1D CI Background ---
+            const truthLine = ciBgGroup.selectAll(".ci-truth").data([0]);
+            truthLine.enter().append("line").attr("class", "ci-truth")
+                .merge(truthLine)
+                .attr("x1", ciCenterX).attr("x2", ciCenterX)
+                .attr("y1", 0).attr("y2", ciHeight)
+                .attr("stroke", "#ef4444").attr("stroke-width", 2).attr("stroke-dasharray", "4, 4");
+                
+            // Baseline for the distributions
+            const baseLine = ciBgGroup.selectAll(".ci-baseline").data([0]);
+            baseLine.enter().append("line").attr("class", "ci-baseline")
+                .merge(baseLine)
+                .attr("x1", 0).attr("x2", ciWidth)
+                .attr("y1", CI_TOP_MARGIN).attr("y2", CI_TOP_MARGIN)
+                .attr("stroke", "#cbd5e1").attr("stroke-width", 1);
+        }
+
+        // --- STREAMING_CHUNK: Core Visual Update Engine ---
+        function updateVisualization() {
+            const activeSE = getSE();
+            const radius = currentMultiplier * activeSE;
+            const t = d3.transition().duration(800).ease(d3.easeCubicOut);
+
+            // Update Global Scores
+            if(currentMode === 3) {
+                let captured = darts.filter(d => d.dist <= radius).length;
+                document.getElementById('statCaptured').innerText = `${captured} / 100`;
+                document.getElementById('scoreBoard').style.opacity = "1";
+            } else {
+                document.getElementById('scoreBoard').style.opacity = "0";
+            }
+
+            // ============================================
+            // UPDATE: 2D Target Visuals
+            // ============================================
+            const dots = dartsGroup.selectAll(".dart").data(darts, d => d.id);
+            dots.enter().append("circle").attr("class", "dart")
+                .attr("cx", centerX).attr("cy", centerY).attr("r", 0)
+                .on("click", function(event, d) { handleDartClick(event, d.id); })
+                .merge(dots).transition(t)
+                .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", 4.5)
+                .style("fill", "#3b82f6")
+                .style("opacity", d => {
+                    if (currentMode === 1 || currentMode === 3) return 1;
+                    return d.id === currentDartIndex ? 1 : 0.1;
+                })
+                .style("cursor", currentMode === 2 ? "pointer" : "default");
+
+            let haloData = [];
+            if (currentMode === 1) {
+                haloData = [{ id: "god-halo", cx: centerX, cy: centerY, r: radius, status: 'neutral' }];
+                bullseyeGroup.transition(t).style("opacity", 1);
+            } else if (currentMode === 2) {
+                const targetDart = darts[currentDartIndex];
+                haloData = [{ id: `halo-single`, cx: targetDart.x, cy: targetDart.y, r: radius, status: targetDart.dist <= radius ? 'hit' : 'miss' }];
+                bullseyeGroup.transition(t).style("opacity", 0.3);
+            } else if (currentMode === 3) {
+                haloData = darts.map(d => ({ id: `halo-${d.id}`, cx: d.x, cy: d.y, r: radius, status: d.dist <= radius ? 'hit' : 'miss' }));
+                bullseyeGroup.transition(t).style("opacity", 1);
+            }
+
+            const halos = haloGroup.selectAll(".dart-halo").data(haloData, d => d.id);
+            halos.exit().transition(t).attr("r", 0).style("opacity", 0).remove();
+            halos.enter().append("circle").attr("class", "dart-halo")
+                .attr("cx", centerX).attr("cy", centerY).attr("r", 0)
+                .merge(halos)
+                .attr("class", d => {
+                    if (d.status === 'hit' && (currentMode === 3 || currentMode === 2)) return "dart-halo halo-hit";
+                    if (d.status === 'miss' && (currentMode === 3 || currentMode === 2)) return "dart-halo halo-miss";
+                    return "dart-halo";
+                })
+                .transition(t).style("opacity", 1)
+                .attr("cx", d => d.cx).attr("cy", d => d.cy).attr("r", d => d.r);
+
+            // ============================================
+            // UPDATE: 1D CI Plot Visuals
+            // ============================================
+            
+            // 1. The Shaded "Range" (Mode 1 only)
+            const ciNet = ciBgGroup.selectAll(".ci-net").data([0]);
+            ciNet.enter().append("rect").attr("class", "ci-net")
+                .merge(ciNet).transition(t)
+                .attr("x", ciCenterX - radius).attr("y", CI_TOP_MARGIN)
+                .attr("width", radius * 2).attr("height", ciHeight - CI_TOP_MARGIN)
+                .attr("fill", "#3b82f6")
+                .style("opacity", currentMode === 1 ? 0.08 : 0);
+
+            // 1.5. Normal Distributions (Top Area)
+            // True Population Distribution
+            const trueDist = ciBgGroup.selectAll(".ci-true-dist").data([0]);
+            trueDist.enter().append("path").attr("class", "ci-true-dist")
+                .merge(trueDist).transition(t)
+                .attr("d", generateNormalPath(ciCenterX, activeSE, 70, CI_TOP_MARGIN))
+                .attr("fill", "rgba(239, 68, 68, 0.05)")
+                .attr("stroke", "#ef4444")
+                .attr("stroke-width", 1.5)
+                .attr("stroke-dasharray", "4, 4")
+                .style("opacity", currentMode === 1 ? 1 : 0.3);
+
+            // Sample Distribution (Mode 2)
+            let sampleDistData = [];
+            if (currentMode === 2) {
+                const targetDart = darts[currentDartIndex];
+                sampleDistData = [{
+                    id: 'sample-dist',
+                    x: targetDart.ciX,
+                    status: targetDart.dist <= radius ? 'hit' : 'miss'
+                }];
+            }
+            const sampleDist = ciDistGroup.selectAll(".ci-sample-dist").data(sampleDistData, d => d.id);
+            sampleDist.exit().transition(t).style("opacity", 0).remove();
+            sampleDist.enter().append("path").attr("class", "ci-sample-dist")
+                .attr("d", d => generateNormalPath(d.x, activeSE, 70, CI_TOP_MARGIN))
+                .style("opacity", 0)
+                .merge(sampleDist)
+                .transition(t)
+                .attr("d", d => generateNormalPath(d.x, activeSE, 70, CI_TOP_MARGIN))
+                .attr("fill", d => d.status === 'hit' ? "rgba(16, 185, 129, 0.12)" : "rgba(244, 63, 94, 0.12)")
+                .attr("stroke", d => d.status === 'hit' ? "#10b981" : "#f43f5e")
+                .attr("stroke-width", 2)
+                .style("opacity", 1);
+
+            // 1.75. Projection Line linking the curve to the sample dot (Mode 2)
+            let projectionData = [];
+            if (currentMode === 2) {
+                const targetDart = darts[currentDartIndex];
+                projectionData = [{
+                    id: 'proj',
+                    x: targetDart.ciX,
+                    y1: CI_TOP_MARGIN,
+                    y2: targetDart.ciY,
+                    status: targetDart.dist <= radius ? 'hit' : 'miss'
+                }];
+            }
+            const ciProj = ciProjectionGroup.selectAll(".ci-proj-line").data(projectionData, d => d.id);
+            ciProj.exit().transition(t).style("opacity", 0).remove();
+            ciProj.enter().append("line").attr("class", "ci-proj-line")
+                .attr("stroke-dasharray", "3, 3").attr("stroke-width", 1.5)
+                .style("opacity", 0)
+                .merge(ciProj).transition(t)
+                .attr("x1", d => d.x).attr("x2", d => d.x)
+                .attr("y1", d => d.y1).attr("y2", d => d.y2)
+                .attr("stroke", d => d.status === 'hit' ? "#10b981" : "#f43f5e")
+                .style("opacity", 0.5);
+
+            // 2. The Confidence Interval Lines (Modes 2 & 3)
+            const ciLines = ciLinesGroup.selectAll(".ci-interval").data(darts, d => d.id);
+            ciLines.enter().append("line").attr("class", "ci-interval")
+                .attr("stroke-width", 3)
+                .style("cursor", currentMode === 2 ? "pointer" : "default")
+                .on("click", function(event, d) { handleDartClick(event, d.id); })
+                .merge(ciLines).transition(t)
+                .attr("x1", d => d.ciX - radius).attr("x2", d => d.ciX + radius)
+                .attr("y1", d => d.ciY).attr("y2", d => d.ciY)
+                .attr("stroke", d => d.dist <= radius ? "#10b981" : "#f43f5e") // Colors identically match 2D Hits/Misses
+                .style("cursor", currentMode === 2 ? "pointer" : "default")
+                .style("opacity", d => {
+                    if (currentMode === 1) return 0; // Hide lines in God View
+                    if (currentMode === 2) return d.id === currentDartIndex ? 1 : 0.15;
+                    return 1;
+                });
+
+            // 3. The Sample Mean Dots
+            const ciDots = ciDotsGroup.selectAll(".ci-mean").data(darts, d => d.id);
+            ciDots.enter().append("circle").attr("class", "ci-mean")
+                .attr("r", 0)
+                .on("click", function(event, d) { handleDartClick(event, d.id); })
+                .merge(ciDots).transition(t)
+                .attr("cx", d => d.ciX).attr("cy", d => d.ciY).attr("r", 3.5)
+                .attr("fill", d => {
+                    if (currentMode === 1) return "#3b82f6";
+                    return d.dist <= radius ? "#10b981" : "#f43f5e";
+                })
+                .style("opacity", d => {
+                    if (currentMode === 1) return 1;
+                    if (currentMode === 2) return d.id === currentDartIndex ? 1 : 0.15;
+                    return 1;
+                })
+                .style("cursor", currentMode === 2 ? "pointer" : "default");
+        }
+
+        // --- STREAMING_CHUNK: Event Listeners & Logic ---
+        function setMode(modeNum) {
+            currentMode = modeNum;
+            document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
+            document.getElementById(`step${modeNum}`).classList.add('active');
+            
+            // Note: The reversal button container was removed from HTML
+            updateVisualization();
+        }
+
+        function handleDartClick(event, dartId) {
+            if (event) event.stopPropagation();
+            if (currentMode !== 2) return; // Only allow selecting individual darts in Mode 2
+            
+            currentDartIndex = dartId;
+            updateVisualization();
+        }
+
+        document.querySelectorAll('.multiplier-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.multiplier-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentMultiplier = parseFloat(this.getAttribute('data-mult'));
+                document.getElementById('statMultiplier').innerText = this.innerText;
+                updateVisualization();
+            });
+        });
+
+        document.querySelectorAll('.shooter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.shooter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentShooterFactor = parseFloat(this.getAttribute('data-skill'));
+                updateDartCoordinates();
+                updateVisualization();
+            });
+        });
+
+        // Handle Resizing for both SVGs
+        window.addEventListener('resize', () => {
+            // Update 2D Target
+            width = container.clientWidth;
+            height = container.clientHeight;
+            BASE_STANDARD_ERROR = Math.min(width, height) / 12;
+            svg.attr("width", width).attr("height", height);
+            centerX = width / 2;
+            centerY = height / 2;
+            
+            // Update 1D CI Plot
+            ciWidth = ciContainer.clientWidth;
+            ciHeight = ciContainer.clientHeight;
+            ciSvg.attr("width", ciWidth).attr("height", ciHeight);
+            ciCenterX = ciWidth / 2;
+
+            drawBackground();
+            updateDartCoordinates(); 
+            updateVisualization();
+        });
+
+        // --- Initialization ---
+        drawBackground();
+        generateData();
+        setTimeout(() => updateVisualization(), 300);
+
+    </script>
+</body>
+</html>
