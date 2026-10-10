@@ -69,7 +69,7 @@
 
     <header class="mb-8 text-center md:text-left">
         <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Understanding Statistical Power</h1>
-        <p class="text-slate-600 max-w-3xl">Interact with the parameters below to see how they affect the distributions of the Null (H₀) and Alternative (H₁) hypotheses, and consequently, the probabilities of different outcomes in a statistical test.</p>
+        <p class="text-slate-600 max-w-3xl">Interact with the parameters below to see how they affect the distributions of the Null (H₀) and Alternative (H₁) hypotheses.</p>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -88,24 +88,24 @@
                 <p class="text-xs text-slate-500 mt-1">Probability of rejecting H₀ when it is true (Type I Error).</p>
             </div>
 
-            <!-- Null Mean -->
+            <!-- Null Mean (Limited Range) -->
             <div>
                 <div class="flex justify-between mb-1">
                     <label for="mu0-slider" class="text-sm font-medium text-slate-700">Null Mean (μ₀)</label>
                     <span id="mu0-val" class="text-sm font-bold text-indigo-600">0.0</span>
                 </div>
-                <input type="range" id="mu0-slider" min="-10" max="10" step="0.5" value="0.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                <input type="range" id="mu0-slider" min="-4" max="4" step="0.5" value="0.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 <p class="text-xs text-slate-500 mt-1">The hypothesized mean under H₀.</p>
             </div>
 
-            <!-- Alternative Mean -->
+            <!-- Alternative Mean (Limited Range) -->
             <div>
                 <div class="flex justify-between mb-1">
                     <label for="mu1-slider" class="text-sm font-medium text-slate-700">Alternative Mean (μ₁)</label>
                     <span id="mu1-val" class="text-sm font-bold text-indigo-600">2.0</span>
                 </div>
-                <input type="range" id="mu1-slider" min="-10" max="15" step="0.5" value="2.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
-                <p class="text-xs text-slate-500 mt-1">While H₁ is usually "μ ≠ μ₀", power calculation requires a specific assumed true mean.</p>
+                <input type="range" id="mu1-slider" min="-4" max="8" step="0.5" value="2.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                <p class="text-xs text-slate-500 mt-1">Assumed true mean for power calculation.</p>
             </div>
 
             <!-- Cohen's d Explanation Card -->
@@ -121,7 +121,7 @@
                 </div>
 
                 <p class="text-[11px] text-slate-600 leading-snug">
-                    <strong class="text-slate-700">What it means:</strong> Cohen's <em>d</em> measures the distance between μ₀ and μ₁ in units of standard deviation (σ). It represents the true strength of the effect in the population, independently of sample size (n).
+                    <strong class="text-slate-700">What it means:</strong> Cohen's <em>d</em> measures the distance between μ₀ and μ₁ in units of standard deviation (σ).
                 </p>
 
                 <div class="flex justify-between text-[10px] text-slate-400 border-t border-indigo-100/60 pt-1.5">
@@ -131,23 +131,23 @@
                 </div>
             </div>
 
-            <!-- Population Standard Deviation -->
+            <!-- Population Standard Deviation (Limited to prevent extreme density spikes) -->
             <div>
                 <div class="flex justify-between mb-1">
                     <label for="sd-slider" class="text-sm font-medium text-slate-700">Population Std Dev (σ)</label>
                     <span id="sd-val" class="text-sm font-bold text-indigo-600">5.0</span>
                 </div>
-                <input type="range" id="sd-slider" min="1" max="10" step="0.5" value="5.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                <input type="range" id="sd-slider" min="3" max="8" step="0.5" value="5.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 <p class="text-xs text-slate-500 mt-1">Variability in the population data.</p>
             </div>
 
-            <!-- Sample Size (affects standard error) -->
+            <!-- Sample Size (Limited to prevent extreme density spikes) -->
             <div>
                 <div class="flex justify-between mb-1">
                     <label for="sample-size-slider" class="text-sm font-medium text-slate-700">Sample Size (n)</label>
                     <span id="sample-size-val" class="text-sm font-bold text-indigo-600">30</span>
                 </div>
-                <input type="range" id="sample-size-slider" min="5" max="150" step="1" value="30" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                <input type="range" id="sample-size-slider" min="10" max="100" step="1" value="30" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 <p class="text-xs text-slate-500 mt-1">Standard Error (SE) = σ / √n = <span id="se-calc-val" class="font-semibold text-slate-700">0.91</span></p>
             </div>
             
@@ -200,7 +200,7 @@
             <!-- Visualization -->
             <div id="chart-wrapper" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative">
                 <div class="flex flex-wrap justify-between items-center mb-4 gap-2 pr-12">
-                    <h2 class="text-xl font-semibold text-slate-800">Sampling Distributions of the Sample Mean (under H₀ and H₁)</h2>
+                    <h2 class="text-xl font-semibold text-slate-800">Sampling Distributions of the Sample Mean</h2>
                     <!-- Legend -->
                     <div class="flex flex-wrap gap-3 text-xs">
                         <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block mr-1 opacity-80"></span> Null (H₀)</div>
@@ -258,7 +258,7 @@
     </div>
 
     <script>
-        // Initial parameters
+        // Initial parameters matching slider defaults
         let params = {
             alpha: 0.05,
             mu0: 0.0,
@@ -346,7 +346,9 @@
         const tooltip = d3.select("#chart-tooltip");
 
         // Scales
-        const xScale = d3.scaleLinear().range([0, innerWidth]);
+        const FIXED_X_MIN = -15;
+        const FIXED_X_MAX = 20;
+        const xScale = d3.scaleLinear().domain([FIXED_X_MIN, FIXED_X_MAX]).range([0, innerWidth]);
         const yScale = d3.scaleLinear().range([innerHeight, 0]);
 
         // Axes groups
@@ -375,14 +377,16 @@
             .attr("font-weight", "500")
             .text("Probability Density");
 
+        // Draw base distribution backgrounds FIRST so shaded regions pop cleanly on top
+        const h0Area = g.append("path").attr("class", "h0-area").attr("fill", "var(--h0-color)").attr("opacity", 0.08).attr("clip-path", "url(#chart-clip)");
+        const h1Area = g.append("path").attr("class", "h1-area").attr("fill", "var(--h1-color)").attr("opacity", 0.08).attr("clip-path", "url(#chart-clip)");
+
         const alphaAreaRight = g.append("path").attr("class", "alpha-area-right").attr("fill", "var(--alpha-color)").attr("opacity", 0.55).attr("clip-path", "url(#chart-clip)");
         const alphaAreaLeft = g.append("path").attr("class", "alpha-area-left").attr("fill", "var(--alpha-color)").attr("opacity", 0.55).attr("clip-path", "url(#chart-clip)");
         const betaArea = g.append("path").attr("class", "beta-area").attr("fill", "var(--beta-color)").attr("opacity", 0.55).attr("clip-path", "url(#chart-clip)");
         const powerAreaRight = g.append("path").attr("class", "power-area-right").attr("fill", "var(--power-color)").attr("opacity", 0.45).attr("clip-path", "url(#chart-clip)");
         const powerAreaLeft = g.append("path").attr("class", "power-area-left").attr("fill", "var(--power-color)").attr("opacity", 0.45).attr("clip-path", "url(#chart-clip)");
 
-        const h0Area = g.append("path").attr("class", "h0-area").attr("fill", "var(--h0-color)").attr("opacity", 0.08).attr("clip-path", "url(#chart-clip)");
-        const h1Area = g.append("path").attr("class", "h1-area").attr("fill", "var(--h1-color)").attr("opacity", 0.08).attr("clip-path", "url(#chart-clip)");
         const h0Line = g.append("path").attr("class", "h0-line").attr("fill", "none").attr("stroke", "var(--h0-color)").attr("stroke-width", 2.5).attr("clip-path", "url(#chart-clip)");
         const h1Line = g.append("path").attr("class", "h1-line").attr("fill", "none").attr("stroke", "var(--h1-color)").attr("stroke-width", 2.5).attr("clip-path", "url(#chart-clip)");
         
@@ -469,37 +473,22 @@
             badge.innerText = `${interpretation} (d = ${cohensD.toFixed(2)})`;
             badge.className = `px-2 py-0.5 text-[10px] font-bold rounded-full border ${badgeClass}`;
 
-            // Calculate x domain ensuring visibility of H0, H1, and critical values
-            let bounds = [
-                params.mu0 - 3.8 * metrics.se,
-                params.mu0 + 3.8 * metrics.se,
-                params.mu1 - 3.8 * metrics.se,
-                params.mu1 + 3.8 * metrics.se,
-                metrics.criticalValue1
-            ];
-            if (metrics.criticalValue2 !== null) {
-                bounds.push(metrics.criticalValue2);
-            }
-
-            const minX = d3.min(bounds);
-            const maxX = d3.max(bounds);
-            const xPadding = (maxX - minX) * 0.05;
-
-            xScale.domain([minX - xPadding, maxX + xPadding]);
-
-            // Density peak calculation
-            const maxDensity = normalPDF(params.mu0, params.mu0, metrics.se);
+            // Density peak calculation for dynamic Y-Axis
+            const maxDensityH0 = params.showH0 ? normalPDF(params.mu0, params.mu0, metrics.se) : 0.1;
+            const maxDensityH1 = params.showH1 ? normalPDF(params.mu1, params.mu1, metrics.se) : 0.1;
+            const maxDensity = Math.max(0.1, maxDensityH0, maxDensityH1);
+            
             yScale.domain([0, maxDensity * 1.15]);
 
-            // Redraw axes
-            xAxisG.call(d3.axisBottom(xScale).ticks(8).tickFormat(d3.format(".2f")));
-            yAxisG.call(d3.axisLeft(yScale).ticks(6).tickFormat(d3.format(".2f")));
+            // Redraw axes with smooth transitions
+            const t = d3.transition().duration(250).ease(d3.easeCubicOut);
+            xAxisG.transition(t).call(d3.axisBottom(xScale).ticks(12).tickFormat(d3.format(".1f")));
+            yAxisG.transition(t).call(d3.axisLeft(yScale).ticks(6).tickFormat(d3.format(".2f")));
 
-            // Generate fine resolution points for curve rendering
-            const numPoints = 300;
-            const xDomain = xScale.domain();
-            const step = (xDomain[1] - xDomain[0]) / numPoints;
-            const xValues = d3.range(xDomain[0], xDomain[1] + step, step);
+            // Generate fine resolution points for curve rendering spanning fixed X
+            const numPoints = 400;
+            const step = (FIXED_X_MAX - FIXED_X_MIN) / numPoints;
+            const xValues = d3.range(FIXED_X_MIN, FIXED_X_MAX + step, step);
 
             const h0Data = xValues.map(x => ({ x, y: normalPDF(x, params.mu0, metrics.se) }));
             const h1Data = xValues.map(x => ({ x, y: normalPDF(x, params.mu1, metrics.se) }));
@@ -541,7 +530,8 @@
             // Position peak labels avoiding overlap when mu0 and mu1 are close
             const xPosH0 = xScale(params.mu0);
             const xPosH1 = xScale(params.mu1);
-            const yPosPeakH0 = yScale(maxDensity);
+            const yPosPeakH0 = yScale(normalPDF(params.mu0, params.mu0, metrics.se));
+            const yPosPeakH1 = yScale(normalPDF(params.mu1, params.mu1, metrics.se));
             const labelDist = Math.abs(xPosH0 - xPosH1);
 
             if (params.showH0) {
@@ -550,8 +540,18 @@
 
             if (params.showH1) {
                 // If peaks are close (< 90px), offset H1 label higher to avoid collision
-                const yOffsetH1 = (labelDist < 90 && params.showH0) ? yPosPeakH0 - 32 : yPosPeakH0 - 12;
+                const yOffsetH1 = (labelDist < 90 && params.showH0) ? Math.min(yPosPeakH0, yPosPeakH1) - 32 : yPosPeakH1 - 12;
                 h1Label.attr("x", xPosH1).attr("y", yOffsetH1);
+            }
+
+            // Statistically accurate slicing to prevent rendering gaps at critical boundaries
+            function sliceArea(data, minX, maxX, mean) {
+                let sliced = data.filter(d => d.x >= minX && d.x <= maxX);
+                // Inject precise boundary points to eliminate rendering aliasing
+                if (minX > FIXED_X_MIN) sliced.unshift({ x: minX, y: normalPDF(minX, mean, metrics.se) });
+                if (maxX < FIXED_X_MAX) sliced.push({ x: maxX, y: normalPDF(maxX, mean, metrics.se) });
+                // Sort and remove duplicates
+                return sliced.sort((a,b) => a.x - b.x).filter((v, i, a) => i === 0 || v.x !== a[i-1].x);
             }
 
             // Render Shaded Statistical Error & Power Regions
@@ -560,30 +560,30 @@
                 
                 if (isLeftTailed) {
                     // Alpha Region (Left tail under H0)
-                    const alphaDataLeft = h0Data.filter(d => d.x <= metrics.criticalValue1);
+                    const alphaDataLeft = sliceArea(h0Data, FIXED_X_MIN, metrics.criticalValue1, params.mu0);
                     alphaAreaLeft.datum(alphaDataLeft).attr("d", areaGen).style("display", params.showH0 ? null : "none");
                     alphaAreaRight.style("display", "none");
 
                     // Beta Region (Right of critical value under H1)
-                    const betaData = h1Data.filter(d => d.x >= metrics.criticalValue1);
+                    const betaData = sliceArea(h1Data, metrics.criticalValue1, FIXED_X_MAX, params.mu1);
                     betaArea.datum(betaData).attr("d", areaGen).style("display", params.showH1 ? null : "none");
 
                     // Power Region (Left of critical value under H1)
-                    const powerDataLeft = h1Data.filter(d => d.x <= metrics.criticalValue1);
+                    const powerDataLeft = sliceArea(h1Data, FIXED_X_MIN, metrics.criticalValue1, params.mu1);
                     powerAreaLeft.datum(powerDataLeft).attr("d", areaGen).style("display", params.showH1 ? null : "none");
                     powerAreaRight.style("display", "none");
                 } else {
                     // Alpha Region (Right tail under H0)
-                    const alphaDataRight = h0Data.filter(d => d.x >= metrics.criticalValue1);
+                    const alphaDataRight = sliceArea(h0Data, metrics.criticalValue1, FIXED_X_MAX, params.mu0);
                     alphaAreaRight.datum(alphaDataRight).attr("d", areaGen).style("display", params.showH0 ? null : "none");
                     alphaAreaLeft.style("display", "none");
 
                     // Beta Region (Left of critical value under H1)
-                    const betaData = h1Data.filter(d => d.x <= metrics.criticalValue1);
+                    const betaData = sliceArea(h1Data, FIXED_X_MIN, metrics.criticalValue1, params.mu1);
                     betaArea.datum(betaData).attr("d", areaGen).style("display", params.showH1 ? null : "none");
 
                     // Power Region (Right of critical value under H1)
-                    const powerDataRight = h1Data.filter(d => d.x >= metrics.criticalValue1);
+                    const powerDataRight = sliceArea(h1Data, metrics.criticalValue1, FIXED_X_MAX, params.mu1);
                     powerAreaRight.datum(powerDataRight).attr("d", areaGen).style("display", params.showH1 ? null : "none");
                     powerAreaLeft.style("display", "none");
                 }
@@ -600,18 +600,18 @@
                 const cLower = metrics.criticalValue2;
 
                 // Alpha Regions (both upper and lower tails under H0)
-                const alphaDataRight = h0Data.filter(d => d.x >= cUpper);
-                const alphaDataLeft = h0Data.filter(d => d.x <= cLower);
+                const alphaDataRight = sliceArea(h0Data, cUpper, FIXED_X_MAX, params.mu0);
+                const alphaDataLeft = sliceArea(h0Data, FIXED_X_MIN, cLower, params.mu0);
                 alphaAreaRight.datum(alphaDataRight).attr("d", areaGen).style("display", params.showH0 ? null : "none");
                 alphaAreaLeft.datum(alphaDataLeft).attr("d", areaGen).style("display", params.showH0 ? null : "none");
 
                 // Beta Region (between cLower and cUpper under H1)
-                const betaData = h1Data.filter(d => d.x >= cLower && d.x <= cUpper);
+                const betaData = sliceArea(h1Data, cLower, cUpper, params.mu1);
                 betaArea.datum(betaData).attr("d", areaGen).style("display", params.showH1 ? null : "none");
 
                 // Power Regions (outside [cLower, cUpper] under H1)
-                const powerDataRight = h1Data.filter(d => d.x >= cUpper);
-                const powerDataLeft = h1Data.filter(d => d.x <= cLower);
+                const powerDataRight = sliceArea(h1Data, cUpper, FIXED_X_MAX, params.mu1);
+                const powerDataLeft = sliceArea(h1Data, FIXED_X_MIN, cLower, params.mu1);
                 powerAreaRight.datum(powerDataRight).attr("d", areaGen).style("display", params.showH1 ? null : "none");
                 powerAreaLeft.datum(powerDataLeft).attr("d", areaGen).style("display", params.showH1 ? null : "none");
 
@@ -722,6 +722,7 @@
             svg.attr("width", width).attr("height", height);
             clipRect.attr("width", innerWidth).attr("height", innerHeight);
 
+            // Reapply range dimensions to fixed domain scales
             xScale.range([0, innerWidth]);
             yScale.range([innerHeight, 0]);
 
