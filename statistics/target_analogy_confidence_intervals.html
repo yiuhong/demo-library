@@ -163,9 +163,9 @@
             
             <!-- Target Header & Floating Stats -->
             <div class="bg-slate-50 border-b border-slate-200 p-2 text-center z-10 shrink-0 flex justify-between items-center px-4">
-                <h3 class="font-bold text-slate-700 text-xs uppercase tracking-wide">2D Target Analogy</h3>
+                <h3 class="font-bold text-slate-700 text-xs uppercase tracking-wide">Target</h3>
                 <div class="flex gap-4 text-[10px] text-right">
-                    <div><span class="text-slate-400 font-bold uppercase">Mult:</span> <span id="statMultiplier" class="font-bold text-slate-700">1.96 SE</span></div>
+                    <div><span class="text-slate-400 font-bold uppercase">Range:</span> <span id="statMultiplier" class="font-bold text-slate-700">68% (1 SE)</span></div>
                     <div id="scoreBoard" style="opacity: 0; transition: opacity 0.3s;"><span class="text-slate-400 font-bold uppercase">Hits:</span> <span id="statCaptured" class="font-bold text-emerald-600">-- / 100</span></div>
                 </div>
             </div>
@@ -226,6 +226,7 @@
         const ciProjectionGroup = ciSvg.append("g").attr("class", "ci-projection-layer"); // NEW layer for drop lines
         const ciLinesGroup = ciSvg.append("g").attr("class", "ci-lines");
         const ciDotsGroup = ciSvg.append("g").attr("class", "ci-dots");
+        const ciHitboxGroup = ciSvg.append("g").attr("class", "ci-hitboxes"); // NEW layer for easy clicking in 1D plot
 
         // --- STREAMING_CHUNK: Math & Data Generation ---
         function getSE() {
@@ -333,7 +334,7 @@
                 .merge(truthLine)
                 .attr("x1", ciCenterX).attr("x2", ciCenterX)
                 .attr("y1", 0).attr("y2", ciHeight)
-                .attr("stroke", "#ef4444").attr("stroke-width", 2).attr("stroke-dasharray", "4, 4");
+                .attr("stroke", "#475569").attr("stroke-width", 2).attr("stroke-dasharray", "4, 4");
                 
             // Baseline for the distributions
             const baseLine = ciBgGroup.selectAll(".ci-baseline").data([0]);
@@ -341,7 +342,7 @@
                 .merge(baseLine)
                 .attr("x1", 0).attr("x2", ciWidth)
                 .attr("y1", CI_TOP_MARGIN).attr("y2", CI_TOP_MARGIN)
-                .attr("stroke", "#cbd5e1").attr("stroke-width", 1);
+                .attr("stroke", "#475569").attr("stroke-width", 1);
         }
 
         // --- STREAMING_CHUNK: Core Visual Update Engine ---
@@ -363,6 +364,7 @@
             // UPDATE: 2D Target Visuals
             // ============================================
             const dots = dartsGroup.selectAll(".dart").data(darts, d => d.id);
+            dots.exit().remove();
             dots.enter().append("circle").attr("class", "dart")
                 .attr("cx", centerX).attr("cy", centerY).attr("r", 0)
                 .on("click", function(event, d) { handleDartClick(event, d.id); })
@@ -371,7 +373,7 @@
                 .style("fill", "#3b82f6")
                 .style("opacity", d => {
                     if (currentMode === 1 || currentMode === 3) return 1;
-                    return d.id === currentDartIndex ? 1 : 0.1;
+                    return d.id === currentDartIndex ? 1 : 0.35;
                 })
                 .style("cursor", currentMode === 2 ? "pointer" : "default");
 
@@ -405,6 +407,15 @@
             // UPDATE: 1D CI Plot Visuals
             // ============================================
             
+            // Update Axes Colors dynamically
+            ciBgGroup.selectAll(".ci-truth")
+                .transition(t)
+                .attr("stroke", "#475569");
+                
+            ciBgGroup.selectAll(".ci-baseline")
+                .transition(t)
+                .attr("stroke", "#475569");
+
             // 1. The Shaded "Range" (Mode 1 only)
             const ciNet = ciBgGroup.selectAll(".ci-net").data([0]);
             ciNet.enter().append("rect").attr("class", "ci-net")
@@ -420,11 +431,11 @@
             trueDist.enter().append("path").attr("class", "ci-true-dist")
                 .merge(trueDist).transition(t)
                 .attr("d", generateNormalPath(ciCenterX, activeSE, 70, CI_TOP_MARGIN))
-                .attr("fill", "rgba(239, 68, 68, 0.05)")
-                .attr("stroke", "#ef4444")
+                .attr("fill", "rgba(148, 163, 184, 0.1)")
+                .attr("stroke", "#94a3b8")
                 .attr("stroke-width", 1.5)
                 .attr("stroke-dasharray", "4, 4")
-                .style("opacity", currentMode === 1 ? 1 : 0.3);
+                .style("opacity", 1);
 
             // Sample Distribution (Mode 2)
             let sampleDistData = [];
@@ -449,6 +460,31 @@
                 .attr("stroke-width", 2)
                 .style("opacity", 1);
 
+            // 1.6. Sample Distribution Boundary Lines (Mode 2)
+            let boundaryData = [];
+            if (currentMode === 2) {
+                const targetDart = darts[currentDartIndex];
+                const z = currentMultiplier; 
+                const curveHeight = 70 * Math.exp(-0.5 * z * z);
+                const yTop = CI_TOP_MARGIN - curveHeight;
+                
+                boundaryData = [
+                    { id: 'left-bound', x: targetDart.ciX - radius, y1: CI_TOP_MARGIN, y2: yTop, status: targetDart.dist <= radius ? 'hit' : 'miss' },
+                    { id: 'right-bound', x: targetDart.ciX + radius, y1: CI_TOP_MARGIN, y2: yTop, status: targetDart.dist <= radius ? 'hit' : 'miss' }
+                ];
+            }
+            
+            const bounds = ciDistGroup.selectAll(".ci-boundary-line").data(boundaryData, d => d.id);
+            bounds.exit().transition(t).style("opacity", 0).remove();
+            bounds.enter().append("line").attr("class", "ci-boundary-line")
+                .attr("stroke-dasharray", "2, 2").attr("stroke-width", 1.5)
+                .style("opacity", 0)
+                .merge(bounds).transition(t)
+                .attr("x1", d => d.x).attr("x2", d => d.x)
+                .attr("y1", d => d.y1).attr("y2", d => d.y2)
+                .attr("stroke", d => d.status === 'hit' ? "#10b981" : "#f43f5e")
+                .style("opacity", 0.8);
+
             // 1.75. Projection Line linking the curve to the sample dot (Mode 2)
             let projectionData = [];
             if (currentMode === 2) {
@@ -456,7 +492,7 @@
                 projectionData = [{
                     id: 'proj',
                     x: targetDart.ciX,
-                    y1: CI_TOP_MARGIN,
+                    y1: CI_TOP_MARGIN - 70, // Start directly from the peak of the distribution curve
                     y2: targetDart.ciY,
                     status: targetDart.dist <= radius ? 'hit' : 'miss'
                 }];
@@ -474,26 +510,24 @@
 
             // 2. The Confidence Interval Lines (Modes 2 & 3)
             const ciLines = ciLinesGroup.selectAll(".ci-interval").data(darts, d => d.id);
+            ciLines.exit().remove();
             ciLines.enter().append("line").attr("class", "ci-interval")
                 .attr("stroke-width", 3)
-                .style("cursor", currentMode === 2 ? "pointer" : "default")
-                .on("click", function(event, d) { handleDartClick(event, d.id); })
                 .merge(ciLines).transition(t)
                 .attr("x1", d => d.ciX - radius).attr("x2", d => d.ciX + radius)
                 .attr("y1", d => d.ciY).attr("y2", d => d.ciY)
                 .attr("stroke", d => d.dist <= radius ? "#10b981" : "#f43f5e") // Colors identically match 2D Hits/Misses
-                .style("cursor", currentMode === 2 ? "pointer" : "default")
                 .style("opacity", d => {
                     if (currentMode === 1) return 0; // Hide lines in God View
-                    if (currentMode === 2) return d.id === currentDartIndex ? 1 : 0.15;
+                    if (currentMode === 2) return d.id === currentDartIndex ? 1 : 0.35;
                     return 1;
                 });
 
             // 3. The Sample Mean Dots
             const ciDots = ciDotsGroup.selectAll(".ci-mean").data(darts, d => d.id);
+            ciDots.exit().remove();
             ciDots.enter().append("circle").attr("class", "ci-mean")
                 .attr("r", 0)
-                .on("click", function(event, d) { handleDartClick(event, d.id); })
                 .merge(ciDots).transition(t)
                 .attr("cx", d => d.ciX).attr("cy", d => d.ciY).attr("r", 3.5)
                 .attr("fill", d => {
@@ -502,10 +536,22 @@
                 })
                 .style("opacity", d => {
                     if (currentMode === 1) return 1;
-                    if (currentMode === 2) return d.id === currentDartIndex ? 1 : 0.15;
+                    if (currentMode === 2) return d.id === currentDartIndex ? 1 : 0.35;
                     return 1;
-                })
-                .style("cursor", currentMode === 2 ? "pointer" : "default");
+                });
+
+            // 4. Hitboxes for easy clicking in 1D Plot (Mode 2)
+            const ciHitboxes = ciHitboxGroup.selectAll(".ci-hitbox").data(darts, d => d.id);
+            ciHitboxes.exit().remove();
+            ciHitboxes.enter().append("line").attr("class", "ci-hitbox")
+                .attr("stroke", "transparent")
+                .attr("stroke-width", 14) // Wide clickable area across the Y axis level
+                .on("click", function(event, d) { handleDartClick(event, d.id); })
+                .merge(ciHitboxes)
+                .attr("x1", 0).attr("x2", ciWidth) // Make the entire horizontal row clickable
+                .attr("y1", d => d.ciY).attr("y2", d => d.ciY)
+                .style("cursor", currentMode === 2 ? "pointer" : "default")
+                .style("display", currentMode === 2 ? "block" : "none");
         }
 
         // --- STREAMING_CHUNK: Event Listeners & Logic ---
