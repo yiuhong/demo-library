@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variance Explained</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex-grow: 1;
+        }
+
+        .axis-label {
+            font-size: 14px;
+            fill: #64748b;
+        }
+
+        .tick text {
+            fill: #94a3b8;
+            font-size: 12px;
+        }
+
+        .tick line {
+            stroke: #e2e8f0;
+        }
+
+        .domain {
+            stroke: #cbd5e1;
+        }
+
+        .dot {
+            fill: #3b82f6;
+            opacity: 0.6;
+            stroke: white;
+            stroke-width: 1px;
+            transition: r 0.2s ease, opacity 0.2s ease, fill 0.2s ease;
+        }
+
+        .dot:hover {
+            opacity: 1;
+            fill: #2563eb;
+            r: 6;
+        }
+
+        .regression-line {
+            stroke: #ef4444;
+            stroke-width: 3px;
+            stroke-linecap: round;
+        }
+
+        .slider-container input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        .slider-container input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        
+        .slider-container input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .slider-container input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            color: #334155;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div id="tooltip" class="tooltip"></div>
+
+    <div class="container flex flex-col items-center">
+        
+        <div class="text-center mb-8 w-full">
+            <h1 class="text-4xl font-bold text-slate-800 mb-4">Variance Explained (Variation Explained)</h1>
+            <p class="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                Adjust the relationship between X and Y using the slider. 
+                Notice how as the effect strengthens, the data points cluster tighter around the prediction lines, 
+                increasing the proportion of <strong class="text-blue-600 whitespace-nowrap">Variance Explained (<i>R</i>&sup2; or <i>&eta;</i>&sup2;)</strong>.
+                <br/><br/>
+                Use the toggles below to directly observe the components: 
+                <strong>Mean</strong> (baseline deviation), 
+                <strong>Residuals</strong> (unexplained deviation), and 
+                <strong>Predicted Values</strong> (explained deviation).
+            </p>
+            
+            <div class="flex justify-center mt-6">
+                <div class="bg-slate-100 p-1 rounded-lg inline-flex">
+                    <button id="btn-continuous" class="px-4 py-2 rounded-md bg-white shadow-sm text-sm font-medium text-slate-800 transition-all">Continuous X (Regression)</button>
+                    <button id="btn-categorical" class="px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-slate-800 transition-all">Categorical X (ANOVA)</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-2xl bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+            <div class="slider-container relative pt-1">
+                <div class="flex justify-between items-center mb-4">
+                    <label for="variance-slider" class="form-label text-slate-700 font-semibold text-lg">
+                        <span id="slider-label">Variance Explained (<i>R</i>&sup2;)</span>
+                    </label>
+                    <div id="direction-toggle" class="text-sm flex items-center">
+                        <label class="mr-2 text-slate-600 font-medium">Slope Direction:</label>
+                        <select id="corr-direction" class="bg-slate-50 border border-slate-300 rounded-md px-2 py-1 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                            <option value="1">Positive (+)</option>
+                            <option value="-1">Negative (-)</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="range" id="variance-slider" min="0" max="1" step="0.01" value="0.49">
+                <div class="flex justify-between text-xs text-slate-400 font-medium px-1 mt-1">
+                    <span>0</span>
+                    <span>1</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-slate-100 justify-center items-center text-sm">
+                <label class="flex items-center space-x-2 cursor-pointer group">
+                    <input type="checkbox" id="show-mean" class="rounded text-slate-600 w-4 h-4 cursor-pointer focus:ring-slate-500">
+                    <span class="text-slate-700 font-medium group-hover:text-slate-900">Show Mean Y (<span id="toggle-mean-label">Total</span>)</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer group">
+                    <input type="checkbox" id="show-residuals" class="rounded text-red-500 w-4 h-4 cursor-pointer focus:ring-red-500">
+                    <span class="text-slate-700 font-medium group-hover:text-red-700">Show Residuals (<span id="toggle-res-label">Unexplained</span>)</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer group">
+                    <input type="checkbox" id="show-predicted" class="rounded text-green-500 w-4 h-4 cursor-pointer focus:ring-green-500">
+                    <span class="text-slate-700 font-medium group-hover:text-green-700">Show Predicted (<span id="toggle-pred-label">Explained</span>)</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8 w-full justify-center items-start">
+            
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 w-full lg:w-1/2">
+                <h2 class="text-xl font-semibold mb-4 text-center text-slate-700">Scatterplot</h2>
+                <div id="scatterplot" class="w-full relative"></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 w-full lg:w-1/2 flex flex-col h-full">
+                
+                <div class="text-center mb-4">
+                    <h2 id="title-proportion" class="text-xl font-semibold text-slate-700">Proportion Explained (<i>R</i>&sup2;)</h2>
+                    <div id="formula-proportion" class="text-sm text-slate-700 font-serif mt-2 bg-slate-100 inline-flex items-center justify-center px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
+                        <span class="text-lg mr-2"><i>R</i>&sup2; = </span>
+                        <div class="flex flex-col items-center text-xs">
+                            <span class="border-b border-slate-400 pb-0.5 px-2 mb-0.5">SS<sub>Model</sub></span>
+                            <span class="pt-0.5 px-2">SS<sub>Total</sub></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4 mt-2">
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center relative overflow-hidden">
+                        <div class="text-sm text-blue-600 mb-1 font-medium"><span id="stat-r2-label">Variance Explained (<i>R</i>&sup2;)</span></div>
+                        <div id="stat-r2" class="text-3xl font-bold text-blue-700">0.49</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                        <div id="stat-r-label" class="text-sm text-slate-500 mb-1">Correlation (<i>r</i>)</div>
+                        <div id="stat-r" class="text-2xl font-bold text-slate-800">0.70</div>
+                    </div>
+                </div>
+                
+                <div id="r-relation-note" class="text-xs text-slate-600 mb-6 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <strong>How they relate:</strong> The correlation (<i>r</i>) is the square root of <i>R</i>&sup2;. Because <i>R</i>&sup2; is a squared value (representing variance), it is always positive. The correlation <i>r</i> can be negative to show the direction of the line (<i>r = &plusmn;&radic;R&sup2;</i>).
+                </div>
+
+                <div class="w-full bg-slate-50 p-4 rounded-xl border border-slate-200 mt-2 mb-4 flex-grow flex flex-col justify-center">
+                    <div class="text-sm font-bold text-slate-500 uppercase tracking-wider text-center mb-6">Variance Breakdown (SS, df, MS)</div>
+                    
+                    <div class="flex justify-between items-stretch text-sm font-medium">
+                        
+                        <div class="text-center w-[28%] flex flex-col items-center">
+                            <div class="text-slate-600 font-bold mb-2 leading-tight h-10 flex flex-col justify-end pb-1">Total</div>
+                            
+                            <div class="w-full bg-white border border-slate-200 rounded-lg p-2 mb-2 shadow-sm h-14 flex flex-col justify-center">
+                                <div id="label-ss-total" class="text-[10px] text-slate-500 font-mono mb-1">SS<sub>Total</sub></div>
+                                <div id="val-total-ss" class="text-base font-bold text-slate-800">0</div>
+                            </div>
+                            
+                            <div class="w-full bg-slate-100 border border-slate-200 rounded-lg p-1 mb-2 h-8 flex items-center justify-center">
+                                <span class="text-[11px] text-slate-500 font-mono mr-1">df:</span> <span id="val-total-df" class="font-bold text-slate-700">0</span>
+                            </div>
+                            
+                            <div class="w-full bg-slate-200 border border-slate-300 rounded-lg p-2 h-14 flex flex-col justify-center">
+                                <div class="text-[10px] text-slate-500 font-mono mb-1">MS (Variance)</div>
+                                <div id="val-total-ms" class="text-base font-bold text-slate-600">0.0</div>
+                            </div>
+                            
+                            <div class="mt-4 w-full flex-grow text-[11px] text-slate-600 bg-white rounded border border-slate-200 p-2 text-left leading-snug shadow-sm flex flex-col">
+                                <div class="font-serif font-bold text-center mb-1 text-[13px] text-slate-700">&Sigma;(y - y&#772;)&sup2;</div>
+                                <div class="mt-auto">Sum of squared vertical distances from all <span class="font-semibold text-blue-500">blue dots</span> to the <span class="font-semibold text-slate-500">grey mean line</span>.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center flex flex-col items-center w-[8%]">
+                            <div class="h-10 mb-2"></div>
+                            <div class="text-slate-400 font-bold text-lg h-14 flex items-center justify-center mb-2">=</div>
+                            <div class="text-slate-400 font-bold text-lg h-8 flex items-center justify-center mb-2">=</div>
+                            <div class="text-slate-400 font-bold text-2xl h-14 flex items-center justify-center text-red-400" title="Mean Squares do NOT add up">≠</div>
+                            <div class="mt-4 w-full flex-grow"></div>
+                        </div>
+                        
+                        <div class="text-center w-[28%] flex flex-col items-center">
+                            <div id="title-explained" class="text-green-600 font-bold mb-2 leading-tight h-10 flex flex-col justify-end pb-1">Explained<br><span class="font-normal text-xs">(Model)</span></div>
+                            
+                            <div class="w-full bg-white border border-green-200 rounded-lg p-2 mb-2 shadow-sm h-14 flex flex-col justify-center">
+                                <div id="label-ss-explained" class="text-[10px] text-green-600/80 font-mono mb-1">SS<sub>Model</sub></div>
+                                <div id="val-explained-ss" class="text-base font-bold text-green-700">0</div>
+                            </div>
+                            
+                            <div class="w-full bg-green-50 border border-green-200 rounded-lg p-1 mb-2 h-8 flex items-center justify-center">
+                                <span class="text-[11px] text-green-600/70 font-mono mr-1">df:</span> <span id="val-explained-df" class="font-bold text-green-700">0</span>
+                            </div>
+                            
+                            <div class="w-full bg-green-100 border border-green-300 rounded-lg p-2 h-14 flex flex-col justify-center">
+                                <div class="text-[10px] text-green-700/70 font-mono mb-1">MS (Variance)</div>
+                                <div id="val-explained-ms" class="text-base font-bold text-green-700">0.0</div>
+                            </div>
+                            
+                            <div class="mt-4 w-full flex-grow text-[11px] text-green-800 bg-green-50/50 rounded border border-green-200 p-2 text-left leading-snug shadow-sm flex flex-col">
+                                <div class="font-serif font-bold text-center mb-1 text-[13px] text-green-800">&Sigma;(y&#770; - y&#772;)&sup2;</div>
+                                <div class="mt-auto">Sum of squared vertical distances from <span class="font-semibold text-green-600">green predicted dots</span> to the <span class="font-semibold text-slate-500">grey mean line</span>.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center flex flex-col items-center w-[8%]">
+                            <div class="h-10 mb-2"></div>
+                            <div class="text-slate-400 font-bold text-lg h-14 flex items-center justify-center mb-2">+</div>
+                            <div class="text-slate-400 font-bold text-lg h-8 flex items-center justify-center mb-2">+</div>
+                            <div class="text-slate-400 font-bold text-lg h-14 flex items-center justify-center">+</div>
+                            <div class="mt-4 w-full flex-grow"></div>
+                        </div>
+                        
+                        <div class="text-center w-[28%] flex flex-col items-center">
+                            <div id="title-unexplained" class="text-red-500 font-bold mb-2 leading-tight h-10 flex flex-col justify-end pb-1">Unexplained<br><span class="font-normal text-xs">(Residual)</span></div>
+                            
+                            <div class="w-full bg-white border border-red-200 rounded-lg p-2 mb-2 shadow-sm h-14 flex flex-col justify-center">
+                                <div id="label-ss-unexplained" class="text-[10px] text-red-500/80 font-mono mb-1">SS<sub>Error</sub></div>
+                                <div id="val-unexplained-ss" class="text-base font-bold text-red-600">0</div>
+                            </div>
+                            
+                            <div class="w-full bg-red-50 border border-red-200 rounded-lg p-1 mb-2 h-8 flex items-center justify-center">
+                                <span class="text-[11px] text-red-500/70 font-mono mr-1">df:</span> <span id="val-unexplained-df" class="font-bold text-red-600">0</span>
+                            </div>
+                            
+                            <div class="w-full bg-red-100 border border-red-300 rounded-lg p-2 h-14 flex flex-col justify-center">
+                                <div class="text-[10px] text-red-700/70 font-mono mb-1">MS (Variance)</div>
+                                <div id="val-unexplained-ms" class="text-base font-bold text-red-600">0.0</div>
+                            </div>
+                            
+                            <div class="mt-4 w-full flex-grow text-[11px] text-red-800 bg-red-50/50 rounded border border-red-200 p-2 text-left leading-snug shadow-sm flex flex-col">
+                                <div class="font-serif font-bold text-center mb-1 text-[13px] text-red-800">&Sigma;(y - y&#770;)&sup2;</div>
+                                <div class="mt-auto">Sum of the squared <span class="font-semibold text-red-500">red vertical lines</span> (distance from blue dots to predictions).</div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="mt-2 text-xs text-slate-500 text-center bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <strong>Notice the math:</strong> Both Sum of Squares (SS) and Degrees of Freedom (df) add up perfectly. However, the unbiased sample Variance, or <strong>Mean Square (MS)</strong>, is calculated by dividing SS by df. Because the denominators are different for each component, <strong>Mean Squares do NOT add up</strong> (<span class="text-red-500 font-bold">Total &ne; Explained + Unexplained</span>).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isCategorical = false;
+        let currentR2 = 0.49;
+        let currentSign = 1;
+        const nPoints = 99;
+        let baseData = [];
+        let data = [];
+
+        function initializeBaseData(n) {
+            baseData = [];
+            let temp = [];
+            let sumZ1 = 0, sumZ2 = 0;
+            
+            for (let i = 0; i < n; i++) {
+                let u = 0, v = 0;
+                while(u === 0) u = Math.random();
+                while(v === 0) v = Math.random();
+                const z1 = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+                const z2 = Math.sqrt(-2.0 * Math.log(u)) * Math.sin(2.0 * Math.PI * v);
+                temp.push({z1, z2});
+                sumZ1 += z1;
+                sumZ2 += z2;
+            }
+            
+            const meanZ1 = sumZ1 / n;
+            const meanZ2 = sumZ2 / n;
+            let varZ1 = 0, varZ2 = 0, covZ1Z2 = 0;
+            
+            temp.forEach(d => {
+                d.z1 -= meanZ1;
+                d.z2 -= meanZ2;
+                varZ1 += d.z1 * d.z1;
+                varZ2 += d.z2 * d.z2;
+                covZ1Z2 += d.z1 * d.z2;
+            });
+            
+            const sdZ1 = Math.sqrt(varZ1 / n);
+            const sdZ2 = Math.sqrt(varZ2 / n);
+            const rSamp = (covZ1Z2 / n) / (sdZ1 * sdZ2);
+            
+            for (let i = 0; i < n; i++) {
+                let z1_std = temp[i].z1 / sdZ1;
+                let z2_std = temp[i].z2 / sdZ2;
+                
+                let z2_orth = (z2_std - rSamp * z1_std) / Math.sqrt(1 - rSamp * rSamp);
+                
+                baseData.push({
+                    id: i,
+                    z1: z1_std,
+                    z2: z2_orth,
+                    z2_cat: z2_orth,
+                    groupIdx: i % 3,
+                    xJitter: (Math.random() - 0.5) * 16
+                });
+            }
+            
+            let groupSums = [0, 0, 0];
+            let groupCounts = [0, 0, 0];
+            baseData.forEach(d => {
+                groupSums[d.groupIdx] += d.z2_cat;
+                groupCounts[d.groupIdx]++;
+            });
+            
+            let groupMeans = [
+                groupSums[0] / groupCounts[0],
+                groupSums[1] / groupCounts[1],
+                groupSums[2] / groupCounts[2]
+            ];
+            
+            let groupVars = [0, 0, 0];
+            baseData.forEach(d => {
+                d.z2_cat -= groupMeans[d.groupIdx];
+                groupVars[d.groupIdx] += d.z2_cat * d.z2_cat;
+            });
+            
+            for (let g = 0; g < 3; g++) {
+                let sd = Math.sqrt(groupVars[g] / groupCounts[g]);
+                baseData.forEach(d => {
+                    if (d.groupIdx === g) {
+                        d.z2_cat = d.z2_cat / sd;
+                    }
+                });
+            }
+        }
+        
+        function generateData(r, n) {
+            const meanX = 50;
+            const meanY = 50;
+            const sdX = 15;
+            const sdY = 15;
+            
+            return baseData.map(d => {
+                if (isCategorical) {
+                    const totalVariance = sdY * sdY;
+                    const rSquared = r * r;
+                    const explainedVariance = rSquared * totalVariance;
+                    const unexplainedVariance = Math.max(0, totalVariance - explainedVariance); 
+                    const residualStdDev = Math.sqrt(unexplainedVariance);
+
+                    const dShift = (r < 0 ? -1 : 1) * Math.sqrt(1.5 * explainedVariance);
+
+                    const groups = [
+                        { id: 1, baseX: 20, mean: meanY - dShift },
+                        { id: 2, baseX: 50, mean: meanY },
+                        { id: 3, baseX: 80, mean: meanY + dShift }
+                    ];
+
+                    const group = groups[d.groupIdx];
+                    return {
+                        id: d.id,
+                        groupId: group.id,
+                        baseX: group.baseX,
+                        x: group.baseX + d.xJitter,
+                        y: group.mean + residualStdDev * d.z2_cat
+                    };
+                } else {
+                    const x_std = d.z1;
+                    const remainingVar = Math.max(0, 1 - r * r);
+                    const y_std = r * d.z1 + Math.sqrt(remainingVar) * d.z2; 
+                    
+                    return {
+                        id: d.id,
+                        x: meanX + sdX * x_std,
+                        y: meanY + sdY * y_std
+                    };
+                }
+            });
+        }
+
+        function calculateModel(data) {
+            const n = data.length;
+            let sumY = 0;
+            data.forEach(d => sumY += d.y);
+            const grandMean = sumY / n;
+
+            if (isCategorical) {
+                const groupStats = {};
+                data.forEach(d => {
+                    if (!groupStats[d.groupId]) {
+                        groupStats[d.groupId] = { sumY: 0, count: 0, baseX: d.baseX };
+                    }
+                    groupStats[d.groupId].sumY += d.y;
+                    groupStats[d.groupId].count += 1;
+                });
+
+                const means = {};
+                for (const id in groupStats) {
+                    means[id] = {
+                        meanY: groupStats[id].sumY / groupStats[id].count,
+                        baseX: groupStats[id].baseX
+                    };
+                }
+                return { type: 'categorical', grandMean: grandMean, groupMeans: means };
+            } else {
+                let sumX = 0, sumXY = 0, sumX2 = 0;
+                data.forEach(d => {
+                    sumX += d.x;
+                    sumXY += (d.x * d.y);
+                    sumX2 += (d.x * d.x);
+                });
+                
+                const meanX = sumX / n;
+                const denominator = (n * sumX2 - sumX * sumX);
+                const b = denominator !== 0 ? (n * sumXY - sumX * sumY) / denominator : 0;
+                const a = grandMean - b * meanX;
+                
+                return { type: 'continuous', slope: b, intercept: a, grandMean: grandMean };
+            }
+        }
+
+        const scatterMargin = {top: 20, right: 30, bottom: 40, left: 50};
+        const scatterWidth = 500 - scatterMargin.left - scatterMargin.right;
+        const scatterHeight = 400 - scatterMargin.top - scatterMargin.bottom;
+
+        const scatterSvg = d3.select("#scatterplot")
+            .append("svg")
+            .attr("viewBox", `0 0 ${scatterWidth + scatterMargin.left + scatterMargin.right} ${scatterHeight + scatterMargin.top + scatterMargin.bottom}`)
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .append("g")
+            .attr("transform", `translate(${scatterMargin.left},${scatterMargin.top})`);
+
+        const xScale = d3.scaleLinear().domain([0, 100]).range([0, scatterWidth]);
+        const yScale = d3.scaleLinear().domain([0, 100]).range([scatterHeight, 0]);
+
+        scatterSvg.append("g")
+            .attr("transform", `translate(0,${scatterHeight})`)
+            .call(d3.axisBottom(xScale).ticks(5))
+            .call(g => g.select(".domain").attr("stroke", "#cbd5e1"))
+            .call(g => g.selectAll(".tick line").attr("stroke", "#e2e8f0"))
+            .call(g => g.selectAll(".tick text").attr("fill", "#64748b"));
+
+        scatterSvg.append("g")
+            .call(d3.axisLeft(yScale).ticks(5))
+            .call(g => g.select(".domain").attr("stroke", "#cbd5e1"))
+            .call(g => g.selectAll(".tick line").attr("stroke", "#e2e8f0"))
+            .call(g => g.selectAll(".tick text").attr("fill", "#64748b"));
+
+        scatterSvg.append("text")
+            .attr("id", "x-axis-label")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("x", scatterWidth / 2)
+            .attr("y", scatterHeight + scatterMargin.bottom - 5)
+            .text("Continuous Variable X");
+
+        scatterSvg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -scatterMargin.left + 15)
+            .attr("x", -scatterHeight / 2)
+            .text("Variable Y");
+
+        const tooltip = d3.select("#tooltip");
+
+        const dataGroup = scatterSvg.append("g").attr("clip-path", "url(#clip)");
+        
+        scatterSvg.append("defs").append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("width", scatterWidth)
+            .attr("height", scatterHeight);
+
+        const meanLineGroup = dataGroup.append("g");
+        const residualGroup = dataGroup.append("g");
+        const lineGroup = dataGroup.append("g");
+        const predictedGroup = dataGroup.append("g");
+        const dotGroup = dataGroup.append("g");
+
+        function updateScatterplot(data) {
+            const dots = dotGroup.selectAll(".dot").data(data, d => d.id);
+
+            dots.enter()
+                .append("circle")
+                .attr("class", "dot")
+                .attr("r", 4)
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y))
+                .on("mouseover", function(event, d) {
+                    d3.select(this).attr("r", 7).style("stroke-width", 2);
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`X: ${d.x.toFixed(1)}<br/>Y: ${d.y.toFixed(1)}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(event, d) {
+                    d3.select(this).attr("r", 4).style("stroke-width", 1);
+                    tooltip.transition().duration(500).style("opacity", 0);
+                })
+                .merge(dots)
+                .transition()
+                .duration(200)
+                .ease(d3.easeLinear)
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y));
+
+            dots.exit().remove();
+
+            const model = calculateModel(data);
+            const getY = d => {
+                if (model.type === 'categorical') {
+                    return model.groupMeans[d.groupId].meanY;
+                } else {
+                    return model.intercept + model.slope * d.x;
+                }
+            };
+
+            let ssTotal = 0, ssExplained = 0, ssUnexplained = 0;
+            data.forEach(d => {
+                const predY = getY(d);
+                ssTotal += Math.pow(d.y - model.grandMean, 2);
+                ssExplained += Math.pow(predY - model.grandMean, 2);
+                ssUnexplained += Math.pow(d.y - predY, 2);
+            });
+            
+            const nData = data.length;
+            
+            const roundedExplainedSS = Math.round(ssExplained);
+            const roundedUnexplainedSS = Math.round(ssUnexplained);
+            const roundedTotalSS = roundedExplainedSS + roundedUnexplainedSS;
+            
+            document.getElementById('val-total-ss').innerText = roundedTotalSS.toLocaleString();
+            document.getElementById('val-explained-ss').innerText = roundedExplainedSS.toLocaleString();
+            document.getElementById('val-unexplained-ss').innerText = roundedUnexplainedSS.toLocaleString();
+
+            const dfTotal = nData - 1;
+            const dfExplained = isCategorical ? Object.keys(model.groupMeans).length - 1 : 1;
+            const dfUnexplained = nData - dfExplained - 1;
+
+            document.getElementById('val-total-df').innerText = dfTotal;
+            document.getElementById('val-explained-df').innerText = dfExplained;
+            document.getElementById('val-unexplained-df').innerText = dfUnexplained;
+
+            const msTotal = roundedTotalSS / dfTotal;
+            const msExplained = roundedExplainedSS / dfExplained;
+            const msUnexplained = roundedUnexplainedSS / dfUnexplained;
+
+            document.getElementById('val-total-ms').innerText = msTotal.toFixed(1);
+            document.getElementById('val-explained-ms').innerText = msExplained.toFixed(1);
+            document.getElementById('val-unexplained-ms').innerText = msUnexplained.toFixed(1);
+
+            const showMean = document.getElementById('show-mean').checked;
+            const meanLine = meanLineGroup.selectAll(".mean-line")
+                .data(showMean ? [model.grandMean] : []);
+            
+            meanLine.enter()
+                .append("line")
+                .attr("class", "mean-line")
+                .attr("stroke", "#94a3b8")
+                .attr("stroke-dasharray", "6,4")
+                .attr("stroke-width", 2)
+                .merge(meanLine)
+                .transition().duration(200)
+                .attr("x1", 0)
+                .attr("y1", d => yScale(d))
+                .attr("x2", scatterWidth)
+                .attr("y2", d => yScale(d));
+                
+            meanLine.exit().remove();
+
+            const showRes = document.getElementById('show-residuals').checked;
+            const residuals = residualGroup.selectAll(".residual")
+                .data(showRes ? data : [], d => d.id);
+                
+            residuals.enter()
+                .append("line")
+                .attr("class", "residual")
+                .attr("stroke", "#f87171")
+                .attr("stroke-dasharray", "2,2")
+                .attr("stroke-width", 1.5)
+                .style("opacity", 0.7)
+                .merge(residuals)
+                .transition().duration(200)
+                .attr("x1", d => xScale(d.x))
+                .attr("y1", d => yScale(d.y))
+                .attr("x2", d => xScale(d.x))
+                .attr("y2", d => yScale(getY(d)));
+                
+            residuals.exit().remove();
+
+            const showPred = document.getElementById('show-predicted').checked;
+            const predicted = predictedGroup.selectAll(".predicted")
+                .data(showPred ? data : [], d => d.id);
+                
+            predicted.enter()
+                .append("circle")
+                .attr("class", "predicted")
+                .attr("r", 4)
+                .attr("fill", "#22c55e")
+                .attr("stroke", "white")
+                .attr("stroke-width", 1)
+                .merge(predicted)
+                .transition().duration(200)
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(getY(d)));
+                
+            predicted.exit().remove();
+            
+            let lineData = [];
+            if (model.type === 'categorical') {
+                const segmentWidth = 12;
+                for (const id in model.groupMeans) {
+                    const g = model.groupMeans[id];
+                    lineData.push([
+                        { x: g.baseX - segmentWidth, y: g.meanY },
+                        { x: g.baseX + segmentWidth, y: g.meanY }
+                    ]);
+                }
+            } else {
+                lineData.push([
+                    { x: 0, y: model.intercept },
+                    { x: 100, y: model.intercept + model.slope * 100 }
+                ]);
+            }
+
+            const regressionLine = lineGroup.selectAll(".regression-line").data(lineData);
+
+            regressionLine.enter()
+                .append("line")
+                .attr("class", "regression-line")
+                .merge(regressionLine)
+                .transition().duration(200).ease(d3.easeLinear)
+                .attr("x1", d => xScale(d[0].x))
+                .attr("y1", d => yScale(d[0].y))
+                .attr("x2", d => xScale(d[1].x))
+                .attr("y2", d => yScale(d[1].y));
+                
+            regressionLine.exit().remove();
+        }
+
+        function updateStats(r2) {
+            r2 = Math.max(0, Math.min(1, r2));
+            const r = Math.sqrt(r2) * (isCategorical ? 1 : currentSign);
+            
+            const displayR = isCategorical ? Math.abs(r).toFixed(2) : r.toFixed(2);
+            document.getElementById('stat-r').innerText = displayR;
+            document.getElementById('stat-r2').innerText = r2.toFixed(2);
+            
+            const statR2Element = document.getElementById('stat-r2');
+            const rSquaredPct = Math.round(r2 * 100);
+            if (rSquaredPct < 10) {
+                statR2Element.className = "text-3xl font-bold text-slate-500";
+            } else if (rSquaredPct < 40) {
+                statR2Element.className = "text-3xl font-bold text-blue-500";
+            } else if (rSquaredPct < 70) {
+                 statR2Element.className = "text-3xl font-bold text-indigo-600";
+            } else {
+                statR2Element.className = "text-3xl font-bold text-purple-600";
+            }
+            
+            const noteEl = document.getElementById('r-relation-note');
+            if(isCategorical) {
+                noteEl.innerHTML = `<strong>How they relate:</strong> Eta (<i>&eta;</i>) is the correlation ratio, representing non-linear relationship strength. It is the square root of <i>&eta;</i>&sup2; (<i>&eta; = &radic;&eta;&sup2;</i>). Unlike regression lines, ANOVA groups have no "direction", so <i>&eta;</i> is always positive.`;
+            } else {
+                noteEl.innerHTML = `<strong>How they relate:</strong> The correlation (<i>r</i>) is the square root of <i>R</i>&sup2;. Because <i>R</i>&sup2; is a squared value (representing variance), it is always positive. The correlation <i>r</i> can be negative to show the direction of the line (<i>r = &plusmn;&radic;R&sup2;</i>).`;
+            }
+        }
+
+        function renderAll() {
+            const r = Math.sqrt(currentR2) * (isCategorical ? 1 : currentSign);
+            data = generateData(r, nPoints);
+            updateScatterplot(data);
+            updateStats(currentR2);
+        }
+
+        const slider = document.getElementById('variance-slider');
+        slider.addEventListener('input', function(e) {
+            currentR2 = parseFloat(e.target.value);
+            renderAll();
+        });
+        
+        const dirToggle = document.getElementById('corr-direction');
+        dirToggle.addEventListener('change', function(e) {
+            currentSign = parseInt(e.target.value);
+            renderAll();
+        });
+
+        const btnContinuous = document.getElementById('btn-continuous');
+        const btnCategorical = document.getElementById('btn-categorical');
+        
+        const sliderLabel = document.getElementById('slider-label');
+        const xAxisLabel = d3.select("#x-axis-label");
+        
+        const titleProportion = document.getElementById('title-proportion');
+        const formulaProportion = document.getElementById('formula-proportion');
+
+        const titleExplained = document.getElementById('title-explained');
+        const labelSSExplained = document.getElementById('label-ss-explained');
+        const titleUnexplained = document.getElementById('title-unexplained');
+        const labelSSUnexplained = document.getElementById('label-ss-unexplained');
+        
+        const togglePredLabel = document.getElementById('toggle-pred-label');
+        const toggleResLabel = document.getElementById('toggle-res-label');
+
+        btnContinuous.addEventListener('click', () => {
+            if (!isCategorical) return;
+            isCategorical = false;
+            
+            btnContinuous.className = "px-4 py-2 rounded-md bg-white shadow-sm text-sm font-medium text-slate-800 transition-all";
+            btnCategorical.className = "px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-slate-800 transition-all";
+            
+            document.getElementById('slider-label').innerHTML = "Variance Explained (<i>R</i>&sup2;)";
+            document.getElementById('direction-toggle').style.display = "flex";
+            xAxisLabel.text("Continuous Variable X");
+            
+            document.getElementById('stat-r2-label').innerHTML = "Variance Explained (<i>R</i>&sup2;)";
+            document.getElementById('stat-r-label').innerHTML = "Correlation (<i>r</i>)";
+            
+            titleProportion.innerHTML = "Proportion Explained (<i>R</i>&sup2;)";
+            formulaProportion.innerHTML = `<span class="text-lg mr-2"><i>R</i>&sup2; = </span>
+                                           <div class="flex flex-col items-center text-xs">
+                                               <span class="border-b border-slate-400 pb-0.5 px-2 mb-0.5">SS<sub>Model</sub></span>
+                                               <span class="pt-0.5 px-2">SS<sub>Total</sub></span>
+                                           </div>`;
+            
+            titleExplained.innerHTML = "Explained<br><span class='font-normal text-xs'>(Model)</span>";
+            labelSSExplained.innerHTML = "SS<sub>Model</sub>";
+            togglePredLabel.innerHTML = "Explained";
+            
+            titleUnexplained.innerHTML = "Unexplained<br><span class='font-normal text-xs'>(Residual)</span>";
+            labelSSUnexplained.innerHTML = "SS<sub>Error</sub>";
+            toggleResLabel.innerHTML = "Unexplained";
+            
+            renderAll();
+        });
+
+        btnCategorical.addEventListener('click', () => {
+            if (isCategorical) return;
+            isCategorical = true;
+            
+            btnCategorical.className = "px-4 py-2 rounded-md bg-white shadow-sm text-sm font-medium text-slate-800 transition-all";
+            btnContinuous.className = "px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-slate-800 transition-all";
+            
+            document.getElementById('slider-label').innerHTML = "Variance Explained (<i>&eta;</i>&sup2;)";
+            document.getElementById('direction-toggle').style.display = "none";
+            xAxisLabel.text("Categorical Variable X (Groups)");
+            
+            document.getElementById('stat-r2-label').innerHTML = "Variance Explained (<i>&eta;</i>&sup2;)";
+            document.getElementById('stat-r-label').innerHTML = "Effect Size (<i>&eta;</i>)";
+            
+            titleProportion.innerHTML = "Proportion Explained (<i>&eta;</i>&sup2;)";
+            formulaProportion.innerHTML = `<span class="text-lg mr-2"><i>&eta;</i>&sup2; = </span>
+                                           <div class="flex flex-col items-center text-xs">
+                                               <span class="border-b border-slate-400 pb-0.5 px-2 mb-0.5">SS<sub>Between</sub></span>
+                                               <span class="pt-0.5 px-2">SS<sub>Total</sub></span>
+                                           </div>`;
+            
+            titleExplained.innerHTML = "Between Groups<br><span class='font-normal text-xs'>(Explained)</span>";
+            labelSSExplained.innerHTML = "SS<sub>Between</sub>";
+            togglePredLabel.innerHTML = "Between";
+            
+            titleUnexplained.innerHTML = "Within Groups<br><span class='font-normal text-xs'>(Residual)</span>";
+            labelSSUnexplained.innerHTML = "SS<sub>Within</sub>";
+            toggleResLabel.innerHTML = "Within";
+            
+            renderAll();
+        });
+
+        document.getElementById('show-mean').addEventListener('change', () => updateScatterplot(data));
+        document.getElementById('show-residuals').addEventListener('change', () => updateScatterplot(data));
+        document.getElementById('show-predicted').addEventListener('change', () => updateScatterplot(data));
+
+        window.onload = () => {
+            initializeBaseData(nPoints);
+            renderAll();
+        };
+
+    </script>
+</body>
+</html>
