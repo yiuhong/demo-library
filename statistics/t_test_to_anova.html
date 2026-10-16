@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simplified: T-Tests and ANOVA</title>
+    <title>From T-Test to ANOVA</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,9 +29,9 @@
         .slider::-webkit-slider-thumb:hover { background: #2563eb; }
 
         /* SVG Element Styles */
-        .data-point { fill-opacity: 0.8; stroke-width: 1.5; }
-        .mean-line { stroke-width: 3; stroke-dasharray: 4; }
-        .grand-mean-line { stroke: #0f172a; stroke-width: 2; stroke-dasharray: 6; }
+        .data-point { fill-opacity: 0.8; stroke-width: 1.5; cursor: pointer; }
+        .mean-line { stroke-width: 5; stroke-dasharray: 4; cursor: pointer; }
+        .grand-mean-line { stroke: #0f172a; stroke-width: 5; stroke-dasharray: 6; cursor: pointer; }
         .deviation-line { stroke-width: 2; stroke-opacity: 0.6; }
         
         .custom-checkbox { accent-color: #3b82f6; width: 1.1rem; height: 1.1rem; cursor: pointer; flex-shrink: 0; }
@@ -39,6 +39,23 @@
         /* Custom scrollbar for small horizontal overflow areas */
         .scroll-hide::-webkit-scrollbar { display: none; }
         .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Tooltip Styles */
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(15, 23, 42, 0.9);
+            color: #fff;
+            border-radius: 6px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen pb-20">
@@ -394,6 +411,9 @@
         const layerMeans = svg.append("g");
         const layerPoints = svg.append("g");
 
+        // Tooltip setup
+        const tooltip = d3.select("body").append("div").attr("class", "tooltip");
+
         const xAxis = d3.axisBottom(xScale).ticks(10);
         svg.append("g")
             .attr("transform", `translate(0,${height - margin.bottom})`)
@@ -485,19 +505,37 @@
                 .attr("class", "data-point")
                 .attr("r", 8) 
                 .attr("cx", d => clampX(d.val)).attr("cy", d => d.y)
-                .attr("fill", d => d.color).attr("stroke", d => d3.color(d.color).darker(0.5));
+                .attr("fill", d => d.color).attr("stroke", d => d3.color(d.color).darker(0.5))
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`Value: ${fmtDec(d.val)}`)
+                           .style("left", (event.pageX + 10) + "px")
+                           .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
 
             const meansData = [
-                { type: 'group', val: actualMeanA, color: colors.A },
-                { type: 'group', val: actualMeanB, color: colors.B },
-                { type: 'grand', val: grandMean, color: colors.Grand }
+                { type: 'Group A Mean', val: actualMeanA, color: colors.A },
+                { type: 'Group B Mean', val: actualMeanB, color: colors.B },
+                { type: 'Grand Mean', val: grandMean, color: colors.Grand }
             ];
             
             layerMeans.selectAll("line").data(meansData).join("line")
-                .attr("class", d => d.type === 'grand' ? 'grand-mean-line' : 'mean-line')
+                .attr("class", d => d.type === 'Grand Mean' ? 'grand-mean-line' : 'mean-line')
                 .attr("x1", d => clampX(d.val)).attr("x2", d => clampX(d.val))
                 .attr("y1", margin.top - 20).attr("y2", height - margin.bottom + 10)
-                .attr("stroke", d => d.color);
+                .attr("stroke", d => d.color)
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.type}: ${fmtDec(d.val)}`)
+                           .style("left", (event.pageX + 10) + "px")
+                           .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
 
             layerTotal.selectAll("line").data(data, d => d.id).join("line")
                 .attr("class", "deviation-line").attr("stroke", "#94a3b8")
@@ -510,36 +548,34 @@
                 .attr("y1", d => d.y).attr("y2", d => d.y);
 
             layerBetween.selectAll("*").remove();
-            if (meanDiff > 0.1) {
-                // Ensure lines don't perfectly overlap by slightly offsetting Y coordinates
-                layerBetween.append("line")
-                    .attr("x1", clampX(grandMean)).attr("x2", clampX(actualMeanA))
-                    .attr("y1", 32).attr("y2", 32)
-                    .attr("stroke", colors.A).attr("stroke-width", 4).attr("stroke-opacity", 0.7);
-                layerBetween.append("line")
-                    .attr("x1", clampX(grandMean)).attr("x2", clampX(actualMeanB))
-                    .attr("y1", 42).attr("y2", 42) 
-                    .attr("stroke", colors.B).attr("stroke-width", 4).attr("stroke-opacity", 0.7);
-                
-                layerBetween.append("text")
-                    .attr("x", clampX(grandMean)).attr("y", 56)
-                    .attr("text-anchor", "middle").attr("fill", "#059669").style("font-size", "11px").style("font-weight", "600")
-                    .text(`SS Between (SSB): ${fmtDec(ssb)}`);
-            }
+            
+            // Ensure lines don't perfectly overlap by slightly offsetting Y coordinates
+            layerBetween.append("line")
+                .attr("x1", clampX(grandMean)).attr("x2", clampX(actualMeanA))
+                .attr("y1", 32).attr("y2", 32)
+                .attr("stroke", colors.A).attr("stroke-width", 4).attr("stroke-opacity", 0.7);
+            layerBetween.append("line")
+                .attr("x1", clampX(grandMean)).attr("x2", clampX(actualMeanB))
+                .attr("y1", 42).attr("y2", 42) 
+                .attr("stroke", colors.B).attr("stroke-width", 4).attr("stroke-opacity", 0.7);
+            
+            layerBetween.append("text")
+                .attr("x", clampX(grandMean)).attr("y", 56)
+                .attr("text-anchor", "middle").attr("fill", "#059669").style("font-size", "11px").style("font-weight", "600")
+                .text(`SS Between (SSB): ${fmtDec(ssb)}`);
 
             layerMeanDiff.selectAll("*").remove();
-            if (meanDiff > 0.1) {
-                const min = Math.min(actualMeanA, actualMeanB);
-                const max = Math.max(actualMeanA, actualMeanB);
-                layerMeanDiff.append("line")
-                    .attr("x1", clampX(min)).attr("x2", clampX(max))
-                    .attr("y1", 20).attr("y2", 20)
-                    .attr("stroke", "#16a34a").attr("stroke-width", 3);
-                layerMeanDiff.append("text")
-                    .attr("x", clampX((min + max) / 2)).attr("y", 12)
-                    .attr("text-anchor", "middle").attr("fill", "#16a34a").style("font-size", "12px").style("font-weight", "700")
-                    .text(`Diff: ${fmtDec(meanDiff)}`);
-            }
+            const min = Math.min(actualMeanA, actualMeanB);
+            const max = Math.max(actualMeanA, actualMeanB);
+            layerMeanDiff.append("line")
+                .attr("x1", clampX(min)).attr("x2", clampX(max))
+                .attr("y1", 20).attr("y2", 20)
+                .attr("stroke", "#16a34a").attr("stroke-width", 3);
+            layerMeanDiff.append("text")
+                .attr("x", clampX((min + max) / 2)).attr("y", 12)
+                .attr("text-anchor", "middle").attr("fill", "#16a34a").style("font-size", "12px").style("font-weight", "700")
+                .text(`Diff: ${fmtDec(meanDiff)}`);
+            
         }
 
         // Listeners for UI interaction
@@ -556,3 +592,4 @@
     </script>
 </body>
 </html>
+```
