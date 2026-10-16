@@ -1,0 +1,977 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partitioning Sum of Squares in ANOVA: Interactive Guide</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MathJax for rendering math formulas -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        .animate-pop {
+            animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-16">
+
+    <!-- Header Hero -->
+    <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white py-10 px-4 sm:px-8 shadow-xl">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center gap-3 mb-2 text-indigo-400 font-semibold tracking-wide text-sm uppercase">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                Interactive Statistics Visualizer
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4">
+                Partitioning Sum of Squares in ANOVA
+            </h1>
+            <p class="text-slate-300 text-base sm:text-lg max-w-3xl leading-relaxed">
+                Discover why total variation (Sum of Squares) breaks down cleanly into <span class="text-indigo-300 font-semibold">Group Effect</span> and <span class="text-emerald-300 font-semibold">Individual Deviation</span>, and see why the cross-product term magically vanishes!
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-8 mt-8 space-y-10">
+
+        <!-- SECTION 1: The Core Intuition & Analogy -->
+        <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">1</span>
+                The Group Project Analogy
+            </h2>
+            <p class="text-slate-600 mb-6 leading-relaxed">
+                Imagine students taking part in group projects. A student’s final score depends on two things: how well their overall team performed, and how much higher or lower that student scored relative to their team's average.
+            </p>
+
+            <!-- Key Analogy Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <!-- Card 1 -->
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 hover:border-slate-300 transition-all">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Score Deviation</div>
+                    <div class="text-lg font-bold text-slate-800 mb-2">Student Score − Class Mean</div>
+                    <p class="text-xs text-slate-500">How far an individual student's score is from the overall class grand average.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-200 hover:border-indigo-300 transition-all">
+                    <div class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">Group Component $(a)$</div>
+                    <div class="text-lg font-bold text-indigo-900 mb-2">Group Mean − Class Mean</div>
+                    <p class="text-xs text-indigo-700">How much the team's environment raised or lowered all team members together.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-emerald-50 p-5 rounded-xl border border-emerald-200 hover:border-emerald-300 transition-all">
+                    <div class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Individual Component $(b)$</div>
+                    <div class="text-lg font-bold text-emerald-900 mb-2">Student Score − Group Mean</div>
+                    <p class="text-xs text-emerald-700">The student's unique personal contribution above or below their own team average.</p>
+                </div>
+            </div>
+
+            <!-- Mathematical identity banner -->
+            <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner text-center overflow-x-auto mb-6 space-y-5">
+                <div>
+                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-2 font-semibold">1. Partitioning of Total Deviation</div>
+                    <div class="text-lg sm:text-xl font-mono text-indigo-300">
+                        $\underbrace{(y_{ij} - \bar{y})}_{\text{Total Deviation}} = \underbrace{(\bar{y}_i - \bar{y})}_{\text{Group Effect } (a)} + \underbrace{(y_{ij} - \bar{y}_i)}_{\text{Individual Component } (b)}$
+                    </div>
+                    <p class="text-xs text-slate-400 mt-3">Notice that if you simplify the right side, $\bar{y}_i$ cancels out, proving the equality always holds true!</p>
+                </div>
+
+                <div class="border-t border-slate-800 pt-5">
+                    <div class="text-xs text-amber-400 uppercase tracking-widest mb-2 font-semibold">2. Partitioning of Sum of Squares (Squaring & Summing)</div>
+                    <div class="text-lg sm:text-xl font-mono text-amber-300 mb-2">
+                        $SS_{\text{Total}} = SS_{\text{Between}} + SS_{\text{Within}}$
+                    </div>
+                    <div class="text-base sm:text-lg font-mono text-emerald-300">
+                        $\underbrace{\sum_{i}\sum_{j} (y_{ij} - \bar{y})^2}_{SS_{\text{Total}}} = \underbrace{\sum_{i} n_i (\bar{y}_i - \bar{y})^2}_{SS_{\text{Between}}} + \underbrace{\sum_{i}\sum_{j} (y_{ij} - \bar{y}_i)^2}_{SS_{\text{Within}}}$
+                    </div>
+                    <p class="text-xs text-slate-400 mt-3">Here, $i$ represents the group index, $j$ represents the individual student within that group, and $n_i$ is the number of students in group $i$.</p>
+                </div>
+            </div>
+
+            <!-- Why Square? Callout -->
+            <details class="bg-amber-50 rounded-xl border border-amber-200 shadow-sm group">
+                <summary class="p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between hover:bg-amber-100/50 transition-colors rounded-xl">
+                    <h3 class="text-base font-bold text-amber-900 flex items-center gap-2 m-0">
+                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Why do we need to SQUARE the deviations?
+                    </h3>
+                    <svg class="w-5 h-5 text-amber-600 transition-transform duration-200 group-open:rotate-180 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </summary>
+                <div class="p-5 pt-0 grid grid-cols-1 md:grid-cols-2 gap-6 mt-1 border-t border-amber-200/50">
+                    <div>
+                        <h4 class="font-bold text-amber-800 text-sm mb-1">1. The "Zero-Sum" Problem</h4>
+                        <p class="text-xs text-amber-900/80 leading-relaxed">
+                            If we try to measure total "spread" by just adding up these raw deviations for everyone, the students above average cancel out the students below average. The sum is mathematically forced to be zero: $\sum (y_{ij} - \bar{y}) = 0$. A sum of 0 tells us nothing about how spread out the class actually is!
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-amber-800 text-sm mb-1">2. Squaring solves it</h4>
+                        <p class="text-xs text-amber-900/80 leading-relaxed">
+                            By squaring the deviations $(y_{ij} - \bar{y})^2$, we force every distance to be positive so they accumulate into a "Sum of Squares". Additionally, unlike absolute values, <strong>squaring</strong> interacts with the math in a way that makes overlapping group-and-individual pieces disappear entirely (which you'll see in Section 3).
+                        </p>
+                    </div>
+                </div>
+            </details>
+        </section>
+
+        <!-- SECTION 2: Interactive Classroom Data Studio -->
+        <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">2</span>
+                        Interactive Data Studio
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">Adjust student scores or choose a scenario to observe live variance decomposition.</p>
+                </div>
+                <!-- Preset Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="loadPreset('default')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">Standard Case</button>
+                    <button onclick="loadPreset('no_between')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Equal Teams ($SS_B = 0$)</button>
+                    <button onclick="loadPreset('no_within')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Identical Teammates ($SS_W = 0$)</button>
+                </div>
+            </div>
+
+            <!-- Student Score Inputs -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Group 1 -->
+                <div class="bg-indigo-50/50 p-5 rounded-xl border border-indigo-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-indigo-900 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-indigo-600"></span> Group A (Alpha)
+                        </h3>
+                        <span id="group-a-mean-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 code-font">Mean: 80</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Alice:</span> <span id="val-A1" class="font-semibold">70</span></div>
+                            <input type="range" min="40" max="120" value="70" id="input-A1" class="w-full accent-indigo-600" oninput="updateCalculations()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Bob:</span> <span id="val-A2" class="font-semibold">80</span></div>
+                            <input type="range" min="40" max="120" value="80" id="input-A2" class="w-full accent-indigo-600" oninput="updateCalculations()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Charlie:</span> <span id="val-A3" class="font-semibold">90</span></div>
+                            <input type="range" min="40" max="120" value="90" id="input-A3" class="w-full accent-indigo-600" oninput="updateCalculations()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 2 -->
+                <div class="bg-emerald-50/50 p-5 rounded-xl border border-emerald-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-emerald-900 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-emerald-600"></span> Group B (Beta)
+                        </h3>
+                        <span id="group-b-mean-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 code-font">Mean: 60</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1"><span>David:</span> <span id="val-B1" class="font-semibold">50</span></div>
+                            <input type="range" min="40" max="120" value="50" id="input-B1" class="w-full accent-emerald-600" oninput="updateCalculations()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Eva:</span> <span id="val-B2" class="font-semibold">60</span></div>
+                            <input type="range" min="40" max="120" value="60" id="input-B2" class="w-full accent-emerald-600" oninput="updateCalculations()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Frank:</span> <span id="val-B3" class="font-semibold">70</span></div>
+                            <input type="range" min="40" max="120" value="70" id="input-B3" class="w-full accent-emerald-600" oninput="updateCalculations()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 3 -->
+                <div class="bg-amber-50/50 p-5 rounded-xl border border-amber-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-amber-900 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-amber-600"></span> Group C (Gamma)
+                        </h3>
+                        <span id="group-c-mean-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 code-font">Mean: 100</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Grace:</span> <span id="val-C1" class="font-semibold">90</span></div>
+                            <input type="range" min="40" max="120" value="90" id="input-C1" class="w-full accent-amber-600" oninput="updateCalculations()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Henry:</span> <span id="val-C2" class="font-semibold">100</span></div>
+                            <input type="range" min="40" max="120" value="100" id="input-C2" class="w-full accent-amber-600" oninput="updateCalculations()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Ivy:</span> <span id="val-C3" class="font-semibold">110</span></div>
+                            <input type="range" min="40" max="120" value="110" id="input-C3" class="w-full accent-amber-600" oninput="updateCalculations()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizing Scores & Deviations (Incorporated Graph) -->
+            <div class="mb-10">
+                <h3 class="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    Visualizing Scores & Deviations
+                </h3>
+                <p class="text-slate-500 text-sm mb-4">
+                    Look at how individual scores relate to Group Means (dashed colored lines) and the Grand Mean (bold dark line). Hover over the lines to see their values!
+                </p>
+
+                <!-- Toggle Controls for Distance Indicators -->
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        Toggle Visual Indicators:
+                    </span>
+                    <div class="flex flex-wrap gap-4 text-xs font-medium text-slate-700">
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-amber-600 transition">
+                            <input type="checkbox" id="toggle-sst" onchange="updateCalculations()" class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 accent-amber-600">
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Total Deviation</span>
+                        </label>
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-indigo-600 transition">
+                            <input type="checkbox" id="toggle-ssb" checked onchange="updateCalculations()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 accent-indigo-600">
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span> Group Effect ($a$)</span>
+                        </label>
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-emerald-600 transition">
+                            <input type="checkbox" id="toggle-ssw" checked onchange="updateCalculations()" class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 accent-emerald-600">
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Ind. Deviation ($b$)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="h-64 relative">
+                        <canvas id="scoresChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sum of Squares Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="text-xs text-slate-500 font-medium">Total Sum of Squares ($SS_{\text{Total}}$)</div>
+                    <div id="sst-display" class="text-2xl font-bold text-slate-800 code-font mt-1">2,800.0</div>
+                    <div class="text-xs text-slate-500 mt-1">Total score variation</div>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-200">
+                    <div class="text-xs text-indigo-700 font-medium">Between-Group ($SS_{\text{Between}}$)</div>
+                    <div id="ssb-display" class="text-2xl font-bold text-indigo-900 code-font mt-1">2,400.0</div>
+                    <div id="ssb-pct" class="text-xs text-indigo-600 font-medium mt-1">85.7% of total variance</div>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                    <div class="text-xs text-emerald-700 font-medium">Within-Group ($SS_{\text{Within}}$)</div>
+                    <div id="ssw-display" class="text-2xl font-bold text-emerald-900 code-font mt-1">400.0</div>
+                    <div id="ssw-pct" class="text-xs text-emerald-600 font-medium mt-1">14.3% of total variance</div>
+                </div>
+            </div>
+
+            <!-- Ratio Metrics Banner for ANOVA & Effect Size -->
+            <div class="mt-6 pt-6 border-t border-slate-200">
+                <h3 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M12 7h.01"></path></svg>
+                    Forming Ratio Metrics: Group Effect Size & ANOVA
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Metric 1: Eta-Squared -->
+                    <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-5 rounded-xl border border-indigo-800 shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-semibold text-indigo-300 uppercase tracking-wider">Effect Size ($\eta^2$)</span>
+                            <span class="text-[10px] bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded border border-indigo-400/30">Variance Explained</span>
+                        </div>
+                        <div class="text-xs text-slate-300 mt-2">$\eta^2 = \frac{SS_{\text{Between}}}{SS_{\text{Total}}}$</div>
+                        <div id="eta-sq-display" class="text-3xl font-extrabold text-indigo-300 code-font my-2">0.857 (85.7%)</div>
+                        <p id="eta-sq-desc" class="text-xs text-slate-300 leading-relaxed">
+                            85.7% of all score differences are explained purely by which group a student belongs to.
+                        </p>
+                    </div>
+
+                    <!-- Metric 2: Mean Squares -->
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Mean Squares ($MS = \frac{SS}{df}$)</div>
+                        <div class="space-y-2 mt-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-600">$MS_{\text{Between}} \, (df=2)$:</span>
+                                <span id="msb-display" class="font-bold code-font text-indigo-700">1,200.0</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-600">$MS_{\text{Within}} \, (df=6)$:</span>
+                                <span id="msw-display" class="font-bold code-font text-emerald-700">66.7</span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-3 pt-2 border-t border-slate-200">
+                            Mean squares average out the sums of squares by degrees of freedom ($k-1=2$, $N-k=6$).
+                        </p>
+                    </div>
+
+                    <!-- Metric 3: ANOVA F-Ratio -->
+                    <div class="bg-amber-50/80 p-5 rounded-xl border border-amber-200">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold text-amber-900 uppercase tracking-wider">ANOVA $F$-Statistic</span>
+                            <span id="f-badge" class="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded">Signal / Noise</span>
+                        </div>
+                        <div class="text-xs text-amber-800 mt-2">$F = \frac{MS_{\text{Between}}}{MS_{\text{Within}}}$</div>
+                        <div id="f-ratio-display" class="text-3xl font-extrabold text-amber-900 code-font my-2">18.00</div>
+                        <p id="f-ratio-desc" class="text-xs text-amber-950 leading-relaxed">
+                            Group effect signal is <strong>18.0×</strong> stronger than individual within-group noise!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: The Algebraic Magic - Why the Cross-Product Vanishes -->
+        <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">3</span>
+                The Math Magic: Why Cross-Products Sum to Zero
+            </h2>
+            <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                When we square a binomial score decomposition $({a} + {b})^2 = {a}^2 + {b}^2 + 2{a}{b}$, why doesn't the $2{a}{b}$ term corrupt our sum? 
+                Let's calculate ${a}$ (Group Effect), ${b}$ (Individual Component), ${a}^2$, ${b}^2$, and $2{a}{b}$ for every single student using the live means below.
+            </p>
+
+            <!-- Reference Bar for Grand Mean and Group Means in Section 3 -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div class="bg-slate-900 text-white p-3.5 rounded-xl flex flex-col justify-between shadow-sm">
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Grand Mean ($\bar{y}$)</span>
+                    <span id="sec4-grand-mean" class="text-xl font-bold text-amber-400 code-font mt-1">80.0</span>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-200 p-3.5 rounded-xl flex flex-col justify-between">
+                    <span class="text-[11px] text-indigo-600 font-semibold uppercase tracking-wider">Group A Mean ($\bar{y}_A$)</span>
+                    <span id="sec4-group-a-mean" class="text-xl font-bold text-indigo-900 code-font mt-1">80.0</span>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl flex flex-col justify-between">
+                    <span class="text-[11px] text-emerald-600 font-semibold uppercase tracking-wider">Group B Mean ($\bar{y}_B$)</span>
+                    <span id="sec4-group-b-mean" class="text-xl font-bold text-emerald-900 code-font mt-1">60.0</span>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl flex flex-col justify-between">
+                    <span class="text-[11px] text-amber-700 font-semibold uppercase tracking-wider">Group C Mean ($\bar{y}_C$)</span>
+                    <span id="sec4-group-c-mean" class="text-xl font-bold text-amber-900 code-font mt-1">100.0</span>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                            <th class="p-2.5 font-bold">Student</th>
+                            <th class="p-2.5 font-bold">Group</th>
+                            <th class="p-2.5 font-bold text-center">Score ($y_{ij}$)</th>
+                            <th class="p-2.5 font-bold text-center bg-slate-200/70 text-slate-800">Group Mean ($\bar{y}_i$)</th>
+                            <th class="p-2.5 font-bold text-center">Total Dev ($a + b$)</th>
+                            <th class="p-2.5 font-bold text-center bg-indigo-50 text-indigo-900">Group Effect ($a$)</th>
+                            <th class="p-2.5 font-bold text-center bg-emerald-50 text-emerald-900">Ind. Dev ($b$)</th>
+                            <th class="p-2.5 font-bold text-center bg-slate-200/60 text-slate-900">
+                                Total Sq $(a + b)^2$
+                                <span class="block text-[10px] font-semibold text-slate-500">($SS_{\text{Total}}$)</span>
+                            </th>
+                            <th class="p-2.5 font-bold text-center bg-indigo-100/60 text-indigo-950">
+                                Group Sq $a^2$
+                                <span class="block text-[10px] font-semibold text-indigo-600">($SS_{\text{Between}}$)</span>
+                            </th>
+                            <th class="p-2.5 font-bold text-center bg-emerald-100/60 text-emerald-950">
+                                Ind Sq $b^2$
+                                <span class="block text-[10px] font-semibold text-emerald-600">($SS_{\text{Within}}$)</span>
+                            </th>
+                            <th class="p-2.5 font-bold text-center bg-amber-100 text-amber-900">Cross-Term $2ab$</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-table-body" class="divide-y divide-slate-200 font-mono">
+                        <!-- Populated dynamically via JavaScript -->
+                    </tbody>
+                    <tfoot id="student-table-foot" class="bg-slate-900 text-white font-mono font-bold">
+                        <!-- Populated dynamically via JavaScript -->
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Zero Sum Highlight Box -->
+            <div class="mt-6 p-5 rounded-xl border border-emerald-200 bg-emerald-50/80 flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-2xl flex-shrink-0">
+                    0
+                </div>
+                <div>
+                    <h3 class="font-bold text-emerald-950 text-base">The Within-Group Sum Rule: $\sum b_{ij} = 0$</h3>
+                    <p class="text-xs text-emerald-800 mt-1 leading-relaxed">
+                        By definition, individual scores within any group sum up to that group's mean! Therefore, individual deviations $b_{ij} = (y_{ij} - \bar{y}_i)$ inside any team <strong>MUST sum to exactly ZERO</strong>. Since group effect $a_i$ is constant for all members of team $i$, the sum of cross-products is:
+                        <span class="block text-emerald-900 font-bold code-font text-sm mt-1">
+                            $\sum_{j} 2 a_i b_{ij} = 2 a_i \sum_{j} b_{ij} = 2 a_i \times (0) = 0$
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto px-4 sm:px-8 mt-12 text-center text-xs text-slate-400">
+        Interactive Variance Partitioning Explainer • Built with Tailwind CSS & Chart.js
+    </footer>
+
+    <script>
+        // Student Data Model
+        const students = [
+            { id: 'A1', group: 0, groupName: 'Group A', name: 'Alice', inputId: 'input-A1', valId: 'val-A1', color: '#4f46e5' },
+            { id: 'A2', group: 0, groupName: 'Group A', name: 'Bob', inputId: 'input-A2', valId: 'val-A2', color: '#4f46e5' },
+            { id: 'A3', group: 0, groupName: 'Group A', name: 'Charlie', inputId: 'input-A3', valId: 'val-A3', color: '#4f46e5' },
+
+            { id: 'B1', group: 1, groupName: 'Group B', name: 'David', inputId: 'input-B1', valId: 'val-B1', color: '#059669' },
+            { id: 'B2', group: 1, groupName: 'Group B', name: 'Eva', inputId: 'input-B2', valId: 'val-B2', color: '#059669' },
+            { id: 'B3', group: 1, groupName: 'Group B', name: 'Frank', inputId: 'input-B3', valId: 'val-B3', color: '#059669' },
+
+            { id: 'C1', group: 2, groupName: 'Group C', name: 'Grace', inputId: 'input-C1', valId: 'val-C1', color: '#d97706' },
+            { id: 'C2', group: 2, groupName: 'Group C', name: 'Henry', inputId: 'input-C2', valId: 'val-C2', color: '#d97706' },
+            { id: 'C3', group: 2, groupName: 'Group C', name: 'Ivy', inputId: 'input-C3', valId: 'val-C3', color: '#d97706' }
+        ];
+
+        let scoresChart = null;
+
+        const meanLinesPlugin = {
+            id: 'meanLines',
+            afterEvent(chart, args) {
+                const { event } = args;
+                if (!chart.options.plugins.meanLines) return;
+                
+                // Track mouse position over the canvas to determine if hovering over lines
+                if (event.type === 'mousemove') {
+                    chart.options.plugins.meanLines.mousePos = { x: event.x, y: event.y };
+                    args.changed = true; // Tell Chart.js to re-render to show/hide tooltips
+                } else if (event.type === 'mouseout') {
+                    chart.options.plugins.meanLines.mousePos = null;
+                    args.changed = true;
+                }
+            },
+            beforeDatasetsDraw(chart) {
+                const { ctx, chartArea: { left, right, top, bottom }, scales: { x, y } } = chart;
+                const options = chart.options.plugins.meanLines;
+
+                if (!options || options.grandMean === undefined) return;
+
+                const showSSB = options.showSSB !== undefined ? options.showSSB : true;
+                const showSSW = options.showSSW !== undefined ? options.showSSW : true;
+                const showSST = options.showSST !== undefined ? options.showSST : false;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(left, top, right - left, bottom - top);
+                ctx.clip();
+
+                const yGrand = y.getPixelForValue(options.grandMean);
+                const colors = ['#4f46e5', '#059669', '#d97706'];
+
+                // 1. Draw Total Deviation
+                if (showSST) {
+                    chart.data.datasets.forEach((dataset, i) => {
+                        const meta = chart.getDatasetMeta(i);
+                        meta.data.forEach((point) => {
+                            ctx.beginPath();
+                            ctx.strokeStyle = '#f59e0b';
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([2, 3]);
+                            ctx.moveTo(point.x, yGrand);
+                            ctx.lineTo(point.x, point.y);
+                            ctx.stroke();
+                        });
+                        ctx.setLineDash([]);
+                    });
+                }
+
+                // Draw Group Means and SS Indicators
+                if (options.groupMeans && options.groupMeans.length === 3) {
+                    // 2. Draw Within-Group Deviations
+                    if (showSSW) {
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            const yGroup = y.getPixelForValue(options.groupMeans[i]);
+
+                            meta.data.forEach((point) => {
+                                ctx.beginPath();
+                                ctx.strokeStyle = colors[i];
+                                ctx.lineWidth = 1.5;
+                                ctx.setLineDash([4, 4]);
+                                ctx.moveTo(point.x, yGroup);
+                                ctx.lineTo(point.x, point.y);
+                                ctx.stroke();
+                            });
+                            ctx.setLineDash([]);
+                        });
+                    }
+
+                    // 3. Draw Group Means & Between-Group Indicators
+                    options.groupMeans.forEach((mean, index) => {
+                        const yGroup = y.getPixelForValue(mean);
+                        const startX = x.getPixelForValue(index - 0.35);
+                        const endX = x.getPixelForValue(index + 0.35);
+
+                        ctx.beginPath();
+                        ctx.strokeStyle = colors[index];
+                        ctx.lineWidth = 2.5;
+                        ctx.setLineDash([8, 6]);
+                        ctx.moveTo(startX, yGroup);
+                        ctx.lineTo(endX, yGroup);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        ctx.font = '600 10px Inter, sans-serif';
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+                        ctx.lineWidth = 5;
+                        ctx.lineJoin = 'miter';
+                        ctx.strokeText('Group Mean', startX + 2, yGroup - 6);
+                        ctx.fillStyle = colors[index];
+                        ctx.fillText('Group Mean', startX + 2, yGroup - 6);
+
+                        if (showSSB) {
+                            const indicatorX = x.getPixelForValue(index - 0.41);
+                            if (Math.abs(yGrand - yGroup) > 3) {
+                                ctx.beginPath();
+                                ctx.strokeStyle = colors[index];
+                                ctx.lineWidth = 2;
+                                ctx.moveTo(indicatorX, yGrand);
+                                ctx.lineTo(indicatorX, yGroup);
+                                ctx.stroke();
+
+                                ctx.moveTo(indicatorX - 4, yGrand); ctx.lineTo(indicatorX + 4, yGrand);
+                                ctx.moveTo(indicatorX - 4, yGroup); ctx.lineTo(indicatorX + 4, yGroup);
+                                ctx.stroke();
+
+                                ctx.save();
+                                ctx.translate(indicatorX - 6, (yGrand + yGroup) / 2);
+                                ctx.rotate(-Math.PI / 2);
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.font = 'bold 10px Inter, sans-serif';
+                                ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+                                ctx.lineWidth = 5;
+                                ctx.strokeText('Group Effect (a)', 0, 0);
+                                ctx.fillStyle = colors[index];
+                                ctx.fillText('Group Effect (a)', 0, 0);
+                                ctx.restore();
+                            }
+                        }
+                    });
+                }
+
+                // 4. Draw Grand Mean ON TOP
+                ctx.beginPath();
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([]);
+                ctx.moveTo(left, yGrand);
+                ctx.lineTo(right, yGrand);
+                ctx.stroke();
+
+                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+                ctx.lineWidth = 5;
+                ctx.lineJoin = 'miter';
+                ctx.strokeText('Grand Mean', left + 10, yGrand - 8);
+                ctx.fillStyle = '#0f172a';
+                ctx.fillText('Grand Mean', left + 10, yGrand - 8);
+
+                ctx.restore();
+            },
+            afterDraw(chart) {
+                const options = chart.options.plugins.meanLines;
+                const mousePos = options.mousePos;
+                if (!mousePos) return;
+                
+                const { ctx, scales: { x, y }, chartArea: { left, right, top, bottom } } = chart;
+                
+                // Only render tooltips if mouse is inside the chart plotting area
+                if (mousePos.x < left || mousePos.x > right || mousePos.y < top || mousePos.y > bottom) {
+                    chart.canvas.style.cursor = 'default';
+                    return;
+                }
+                
+                const yGrand = y.getPixelForValue(options.grandMean);
+                const colors = ['#4f46e5', '#059669', '#d97706']; 
+                
+                // Helper to draw custom line tooltip
+                const drawLineTooltip = (text, bg, fg, yPos) => {
+                    ctx.save();
+                    ctx.font = 'bold 12px Inter, sans-serif';
+                    const textWidth = ctx.measureText(text).width;
+                    const px = mousePos.x;
+                    const py = yPos - 12;
+                    
+                    ctx.fillStyle = bg;
+                    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                    ctx.shadowBlur = 4;
+                    ctx.shadowOffsetY = 2;
+                    
+                    ctx.beginPath();
+                    if (ctx.roundRect) {
+                        ctx.roundRect(px - textWidth/2 - 8, py - 14, textWidth + 16, 22, 4);
+                    } else {
+                        ctx.rect(px - textWidth/2 - 8, py - 14, textWidth + 16, 22);
+                    }
+                    ctx.fill();
+                    
+                    ctx.fillStyle = fg;
+                    ctx.shadowColor = 'transparent';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(text, px, py - 3);
+                    
+                    // Small pointer arrow
+                    ctx.beginPath();
+                    ctx.fillStyle = bg;
+                    ctx.moveTo(px - 4, py + 8);
+                    ctx.lineTo(px + 4, py + 8);
+                    ctx.lineTo(px, py + 14);
+                    ctx.fill();
+                    
+                    ctx.restore();
+                };
+
+                let hoveringOverLine = false;
+                
+                // 1. Check if hovering Grand Mean
+                if (Math.abs(mousePos.y - yGrand) < 8) {
+                    drawLineTooltip(`Grand Mean: ${options.grandMean.toFixed(1)}`, '#0f172a', '#ffffff', yGrand);
+                    hoveringOverLine = true;
+                }
+                
+                // 2. Check if hovering any Group Mean
+                if (!hoveringOverLine && options.groupMeans) {
+                    options.groupMeans.forEach((mean, i) => {
+                        const yGroup = y.getPixelForValue(mean);
+                        const startX = x.getPixelForValue(i - 0.4);
+                        const endX = x.getPixelForValue(i + 0.4);
+                        if (Math.abs(mousePos.y - yGroup) < 8 && mousePos.x >= startX && mousePos.x <= endX) {
+                            drawLineTooltip(`Group Mean: ${mean.toFixed(1)}`, colors[i], '#ffffff', yGroup);
+                            hoveringOverLine = true;
+                        }
+                    });
+                }
+                
+                // Switch cursor style based on hover state
+                chart.canvas.style.cursor = hoveringOverLine ? 'pointer' : 'default';
+            }
+        };
+
+        // Presets
+        const presets = {
+            default: [70, 80, 90, 50, 60, 70, 90, 100, 110],
+            no_between: [60, 80, 100, 60, 80, 100, 60, 80, 100],
+            no_within: [70, 70, 70, 50, 50, 50, 90, 90, 90]
+        };
+
+        function initChart() {
+            const ctx = document.getElementById('scoresChart').getContext('2d');
+
+            scoresChart = new Chart(ctx, {
+                type: 'scatter',
+                plugins: [meanLinesPlugin],
+                data: {
+                    datasets: [
+                        {
+                            label: 'Group A Students',
+                            data: [],
+                            backgroundColor: '#4f46e5',
+                            pointRadius: 7,
+                            pointHoverRadius: 9
+                        },
+                        {
+                            label: 'Group B Students',
+                            data: [],
+                            backgroundColor: '#059669',
+                            pointRadius: 7,
+                            pointHoverRadius: 9
+                        },
+                        {
+                            label: 'Group C Students',
+                            data: [],
+                            backgroundColor: '#d97706',
+                            pointRadius: 7,
+                            pointHoverRadius: 9
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            min: -0.6,
+                            max: 2.6,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    const labels = ['Group A', 'Group B', 'Group C'];
+                                    return labels[value] || '';
+                                },
+                                font: {
+                                    family: 'Inter',
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: { display: false },
+                            title: { display: true, text: 'Student Groups' }
+                        },
+                        y: {
+                            min: 30,
+                            max: 130,
+                            title: { display: true, text: 'Project Score' }
+                        }
+                    },
+                    plugins: {
+                        meanLines: {
+                            grandMean: 80,
+                            groupMeans: [80, 60, 100],
+                            mousePos: null
+                        },
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const studentIndex = context.dataIndex + (context.datasetIndex * 3);
+                                    const student = students[studentIndex];
+                                    return `${student.name}: ${context.raw.y} pts`;
+                                }
+                            }
+                        }
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    }
+                }
+            });
+        }
+
+        function updateCalculations() {
+            // 1. Read input values
+            const scores = students.map(s => {
+                const val = parseFloat(document.getElementById(s.inputId).value);
+                document.getElementById(s.valId).innerText = val;
+                return val;
+            });
+
+            // 2. Compute Group Means
+            const groupMeans = [
+                (scores[0] + scores[1] + scores[2]) / 3,
+                (scores[3] + scores[4] + scores[5]) / 3,
+                (scores[6] + scores[7] + scores[8]) / 3
+            ];
+
+            // Update group mean badges (Section 2)
+            document.getElementById('group-a-mean-badge').innerText = `Mean: ${groupMeans[0].toFixed(1)}`;
+            document.getElementById('group-b-mean-badge').innerText = `Mean: ${groupMeans[1].toFixed(1)}`;
+            document.getElementById('group-c-mean-badge').innerText = `Mean: ${groupMeans[2].toFixed(1)}`;
+
+            // 3. Compute Grand Mean
+            const grandMean = scores.reduce((a, b) => a + b, 0) / scores.length;
+
+            // Update Section 4 Mean Badges
+            document.getElementById('sec4-grand-mean').innerText = grandMean.toFixed(1);
+            document.getElementById('sec4-group-a-mean').innerText = groupMeans[0].toFixed(1);
+            document.getElementById('sec4-group-b-mean').innerText = groupMeans[1].toFixed(1);
+            document.getElementById('sec4-group-c-mean').innerText = groupMeans[2].toFixed(1);
+
+            // 4. Compute Sum of Squares
+            let ssTotal = 0;
+            let ssBetween = 0;
+            let ssWithin = 0;
+
+            const tableBody = document.getElementById('student-table-body');
+            tableBody.innerHTML = '';
+
+            let totalCrossTerm = 0;
+            let groupCrossTerms = [0, 0, 0];
+
+            students.forEach((student, idx) => {
+                const score = scores[idx];
+                const groupMean = groupMeans[student.group];
+
+                const totalDev = score - grandMean;
+                const groupEffect = groupMean - grandMean; // a
+                const indDev = score - groupMean; // b
+
+                const totalDevSq = totalDev * totalDev;
+                const groupEffectSq = groupEffect * groupEffect;
+                const indDevSq = indDev * indDev;
+                const crossTerm = 2 * groupEffect * indDev;
+
+                ssTotal += totalDevSq;
+                ssBetween += groupEffectSq;
+                ssWithin += indDevSq;
+                totalCrossTerm += crossTerm;
+                groupCrossTerms[student.group] += crossTerm;
+
+                // Build Table Row
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-2.5 font-bold text-slate-800">${student.name}</td>
+                    <td class="p-2.5 text-slate-500">${student.groupName}</td>
+                    <td class="p-2.5 text-center font-bold">${score}</td>
+                    <td class="p-2.5 text-center bg-slate-100/80 text-slate-700 font-semibold">${groupMean.toFixed(1)}</td>
+                    <td class="p-2.5 text-center ${totalDev >= 0 ? 'text-slate-700' : 'text-slate-500'}">${totalDev > 0 ? '+' : ''}${totalDev.toFixed(1)}</td>
+                    <td class="p-2.5 text-center bg-indigo-50/50 text-indigo-900 font-bold">${groupEffect > 0 ? '+' : ''}${groupEffect.toFixed(1)}</td>
+                    <td class="p-2.5 text-center bg-emerald-50/50 text-emerald-900 font-bold">${indDev > 0 ? '+' : ''}${indDev.toFixed(1)}</td>
+                    <td class="p-2.5 text-center bg-slate-100/60 font-bold text-slate-900">${totalDevSq.toFixed(1)}</td>
+                    <td class="p-2.5 text-center bg-indigo-50/30 font-semibold text-indigo-900">${groupEffectSq.toFixed(1)}</td>
+                    <td class="p-2.5 text-center bg-emerald-50/30 font-semibold text-emerald-900">${indDevSq.toFixed(1)}</td>
+                    <td class="p-2.5 text-center font-bold ${Math.abs(crossTerm) < 0.001 ? 'text-emerald-600' : (crossTerm > 0 ? 'text-indigo-600' : 'text-amber-600')}">
+                        ${crossTerm > 0 ? '+' : ''}${crossTerm.toFixed(1)}
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            // Footer of table
+            const tableFoot = document.getElementById('student-table-foot');
+            tableFoot.innerHTML = `
+                <tr>
+                    <td colspan="3" class="p-3 text-left">SUM OF ALL STUDENTS (&Sigma;)</td>
+                    <td class="p-3 text-center text-amber-400 text-xs">Grand Mean = ${grandMean.toFixed(1)}</td>
+                    <td class="p-3 text-center text-slate-400">0.0</td>
+                    <td class="p-3 text-center text-slate-400">0.0</td>
+                    <td class="p-3 text-center text-slate-400">0.0</td>
+                    <td class="p-3 text-center bg-slate-800 text-white border-t-2 border-slate-400">
+                        <div class="text-[10px] text-slate-300 font-sans uppercase tracking-wider mb-0.5">SS<sub>Total</sub></div>
+                        <div class="text-sm font-extrabold">${ssTotal.toFixed(1)}</div>
+                    </td>
+                    <td class="p-3 text-center bg-indigo-950 text-indigo-200 border-t-2 border-indigo-400">
+                        <div class="text-[10px] text-indigo-300 font-sans uppercase tracking-wider mb-0.5">SS<sub>Between</sub></div>
+                        <div class="text-sm font-extrabold text-white">${ssBetween.toFixed(1)}</div>
+                    </td>
+                    <td class="p-3 text-center bg-emerald-950 text-emerald-200 border-t-2 border-emerald-400">
+                        <div class="text-[10px] text-emerald-300 font-sans uppercase tracking-wider mb-0.5">SS<sub>Within</sub></div>
+                        <div class="text-sm font-extrabold text-white">${ssWithin.toFixed(1)}</div>
+                    </td>
+                    <td class="p-3 text-center bg-slate-900 text-slate-200 font-extrabold text-sm border-t-2 border-slate-500">
+                        <div class="text-[10px] text-slate-400 font-sans uppercase tracking-wider mb-0.5">&Sigma; 2ab</div>
+                        <div class="text-white">${Math.abs(totalCrossTerm) < 0.0001 ? '0.0 (ZERO!)' : totalCrossTerm.toFixed(1)}</div>
+                    </td>
+                </tr>
+            `;
+
+            // Update SS Metrics Displays
+            document.getElementById('sst-display').innerText = ssTotal.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            document.getElementById('ssb-display').innerText = ssBetween.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            document.getElementById('ssw-display').innerText = ssWithin.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+            const ssbPct = ssTotal > 0 ? (ssBetween / ssTotal) * 100 : 0;
+            const sswPct = ssTotal > 0 ? (ssWithin / ssTotal) * 100 : 0;
+
+            document.getElementById('ssb-pct').innerText = `${ssbPct.toFixed(1)}% of total variance`;
+            document.getElementById('ssw-pct').innerText = `${sswPct.toFixed(1)}% of total variance`;
+
+            // 5. Compute ANOVA & Effect Size Ratio Metrics
+            const dfBetween = 2; // k - 1 (3 groups - 1)
+            const dfWithin = 6;  // N - k (9 students - 3)
+
+            const msBetween = ssBetween / dfBetween;
+            const msWithin = ssWithin / dfWithin;
+
+            const etaSquared = ssTotal > 0 ? (ssBetween / ssTotal) : 0;
+            const fRatio = msWithin > 0 ? (msBetween / msWithin) : (msBetween > 0 ? Infinity : 0);
+
+            // Update Ratio Metric DOM Displays
+            document.getElementById('eta-sq-display').innerText = `${etaSquared.toFixed(3)} (${(etaSquared * 100).toFixed(1)}%)`;
+            document.getElementById('eta-sq-desc').innerText = `${(etaSquared * 100).toFixed(1)}% of all score variability across students is directly explained by team differences.`;
+
+            document.getElementById('msb-display').innerText = msBetween.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            document.getElementById('msw-display').innerText = msWithin.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+            if (isFinite(fRatio)) {
+                document.getElementById('f-ratio-display').innerText = fRatio.toFixed(2);
+                document.getElementById('f-ratio-desc').innerHTML = `The group effect signal ($MS_B = ${msBetween.toFixed(1)}$) is <strong>${fRatio.toFixed(1)}×</strong> stronger than individual random noise ($MS_W = ${msWithin.toFixed(1)}$).`;
+            } else {
+                document.getElementById('f-ratio-display').innerText = '∞';
+                document.getElementById('f-ratio-desc').innerHTML = `Within-group noise is zero ($SS_W = 0$). Group differences explain 100% of variance!`;
+            }
+
+            // Read toggle states
+            const showSSB = document.getElementById('toggle-ssb') ? document.getElementById('toggle-ssb').checked : true;
+            const showSSW = document.getElementById('toggle-ssw') ? document.getElementById('toggle-ssw').checked : true;
+            const showSST = document.getElementById('toggle-sst') ? document.getElementById('toggle-sst').checked : false;
+
+            // Update Chart.js data
+            if (scoresChart) {
+                // Fixed horizontal jitter offsets for the 3 students in each group
+                const jitter = [-0.18, 0, 0.18];
+
+                scoresChart.data.datasets[0].data = [
+                    { x: 0 + jitter[0], y: scores[0] },
+                    { x: 0 + jitter[1], y: scores[1] },
+                    { x: 0 + jitter[2], y: scores[2] }
+                ];
+                scoresChart.data.datasets[1].data = [
+                    { x: 1 + jitter[0], y: scores[3] },
+                    { x: 1 + jitter[1], y: scores[4] },
+                    { x: 1 + jitter[2], y: scores[5] }
+                ];
+                scoresChart.data.datasets[2].data = [
+                    { x: 2 + jitter[0], y: scores[6] },
+                    { x: 2 + jitter[1], y: scores[7] },
+                    { x: 2 + jitter[2], y: scores[8] }
+                ];
+
+                // Update lines plugin options
+                scoresChart.options.plugins.meanLines.grandMean = grandMean;
+                scoresChart.options.plugins.meanLines.groupMeans = groupMeans;
+                scoresChart.options.plugins.meanLines.showSSB = showSSB;
+                scoresChart.options.plugins.meanLines.showSSW = showSSW;
+                scoresChart.options.plugins.meanLines.showSST = showSST;
+
+                scoresChart.update('none');
+            }
+
+            // Re-render MathJax formula rendering if necessary
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise();
+            }
+        }
+
+        function loadPreset(presetKey) {
+            const presetValues = presets[presetKey];
+            if (!presetValues) return;
+
+            students.forEach((student, idx) => {
+                document.getElementById(student.inputId).value = presetValues[idx];
+            });
+
+            updateCalculations();
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            initChart();
+            updateCalculations();
+        };
+    </script>
+</body>
+</html>
+```
