@@ -203,6 +203,85 @@
             border-color: #ffffff;
         }
 
+        .library-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 1.15em 2em;
+        }
+
+        .library-toolbar-view {
+            flex: 0 0 auto;
+        }
+
+        .view-toggle {
+            display: inline-flex;
+            border: 1px solid #000000;
+            border-radius: 3em;
+            overflow: hidden;
+        }
+
+        button.view-toggle-btn {
+            height: auto;
+            margin: 0;
+            padding: 0.55em 1.15em;
+            border: 0 !important;
+            border-radius: 0;
+            background: #ffffff !important;
+            color: #000000 !important;
+            box-shadow: none !important;
+            font-size: 0.78em;
+            font-weight: bold;
+            letter-spacing: 0.01em;
+            line-height: 1.35;
+            text-transform: none;
+            white-space: nowrap;
+        }
+
+        button.view-toggle-btn + button.view-toggle-btn {
+            border-left: 1px solid #000000 !important;
+        }
+
+        button.view-toggle-btn:after {
+            display: none !important;
+            content: none !important;
+        }
+
+        button.view-toggle-btn:hover {
+            background: #f2f2f2 !important;
+            color: #000000 !important;
+        }
+
+        button.view-toggle-btn.is-active,
+        button.view-toggle-btn.is-active:hover {
+            background: #000000 !important;
+            color: #ffffff !important;
+        }
+
+        button.view-toggle-btn:focus {
+            outline: none;
+        }
+
+        button.view-toggle-btn:focus-visible {
+            outline: 2px solid #000000;
+            outline-offset: -3px;
+        }
+
+        .topic-group {
+            margin-top: 0.35em;
+        }
+
+        .topic-group-title {
+            margin: 0 0 0.8em 0;
+        }
+
+        .sub-category-section h4 {
+            margin: 0 0 0.75em 0;
+            font-size: 1.05em;
+            line-height: 1.35;
+        }
+
         .no-results {
             display: none;
             text-align: left;
@@ -212,6 +291,52 @@
             border-radius: 4px;
             border-left: 4px solid #000000;
             margin: 1.5em 0 0 0;
+        }
+
+        /* Compact list: same cards, restacked into a single scannable column. */
+        body.view-list .card-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        body.view-list a.demo-card {
+            display: grid;
+            grid-template-columns: minmax(13rem, 18rem) minmax(0, 1fr) auto;
+            align-items: center;
+            column-gap: 1.15em;
+            row-gap: 0.15em;
+            height: auto;
+            min-height: 0;
+            padding: 0.55em 0.15em;
+            background: transparent;
+            border: 0 !important;
+            border-bottom: 1px solid #000000 !important;
+            border-radius: 0;
+        }
+
+        body.view-list .card-grid > a.demo-card:last-child {
+            border-bottom: 0 !important;
+        }
+
+        body.view-list .demo-card-title {
+            font-size: 0.95em;
+        }
+
+        body.view-list p.demo-card-desc {
+            font-size: 0.8em;
+        }
+
+        body.view-list .demo-card-tags {
+            margin-top: 0;
+            padding-top: 0;
+            justify-content: flex-end;
+        }
+
+        body.view-list a.demo-card:hover,
+        body.view-list a.demo-card:focus-visible {
+            background: #000000;
+            border-bottom-color: #ffffff !important;
         }
 
         @media screen and (max-width: 736px) {
@@ -225,6 +350,36 @@
 
             a.demo-card {
                 min-height: 0;
+            }
+
+            .library-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .view-toggle {
+                display: flex;
+                width: 100%;
+            }
+
+            button.view-toggle-btn {
+                flex: 1 1 0;
+                padding: 0.75em 1em;
+                font-size: 0.85em;
+            }
+
+            .sub-category-section h4 {
+                font-size: 1em;
+            }
+
+            body.view-list a.demo-card {
+                grid-template-columns: minmax(0, 1fr);
+                align-items: start;
+                padding: 0.65em 0.1em;
+            }
+
+            body.view-list .demo-card-tags {
+                justify-content: flex-start;
             }
         }
     </style>
@@ -260,13 +415,24 @@
                     <input type="text" id="searchInput" placeholder="Search for a demo or topic...">
                 </div>
 
-                <p class="library-label" id="filter-label">Filter by category</p>
-                <div class="filter-chips" role="group" aria-labelledby="filter-label">
-                    <button type="button" class="filter-chip is-active" data-filter="all" aria-pressed="true">All</button>
-                    <button type="button" class="filter-chip" data-filter="cognitive" aria-pressed="false">Cognitive Psychology</button>
-                    <button type="button" class="filter-chip" data-filter="neuroscience" aria-pressed="false">Neuroscience</button>
-                    <button type="button" class="filter-chip" data-filter="statistics" aria-pressed="false">Statistics</button>
-                    <button type="button" class="filter-chip" data-filter="personality" aria-pressed="false">Personality Psychology</button>
+                <div class="library-toolbar">
+                    <div class="library-toolbar-filters">
+                        <p class="library-label" id="filter-label">Filter by category</p>
+                        <div class="filter-chips" role="group" aria-labelledby="filter-label">
+                            <button type="button" class="filter-chip is-active" data-filter="all" aria-pressed="true">All</button>
+                            <button type="button" class="filter-chip" data-filter="cognitive" aria-pressed="false">Cognitive Psychology</button>
+                            <button type="button" class="filter-chip" data-filter="neuroscience" aria-pressed="false">Neuroscience</button>
+                            <button type="button" class="filter-chip" data-filter="statistics" aria-pressed="false">Statistics</button>
+                            <button type="button" class="filter-chip" data-filter="personality" aria-pressed="false">Personality Psychology</button>
+                        </div>
+                    </div>
+                    <div class="library-toolbar-view">
+                        <p class="library-label" id="view-label">View</p>
+                        <div class="view-toggle" role="group" aria-labelledby="view-label">
+                            <button type="button" class="view-toggle-btn is-active" data-view="cards" aria-pressed="true">Cards</button>
+                            <button type="button" class="view-toggle-btn" data-view="list" aria-pressed="false">List</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="noResults" class="no-results" role="status">
@@ -380,66 +546,88 @@
                         </nav>
                     </div>
 
-                    <div class="sub-category-section">
-                        <h3>Inferential Statistics</h3>
-                        <nav class="card-grid">
-                            <a class="demo-card" href="statistics/building_normal_distribution.html" data-keywords="Building Normal Distribution">
-                                <span class="demo-card-title">Building the Normal Distribution</span>
-                                <p class="demo-card-desc">How a normal distribution is built.</p>
-                            </a>
-                            <a class="demo-card" href="statistics/central_limit_theorem.html" data-keywords="Central Limit Theorem (CLT)">
-                                <span class="demo-card-title">Central Limit Theorem (CLT)</span>
-                                <p class="demo-card-desc">A simulation of the central limit theorem (CLT).</p>
-                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
-                            </a>
-                            <a class="demo-card" href="statistics/horowitz_1974_simulation_CLT.html" data-keywords="Horowitz (1974) Simulation of CLT">
-                                <span class="demo-card-title">Horowitz (1974) CLT Simulation</span>
-                                <p class="demo-card-desc">Horowitz (1974) simulation of the central limit theorem.</p>
-                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
-                            </a>
-                            <a class="demo-card" href="statistics/z_distribution_vs_t_distribution.html" data-keywords="Z-Distribution vs t-Distribution">
-                                <span class="demo-card-title">z-Distribution vs t-Distribution</span>
-                                <p class="demo-card-desc">How the z-distribution compares with the t-distribution.</p>
-                            </a>
-                            <a class="demo-card" href="statistics/paired_t_test_simulation.html" data-keywords="Paired Sample t-Test">
-                                <span class="demo-card-title">Paired Sample t-Test</span>
-                                <p class="demo-card-desc">A simulation of the paired-samples t-test and mean differences.</p>
-                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
-                            </a>
-                            <a class="demo-card" href="statistics/independent_t_test_simulation.html" data-keywords="Independent Samples t-Test">
-                                <span class="demo-card-title">Independent Samples t-Test</span>
-                                <p class="demo-card-desc">A simulation of the independent-samples t-test.</p>
-                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
-                            </a>
-                            <a class="demo-card" href="statistics/target_analogy_confidence_intervals.html" data-keywords="Target Analogy of Confidence Intervals">
-                                <span class="demo-card-title">Target Analogy of Confidence Intervals</span>
-                                <p class="demo-card-desc">A target analogy of confidence intervals.</p>
-                            </a>
-                            <a class="demo-card" href="statistics/statistical_power.html" data-keywords="Statistical Power">
-                                <span class="demo-card-title">Statistical Power</span>
-                                <p class="demo-card-desc">Sampling distributions of the sample mean under the null and the alternative.</p>
-                            </a>
-                            <a class="demo-card" href="statistics/power_curve.html" data-keywords="Power Curve">
-                                <span class="demo-card-title">Power Curve</span>
-                                <p class="demo-card-desc">A power curve for statistical power.</p>
-                            </a>
-                            <a class="demo-card" href="statistics/covariance_and_correlation.html" data-keywords="Covariance and Correlation">
-                                <span class="demo-card-title">Covariance and Correlation</span>
-                                <p class="demo-card-desc">Covariance and correlation side by side.</p>
-                            </a>
-                            <a class="demo-card" href="statistics/variance_explained.html" data-keywords="Variance Explained">
-                                <span class="demo-card-title">Variance Explained</span>
-                                <p class="demo-card-desc">How much of the variation is explained.</p>
-                            </a>
-                            <a class="demo-card" href="statistics/t_test_to_anova.html" data-keywords="From t-Test to ANOVA">
-                                <span class="demo-card-title">From t-Test to ANOVA</span>
-                                <p class="demo-card-desc">How the t-test relates to ANOVA by partitioning variation.</p>
-                            </a>
-                            <a class="demo-card" href="statistics/partitioning_sum_of_squares_anova.html" data-keywords="Partitioning Sum of Squares in ANOVA">
-                                <span class="demo-card-title">Partitioning Sum of Squares</span>
-                                <p class="demo-card-desc">Partitioning the sum of squares in ANOVA.</p>
-                            </a>
-                        </nav>
+                    <div class="topic-group">
+                        <h3 class="topic-group-title">Inferential Statistics</h3>
+
+                        <div class="sub-category-section">
+                            <h4>Distributions &amp; sampling</h4>
+                            <nav class="card-grid">
+                                <a class="demo-card" href="statistics/building_normal_distribution.html" data-keywords="Building Normal Distribution">
+                                    <span class="demo-card-title">Building the Normal Distribution</span>
+                                    <p class="demo-card-desc">How a normal distribution is built.</p>
+                                </a>
+                                <a class="demo-card" href="statistics/central_limit_theorem.html" data-keywords="Central Limit Theorem (CLT)">
+                                    <span class="demo-card-title">Central Limit Theorem (CLT)</span>
+                                    <p class="demo-card-desc">A simulation of the central limit theorem (CLT).</p>
+                                    <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                                </a>
+                                <a class="demo-card" href="statistics/horowitz_1974_simulation_CLT.html" data-keywords="Horowitz (1974) Simulation of CLT">
+                                    <span class="demo-card-title">Horowitz (1974) CLT Simulation</span>
+                                    <p class="demo-card-desc">Horowitz (1974) simulation of the central limit theorem.</p>
+                                    <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                                </a>
+                            </nav>
+                        </div>
+
+                        <div class="sub-category-section">
+                            <h4>t-tests &amp; related</h4>
+                            <nav class="card-grid">
+                                <a class="demo-card" href="statistics/z_distribution_vs_t_distribution.html" data-keywords="Z-Distribution vs t-Distribution">
+                                    <span class="demo-card-title">z-Distribution vs t-Distribution</span>
+                                    <p class="demo-card-desc">How the z-distribution compares with the t-distribution.</p>
+                                </a>
+                                <a class="demo-card" href="statistics/paired_t_test_simulation.html" data-keywords="Paired Sample t-Test">
+                                    <span class="demo-card-title">Paired Sample t-Test</span>
+                                    <p class="demo-card-desc">A simulation of the paired-samples t-test and mean differences.</p>
+                                    <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                                </a>
+                                <a class="demo-card" href="statistics/independent_t_test_simulation.html" data-keywords="Independent Samples t-Test">
+                                    <span class="demo-card-title">Independent Samples t-Test</span>
+                                    <p class="demo-card-desc">A simulation of the independent-samples t-test.</p>
+                                    <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                                </a>
+                                <a class="demo-card" href="statistics/target_analogy_confidence_intervals.html" data-keywords="Target Analogy of Confidence Intervals">
+                                    <span class="demo-card-title">Target Analogy of Confidence Intervals</span>
+                                    <p class="demo-card-desc">A target analogy of confidence intervals.</p>
+                                </a>
+                            </nav>
+                        </div>
+
+                        <div class="sub-category-section">
+                            <h4>ANOVA</h4>
+                            <nav class="card-grid">
+                                <a class="demo-card" href="statistics/t_test_to_anova.html" data-keywords="From t-Test to ANOVA">
+                                    <span class="demo-card-title">From t-Test to ANOVA</span>
+                                    <p class="demo-card-desc">How the t-test relates to ANOVA by partitioning variation.</p>
+                                </a>
+                                <a class="demo-card" href="statistics/partitioning_sum_of_squares_anova.html" data-keywords="Partitioning Sum of Squares in ANOVA">
+                                    <span class="demo-card-title">Partitioning Sum of Squares</span>
+                                    <p class="demo-card-desc">Partitioning the sum of squares in ANOVA.</p>
+                                </a>
+                            </nav>
+                        </div>
+
+                        <div class="sub-category-section">
+                            <h4>Power, correlation &amp; explained variance</h4>
+                            <nav class="card-grid">
+                                <a class="demo-card" href="statistics/statistical_power.html" data-keywords="Statistical Power">
+                                    <span class="demo-card-title">Statistical Power</span>
+                                    <p class="demo-card-desc">Sampling distributions of the sample mean under the null and the alternative.</p>
+                                </a>
+                                <a class="demo-card" href="statistics/power_curve.html" data-keywords="Power Curve">
+                                    <span class="demo-card-title">Power Curve</span>
+                                    <p class="demo-card-desc">A power curve for statistical power.</p>
+                                </a>
+                                <a class="demo-card" href="statistics/covariance_and_correlation.html" data-keywords="Covariance and Correlation">
+                                    <span class="demo-card-title">Covariance and Correlation</span>
+                                    <p class="demo-card-desc">Covariance and correlation side by side.</p>
+                                </a>
+                                <a class="demo-card" href="statistics/variance_explained.html" data-keywords="Variance Explained">
+                                    <span class="demo-card-title">Variance Explained</span>
+                                    <p class="demo-card-desc">How much of the variation is explained.</p>
+                                </a>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -521,8 +709,13 @@
                     var categoryTitleMatch = searchTerm !== '' && categoryTitle.indexOf(searchTerm) !== -1;
 
                     category.querySelectorAll('.sub-category-section').forEach(function (sub) {
-                        var subTitle = normalize(sub.querySelector('h3').textContent);
+                        var heading = sub.querySelector('h3, h4');
+                        var subTitle = normalize(heading ? heading.textContent : '');
+                        var group = sub.closest('.topic-group');
+                        var groupHeading = group ? group.querySelector('.topic-group-title') : null;
+                        var groupTitle = normalize(groupHeading ? groupHeading.textContent : '');
                         var subTitleMatch = searchTerm !== '' && subTitle.indexOf(searchTerm) !== -1;
+                        var groupTitleMatch = searchTerm !== '' && groupTitle.indexOf(searchTerm) !== -1;
                         var subHasVisibleCards = false;
 
                         sub.querySelectorAll('.demo-card').forEach(function (card) {
@@ -530,7 +723,7 @@
                             var cardText = normalize(card.textContent);
                             var cardMatch = (keywords + ' ' + cardText).indexOf(searchTerm) !== -1;
 
-                            if (searchTerm === '' || cardMatch || subTitleMatch || categoryTitleMatch) {
+                            if (searchTerm === '' || cardMatch || subTitleMatch || groupTitleMatch || categoryTitleMatch) {
                                 card.style.display = '';
                                 subHasVisibleCards = true;
                                 totalVisibleDemos++;
@@ -540,6 +733,14 @@
                         });
 
                         sub.style.display = subHasVisibleCards ? '' : 'none';
+                    });
+
+                    category.querySelectorAll('.topic-group').forEach(function (group) {
+                        var groupHasVisibleSubs = Array.prototype.some.call(
+                            group.querySelectorAll('.sub-category-section'),
+                            function (sub) { return sub.style.display !== 'none'; }
+                        );
+                        group.style.display = groupHasVisibleSubs ? '' : 'none';
                     });
 
                     var categoryHasVisibleSubs = Array.prototype.some.call(
@@ -573,6 +774,36 @@
                     chip.setAttribute('aria-pressed', 'true');
                     activeFilter = chip.getAttribute('data-filter');
                     applyFilters();
+                });
+            });
+
+            var viewButtons = document.querySelectorAll('.view-toggle-btn');
+            var viewStorageKey = 'demo-library-view';
+
+            function applyView(view) {
+                var next = view === 'list' ? 'list' : 'cards';
+                document.body.classList.toggle('view-list', next === 'list');
+                viewButtons.forEach(function (btn) {
+                    var selected = btn.getAttribute('data-view') === next;
+                    btn.classList.toggle('is-active', selected);
+                    btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+                });
+                try {
+                    window.localStorage.setItem(viewStorageKey, next);
+                } catch (err) {}
+            }
+
+            var storedView = 'cards';
+            try {
+                storedView = window.localStorage.getItem(viewStorageKey) || 'cards';
+            } catch (err) {
+                storedView = 'cards';
+            }
+            applyView(storedView);
+
+            viewButtons.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    applyView(btn.getAttribute('data-view'));
                 });
             });
         })();
