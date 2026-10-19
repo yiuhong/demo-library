@@ -13,86 +13,219 @@
     <link rel="stylesheet" href="https://yiuhong.github.io/assets/css/main.css" />
     <noscript><link rel="stylesheet" href="https://yiuhong.github.io/assets/css/noscript.css" /></noscript>
     <style>
-        /* Custom styles designed to adapt smoothly to both light and dark themes */
+        /* Monochrome cards and chips. The site stylesheet forces black text on white,
+           so these rules use !important only where that stylesheet does. */
+        .library-label {
+            margin: 0 0 0.65em 0;
+            font-weight: bold;
+        }
+
         .search-container {
-            margin: 0 0 3em 0;
+            margin: 0 0 1.35em 0;
             display: flex;
             justify-content: flex-start;
         }
 
         #searchInput {
             width: 100%;
-            max-width: 600px;
-            color: #ffffff; /* Active text color */
+            max-width: 36rem;
+            background: #ffffff !important;
+            border: 1px solid #000000 !important;
+            color: #000000 !important;
         }
 
-        /* Ensure placeholder text is grayed out */
-        #searchInput::placeholder {
-            color: rgba(255, 255, 255, 0.4) !important;
-            opacity: 1; /* Firefox */
+        #searchInput::placeholder,
+        #searchInput::-webkit-input-placeholder,
+        #searchInput::-moz-placeholder,
+        #searchInput:-ms-input-placeholder,
+        #searchInput::-ms-input-placeholder {
+            color: rgba(0, 0, 0, 0.45) !important;
+            opacity: 1;
         }
-        
-        #searchInput:-ms-input-placeholder { /* Internet Explorer 10-11 */
-            color: rgba(255, 255, 255, 0.4) !important;
+
+        #searchInput:focus {
+            border-color: #000000 !important;
+            box-shadow: 0 0 0 1px #000000;
+            outline: none;
         }
-        
-        #searchInput::-ms-input-placeholder { /* Microsoft Edge */
-            color: rgba(255, 255, 255, 0.4) !important;
+
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55em;
+            margin: 0;
+            padding: 0;
         }
-        
+
+        button.filter-chip {
+            height: auto;
+            margin: 0;
+            padding: 0.55em 1em;
+            border: 1px solid #000000 !important;
+            border-radius: 3em;
+            background: #ffffff !important;
+            color: #000000 !important;
+            box-shadow: none !important;
+            font-size: 0.78em;
+            font-weight: bold;
+            letter-spacing: 0.01em;
+            line-height: 1.35;
+            text-transform: none;
+            white-space: normal;
+            text-align: center;
+        }
+
+        button.filter-chip:after {
+            display: none !important;
+            content: none !important;
+        }
+
+        button.filter-chip:hover {
+            background: #f2f2f2 !important;
+            border-color: #000000 !important;
+            color: #000000 !important;
+        }
+
+        button.filter-chip.is-active,
+        button.filter-chip.is-active:hover {
+            background: #000000 !important;
+            border-color: #000000 !important;
+            color: #ffffff !important;
+        }
+
+        button.filter-chip:focus {
+            outline: none;
+        }
+
+        button.filter-chip:focus-visible {
+            outline: 2px solid #000000;
+            outline-offset: 3px;
+        }
+
         .category-section {
-            margin-bottom: 4em;
+            margin-bottom: 3em;
         }
 
         .sub-category-section {
-            margin-bottom: 2em;
-            background: rgba(128, 128, 128, 0.05);
-            padding: 1.5em;
-            border-radius: 8px;
-            border-left: 4px solid rgba(128, 128, 128, 0.35);
+            margin-bottom: 1.75em;
+            background: #f6f6f6;
+            padding: 1.25em 1.25em 1.35em;
+            border-radius: 4px;
+            border-left: 4px solid #000000;
         }
 
         .sub-category-section h3 {
-            margin-bottom: 1em;
-            display: flex;
-            align-items: center;
+            margin-bottom: 0.85em;
         }
 
-        .menu-grid {
+        .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1em;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr));
+            gap: 0.9em;
+            align-items: stretch;
         }
 
-        .menu-button {
+        a.demo-card {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: transparent;
-            border: 1px solid rgba(128, 128, 128, 0.25);
-            padding: 1em;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.45em;
+            height: 100%;
+            min-height: 8.5em;
+            padding: 1.05em 1.1em 1em;
+            background: #ffffff;
+            border: 1px solid #000000 !important;
             border-radius: 4px;
-            font-size: 0.9rem;
-            transition: all 0.2s ease-in-out;
-            text-align: center;
-            min-height: 4em;
+            color: #000000 !important;
+            text-align: left;
             text-decoration: none;
-            color: inherit;
+            transition: background-color 0.15s ease, color 0.15s ease;
         }
 
-        .menu-button:hover {
-            background-color: rgba(128, 128, 128, 0.1);
-            border-color: rgba(128, 128, 128, 0.6);
+        a.demo-card:hover,
+        a.demo-card:focus-visible {
+            background: #000000;
+            border-bottom-color: #000000 !important;
+            color: #ffffff !important;
         }
-        
+
+        a.demo-card:focus {
+            outline: none;
+        }
+
+        a.demo-card:focus-visible {
+            outline: 2px solid #000000;
+            outline-offset: 3px;
+        }
+
+        .demo-card-title {
+            font-weight: bold;
+            font-size: 1.05em;
+            line-height: 1.35;
+            color: #000000 !important;
+        }
+
+        p.demo-card-desc {
+            margin: 0;
+            font-size: 0.82em;
+            line-height: 1.45;
+            color: #222222 !important;
+        }
+
+        .demo-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4em;
+            margin-top: auto;
+            padding-top: 0.35em;
+        }
+
+        .demo-tag {
+            display: inline-block;
+            border: 1px solid #000000;
+            border-radius: 2px;
+            padding: 0.12em 0.45em;
+            font-size: 0.68em;
+            font-weight: bold;
+            letter-spacing: 0.04em;
+            line-height: 1.4;
+            text-transform: uppercase;
+            color: #000000 !important;
+        }
+
+        a.demo-card:hover .demo-card-title,
+        a.demo-card:hover p.demo-card-desc,
+        a.demo-card:focus-visible .demo-card-title,
+        a.demo-card:focus-visible p.demo-card-desc,
+        a.demo-card:hover .demo-tag,
+        a.demo-card:focus-visible .demo-tag {
+            color: #ffffff !important;
+            border-color: #ffffff;
+        }
+
         .no-results {
             display: none;
             text-align: left;
             font-style: italic;
-            padding: 2em;
-            background: rgba(128, 128, 128, 0.05);
-            border-radius: 8px;
-            margin-bottom: 2em;
+            padding: 1.25em 1.35em;
+            background: #f6f6f6;
+            border-radius: 4px;
+            border-left: 4px solid #000000;
+            margin: 1.5em 0 0 0;
+        }
+
+        @media screen and (max-width: 736px) {
+            .sub-category-section {
+                padding: 1em;
+            }
+
+            button.filter-chip {
+                font-size: 0.85em;
+            }
+
+            a.demo-card {
+                min-height: 0;
+            }
         }
     </style>
 </head>
@@ -122,13 +255,22 @@
             <div class="inner">
                 <h1>Teaching Materials Library</h1>
                 <p>A collection of interactive demonstrations and teaching materials designed for exploring concepts in psychology, neuroscience, and statistics.</p>
-                <p>Search for a keyword:</p>
+                <label class="library-label" for="searchInput">Search for a keyword</label>
                 <div class="search-container">
-                    <input type="text" id="searchInput" aria-label="Search for a demo or topic" placeholder="Search for a demo or topic...">
+                    <input type="text" id="searchInput" placeholder="Search for a demo or topic...">
                 </div>
-                
-                <div id="noResults" class="no-results">
-                    No demonstrations found matching your search. Try adjusting your keywords.
+
+                <p class="library-label" id="filter-label">Filter by category</p>
+                <div class="filter-chips" role="group" aria-labelledby="filter-label">
+                    <button type="button" class="filter-chip is-active" data-filter="all" aria-pressed="true">All</button>
+                    <button type="button" class="filter-chip" data-filter="cognitive" aria-pressed="false">Cognitive Psychology</button>
+                    <button type="button" class="filter-chip" data-filter="neuroscience" aria-pressed="false">Neuroscience</button>
+                    <button type="button" class="filter-chip" data-filter="statistics" aria-pressed="false">Statistics</button>
+                    <button type="button" class="filter-chip" data-filter="personality" aria-pressed="false">Personality Psychology</button>
+                </div>
+
+                <div id="noResults" class="no-results" role="status">
+                    No demonstrations found. Try a different keyword or category.
                 </div>
             </div>
         </section>
@@ -136,34 +278,52 @@
         <!-- Content Area -->
         <section class="wrapper style2 fade-up">
             <div class="inner">
-                
-                <div class="category-section" id="cognitive-category">
+
+                <div class="category-section" id="cognitive-category" data-category="cognitive">
                     <h2>Cognitive Psychology</h2>
-                    
+
                     <div class="sub-category-section">
                         <h3>Mental Chronometry</h3>
-                        <nav class="menu-grid">
-                            <a href="cognitive_psychology/noematachograph.html" class="menu-button">Noematachograph</a>
+                        <nav class="card-grid">
+                            <a class="demo-card" href="cognitive_psychology/noematachograph.html" data-keywords="Noematachograph">
+                                <span class="demo-card-title">Noematachograph</span>
+                                <p class="demo-card-desc">Donders' noematachograph for measuring mental chronometry.</p>
+                            </a>
                         </nav>
                     </div>
                 </div>
 
-                <div class="category-section" id="neuro-category">
+                <div class="category-section" id="neuro-category" data-category="neuroscience">
                     <h2>Neuroscience</h2>
 
                     <div class="sub-category-section">
                         <h3>Electroencephalography (EEG)</h3>
-                        <nav class="menu-grid">
-                            <a href="neuroscience/eeg_illustration.html" class="menu-button">EEG Illustration</a>
-                            <a href="neuroscience/EEG_signal_decomposition.html" class="menu-button">EEG Signal Decomposition</a>
-                            <a href="neuroscience/erp_demo.html" class="menu-button">Event-related potential (ERP)</a>
+                        <nav class="card-grid">
+                            <a class="demo-card" href="neuroscience/eeg_illustration.html" data-keywords="EEG Illustration">
+                                <span class="demo-card-title">EEG Illustration</span>
+                                <p class="demo-card-desc">An illustration of electroencephalography (EEG).</p>
+                                <span class="demo-card-tags"><span class="demo-tag">Illustration</span></span>
+                            </a>
+                            <a class="demo-card" href="neuroscience/EEG_signal_decomposition.html" data-keywords="EEG Signal Decomposition">
+                                <span class="demo-card-title">EEG Signal Decomposition</span>
+                                <p class="demo-card-desc">Interactive decomposition of an EEG signal.</p>
+                            </a>
+                            <a class="demo-card" href="neuroscience/erp_demo.html" data-keywords="Event-related potential (ERP)">
+                                <span class="demo-card-title">Event-related potential (ERP)</span>
+                                <p class="demo-card-desc">A simulator and explorer for event-related potentials (ERP).</p>
+                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                            </a>
                         </nav>
                     </div>
 
                     <div class="sub-category-section">
                         <h3>Functional Near-Infrared Spectroscopy (fNIRS)</h3>
-                        <nav class="menu-grid">
-                            <a href="neuroscience/fnirs_mechanism.html" class="menu-button">fNIRS Mechanism</a>
+                        <nav class="card-grid">
+                            <a class="demo-card" href="neuroscience/fnirs_mechanism.html" data-keywords="fNIRS Mechanism">
+                                <span class="demo-card-title">fNIRS Mechanism</span>
+                                <p class="demo-card-desc">A simulator of the functional near-infrared spectroscopy (fNIRS) mechanism.</p>
+                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                            </a>
                         </nav>
                     </div>
                 </div>
@@ -172,47 +332,113 @@
 
         <section class="wrapper style3 fade-up">
             <div class="inner">
-                <div class="category-section" id="stats-category">
+                <div class="category-section" id="stats-category" data-category="statistics">
                     <h2>Statistics</h2>
-                    
+
                     <div class="sub-category-section">
                         <h3>Descriptive Statistics</h3>
-                        <nav class="menu-grid">
-                            <a href="statistics/mean_mode_median_dot_plot.html" class="menu-button">Mean, Median, and Mode on a Dot Plot</a>
-                            <a href="statistics/bessels_correction_simulation.html" class="menu-button">Bessel's correction</a>
-                            <a href="statistics/moments_as_averages.html" class="menu-button">Moments</a>
-							<a href="statistics/additivity_of_variance.html" class="menu-button">Additivity of Variance</a>
+                        <nav class="card-grid">
+                            <a class="demo-card" href="statistics/mean_mode_median_dot_plot.html" data-keywords="Mean, Median, and Mode on a Dot Plot">
+                                <span class="demo-card-title">Mean, Median, and Mode</span>
+                                <p class="demo-card-desc">Mean, median, and mode on a dot plot.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/bessels_correction_simulation.html" data-keywords="Bessel's correction">
+                                <span class="demo-card-title">Bessel's Correction</span>
+                                <p class="demo-card-desc">A simulation of Bessel's correction (n − 1).</p>
+                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                            </a>
+                            <a class="demo-card" href="statistics/moments_as_averages.html" data-keywords="Moments">
+                                <span class="demo-card-title">Moments</span>
+                                <p class="demo-card-desc">Moments treated as averages.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/additivity_of_variance.html" data-keywords="Additivity of Variance">
+                                <span class="demo-card-title">Additivity of Variance</span>
+                                <p class="demo-card-desc">How variances add together.</p>
+                            </a>
                         </nav>
                     </div>
 
                     <div class="sub-category-section">
                         <h3>Data Visualization</h3>
-                        <nav class="menu-grid">
-                            <a href="statistics/boxplot_outliers.html" class="menu-button">Boxplot and Outliers</a>
-                            <a href="statistics/boxplot_histogram.html" class="menu-button">Boxplot and Histogram</a>
-                            <a href="statistics/q_q_plot.html" class="menu-button">Q-Q Plot</a>
-                            <a href="statistics/skewed_distribution.html" class="menu-button">Skewed Distribution</a>
+                        <nav class="card-grid">
+                            <a class="demo-card" href="statistics/boxplot_outliers.html" data-keywords="Boxplot and Outliers">
+                                <span class="demo-card-title">Boxplot and Outliers</span>
+                                <p class="demo-card-desc">How a boxplot shows outliers.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/boxplot_histogram.html" data-keywords="Boxplot and Histogram">
+                                <span class="demo-card-title">Boxplot and Histogram</span>
+                                <p class="demo-card-desc">A boxplot compared with a histogram.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/q_q_plot.html" data-keywords="Q-Q Plot">
+                                <span class="demo-card-title">Q-Q Plot</span>
+                                <p class="demo-card-desc">A Q-Q plot for examining normality.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/skewed_distribution.html" data-keywords="Skewed Distribution">
+                                <span class="demo-card-title">Skewed Distribution</span>
+                                <p class="demo-card-desc">A skewed distribution compared with a normal distribution.</p>
+                            </a>
                         </nav>
                     </div>
 
                     <div class="sub-category-section">
                         <h3>Inferential Statistics</h3>
-                        <nav class="menu-grid">
-                            <a href="statistics/building_normal_distribution.html" class="menu-button">Building Normal Distribution</a>
-                            <a href="statistics/central_limit_theorem.html" class="menu-button">Central Limit Theorem (CLT)</a>
-                            <a href="statistics/horowitz_1974_simulation_CLT.html" class="menu-button">Horowitz (1974) Simulation of CLT</a>
-                            <a href="statistics/z_distribution_vs_t_distribution.html" class="menu-button">Z-Distribution vs t-Distribution</a>
-                            <a href="statistics/paired_t_test_simulation.html" class="menu-button">Paired Sample t-Test</a>
-                            <a href="statistics/independent_t_test_simulation.html" class="menu-button">Independent Samples t-Test</a>
-							<a href="statistics/target_analogy_confidence_intervals.html" class="menu-button">Target Analogy of Confdience Intervals</a>
-                            <a href="statistics/statistical_power.html" class="menu-button">Statistical Power</a>
-                            <a href="statistics/power_curve.html" class="menu-button">Power Curve</a>
-							<a href="statistics/covariance_and_correlation.html" class="menu-button">Covariance and Correlation</a>
-							<a href="statistics/variance_explained.html" class="menu-button">Variance Explained</a>
-							<a href="statistics/t_test_to_anova.html" class="menu-button">From t-Test to ANOVA</a>
-							<a href="statistics/partitioning_sum_of_squares_anova.html" class="menu-button">Partitioning Sum of Squares in ANOVA</a>
-
-							
+                        <nav class="card-grid">
+                            <a class="demo-card" href="statistics/building_normal_distribution.html" data-keywords="Building Normal Distribution">
+                                <span class="demo-card-title">Building the Normal Distribution</span>
+                                <p class="demo-card-desc">How a normal distribution is built.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/central_limit_theorem.html" data-keywords="Central Limit Theorem (CLT)">
+                                <span class="demo-card-title">Central Limit Theorem (CLT)</span>
+                                <p class="demo-card-desc">A simulation of the central limit theorem (CLT).</p>
+                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                            </a>
+                            <a class="demo-card" href="statistics/horowitz_1974_simulation_CLT.html" data-keywords="Horowitz (1974) Simulation of CLT">
+                                <span class="demo-card-title">Horowitz (1974) CLT Simulation</span>
+                                <p class="demo-card-desc">Horowitz (1974) simulation of the central limit theorem.</p>
+                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                            </a>
+                            <a class="demo-card" href="statistics/z_distribution_vs_t_distribution.html" data-keywords="Z-Distribution vs t-Distribution">
+                                <span class="demo-card-title">z-Distribution vs t-Distribution</span>
+                                <p class="demo-card-desc">How the z-distribution compares with the t-distribution.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/paired_t_test_simulation.html" data-keywords="Paired Sample t-Test">
+                                <span class="demo-card-title">Paired Sample t-Test</span>
+                                <p class="demo-card-desc">A simulation of the paired-samples t-test and mean differences.</p>
+                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                            </a>
+                            <a class="demo-card" href="statistics/independent_t_test_simulation.html" data-keywords="Independent Samples t-Test">
+                                <span class="demo-card-title">Independent Samples t-Test</span>
+                                <p class="demo-card-desc">A simulation of the independent-samples t-test.</p>
+                                <span class="demo-card-tags"><span class="demo-tag">Simulation</span></span>
+                            </a>
+                            <a class="demo-card" href="statistics/target_analogy_confidence_intervals.html" data-keywords="Target Analogy of Confidence Intervals">
+                                <span class="demo-card-title">Target Analogy of Confidence Intervals</span>
+                                <p class="demo-card-desc">A target analogy of confidence intervals.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/statistical_power.html" data-keywords="Statistical Power">
+                                <span class="demo-card-title">Statistical Power</span>
+                                <p class="demo-card-desc">Sampling distributions of the sample mean under the null and the alternative.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/power_curve.html" data-keywords="Power Curve">
+                                <span class="demo-card-title">Power Curve</span>
+                                <p class="demo-card-desc">A power curve for statistical power.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/covariance_and_correlation.html" data-keywords="Covariance and Correlation">
+                                <span class="demo-card-title">Covariance and Correlation</span>
+                                <p class="demo-card-desc">Covariance and correlation side by side.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/variance_explained.html" data-keywords="Variance Explained">
+                                <span class="demo-card-title">Variance Explained</span>
+                                <p class="demo-card-desc">How much of the variation is explained.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/t_test_to_anova.html" data-keywords="From t-Test to ANOVA">
+                                <span class="demo-card-title">From t-Test to ANOVA</span>
+                                <p class="demo-card-desc">How the t-test relates to ANOVA by partitioning variation.</p>
+                            </a>
+                            <a class="demo-card" href="statistics/partitioning_sum_of_squares_anova.html" data-keywords="Partitioning Sum of Squares in ANOVA">
+                                <span class="demo-card-title">Partitioning Sum of Squares</span>
+                                <p class="demo-card-desc">Partitioning the sum of squares in ANOVA.</p>
+                            </a>
                         </nav>
                     </div>
                 </div>
@@ -221,20 +447,26 @@
 
         <section class="wrapper style1 fade-up">
             <div class="inner">
-                <div class="category-section" id="personality-category">
+                <div class="category-section" id="personality-category" data-category="personality">
                     <h2>Personality Psychology</h2>
-                    
+
                     <div class="sub-category-section">
                         <h3>Psychoanalysis</h3>
-                        <nav class="menu-grid">
-                            <a href="personality_psychology/nlp_psychotherapy.html" class="menu-button">Natural Language Processing (NLP) in Psychotherapy</a>
+                        <nav class="card-grid">
+                            <a class="demo-card" href="personality_psychology/nlp_psychotherapy.html" data-keywords="Natural Language Processing (NLP) in Psychotherapy">
+                                <span class="demo-card-title">NLP in Psychotherapy</span>
+                                <p class="demo-card-desc">Natural language processing for psychotherapy transcript analysis.</p>
+                            </a>
                         </nav>
                     </div>
 
                     <div class="sub-category-section">
                         <h3>Personality Traits</h3>
-                        <nav class="menu-grid">
-                            <a href="personality_psychology/lexical_approach.html" class="menu-button">Lexical Approach</a>
+                        <nav class="card-grid">
+                            <a class="demo-card" href="personality_psychology/lexical_approach.html" data-keywords="Lexical Approach">
+                                <span class="demo-card-title">Lexical Approach</span>
+                                <p class="demo-card-desc">The lexical hypothesis for uncovering personality traits.</p>
+                            </a>
                         </nav>
                     </div>
                 </div>
@@ -261,60 +493,89 @@
     <script src="https://yiuhong.github.io/assets/js/breakpoints.min.js"></script>
     <script src="https://yiuhong.github.io/assets/js/util.js"></script>
     <script src="https://yiuhong.github.io/assets/js/main.js"></script>
-    
-    <!-- Custom Search Script (Refactored for Stability) -->
+
     <script>
-        const searchInput = document.getElementById('searchInput');
+        (function () {
+            var searchInput = document.getElementById('searchInput');
+            var noResults = document.getElementById('noResults');
+            var activeFilter = 'all';
 
-        searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase().trim();
-            let totalVisibleDemos = 0;
+            function normalize(value) {
+                return (value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+            }
 
-            // 1. Process Categories and Sub-categories first to establish context
-            document.querySelectorAll('.category-section').forEach(category => {
-                const categoryTitleMatch = category.querySelector('h2').textContent.toLowerCase().includes(searchTerm);
-                
-                category.querySelectorAll('.sub-category-section').forEach(sub => {
-                    const subTitleMatch = sub.querySelector('h3').textContent.toLowerCase().includes(searchTerm);
-                    let subHasVisibleButtons = false;
+            function applyFilters() {
+                var searchTerm = normalize(searchInput.value);
+                var totalVisibleDemos = 0;
 
-                    // Evaluate buttons within this sub-category
-                    sub.querySelectorAll('.menu-button').forEach(button => {
-                        const buttonTextMatch = button.textContent.toLowerCase().includes(searchTerm);
-                        
-                        // Show button if:
-                        // 1. Search is empty
-                        // 2. Button text matches
-                        // 3. Sub-category title matches (show all buttons in sub-category)
-                        // 4. Category title matches (show all buttons in category)
-                        if (searchTerm === '' || buttonTextMatch || subTitleMatch || categoryTitleMatch) {
-                            button.style.display = '';
-                            subHasVisibleButtons = true;
-                            totalVisibleDemos++;
-                        } else {
-                            button.style.display = 'none';
-                        }
+                document.querySelectorAll('.category-section').forEach(function (category) {
+                    var categoryKey = category.getAttribute('data-category');
+                    var chipMatch = activeFilter === 'all' || activeFilter === categoryKey;
+
+                    if (!chipMatch) {
+                        category.style.display = 'none';
+                        return;
+                    }
+
+                    var categoryTitle = normalize(category.querySelector('h2').textContent);
+                    var categoryTitleMatch = searchTerm !== '' && categoryTitle.indexOf(searchTerm) !== -1;
+
+                    category.querySelectorAll('.sub-category-section').forEach(function (sub) {
+                        var subTitle = normalize(sub.querySelector('h3').textContent);
+                        var subTitleMatch = searchTerm !== '' && subTitle.indexOf(searchTerm) !== -1;
+                        var subHasVisibleCards = false;
+
+                        sub.querySelectorAll('.demo-card').forEach(function (card) {
+                            var keywords = normalize(card.getAttribute('data-keywords'));
+                            var cardText = normalize(card.textContent);
+                            var cardMatch = (keywords + ' ' + cardText).indexOf(searchTerm) !== -1;
+
+                            if (searchTerm === '' || cardMatch || subTitleMatch || categoryTitleMatch) {
+                                card.style.display = '';
+                                subHasVisibleCards = true;
+                                totalVisibleDemos++;
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+
+                        sub.style.display = subHasVisibleCards ? '' : 'none';
                     });
 
-                    // Hide/Show Sub-categories
-                    sub.style.display = subHasVisibleButtons ? '' : 'none';
+                    var categoryHasVisibleSubs = Array.prototype.some.call(
+                        category.querySelectorAll('.sub-category-section'),
+                        function (sub) { return sub.style.display !== 'none'; }
+                    );
+                    category.style.display = categoryHasVisibleSubs ? '' : 'none';
                 });
 
-                // Hide/Show Main Categories
-                const categoryHasVisibleSubs = Array.from(category.querySelectorAll('.sub-category-section')).some(sub => sub.style.display !== 'none');
-                category.style.display = categoryHasVisibleSubs ? '' : 'none';
-            });
+                document.querySelectorAll('section.wrapper').forEach(function (wrapper) {
+                    if (wrapper.id === 'intro') return;
+                    var hasVisible = Array.prototype.some.call(
+                        wrapper.querySelectorAll('.category-section'),
+                        function (cat) { return cat.style.display !== 'none'; }
+                    );
+                    wrapper.style.display = hasVisible ? '' : 'none';
+                });
 
-            // 4. Hide/Show Layout Wrappers (Prevents blank spacing blocks)
-            document.querySelectorAll('section.wrapper').forEach(wrapper => {
-                if (wrapper.id === 'intro') return; // Always keep the header visible
-                const hasVisible = Array.from(wrapper.querySelectorAll('.category-section')).some(cat => cat.style.display !== 'none');
-                wrapper.style.display = hasVisible ? '' : 'none';
-            });
+                noResults.style.display = totalVisibleDemos === 0 ? 'block' : 'none';
+            }
 
-            // 5. Show/Hide No Results Warning
-            document.getElementById('noResults').style.display = (totalVisibleDemos === 0 && searchTerm !== '') ? 'block' : 'none';
-        });
+            searchInput.addEventListener('input', applyFilters);
+
+            document.querySelectorAll('.filter-chip').forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    document.querySelectorAll('.filter-chip').forEach(function (other) {
+                        other.classList.remove('is-active');
+                        other.setAttribute('aria-pressed', 'false');
+                    });
+                    chip.classList.add('is-active');
+                    chip.setAttribute('aria-pressed', 'true');
+                    activeFilter = chip.getAttribute('data-filter');
+                    applyFilters();
+                });
+            });
+        })();
     </script>
 </body>
 </html>
