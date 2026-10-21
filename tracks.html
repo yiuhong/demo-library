@@ -301,6 +301,18 @@
                 text-align: left;
             }
         }
+
+        /* Seven labels share the top bar between the phone layout and the
+           side column. Slightly tighter tracking keeps every label on screen. */
+        @media screen and (max-width: 1280px) and (min-width: 737px) {
+            #sidebar nav ul li {
+                margin-left: 1.25em;
+            }
+
+            #sidebar nav a {
+                letter-spacing: 0.14em;
+            }
+        }
     </style>
 </head>
 <body class="is-preload">
