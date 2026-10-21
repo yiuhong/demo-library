@@ -1,0 +1,60 @@
+{
+  "tracks": [
+    {
+      "id": "sampling-distributions",
+      "title": "Sampling & distributions",
+      "summary": "A short path from the shape of a normal curve, through sampling, to the chi-square, z, and t distributions used in basic tests.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "statistics/building_normal_distribution.html",
+          "title": "Building the Normal Distribution",
+          "note": "See how a normal curve is assembled before treating it as a model for data."
+        },
+        {
+          "href": "statistics/central_limit_theorem.html",
+          "title": "Central Limit Theorem (CLT)",
+          "note": "Watch sample means pile into that shape as each sample gets larger."
+        },
+        {
+          "href": "statistics/horowitz_1974_simulation_CLT.html",
+          "title": "Horowitz (1974) CLT Simulation",
+          "note": "Replay Horowitz's classroom simulation of the same sampling result."
+        },
+        {
+          "href": "statistics/chi_square_distribution.html",
+          "title": "Chi-Square Distribution",
+          "note": "Square standard normal draws and add them to build a chi-square curve."
+        },
+        {
+          "href": "statistics/z_distribution_vs_t_distribution.html",
+          "title": "z-Distribution vs t-Distribution",
+          "note": "Compare the z curve with the heavier-tailed t curve used when the population standard deviation is unknown."
+        }
+      ]
+    },
+    {
+      "id": "eeg-basics",
+      "title": "EEG basics",
+      "summary": "A short path from what a scalp EEG trace is, through taking that trace apart, to the averaged event-related potential.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "neuroscience/eeg_illustration.html",
+          "title": "EEG Illustration",
+          "note": "Start with what a scalp recording is measuring."
+        },
+        {
+          "href": "neuroscience/EEG_signal_decomposition.html",
+          "title": "EEG Signal Decomposition",
+          "note": "Take one trace apart into the rhythms that add up to the raw signal."
+        },
+        {
+          "href": "neuroscience/erp_demo.html",
+          "title": "Event-related potential (ERP)",
+          "note": "Average time-locked segments of that signal to reveal an event-related potential."
+        }
+      ]
+    }
+  ]
+}
