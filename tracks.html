@@ -248,11 +248,6 @@
             text-decoration: none;
         }
 
-        a.step-jump-next {
-            margin-left: auto;
-            text-align: right;
-        }
-
         a.step-jump:hover,
         a.step-jump:focus-visible {
             color: #000000 !important;
@@ -295,22 +290,9 @@
                 min-height: 0;
             }
 
-            a.step-jump,
-            a.step-jump-next {
+            a.step-jump {
                 max-width: none;
                 text-align: left;
-            }
-        }
-
-        /* Seven labels share the top bar between the phone layout and the
-           side column. Slightly tighter tracking keeps every label on screen. */
-        @media screen and (max-width: 1280px) and (min-width: 737px) {
-            #sidebar nav ul li {
-                margin-left: 1.25em;
-            }
-
-            #sidebar nav a {
-                letter-spacing: 0.14em;
             }
         }
     </style>
@@ -322,13 +304,7 @@
         <div class="inner">
             <nav>
                 <ul>
-                    <li><a href="https://yiuhong.github.io/#intro" target="_self">Home</a></li>
-                    <li><a href="https://yiuhong.github.io/#one" target="_self">Research & Publications</a></li>
-                    <li><a href="https://yiuhong.github.io/#two" target="_self">Teaching & Mentorship</a></li>
-                    <li><a href="https://yiuhong.github.io/#three" target="_self">Contact</a></li>
                     <li><a href="index.html">Teaching Materials Library</a></li>
-                    <li><a href="tracks.html" class="active">Guided Tracks</a></li>
-                    <li><a href="https://yiuhong.github.io/resources_page.html" target="_self">Resources</a></li>
                 </ul>
             </nav>
         </div>
@@ -539,11 +515,11 @@
                 return link;
             }
 
-            function jumpLink(kind, step) {
-                var link = el('a', 'step-jump step-jump-' + kind);
+            function previousLink(step) {
+                var link = el('a', 'step-jump');
                 link.href = step.href;
-                link.rel = kind === 'prev' ? 'prev' : 'next';
-                link.appendChild(el('span', 'step-jump-kicker', kind === 'prev' ? 'Previous' : 'Next'));
+                link.rel = 'prev';
+                link.appendChild(el('span', 'step-jump-kicker', 'Previous'));
                 link.appendChild(el('span', 'step-jump-title', step.title));
                 return link;
             }
@@ -578,12 +554,12 @@
                         var item = el('li', 'track-step');
                         item.appendChild(stepHeading(step));
                         if (step.note) item.appendChild(el('p', 'track-step-note', step.note));
-                        var nav = el('div', 'track-step-nav');
                         var previous = index > 0 ? track.steps[index - 1] : null;
-                        var next = index < track.steps.length - 1 ? track.steps[index + 1] : null;
-                        if (previous && previous.href) nav.appendChild(jumpLink('prev', previous));
-                        if (next && next.href) nav.appendChild(jumpLink('next', next));
-                        if (nav.childNodes.length) item.appendChild(nav);
+                        if (previous && previous.href) {
+                            var nav = el('div', 'track-step-nav');
+                            nav.appendChild(previousLink(previous));
+                            item.appendChild(nav);
+                        }
                         list.appendChild(item);
                     });
                     panel.appendChild(list);

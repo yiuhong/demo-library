@@ -20,11 +20,6 @@
             font-weight: bold;
         }
 
-        p.tracks-pointer {
-            font-size: 1em;
-            margin-top: -0.75em;
-        }
-
         .search-container {
             margin: 0 0 1.35em 0;
             display: flex;
@@ -387,18 +382,6 @@
                 justify-content: flex-start;
             }
         }
-
-        /* Seven labels share the top bar between the phone layout and the
-           side column. Slightly tighter tracking keeps every label on screen. */
-        @media screen and (max-width: 1280px) and (min-width: 737px) {
-            #sidebar nav ul li {
-                margin-left: 1.25em;
-            }
-
-            #sidebar nav a {
-                letter-spacing: 0.14em;
-            }
-        }
     </style>
 </head>
 <body class="is-preload">
@@ -413,7 +396,6 @@
                     <li><a href="https://yiuhong.github.io/#two" target="_self">Teaching & Mentorship</a></li>
                     <li><a href="https://yiuhong.github.io/#three" target="_self">Contact</a></li>
                     <li><a href="#" class="active">Teaching Materials Library</a></li>
-                    <li><a href="tracks.html">Guided Tracks</a></li>
 					<li><a href="https://yiuhong.github.io/resources_page.html" target="_self">Resources</a></li>
                 </ul>
             </nav>
@@ -428,7 +410,6 @@
             <div class="inner">
                 <h1>Teaching Materials Library</h1>
                 <p>A collection of interactive demonstrations and teaching materials designed for exploring concepts in psychology, neuroscience, and statistics.</p>
-                <p class="tracks-pointer">For a suggested teaching order, see the <a href="tracks.html">Guided Tracks</a>.</p>
                 <label class="library-label" for="searchInput">Search for a keyword</label>
                 <div class="search-container">
                     <input type="text" id="searchInput" placeholder="Search for a demo or topic...">
