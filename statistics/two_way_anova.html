@@ -844,7 +844,7 @@
             enter => enter.append("rect").attr("class", "row-strip")
                 .attr("x", 0)
                 .attr("rx", 4)
-                .attr("fill", d => d.startsWith('G1') ? 'rgba(59,130,246,0.05)' : d.startsWith('G2') ? 'rgba(16,185,129,0.05)' : 'rgba(245,158,11,0.05)'),
+                .attr("fill", d => d.startsWith('G1') ? 'rgba(59,130,246,0.38)' : d.startsWith('G2') ? 'rgba(16,185,129,0.38)' : 'rgba(245,158,11,0.05)'),
             update => update
         )
         .attr("y", d => yRowScale(d))
