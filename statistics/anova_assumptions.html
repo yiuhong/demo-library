@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANOVA Assumptions & Violations Interactive Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 999px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #7dd3fc;
+        }
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 999px;
+        }
+        input[type=range]::-moz-range-thumb {
+            height: 18px;
+            width: 18px;
+            border: none;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+        .tab-active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15));
+            border-color: #38bdf8 !important;
+            color: #38bdf8;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
+
+
+<header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <div class="flex items-center gap-2.5">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-400/30 text-sky-400 font-bold mono">F</span>
+                <h1 class="text-xl font-bold tracking-tight text-white">ANOVA Assumptions Interactive Lab</h1>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">Explore how violating Normality, Homoscedasticity, and Independence distorts ANOVA results under a True Null Hypothesis (<span class="mono text-slate-300">&mu;<sub>A</sub> = &mu;<sub>B</sub> = &mu;<sub>C</sub></span>).</p>
+        </div>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+            <button id="btnResample" type="button" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition flex items-center gap-1.5 shadow-sm">
+                <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                Draw New Sample
+            </button>
+            <button id="btnReset" type="button" class="px-3.5 py-2 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-xs font-medium text-sky-300 transition">
+                Reset to Ideal
+            </button>
+        </div>
+    </div>
+</header>
+
+
+<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+
+<!-- Top Assumption Navigation Bar -->
+<div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-lg">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+            <span id="pageStepPill" class="px-2.5 py-1 rounded-md bg-sky-500/20 border border-sky-400/30 text-sky-300 text-xs font-bold mono">ASSUMPTION 1 OF 3</span>
+            <h2 id="pageHeaderTitle" class="text-base sm:text-lg font-bold text-white">Normality of Residuals</h2>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="btnPrevPage" type="button" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none border border-slate-700 text-xs font-medium text-slate-200 transition flex items-center gap-1">
+                &larr; Previous Assumption
+            </button>
+            <button id="btnNextPage" type="button" class="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 disabled:opacity-40 disabled:pointer-events-none border border-sky-400/30 text-xs font-medium text-sky-300 transition flex items-center gap-1">
+                Next Assumption &rarr;
+            </button>
+        </div>
+    </div>
+
+    <!-- 3-Assumption Selector Tabs -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="assumptionTabs">
+        <button type="button" data-tab="normality" class="tab-btn tab-active text-left p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/60 transition flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-sky-400 mono">Assumption 1 &bull; Normality</span>
+                    <span id="badge-normality" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">Holds</span>
+                </div>
+                <h3 class="text-sm font-bold text-white mt-1">1. Normality of Residuals</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Residuals (<span class="mono text-slate-300">e<sub>ij</sub> = y<sub>ij</sub> &minus; y&#772;<sub>i</sub></span>) follow a Gaussian bell curve.</p>
+            </div>
+        </button>
+
+        <button type="button" data-tab="homoscedasticity" class="tab-btn text-left p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/60 transition flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400 mono">Assumption 2 &bull; Homoscedasticity</span>
+                    <span id="badge-homoscedasticity" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">Holds</span>
+                </div>
+                <h3 class="text-sm font-bold text-white mt-1">2. Homogeneity of Variance</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Equal population variances across groups (<span class="mono text-slate-300">&sigma;<sub>A</sub><sup>2</sup> = &sigma;<sub>B</sub><sup>2</sup> = &sigma;<sub>C</sub><sup>2</sup></span>).</p>
+            </div>
+        </button>
+
+        <button type="button" data-tab="independence" class="tab-btn text-left p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/60 transition flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-amber-400 mono">Assumption 3 &bull; Independence</span>
+                    <span id="badge-independence" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">Holds</span>
+                </div>
+                <h3 class="text-sm font-bold text-white mt-1">3. Independence of Errors</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Uncorrelated observations (<span class="mono text-slate-300">Cov(&epsilon;<sub>ij</sub>, &epsilon;<sub>ik</sub>) = 0</span>).</p>
+            </div>
+        </button>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+    <!-- Left Control & Explanation Column (Assumption-Specific) -->
+    <div class="lg:col-span-4 space-y-5 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+                <h3 id="controlPanelTitle" class="text-sm font-bold text-white uppercase tracking-wider">Assumption 1: Normality Controls</h3>
+                <p class="text-xs text-slate-400">True population means are equal (<span class="mono text-slate-300">&mu;<sub>A</sub> = &mu;<sub>B</sub> = &mu;<sub>C</sub> = 50</span>)</p>
+            </div>
+            <span class="px-2 py-1 rounded bg-slate-800 text-xs mono text-sky-400">H<sub>0</sub> is TRUE</span>
+        </div>
+
+        <!-- Assumption 1 Controls: Normality -->
+        <div id="page-controls-normality" class="space-y-4">
+            <div class="p-4 rounded-xl bg-slate-950/80 border border-sky-500/40 space-y-3">
+                <div class="flex justify-between text-xs font-medium">
+                    <span class="text-sky-400 font-semibold">Skewness &amp; Outlier Severity</span>
+                    <span id="val-skew" class="mono text-slate-200">0.0 (Normal)</span>
+                </div>
+                <input id="slider-skew" type="range" min="0" max="3" step="0.1" value="0" class="w-full">
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Increases right-skewness (log-normal tail) and injects positive outliers into each group while keeping the true population means identical (<span class="mono text-slate-300">&mu; = 50</span>).
+                </p>
+            </div>
+
+            <div>
+                <label class="text-xs font-medium text-slate-400 block mb-2">Assumption 1 Quick Scenarios:</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" data-preset="norm-ideal" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                        ✨ Bell Curve (Normal)
+                    </button>
+                    <button type="button" data-preset="norm-moderate" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                        📐 Moderate Right Skew
+                    </button>
+                    <button type="button" data-preset="norm-heavy" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left col-span-2">
+                        📉 Extreme Skew + Heavy Outliers
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Residuals (e<sub>ij</sub>) vs. SS<sub>Within</sub></span>
+                    <span class="text-[10px] mono text-slate-400">&sum;e<sub>ij</sub> = 0.00</span>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Each residual is <span class="mono text-sky-300">e<sub>ij</sub> = y<sub>ij</sub> &minus; y&#772;<sub>i</sub></span> (centered at 0). Squaring &amp; summing them builds <span class="mono text-white">SS<sub>Within</sub></span>:
+                </p>
+                <div class="grid grid-cols-2 gap-2 pt-1 text-center">
+                    <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">&sum; e<sub>ij</sub><sup>2</sup> (SS<sub>Within</sub>)</div>
+                        <div id="stat-ssw" class="text-sm font-bold text-sky-300 mono mt-0.5">4608.0</div>
+                    </div>
+                    <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">SS<sub>W</sub> / df<sub>W</sub> (MS<sub>Within</sub>)</div>
+                        <div id="stat-msw" class="text-sm font-bold text-indigo-300 mono mt-0.5">64.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assumption 2 Controls: Homoscedasticity -->
+        <div id="page-controls-homoscedasticity" class="space-y-4 hidden">
+            <div class="p-4 rounded-xl bg-slate-950/80 border border-indigo-500/40 space-y-3">
+                <div class="flex justify-between text-xs font-medium">
+                    <span class="text-indigo-400 font-semibold">Group SD Ratio (<span class="mono">&sigma;<sub>C</sub> / &sigma;<sub>A</sub></span>)</span>
+                    <span id="val-varRatio" class="mono text-slate-200">1.0x (Equal)</span>
+                </div>
+                <input id="slider-varRatio" type="range" min="1" max="5" step="0.2" value="1" class="w-full">
+                <div class="flex items-center justify-between pt-2.5 border-t border-slate-800/80">
+                    <label for="toggle-unbalanced" class="text-xs text-slate-200 cursor-pointer font-medium">Unbalanced Sample Sizes (<span class="mono text-indigo-300">n<sub>A</sub>=45, n<sub>B</sub>=25, n<sub>C</sub>=8</span>)</label>
+                    <input id="toggle-unbalanced" type="checkbox" class="w-4 h-4 accent-indigo-400 rounded cursor-pointer">
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Inflates variance in Group C. Pairing high variance with a small sample size (<span class="mono">n<sub>C</sub>=8</span>) causes pooled <span class="mono">MS<sub>Within</sub></span> to severely underestimate noise.
+                </p>
+            </div>
+
+            <div>
+                <label class="text-xs font-medium text-slate-400 block mb-2">Assumption 2 Quick Scenarios:</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" data-preset="homo-ideal" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                        ✨ Equal Variances
+                    </button>
+                    <button type="button" data-preset="homo-balanced" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                        ⚖️ Unequal SD (Balanced <i>n</i>)
+                    </button>
+                    <button type="button" data-preset="homo-toxic" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left col-span-2">
+                        📢 Toxic Combo: High SD in Smallest Group (<i>n<sub>C</sub></i>=8)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assumption 3 Controls: Independence -->
+        <div id="page-controls-independence" class="space-y-4 hidden">
+            <div class="p-4 rounded-xl bg-slate-950/80 border border-amber-500/40 space-y-3">
+                <div class="flex justify-between text-xs font-medium">
+                    <span class="text-amber-400 font-semibold">Within-Group Correlation (<span class="mono">&rho;</span>)</span>
+                    <span id="val-rho" class="mono text-slate-200">0.00 (Independent)</span>
+                </div>
+                <input id="slider-rho" type="range" min="0" max="0.85" step="0.05" value="0" class="w-full">
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Because consecutive points pull in the same direction, group means drift far from <span class="mono text-slate-300">&mu; = 50</span>—mimicking a genuine treatment effect (inflating <span class="mono text-slate-300">MS<sub>Between</sub></span>). Meanwhile, neighbor-tied points underrepresent true population variance, compressing the denominator (<span class="mono text-slate-300">MS<sub>Within</sub></span>).
+                </p>
+            </div>
+
+            <!-- #1: F-Ratio Panel (Unified Scale & Sample-Consistent Badges) -->
+            <div class="p-3.5 rounded-xl bg-slate-950/90 border border-amber-500/30 space-y-3 shadow-inner">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400"><i>F</i>-Ratio (<span class="mono">MS<sub>B</sub> / MS<sub>W</sub></span>)</span>
+                    <span id="ind-scale-label" class="text-[10px] mono text-slate-400">Shared Scale: 0&ndash;300</span>
+                </div>
+
+                <!-- Numerator Bar (MS_Between — Drift Between Group Means) -->
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-slate-200 font-medium">Numerator<br>(<span class="mono text-rose-300">MS<sub>Between</sub></span> &mdash; Mean Drift)</span>
+                        <span id="ind-msb-badge" class="px-1.5 py-0.5 rounded bg-rose-500/15 border border-rose-500/30 text-[10px] mono text-rose-300 font-semibold">1.00&times; Baseline (&rho;=0)</span>
+                    </div>
+                    <div class="relative h-3 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                        <div id="ind-msb-bar" class="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-full transition-all duration-150" style="width: 21%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-400 mono">
+                        <span id="ind-msb-readout" class="text-rose-300 font-semibold">Sample MS<sub>B</sub> = 26.9</span>
+                        <span id="ind-msb-base" class="text-slate-400">&rho;=0 Baseline: 26.9</span>
+                    </div>
+                </div>
+
+                <!-- Denominator Bar (MS_Within — Spread Around Group Means) -->
+                <div class="space-y-1.5 pt-2 border-t border-slate-800/80">
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-slate-200 font-medium">Denominator<br>(<span class="mono text-sky-300">MS<sub>Within</sub></span> &mdash; Local Spread)</span>
+                        <span id="ind-msw-badge" class="px-1.5 py-0.5 rounded bg-sky-500/15 border border-sky-500/30 text-[10px] mono text-sky-300 font-semibold">1.00&times; Baseline (&rho;=0)</span>
+                    </div>
+                    <div class="relative h-3 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                        <div id="ind-msw-bar" class="h-full bg-gradient-to-r from-sky-500 to-indigo-400 rounded-full transition-all duration-150" style="width: 21%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-400 mono">
+                        <span id="ind-msw-readout" class="text-sky-300 font-semibold">Sample MS<sub>W</sub> = 64.0</span>
+                        <span id="ind-msw-base" class="text-slate-400">&rho;=0 Baseline: 64.0</span>
+                    </div>
+                </div>
+
+                <p class="text-[11px] text-slate-400 leading-relaxed pt-1 border-t border-slate-800/60">
+                    <strong class="text-amber-300">Visual Takeaway:</strong> Both bars share the same visual scale, so equal bar lengths mean <span class="mono text-slate-200">F = 1.0</span>. As <span class="mono text-slate-200">&rho; &rarr; 0.85</span>, watch <span class="mono text-rose-300">MS<sub>Between</sub></span> stretch outward while <span class="mono text-sky-300">MS<sub>Within</sub></span> shrinks inward.
+                </p>
+            </div>
+
+            <div>
+                <label class="text-xs font-medium text-slate-400 block mb-2">Assumption 3 Quick Scenarios:</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" data-preset="ind-ideal" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                        ✨ Independent Errors
+                    </button>
+                    <button type="button" data-preset="ind-mild" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                        🔗 Mild Clustering (&rho;=0.35)
+                    </button>
+                    <button type="button" data-preset="ind-severe" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left col-span-2">
+                        🚨 Severe Serial Correlation (&rho;=0.75)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live ANOVA Test Readout -->
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Current Sample ANOVA</span>
+                <span id="sampleDecisionBadge" class="px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Correctly Retains H<sub>0</sub></span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="p-2 rounded-lg bg-slate-900 border border-slate-800/80">
+                    <div class="text-[11px] text-slate-400"><i>F</i>-Statistic</div>
+                    <div id="stat-f" class="text-base font-bold text-white mono mt-0.5">0.42</div>
+                </div>
+                <div class="p-2 rounded-lg bg-slate-900 border border-slate-800/80">
+                    <div class="text-[11px] text-slate-400"><i>p</i>-value</div>
+                    <div id="stat-p" class="text-base font-bold text-white mono mt-0.5">0.658</div>
+                </div>
+                <div class="p-2 rounded-lg bg-slate-900 border border-slate-800/80">
+                    <div class="text-[11px] text-slate-400">False Positive Rate</div>
+                    <div id="stat-type1" class="text-base font-bold text-emerald-400 mono mt-0.5">5.1%</div>
+                </div>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed" id="stat-commentary">
+                Nominal significance threshold is <span class="mono text-slate-300">&alpha; = 5.0%</span>. When all assumptions hold, only ~5% of random samples falsely reject H<sub>0</sub>.
+            </p>
+        </div>
+    </div>
+
+    <!-- Right Visualizations Column -->
+    <div class="lg:col-span-8 space-y-6">
+
+        <!-- Top Row: Group Distributions & Specific Assumption Diagnostic -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Plot 1: Group Distributions & Means -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
+                <div class="mb-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <h3 class="text-sm font-bold text-white">1. Group Data &amp; Means (<span class="mono">y&#772;<sub>i</sub></span>)</h3>
+                        <span class="text-[11px] mono text-slate-400 shrink-0">True &mu; = 50</span>
+                    </div>
+                    <p id="plot1Subtitle" class="text-xs text-slate-400 mt-0.5">Jittered points, group means (bars), and &plusmn;1 SD boxes</p>
+                </div>
+                <div class="relative w-full h-64 bg-slate-950/70 rounded-xl border border-slate-800/80 overflow-hidden">
+                    <canvas id="canvasGroups"></canvas>
+                </div>
+            </div>
+
+            <!-- Plot 2: Diagnostic Plot for Active Assumption -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
+                <div class="mb-2.5 space-y-1">
+                    <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
+                        <h3 id="diagTitle" class="text-sm font-bold text-sky-400">2. Diagnostic: Normal Q-Q Plot</h3>
+                        <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                            <div id="qqModeToggle" class="inline-flex rounded-lg bg-slate-950 p-0.5 border border-slate-800 text-[10px] font-medium">
+                                <button id="btnQQPooled" type="button" class="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 transition">Pooled (All N)</button>
+                                <button id="btnQQByGroup" type="button" class="px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition">By Group</button>
+                            </div>
+                            <div id="indModeToggle" class="hidden inline-flex rounded-lg bg-slate-950 p-0.5 border border-slate-800 text-[10px] font-medium">
+                                <button id="btnIndSequence" type="button" class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 transition">Sequence</button>
+                                <button id="btnIndLag" type="button" class="px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition">Lag-1 Scatter</button>
+                            </div>
+                            <span id="diagBadge" class="hidden text-[11px] mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">Levene / Spread</span>
+                        </div>
+                    </div>
+                    <p id="diagSubtitle" class="text-xs text-slate-400 w-full">Points should hug the 45° reference line</p>
+                </div>
+                <div class="relative w-full h-64 bg-slate-950/70 rounded-xl border border-slate-800/80 overflow-hidden">
+                    <canvas id="canvasDiagnostic"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plot 3: Monte Carlo F-Distribution Simulation -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col shadow-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                <div>
+                    <h3 class="text-sm font-bold text-white">3. Monte Carlo Simulation: Sampling Distribution of <i>F</i> (800 Experiments)</h3>
+                    <p class="text-xs text-slate-400">Compares empirical <i>F</i>-statistics against the theoretical <i>F</i>-distribution curve under a true null hypothesis</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-4 text-[11px] mono shrink-0">
+                    <span class="inline-flex items-center gap-1.5 text-amber-400 leading-none whitespace-nowrap">
+                        <span class="w-3 h-0.5 bg-amber-400 inline-block shrink-0"></span>
+                        <span>Theoretical <i>F</i></span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-rose-400 leading-none whitespace-nowrap">
+                        <span class="w-2.5 h-2.5 rounded-sm bg-rose-500/60 border border-rose-400 inline-block shrink-0"></span>
+                        <span>Type I Error (<i>p</i> &lt; 0.05)</span>
+                    </span>
+                </div>
+            </div>
+            <div class="relative w-full h-56 bg-slate-950/70 rounded-xl border border-slate-800/80 overflow-hidden">
+                <canvas id="canvasMonteCarlo"></canvas>
+            </div>
+        </div>
+
+        <!-- Educational Breakdown Cards for Active Assumption -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-1.5 shadow-lg">
+                <div class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                    <span>⚠️</span> Why It Breaks ANOVA
+                </div>
+                <p id="eduProblem" class="text-xs text-slate-300 leading-relaxed"></p>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-1.5 shadow-lg">
+                <div class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                    <span>🔍</span> How to Detect It
+                </div>
+                <p id="eduDetect" class="text-xs text-slate-300 leading-relaxed"></p>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-1.5 shadow-lg">
+                <div class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                    <span>🛠️</span> Statistical Remedies
+                </div>
+                <p id="eduRemedy" class="text-xs text-slate-300 leading-relaxed"></p>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation Footer -->
+        <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800 rounded-2xl px-5 py-3.5 shadow-xl">
+            <span id="bottomPageIndicator" class="text-xs text-slate-400 mono">Viewing Assumption 1 of 3: Normality of Residuals</span>
+            <div class="flex items-center gap-2">
+                <button id="btnPrevPageBottom" type="button" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none border border-slate-700 text-xs font-medium text-slate-200 transition">
+                    &larr; Prev Assumption
+                </button>
+                <button id="btnNextPageBottom" type="button" class="px-3.5 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 disabled:opacity-40 disabled:pointer-events-none border border-sky-400/30 text-xs font-medium text-sky-300 transition">
+                    Next Assumption &rarr;
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+</main>
+
+
+<script>
+    // --- State & Configuration ---
+    const pageOrder = ['normality', 'homoscedasticity', 'independence'];
+    const MC_RUNS = 800; // Matches UI header "(800 Experiments)"
+    const MAX_N = 45;
+
+    const state = {
+        activeTab: 'normality', // 'normality' | 'homoscedasticity' | 'independence'
+        qqMode: 'pooled',       // 'pooled' | 'byGroup' (how Q-Q quantiles are computed on Assumption 1)
+        indMode: 'sequence',    // 'sequence' | 'lag' (how serial correlation is visualized on Assumption 3)
+        skew: 0.0,              // 0 to 3.0
+        varRatio: 1.0,          // 1.0 to 5.0
+        unbalanced: false,      // Equal n=25 vs Unbalanced (45, 25, 8)
+        rho: 0.0,               // Autocorrelation / cluster correlation 0 to 0.85
+        baseZ: [],              // Persistent N(0,1) draws for current sample so sliders morph points smoothly
+        mcBaseZ: [],            // Persistent N(0,1) draws for Monte Carlo runs for smooth histogram transitions
+        groups: [],             // Current sample: [groupA, groupB, groupC]
+        baselineMeans: [50, 50, 50], // Exact group means of the current sample under Independence (rho = 0)
+        baselineAnova: null,    // Exact ANOVA result of the current sample under Independence (rho = 0)
+        anovaResult: null,      // { F, p, df1, df2, ssBetween, ssWithin, msBetween, msWithin, groupMeans, groupSDs }
+        mcSim: { fValues: [], type1Rate: 5.0, fCrit: 3.12, df1: 2, df2: 72 }
+    };
+
+    const eduContent = {
+        normality: {
+            pageNum: 1,
+            pageTitle: 'Normality of Residuals',
+            controlTitle: 'Assumption 1: Normality Controls',
+            diagTitle: '2. Diagnostic: Normal Q-Q Plot',
+            diagSubtitle: 'Compare Pooled Residuals (all <i>N</i> together) vs. Separate by Group',
+            diagBadge: 'Q-Q Plot',
+            problem: 'Residuals (<span class="mono text-slate-200">e<sub>ij</sub> = y<sub>ij</sub> &minus; y&#772;<sub>i</sub></span>) are squared and summed to form <span class="mono text-slate-200">SS<sub>Within</sub></span>. Extreme skewness/outliers cut both ways: a lone outlier in one group pulls <span class="mono text-slate-200">y&#772;<sub>i</sub></span> and creates false-positive spikes (nominal <i>p</i>-value <b>underestimates</b> true tail risk), whereas squared outliers also blow up <span class="mono text-slate-200">MS<sub>Within</sub></span>, crushing <i>F</i> toward 0 (inflating <i>p</i>-values and masking real effects).',
+            detect: 'Pool all residuals together (since each has its group mean subtracted, all share mean 0 and variance <span class="mono text-slate-200">&sigma;<sup>2</sup></span>) for a higher-power Q-Q plot, or inspect separately by group to spot group-specific outliers.',
+            remedy: 'Apply a data transformation (e.g., <span class="mono text-slate-200">log(y)</span>, square-root, or Box-Cox), use the non-parametric Kruskal-Wallis test, or use trimmed means / bootstrapping.'
+        },
+        homoscedasticity: {
+            pageNum: 2,
+            pageTitle: 'Homogeneity of Variance (Homoscedasticity)',
+            controlTitle: 'Assumption 2: Variance Controls',
+            diagTitle: '2. Diagnostic: Absolute Residuals vs. Group SD',
+            diagSubtitle: 'Funnel shape shows variance growing across groups A &rarr; B &rarr; C',
+            diagBadge: 'Levene / Spread',
+            problem: 'ANOVA pools variances across all groups into a single denominator (<span class="mono text-slate-200">MS<sub>Within</sub></span>). If a small group has huge variance, the large low-variance groups dominate <span class="mono text-slate-200">MS<sub>Within</sub></span>, making the denominator way too small and skyrocketing the Type I Error rate (often &gt;20%!).',
+            detect: 'Plot absolute residuals (<span class="mono text-slate-200">|e<sub>ij</sub>|</span>) against group means to check for a "megaphone/funnel" shape, or run Levene&rsquo;s Test or Brown-Forsythe Test for equality of variance.',
+            remedy: 'Use Welch&rsquo;s ANOVA (which does not pool variances and adjusts degrees of freedom), apply variance-stabilizing transformations, or use Generalized Least Squares (GLS).'
+        },
+        independence: {
+            pageNum: 3,
+            pageTitle: 'Independence of Errors',
+            controlTitle: 'Assumption 3: Independence Controls',
+            diagTitle: '2. Diagnostic: Serial Correlation & Drift',
+            diagSubtitle: 'Solid lines: <span class="mono">y<sub>ij</sub> &minus; 50</span>; Dashed lines: drifted group means (<span class="mono">y&#772;<sub>i</sub> &minus; 50</span>)',
+            diagBadge: 'Serial Correlation',
+            problem: 'Because consecutive points pull in the same direction, group means easily drift far beyond normal sampling error (<span class="mono text-slate-200">&plusmn;1.6 SE</span>)—looking indistinguishable from a genuine treatment effect to ANOVA (inflating <span class="mono text-slate-200">MS<sub>Between</sub></span> while compressing <span class="mono text-slate-200">MS<sub>Within</sub></span>). Meanwhile, neighbor-tied points underrepresent true population variance, shrinking the denominator and driving Type I error &gt;50&ndash;75%.',
+            detect: 'Plot errors against collection order/time (Sequence) or against the preceding error (Lag-1 Scatter), check the Durbin-Watson statistic, or compute the Intraclass Correlation Coefficient (ICC).',
+            remedy: 'Never ignore non-independence! Use Linear Mixed-Effects Models (LMM) with random intercepts for clusters, Repeated-Measures ANOVA, or Generalized Estimating Equations (GEE).'
+        }
+    };
+
+    // Deterministic pseudo-random offset in [-0.5, 0.5]
+    function pseudoOffset(seed) {
+        const x = Math.sin(seed) * 43758.5453123;
+        return (x - Math.floor(x)) - 0.5;
+    }
+
+    // Exact finite-sample variance multiplier for the sample mean of an AR(1) process of length n
+    function ar1MeanVarFactor(n, rho) {
+        if (rho <= 0) return 1.0;
+        let sum = 0;
+        for (let k = 1; k < n; k++) {
+            sum += (1 - k / n) * Math.pow(rho, k);
+        }
+        return 1 + 2 * sum;
+    }
+
+    // --- Math & Statistical Helper Functions ---
+    function randn() {
+        let u = 0, v = 0;
+        while (u === 0) u = Math.random();
+        while (v === 0) v = Math.random();
+        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    }
+
+    // Standard Normal CDF (Abramowitz & Stegun 7.1.26) for exact truncated log-normal centering
+    function normCDF(x) {
+        const t = 1 / (1 + 0.2316419 * Math.abs(x));
+        const d = 0.3989422804014327 * Math.exp(-0.5 * x * x);
+        const p = d * t * (0.31938153 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + 1.330274429 * t))));
+        return x > 0 ? 1 - p : p;
+    }
+
+    // Exact analytical expected value E[exp(k * clamp(Z, a, b))] for Z ~ N(0,1) so E[Y] = 50 strictly holds
+    function exactCappedExpMean(k, a = -3.0, b = 2.85) {
+        if (k <= 0) return 1.0;
+        const termLow = Math.exp(k * a) * normCDF(a);
+        const termMid = Math.exp(0.5 * k * k) * (normCDF(b - k) - normCDF(a - k));
+        const termHigh = Math.exp(k * b) * (1 - normCDF(b));
+        return termLow + termMid + termHigh;
+    }
+
+    // Inverse Normal CDF approximation (Beasley-Springer-Moro)
+    function normInv(p) {
+        const clampedP = Math.max(1e-6, Math.min(1 - 1e-6, p));
+        const a1 = -39.6968302866538, a2 = 220.946098424521, a3 = -275.928510446969;
+        const a4 = 138.357751867269, a5 = -30.6647980661472, a6 = 2.50662827745924;
+        const b1 = -54.4760987982241, b2 = 161.585836858041, b3 = -155.698979859887;
+        const b4 = 66.8013118877197, b5 = -13.2806815528857;
+        const c1 = -0.00778489400243029, c2 = -0.322396458041136, c3 = -2.40075827716184;
+        const c4 = -2.54973253934373, c5 = 4.37466414146497, c6 = 2.93816398269878;
+        const d1 = 0.00778469570904146, d2 = 0.32246712907004, d3 = 2.445134137143;
+        const d4 = 3.75440866190742;
+        const pLow = 0.02425, pHigh = 1 - pLow;
+        let q, r;
+        if (clampedP < pLow) {
+            q = Math.sqrt(-2 * Math.log(clampedP));
+            return (((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) /
+                   ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
+        } else if (clampedP <= pHigh) {
+            q = clampedP - 0.5;
+            r = q * q;
+            return (((((a1 * r + a2) * r + a3) * r + a4) * r + a5) * r + a6) * q /
+                   (((((b1 * r + b2) * r + b3) * r + b4) * r + b5) * r + 1);
+        } else {
+            q = Math.sqrt(-2 * Math.log(1 - clampedP));
+            return -(((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) /
+                    ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
+        }
+    }
+
+    // Log Gamma function for F-distribution PDF and p-value
+    function logGamma(z) {
+        const c = [
+            76.18009172947146, -86.50532032941677, 24.01409824083091,
+            -1.231739572450155, 0.001208650973866179, -0.000005395239384953
+        ];
+        let x = z, y = z;
+        let tmp = x + 5.5;
+        tmp -= (x + 0.5) * Math.log(tmp);
+        let ser = 1.000000000190015;
+        for (let j = 0; j < 6; j++) ser += c[j] / ++y;
+        return -tmp + Math.log(2.5066282746310005 * ser / x);
+    }
+
+    // Regularized Incomplete Beta Function I_x(a, b) for exact F p-values
+    function betacf(a, b, x) {
+        const MAXIT = 100, EPS = 3.0e-7, FPMIN = 1.0e-30;
+        let qab = a + b, qap = a + 1.0, qam = a - 1.0;
+        let c = 1.0, d = 1.0 - qab * x / qap;
+        if (Math.abs(d) < FPMIN) d = FPMIN;
+        d = 1.0 / d;
+        let h = d;
+        for (let m = 1; m <= MAXIT; m++) {
+            let m2 = 2 * m;
+            let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+            d = 1.0 + aa * d;
+            if (Math.abs(d) < FPMIN) d = FPMIN;
+            c = 1.0 + aa / c;
+            if (Math.abs(c) < FPMIN) c = FPMIN;
+            d = 1.0 / d;
+            h *= d * c;
+            aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+            d = 1.0 + aa * d;
+            if (Math.abs(d) < FPMIN) d = FPMIN;
+            c = 1.0 + aa / c;
+            if (Math.abs(c) < FPMIN) c = FPMIN;
+            d = 1.0 / d;
+            let del = d * c;
+            h *= del;
+            if (Math.abs(del - 1.0) < EPS) break;
+        }
+        return h;
+    }
+
+    function betaInc(a, b, x) {
+        if (x <= 0.0) return 0.0;
+        if (x >= 1.0) return 1.0;
+        const bt = Math.exp(logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log(1.0 - x));
+        if (x < (a + 1.0) / (a + b + 2.0)) {
+            return bt * betacf(a, b, x) / a;
+        } else {
+            return 1.0 - bt * betacf(b, a, 1.0 - x) / b;
+        }
+    }
+
+    function fDistPValue(F, df1, df2) {
+        if (F <= 0 || !isFinite(F)) return 1.0;
+        const x = df2 / (df2 + df1 * F);
+        return betaInc(df2 / 2.0, df1 / 2.0, x);
+    }
+
+    function fDistPDF(x, df1, df2) {
+        if (x <= 0) return 0;
+        const d1 = df1 / 2, d2 = df2 / 2;
+        const logNum = d1 * Math.log(df1) + d2 * Math.log(df2) + (d1 - 1) * Math.log(x);
+        const logDen = (d1 + d2) * Math.log(df1 * x + df2) + logGamma(d1) + logGamma(d2) - logGamma(d1 + d2);
+        return Math.exp(logNum - logDen);
+    }
+
+    // Generate fresh underlying standard normal N(0,1) draws
+    function drawFreshNormals() {
+        state.baseZ = [];
+        for (let g = 0; g < 3; g++) {
+            const groupZ = [];
+            for (let i = 0; i < MAX_N; i++) {
+                groupZ.push(randn());
+            }
+            state.baseZ.push(groupZ);
+        }
+
+        state.mcBaseZ = [];
+        for (let r = 0; r < MC_RUNS; r++) {
+            const runZ = [];
+            for (let g = 0; g < 3; g++) {
+                const groupZ = [];
+                for (let i = 0; i < MAX_N; i++) {
+                    groupZ.push(randn());
+                }
+                runZ.push(groupZ);
+            }
+            state.mcBaseZ.push(runZ);
+        }
+    }
+
+    // Transform a fixed 3-group array of standard normal draws using given rho and current slider parameters
+    function transformNormalsToDataset(sourceZ, overrideRho = null) {
+        const activeRho = overrideRho !== null ? overrideRho : state.rho;
+        const sizes = state.unbalanced ? [45, 25, 8] : [25, 25, 25];
+        const baseSD = 8.0;
+        const sds = [
+            baseSD,
+            baseSD * (1 + (state.varRatio - 1) * 0.45),
+            baseSD * state.varRatio
+        ];
+
+        const k = state.skew * 0.48;
+        const expMean = k > 0 ? exactCappedExpMean(k, -3.0, 2.85) : 0;
+        const effectiveScale = k > 0 ? Math.sqrt(Math.exp(k * k) - 1) * Math.exp(0.18 * k * k) : 1;
+
+        const groups = [];
+        for (let g = 0; g < 3; g++) {
+            const n = sizes[g];
+            const sd = sds[g];
+            const raw = [];
+            let prevError = sourceZ[g][0];
+
+            for (let i = 0; i < n; i++) {
+                let z = sourceZ[g][i];
+
+                // Apply AR(1) serial correlation / clustering if activeRho > 0
+                if (activeRho > 0) {
+                    if (i === 0) {
+                        prevError = z;
+                    } else {
+                        prevError = activeRho * prevError + Math.sqrt(1 - activeRho * activeRho) * z;
+                    }
+                    z = prevError;
+                }
+
+                // Apply Skewness / Heavy-tailed transformation if skew > 0
+                if (k > 0) {
+                    const cappedZ = Math.min(2.85, Math.max(-3.0, z));
+                    z = (Math.exp(k * cappedZ) - expMean) / effectiveScale;
+                }
+
+                raw.push(50 + z * sd);
+            }
+            groups.push(raw);
+        }
+        return groups;
+    }
+
+    function generateDataset() {
+        if (state.baseZ.length === 0) drawFreshNormals();
+        // Compute exact baseline dataset & ANOVA of this sample at rho = 0 so we can compare
+        // current sample MS_B and MS_W directly against their rho = 0 baseline values
+        const independentGroups = transformNormalsToDataset(state.baseZ, 0.0);
+        state.baselineMeans = independentGroups.map(arr => arr.reduce((a, b) => a + b, 0) / arr.length);
+        state.baselineAnova = computeANOVA(independentGroups);
+        return transformNormalsToDataset(state.baseZ, state.rho);
+    }
+
+    // --- One-Way ANOVA Solver ---
+    function findFCrit(df1, df2, alpha = 0.05) {
+        let low = 0.5, high = 20.0;
+        for (let i = 0; i < 35; i++) {
+            const mid = (low + high) / 2;
+            if (fDistPValue(mid, df1, df2) > alpha) {
+                low = mid;
+            } else {
+                high = mid;
+            }
+        }
+        return (low + high) / 2;
+    }
+
+    function computeANOVA(groups) {
+        const k = groups.length;
+        let N = 0;
+        let grandSum = 0;
+        const groupMeans = [];
+        const groupSDs = [];
+
+        for (let g = 0; g < k; g++) {
+            const arr = groups[g];
+            const n = arr.length;
+            N += n;
+            const sum = arr.reduce((a, b) => a + b, 0);
+            grandSum += sum;
+            const mean = sum / n;
+            groupMeans.push(mean);
+
+            const ss = arr.reduce((acc, v) => acc + (v - mean) ** 2, 0);
+            groupSDs.push(Math.sqrt(ss / Math.max(1, n - 1)));
+        }
+
+        const grandMean = grandSum / N;
+        let ssBetween = 0;
+        let ssWithin = 0;
+        const residuals = [];
+
+        for (let g = 0; g < k; g++) {
+            const arr = groups[g];
+            const mean = groupMeans[g];
+            ssBetween += arr.length * (mean - grandMean) ** 2;
+            for (let i = 0; i < arr.length; i++) {
+                const r = arr[i] - mean;
+                ssWithin += r * r;
+                residuals.push({ group: g, index: i, val: r, raw: arr[i], groupMean: mean });
+            }
+        }
+
+        const df1 = k - 1;
+        const df2 = N - k;
+        const msBetween = ssBetween / df1;
+        const msWithin = ssWithin / df2;
+        const F = msWithin > 0 ? msBetween / msWithin : 0;
+        const p = fDistPValue(F, df1, df2);
+
+        return { F, p, df1, df2, ssBetween, ssWithin, msBetween, msWithin, groupMeans, groupSDs, grandMean, residuals };
+    }
+
+    // --- Monte Carlo Engine ---
+    function runMonteCarlo() {
+        if (state.mcBaseZ.length === 0) drawFreshNormals();
+        const fValues = [];
+        let falsePositives = 0;
+
+        const df1 = 2;
+        const totalN = state.unbalanced ? 78 : 75;
+        const df2 = totalN - 3;
+        const fCrit = findFCrit(df1, df2, 0.05);
+
+        for (let r = 0; r < MC_RUNS; r++) {
+            const simGroups = transformNormalsToDataset(state.mcBaseZ[r]);
+            const res = computeANOVA(simGroups);
+            fValues.push(res.F);
+            if (res.p < 0.05) falsePositives++;
+        }
+
+        state.mcSim = {
+            fValues,
+            type1Rate: (falsePositives / MC_RUNS) * 100,
+            fCrit,
+            df1,
+            df2
+        };
+    }
+
+    // --- Canvas Rendering Utilities ---
+    function setupCanvas(canvas) {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const width = Math.max(1, rect.width);
+        const height = Math.max(1, rect.height);
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx, w: width, h: height };
+    }
+
+    // Helper to draw a vertical arrow with arrowhead for Mean Drift on Plot 1
+    function drawVerticalArrow(ctx, x, yStart, yEnd, color) {
+        const diff = yEnd - yStart;
+        if (Math.abs(diff) < 2.5) return;
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, yStart);
+        ctx.lineTo(x, yEnd);
+        ctx.stroke();
+
+        const dir = diff > 0 ? 1 : -1;
+        const headLen = Math.min(6, Math.abs(diff) * 0.45);
+        ctx.beginPath();
+        ctx.moveTo(x, yEnd);
+        ctx.lineTo(x - 4, yEnd - dir * headLen);
+        ctx.lineTo(x + 4, yEnd - dir * headLen);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // 1. Render Group Distributions (Plot 1)
+    function renderGroupsPlot() {
+        const canvas = document.getElementById('canvasGroups');
+        const { ctx, w, h } = setupCanvas(canvas);
+        ctx.clearRect(0, 0, w, h);
+
+        const pad = { top: 28, right: 24, bottom: 38, left: 48 };
+        const pw = w - pad.left - pad.right;
+        const ph = h - pad.top - pad.bottom;
+
+        const allVals = state.groups.flat();
+        const minVal = Math.min(22, ...allVals) - 3;
+        const maxVal = Math.max(78, ...allVals) + 3;
+        const yRange = maxVal - minVal || 1;
+        const yToPx = (v) => pad.top + ph - ((v - minVal) / yRange) * ph;
+
+        // Y-Axis Gridlines & Tick Labels
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1;
+        const ticks = 5;
+        ctx.fillStyle = '#64748b';
+        ctx.font = '10px JetBrains Mono';
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= ticks; i++) {
+            const v = minVal + (yRange * i) / ticks;
+            const y = yToPx(v);
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y);
+            ctx.lineTo(w - pad.right, y);
+            ctx.stroke();
+            ctx.fillText(v.toFixed(0), pad.left - 6, y + 3);
+        }
+
+        // Rotated Y-Axis Title Label
+        ctx.save();
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px Inter';
+        ctx.translate(14, pad.top + ph / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center';
+        ctx.fillText('Observed Response Value (y)', 0, 0);
+        ctx.restore();
+
+        const y50 = yToPx(50);
+
+        // On Assumption 3, draw the Expected Independent Mean Sampling Band (50 ± 1 SE = 50 ± 1.6)
+        // so students see that small deviations at rho = 0 are normal sampling noise, NOT a violation!
+        if (state.activeTab === 'independence') {
+            const indepSE = 8.0 / Math.sqrt(25); // 1.60
+            const yBandTop = yToPx(50 + indepSE);
+            const yBandBot = yToPx(50 - indepSE);
+            ctx.save();
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.09)';
+            ctx.fillRect(pad.left, yBandTop, pw, Math.max(2, yBandBot - yBandTop));
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.28)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([2, 3]);
+            ctx.beginPath();
+            ctx.moveTo(pad.left, yBandTop);
+            ctx.lineTo(w - pad.right, yBandTop);
+            ctx.moveTo(pad.left, yBandBot);
+            ctx.lineTo(w - pad.right, yBandBot);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // True Population Mean Reference Line (y = 50) & Label
+        ctx.save();
+        ctx.strokeStyle = '#475569';
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y50);
+        ctx.lineTo(w - pad.right, y50);
+        ctx.stroke();
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '500 9px JetBrains Mono';
+        ctx.textAlign = 'right';
+        ctx.fillText(state.activeTab === 'independence' ? 'Null μ=50 (±1 SE band)' : 'Null μ = 50', w - pad.right - 4, y50 - 4);
+        ctx.restore();
+
+        const colors = ['#38bdf8', '#818cf8', '#fbbf24'];
+        const labels = ['Group A', 'Group B', 'Group C'];
+        const trueSD = 8.0;
+
+        for (let g = 0; g < 3; g++) {
+            const cx = pad.left + (pw * (g + 0.5)) / 3;
+            const arr = state.groups[g];
+            const mean = state.anovaResult.groupMeans[g];
+            const baseMean = state.baselineMeans[g] !== undefined ? state.baselineMeans[g] : mean;
+            const sd = state.anovaResult.groupSDs[g];
+
+            // #2 Decomposition Callout: Draw Dashed Ghost Box around each group mean showing True Population +/- 1 SD (+/- 8.0)
+            if (state.activeTab === 'independence') {
+                const yGhostTop = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean + trueSD)));
+                const yGhostBot = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean - trueSD)));
+                ctx.save();
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.55)';
+                ctx.fillStyle = 'rgba(148, 163, 184, 0.05)';
+                ctx.lineWidth = 1.25;
+                ctx.setLineDash([3, 3]);
+                ctx.fillRect(cx - 31, yGhostTop, 62, Math.max(2, yGhostBot - yGhostTop));
+                ctx.strokeRect(cx - 31, yGhostTop, 62, Math.max(2, yGhostBot - yGhostTop));
+                ctx.restore();
+            }
+
+            // Draw Solid Empirical +/- 1 SD box
+            const yTop = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean + sd)));
+            const yBot = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean - sd)));
+            ctx.fillStyle = colors[g] + '22';
+            ctx.strokeStyle = colors[g] + '88';
+            ctx.lineWidth = 1.2;
+            ctx.fillRect(cx - 25, yTop, 50, Math.max(2, yBot - yTop));
+            ctx.strokeRect(cx - 25, yTop, 50, Math.max(2, yBot - yTop));
+
+            // On Assumption 3 when rho > 0, draw a subtle ghost tick showing where this group's mean was at rho = 0
+            const yBaseMean = Math.max(pad.top, Math.min(pad.top + ph, yToPx(baseMean)));
+            const yMean = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean)));
+
+            if (state.activeTab === 'independence' && state.rho > 0) {
+                ctx.save();
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.65)';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([2, 2]);
+                ctx.beginPath();
+                ctx.moveTo(cx - 28, yBaseMean);
+                ctx.lineTo(cx + 38, yBaseMean);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // Draw Current Sample Mean Horizontal Bar
+            ctx.strokeStyle = colors[g];
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(cx - 30, yMean);
+            ctx.lineTo(cx + 30, yMean);
+            ctx.stroke();
+
+            // #2 Decomposition Callout (Statistically Exact):
+            // Only draw the Red Drift Arrow when rho > 0, and anchor it from the group's rho = 0 baseline mean (yBaseMean)
+            // to the current correlated mean (yMean), so at rho = 0 there are NO false red arrows!
+            if (state.activeTab === 'independence') {
+                const arrowX = cx + 35;
+                if (state.rho > 0) {
+                    const rhoDrift = mean - baseMean;
+                    drawVerticalArrow(ctx, arrowX, yBaseMean, yMean, '#f43f5e');
+                    if (Math.abs(rhoDrift) >= 0.8) {
+                        ctx.save();
+                        ctx.fillStyle = '#fda4af';
+                        ctx.font = '600 9px JetBrains Mono';
+                        ctx.textAlign = 'left';
+                        const labelY = (yBaseMean + yMean) / 2 + 3;
+                        ctx.fillText(`${rhoDrift > 0 ? '+' : ''}${rhoDrift.toFixed(1)}`, arrowX + 4, labelY);
+                        ctx.restore();
+                    }
+                } else {
+                    // At rho = 0, show a subtle slate tick/stem from 50 to baseMean to represent normal sampling noise
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(arrowX, y50);
+                    ctx.lineTo(arrowX, yBaseMean);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+
+            // Draw Individual Jittered Points
+            ctx.fillStyle = colors[g];
+            for (let i = 0; i < arr.length; i++) {
+                const jitter = pseudoOffset(i * 12.9898 + g * 78.233) * 34;
+                const px = cx + jitter;
+                const py = Math.max(pad.top + 3, Math.min(pad.top + ph - 3, yToPx(arr[i])));
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Group X-Axis Label & Mean/SD Subtext
+            ctx.fillStyle = '#cbd5e1';
+            ctx.font = '600 11px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${labels[g]} (n=${arr.length})`, cx, h - 20);
+
+            ctx.fillStyle = '#64748b';
+            ctx.font = '10px JetBrains Mono';
+            if (state.activeTab === 'independence') {
+                ctx.fillText(`ȳ=${mean.toFixed(1)} | s=${sd.toFixed(1)}`, cx, h - 7);
+            } else {
+                ctx.fillText(`ȳ = ${mean.toFixed(1)}`, cx, h - 7);
+            }
+        }
+
+        // Legend callout inside top-left of Plot 1 when Assumption 3 is active
+        if (state.activeTab === 'independence') {
+            ctx.save();
+            ctx.font = '500 9px JetBrains Mono';
+            ctx.textAlign = 'left';
+            if (state.rho === 0) {
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillText('▪ ρ = 0: Means fluctuate within normal ±1 SE (±1.6) sampling band', pad.left + 6, 12);
+            } else {
+                ctx.fillStyle = '#fda4af';
+                ctx.fillText('↕ Red Arrow: Excess ρ-Induced Mean Drift beyond ρ=0 baseline (MS_B ↑)', pad.left + 6, 12);
+            }
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText('▫ Dashed Ghost Box: True ±1σ (±8.0) vs Solid ±1s (MS_Within ↓)', pad.left + 6, 23);
+            ctx.restore();
+        }
+    }
+
+    // 2. Render Active Assumption Diagnostic Plot (Plot 2)
+    function renderDiagnosticPlot() {
+        const canvas = document.getElementById('canvasDiagnostic');
+        const { ctx, w, h } = setupCanvas(canvas);
+        ctx.clearRect(0, 0, w, h);
+
+        const pad = { top: 22, right: 24, bottom: 38, left: 48 };
+        const pw = w - pad.left - pad.right;
+        const ph = h - pad.top - pad.bottom;
+
+        const residuals = state.anovaResult.residuals;
+        const colors = ['#38bdf8', '#818cf8', '#fbbf24'];
+
+        if (state.activeTab === 'normality') {
+            const minQ = -3.2, maxQ = 3.2;
+            const xToPx = (q) => pad.left + ((q - minQ) / (maxQ - minQ)) * pw;
+            const yToPx = (q) => pad.top + ph - ((q - minQ) / (maxQ - minQ)) * ph;
+
+            // Grid & Zero Axes
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(pad.left, yToPx(0));
+            ctx.lineTo(w - pad.right, yToPx(0));
+            ctx.moveTo(xToPx(0), pad.top);
+            ctx.lineTo(xToPx(0), h - pad.bottom);
+            ctx.stroke();
+
+            // Y-axis ticks
+            ctx.fillStyle = '#64748b';
+            ctx.font = '10px JetBrains Mono';
+            ctx.textAlign = 'right';
+            [-2, 0, 2].forEach(qTick => {
+                ctx.fillText(qTick.toFixed(0), pad.left - 6, yToPx(qTick) + 3);
+            });
+
+            // X-axis ticks
+            ctx.textAlign = 'center';
+            [-2, 0, 2].forEach(qTick => {
+                ctx.fillText(qTick.toFixed(0), xToPx(qTick), h - pad.bottom + 14);
+            });
+
+            // 45-degree ideal normality line
+            ctx.save();
+            ctx.strokeStyle = '#f43f5e';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 4]);
+            ctx.beginPath();
+            ctx.moveTo(xToPx(-2.8), yToPx(-2.8));
+            ctx.lineTo(xToPx(2.8), yToPx(2.8));
+            ctx.stroke();
+
+            ctx.fillStyle = '#f43f5e';
+            ctx.font = '500 9px JetBrains Mono';
+            ctx.textAlign = 'left';
+            ctx.fillText('Ideal Normal (y = x)', xToPx(0.8), yToPx(1.85));
+            ctx.restore();
+
+            if (state.qqMode === 'pooled') {
+                const sorted = [...residuals].sort((a, b) => a.val - b.val);
+                const N = sorted.length;
+                const pooledSD = Math.sqrt(state.anovaResult.msWithin) || 1;
+
+                for (let i = 0; i < N; i++) {
+                    const p = (i + 0.5) / N;
+                    const theoQ = normInv(p);
+                    const empQ = Math.max(minQ, Math.min(maxQ, sorted[i].val / pooledSD));
+                    ctx.fillStyle = colors[sorted[i].group];
+                    ctx.beginPath();
+                    ctx.arc(xToPx(theoQ), yToPx(empQ), 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            } else {
+                for (let g = 0; g < 3; g++) {
+                    const groupRes = residuals.filter(r => r.group === g).sort((a, b) => a.val - b.val);
+                    const n = groupRes.length;
+                    const gSD = state.anovaResult.groupSDs[g] || 1;
+                    ctx.strokeStyle = colors[g] + '88';
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath();
+                    for (let i = 0; i < n; i++) {
+                        const p = (i + 0.5) / n;
+                        const theoQ = normInv(p);
+                        const empQ = Math.max(minQ, Math.min(maxQ, groupRes[i].val / gSD));
+                        const px = xToPx(theoQ);
+                        const py = yToPx(empQ);
+                        if (i === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.stroke();
+
+                    for (let i = 0; i < n; i++) {
+                        const p = (i + 0.5) / n;
+                        const theoQ = normInv(p);
+                        const empQ = Math.max(minQ, Math.min(maxQ, groupRes[i].val / gSD));
+                        ctx.fillStyle = colors[g];
+                        ctx.beginPath();
+                        ctx.arc(xToPx(theoQ), yToPx(empQ), 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            // Axis Title Labels
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'center';
+            const xTitle = state.qqMode === 'pooled'
+                ? 'Theoretical Normal Quantiles (Z) [Pooled N]'
+                : 'Theoretical Normal Quantiles (Z) [By Group]';
+            ctx.fillText(xTitle, pad.left + pw / 2, h - 7);
+
+            ctx.save();
+            ctx.translate(14, pad.top + ph / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Standardized Residuals (e / s)', 0, 0);
+            ctx.restore();
+
+        } else if (state.activeTab === 'homoscedasticity') {
+            // Absolute Residuals & Group SD Funnel Plot
+            const absRes = residuals.map(r => Math.abs(r.val));
+            const maxR = Math.max(25, ...absRes, ...state.anovaResult.groupSDs) * 1.12;
+            const yToPx = (v) => pad.top + ph - (Math.min(maxR, Math.max(0, v)) / maxR) * ph;
+
+            // Y-axis gridlines & ticks
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            ctx.fillStyle = '#64748b';
+            ctx.font = '10px JetBrains Mono';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 4; i++) {
+                const v = (maxR * i) / 4;
+                const y = yToPx(v);
+                ctx.beginPath();
+                ctx.moveTo(pad.left, y);
+                ctx.lineTo(w - pad.right, y);
+                ctx.stroke();
+                ctx.fillText(v.toFixed(0), pad.left - 6, y + 3);
+            }
+
+            // Connect Group SDs to highlight funnel shape
+            const cxs = [0, 1, 2].map(g => pad.left + (pw * (g + 0.5)) / 3);
+            ctx.save();
+            ctx.strokeStyle = '#f43f5e';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            for (let g = 0; g < 3; g++) {
+                const sd = state.anovaResult.groupSDs[g];
+                if (g === 0) ctx.moveTo(cxs[g], yToPx(sd));
+                else ctx.lineTo(cxs[g], yToPx(sd));
+            }
+            ctx.stroke();
+
+            ctx.fillStyle = '#f43f5e';
+            ctx.font = '500 9px JetBrains Mono';
+            ctx.textAlign = 'left';
+            ctx.fillText('SD Funnel Trajectory', cxs[0] + 10, Math.max(pad.top + 10, yToPx(state.anovaResult.groupSDs[0]) - 8));
+            ctx.restore();
+
+            // Plot individual |residual| points and SD markers
+            for (let g = 0; g < 3; g++) {
+                const groupRes = residuals.filter(r => r.group === g);
+                ctx.fillStyle = colors[g];
+                groupRes.forEach((r, idx) => {
+                    const jitter = pseudoOffset(idx * 91.7 + g * 13.3) * 28;
+                    ctx.beginPath();
+                    ctx.arc(cxs[g] + jitter, yToPx(Math.abs(r.val)), 3, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Draw Group SD Badge
+                const sd = state.anovaResult.groupSDs[g];
+                ctx.fillStyle = '#f43f5e';
+                ctx.beginPath();
+                ctx.arc(cxs[g], yToPx(sd), 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Group X-Axis Label & SD Subtext
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '600 11px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Group ${String.fromCharCode(65 + g)}`, cxs[g], h - 20);
+
+                ctx.fillStyle = '#fda4af';
+                ctx.font = '10px JetBrains Mono';
+                ctx.fillText(`SD = ${sd.toFixed(1)}`, cxs[g], h - 7);
+            }
+
+            // Axis Title Label
+            ctx.save();
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px Inter';
+            ctx.translate(14, pad.top + ph / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText('Absolute Residual |e| & Group SD', 0, 0);
+            ctx.restore();
+
+        } else {
+            // Assumption 3: Independence (Sequence Mode vs Lag-1 Scatter Mode)
+            if (state.indMode === 'lag') {
+                // Lag-1 Scatter Plot: Current error (y_{g,i} - 50) vs Previous error (y_{g,i-1} - 50)
+                const pairs = [];
+                for (let g = 0; g < 3; g++) {
+                    const arr = state.groups[g];
+                    for (let i = 1; i < arr.length; i++) {
+                        pairs.push({
+                            group: g,
+                            prev: arr[i - 1] - 50,
+                            curr: arr[i] - 50
+                        });
+                    }
+                }
+
+                const allDevs = pairs.flatMap(p => [Math.abs(p.prev), Math.abs(p.curr)]);
+                const maxLim = Math.max(20, ...allDevs) * 1.1;
+                const xToPx = (v) => pad.left + ((v + maxLim) / (2 * maxLim)) * pw;
+                const yToPx = (v) => pad.top + ph - ((v + maxLim) / (2 * maxLim)) * ph;
+
+                // Zero crosshairs
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(pad.left, yToPx(0));
+                ctx.lineTo(w - pad.right, yToPx(0));
+                ctx.moveTo(xToPx(0), pad.top);
+                ctx.lineTo(xToPx(0), h - pad.bottom);
+                ctx.stroke();
+
+                // Axis ticks
+                const tickVal = Math.round(maxLim * 0.65);
+                ctx.fillStyle = '#64748b';
+                ctx.font = '10px JetBrains Mono';
+                ctx.textAlign = 'right';
+                [-tickVal, 0, tickVal].forEach(t => {
+                    ctx.fillText((t > 0 ? '+' : '') + t, pad.left - 6, yToPx(t) + 3);
+                });
+                ctx.textAlign = 'center';
+                [-tickVal, 0, tickVal].forEach(t => {
+                    ctx.fillText((t > 0 ? '+' : '') + t, xToPx(t), h - pad.bottom + 13);
+                });
+
+                // Compute OLS slope & empirical lag-1 correlation r
+                const meanX = pairs.reduce((s, p) => s + p.prev, 0) / pairs.length;
+                const meanY = pairs.reduce((s, p) => s + p.curr, 0) / pairs.length;
+                let sxy = 0, sxx = 0, syy = 0;
+                pairs.forEach(p => {
+                    const dx = p.prev - meanX;
+                    const dy = p.curr - meanY;
+                    sxy += dx * dy;
+                    sxx += dx * dx;
+                    syy += dy * dy;
+                });
+                const rEmp = (sxx > 0 && syy > 0) ? sxy / Math.sqrt(sxx * syy) : 0;
+                const slope = sxx > 0 ? sxy / sxx : 0;
+                const intercept = meanY - slope * meanX;
+
+                // Draw regression line
+                ctx.save();
+                ctx.strokeStyle = '#f43f5e';
+                ctx.lineWidth = 1.8;
+                ctx.setLineDash([5, 4]);
+                const x1 = -maxLim * 0.85, x2 = maxLim * 0.85;
+                const y1 = Math.max(-maxLim, Math.min(maxLim, intercept + slope * x1));
+                const y2 = Math.max(-maxLim, Math.min(maxLim, intercept + slope * x2));
+                ctx.beginPath();
+                ctx.moveTo(xToPx(x1), yToPx(y1));
+                ctx.lineTo(xToPx(x2), yToPx(y2));
+                ctx.stroke();
+
+                ctx.fillStyle = '#fda4af';
+                ctx.font = '600 10px JetBrains Mono';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Empirical Lag-1 r = ${rEmp >= 0 ? '+' : ''}${rEmp.toFixed(2)}`, pad.left + 8, pad.top + 14);
+                ctx.restore();
+
+                // Draw scatter points
+                pairs.forEach(p => {
+                    ctx.fillStyle = colors[p.group];
+                    ctx.beginPath();
+                    ctx.arc(xToPx(p.prev), yToPx(p.curr), 3, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Clean Axis Labels
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '10px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('Previous Error at Step i − 1 (y − 50)', pad.left + pw / 2, h - 7);
+
+                ctx.save();
+                ctx.translate(14, pad.top + ph / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText('Current Error at Step i (y − 50)', 0, 0);
+                ctx.restore();
+
+            } else {
+                // Sequence Plot: Observation Order i = 1..n
+                const deviations = residuals.map(r => r.raw - 50);
+                const maxAbs = Math.max(18, ...deviations.map(d => Math.abs(d))) * 1.08;
+                const yToPx = (v) => pad.top + ph / 2 - (Math.max(-maxAbs, Math.min(maxAbs, v)) / maxAbs) * (ph / 2);
+
+                // Y-axis ticks
+                ctx.fillStyle = '#64748b';
+                ctx.font = '10px JetBrains Mono';
+                ctx.textAlign = 'right';
+                [-Math.round(maxAbs * 0.75), 0, Math.round(maxAbs * 0.75)].forEach(v => {
+                    ctx.fillText((v > 0 ? '+' : '') + v, pad.left - 6, yToPx(v) + 3);
+                });
+
+                // Zero reference line (True Null Mean = 50)
+                ctx.save();
+                ctx.strokeStyle = '#334155';
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(pad.left, yToPx(0));
+                ctx.lineTo(w - pad.right, yToPx(0));
+                ctx.stroke();
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '500 9px JetBrains Mono';
+                ctx.textAlign = 'right';
+                ctx.fillText('Null Zero (y − 50 = 0)', w - pad.right - 4, yToPx(0) - 4);
+                ctx.restore();
+
+                // X-axis sequence index ticks
+                const maxLen = Math.max(...state.groups.map(g => g.length));
+                ctx.fillStyle = '#64748b';
+                ctx.font = '10px JetBrains Mono';
+                ctx.textAlign = 'center';
+                [1, Math.round(maxLen / 2), maxLen].forEach(idx => {
+                    const x = pad.left + ((idx - 1) / Math.max(1, maxLen - 1)) * pw;
+                    ctx.fillText(`i=${idx}`, x, h - pad.bottom + 13);
+                });
+
+                // Plot drifted group mean bars (dashed) and sequence trajectories
+                for (let g = 0; g < 3; g++) {
+                    const groupPts = residuals.filter(r => r.group === g);
+                    const meanDrift = state.anovaResult.groupMeans[g] - 50;
+
+                    // Dashed line for group mean drift
+                    ctx.save();
+                    ctx.strokeStyle = colors[g] + '66';
+                    ctx.lineWidth = 1.2;
+                    ctx.setLineDash([3, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(pad.left, yToPx(meanDrift));
+                    ctx.lineTo(w - pad.right, yToPx(meanDrift));
+                    ctx.stroke();
+                    ctx.restore();
+
+                    // Sequence trajectory
+                    ctx.strokeStyle = colors[g];
+                    ctx.lineWidth = 1.6;
+                    ctx.beginPath();
+                    groupPts.forEach((r, i) => {
+                        const x = pad.left + (i / Math.max(1, groupPts.length - 1)) * pw;
+                        const y = yToPx(r.raw - 50);
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    });
+                    ctx.stroke();
+
+                    groupPts.forEach((r, i) => {
+                        const x = pad.left + (i / Math.max(1, groupPts.length - 1)) * pw;
+                        const y = yToPx(r.raw - 50);
+                        ctx.fillStyle = colors[g];
+                        ctx.beginPath();
+                        ctx.arc(x, y, 2.8, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                }
+
+                // Clean Axis Title Labels
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '10px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('Observation Sequence Order (i = 1, 2, ..., n)', pad.left + pw / 2, h - 7);
+
+                ctx.save();
+                ctx.translate(14, pad.top + ph / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText('Error from True Null Mean (y − 50)', 0, 0);
+                ctx.restore();
+            }
+        }
+    }
+
+    // 3. Render Monte Carlo F-Distribution & False Positives (Plot 3)
+    function renderMonteCarloPlot() {
+        const canvas = document.getElementById('canvasMonteCarlo');
+        const { ctx, w, h } = setupCanvas(canvas);
+        ctx.clearRect(0, 0, w, h);
+
+        const pad = { top: 20, right: 24, bottom: 38, left: 48 };
+        const pw = w - pad.left - pad.right;
+        const ph = h - pad.top - pad.bottom;
+
+        const maxF = 8.0;
+        const numBins = 40;
+        const binWidth = maxF / numBins;
+        const bins = new Array(numBins).fill(0);
+        let overflowCount = 0;
+
+        const { fValues, fCrit, df1, df2, type1Rate } = state.mcSim;
+        fValues.forEach(f => {
+            if (!isFinite(f) || f < 0) return;
+            if (f >= maxF) {
+                overflowCount++;
+            } else {
+                const idx = Math.min(numBins - 1, Math.floor(f / binWidth));
+                bins[idx]++;
+            }
+        });
+
+        // Fixed density ceiling so the theoretical F curve never squashes vertically
+        const densities = bins.map(count => count / (fValues.length * binWidth));
+        const maxDensity = 0.90;
+
+        const xToPx = (f) => pad.left + (f / maxF) * pw;
+        const yToPx = (d) => pad.top + ph - (Math.max(0, Math.min(maxDensity, d)) / maxDensity) * ph;
+
+        // Y-Axis Density Ticks & Gridlines
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1;
+        ctx.fillStyle = '#64748b';
+        ctx.font = '10px JetBrains Mono';
+        ctx.textAlign = 'right';
+        [0.2, 0.4, 0.6, 0.8].forEach(d => {
+            const y = yToPx(d);
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y);
+            ctx.lineTo(w - pad.right, y);
+            ctx.stroke();
+            ctx.fillText(d.toFixed(1), pad.left - 6, y + 3);
+        });
+
+        // Rotated Y-Axis Title Label
+        ctx.save();
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px Inter';
+        ctx.translate(14, pad.top + ph / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center';
+        ctx.fillText('Sampling Probability Density f(F)', 0, 0);
+        ctx.restore();
+
+        // Draw Empirical Histogram Bars for [0, 8)
+        for (let b = 0; b < numBins; b++) {
+            const fStart = b * binWidth;
+            const fMid = fStart + binWidth / 2;
+            const x = xToPx(fStart);
+            const bw = (binWidth / maxF) * pw - 1;
+            const y = yToPx(densities[b]);
+            const bh = Math.max(0, pad.top + ph - y);
+
+            const isReject = fMid >= fCrit;
+            ctx.fillStyle = isReject ? 'rgba(244, 63, 94, 0.65)' : 'rgba(56, 189, 248, 0.35)';
+            ctx.strokeStyle = isReject ? '#f43f5e' : '#38bdf8';
+            ctx.lineWidth = 1;
+            ctx.fillRect(x, y, Math.max(1, bw), bh);
+            ctx.strokeRect(x, y, Math.max(1, bw), bh);
+        }
+
+        // Dedicated Overflow Column at 8+ if any experiments produced F >= 8
+        const overflowPct = (overflowCount / fValues.length) * 100;
+        if (overflowCount > 0) {
+            const bw = (binWidth / maxF) * pw + 2;
+            const x = w - pad.right - bw;
+            const overflowHeightRatio = Math.min(0.95, overflowPct / 50);
+            const bh = Math.max(6, overflowHeightRatio * ph);
+            const y = pad.top + ph - bh;
+
+            ctx.fillStyle = 'rgba(225, 29, 72, 0.85)';
+            ctx.strokeStyle = '#fda4af';
+            ctx.lineWidth = 1.5;
+            ctx.fillRect(x, y, bw, bh);
+            ctx.strokeRect(x, y, bw, bh);
+
+            if (overflowPct >= 1.0) {
+                ctx.fillStyle = '#fecdd3';
+                ctx.font = '600 9px JetBrains Mono';
+                ctx.textAlign = 'right';
+                ctx.fillText(`${overflowPct.toFixed(0)}% ≥ 8`, w - pad.right - 2, Math.max(pad.top + 42, y - 5));
+            }
+        }
+
+        // Draw Theoretical F(df1, df2) PDF Curve
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        for (let px = 0; px <= pw; px += 3) {
+            const fVal = (px / pw) * maxF;
+            const dens = fDistPDF(Math.max(0.02, fVal), df1, df2);
+            const y = yToPx(dens);
+            if (px === 0) ctx.moveTo(pad.left + px, y);
+            else ctx.lineTo(pad.left + px, y);
+        }
+        ctx.stroke();
+
+        // Draw Critical F Threshold Line
+        const xCrit = xToPx(fCrit);
+        ctx.save();
+        ctx.strokeStyle = '#f43f5e';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(xCrit, pad.top);
+        ctx.lineTo(xCrit, pad.top + ph);
+        ctx.stroke();
+        ctx.restore();
+
+        // Annotate Critical Threshold & Type I Error Rate
+        ctx.fillStyle = '#fda4af';
+        ctx.font = '600 11px JetBrains Mono';
+        const label1 = `F_crit = ${fCrit.toFixed(2)} (α = 5%)`;
+        const label2 = `Observed False Positives: ${type1Rate.toFixed(1)}%`;
+        const maxLabelWidth = Math.max(ctx.measureText(label1).width, ctx.measureText(label2).width);
+        if (xCrit + 8 + maxLabelWidth < w - pad.right) {
+            ctx.textAlign = 'left';
+            ctx.fillText(label1, xCrit + 6, pad.top + 14);
+            ctx.fillText(label2, xCrit + 6, pad.top + 30);
+        } else {
+            ctx.textAlign = 'right';
+            ctx.fillText(label1, w - pad.right - 4, pad.top + 14);
+            ctx.fillText(label2, w - pad.right - 4, pad.top + 30);
+        }
+
+        // Draw Current Sample F Marker & Annotation
+        if (state.anovaResult) {
+            const sampleF = Math.max(0, Math.min(maxF - 0.05, state.anovaResult.F));
+            const xSample = xToPx(sampleF);
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(xSample, pad.top + ph - 24);
+            ctx.lineTo(xSample, pad.top + ph);
+            ctx.stroke();
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(xSample, pad.top + ph - 24, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#7dd3fc';
+            ctx.font = '600 9px JetBrains Mono';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Sample F=${state.anovaResult.F.toFixed(2)}`, Math.max(pad.left + 35, Math.min(w - pad.right - 35, xSample)), pad.top + ph - 29);
+        }
+
+        // X-axis ticks
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px JetBrains Mono';
+        ctx.textAlign = 'center';
+        for (let f = 0; f <= maxF; f += 1) {
+            ctx.fillText(f === maxF ? '8+' : f.toString(), xToPx(f), h - 20);
+        }
+
+        // X-Axis Title Label
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('F-Statistic (MS Between / MS Within) under True Null Hypothesis [df₁ = 2, df₂ = N − 3]', pad.left + pw / 2, h - 6);
+    }
+
+    // --- UI Synchronization ---
+    function updateUI() {
+        const pageIdx = pageOrder.indexOf(state.activeTab);
+        const info = eduContent[state.activeTab];
+
+        // Update Assumption Header & Navigation Controls
+        document.getElementById('pageStepPill').textContent = `ASSUMPTION ${info.pageNum} OF 3`;
+        document.getElementById('pageHeaderTitle').textContent = info.pageTitle;
+        document.getElementById('controlPanelTitle').textContent = info.controlTitle;
+        document.getElementById('bottomPageIndicator').textContent = `Viewing Assumption ${info.pageNum} of 3: ${info.pageTitle}`;
+
+        const isFirst = pageIdx === 0;
+        const isLast = pageIdx === pageOrder.length - 1;
+        document.getElementById('btnPrevPage').disabled = isFirst;
+        document.getElementById('btnPrevPageBottom').disabled = isFirst;
+        document.getElementById('btnNextPage').disabled = isLast;
+        document.getElementById('btnNextPageBottom').disabled = isLast;
+
+        // Show only the active assumption's control panel
+        pageOrder.forEach(tab => {
+            const panel = document.getElementById(`page-controls-${tab}`);
+            if (panel) panel.classList.toggle('hidden', tab !== state.activeTab);
+        });
+
+        // Update Plot 1 subtitle when Assumption 3 is active
+        const plot1Sub = document.getElementById('plot1Subtitle');
+        if (plot1Sub) {
+            if (state.activeTab === 'independence') {
+                plot1Sub.innerHTML = 'Shaded band: &plusmn;1 SE (&rho;=0); Red arrows: excess &rho;-drift (<span class="mono">MS<sub>B</sub>&uarr;</span>); Ghost box: true &plusmn;1&sigma; (<span class="mono">MS<sub>W</sub>&darr;</span>)';
+            } else {
+                plot1Sub.textContent = 'Jittered points, group means (bars), and ±1 SD boxes';
+            }
+        }
+
+        // Update slider labels
+        document.getElementById('val-skew').textContent = state.skew === 0 ? '0.0 (Normal)' : `${state.skew.toFixed(1)} (Skewed)`;
+        document.getElementById('val-varRatio').textContent = state.varRatio === 1 ? '1.0x (Equal)' : `${state.varRatio.toFixed(1)}x Spread`;
+        document.getElementById('val-rho').textContent = state.rho === 0 ? '0.00 (Independent)' : `ρ = ${state.rho.toFixed(2)}`;
+
+        // Update Assumption Status Badges
+        const setBadge = (id, violated, warnText) => {
+            const el = document.getElementById(id);
+            if (!violated) {
+                el.textContent = 'Holds';
+                el.className = 'px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium';
+            } else {
+                el.textContent = warnText;
+                el.className = 'px-2 py-0.5 text-[11px] rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium';
+            }
+        };
+        setBadge('badge-normality', state.skew >= 0.5, 'Violated');
+        setBadge('badge-homoscedasticity', state.varRatio >= 1.6, 'Violated');
+        setBadge('badge-independence', state.rho >= 0.15, 'Violated');
+
+        // Update Tab Styling & Diagnostic Headers
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('tab-active', btn.dataset.tab === state.activeTab);
+        });
+
+        // Show Pooled vs By-Group toggle on Assumption 1, Sequence vs Lag-1 toggle on Assumption 3,
+        // and only show the static diagBadge on Assumption 2 where there are no toggle buttons
+        const qqToggle = document.getElementById('qqModeToggle');
+        if (qqToggle) {
+            qqToggle.classList.toggle('hidden', state.activeTab !== 'normality');
+        }
+        const indToggle = document.getElementById('indModeToggle');
+        if (indToggle) {
+            indToggle.classList.toggle('hidden', state.activeTab !== 'independence');
+        }
+        const diagBadgeEl = document.getElementById('diagBadge');
+        if (diagBadgeEl) {
+            diagBadgeEl.textContent = info.diagBadge;
+            diagBadgeEl.classList.toggle('hidden', state.activeTab !== 'homoscedasticity');
+            diagBadgeEl.classList.toggle('inline-block', state.activeTab === 'homoscedasticity');
+        }
+
+        document.getElementById('diagTitle').textContent = info.diagTitle;
+        if (state.activeTab === 'independence') {
+            document.getElementById('diagSubtitle').innerHTML = state.indMode === 'lag'
+                ? 'Positive slope shows error <span class="mono">e<sub>i</sub></span> inheriting previous error <span class="mono">e<sub>i&minus;1</sub></span>'
+                : info.diagSubtitle;
+        } else {
+            document.getElementById('diagSubtitle').innerHTML = info.diagSubtitle;
+        }
+
+        // Update Educational Cards
+        document.getElementById('eduProblem').innerHTML = info.problem;
+        document.getElementById('eduDetect').innerHTML = info.detect;
+        document.getElementById('eduRemedy').innerHTML = info.remedy;
+
+        // Update Current Sample ANOVA Readouts
+        if (state.anovaResult) {
+            const { F, p, ssWithin, msBetween, msWithin } = state.anovaResult;
+            document.getElementById('stat-f').textContent = F.toFixed(2);
+            document.getElementById('stat-p').textContent = p < 0.001 ? '< 0.001' : p.toFixed(3);
+
+            const sswEl = document.getElementById('stat-ssw');
+            const mswEl = document.getElementById('stat-msw');
+            if (sswEl) sswEl.textContent = ssWithin.toFixed(1);
+            if (mswEl) mswEl.textContent = msWithin.toFixed(2);
+
+            // #1: Update F-Ratio Panel on Assumption 3 using a Shared Visual Scale (300)
+            // and Current Sample Multipliers relative to the sample's rho = 0 baseline
+            const sharedScaleMax = 300;
+            const baseMSB = state.baselineAnova ? Math.max(0.1, state.baselineAnova.msBetween) : msBetween;
+            const baseMSW = state.baselineAnova ? Math.max(0.1, state.baselineAnova.msWithin) : msWithin;
+
+            const sampleMsbMult = msBetween / baseMSB;
+            const sampleMswMult = msWithin / baseMSW;
+
+            const msbBadge = document.getElementById('ind-msb-badge');
+            const msbBar = document.getElementById('ind-msb-bar');
+            const msbReadout = document.getElementById('ind-msb-readout');
+            const msbBaseEl = document.getElementById('ind-msb-base');
+
+            if (msbBadge && msbBar && msbReadout) {
+                msbBadge.textContent = state.rho === 0
+                    ? '1.00× Baseline (ρ=0)'
+                    : `${sampleMsbMult.toFixed(2)}× vs. ρ=0`;
+                const msbWidthPct = Math.min(100, Math.max(2, (msBetween / sharedScaleMax) * 100));
+                msbBar.style.width = `${msbWidthPct.toFixed(1)}%`;
+                msbReadout.innerHTML = `Sample MS<sub>B</sub> = ${msBetween.toFixed(1)}`;
+                if (msbBaseEl) msbBaseEl.textContent = `ρ=0 Baseline: ${baseMSB.toFixed(1)}`;
+            }
+
+            const mswBadge = document.getElementById('ind-msw-badge');
+            const mswBar = document.getElementById('ind-msw-bar');
+            const mswReadout = document.getElementById('ind-msw-readout');
+            const mswBaseEl = document.getElementById('ind-msw-base');
+
+            if (mswBadge && mswBar && mswReadout) {
+                mswBadge.textContent = state.rho === 0
+                    ? '1.00× Baseline (ρ=0)'
+                    : `${sampleMswMult.toFixed(2)}× vs. ρ=0`;
+                const mswWidthPct = Math.min(100, Math.max(2, (msWithin / sharedScaleMax) * 100));
+                mswBar.style.width = `${mswWidthPct.toFixed(1)}%`;
+                mswReadout.innerHTML = `Sample MS<sub>W</sub> = ${msWithin.toFixed(1)}`;
+                if (mswBaseEl) mswBaseEl.textContent = `ρ=0 Baseline: ${baseMSW.toFixed(1)}`;
+            }
+
+            // Sample Decision Badge
+            const decBadge = document.getElementById('sampleDecisionBadge');
+            if (p < 0.05) {
+                decBadge.innerHTML = 'Type I Error! (Rejects True H<sub>0</sub>)';
+                decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-rose-500/20 text-rose-300 border border-rose-500/30';
+            } else {
+                decBadge.innerHTML = 'Correctly Retains H<sub>0</sub>';
+                decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+            }
+        }
+
+        // Update Monte Carlo False Positive Rate
+        const type1El = document.getElementById('stat-type1');
+        const commEl = document.getElementById('stat-commentary');
+        const t1 = state.mcSim.type1Rate;
+        type1El.textContent = `${t1.toFixed(1)}%`;
+        if (t1 <= 7.0) {
+            type1El.className = 'text-base font-bold text-emerald-400 mono mt-0.5';
+            commEl.innerHTML = `False positive rate (<span class="mono text-emerald-300">${t1.toFixed(1)}%</span>) stays close to the nominal <span class="mono text-slate-300">&alpha; = 5.0%</span> threshold.`;
+        } else if (t1 <= 15.0) {
+            type1El.className = 'text-base font-bold text-amber-400 mono mt-0.5';
+            commEl.innerHTML = `Moderate distortion: <span class="mono text-amber-300">${t1.toFixed(1)}%</span> of experiments falsely reject H<sub>0</sub> (nominal <span class="mono">&alpha; = 5.0%</span>).`;
+        } else {
+            type1El.className = 'text-base font-bold text-rose-400 mono mt-0.5';
+            commEl.innerHTML = `Severe Type I Error inflation! <span class="mono text-rose-300">${t1.toFixed(1)}%</span> of random null experiments produce false positives.`;
+        }
+    }
+
+    function recomputeAndRender() {
+        state.groups = generateDataset();
+        state.anovaResult = computeANOVA(state.groups);
+        runMonteCarlo();
+        updateUI();
+        renderGroupsPlot();
+        renderDiagnosticPlot();
+        renderMonteCarloPlot();
+    }
+
+    function switchAssumptionTab(targetTab) {
+        if (!pageOrder.includes(targetTab)) return;
+        state.activeTab = targetTab;
+        updateUI();
+        renderGroupsPlot();
+        renderDiagnosticPlot();
+        renderMonteCarloPlot();
+    }
+
+    // --- Event Listeners ---
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            switchAssumptionTab(btn.dataset.tab);
+        });
+    });
+
+    const stepPage = (dir) => {
+        const idx = pageOrder.indexOf(state.activeTab);
+        const nextIdx = Math.max(0, Math.min(pageOrder.length - 1, idx + dir));
+        switchAssumptionTab(pageOrder[nextIdx]);
+    };
+
+    document.getElementById('btnPrevPage').addEventListener('click', () => stepPage(-1));
+    document.getElementById('btnNextPage').addEventListener('click', () => stepPage(1));
+    document.getElementById('btnPrevPageBottom').addEventListener('click', () => stepPage(-1));
+    document.getElementById('btnNextPageBottom').addEventListener('click', () => stepPage(1));
+
+    // Sliders & Checkboxes
+    document.getElementById('slider-skew').addEventListener('input', (e) => {
+        state.skew = parseFloat(e.target.value);
+        recomputeAndRender();
+    });
+
+    document.getElementById('slider-varRatio').addEventListener('input', (e) => {
+        state.varRatio = parseFloat(e.target.value);
+        recomputeAndRender();
+    });
+
+    document.getElementById('toggle-unbalanced').addEventListener('change', (e) => {
+        state.unbalanced = e.target.checked;
+        recomputeAndRender();
+    });
+
+    document.getElementById('slider-rho').addEventListener('input', (e) => {
+        state.rho = parseFloat(e.target.value);
+        recomputeAndRender();
+    });
+
+    // Q-Q Plot Mode Toggle (Pooled vs By Group)
+    const btnQQPooled = document.getElementById('btnQQPooled');
+    const btnQQByGroup = document.getElementById('btnQQByGroup');
+    btnQQPooled.addEventListener('click', () => {
+        state.qqMode = 'pooled';
+        btnQQPooled.className = 'px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 transition';
+        btnQQByGroup.className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition';
+        renderDiagnosticPlot();
+    });
+    btnQQByGroup.addEventListener('click', () => {
+        state.qqMode = 'byGroup';
+        btnQQByGroup.className = 'px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 transition';
+        btnQQPooled.className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition';
+        renderDiagnosticPlot();
+    });
+
+    // Independence Diagnostic Mode Toggle (Sequence vs Lag-1 Scatter)
+    const btnIndSequence = document.getElementById('btnIndSequence');
+    const btnIndLag = document.getElementById('btnIndLag');
+    btnIndSequence.addEventListener('click', () => {
+        state.indMode = 'sequence';
+        btnIndSequence.className = 'px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 transition';
+        btnIndLag.className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition';
+        updateUI();
+        renderDiagnosticPlot();
+    });
+    btnIndLag.addEventListener('click', () => {
+        state.indMode = 'lag';
+        btnIndLag.className = 'px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 transition';
+        btnIndSequence.className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition';
+        updateUI();
+        renderDiagnosticPlot();
+    });
+
+    // Quick Scenario Presets
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const p = btn.dataset.preset;
+            if (p === 'norm-ideal') {
+                state.skew = 0;
+                document.getElementById('slider-skew').value = 0;
+            } else if (p === 'norm-moderate') {
+                state.skew = 1.4;
+                document.getElementById('slider-skew').value = 1.4;
+            } else if (p === 'norm-heavy') {
+                state.skew = 2.8;
+                document.getElementById('slider-skew').value = 2.8;
+            } else if (p === 'homo-ideal') {
+                state.varRatio = 1.0;
+                state.unbalanced = false;
+                document.getElementById('slider-varRatio').value = 1.0;
+                document.getElementById('toggle-unbalanced').checked = false;
+            } else if (p === 'homo-balanced') {
+                state.varRatio = 3.6;
+                state.unbalanced = false;
+                document.getElementById('slider-varRatio').value = 3.6;
+                document.getElementById('toggle-unbalanced').checked = false;
+            } else if (p === 'homo-toxic') {
+                state.varRatio = 4.6;
+                state.unbalanced = true;
+                document.getElementById('slider-varRatio').value = 4.6;
+                document.getElementById('toggle-unbalanced').checked = true;
+            } else if (p === 'ind-ideal') {
+                state.rho = 0.0;
+                document.getElementById('slider-rho').value = 0.0;
+            } else if (p === 'ind-mild') {
+                state.rho = 0.35;
+                document.getElementById('slider-rho').value = 0.35;
+            } else if (p === 'ind-severe') {
+                state.rho = 0.75;
+                document.getElementById('slider-rho').value = 0.75;
+            }
+            recomputeAndRender();
+        });
+    });
+
+    // Draw New Sample & Reset Buttons
+    document.getElementById('btnResample').addEventListener('click', () => {
+        drawFreshNormals();
+        recomputeAndRender();
+    });
+
+    document.getElementById('btnReset').addEventListener('click', () => {
+        state.skew = 0.0;
+        state.varRatio = 1.0;
+        state.unbalanced = false;
+        state.rho = 0.0;
+        document.getElementById('slider-skew').value = 0;
+        document.getElementById('slider-varRatio').value = 1;
+        document.getElementById('toggle-unbalanced').checked = false;
+        document.getElementById('slider-rho').value = 0;
+        recomputeAndRender();
+    });
+
+    window.addEventListener('resize', () => {
+        renderGroupsPlot();
+        renderDiagnosticPlot();
+        renderMonteCarloPlot();
+    });
+
+    // Initial Boot
+    drawFreshNormals();
+    recomputeAndRender();
+</script>
+
+
+</body>
+</html>
