@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Two-Way ANOVA Omnibus Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.35rem;
+        }
+        .slider-label {
+            width: 85px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        .slider-value {
+            width: 34px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        input[type=range] {
+            flex-grow: 1;
+            margin: 0 8px;
+            cursor: pointer;
+        }
+        .math-block {
+            background-color: #f1f5f9;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.82rem;
+            overflow-x: auto;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: left;
+            padding: 6px 10px;
+            font-size: 12px;
+            background: #1e293b;
+            color: white;
+            border-radius: 6px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+        }
+        /* Group Colors */
+        .color-g1 { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; }
+        .color-g2 { background-color: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; }
+        .color-g3 { background-color: rgba(245, 158, 11, 0.08); border-left: 4px solid #f59e0b; }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+    </style>
+</head>
+<body class="p-3 md:p-6">
+
+<div class="max-w-7xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
+    <!-- Header -->
+    <div class="bg-slate-800 text-white p-5 md:p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold mb-1">Interactive Two-Way ANOVA (2 × 2 Factorial Design)</h1>
+                <p class="text-slate-300 text-sm max-w-3xl">
+                    Two-Way ANOVA simultaneously tests three hypotheses: the main effect of <strong>Factor A (Group: 1, 2)</strong>, 
+                    the main effect of <strong>Factor B (Gender: Female, Male)</strong>, and their <strong>Interaction (Group × Gender)</strong>—whether the effect of Group depends on Gender.
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-1.5 text-xs">
+                <span class="px-2.5 py-1 bg-slate-700 rounded-md border border-slate-600 font-mono">Factor A: Group (k<sub>A</sub> = 2)</span>
+                <span class="px-2.5 py-1 bg-slate-700 rounded-md border border-slate-600 font-mono">Factor B: Gender (k<sub>B</sub> = 2)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Controls & Marginal Means Table (4 cols on lg) -->
+        <div class="lg:col-span-4 space-y-5">
+            
+            <!-- Parameter Controls -->
+            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <div class="flex items-center justify-between border-b pb-2 mb-3">
+                    <h2 class="text-base font-semibold text-slate-800">Design & Cell Parameters</h2>
+                    <button id="resample-btn" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold py-1.5 px-3 rounded transition-colors shadow-sm">
+                        Resample Noise
+                    </button>
+                </div>
+
+                <!-- Scenario Presets -->
+                <div class="mb-4">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1.5">Quick Pattern Presets</span>
+                    <div class="grid grid-cols-2 gap-1.5 text-xs">
+                        <button data-preset="mainA" class="preset-btn bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 rounded py-1.5 px-2 font-medium transition">Only Group Effect</button>
+                        <button data-preset="mainAB" class="preset-btn bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 rounded py-1.5 px-2 font-medium transition">Both Main Effects</button>
+                        <button data-preset="crossover" class="preset-btn bg-white hover:bg-purple-50 text-slate-700 border border-slate-300 rounded py-1.5 px-2 font-medium transition">Crossover Interaction</button>
+                        <button data-preset="synergy" class="preset-btn bg-white hover:bg-purple-50 text-slate-700 border border-slate-300 rounded py-1.5 px-2 font-medium transition">Synergistic Interaction</button>
+                    </div>
+                </div>
+                
+                <!-- Global Cell Sample Size & Spread -->
+                <div class="mb-4 bg-slate-200/70 p-2.5 rounded border border-slate-300 space-y-1.5">
+                    <div class="slider-container">
+                        <span class="slider-label font-bold text-slate-800" title="Observations per Group × Gender cell">Cell Size (n)</span>
+                        <input type="range" id="n-size" min="3" max="10" value="4" step="1">
+                        <span class="slider-value font-bold text-slate-800" id="n-size-val">4</span>
+                    </div>
+                    <div class="slider-container">
+                        <span class="slider-label font-bold text-slate-800" title="Within-cell standard deviation">Within SD (σ)</span>
+                        <input type="range" id="s-all" min="2" max="12" value="5" step="1">
+                        <span class="slider-value font-bold text-slate-800" id="s-all-val">5</span>
+                    </div>
+                    <div class="text-[11px] text-slate-600 flex justify-between pt-0.5 border-t border-slate-300/80">
+                        <span>Total Cells: <strong>4</strong> (2 × 2)</span>
+                        <span>Total Sample (N): <strong id="total-n-label">16</strong></span>
+                    </div>
+                </div>
+
+                <!-- Group 1 Cell Means -->
+                <div class="mb-3 color-g1 p-2.5 rounded">
+                    <div class="font-bold text-sm text-blue-900 mb-1.5 flex justify-between">
+                        <span>Group 1 Means</span>
+                        <span class="text-xs font-normal text-blue-700">Blue</span>
+                    </div>
+                    <div class="slider-container">
+                        <span class="slider-label text-slate-700">● Female (μ<sub>1F</sub>)</span>
+                        <input type="range" id="m1F" min="25" max="75" value="38" step="1">
+                        <span class="slider-value text-blue-700" id="m1F-val">38</span>
+                    </div>
+                    <div class="slider-container">
+                        <span class="slider-label text-slate-700">▲ Male (μ<sub>1M</sub>)</span>
+                        <input type="range" id="m1M" min="25" max="75" value="46" step="1">
+                        <span class="slider-value text-blue-700" id="m1M-val">46</span>
+                    </div>
+                </div>
+
+                <!-- Group 2 Cell Means -->
+                <div class="mb-3 color-g2 p-2.5 rounded">
+                    <div class="font-bold text-sm text-emerald-900 mb-1.5 flex justify-between">
+                        <span>Group 2 Means</span>
+                        <span class="text-xs font-normal text-emerald-700">Green</span>
+                    </div>
+                    <div class="slider-container">
+                        <span class="slider-label text-slate-700">● Female (μ<sub>2F</sub>)</span>
+                        <input type="range" id="m2F" min="25" max="75" value="48" step="1">
+                        <span class="slider-value text-emerald-700" id="m2F-val">48</span>
+                    </div>
+                    <div class="slider-container">
+                        <span class="slider-label text-slate-700">▲ Male (μ<sub>2M</sub>)</span>
+                        <input type="range" id="m2M" min="25" max="75" value="56" step="1">
+                        <span class="slider-value text-emerald-700" id="m2M-val">56</span>
+                    </div>
+                </div>
+
+                <!-- SS Deviation Visualization Toggles -->
+                <div class="mt-4 border-t border-slate-200 pt-3">
+                    <h3 class="text-sm font-semibold mb-2 text-slate-800">Toggle SS Deviations on Dot Plot</h3>
+                    <div class="grid grid-cols-1 gap-2 text-xs">
+                        <label class="flex items-start space-x-2 cursor-pointer p-1 hover:bg-slate-100 rounded">
+                            <input type="checkbox" id="toggle-ssa" class="mt-0.5 h-3.5 w-3.5 rounded text-blue-600">
+                            <span><strong>SS<sub>Group</sub> (Main Effect A):</strong> Group Marginal Means (<span class="font-mono">x̄<sub>i·</sub></span>) to Grand Mean</span>
+                        </label>
+                        <label class="flex items-start space-x-2 cursor-pointer p-1 hover:bg-slate-100 rounded">
+                            <input type="checkbox" id="toggle-ssb" class="mt-0.5 h-3.5 w-3.5 rounded text-pink-600">
+                            <span><strong>SS<sub>Gender</sub> (Main Effect B):</strong> Gender Marginal Means (<span class="font-mono">x̄<sub>·j</sub></span>) to Grand Mean</span>
+                        </label>
+                        <label class="flex items-start space-x-2 cursor-pointer p-1 hover:bg-slate-100 rounded">
+                            <input type="checkbox" id="toggle-ssab" class="mt-0.5 h-3.5 w-3.5 rounded text-purple-600">
+                            <span><strong>SS<sub>Interaction</sub> (A × B):</strong> Cell Means (<span class="font-mono">x̄<sub>ij</sub></span>) to Expected Additive Mean</span>
+                        </label>
+                        <label class="flex items-start space-x-2 cursor-pointer p-1 hover:bg-slate-100 rounded">
+                            <input type="checkbox" id="toggle-ssw" class="mt-0.5 h-3.5 w-3.5 rounded text-emerald-600">
+                            <span><strong>SS<sub>Within</sub> (Error):</strong> Individual Dots to their Cell Mean (<span class="font-mono">x̄<sub>ij</sub></span>)</span>
+                        </label>
+                        <label class="flex items-start space-x-2 cursor-pointer p-1 hover:bg-slate-100 rounded">
+                            <input type="checkbox" id="toggle-sst" class="mt-0.5 h-3.5 w-3.5 rounded text-red-600">
+                            <span><strong>SS<sub>Total</sub>:</strong> Individual Dots to Grand Mean (<span class="font-mono">x̄<sub>··</sub></span>)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3x2 Sample Cell & Marginal Means Table -->
+            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <h2 class="text-base font-semibold mb-2 border-b pb-1.5 text-slate-800">Sample Cell & Marginal Means</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-center border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-300 text-slate-600 bg-slate-100">
+                                <th class="py-1.5 px-2 text-left">Group</th>
+                                <th class="py-1.5 px-2 text-pink-700">● Female</th>
+                                <th class="py-1.5 px-2 text-indigo-700">▲ Male</th>
+                                <th class="py-1.5 px-2 bg-slate-200/70 font-bold text-slate-800">Group Mean (x̄<sub>i·</sub>)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="means-matrix-body" class="font-mono">
+                            <!-- Populated by JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="border-t-2 border-slate-300 bg-slate-200/70 font-bold font-mono text-slate-800">
+                                <td class="py-1.5 px-2 text-left font-sans">Gender Mean (x̄<sub>·j</sub>)</td>
+                                <td id="marg-f" class="py-1.5 px-2 text-pink-700">-</td>
+                                <td id="marg-m" class="py-1.5 px-2 text-indigo-700">-</td>
+                                <td id="grand-mean-cell" class="py-1.5 px-2 bg-red-100 text-red-700 border border-red-300" title="Grand Mean">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="mt-2 text-[11px] text-slate-500 flex justify-between">
+                    <span>Each cell has <span id="cell-n-note" class="font-semibold">4</span> observations.</span>
+                    <span class="text-red-600 font-semibold">Red box = Grand Mean (x̄<sub>··</sub>)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Plots & ANOVA Table (8 cols on lg) -->
+        <div class="lg:col-span-8 space-y-5">
+            
+            <!-- Top Plots Row: Dot Plot & Interaction Profile Plot -->
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+                <!-- Horizontal Dot Plot (7 cols) -->
+                <div class="xl:col-span-7 bg-white p-4 rounded-lg border border-slate-200 shadow-sm relative">
+                    <div class="flex items-center justify-between mb-1">
+                        <h2 class="text-base font-semibold text-slate-800">Sample Data by Group & Gender</h2>
+                        <div class="flex items-center space-x-3 text-xs text-slate-600">
+                            <span class="text-pink-600 font-bold">● Female</span>
+                            <span class="text-indigo-600 font-bold">▲ Male</span>
+                            <span class="text-red-500 font-semibold">┆ Grand Mean</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-2" id="breakdown-info">
+                        Solid vertical ticks show the 4 sample cell means (<span class="font-mono">x̄<sub>ij</sub></span>). <strong>Click any data point</strong> to view its step-by-step linear breakdown.
+                    </p>
+                    <div id="dotplot" class="w-full h-72 relative"></div>
+                </div>
+
+                <!-- Interaction Plot (5 cols) -->
+                <div class="xl:col-span-5 bg-white p-4 rounded-lg border border-slate-200 shadow-sm relative flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <h2 class="text-base font-semibold text-slate-800">Interaction Profile Plot</h2>
+                            <span id="parallel-badge" class="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">Checking lines...</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-2">
+                            Plots sample cell means (<span class="font-mono">x̄<sub>ij</sub></span>). <strong>Non-parallel lines</strong> indicate a Group × Gender interaction.
+                        </p>
+                    </div>
+                    <div id="interaction-plot" class="w-full h-64 relative"></div>
+                </div>
+            </div>
+
+            <!-- Two-Way ANOVA Summary Table & Partitioning Equations -->
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                <div class="mb-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
+                        <h2 class="text-base font-semibold text-slate-800">Two-Way ANOVA Omnibus Table & Variance Partitioning</h2>
+                        <span class="text-xs font-mono bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
+                            SS<sub>Total</sub> = SS<sub>Group</sub> + SS<sub>Gender</sub> + SS<sub>Interaction</sub> + SS<sub>Within</sub>
+                        </span>
+                    </div>
+                    
+                    <!-- NEW: Stacked Bar for Variance Partitioning -->
+                    <div class="w-full bg-slate-200 rounded h-6 flex overflow-hidden shadow-inner border border-slate-300 relative group cursor-help">
+                        <div id="bar-ssa" class="h-full bg-blue-500 transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
+                        <div id="bar-ssb" class="h-full bg-pink-500 transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
+                        <div id="bar-ssab" class="h-full bg-purple-500 transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
+                        <div id="bar-ssw" class="h-full bg-emerald-500 transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-medium px-1">
+                        <span>0%</span>
+                        <span class="flex-grow text-center">Total Variance (SS<sub>Total</sub>) is partitioned into these 4 components</span>
+                        <span>100%</span>
+                    </div>
+                </div>
+
+                <!-- Formula Breakdown Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                    <div class="math-block">
+                        <div class="font-bold text-blue-900 border-b border-slate-300 pb-1 mb-1">
+                            1. Main Effect of Group (Factor A)
+                        </div>
+                        <div class="text-[11px] text-slate-600 mb-1">SS<sub>A</sub> = n·k<sub>B</sub> Σ (x̄<sub>i·</sub> − x̄<sub>··</sub>)² &nbsp;|&nbsp; df<sub>A</sub> = k<sub>A</sub> − 1</div>
+                        <div id="ssa-calc" class="text-xs text-blue-800 truncate"></div>
+                    </div>
+
+                    <div class="math-block">
+                        <div class="font-bold text-pink-900 border-b border-slate-300 pb-1 mb-1">
+                            2. Main Effect of Gender (Factor B)
+                        </div>
+                        <div class="text-[11px] text-slate-600 mb-1">SS<sub>B</sub> = n·k<sub>A</sub> Σ (x̄<sub>·j</sub> − x̄<sub>··</sub>)² &nbsp;|&nbsp; df<sub>B</sub> = k<sub>B</sub> − 1</div>
+                        <div id="ssb-calc" class="text-xs text-pink-800 truncate"></div>
+                    </div>
+
+                    <div class="math-block">
+                        <div class="font-bold text-purple-900 border-b border-slate-300 pb-1 mb-1">
+                            3. Interaction Effect (Group × Gender)
+                        </div>
+                        <div class="text-[11px] text-slate-600 mb-1">SS<sub>AB</sub> = n ΣΣ (x̄<sub>ij</sub> − x̄<sub>i·</sub> − x̄<sub>·j</sub> + x̄<sub>··</sub>)² &nbsp;|&nbsp; df<sub>AB</sub> = (k<sub>A</sub>−1)(k<sub>B</sub>−1)</div>
+                        <div id="ssab-calc" class="text-xs text-purple-800 truncate"></div>
+                        
+                        <details class="mt-3 bg-purple-50 border-l-[3px] border-purple-500 rounded text-[11px] text-purple-900 leading-snug shadow-sm whitespace-normal group">
+                            <summary class="cursor-pointer font-semibold text-purple-900 text-xs p-2 hover:bg-purple-100/50 transition-colors flex justify-between items-center outline-none rounded-r">
+                                <span>How to Calculate SS<sub>Interaction</sub></span>
+                                <span class="transform group-open:rotate-180 transition-transform duration-200 text-[10px]">▼</span>
+                            </summary>
+                            <div class="p-2.5 pt-0 border-t border-purple-100 mt-1">
+                                <p class="mb-1.5 mt-1.5">It measures the "surprise" in each cell beyond the basic main effects:</p>
+                                <ul class="list-disc list-inside space-y-1 ml-0.5">
+                                    <li>
+                                        <strong>1. Expected Mean:</strong> Add the Group and Gender means, then subtract the Grand Mean (to avoid double-counting the baseline). 
+                                        <span class="block ml-3 font-mono bg-purple-100/50 px-1 py-0.5 mt-0.5 rounded w-fit">Expected = x̄<sub>i·</sub> + x̄<sub>·j</sub> - x̄</span>
+                                    </li>
+                                    <li>
+                                        <strong>2. Deviation:</strong> Subtract this Expected mean from the Actual cell mean (<span class="font-mono">x̄<sub>ij</sub></span>) to find the interaction "surprise."
+                                    </li>
+                                    <li>
+                                        <strong>3. Sum Across Cells:</strong> Square these deviations, multiply by the people per cell (<span class="font-mono">n</span>), and sum them up across all cells (<span class="font-mono">ΣΣ</span>).
+                                        <span class="block ml-3 font-mono bg-purple-100/50 px-1 py-0.5 mt-0.5 rounded w-fit">SS<sub>AB</sub> = n ΣΣ (x̄<sub>ij</sub> - Expected)²</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="math-block">
+                        <div class="font-bold text-emerald-900 border-b border-slate-300 pb-1 mb-1">
+                            4. Within-Cells Error (Residual)
+                        </div>
+                        <div class="text-[11px] text-slate-600 mb-1">SS<sub>W</sub> = ΣΣΣ (y<sub>ijk</sub> − x̄<sub>ij</sub>)² &nbsp;|&nbsp; df<sub>W</sub> = N − k<sub>A</sub>k<sub>B</sub></div>
+                        <div id="ssw-calc" class="text-xs text-emerald-800 truncate"></div>
+                    </div>
+                </div>
+
+                <!-- Standard ANOVA Output Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs md:text-sm text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800 text-white">
+                                <th class="py-2 px-3 rounded-tl">Source of Variation</th>
+                                <th class="py-2 px-3 text-right">SS</th>
+                                <th class="py-2 px-3 text-right">df</th>
+                                <th class="py-2 px-3 text-right">MS (SS / df)</th>
+                                <th class="py-2 px-3 text-right">F (MS / MS<sub>W</sub>)</th>
+                                <th class="py-2 px-3 text-right">p-value</th>
+                                <th class="py-2 px-3 text-center rounded-tr">Decision (α = .05)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="anova-table-body" class="divide-y divide-slate-200 font-mono">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- F-Distribution Curve with Effect Selector -->
+            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm relative">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                    <div>
+                        <h2 class="text-base font-semibold text-slate-800">F-Distribution (Sampling Distribution under H<sub>0</sub>)</h2>
+                        <p class="text-xs text-slate-500">
+                            Select which of the three omnibus F-tests to inspect on its corresponding F(df<sub>effect</sub>, df<sub>Within</sub>) distribution:
+                        </p>
+                    </div>
+                    <!-- Effect Selector Tabs -->
+                    <div class="inline-flex rounded-lg border border-slate-300 bg-slate-100 p-0.5 text-xs font-semibold">
+                        <button data-effect="A" class="f-tab-btn px-3 py-1.5 rounded-md bg-slate-800 text-white transition">Group (F<sub>A</sub>)</button>
+                        <button data-effect="B" class="f-tab-btn px-3 py-1.5 rounded-md text-slate-700 hover:text-slate-900 transition">Gender (F<sub>B</sub>)</button>
+                        <button data-effect="AB" class="f-tab-btn px-3 py-1.5 rounded-md text-slate-700 hover:text-slate-900 transition">Interaction (F<sub>AB</sub>)</button>
+                    </div>
+                </div>
+                <div id="f-dist" class="w-full h-48 relative"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Shared Floating Tooltip -->
+<div id="tooltip" class="tooltip"></div>
+
+<script>
+    // --- State and Factorial Design Constants ---
+    let N_PER_CELL = 4;
+    const K_A = 2; // Groups: 1, 2
+    const K_B = 2; // Genders: 0 = Female ('F'), 1 = Male ('M')
+    const GENDERS = ['F', 'M'];
+    const GENDER_LABELS = { F: 'Female', M: 'Male' };
+    const GROUP_COLORS = ['#3b82f6', '#10b981', '#f59e0b'];
+
+    let data = [];
+    let stats = {};
+    let activeFEffect = 'A'; // 'A' (Group), 'B' (Gender), or 'AB' (Interaction)
+
+    const tooltip = d3.select("#tooltip");
+
+    // Box-Muller Standard Normal Generator
+    function randomNormal() {
+        let u1 = 0, u2 = 0;
+        while (u1 === 0) u1 = Math.random();
+        while (u2 === 0) u2 = Math.random();
+        return Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+    }
+
+    // --- 1. Initialize D3 Dot Plot ---
+    const dotMargin = { top: 22, right: 20, bottom: 32, left: 95 };
+    const dotContainer = document.getElementById('dotplot');
+    let dotWidth = dotContainer.clientWidth - dotMargin.left - dotMargin.right;
+    let dotHeight = dotContainer.clientHeight - dotMargin.top - dotMargin.bottom;
+
+    const dotSvg = d3.select("#dotplot")
+        .append("svg")
+        .attr("width", dotWidth + dotMargin.left + dotMargin.right)
+        .attr("height", dotHeight + dotMargin.top + dotMargin.bottom)
+        .append("g")
+        .attr("transform", `translate(${dotMargin.left},${dotMargin.top})`);
+
+    const xScale = d3.scaleLinear().domain([5, 95]).range([0, dotWidth]);
+    const dotXAxis = dotSvg.append("g")
+        .attr("transform", `translate(0,${dotHeight})`)
+        .call(d3.axisBottom(xScale));
+
+    // 4 Horizontal Row Bands for the 2x2 cells
+    const CELL_KEYS = ['G1_F', 'G1_M', 'G2_F', 'G2_M'];
+    const CELL_LABELS = {
+        'G1_F': 'G1 • Female', 'G1_M': 'G1 ▲ Male',
+        'G2_F': 'G2 • Female', 'G2_M': 'G2 ▲ Male'
+    };
+
+    const yRowScale = d3.scaleBand()
+        .domain(CELL_KEYS)
+        .range([0, dotHeight])
+        .paddingInner(0.18)
+        .paddingOuter(0.1);
+
+    const dotYAxis = dotSvg.append("g")
+        .call(d3.axisLeft(yRowScale).tickFormat(d => CELL_LABELS[d]));
+
+    // Layers for clean visual ordering
+    const rowBgLayer = dotSvg.append("g");
+    const sstLayer = dotSvg.append("g");
+    const ssaLayer = dotSvg.append("g");
+    const ssbLayer = dotSvg.append("g");
+    const ssabLayer = dotSvg.append("g");
+    const sswLayer = dotSvg.append("g");
+    const meanLayer = dotSvg.append("g");
+    const breakdownLayer = dotSvg.append("g").attr("class", "breakdown-layer");
+    const dotLayer = dotSvg.append("g");
+
+    let selectedPoint = null;
+
+    // Define arrowhead markers for the breakdown path
+    dotSvg.append("defs").selectAll("marker")
+        .data([
+            {id: "arrow-Group", color: "#3b82f6"},
+            {id: "arrow-Gender", color: "#db2777"},
+            {id: "arrow-Interact", color: "#9333ea"},
+            {id: "arrow-Error", color: "#10b981"}
+        ])
+        .enter().append("marker")
+        .attr("id", d => d.id)
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 8)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-4L10,0L0,4")
+        .attr("fill", d => d.color);
+
+    // Click on background clears selection
+    d3.select("#dotplot svg").on("click", function(event) {
+        if (event.target.tagName !== 'path' || !d3.select(event.target).classed("data-pt")) {
+            selectedPoint = null;
+            renderBreakdown();
+        }
+    });
+
+    // --- 2. Initialize D3 Interaction Plot ---
+    const intMargin = { top: 20, right: 70, bottom: 35, left: 42 };
+    const intContainer = document.getElementById('interaction-plot');
+    let intWidth = intContainer.clientWidth - intMargin.left - intMargin.right;
+    let intHeight = intContainer.clientHeight - intMargin.top - intMargin.bottom;
+
+    const intSvg = d3.select("#interaction-plot")
+        .append("svg")
+        .attr("width", intWidth + intMargin.left + intMargin.right)
+        .attr("height", intHeight + intMargin.top + intMargin.bottom)
+        .append("g")
+        .attr("transform", `translate(${intMargin.left},${intMargin.top})`);
+
+    const intXScale = d3.scalePoint()
+        .domain(['Group 1', 'Group 2'])
+        .range([0, intWidth])
+        .padding(0.25);
+
+    const intYScale = d3.scaleLinear()
+        .domain([15, 85])
+        .range([intHeight, 0]);
+
+    const intXAxis = intSvg.append("g")
+        .attr("transform", `translate(0,${intHeight})`)
+        .call(d3.axisBottom(intXScale));
+
+    const intYAxis = intSvg.append("g")
+        .call(d3.axisLeft(intYScale).ticks(6));
+
+    const intGridLayer = intSvg.append("g").attr("class", "grid-lines");
+    const intContentLayer = intSvg.append("g");
+
+    // --- 3. Initialize D3 F-Distribution Plot ---
+    const fMargin = { top: 18, right: 25, bottom: 28, left: 35 };
+    const fContainer = document.getElementById('f-dist');
+    let fWidth = fContainer.clientWidth - fMargin.left - fMargin.right;
+    let fHeight = fContainer.clientHeight - fMargin.top - fMargin.bottom;
+
+    const fSvg = d3.select("#f-dist")
+        .append("svg")
+        .attr("width", fWidth + fMargin.left + fMargin.right)
+        .attr("height", fHeight + fMargin.top + fMargin.bottom)
+        .append("g")
+        .attr("transform", `translate(${fMargin.left},${fMargin.top})`);
+
+    const fXScale = d3.scaleLinear().domain([0, 10]).range([0, fWidth]);
+    const fYScale = d3.scaleLinear().domain([0, 1]).range([fHeight, 0]);
+
+    const fXAxis = fSvg.append("g")
+        .attr("transform", `translate(0,${fHeight})`)
+        .call(d3.axisBottom(fXScale));
+
+    const fCritAreaPath = fSvg.append("path")
+        .attr("fill", "rgba(148, 163, 184, 0.2)");
+
+    const fAreaPath = fSvg.append("path")
+        .attr("fill", "rgba(239, 68, 68, 0.45)");
+
+    const fLinePath = fSvg.append("path")
+        .attr("fill", "none")
+        .attr("stroke", "#334155")
+        .attr("stroke-width", 2.2);
+
+    const fMarkerLine = fSvg.append("line")
+        .attr("stroke", "#dc2626")
+        .attr("stroke-width", 2.2)
+        .attr("stroke-dasharray", "4,4")
+        .attr("y1", 0)
+        .attr("y2", fHeight);
+
+    const fMarkerText = fSvg.append("text")
+        .attr("fill", "#dc2626")
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold")
+        .attr("y", -4);
+
+    const fDfLabel = fSvg.append("text")
+        .attr("fill", "#334155")
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold")
+        .attr("x", fWidth - 6)
+        .attr("y", 14)
+        .attr("text-anchor", "end");
+
+    // --- Core Data Generation & Two-Way ANOVA Calculation ---
+    function generateNewSamples() {
+        const oldJitter = new Map(data.map(d => [d.id, d.jitter]));
+        data = [];
+
+        for (let g = 1; g <= K_A; g++) {
+            for (let b = 0; b < K_B; b++) {
+                const gender = GENDERS[b];
+                const cellKey = `G${g}_${gender}`;
+                for (let i = 0; i < N_PER_CELL; i++) {
+                    const id = `${cellKey}_${i}`;
+                    data.push({
+                        id,
+                        group: g,
+                        gender,
+                        cellKey,
+                        z: randomNormal(),
+                        jitter: oldJitter.has(id) ? oldJitter.get(id) : (Math.random() - 0.5) * 14
+                    });
+                }
+            }
+        }
+        document.getElementById('total-n-label').textContent = N_PER_CELL * K_A * K_B;
+        document.getElementById('cell-n-note').textContent = N_PER_CELL;
+        updateDataFromSliders();
+    }
+
+    function updateDataFromSliders() {
+        const sigma = parseFloat(document.getElementById('s-all').value);
+        const cellMu = {
+            'G1_F': parseFloat(document.getElementById('m1F').value),
+            'G1_M': parseFloat(document.getElementById('m1M').value),
+            'G2_F': parseFloat(document.getElementById('m2F').value),
+            'G2_M': parseFloat(document.getElementById('m2M').value)
+        };
+
+        data.forEach(d => {
+            d.val = d.z * sigma + cellMu[d.cellKey];
+        });
+
+        calculateTwoWayANOVA();
+        updateVisuals();
+    }
+
+    function calculateTwoWayANOVA() {
+        const N = N_PER_CELL * K_A * K_B;
+
+        // 1. Cell Means (3x2)
+        const cellSums = {};
+        CELL_KEYS.forEach(k => cellSums[k] = 0);
+
+        // 2. Group Marginal Sums (Factor A: 1, 2, 3)
+        const groupSums = [0, 0, 0];
+
+        // 3. Gender Marginal Sums (Factor B: F, M)
+        const genderSums = { F: 0, M: 0 };
+
+        let grandSum = 0;
+
+        data.forEach(d => {
+            cellSums[d.cellKey] += d.val;
+            groupSums[d.group - 1] += d.val;
+            genderSums[d.gender] += d.val;
+            grandSum += d.val;
+        });
+
+        const cellMeans = {};
+        CELL_KEYS.forEach(k => cellMeans[k] = cellSums[k] / N_PER_CELL);
+
+        const groupMeans = groupSums.map(s => s / (N_PER_CELL * K_B));
+        const genderMeans = {
+            F: genderSums.F / (N_PER_CELL * K_A),
+            M: genderSums.M / (N_PER_CELL * K_A)
+        };
+        const grandMean = grandSum / N;
+
+        // SS_Group (Factor A)
+        let ssA = 0;
+        const ssaParts = [];
+        for (let i = 0; i < K_A; i++) {
+            ssA += (N_PER_CELL * K_B) * Math.pow(groupMeans[i] - grandMean, 2);
+            ssaParts.push(`${N_PER_CELL * K_B}(${groupMeans[i].toFixed(1)}−${grandMean.toFixed(1)})²`);
+        }
+
+        // SS_Gender (Factor B)
+        let ssB = 0;
+        const ssbParts = [];
+        GENDERS.forEach(gen => {
+            ssB += (N_PER_CELL * K_A) * Math.pow(genderMeans[gen] - grandMean, 2);
+            ssbParts.push(`${N_PER_CELL * K_A}(${genderMeans[gen].toFixed(1)}−${grandMean.toFixed(1)})²`);
+        });
+
+        // SS_Interaction (A x B)
+        let ssAB = 0;
+        const expectedAdditiveMeans = {};
+        for (let g = 1; g <= K_A; g++) {
+            GENDERS.forEach(gen => {
+                const key = `G${g}_${gen}`;
+                // Expected cell mean if there were zero interaction: x̄_i. + x̄_.j - x̄_..
+                const expected = groupMeans[g - 1] + genderMeans[gen] - grandMean;
+                expectedAdditiveMeans[key] = expected;
+                ssAB += N_PER_CELL * Math.pow(cellMeans[key] - expected, 2);
+            });
+        }
+
+        // SS_Within (Error) and SS_Total
+        let ssW = 0;
+        let ssT = 0;
+        data.forEach(d => {
+            ssW += Math.pow(d.val - cellMeans[d.cellKey], 2);
+            ssT += Math.pow(d.val - grandMean, 2);
+        });
+
+        // Degrees of Freedom
+        const dfA = K_A - 1;               // 1
+        const dfB = K_B - 1;               // 1
+        const dfAB = (K_A - 1) * (K_B - 1); // 1
+        const dfW = N - (K_A * K_B);
+        const dfT = N - 1;
+
+        // Mean Squares
+        const msA = ssA / dfA;
+        const msB = ssB / dfB;
+        const msAB = ssAB / dfAB;
+        const msW = ssW / dfW;
+
+        // F-Statistics & p-values
+        const fA = msA / msW;
+        const fB = msB / msW;
+        const fAB = msAB / msW;
+
+        const pA = 1 - jStat.centralF.cdf(fA, dfA, dfW);
+        const pB = 1 - jStat.centralF.cdf(fB, dfB, dfW);
+        const pAB = 1 - jStat.centralF.cdf(fAB, dfAB, dfW);
+
+        stats = {
+            N, cellMeans, groupMeans, genderMeans, grandMean, expectedAdditiveMeans,
+            ssA, ssB, ssAB, ssW, ssT, ssaParts, ssbParts,
+            dfA, dfB, dfAB, dfW, dfT,
+            msA, msB, msAB, msW,
+            fA, fB, fAB, pA, pB, pAB
+        };
+
+        updateDOMTables();
+    }
+
+    function formatP(p) {
+        if (p < 0.0001) return '< .0001';
+        return p.toFixed(4);
+    }
+
+    function updateDOMTables() {
+        // 1. Update 3x2 Means Matrix Table
+        const matrixBody = document.getElementById('means-matrix-body');
+        matrixBody.innerHTML = '';
+        const badgeColors = ['bg-blue-500', 'bg-emerald-500', 'bg-amber-500'];
+
+        for (let g = 1; g <= K_A; g++) {
+            const mF = stats.cellMeans[`G${g}_F`];
+            const mM = stats.cellMeans[`G${g}_M`];
+            const mG = stats.groupMeans[g - 1];
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-slate-200';
+            tr.innerHTML = `
+                <td class="py-1.5 px-2 text-left font-sans font-medium">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full mr-1.5 ${badgeColors[g - 1]}"></span>Group ${g}
+                </td>
+                <td class="py-1.5 px-2">${mF.toFixed(2)}</td>
+                <td class="py-1.5 px-2">${mM.toFixed(2)}</td>
+                <td class="py-1.5 px-2 bg-slate-100 font-bold text-slate-800">${mG.toFixed(2)}</td>
+            `;
+            matrixBody.appendChild(tr);
+        }
+        document.getElementById('marg-f').textContent = stats.genderMeans.F.toFixed(2);
+        document.getElementById('marg-m').textContent = stats.genderMeans.M.toFixed(2);
+        document.getElementById('grand-mean-cell').textContent = stats.grandMean.toFixed(2);
+
+        // 2. Update Math Formula Strings
+        document.getElementById('ssa-calc').innerHTML = `${stats.ssaParts.join(' + ')} = <strong>${stats.ssA.toFixed(2)}</strong>`;
+        document.getElementById('ssb-calc').innerHTML = `${stats.ssbParts.join(' + ')} = <strong>${stats.ssB.toFixed(2)}</strong>`;
+        document.getElementById('ssab-calc').innerHTML = `4 cells × n=${N_PER_CELL} squared non-additive residuals = <strong>${stats.ssAB.toFixed(2)}</strong>`;
+        document.getElementById('ssw-calc').innerHTML = `Sum of squared deviations across ${stats.N} pts = <strong>${stats.ssW.toFixed(2)}</strong>`;
+
+        // 2.5 Update Variance Partitioning Stacked Bar
+        const ssA_pct = stats.ssT === 0 ? 0 : (stats.ssA / stats.ssT) * 100;
+        const ssB_pct = stats.ssT === 0 ? 0 : (stats.ssB / stats.ssT) * 100;
+        const ssAB_pct = stats.ssT === 0 ? 0 : (stats.ssAB / stats.ssT) * 100;
+        const ssW_pct = stats.ssT === 0 ? 0 : (stats.ssW / stats.ssT) * 100;
+
+        const barA = document.getElementById('bar-ssa');
+        barA.style.width = `${ssA_pct}%`;
+        barA.textContent = ssA_pct > 6 ? `Group` : '';
+        barA.title = `SS Group: ${stats.ssA.toFixed(2)} (${ssA_pct.toFixed(1)}%)`;
+
+        const barB = document.getElementById('bar-ssb');
+        barB.style.width = `${ssB_pct}%`;
+        barB.textContent = ssB_pct > 6 ? `Gender` : '';
+        barB.title = `SS Gender: ${stats.ssB.toFixed(2)} (${ssB_pct.toFixed(1)}%)`;
+
+        const barAB = document.getElementById('bar-ssab');
+        barAB.style.width = `${ssAB_pct}%`;
+        barAB.textContent = ssAB_pct > 6 ? `Interact` : '';
+        barAB.title = `SS Interaction: ${stats.ssAB.toFixed(2)} (${ssAB_pct.toFixed(1)}%)`;
+
+        const barW = document.getElementById('bar-ssw');
+        barW.style.width = `${ssW_pct}%`;
+        barW.textContent = ssW_pct > 6 ? `Within (Error)` : '';
+        barW.title = `SS Within: ${stats.ssW.toFixed(2)} (${ssW_pct.toFixed(1)}%)`;
+
+        // 3. Update Full Two-Way ANOVA Table
+        const rows = [
+            { id: 'A', name: 'Group (Factor A)', ss: stats.ssA, df: stats.dfA, ms: stats.msA, f: stats.fA, p: stats.pA, color: 'text-blue-700' },
+            { id: 'B', name: 'Gender (Factor B)', ss: stats.ssB, df: stats.dfB, ms: stats.msB, f: stats.fB, p: stats.pB, color: 'text-pink-700' },
+            { id: 'AB', name: 'Group × Gender (A×B)', ss: stats.ssAB, df: stats.dfAB, ms: stats.msAB, f: stats.fAB, p: stats.pAB, color: 'text-purple-700' },
+            { id: 'W', name: 'Within Cells (Error)', ss: stats.ssW, df: stats.dfW, ms: stats.msW, f: null, p: null, color: 'text-emerald-800' },
+            { id: 'T', name: 'Total', ss: stats.ssT, df: stats.dfT, ms: null, f: null, p: null, color: 'text-slate-900 font-bold' }
+        ];
+
+        const anovaBody = document.getElementById('anova-table-body');
+        anovaBody.innerHTML = '';
+
+        rows.forEach(r => {
+            const isSelected = r.id === activeFEffect;
+            const tr = document.createElement('tr');
+            tr.className = `${isSelected ? 'bg-amber-50/90' : 'hover:bg-slate-50'} transition-colors ${r.id === 'T' ? 'bg-slate-100 border-t-2 border-slate-300' : ''}`;
+            if (r.f !== null) {
+                tr.style.cursor = 'pointer';
+                tr.title = 'Click to view this effect on the F-Distribution curve below';
+                tr.addEventListener('click', () => selectFEffect(r.id));
+            }
+
+            const sig = r.p !== null && r.p < 0.05;
+            const badge = r.p !== null
+                ? `<span class="px-2 py-0.5 rounded text-xs font-sans font-semibold ${sig ? 'bg-green-100 text-green-800' : 'bg-slate-200 text-slate-600'}">${sig ? 'Significant' : 'Not Sig.'}</span>`
+                : '';
+
+            tr.innerHTML = `
+                <td class="py-2 px-3 font-sans font-medium ${r.color}">
+                    ${isSelected ? '▶ ' : ''}${r.name}
+                </td>
+                <td class="py-2 px-3 text-right">${r.ss.toFixed(2)}</td>
+                <td class="py-2 px-3 text-right">${r.df}</td>
+                <td class="py-2 px-3 text-right">${r.ms !== null ? r.ms.toFixed(2) : '—'}</td>
+                <td class="py-2 px-3 text-right font-bold">${r.f !== null ? r.f.toFixed(2) : '—'}</td>
+                <td class="py-2 px-3 text-right ${sig ? 'text-green-700 font-bold' : ''}">${r.p !== null ? formatP(r.p) : '—'}</td>
+                <td class="py-2 px-3 text-center">${badge}</td>
+            `;
+            anovaBody.appendChild(tr);
+        });
+    }
+
+    function updateVisuals() {
+        updateDotPlot();
+        updateInteractionPlot();
+        updateFDist();
+    }
+
+    function updateDotPlot() {
+        const showSSA = document.getElementById('toggle-ssa').checked;
+        const showSSB = document.getElementById('toggle-ssb').checked;
+        const showSSAB = document.getElementById('toggle-ssab').checked;
+        const showSSW = document.getElementById('toggle-ssw').checked;
+        const showSST = document.getElementById('toggle-sst').checked;
+
+        const bandH = yRowScale.bandwidth();
+
+        // Draw subtle alternating row strips for the 6 cells
+        const bgRects = rowBgLayer.selectAll("rect.row-strip").data(CELL_KEYS);
+        bgRects.join(
+            enter => enter.append("rect").attr("class", "row-strip")
+                .attr("x", 0)
+                .attr("rx", 4)
+                .attr("fill", d => d.startsWith('G1') ? 'rgba(59,130,246,0.05)' : d.startsWith('G2') ? 'rgba(16,185,129,0.05)' : 'rgba(245,158,11,0.05)'),
+            update => update
+        )
+        .attr("y", d => yRowScale(d))
+        .attr("width", dotWidth)
+        .attr("height", bandH);
+
+        // Compute coordinates for each observation
+        data.forEach(d => {
+            d.x = xScale(d.val);
+            d.y = yRowScale(d.cellKey) + bandH / 2 + d.jitter * 0.55;
+        });
+
+        // 1. SS_Total (Dots to Grand Mean)
+        const sstLines = sstLayer.selectAll("line.sst-line").data(showSST ? data : [], d => d.id);
+        sstLines.join(
+            enter => enter.append("line").attr("class", "sst-line")
+                .attr("stroke", "#fca5a5").attr("stroke-width", 1.3).attr("stroke-dasharray", "3,3")
+                .attr("x1", d => d.x).attr("y1", d => d.y).attr("x2", d => d.x).attr("y2", d => d.y)
+                .call(e => e.transition().duration(400).attr("x2", xScale(stats.grandMean))),
+            update => update.transition().duration(400)
+                .attr("x1", d => d.x).attr("y1", d => d.y).attr("x2", xScale(stats.grandMean)).attr("y2", d => d.y),
+            exit => exit.remove()
+        );
+
+        // 2. SS_Group (Factor A: Group Marginal Means to Grand Mean)
+        const ssaData = showSSA ? [0, 1].map(i => ({
+            group: i + 1,
+            mean: stats.groupMeans[i],
+            y: (yRowScale(`G${i+1}_F`) + yRowScale(`G${i+1}_M`) + bandH) / 2
+        })) : [];
+        const ssaLines = ssaLayer.selectAll("line.ssa-line").data(ssaData, d => d.group);
+        ssaLines.join(
+            enter => enter.append("line").attr("class", "ssa-line")
+                .attr("stroke", d => GROUP_COLORS[d.group - 1])
+                .attr("stroke-width", 7).attr("stroke-linecap", "round").attr("opacity", 0.65)
+                .attr("y1", d => d.y).attr("y2", d => d.y)
+                .attr("x1", d => xScale(d.mean)).attr("x2", xScale(stats.grandMean)),
+            update => update.transition().duration(400)
+                .attr("y1", d => d.y).attr("y2", d => d.y)
+                .attr("x1", d => xScale(d.mean)).attr("x2", xScale(stats.grandMean)),
+            exit => exit.remove()
+        );
+
+        // 3. SS_Gender (Factor B: Gender Marginal Means to Grand Mean)
+        const ssbData = showSSB ? [
+            { gender: 'F', mean: stats.genderMeans.F, y: dotHeight * 0.25, color: '#db2777', shape: d3.symbolCircle },
+            { gender: 'M', mean: stats.genderMeans.M, y: dotHeight * 0.75, color: '#4f46e5', shape: d3.symbolTriangle }
+        ] : [];
+        const ssbLines = ssbLayer.selectAll("line.ssb-line").data(ssbData, d => d.gender);
+        ssbLines.join(
+            enter => enter.append("line").attr("class", "ssb-line")
+                .attr("stroke", d => d.color)
+                .attr("stroke-width", 7).attr("stroke-linecap", "round").attr("opacity", 0.65)
+                .attr("y1", d => d.y).attr("y2", d => d.y)
+                .attr("x1", d => xScale(d.mean)).attr("x2", xScale(stats.grandMean)),
+            update => update.transition().duration(400)
+                .attr("y1", d => d.y).attr("y2", d => d.y)
+                .attr("x1", d => xScale(d.mean)).attr("x2", xScale(stats.grandMean)),
+            exit => exit.remove()
+        );
+
+        const ssbSym = ssbLayer.selectAll("path.ssb-sym").data(ssbData, d => d.gender);
+        ssbSym.join(
+            enter => enter.append("path").attr("class", "ssb-sym")
+                .attr("d", d => d3.symbol().type(d.shape).size(150)())
+                .attr("fill", d => d.color)
+                .attr("transform", d => `translate(${xScale(d.mean)},${d.y})`),
+            update => update.transition().duration(400)
+                .attr("transform", d => `translate(${xScale(d.mean)},${d.y})`),
+            exit => exit.remove()
+        );
+
+        // 4. SS_Interaction (Cell Mean vs Expected Additive Cell Mean)
+        const ssabData = showSSAB ? CELL_KEYS.map(k => ({
+            key: k,
+            cellMean: stats.cellMeans[k],
+            expected: stats.expectedAdditiveMeans[k],
+            y: yRowScale(k) + bandH / 2
+        })) : [];
+        const ssabLines = ssabLayer.selectAll("line.ssab-line").data(ssabData, d => d.key);
+        ssabLines.join(
+            enter => enter.append("line").attr("class", "ssab-line")
+                .attr("stroke", "#9333ea").attr("stroke-width", 5).attr("stroke-linecap", "round").attr("opacity", 0.8)
+                .attr("y1", d => d.y).attr("y2", d => d.y)
+                .attr("x1", d => xScale(d.cellMean)).attr("x2", d => xScale(d.expected)),
+            update => update.transition().duration(400)
+                .attr("y1", d => d.y).attr("y2", d => d.y)
+                .attr("x1", d => xScale(d.cellMean)).attr("x2", d => xScale(d.expected)),
+            exit => exit.remove()
+        );
+
+        // 5. SS_Within (Dots to their own Cell Mean)
+        const sswLines = sswLayer.selectAll("line.ssw-line").data(showSSW ? data : [], d => d.id);
+        sswLines.join(
+            enter => enter.append("line").attr("class", "ssw-line")
+                .attr("stroke", d => GROUP_COLORS[d.group - 1])
+                .attr("stroke-width", 1.6).attr("opacity", 0.75)
+                .attr("x1", d => d.x).attr("y1", d => d.y)
+                .attr("x2", d => xScale(stats.cellMeans[d.cellKey])).attr("y2", d => d.y),
+            update => update.transition().duration(400)
+                .attr("x1", d => d.x).attr("y1", d => d.y)
+                .attr("x2", d => xScale(stats.cellMeans[d.cellKey])).attr("y2", d => d.y),
+            exit => exit.remove()
+        );
+
+        // Draw Cell Mean Vertical Tick Bars
+        const cellMeanList = CELL_KEYS.map(k => ({
+            key: k,
+            group: parseInt(k[1]),
+            val: stats.cellMeans[k],
+            y1: yRowScale(k) + 2,
+            y2: yRowScale(k) + bandH - 2
+        }));
+
+        const cellTicks = meanLayer.selectAll("line.cell-mean-tick").data(cellMeanList, d => d.key);
+        cellTicks.join(
+            enter => enter.append("line").attr("class", "cell-mean-tick")
+                .attr("stroke", d => GROUP_COLORS[d.group - 1])
+                .attr("stroke-width", 3),
+            update => update
+        ).transition().duration(400)
+            .attr("x1", d => xScale(d.val)).attr("x2", d => xScale(d.val))
+            .attr("y1", d => d.y1).attr("y2", d => d.y2);
+
+        // Grand Mean Line
+        const gMeanLine = meanLayer.selectAll("line.grand-mean").data([stats.grandMean]);
+        gMeanLine.join(
+            enter => enter.append("line").attr("class", "grand-mean")
+                .attr("y1", 0).attr("y2", dotHeight)
+                .attr("stroke", "#ef4444").attr("stroke-width", 2).attr("stroke-dasharray", "5,4"),
+            update => update
+        ).transition().duration(400)
+            .attr("x1", d => xScale(d)).attr("x2", d => xScale(d))
+            .attr("y2", dotHeight);
+
+        // Draw Data Points (Circles for Female, Triangles for Male)
+        const symbolGen = d3.symbol().size(58);
+        const pts = dotLayer.selectAll("path.data-pt").data(data, d => d.id);
+
+        pts.join(
+            enter => enter.append("path")
+                .attr("class", "data-pt")
+                .attr("d", d => symbolGen.type(d.gender === 'F' ? d3.symbolCircle : d3.symbolTriangle)())
+                .attr("fill", d => GROUP_COLORS[d.group - 1])
+                .attr("stroke", d => d.gender === 'F' ? '#db2777' : '#4f46e5')
+                .attr("stroke-width", 2)
+                .attr("transform", d => `translate(${d.x},${d.y})`)
+                .style("cursor", "pointer")
+                .on("mouseover", function (event, d) {
+                    if (selectedPoint && selectedPoint.id === d.id) return;
+                    d3.select(this).attr("stroke", "#0f172a").attr("stroke-width", 2.5);
+                    tooltip.style("opacity", 0.95)
+                        .html(`<strong>Group ${d.group} (${GENDER_LABELS[d.gender]})</strong><br>Value: ${d.val.toFixed(2)}<br>Cell Mean: ${stats.cellMeans[d.cellKey].toFixed(2)}`)
+                        .style("left", (event.pageX + 12) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function (event, d) {
+                    if (selectedPoint && selectedPoint.id === d.id) return;
+                    d3.select(this).attr("stroke", d.gender === 'F' ? '#db2777' : '#4f46e5').attr("stroke-width", 2);
+                    tooltip.style("opacity", 0);
+                })
+                .on("click", function(event, d) {
+                    event.stopPropagation();
+                    selectedPoint = d;
+                    renderBreakdown();
+                    tooltip.style("opacity", 0); // Hide tooltip when transitioning to breakdown mode
+                }),
+            update => update.transition().duration(400)
+                .attr("transform", d => `translate(${d.x},${d.y})`),
+            exit => exit.remove()
+        );
+
+        if (selectedPoint) {
+            selectedPoint = data.find(p => p.id === selectedPoint.id);
+        }
+        renderBreakdown();
+    }
+
+    function renderBreakdown() {
+        breakdownLayer.selectAll("*").remove();
+        
+        const pts = dotLayer.selectAll("path.data-pt");
+        const bInfo = document.getElementById("breakdown-info");
+        
+        if (!selectedPoint) {
+            bInfo.innerHTML = `Solid vertical ticks show the 4 sample cell means (<span class="font-mono">x̄<sub>ij</sub></span>). <strong>Click any data point</strong> to view its step-by-step linear breakdown.`;
+            pts.attr("opacity", 1)
+               .attr("stroke", d => d.gender === 'F' ? '#db2777' : '#4f46e5')
+               .attr("stroke-width", 2);
+            return;
+        }
+        
+        // Dim unselected points
+        pts.attr("opacity", d => d.id === selectedPoint.id ? 1 : 0.15)
+           .attr("stroke", d => d.id === selectedPoint.id ? '#0f172a' : (d.gender === 'F' ? '#db2777' : '#4f46e5'))
+           .attr("stroke-width", d => d.id === selectedPoint.id ? 2.5 : 2);
+           
+        const d = selectedPoint;
+        const GM = stats.grandMean;
+        const effA = stats.groupMeans[d.group - 1] - GM;
+        const effB = stats.genderMeans[d.gender] - GM;
+        const expected = GM + effA + effB;
+        const effAB = stats.cellMeans[d.cellKey] - expected;
+        const error = d.val - stats.cellMeans[d.cellKey];
+        
+        // Update Breakdown Text
+        bInfo.innerHTML = `<strong>Linear Path:</strong> <span class="font-mono text-slate-800">${d.val.toFixed(2)}</span> = <span class="text-red-600 font-medium">GM (${GM.toFixed(1)})</span> + <span class="text-blue-600 font-medium">Group (${effA>0?'+':''}${effA.toFixed(1)})</span> + <span class="text-pink-600 font-medium">Gender (${effB>0?'+':''}${effB.toFixed(1)})</span> + <span class="text-purple-600 font-medium">Interact (${effAB>0?'+':''}${effAB.toFixed(1)})</span> + <span class="text-emerald-600 font-medium">Error (${error>0?'+':''}${error.toFixed(1)})</span>`;
+        
+        // Determine whether to cascade the visual breakdown above or below the dot
+        const isTop = d.y < dotHeight / 2;
+        let currentY = isTop ? d.y + 60 : d.y - 60;
+        const stepY = isTop ? -15 : 15;
+        
+        const steps = [
+            { name: "Group", val: effA, color: "#3b82f6", marker: "arrow-Group" },
+            { name: "Gender", val: effB, color: "#db2777", marker: "arrow-Gender" },
+            { name: "Interact", val: effAB, color: "#9333ea", marker: "arrow-Interact" },
+            { name: "Error", val: error, color: "#10b981", marker: "arrow-Error" }
+        ];
+        
+        let currentX = GM;
+        
+        // Initial Drop Line from Grand Mean
+        breakdownLayer.append("line")
+            .attr("x1", xScale(GM)).attr("x2", xScale(GM))
+            .attr("y1", currentY - stepY).attr("y2", currentY)
+            .attr("stroke", "#94a3b8").attr("stroke-dasharray", "2,2");
+            
+        steps.forEach((step, i) => {
+            if (Math.abs(step.val) < 0.2) {
+                currentY += stepY; // Skip drawing arrow if effect is zero, but maintain spacing
+                return;
+            }
+            const nextX = currentX + step.val;
+            
+            // Draw horizontal effect arrow
+            breakdownLayer.append("line")
+                .attr("x1", xScale(currentX))
+                .attr("y1", currentY)
+                .attr("x2", xScale(nextX))
+                .attr("y2", currentY)
+                .attr("stroke", step.color)
+                .attr("stroke-width", 2.5)
+                .attr("marker-end", `url(#${step.marker})`);
+                
+            // Draw label
+            breakdownLayer.append("text")
+                .attr("x", xScale(currentX + step.val / 2))
+                .attr("y", currentY - 5)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "10px")
+                .attr("font-weight", "bold")
+                .attr("fill", step.color)
+                .text(step.name);
+                
+            currentY += stepY;
+            
+            // Draw drop line connecting to the next step
+            breakdownLayer.append("line")
+                .attr("x1", xScale(nextX)).attr("x2", xScale(nextX))
+                .attr("y1", currentY - stepY).attr("y2", i === steps.length - 1 ? d.y : currentY)
+                .attr("stroke", "#94a3b8").attr("stroke-dasharray", "2,2");
+                
+            currentX = nextX;
+        });
+        
+        // Draw target crosshair around the clicked data point
+        breakdownLayer.append("circle")
+            .attr("cx", xScale(d.val))
+            .attr("cy", d.y)
+            .attr("r", 10)
+            .attr("fill", "none")
+            .attr("stroke", "#0f172a")
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", "3,2");
+    }
+
+    function updateInteractionPlot() {
+        const femalePts = [1, 2].map(g => ({
+            groupLabel: `Group ${g}`,
+            group: g,
+            gender: 'F',
+            mean: stats.cellMeans[`G${g}_F`]
+        }));
+        const malePts = [1, 2].map(g => ({
+            groupLabel: `Group ${g}`,
+            group: g,
+            gender: 'M',
+            mean: stats.cellMeans[`G${g}_M`]
+        }));
+
+        const lineGen = d3.line()
+            .x(d => intXScale(d.groupLabel))
+            .y(d => intYScale(d.mean));
+
+        const profiles = [
+            { gender: 'F', label: 'Female', color: '#db2777', dash: 'none', pts: femalePts },
+            { gender: 'M', label: 'Male', color: '#4f46e5', dash: '5,4', pts: malePts }
+        ];
+
+        // Lines
+        const lines = intContentLayer.selectAll("path.profile-line").data(profiles, d => d.gender);
+        lines.join(
+            enter => enter.append("path").attr("class", "profile-line")
+                .attr("fill", "none")
+                .attr("stroke", d => d.color)
+                .attr("stroke-width", 2.8)
+                .attr("stroke-dasharray", d => d.dash),
+            update => update
+        ).transition().duration(400)
+            .attr("d", d => lineGen(d.pts));
+
+        // End of line labels
+        const endLabels = intContentLayer.selectAll("text.profile-label").data(profiles, d => d.gender);
+        endLabels.join(
+            enter => enter.append("text").attr("class", "profile-label")
+                .attr("font-size", "11px")
+                .attr("font-weight", "bold")
+                .attr("fill", d => d.color)
+                .attr("dy", "0.35em"),
+            update => update
+        ).transition().duration(400)
+            .attr("x", intXScale('Group 2') + 10)
+            .attr("y", d => intYScale(d.pts[1].mean))
+            .text(d => d.label);
+
+        // Points on Interaction Plot
+        const allPts = [...femalePts, ...malePts];
+        const symbolGen = d3.symbol().size(75);
+        const nodes = intContentLayer.selectAll("path.int-node").data(allPts, d => `${d.group}_${d.gender}`);
+        nodes.join(
+            enter => enter.append("path").attr("class", "int-node")
+                .attr("d", d => symbolGen.type(d.gender === 'F' ? d3.symbolCircle : d3.symbolTriangle)())
+                .attr("fill", d => d.gender === 'F' ? '#db2777' : '#4f46e5')
+                .attr("stroke", "#ffffff").attr("stroke-width", 1.5),
+            update => update
+        ).transition().duration(400)
+            .attr("transform", d => `translate(${intXScale(d.groupLabel)},${intYScale(d.mean)})`);
+
+        // Update parallel status badge
+        const badge = document.getElementById('parallel-badge');
+        if (stats.pAB < 0.05) {
+            badge.textContent = `Non-Parallel (Sig. Interaction, p = ${formatP(stats.pAB)})`;
+            badge.className = "text-[11px] px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-semibold";
+        } else {
+            badge.textContent = "Roughly Parallel (No Sig. Interaction)";
+            badge.className = "text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium";
+        }
+    }
+
+    function selectFEffect(effectKey) {
+        activeFEffect = effectKey;
+        document.querySelectorAll('.f-tab-btn').forEach(btn => {
+            if (btn.dataset.effect === effectKey) {
+                btn.className = "f-tab-btn px-3 py-1.5 rounded-md bg-slate-800 text-white transition";
+            } else {
+                btn.className = "f-tab-btn px-3 py-1.5 rounded-md text-slate-700 hover:text-slate-900 transition";
+            }
+        });
+        updateDOMTables();
+        updateFDist();
+    }
+
+    function updateFDist() {
+        const effectMap = {
+            'A': { name: 'Group', df1: stats.dfA, F: stats.fA, p: stats.pA },
+            'B': { name: 'Gender', df1: stats.dfB, F: stats.fB, p: stats.pB },
+            'AB': { name: 'Interaction', df1: stats.dfAB, F: stats.fAB, p: stats.pAB }
+        };
+        const cur = effectMap[activeFEffect];
+        const df1 = cur.df1;
+        const df2 = stats.dfW;
+
+        const maxX = Math.min(25, Math.max(10, Math.ceil(cur.F) + 2));
+        fXScale.domain([0, maxX]);
+        fXAxis.transition().duration(400).call(d3.axisBottom(fXScale));
+
+        const pts = [];
+        const step = maxX / 220;
+        for (let x = 0.02; x <= maxX; x += step) {
+            pts.push({ x, y: jStat.centralF.pdf(x, df1, df2) });
+        }
+
+        const maxY = d3.max(pts.filter(p => p.x > 0.12), d => d.y) || 1;
+        fYScale.domain([0, maxY * 1.12]);
+
+        const line = d3.line()
+            .x(d => fXScale(d.x))
+            .y(d => fYScale(d.y));
+
+        fLinePath.datum(pts).transition().duration(400).attr("d", line);
+
+        // Shaded p-value tail (x >= observed F)
+        const areaPts = pts.filter(p => p.x >= cur.F);
+        if (areaPts.length > 0) {
+            areaPts.unshift({ x: areaPts[0].x, y: 0 });
+            areaPts.push({ x: areaPts[areaPts.length - 1].x, y: 0 });
+        }
+        fAreaPath.datum(areaPts).transition().duration(400).attr("d", line);
+
+        const displayF = Math.min(cur.F, maxX);
+        const anchor = displayF > maxX * 0.78 ? "end" : "start";
+        const offset = displayF > maxX * 0.78 ? -6 : 6;
+
+        fMarkerLine.transition().duration(400)
+            .attr("x1", fXScale(displayF))
+            .attr("x2", fXScale(displayF));
+
+        fMarkerText.transition().duration(400)
+            .attr("x", fXScale(displayF) + offset)
+            .attr("text-anchor", anchor)
+            .text(`F_${cur.name} = ${cur.F.toFixed(2)}${cur.F > maxX ? '+' : ''} (p = ${formatP(cur.p)})`);
+
+        fDfLabel.text(`Active: ${cur.name} Effect | df₁ = ${df1}, df₂ = ${df2}`);
+    }
+
+    // --- Event Listeners & Presets ---
+    const SLIDER_IDS = ['m1F', 'm1M', 'm2F', 'm2M', 's-all'];
+    SLIDER_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        const valEl = document.getElementById(`${id}-val`);
+        el.addEventListener('input', e => {
+            valEl.textContent = e.target.value;
+            updateDataFromSliders();
+        });
+    });
+
+    document.getElementById('n-size').addEventListener('input', e => {
+        N_PER_CELL = parseInt(e.target.value);
+        document.getElementById('n-size-val').textContent = e.target.value;
+        generateNewSamples();
+    });
+
+    document.getElementById('resample-btn').addEventListener('click', generateNewSamples);
+
+    ['toggle-ssa', 'toggle-ssb', 'toggle-ssab', 'toggle-ssw', 'toggle-sst'].forEach(id => {
+        document.getElementById(id).addEventListener('change', updateDotPlot);
+    });
+
+    document.querySelectorAll('.f-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => selectFEffect(btn.dataset.effect));
+    });
+
+    // Preset Configurations
+    const PRESETS = {
+        mainA:     { m1F: 38, m1M: 38, m2F: 62, m2M: 62 },
+        mainAB:    { m1F: 36, m1M: 46, m2F: 56, m2M: 66 },
+        crossover: { m1F: 62, m1M: 38, m2F: 38, m2M: 62 },
+        synergy:   { m1F: 40, m1M: 42, m2F: 48, m2M: 70 }
+    };
+
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const p = PRESETS[btn.dataset.preset];
+            Object.keys(p).forEach(k => {
+                document.getElementById(k).value = p[k];
+                document.getElementById(`${k}-val`).textContent = p[k];
+            });
+            updateDataFromSliders();
+        });
+    });
+
+    // Responsive Resize
+    window.addEventListener('resize', () => {
+        dotWidth = dotContainer.clientWidth - dotMargin.left - dotMargin.right;
+        dotHeight = dotContainer.clientHeight - dotMargin.top - dotMargin.bottom;
+        d3.select("#dotplot svg").attr("width", dotWidth + dotMargin.left + dotMargin.right).attr("height", dotHeight + dotMargin.top + dotMargin.bottom);
+        xScale.range([0, dotWidth]);
+        yRowScale.range([0, dotHeight]);
+        dotXAxis.attr("transform", `translate(0,${dotHeight})`).call(d3.axisBottom(xScale));
+        dotYAxis.call(d3.axisLeft(yRowScale).tickFormat(d => CELL_LABELS[d]));
+
+        intWidth = intContainer.clientWidth - intMargin.left - intMargin.right;
+        intHeight = intContainer.clientHeight - intMargin.top - intMargin.bottom;
+        d3.select("#interaction-plot svg").attr("width", intWidth + intMargin.left + intMargin.right).attr("height", intHeight + intMargin.top + intMargin.bottom);
+        intXScale.range([0, intWidth]);
+        intYScale.range([intHeight, 0]);
+        intXAxis.attr("transform", `translate(0,${intHeight})`).call(d3.axisBottom(intXScale));
+        intYAxis.call(d3.axisLeft(intYScale).ticks(6));
+
+        fWidth = fContainer.clientWidth - fMargin.left - fMargin.right;
+        fHeight = fContainer.clientHeight - fMargin.top - fMargin.bottom;
+        d3.select("#f-dist svg").attr("width", fWidth + fMargin.left + fMargin.right).attr("height", fHeight + fMargin.top + fMargin.bottom);
+        fXScale.range([0, fWidth]);
+        fYScale.range([fHeight, 0]);
+        fXAxis.attr("transform", `translate(0,${fHeight})`).call(d3.axisBottom(fXScale));
+        fDfLabel.attr("x", fWidth - 6);
+
+        updateVisuals();
+    });
+
+    // Initial Load
+    generateNewSamples();
+</script>
+</body>
+</html>
