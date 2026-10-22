@@ -1255,8 +1255,19 @@
 
         fMarkerText.transition().duration(400)
             .attr("x", fXScale(displayF) + offset)
-            .attr("text-anchor", anchor)
-            .text(`F_${cur.name} = ${cur.F.toFixed(2)}${cur.F > maxX ? '+' : ''} (p = ${formatP(cur.p)})`);
+            .attr("text-anchor", anchor);
+
+        // SVG <text> does not render HTML <sub>. Build F with a smaller, lowered subscript (A / B / AB).
+        const valueLabel = ` = ${cur.F.toFixed(2)}${cur.F > maxX ? '+' : ''} (p = ${formatP(cur.p)})`;
+        fMarkerText.selectAll("tspan").remove();
+        fMarkerText.append("tspan").text("F");
+        fMarkerText.append("tspan")
+            .attr("font-size", "8px")
+            .attr("dy", 3)
+            .text(activeFEffect);
+        fMarkerText.append("tspan")
+            .attr("dy", -3)
+            .text(valueLabel);
 
         fDfLabel.text(`Active: ${cur.name} Effect | df₁ = ${df1}, df₂ = ${df2}`);
     }
