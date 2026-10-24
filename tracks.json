@@ -1,9 +1,52 @@
 {
   "tracks": [
     {
-      "id": "sampling-distributions",
-      "title": "Sampling & distributions",
-      "summary": "A short path from the shape of a normal curve, through sampling, to the chi-square, z, and t distributions used in basic tests.",
+      "id": "describing-data",
+      "title": "Describing data",
+      "summary": "A short path from where a batch of numbers sits, through spread and skew, to pictures of outliers and of departure from a reference shape.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "statistics/mean_mode_median_dot_plot.html",
+          "title": "Mean, Median, and Mode",
+          "note": "Start with three summaries of where a batch of numbers sits."
+        },
+        {
+          "href": "statistics/moments_as_averages.html",
+          "title": "Moments",
+          "note": "Treat the mean as the first moment, then use higher moments for spread and shape."
+        },
+        {
+          "href": "statistics/bessels_correction_simulation.html",
+          "title": "Bessel's Correction",
+          "note": "See why the sample variance, that second moment, divides by n − 1 rather than n."
+        },
+        {
+          "href": "statistics/skewed_distribution.html",
+          "title": "Skewed Distribution",
+          "note": "Watch the mean, median, and mode pull apart when the distribution leans to one side."
+        },
+        {
+          "href": "statistics/boxplot_histogram.html",
+          "title": "Boxplot and Histogram",
+          "note": "Read that shape two ways: a histogram of the values, and a boxplot of center and spread."
+        },
+        {
+          "href": "statistics/boxplot_outliers.html",
+          "title": "Boxplot and Outliers",
+          "note": "See how the boxplot marks points that sit far from the rest of the data."
+        },
+        {
+          "href": "statistics/q_q_plot.html",
+          "title": "Q-Q Plot",
+          "note": "Compare the sample's quantiles with a reference distribution, often the normal."
+        }
+      ]
+    },
+    {
+      "id": "statistical-reasoning",
+      "title": "Statistical reasoning",
+      "summary": "A short path from the shape of a normal curve, through sampling and the chi-square distribution, to what a confidence interval claims.",
       "status": "draft",
       "steps": [
         {
@@ -27,32 +70,101 @@
           "note": "Square standard normal draws and add them to build a chi-square curve."
         },
         {
-          "href": "statistics/z_distribution_vs_t_distribution.html",
-          "title": "z-Distribution vs t-Distribution",
-          "note": "Compare the z curve with the heavier-tailed t curve used when the population standard deviation is unknown."
+          "href": "statistics/target_analogy_confidence_intervals.html",
+          "title": "Target Analogy of Confidence Intervals",
+          "note": "Sampling distributions set a coverage rate; see what that rate does and does not say about one interval."
         }
       ]
     },
     {
-      "id": "eeg-basics",
-      "title": "EEG basics",
-      "summary": "A short path from what a scalp EEG trace is, through taking that trace apart, to the averaged event-related potential.",
+      "id": "t-test",
+      "title": "t-test",
+      "summary": "A short path from the t curve used when the population standard deviation is unknown to tests of two separate groups and of two paired measures.",
       "status": "draft",
       "steps": [
         {
-          "href": "neuroscience/eeg_illustration.html",
-          "title": "EEG Illustration",
-          "note": "Start with what a scalp recording is measuring."
+          "href": "statistics/z_distribution_vs_t_distribution.html",
+          "title": "z-Distribution vs t-Distribution",
+          "note": "Compare the z curve with the heavier-tailed t curve used when the population standard deviation is unknown."
         },
         {
-          "href": "neuroscience/EEG_signal_decomposition.html",
-          "title": "EEG Signal Decomposition",
-          "note": "Take one trace apart into the rhythms that add up to the raw signal."
+          "href": "statistics/independent_t_test_simulation.html",
+          "title": "Independent Samples t-Test",
+          "note": "Use that t curve to compare means from two separate groups."
         },
         {
-          "href": "neuroscience/erp_demo.html",
-          "title": "Event-related potential (ERP)",
-          "note": "Average time-locked segments of that signal to reveal an event-related potential."
+          "href": "statistics/paired_t_test_simulation.html",
+          "title": "Paired Sample t-Test",
+          "note": "Compare two measures on the same people, so pairing removes a source of person-to-person noise."
+        }
+      ]
+    },
+    {
+      "id": "statistical-power",
+      "title": "Statistical power",
+      "summary": "A short path from the chance of detecting a real effect to how that chance changes with the effect and the sample.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "statistics/statistical_power.html",
+          "title": "Statistical Power",
+          "note": "Lay the sampling distribution under the alternative against the null, and see power as the share that falls past the cutoff."
+        },
+        {
+          "href": "statistics/power_curve.html",
+          "title": "Power Curve",
+          "note": "Trace how that share grows as the effect or the sample gets larger."
+        }
+      ]
+    },
+    {
+      "id": "anova",
+      "title": "ANOVA",
+      "summary": "A short path from the two-group t-test to several means, a split of the variation, and the assumptions the F test needs.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "statistics/t_test_to_anova.html",
+          "title": "From t-Test to ANOVA",
+          "note": "See the two-group t-test as the special case of comparing more than two means."
+        },
+        {
+          "href": "statistics/partitioning_sum_of_squares_anova.html",
+          "title": "Partitioning Sum of Squares",
+          "note": "Split the total variation into a part between groups and a part left inside groups."
+        },
+        {
+          "href": "statistics/two_way_anova.html",
+          "title": "Two-Way ANOVA",
+          "note": "Add a second factor, and separate each main effect from the interaction."
+        },
+        {
+          "href": "statistics/anova_assumptions.html",
+          "title": "ANOVA Assumptions",
+          "note": "Check the normality, equal spread, and independence the F test relies on."
+        }
+      ]
+    },
+    {
+      "id": "association",
+      "title": "Association",
+      "summary": "A short path from how two variables move together, through the share of variance one accounts for, to the case where separate sources of variance add.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "statistics/covariance_and_correlation.html",
+          "title": "Covariance and Correlation",
+          "note": "See covariance as shared movement, then scale it to a correlation free of the units."
+        },
+        {
+          "href": "statistics/variance_explained.html",
+          "title": "Variance Explained",
+          "note": "Square that correlation to get the share of variance one variable accounts for in the other."
+        },
+        {
+          "href": "statistics/additivity_of_variance.html",
+          "title": "Additivity of Variance",
+          "note": "When sources of variance are independent, they do not overlap, and the total variance is their sum."
         }
       ]
     }
