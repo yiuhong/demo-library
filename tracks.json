@@ -1,58 +1,170 @@
 {
   "tracks": [
     {
-      "id": "sampling-distributions",
-      "title": "Sampling & distributions",
-      "summary": "A short path from the shape of a normal curve, through sampling, to the chi-square, z, and t distributions used in basic tests.",
+      "id": "describing-data",
+      "title": "Describing data",
+      "summary": "This path is for describing a batch of numbers before any test. You move from where the numbers sit, through spread and skew, to pictures of outliers and of how the shape compares with a reference distribution. The steps are one description built in layers: a center, averages for spread and shape, and then plots of that same shape.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "statistics/mean_mode_median_dot_plot.html",
+          "title": "Mean, Median, and Mode",
+          "note": "The mean, the median, and the mode are three answers to where a batch of numbers sits. They line up when the numbers are roughly balanced."
+        },
+        {
+          "href": "statistics/moments_as_averages.html",
+          "title": "Moments",
+          "note": "A moment is an average. The mean is the first moment, an average of the values, and higher moments average powers of the deviations, so spread and shape get numbers too."
+        },
+        {
+          "href": "statistics/bessels_correction_simulation.html",
+          "title": "Bessel's Correction",
+          "note": "The sample variance averages squared deviations from the sample mean. Using n in the denominator acts as if that mean were already known, and that makes the variance a little too small, so the usual correction divides by n − 1."
+        },
+        {
+          "href": "statistics/skewed_distribution.html",
+          "title": "Skewed Distribution",
+          "note": "A long tail pulls the mean toward itself, so the mean, the median, and the mode sit in different places. That imbalance is skew."
+        },
+        {
+          "href": "statistics/boxplot_histogram.html",
+          "title": "Boxplot and Histogram",
+          "note": "A histogram shows how values pile up, and a boxplot packs the center and spread of the same batch into a box and whiskers. The two pictures are two readings of one distribution."
+        },
+        {
+          "href": "statistics/boxplot_outliers.html",
+          "title": "Boxplot and Outliers",
+          "note": "On a boxplot, the whiskers mark how far a point can sit from the quartiles before it counts as an outlier. The fence is a multiple of the spread inside the box, so distance is judged against that spread."
+        },
+        {
+          "href": "statistics/q_q_plot.html",
+          "title": "Q-Q Plot",
+          "note": "A Q-Q plot lines a sample's quantiles up against a reference distribution, often the normal. A curve away from the straight line means the sample's shape and the reference shape differ."
+        }
+      ]
+    },
+    {
+      "id": "statistical-reasoning",
+      "title": "Statistical reasoning",
+      "summary": "This path is for the reasoning that turns a curve into a claim about a sample. You build the normal distribution, watch means settle into it, meet the chi-square distribution that comes from squared standard normals, and then read a confidence interval as a long-run coverage rate. One thread runs through the steps: a model for single observations, a sampling distribution for a summary, and the claim a sampling distribution can support.",
       "status": "draft",
       "steps": [
         {
           "href": "statistics/building_normal_distribution.html",
           "title": "Building the Normal Distribution",
-          "note": "See how a normal curve is assembled before treating it as a model for data."
+          "note": "A normal curve is fixed by a center and a spread. Putting the curve together shows what the model is made of."
         },
         {
           "href": "statistics/central_limit_theorem.html",
           "title": "Central Limit Theorem (CLT)",
-          "note": "Watch sample means pile into that shape as each sample gets larger."
+          "note": "As each sample gets larger, the distribution of the sample mean settles toward a normal curve, whatever shape the raw observations had. The central limit theorem is a statement about means."
         },
         {
           "href": "statistics/horowitz_1974_simulation_CLT.html",
           "title": "Horowitz (1974) CLT Simulation",
-          "note": "Replay Horowitz's classroom simulation of the same sampling result."
+          "note": "Horowitz's 1974 simulation draws samples again and again in a classroom setting. The collection of sample means takes on a normal shape."
         },
         {
           "href": "statistics/chi_square_distribution.html",
           "title": "Chi-Square Distribution",
-          "note": "Square standard normal draws and add them to build a chi-square curve."
+          "note": "Square independent standard normal draws and add them up. The sum follows a chi-square distribution, the sampling model for a variance."
         },
         {
-          "href": "statistics/z_distribution_vs_t_distribution.html",
-          "title": "z-Distribution vs t-Distribution",
-          "note": "Compare the z curve with the heavier-tailed t curve used when the population standard deviation is unknown."
+          "href": "statistics/target_analogy_confidence_intervals.html",
+          "title": "Target Analogy of Confidence Intervals",
+          "note": "A confidence interval is a range computed from a sample. In the target analogy the parameter stays fixed and each interval is a shot, so the stated percentage describes the procedure over many samples."
         }
       ]
     },
     {
-      "id": "eeg-basics",
-      "title": "EEG basics",
-      "summary": "A short path from what a scalp EEG trace is, through taking that trace apart, to the averaged event-related potential.",
+      "id": "t-test",
+      "title": "t-test",
+      "summary": "This path is for comparing two means when the population standard deviation has to be estimated from the data. You meet the heavier-tailed t curve that takes the place of z, then compare two separate groups, then two measures on the same people. The reference distribution stays the same; what changes is which scores are being compared.",
       "status": "draft",
       "steps": [
         {
-          "href": "neuroscience/eeg_illustration.html",
-          "title": "EEG Illustration",
-          "note": "Start with what a scalp recording is measuring."
+          "href": "statistics/z_distribution_vs_t_distribution.html",
+          "title": "z-Distribution vs t-Distribution",
+          "note": "When the standard deviation is estimated from the sample, the reference distribution has heavier tails than the z curve. Those tails are heavier still in a small sample, and that wider curve is the t distribution."
         },
         {
-          "href": "neuroscience/EEG_signal_decomposition.html",
-          "title": "EEG Signal Decomposition",
-          "note": "Take one trace apart into the rhythms that add up to the raw signal."
+          "href": "statistics/independent_t_test_simulation.html",
+          "title": "Independent Samples t-Test",
+          "note": "An independent-samples t-test compares means from two groups that do not share people. Each person is in one group only, and the standard error combines the spread of the two samples."
         },
         {
-          "href": "neuroscience/erp_demo.html",
-          "title": "Event-related potential (ERP)",
-          "note": "Average time-locked segments of that signal to reveal an event-related potential."
+          "href": "statistics/paired_t_test_simulation.html",
+          "title": "Paired Sample t-Test",
+          "note": "In a paired design, the two scores from each person become one difference. That removes person-to-person variation before the mean difference is set against a t curve."
+        }
+      ]
+    },
+    {
+      "id": "statistical-power",
+      "title": "Statistical power",
+      "summary": "This path is for the chance of detecting an effect that is really there. First you see power as the part of the alternative sampling distribution that falls past the cutoff set by the null, and then you watch that chance change with the effect and the sample. The two steps are one definition, and then the curve that shows how the definition moves.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "statistics/statistical_power.html",
+          "title": "Statistical Power",
+          "note": "Power is the chance of detecting an effect that is really there. It is the share of the alternative sampling distribution that lands beyond the cutoff set by the null."
+        },
+        {
+          "href": "statistics/power_curve.html",
+          "title": "Power Curve",
+          "note": "A power curve shows how the chance of detecting a real effect changes with the study. A larger effect or a larger sample moves the alternative distribution farther past the null cutoff, and more of it counts as a detection."
+        }
+      ]
+    },
+    {
+      "id": "anova",
+      "title": "ANOVA",
+      "summary": "This path is for comparing means across groups, with the two-group t-test as the starting case. You split total variation into a part between groups and a part inside groups, add a second factor and its interaction, and then look at the assumptions behind the F test. Each step uses that same split and asks it a wider question.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "statistics/t_test_to_anova.html",
+          "title": "From t-Test to ANOVA",
+          "note": "With two groups, the t-test and ANOVA ask whether the means differ by more than the scatter inside the groups. ANOVA is that comparison opened to more than two means."
+        },
+        {
+          "href": "statistics/partitioning_sum_of_squares_anova.html",
+          "title": "Partitioning Sum of Squares",
+          "note": "Partitioning the sum of squares splits total variation into a part between groups and a part left inside groups. The F ratio compares those two parts."
+        },
+        {
+          "href": "statistics/two_way_anova.html",
+          "title": "Two-Way ANOVA",
+          "note": "Two-way ANOVA labels variation with two factors at once. Each factor has its own main effect, and the interaction is the pattern that appears in the combination of the two."
+        },
+        {
+          "href": "statistics/anova_assumptions.html",
+          "title": "ANOVA Assumptions",
+          "note": "The usual reading of an F test wants residuals that are roughly normal, groups with similar spread, and observations that are independent of each other. Those are the conditions for the standard interpretation."
+        }
+      ]
+    },
+    {
+      "id": "association",
+      "title": "Association",
+      "summary": "This path is for how two variables move together, and for what that movement means in units of variance. You start with covariance, rescale it to a correlation, and square the correlation to get the share of variance one variable accounts for in the other. The last step stays with variance and takes the independent case, where separate sources add and the total is their sum.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "statistics/covariance_and_correlation.html",
+          "title": "Covariance and Correlation",
+          "note": "Covariance records how two variables move together, in the units of both. Dividing by the two standard deviations turns that record into a correlation on a scale from negative one to one."
+        },
+        {
+          "href": "statistics/variance_explained.html",
+          "title": "Variance Explained",
+          "note": "Squaring a correlation turns the strength of a linear relationship into a share of variance. That square is the proportion of variance in one variable that the line accounts for."
+        },
+        {
+          "href": "statistics/additivity_of_variance.html",
+          "title": "Additivity of Variance",
+          "note": "When sources of variance are independent, nothing is shared between them. Each variance is kept whole, and the total variance is their sum."
         }
       ]
     }

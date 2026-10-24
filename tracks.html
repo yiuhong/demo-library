@@ -232,55 +232,6 @@
             line-height: 1.45;
         }
 
-        .track-step-nav {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 0.75em 1.5em;
-            margin-top: 0.75em;
-        }
-
-        a.step-jump {
-            display: block;
-            max-width: 18rem;
-            border-bottom: 0 !important;
-            color: #000000 !important;
-            text-decoration: none;
-        }
-
-        a.step-jump:hover,
-        a.step-jump:focus-visible {
-            color: #000000 !important;
-        }
-
-        a.step-jump:focus {
-            outline: none;
-        }
-
-        a.step-jump:focus-visible {
-            outline: 2px solid #000000;
-            outline-offset: 3px;
-        }
-
-        .step-jump-kicker {
-            display: block;
-            font-size: 0.68em;
-            font-weight: bold;
-            letter-spacing: 0.04em;
-            line-height: 1.4;
-            text-transform: uppercase;
-        }
-
-        .step-jump-title {
-            display: inline;
-            border-bottom: 1px dotted rgba(0, 0, 0, 0.45);
-        }
-
-        a.step-jump:hover .step-jump-title,
-        a.step-jump:focus-visible .step-jump-title {
-            border-bottom-color: transparent;
-        }
-
         @media screen and (max-width: 736px) {
             .sub-category-section {
                 padding: 1em 1em 0.2em;
@@ -288,11 +239,6 @@
 
             a.demo-card {
                 min-height: 0;
-            }
-
-            a.step-jump {
-                max-width: none;
-                text-align: left;
             }
         }
     </style>
@@ -515,15 +461,6 @@
                 return link;
             }
 
-            function previousLink(step) {
-                var link = el('a', 'step-jump');
-                link.href = step.href;
-                link.rel = 'prev';
-                link.appendChild(el('span', 'step-jump-kicker', 'Previous'));
-                link.appendChild(el('span', 'step-jump-title', step.title));
-                return link;
-            }
-
             function renderTrack(track, moveFocus, scrollIntoView) {
                 var section = el('section', 'track-detail');
                 var back = el('a', 'tracks-back', 'All tracks');
@@ -550,16 +487,10 @@
                     panel.appendChild(el('p', 'track-step-note', 'This track has no steps yet.'));
                 } else {
                     var list = el('ol', 'track-steps');
-                    track.steps.forEach(function (step, index) {
+                    track.steps.forEach(function (step) {
                         var item = el('li', 'track-step');
                         item.appendChild(stepHeading(step));
                         if (step.note) item.appendChild(el('p', 'track-step-note', step.note));
-                        var previous = index > 0 ? track.steps[index - 1] : null;
-                        if (previous && previous.href) {
-                            var nav = el('div', 'track-step-nav');
-                            nav.appendChild(previousLink(previous));
-                            item.appendChild(nav);
-                        }
                         list.appendChild(item);
                     });
                     panel.appendChild(list);
