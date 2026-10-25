@@ -9,37 +9,80 @@
         {
           "href": "statistics/mean_mode_median_dot_plot.html",
           "title": "Mean, Median, and Mode",
-          "note": "We often describe data by their averages: numerical summaries that answer where the numbers sit. The mean, the median, and the mode are three such answers; they line up when the numbers are roughly balanced, and they pull apart when the shape is not. When they disagree, the next question is what other kinds of average can capture spread and shape, not only center."
+          "note": "We often describe data by their averages: numerical summaries that answer where the numbers sit. The mean, the median, and the mode are three such answers; they line up when the numbers are roughly balanced, and they pull apart when the shape is not. In the demonstration, move the points and watch which average shifts. When they disagree, the next question is what other kinds of average can capture spread and shape, not only center.",
+          "formulae": [
+            "x̄ = (Σ xᵢ) / n",
+            "median = middle after sorting",
+            "mode = most frequent value"
+          ],
+          "image": "tracks/images/describing-data/01-mean-median-mode.png",
+          "imageAlt": "Dot plot of a mildly right-skewed sample. A dotted line marks the mode at 5, a dashed line marks the median at 6, and a solid line marks the mean at 6.94, pulled right by the tail."
         },
         {
           "href": "statistics/moments_as_averages.html",
           "title": "Moments",
-          "note": "There are different types of averages, and in statistics those averages of powers of the values (or of their deviations) are called moments. The mean is the first moment; higher moments give numbers for spread and for skew. Those numbers still treat the sample mean as if it were already known, which matters once variance is estimated from the same data."
+          "note": "There are different types of averages, and in statistics those averages of powers of the values (or of their deviations) are called moments. The mean is the first moment; higher moments give numbers for spread and for skew. Compare how each moment responds when you change the sample. Those numbers still treat the sample mean as if it were already known, which matters once variance is estimated from the same data.",
+          "formulae": [
+            "m₁ = x̄",
+            "m₂ = Σ (xᵢ − x̄)² / n",
+            "m₃ = Σ (xᵢ − x̄)³ / n"
+          ],
+          "image": "tracks/images/describing-data/02-moments.png",
+          "imageAlt": "Three panels of one sample, 1, 2, 3, 4, 5, 9. The first marks the mean at 4. The second shows squared deviations from that mean, which average to 6.67. The third shows cubed deviations, where the value 9 produces a cube of 125 and the average is 15."
         },
         {
           "href": "statistics/bessels_correction_simulation.html",
           "title": "Bessel's Correction",
-          "note": "When we use the data to estimate how spread out they are, the usual average of squared deviations is a little too small, because the sample mean was taken from those same values. Dividing by n − 1 instead of n corrects for that. With a fairer number for spread, you can ask whether the shape is pulled one way rather than balanced — that imbalance is skew."
+          "note": "When we use the data to estimate how spread out they are, the usual average of squared deviations is a little too small, because the sample mean was taken from those same values. Dividing by n − 1 instead of n corrects for that. Run many samples and see which divisor lands nearer the true variance on average. With a fairer number for spread, you can ask whether the shape is pulled one way rather than balanced — that imbalance is skew.",
+          "formulae": [
+            "s² = Σ (xᵢ − x̄)² / (n − 1)",
+            "s = √(s²)"
+          ],
+          "image": "tracks/images/describing-data/03-bessels-correction.png",
+          "imageAlt": "Two bars for the average variance estimate from 8000 samples of size 10, drawn from a population whose variance is 100. Dividing by n averages about 90.2, below the true-variance line. Dividing by n − 1 averages about 100.2, on that line."
         },
         {
           "href": "statistics/skewed_distribution.html",
           "title": "Skewed Distribution",
-          "note": "Not every set of numbers is balanced around its center; a long tail on one side pulls the mean toward itself, so mean, median, and mode sit in different places. That imbalance is skew. A number for skew is useful, but the same shape is easier to see in a picture of how the values pile up and where the middle of the data sits."
+          "note": "Not every set of numbers is balanced around its center; a long tail on one side pulls the mean toward itself, so mean, median, and mode sit in different places. That imbalance is skew. Drag the skew and watch the three averages separate. A number for skew is useful, but the same shape is easier to see in a picture of how the values pile up and where the middle of the data sits.",
+          "formulae": [
+            "skew = (1/n) Σ ((xᵢ − x̄) / σ)³",
+            "σ² = Σ (xᵢ − x̄)² / n"
+          ],
+          "image": "tracks/images/describing-data/04-skew.png",
+          "imageAlt": "A right-skewed density curve. A dotted line marks the mode at 0.49, a dashed line marks the median at 1.00, and a solid line marks the mean at 1.44, farther into the long tail."
         },
         {
           "href": "statistics/boxplot_histogram.html",
           "title": "Boxplot and Histogram",
-          "note": "Numbers for center, spread, and skew summarize a shape; pictures show that shape directly. A histogram shows how values pile up; a boxplot packs the center and spread of the same data into a box and whiskers. Reading both together also shows how far a point can sit before it looks unusual against the middle of the data."
+          "note": "Numbers for center, spread, and skew summarize a shape; pictures show that shape directly. A histogram shows how values pile up; a boxplot packs the center and spread of the same data into a box and whiskers. Read the pile and the box together on one sample. Reading both together also shows how far a point can sit before it looks unusual against the middle of the data.",
+          "formulae": [
+            "Q₁, Q₂ (median), Q₃",
+            "IQR = Q₃ − Q₁"
+          ],
+          "image": "tracks/images/describing-data/05-boxplot-histogram.png",
+          "imageAlt": "Histogram and boxplot of the same 44 values. The tallest bar is at 5. Dashed lines mark the first quartile at 5, the median at 6, and the third quartile at 8. Whiskers run from 3 to 12."
         },
         {
           "href": "statistics/boxplot_outliers.html",
           "title": "Boxplot and Outliers",
-          "note": "Once you can see the middle of the data in a boxplot, the next question is which points sit so far out that they count as unusual. The whiskers mark how far a point can sit from the quartiles before it counts as an outlier; the fence is a multiple of the spread inside the box. Outliers are one kind of mismatch with a simple shape; another is whether the whole set of numbers matches a reference distribution."
+          "note": "Once you can see the middle of the data in a boxplot, the next question is which points sit so far out that they count as unusual. The whiskers mark how far a point can sit from the quartiles before it counts as an outlier; the fence is a multiple of the spread inside the box. Add extreme points and watch which ones fall outside the fences. Outliers are one kind of mismatch with a simple shape; another is whether the whole set of numbers matches a reference distribution.",
+          "formulae": [
+            "lower fence = Q₁ − 1.5 × IQR",
+            "upper fence = Q₃ + 1.5 × IQR"
+          ],
+          "image": "tracks/images/describing-data/06-boxplot-fences.png",
+          "imageAlt": "Vertical boxplot for one sample. The box runs from the first quartile at 20 to the third quartile at 40, with the median at 30. Dashed Tukey fences sit at −10 and 70. The upper whisker stops at 44, inside the fence, and a point at 80 is marked as an outlier."
         },
         {
           "href": "statistics/q_q_plot.html",
-          "title": "Q-Q Plot",
-          "note": "A few extreme points are one way a set of numbers can look unusual; another is that the overall shape does not match a familiar reference curve. A Q–Q plot lines the sample’s quantiles up against a reference distribution, often the normal. A curve away from the straight line means the sample’s shape and the reference shape differ — a last check on whether the description you built above fits a familiar model."
+          "title": "Q–Q Plot",
+          "note": "A few extreme points are one way a set of numbers can look unusual; another is that the overall shape does not match a familiar reference curve. A Q–Q plot lines the sample’s quantiles up against a reference distribution, often the normal. Compare the sample quantiles to the reference line. A curve away from the straight line means the sample’s shape and the reference shape differ — a last check on whether the description you built fits a familiar model.",
+          "formulae": [
+            "plot (theoretical quantile, sample quantile) for each order statistic"
+          ],
+          "image": "tracks/images/describing-data/07-qq-plot.png",
+          "imageAlt": "Q–Q plot of one sample of 40 standard normal draws. Ordered sample quantiles are plotted against normal theoretical quantiles and lie close to a straight reference line."
         }
       ]
     },

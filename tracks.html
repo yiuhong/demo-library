@@ -232,6 +232,41 @@
             line-height: 1.45;
         }
 
+        figure.track-step-figure {
+            margin: 0.75em 0 0 0;
+            max-width: 40rem;
+        }
+
+        img.track-step-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: #ffffff;
+            border: 1px solid #000000 !important;
+            border-radius: 2px;
+        }
+
+        ul.track-step-formulae {
+            list-style: none;
+            margin: 0.65em 0 0 0;
+            padding: 0.5em 0.75em;
+            max-width: 40rem;
+            background: #ffffff;
+            border: 1px solid #000000 !important;
+            border-radius: 2px;
+        }
+
+        ul.track-step-formulae > li {
+            margin: 0;
+            padding: 0.12em 0;
+            border: 0;
+            font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+            font-size: 0.92em;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            color: #000000 !important;
+        }
+
         @media screen and (max-width: 736px) {
             .sub-category-section {
                 padding: 1em 1em 0.2em;
@@ -298,7 +333,8 @@
     <script src="https://yiuhong.github.io/assets/js/util.js"></script>
     <script src="https://yiuhong.github.io/assets/js/main.js"></script>
 
-    <!-- Playlists live in tracks.json. Edit that file to insert, remove, or reorder steps. -->
+    <!-- Playlists live in tracks.json. Edit that file to insert, remove, or reorder steps.
+         Optional formulae are plain text. Optional images are relative paths with alt text. -->
     <script>
         (function () {
             'use strict';
@@ -330,16 +366,45 @@
                 return value;
             }
 
+            function safeImagePath(href) {
+                var value = safeHref(href);
+                if (!value || value.charAt(0) === '/') return '';
+                if (!/^[A-Za-z0-9._/-]+$/.test(value)) return '';
+                if (!/\.(png|svg|jpe?g|gif|webp)$/i.test(value)) return '';
+                return value;
+            }
+
+            function normalizeFormulae(raw) {
+                if (!Array.isArray(raw)) return [];
+                var formulae = [];
+                for (var i = 0; i < raw.length; i++) {
+                    if (typeof raw[i] !== 'string') continue;
+                    var text = raw[i].trim();
+                    if (!text || text.length > 400) continue;
+                    formulae.push(text);
+                }
+                return formulae;
+            }
+
             function normalizeStep(raw) {
                 if (!raw || typeof raw !== 'object') return null;
                 var title = typeof raw.title === 'string' ? raw.title.trim() : '';
                 var href = safeHref(raw.href);
                 var note = typeof raw.note === 'string' ? raw.note.trim() : '';
+                var image = safeImagePath(raw.image);
+                var imageAlt = typeof raw.imageAlt === 'string' ? raw.imageAlt.trim() : '';
+                if (!image || !imageAlt) {
+                    image = '';
+                    imageAlt = '';
+                }
                 if (!title && !href) return null;
                 return {
                     title: title || href,
                     href: href,
-                    note: note
+                    note: note,
+                    image: image,
+                    imageAlt: imageAlt,
+                    formulae: normalizeFormulae(raw.formulae)
                 };
             }
 
@@ -461,6 +526,27 @@
                 return link;
             }
 
+            function appendStepBody(item, step) {
+                if (step.image) {
+                    var figure = el('figure', 'track-step-figure');
+                    var img = document.createElement('img');
+                    img.className = 'track-step-image';
+                    img.src = step.image;
+                    img.alt = step.imageAlt;
+                    figure.appendChild(img);
+                    item.appendChild(figure);
+                }
+                if (step.note) item.appendChild(el('p', 'track-step-note', step.note));
+                if (step.formulae.length) {
+                    var list = el('ul', 'track-step-formulae');
+                    list.setAttribute('aria-label', 'Formulae');
+                    step.formulae.forEach(function (formula) {
+                        list.appendChild(el('li', null, formula));
+                    });
+                    item.appendChild(list);
+                }
+            }
+
             function renderTrack(track, moveFocus, scrollIntoView) {
                 var section = el('section', 'track-detail');
                 var back = el('a', 'tracks-back', 'All tracks');
@@ -490,7 +576,7 @@
                     track.steps.forEach(function (step) {
                         var item = el('li', 'track-step');
                         item.appendChild(stepHeading(step));
-                        if (step.note) item.appendChild(el('p', 'track-step-note', step.note));
+                        appendStepBody(item, step);
                         list.appendChild(item);
                     });
                     panel.appendChild(list);
