@@ -95,27 +95,57 @@
         {
           "href": "statistics/building_normal_distribution.html",
           "title": "Building the Normal Distribution",
-          "note": "Many descriptions of data end by asking whether the shape looks like a familiar smooth curve. The normal distribution is one such curve, fixed by a center and a spread. Putting the curve together shows what the model is made of, and sets up the question of what happens to summaries — such as the mean — when you draw many samples."
+          "note": "Many descriptions of data end by asking whether the shape looks like a familiar smooth curve. The normal distribution is one such curve, fixed by a center and a spread. Putting the curve together shows what the model is made of, and sets up the question of what happens to summaries — such as the mean — when you draw many samples.",
+          "formulae": [
+            "f(x) = (1 / (σ√(2π))) exp(−(x − μ)² / (2σ²))",
+            "μ = center",
+            "σ = spread"
+          ],
+          "image": "tracks/images/statistical-reasoning/01-normal-density.png",
+          "imageAlt": "Standard normal density. A dashed line marks the center at μ = 0. Dotted lines mark one standard deviation on either side, at −1 and 1."
         },
         {
           "href": "statistics/central_limit_theorem.html",
           "title": "Central Limit Theorem (CLT)",
-          "note": "A single sample mean is one summary of one set of numbers. If you imagine drawing many samples of the same size, those means themselves form a distribution. As each sample gets larger, that distribution of means settles toward a normal curve, whatever shape the raw observations had. The central limit theorem is that statement about means — and classroom simulations make the settling visible."
+          "note": "A single sample mean is one summary of one set of numbers. If you imagine drawing many samples of the same size, those means themselves form a distribution. As each sample gets larger, that distribution of means settles toward a normal curve, whatever shape the raw observations had. The central limit theorem is that statement about means — and classroom simulations make the settling visible.",
+          "formulae": [
+            "X̄ ≈ N(μ, σ²/n) for large n",
+            "SE = σ / √n"
+          ],
+          "image": "tracks/images/statistical-reasoning/02-clt-sampling.png",
+          "imageAlt": "Sampling distributions of the mean for an exponential population with mean 1. The n = 2 curve is low and right-skewed, n = 8 is taller, and n = 32 is a tall narrow curve on the dashed line at μ = 1."
         },
         {
           "href": "statistics/horowitz_1974_simulation_CLT.html",
           "title": "Horowitz (1974) CLT Simulation",
-          "note": "The central limit theorem is easier to trust when you can watch sample means accumulate. Horowitz's 1974 simulation draws samples again and again in a classroom setting; the collection of sample means takes on a normal shape. Once means behave like normals, sums of squared standard normals become the next building block."
+          "note": "The central limit theorem is easier to trust when you can watch sample means accumulate. Horowitz's 1974 simulation draws samples again and again in a classroom setting; the collection of sample means takes on a normal shape. Once means behave like normals, sums of squared standard normals become the next building block.",
+          "formulae": [
+            "X̄ₙ → N(μ, σ²/n) as n grows"
+          ],
+          "image": "tracks/images/statistical-reasoning/03-horowitz-clt.png",
+          "imageAlt": "Histogram of 96 sample means. Each mean is from 10 draws of a normal population with mean 50 and standard deviation 15.8. A normal curve centered at 50 with standard deviation 5 lies over the bars."
         },
         {
           "href": "statistics/chi_square_distribution.html",
           "title": "Chi-Square Distribution",
-          "note": "Not every sampling story is about a mean. Square independent standard normal draws and add them up; the sum follows a chi-square distribution, the usual sampling model for a variance. With sampling distributions for means and for variances in view, you can ask what kind of interval claim a sampling distribution can support."
+          "note": "Not every sampling story is about a mean. Square independent standard normal draws and add them up; the sum follows a chi-square distribution, the usual sampling model for a variance. With sampling distributions for means and for variances in view, you can ask what kind of interval claim a sampling distribution can support.",
+          "formulae": [
+            "χ²_ν = Z₁² + … + Z_ν²",
+            "Zᵢ ~ N(0, 1), independent"
+          ],
+          "image": "tracks/images/statistical-reasoning/04-chi-square.png",
+          "imageAlt": "Chi-square densities for 1, 3, and 5 degrees of freedom. The 1-df curve spikes at zero and runs off the top of the axes. The 3-df curve peaks near 1. The 5-df curve peaks near 3 and sits lower and further right."
         },
         {
           "href": "statistics/target_analogy_confidence_intervals.html",
           "title": "Target Analogy of Confidence Intervals",
-          "note": "A confidence interval is a range computed from a sample. In the target analogy the unknown value stays fixed and each interval is a shot, so the stated percentage describes the procedure over many samples — not the chance that this one interval covers that value. That closes the path from a curve for observations to a claim stated as coverage."
+          "note": "A confidence interval is a range computed from a sample. In the target analogy the unknown value stays fixed and each interval is a shot, so the stated percentage describes the procedure over many samples — not the chance that this one interval covers that value. That closes the path from a curve for observations to a claim stated as coverage.",
+          "formulae": [
+            "CI = X̄ ± z* · (σ / √n)",
+            "coverage ≈ 1 − α over repeated samples"
+          ],
+          "image": "tracks/images/statistical-reasoning/05-confidence-intervals.png",
+          "imageAlt": "Twenty horizontal intervals of equal width aimed at a dashed line, the true value. Nineteen solid intervals cross that line. The top interval is dotted, lies entirely to the right, and is labeled miss."
         }
       ]
     },
@@ -128,17 +158,38 @@
         {
           "href": "statistics/z_distribution_vs_t_distribution.html",
           "title": "z-Distribution vs t-Distribution",
-          "note": "When a mean is compared against a known standard deviation, a z curve is the usual reference. In practice that standard deviation is almost always estimated from the same data, and the extra uncertainty shows up as heavier tails than z. Those tails are heavier still in a small sample; that wider curve is the t distribution, and it is the reference you will use for the two comparisons that follow."
+          "note": "When a mean is compared against a known standard deviation, a z curve is the usual reference. In practice that standard deviation is almost always estimated from the same data, and the extra uncertainty shows up as heavier tails than z. Those tails are heavier still in a small sample; that wider curve is the t distribution, and it is the reference you will use for the two comparisons that follow.",
+          "formulae": [
+            "z = (X̄ − μ) / (σ / √n)",
+            "t = (X̄ − μ) / (s / √n)",
+            "df = n − 1"
+          ],
+          "image": "tracks/images/t-test/01-z-vs-t.png",
+          "imageAlt": "The standard normal and a t distribution with 4 degrees of freedom. The left panel shows both full curves. The right panel zooms into the right tail, where the dashed t curve stays above the solid z curve."
         },
         {
           "href": "statistics/independent_t_test_simulation.html",
           "title": "Independent Samples t-Test",
-          "note": "One common comparison is two groups that do not share people — each person is in one group only. An independent-samples t-test asks whether the two group means differ by more than you would expect from the spread within the groups, using a t curve whose standard error combines those two spreads. A different design pairs two scores within the same person instead."
+          "note": "One common comparison is two groups that do not share people — each person is in one group only. An independent-samples t-test asks whether the two group means differ by more than you would expect from the spread within the groups, using a t curve whose standard error combines those two spreads. A different design pairs two scores within the same person instead.",
+          "formulae": [
+            "t = (X̄₁ − X̄₂) / SE",
+            "SE = √(s_p² (1/n₁ + 1/n₂))",
+            "s_p² = ((n₁ − 1) s₁² + (n₂ − 1) s₂²) / (n₁ + n₂ − 2)"
+          ],
+          "image": "tracks/images/t-test/02-independent-t.png",
+          "imageAlt": "Two groups of eight scores. Group 1 is centered at 50 and group 2 at 62, with an arrow marking a mean difference of 12. A bracket of length s = 4.9 sits beside each mean."
         },
         {
           "href": "statistics/paired_t_test_simulation.html",
           "title": "Paired Sample t-Test",
-          "note": "In a paired design, the two scores from each person become one difference. That removes person-to-person variation before the mean difference is set against a t curve. The path ends here: the same family of reference curve, and two designs for which scores enter the comparison."
+          "note": "In a paired design, the two scores from each person become one difference. That removes person-to-person variation before the mean difference is set against a t curve. The path ends here: the same family of reference curve, and two designs for which scores enter the comparison.",
+          "formulae": [
+            "dᵢ = xᵢ,post − xᵢ,pre",
+            "t = d̄ / (s_d / √n), with μ₀ = 0",
+            "df = n − 1"
+          ],
+          "image": "tracks/images/t-test/03-paired-t.png",
+          "imageAlt": "Left: eight before-and-after pairs joined by lines. Right: those eight differences, with a dashed line at the mean difference of 5. The two differences equal to 7 are drawn side by side."
         }
       ]
     },
@@ -151,12 +202,24 @@
         {
           "href": "statistics/statistical_power.html",
           "title": "Statistical Power",
-          "note": "A significance cutoff is set under the null, but a real effect shifts the sampling distribution of the test statistic. Power is the chance of detecting an effect that is really there: the share of that alternative distribution that lands beyond the null cutoff. Once that definition is clear, the next question is how power changes when the study changes."
+          "note": "A significance cutoff is set under the null, but a real effect shifts the sampling distribution of the test statistic. Power is the chance of detecting an effect that is really there: the share of that alternative distribution that lands beyond the null cutoff. Once that definition is clear, the next question is how power changes when the study changes.",
+          "formulae": [
+            "power = P(reject H₀ | H₁ true)",
+            "α = P(reject H₀ | H₀ true)"
+          ],
+          "image": "tracks/images/statistical-power/01-power-regions.png",
+          "imageAlt": "A null sampling curve centered at 0 and an alternative curve centered at 2, for σ = 5 and n = 30. A dotted line marks the one-tailed 5% cutoff at 1.50. Gray shading under the alternative, to the right of the cutoff, is the power, about 71%."
         },
         {
           "href": "statistics/power_curve.html",
           "title": "Power Curve",
-          "note": "Power is not a fixed number; it moves with the study. A power curve shows how the chance of detecting a real effect changes with the size of the effect and the size of the sample. A larger effect or a larger sample moves the alternative distribution farther past the null cutoff, and more of it counts as a detection."
+          "note": "Power is not a fixed number; it moves with the study. A power curve shows how the chance of detecting a real effect changes with the size of the effect and the size of the sample. A larger effect or a larger sample moves the alternative distribution farther past the null cutoff, and more of it counts as a detection.",
+          "formulae": [
+            "power rises with |effect| and with n",
+            "SE shrinks as 1/√n"
+          ],
+          "image": "tracks/images/statistical-power/02-power-curve.png",
+          "imageAlt": "Power of a two-sided, equal-group t test against total sample size, for Cohen's d = 0.50 and α = 0.05. Dashed guides mark the operating point where power first reaches 0.80, at total N = 128."
         }
       ]
     },
@@ -169,22 +232,48 @@
         {
           "href": "statistics/t_test_to_anova.html",
           "title": "From t-Test to ANOVA",
-          "note": "With two groups, a t-test asks whether the means differ by more than the scatter inside the groups. ANOVA asks the same kind of question when there may be more than two means: is the variation among group means large relative to the variation left inside groups? Opening the comparison that way leads to an explicit split of total variation."
+          "note": "With two groups, a t-test asks whether the means differ by more than the scatter inside the groups. ANOVA asks the same kind of question when there may be more than two means: is the variation among group means large relative to the variation left inside groups? Opening the comparison that way leads to an explicit split of total variation.",
+          "formulae": [
+            "F = MS_between / MS_within",
+            "for two groups, t² = F"
+          ],
+          "image": "tracks/images/anova/01-two-means-three-means.png",
+          "imageAlt": "Two panels with the same within-group scatter. The left panel has group means at 40 and 60. The right panel has group means at 30, 50, and 70. A short horizontal line marks each mean."
         },
         {
           "href": "statistics/partitioning_sum_of_squares_anova.html",
           "title": "Partitioning Sum of Squares",
-          "note": "To compare several means, it helps to say where the variation in the data comes from. Partitioning the sum of squares splits total variation into a part between groups and a part left inside groups; the F ratio compares those two parts. The same split extends when two factors label the groups at once."
+          "note": "To compare several means, it helps to say where the variation in the data comes from. Partitioning the sum of squares splits total variation into a part between groups and a part left inside groups; the F ratio compares those two parts. The same split extends when two factors label the groups at once.",
+          "formulae": [
+            "SS_total = SS_between + SS_within",
+            "MS = SS / df",
+            "F = MS_between / MS_within"
+          ],
+          "image": "tracks/images/anova/02-sum-of-squares.png",
+          "imageAlt": "One horizontal bar split into a hatched between-groups part of 2400 and an open within-groups part of 600. The total is 3000 and F = 12."
         },
         {
           "href": "statistics/two_way_anova.html",
           "title": "Two-Way ANOVA",
-          "note": "Sometimes each observation belongs to a combination of two factors, not one. Two-way ANOVA labels variation with both factors at once: each factor has its own main effect, and the interaction is the pattern that appears only in the combination. The usual reading of any of these F tests also depends on a few conditions on the residuals."
+          "note": "Sometimes each observation belongs to a combination of two factors, not one. Two-way ANOVA labels variation with both factors at once: each factor has its own main effect, and the interaction is the pattern that appears only in the combination. The usual reading of any of these F tests also depends on a few conditions on the residuals.",
+          "formulae": [
+            "SS_total = SS_A + SS_B + SS_AB + SS_error",
+            "F_A = MS_A / MS_error, and likewise for B and AB"
+          ],
+          "image": "tracks/images/anova/03-two-way.png",
+          "imageAlt": "Two panels of 2×2 cell means. On the left the female line runs from 38 to 48 and the male line from 46 to 56, parallel. On the right the lines cross: female runs from 38 to 56 and male from 56 to 38."
         },
         {
           "href": "statistics/anova_assumptions.html",
           "title": "ANOVA Assumptions",
-          "note": "The usual reading of an F test wants residuals that are roughly normal, groups with similar spread, and observations that are independent of each other. Those are the conditions for the standard interpretation — a check on whether the splits and F ratios can be read in the ordinary way."
+          "note": "The usual reading of an F test wants residuals that are roughly normal, groups with similar spread, and observations that are independent of each other. Those are the conditions for the standard interpretation — a check on whether the splits and F ratios can be read in the ordinary way.",
+          "formulae": [
+            "residuals ≈ normal",
+            "group variances similar",
+            "observations independent"
+          ],
+          "image": "tracks/images/anova/04-assumptions.png",
+          "imageAlt": "Left: a Q–Q plot of standardized residuals from three groups, close to a straight reference line. Right: those groups as dot plots, with means near 20, 32, and 42 and similar vertical spread."
         }
       ]
     },
@@ -197,17 +286,35 @@
         {
           "href": "statistics/covariance_and_correlation.html",
           "title": "Covariance and Correlation",
-          "note": "When two variables are measured together, a natural question is whether they tend to move in the same direction. Covariance records that shared movement in the units of both variables; dividing by the two standard deviations turns the record into a correlation on a scale from negative one to one. The size of that correlation also has a meaning in units of variance."
+          "note": "When two variables are measured together, a natural question is whether they tend to move in the same direction. Covariance records that shared movement in the units of both variables; dividing by the two standard deviations turns the record into a correlation on a scale from negative one to one. The size of that correlation also has a meaning in units of variance.",
+          "formulae": [
+            "cov(X, Y) = Σ (xᵢ − x̄)(yᵢ − ȳ) / (n − 1)",
+            "r = cov(X, Y) / (s_x s_y)"
+          ],
+          "image": "tracks/images/association/01-correlation.png",
+          "imageAlt": "Scatter of 36 points with a positive association. Dashed lines mark the mean of x and the mean of y. A label reads r = 0.81, unit-free."
         },
         {
           "href": "statistics/variance_explained.html",
           "title": "Variance Explained",
-          "note": "A correlation says how strongly two variables line up; squaring it turns that strength into a share of variance. That square is the proportion of variance in one variable that a straight-line relationship with the other accounts for. The last step stays with variance and asks what happens when sources do not share anything."
+          "note": "A correlation says how strongly two variables line up; squaring it turns that strength into a share of variance. That square is the proportion of variance in one variable that a straight-line relationship with the other accounts for. The last step stays with variance and asks what happens when sources do not share anything.",
+          "formulae": [
+            "R² = r²",
+            "R² = SS_line / SS_total"
+          ],
+          "image": "tracks/images/association/02-variance-explained.png",
+          "imageAlt": "Left: 36 points with a fitted straight line and dotted residuals. Right: a bar of the variance in y, hatched for the shared 66 percent and open for the remaining 34 percent. The panel title reads R² = 0.66."
         },
         {
           "href": "statistics/additivity_of_variance.html",
           "title": "Additivity of Variance",
-          "note": "When sources of variance are independent, nothing is shared between them. Each variance is kept whole, and the total variance is their sum. That closes the path: from co-movement, through explained variance, to the case where separate sources simply add."
+          "note": "When sources of variance are independent, nothing is shared between them. Each variance is kept whole, and the total variance is their sum. That closes the path: from co-movement, through explained variance, to the case where separate sources simply add.",
+          "formulae": [
+            "Var(X + Y) = Var(X) + Var(Y) + 2 Cov(X, Y)",
+            "if X and Y are independent, Cov(X, Y) = 0"
+          ],
+          "image": "tracks/images/association/03-additivity.png",
+          "imageAlt": "Three bars. Var(X) and Var(Y) are each 1. The third bar stacks those two parts into Var(X+Y) = 2. A note says the covariance term is 0."
         }
       ]
     }
