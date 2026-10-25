@@ -15,15 +15,23 @@ The source code for the interactive demos is organized by subject area:
 
 ## Guided tracks
 
-Tracks are optional playlists, not filters. The index stays the full catalog. [`tracks.html`](tracks.html) reads [`tracks.json`](tracks.json) at the repo root and renders whatever is in that file. Adding, removing, or reordering materials later means editing `tracks.json` only. `tracks.html` reads that file and stays as it is.
+Tracks are optional playlists, not filters. The index stays the full catalog. [`tracks.html`](tracks.html) reads [`tracks.json`](tracks.json) at the repo root and renders whatever is in that file. Adding, removing, or reordering materials later means editing `tracks.json`.
 
 `tracks.json` is either a top-level array or an object `{ "tracks": [ ... ] }` (the file in this repo uses the object). Each track has:
 
 * `id` — slug used in shareable links (`tracks.html?track=the-id` or `tracks.html#track-the-id`)
 * `title`
-* `summary` — one or two sentences
+* `summary` — short overview of the path
 * `status` — optional, `draft` or `ready`. Omitted means draft. Draft tracks show a draft badge.
-* `steps` — ordered list. Each step has `href` (path from the site root, the same kind of path as a demo card, such as `statistics/central_limit_theorem.html`), `title` (short label; it can match the card title), and an optional `note` (one short sentence of guidance between steps).
+* `steps` — ordered list. Each step has `href` (path from the site root, the same kind of path as a demo card, such as `statistics/central_limit_theorem.html`), `title` (short label; it can match the card title), and an optional `note`.
+
+Optional fields on a step, rendered when present:
+
+* `formulae` — array of plain-text formula strings, shown under the note. They are inserted as text, not as HTML.
+* `image` — relative path from the site root, such as `tracks/images/describing-data/01-mean-median-mode.png`.
+* `imageAlt` — text alternative. Required when `image` is set. If the alt text is missing, or the path is not a relative image path, the image is left out.
+
+An image path has to stay relative: no URL scheme and no `..`. Steps that omit these fields render as before.
 
 A step is still listed if its `href` has no matching card yet, so a playlist can name a demo before that page exists.
 
@@ -40,4 +48,4 @@ A step is still listed if its `href` has no matching card yet, so a playlist can
 }
 ```
 
-To reorder, move the step object. Leave `tracks.html` as it is.
+To reorder, move the step object. You do not need to edit `tracks.html` to change a playlist.
