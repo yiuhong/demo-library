@@ -280,7 +280,7 @@
     {
       "id": "association",
       "title": "Association",
-      "summary": "This path is for how two variables move together, and for what that movement means in units of variance. You start with covariance as a record of shared movement, rescale it to a correlation, square the correlation to get the share of variance one variable accounts for in the other, and then stay with variance in the independent case, where separate sources add. The thread is association first as co-movement, then as explained variance, then as addition when nothing is shared.",
+      "summary": "This path is for how two variables move together, and for what that movement means in units of variance. You start with covariance as a record of shared movement, rescale it to a correlation, square the correlation to get the share of variance one variable accounts for in the other, and then stay with the variance of a sum or a difference, where positive correlation increases one and reduces the other, and separate sources add when nothing is shared. The thread is association first as co-movement, then as explained variance, then as that covariance term in a sum or a difference.",
       "status": "draft",
       "steps": [
         {
@@ -308,10 +308,11 @@
         {
           "href": "statistics/additivity_of_variance.html",
           "title": "Additivity of Variance",
-          "note": "When sources of variance are independent, nothing is shared between them. Each variance is kept whole, and the total variance is their sum. That closes the path: from co-movement, through explained variance, to the case where separate sources simply add.",
+          "note": "A sum and a difference both combine two variables, but shared movement enters them in opposite ways. Positive correlation increases the variance of X + Y and reduces the variance of X − Y; when nothing is shared, the covariance term is zero and the two variances add in either case. The path ends here, with Var(X ± Y) carrying that covariance term.",
           "formulae": [
             "Var(X + Y) = Var(X) + Var(Y) + 2 Cov(X, Y)",
-            "if X and Y are independent, Cov(X, Y) = 0"
+            "Var(X − Y) = Var(X) + Var(Y) − 2 Cov(X, Y)",
+            "if Cov(X, Y) = 0, both equal Var(X) + Var(Y)"
           ],
           "image": "tracks/images/association/03-additivity.png",
           "imageAlt": "Three bars. Var(X) and Var(Y) are each 1. The third bar stacks those two parts into Var(X+Y) = 2. A note says the covariance term is 0."
