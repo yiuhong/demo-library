@@ -3,7 +3,7 @@
     {
       "id": "describing-data",
       "title": "Describing data",
-      "summary": "This path is for describing a set of numbers. We often start with numerical summaries — simple numbers that stand in for where the data sit, how spread out they are, and whether the shape is balanced — and then turn to pictures of that same shape. The demonstrations below build one description in layers: averages for center, then averages for spread and shape, then plots that show piles, outliers, and a match (or mismatch) with a reference curve. By the end you should be able to say, for one set of numbers, where they sit, how wide and how skewed they are, and whether a few points or the overall shape look unusual.",
+      "summary": "This path is for describing a set of numbers, from averages of center, spread, and shape to pictures of that shape. By the end you can say where they sit, how wide and skewed they are, and whether they look unusual.",
       "status": "draft",
       "steps": [
         {
@@ -89,7 +89,7 @@
     {
       "id": "statistical-reasoning",
       "title": "Statistical reasoning",
-      "summary": "This path is for the reasoning that turns a curve for single observations into a claim about a sample. You first meet the normal distribution as a model for how values can pile up around a center, then see why sample means settle toward that shape, meet the chi-square distribution that comes from squared standard normals, and finally read a confidence interval as a long-run coverage rate for a procedure. One thread runs through the steps: a model for single observations, a sampling distribution for a summary, and the kind of claim that a sampling distribution can support.",
+      "summary": "This path is for how a curve for observations becomes a claim about a sample, once sample summaries settle. By the end you can read a confidence interval as long-run coverage, not a chance for one interval.",
       "status": "draft",
       "steps": [
         {
@@ -152,7 +152,7 @@
     {
       "id": "t-test",
       "title": "t-test",
-      "summary": "This path is for comparing two means when the population standard deviation has to be estimated from the data. You first see why the reference curve then has heavier tails than the familiar z curve, then compare means from two separate groups, then two measures on the same people. The reference distribution stays a t curve; what changes is which scores are being compared.",
+      "summary": "This path is for comparing two means when the spread is estimated, so the reference curve has heavier tails. By the end you can say whether the scores come from two groups or the same people.",
       "status": "draft",
       "steps": [
         {
@@ -196,7 +196,7 @@
     {
       "id": "statistical-power",
       "title": "Statistical power",
-      "summary": "This path is for the chance of detecting an effect that is really there. First you see power as the share of the alternative sampling distribution that falls past the cutoff set by the null, and then you watch that chance change with the size of the effect and the size of the sample. The two steps are one definition, and then the curve that shows how the definition moves.",
+      "summary": "This path is for the chance of detecting a real effect, from the definition to how that chance grows. By the end you can say what power is and what a larger effect or sample does to it.",
       "status": "draft",
       "steps": [
         {
@@ -226,7 +226,7 @@
     {
       "id": "anova",
       "title": "ANOVA",
-      "summary": "This path is for comparing means across groups, starting from the familiar two-group case. You open the comparison to more than two means, split total variation into a part between groups and a part inside groups, add a second factor and its interaction, and then look at the conditions the usual F reading wants. Each step uses that same split of variation and asks it a wider question.",
+      "summary": "This path is for comparing means across groups, from two groups to a split of variation. By the end you can say where the variation comes from and what the usual reading assumes.",
       "status": "draft",
       "steps": [
         {
@@ -280,7 +280,7 @@
     {
       "id": "association",
       "title": "Association",
-      "summary": "This path is for how two variables move together, and for what that movement means in units of variance. You start with covariance as a record of shared movement, rescale it to a correlation, square the correlation to get the share of variance one variable accounts for in the other, and then stay with variance in the independent case, where separate sources add. The thread is association first as co-movement, then as explained variance, then as addition when nothing is shared.",
+      "summary": "This path is for how two variables move together, from shared movement to a share of variance, then a sum or a difference. By the end you can say that positive correlation widens the sum and narrows the difference.",
       "status": "draft",
       "steps": [
         {
@@ -308,10 +308,11 @@
         {
           "href": "statistics/additivity_of_variance.html",
           "title": "Additivity of Variance",
-          "note": "When sources of variance are independent, nothing is shared between them. Each variance is kept whole, and the total variance is their sum. That closes the path: from co-movement, through explained variance, to the case where separate sources simply add.",
+          "note": "A sum and a difference both combine two variables, but shared movement enters them in opposite ways. Positive correlation increases the variance of X + Y and reduces the variance of X − Y; when nothing is shared, the covariance term is zero and the two variances add in either case. The path ends here, with Var(X ± Y) carrying that covariance term.",
           "formulae": [
             "Var(X + Y) = Var(X) + Var(Y) + 2 Cov(X, Y)",
-            "if X and Y are independent, Cov(X, Y) = 0"
+            "Var(X − Y) = Var(X) + Var(Y) − 2 Cov(X, Y)",
+            "if Cov(X, Y) = 0, both equal Var(X) + Var(Y)"
           ],
           "image": "tracks/images/association/03-additivity.png",
           "imageAlt": "Three bars. Var(X) and Var(Y) are each 1. The third bar stacks those two parts into Var(X+Y) = 2. A note says the covariance term is 0."

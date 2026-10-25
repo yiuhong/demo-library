@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Additivity of variance</title>
+    <title>Additivity of Variance: Sum vs. Difference</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
@@ -18,11 +18,13 @@
         }
         .axis-path { fill: none; stroke: #94a3b8; stroke-width: 1.5px; }
         .axis-tick { stroke: #cbd5e1; stroke-width: 1px; }
-        .data-point { fill: #3b82f6; opacity: 0.6; }
-        .projection-line { stroke: #9ca3af; stroke-dasharray: 4; stroke-width: 0.5px; opacity: 0.5; }
-        .sum-line { stroke: #ef4444; stroke-width: 1.5px; opacity: 0.3; }
-        .perp-axis { stroke: #10b981; stroke-width: 2px; }
-        .projection-point { fill: #10b981; opacity: 0.8; }
+        .data-point { fill: #3b82f6; opacity: 0.6; cursor: pointer; }
+        .projection-line { stroke: #9ca3af; stroke-dasharray: 4; stroke-width: 0.5px; opacity: 0.5; pointer-events: none; }
+        .contour-line { stroke: #ef4444; stroke-width: 1.5px; opacity: 0.3; pointer-events: none; }
+        .perp-axis { stroke: #10b981; stroke-width: 2.5px; pointer-events: none; }
+        .zero-line { stroke: #cbd5e1; stroke-width: 2px; pointer-events: none; }
+        .projection-point { fill: #10b981; opacity: 0.8; pointer-events: none; }
+        .non-interactive-layer { pointer-events: none; }
         .tooltip {
             position: absolute;
             background-color: white;
@@ -50,24 +52,48 @@
     </button>
 
     <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         <div class="lg:col-span-1 flex flex-col gap-6">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900 mb-2">Additivity of variance</h1>
-                <p class="text-sm text-slate-600 mb-4">Why is the variance of \( X + Y \) measured perpendicular to \( y = -x \)?</p>
-                
-                <div class="prose prose-sm prose-slate">
-                    <p><strong>1. Lines of Constant Sum:</strong> The equation \( X + Y = C \) (or \( y = -x + C \)) represents lines with a slope of -1. Every point on a specific red line has the same sum.</p>
-                    <p><strong>2. Maximum Change:</strong> To change the sum \( C \) as quickly as possible, you must move perpendicular to these lines, which is along the green line \( y = x \).</p>
-                    <p><strong>3. Projection:</strong> The variance of \( X + Y \) is the spread of the data when projected onto this perpendicular direction (the green axis).</p>
-                    <p><strong>4. Standard Deviation Triangle:</strong> The lengths of these sides represent <strong>Standard Deviations</strong> (\( \sigma \)). When correlation (\( \rho \)) changes, the sides act like a mechanical hinge, pivoting away from the 90-degree Cartesian axes to mathematically close the new hypotenuse.</p>
-                    <p><strong>5. Coordinates vs. Sums (The \( 1/\sqrt{2} \) Factor):</strong> The scatterplot plots <em>coordinates</em>, not mathematical sums. If you draw a diagonal line exactly 2 units long, it physically ends at coordinates \((1.41, 1.41)\)—pointing to an oversized sum of 2.82! To make the line accurately point to dots representing a sum of 2, we must scale the physical drawing down by \( 1/\sqrt{2} \) so it lands perfectly at \((1, 1)\). This translates the "language of sums" into the "language of screen pixels."</p>
+                <h1 class="text-2xl font-bold text-slate-900 mb-3">Additivity of Variance</h1>
+
+                <!-- Mode Toggle -->
+                <div class="bg-slate-200/80 p-1 rounded-xl flex mb-4 border border-slate-300/60">
+                    <button id="btn-mode-sum" class="flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-sm">
+                        Sum: \( X + Y \)
+                    </button>
+                    <button id="btn-mode-diff" class="flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900">
+                        Difference: \( X - Y \)
+                    </button>
+                </div>
+
+                <!-- Dynamic Explanation for Sum -->
+                <div id="explanation-sum">
+                    <p class="text-sm text-slate-600 mb-4 font-medium">Why is the variance of \( X + Y \) measured perpendicular to \( y = -x \)?</p>
+                    <div class="prose prose-sm prose-slate space-y-2 text-sm text-slate-600">
+                        <p><strong>1. Lines of Constant Sum:</strong> The equation \( X + Y = C \) (or \( y = -x + C \)) represents lines with a slope of \(-1\). Every point on a specific red line has the exact same sum.</p>
+                        <p><strong>2. Maximum Change:</strong> To change the sum \( C \) as quickly as possible, you must move perpendicular to these lines, which is along the green line \( y = x \).</p>
+                        <p><strong>3. Projection:</strong> The variance of \( X + Y \) is the spread of the data when projected onto this perpendicular direction (the green axis).</p>
+                        <p><strong>4. Standard Deviation Triangle:</strong> Positive correlation (\( \rho > 0 \)) aligns the data cloud with \( y = x \), opening the hinge angle so the spread adds up (\(+2\rho\sigma_X\sigma_Y\)).</p>
+                        <p><strong>5. The \( 1/\sqrt{2} \) Factor:</strong> Points on \( y = x \) at \((c/2, c/2)\) have a sum of \(c\), which is at Euclidean distance \( c/\sqrt{2} \) from the origin. Scaling by \( 1/\sqrt{2} \) translates abstract sums into exact screen coordinates.</p>
+                    </div>
+                </div>
+
+                <!-- Dynamic Explanation for Difference -->
+                <div id="explanation-diff" class="hidden">
+                    <p class="text-sm text-slate-600 mb-4 font-medium">Why does positive correlation <em>reduce</em> the variance of \( X - Y \)?</p>
+                    <div class="prose prose-sm prose-slate space-y-2 text-sm text-slate-600">
+                        <p><strong>1. Lines of Constant Difference:</strong> The equation \( X - Y = C \) (or \( y = x - C \)) represents lines with a slope of \(+1\). Every point on a specific red line has the exact same difference (e.g., along \( y = x \), the difference is \(0\)).</p>
+                        <p><strong>2. Maximum Change:</strong> To change the difference \( C \) as quickly as possible, you must move perpendicular to \( y = x \), which is along the green line \( y = -x \) (towards the bottom-right).</p>
+                        <p><strong>3. Projection & Cancelation:</strong> When \( X \) and \( Y \) are positively correlated (\( \rho > 0 \)), points cluster tightly along \( y = x \). Projecting onto \( y = -x \) yields a tiny spread because variations in \( X \) and \( Y \) cancel each other out!</p>
+                        <p><strong>4. Standard Deviation Triangle:</strong> Because we subtract \( Y \), the \(-\sigma_Y\) vector flips direction. Now, positive correlation closes the hinge angle, shrinking the hypotenuse (\(-2\rho\sigma_X\sigma_Y\)).</p>
+                    </div>
                 </div>
             </div>
 
             <div class="controls-container p-6 rounded-xl shadow-sm border border-slate-200">
                 <h3 class="font-semibold text-slate-800 mb-4">Interactive Parameters</h3>
-                
+
                 <div class="mb-5">
                     <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
                         <span>Correlation (\( \rho \))</span>
@@ -96,7 +122,7 @@
                 <div class="mt-6 pt-4 border-t border-slate-200">
                     <div class="flex items-center gap-2 mb-2">
                         <input type="checkbox" id="show-sum-lines" checked class="rounded text-red-500 focus:ring-red-500">
-                        <label for="show-sum-lines" class="text-sm font-medium text-slate-700">Show Lines of Constant Sum</label>
+                        <label for="show-sum-lines" id="label-contour-lines" class="text-sm font-medium text-slate-700">Show Lines of Constant Sum</label>
                     </div>
                     <div class="flex items-center gap-2 mb-2">
                         <input type="checkbox" id="show-projections" checked class="rounded text-blue-500 focus:ring-blue-500">
@@ -114,8 +140,12 @@
 
                 <div class="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
                     <h4 class="text-sm font-semibold text-slate-800 mb-2">Calculated Variance</h4>
-                    <p class="text-sm text-slate-600">\( \text{Var}(X+Y) = \sigma_X^2 + \sigma_Y^2 + 2\rho\sigma_X\sigma_Y \)</p>
-                    <p class="text-lg font-bold text-emerald-600 mt-1">Value: <span id="calc-var">2.00</span></p>
+                    <p id="formula-sum" class="text-sm text-slate-600">\( \text{Var}(X+Y) = \sigma_X^2 + \sigma_Y^2 + 2\rho\sigma_X\sigma_Y \)</p>
+                    <p id="formula-diff" class="text-sm text-slate-600 hidden">\( \text{Var}(X-Y) = \sigma_X^2 + \sigma_Y^2 - 2\rho\sigma_X\sigma_Y \)</p>
+                    <div class="flex items-baseline justify-between mt-2">
+                        <p class="text-lg font-bold text-emerald-600">Value: <span id="calc-var">2.00</span></p>
+                        <p class="text-xs text-slate-400">Other: <span id="calc-var-other">2.00</span></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,9 +156,19 @@
                     <div id="tooltip" class="tooltip"></div>
                 </div>
                 <div class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
-                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-blue-500 opacity-60"></div> Data (X, Y)</div>
-                    <div class="flex items-center gap-2"><div class="w-4 h-1 bg-red-400 opacity-50"></div> \( X + Y = C \)</div>
-                    <div class="flex items-center gap-2"><div class="w-4 h-1 bg-emerald-500"></div> Projection Axis (\( y = x \))</div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-blue-500 opacity-60"></div> Data (X, Y)
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-1 bg-red-400 opacity-50"></div>
+                        <span id="legend-contour-sum">\( X + Y = C \)</span>
+                        <span id="legend-contour-diff" class="hidden">\( X - Y = C \)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-1 bg-emerald-500"></div>
+                        <span id="legend-axis-sum">Projection Axis (\( y = x \))</span>
+                        <span id="legend-axis-diff" class="hidden">Projection Axis (\( y = -x \))</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -142,8 +182,9 @@
         const axisDomain = [-5, 5];
 
         let width, height, xScale, yScale, svg, gMain;
-        
-        // State variables to prevent unnecessary re-generation of data
+
+        // State variables
+        let currentMode = 'sum'; // 'sum' or 'diff'
         let currentData = [];
         let currentRho = null;
         let currentVarX = null;
@@ -162,27 +203,56 @@
             const stdX = Math.sqrt(varX);
             const stdY = Math.sqrt(varY);
             const data = [];
-            
+
             for (let i = 0; i < numPoints; i++) {
                 const z1 = randomNormal();
                 const z2 = randomNormal();
-                
+
                 // Cholesky decomposition to introduce correlation
                 const x = stdX * z1;
                 const y = stdY * (rho * z1 + Math.sqrt(1 - rho * rho) * z2);
-                
-                data.push({ x: x, y: y, sum: x + y });
+
+                data.push({ x: x, y: y, sum: x + y, diff: x - y });
             }
             return data;
         }
 
+        function setMode(mode) {
+            currentMode = mode;
+            const isSum = mode === 'sum';
+
+            // Toggle Buttons Styling
+            const btnSum = document.getElementById('btn-mode-sum');
+            const btnDiff = document.getElementById('btn-mode-diff');
+            if (isSum) {
+                btnSum.className = "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-sm";
+                btnDiff.className = "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+            } else {
+                btnDiff.className = "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-sm";
+                btnSum.className = "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+            }
+
+            // Toggle Explanation & Formulas
+            document.getElementById('explanation-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('explanation-diff').classList.toggle('hidden', isSum);
+            document.getElementById('formula-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('formula-diff').classList.toggle('hidden', isSum);
+            document.getElementById('legend-contour-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('legend-contour-diff').classList.toggle('hidden', isSum);
+            document.getElementById('legend-axis-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('legend-axis-diff').classList.toggle('hidden', isSum);
+
+            document.getElementById('label-contour-lines').textContent = isSum 
+                ? "Show Lines of Constant Sum" 
+                : "Show Lines of Constant Difference";
+
+            updateVis();
+        }
+
         function initVis() {
-            // Setup SVG
             const rawWidth = container.clientWidth;
             const rawHeight = container.clientHeight;
 
-            // Force a perfectly square drawing area mathematically 
-            // Ensures right angles are 90 deg and circles are circular regardless of container flex
             const minDim = Math.min(rawWidth - margin.left - margin.right, rawHeight - margin.top - margin.bottom);
             width = minDim;
             height = minDim;
@@ -208,37 +278,35 @@
                 .attr("xoverflow", "visible")
                 .append("svg:path")
                 .attr("d", "M 0,-5 L 10 ,0 L 0,5")
-                .attr("fill", "#94a3b8");
+                .attr("fill", "#10b981");
 
-            // Define clip path for boundaries to prevent elements from spilling into margins
+            // Define clip path for boundaries
             svg.select("defs").append("clipPath")
                 .attr("id", "plot-clip")
                 .append("rect")
                 .attr("width", width)
                 .attr("height", height);
 
-            // Center the square plotting area within the container
             const xOffset = margin.left + (rawWidth - margin.left - margin.right - width) / 2;
             const yOffset = margin.top + (rawHeight - margin.top - margin.bottom - height) / 2;
 
             gMain = svg.append("g")
                 .attr("transform", `translate(${xOffset},${yOffset})`);
 
-            // Scales mapping data domain directly to strictly square geometry
             xScale = d3.scaleLinear().domain(axisDomain).range([0, width]);
             yScale = d3.scaleLinear().domain(axisDomain).range([height, 0]);
 
-            // Draw Axes
+            // Draw Cartesian Axes
             gMain.append("g")
                 .attr("transform", `translate(0, ${yScale(0)})`)
                 .call(d3.axisBottom(xScale).ticks(10))
-                .attr("class", "text-slate-500")
+                .attr("class", "text-slate-500 non-interactive-layer")
                 .selectAll("line").attr("class", "axis-tick");
-                
+
             gMain.append("g")
                 .attr("transform", `translate(${xScale(0)}, 0)`)
                 .call(d3.axisLeft(yScale).ticks(10))
-                .attr("class", "text-slate-500")
+                .attr("class", "text-slate-500 non-interactive-layer")
                 .selectAll("line").attr("class", "axis-tick");
 
             // Axis labels
@@ -246,62 +314,33 @@
                 .attr("x", width - 10)
                 .attr("y", yScale(0) - 10)
                 .attr("text-anchor", "end")
-                .attr("class", "font-semibold fill-slate-700")
+                .attr("class", "font-semibold fill-slate-700 non-interactive-layer")
                 .text("X");
-            
+
             gMain.append("text")
                 .attr("x", xScale(0) + 10)
                 .attr("y", 15)
                 .attr("text-anchor", "start")
-                .attr("class", "font-semibold fill-slate-700")
+                .attr("class", "font-semibold fill-slate-700 non-interactive-layer")
                 .text("Y");
 
-            // Draw sum = 0 line (y = -x)
-            gMain.append("line")
-                .attr("x1", xScale(axisDomain[0]))
-                .attr("y1", yScale(-axisDomain[0]))
-                .attr("x2", xScale(axisDomain[1]))
-                .attr("y2", yScale(-axisDomain[1]))
-                .attr("class", "stroke-slate-300 stroke-2");
-            
-            const labelX1 = xScale(-2.5);
-            const labelY1 = yScale(2.5);
-            gMain.append("text")
-                .attr("x", labelX1)
-                .attr("y", labelY1 - 10)
-                .attr("transform", `rotate(45, ${labelX1}, ${labelY1})`)
-                .attr("text-anchor", "middle")
-                .attr("class", "text-xs fill-slate-400 font-medium")
-                .text("y = -x (Sum = 0)");
+            // Dynamic Diagonal Reference Lines (Zero Contour & Projection Axis)
+            gMain.append("line").attr("id", "zero-contour-line").attr("class", "zero-line");
+            gMain.append("text").attr("id", "zero-contour-label").attr("text-anchor", "middle").attr("class", "text-xs fill-slate-400 font-medium non-interactive-layer");
 
-            // Draw Perpendicular Axis (y = x)
-            gMain.append("line")
-                .attr("x1", xScale(axisDomain[0]))
-                .attr("y1", yScale(axisDomain[0]))
-                .attr("x2", xScale(axisDomain[1]))
-                .attr("y2", yScale(axisDomain[1]))
-                .attr("class", "perp-axis")
-                .attr("marker-end", "url(#arrowhead)");
-            
-            const labelX2 = xScale(2.5);
-            const labelY2 = yScale(2.5);
-            gMain.append("text")
-                .attr("x", labelX2)
-                .attr("y", labelY2 - 10)
-                .attr("transform", `rotate(-45, ${labelX2}, ${labelY2})`)
-                .attr("text-anchor", "middle")
-                .attr("class", "text-xs fill-emerald-700 font-bold")
-                .text("Direction of Sum (y = x)");
+            gMain.append("line").attr("id", "proj-axis-line").attr("class", "perp-axis").attr("marker-end", "url(#arrowhead)");
+            gMain.append("text").attr("id", "proj-axis-label").attr("text-anchor", "middle").attr("class", "text-xs fill-emerald-700 font-bold non-interactive-layer");
 
-            // Groups for dynamic elements (with clipping applied to prevent overflow)
-            gMain.append("g").attr("id", "sum-lines-group").attr("clip-path", "url(#plot-clip)");
-            gMain.append("g").attr("id", "projection-lines-group").attr("clip-path", "url(#plot-clip)");
+            // Groups for dynamic elements
+            gMain.append("g").attr("id", "sum-lines-group").attr("class", "non-interactive-layer").attr("clip-path", "url(#plot-clip)");
+            gMain.append("g").attr("id", "projection-lines-group").attr("class", "non-interactive-layer").attr("clip-path", "url(#plot-clip)");
             gMain.append("g").attr("id", "data-points-group").attr("clip-path", "url(#plot-clip)");
-            gMain.append("g").attr("id", "projected-points-group").attr("clip-path", "url(#plot-clip)");
-            gMain.append("g").attr("id", "triangle-group");
+            gMain.append("g").attr("id", "projected-points-group").attr("class", "non-interactive-layer").attr("clip-path", "url(#plot-clip)");
+            gMain.append("g").attr("id", "triangle-group").attr("class", "non-interactive-layer");
         }
 
         function updateVis() {
+            const isSum = currentMode === 'sum';
             const rho = parseFloat(document.getElementById('corr-slider').value);
             const varX = parseFloat(document.getElementById('varx-slider').value);
             const varY = parseFloat(document.getElementById('vary-slider').value);
@@ -314,11 +353,63 @@
             document.getElementById('corr-val').textContent = rho.toFixed(2);
             document.getElementById('varx-val').textContent = varX.toFixed(1);
             document.getElementById('vary-val').textContent = varY.toFixed(1);
-            
-            const calcVar = varX + varY + 2 * rho * Math.sqrt(varX) * Math.sqrt(varY);
-            document.getElementById('calc-var').textContent = calcVar.toFixed(2);
 
-            // Generate new data ONLY if distribution parameters changed or data is empty
+            const varSum = Math.max(0, varX + varY + 2 * rho * Math.sqrt(varX) * Math.sqrt(varY));
+            const varDiff = Math.max(0, varX + varY - 2 * rho * Math.sqrt(varX) * Math.sqrt(varY));
+            const calcVar = isSum ? varSum : varDiff;
+            const otherVar = isSum ? varDiff : varSum;
+
+            document.getElementById('calc-var').textContent = calcVar.toFixed(2);
+            document.getElementById('calc-var-other').textContent = `${isSum ? 'Var(X-Y)' : 'Var(X+Y)'}: ${otherVar.toFixed(2)}`;
+
+            // Update Diagonal Reference Lines based on Mode
+            if (isSum) {
+                // Zero-sum line is y = -x
+                d3.select("#zero-contour-line")
+                    .attr("x1", xScale(axisDomain[0])).attr("y1", yScale(-axisDomain[0]))
+                    .attr("x2", xScale(axisDomain[1])).attr("y2", yScale(-axisDomain[1]));
+
+                const zx = xScale(-2.6), zy = yScale(2.6);
+                d3.select("#zero-contour-label")
+                    .attr("x", zx).attr("y", zy - 10)
+                    .attr("transform", `rotate(45, ${zx}, ${zy})`)
+                    .text("y = -x (Sum = 0)");
+
+                // Projection axis is y = x (pointing towards +X, +Y)
+                d3.select("#proj-axis-line")
+                    .attr("x1", xScale(axisDomain[0])).attr("y1", yScale(axisDomain[0]))
+                    .attr("x2", xScale(axisDomain[1])).attr("y2", yScale(axisDomain[1]));
+
+                const px = xScale(2.5), py = yScale(2.5);
+                d3.select("#proj-axis-label")
+                    .attr("x", px).attr("y", py - 10)
+                    .attr("transform", `rotate(-45, ${px}, ${py})`)
+                    .text("Direction of Sum (y = x)");
+            } else {
+                // Zero-difference line is y = x
+                d3.select("#zero-contour-line")
+                    .attr("x1", xScale(axisDomain[0])).attr("y1", yScale(axisDomain[0]))
+                    .attr("x2", xScale(axisDomain[1])).attr("y2", yScale(axisDomain[1]));
+
+                const zx = xScale(2.6), zy = yScale(2.6);
+                d3.select("#zero-contour-label")
+                    .attr("x", zx).attr("y", zy - 10)
+                    .attr("transform", `rotate(-45, ${zx}, ${zy})`)
+                    .text("y = x (Diff = 0)");
+
+                // Projection axis is y = -x (pointing towards +X, -Y where X - Y increases)
+                d3.select("#proj-axis-line")
+                    .attr("x1", xScale(axisDomain[0])).attr("y1", yScale(-axisDomain[0]))
+                    .attr("x2", xScale(axisDomain[1])).attr("y2", yScale(-axisDomain[1]));
+
+                const px = xScale(2.5), py = yScale(-2.5);
+                d3.select("#proj-axis-label")
+                    .attr("x", px).attr("y", py - 10)
+                    .attr("transform", `rotate(45, ${px}, ${py})`)
+                    .text("Direction of Diff (y = -x)");
+            }
+
+            // Generate new data ONLY if distribution parameters changed
             if (rho !== currentRho || varX !== currentVarX || varY !== currentVarY || !currentData.length) {
                 currentData = generateData(rho, varX, varY);
                 currentRho = rho;
@@ -332,30 +423,32 @@
             meanX /= currentData.length;
             meanY /= currentData.length;
 
-            // 1. Update Constant Sum Lines (y = -x + C)
-            const stdSum = Math.sqrt(calcVar);
-            const sumsToDraw = [-2*stdSum, -stdSum, stdSum, 2*stdSum];
-            
+            // 1. Update Constant Contour Lines (Sum: y = -x + C, Diff: y = x - C)
+            const stdVal = Math.sqrt(calcVar);
+            const contoursToDraw = [-2*stdVal, -stdVal, stdVal, 2*stdVal];
             const sumLinesGroup = d3.select("#sum-lines-group");
-            
-            if (showSumLines) {
-                const sumLines = sumLinesGroup.selectAll("line.sum-line").data(sumsToDraw);
-                
-                sumLines.enter()
+
+            if (showSumLines && stdVal > 0.01) {
+                const contourLines = sumLinesGroup.selectAll("line.contour-line").data(contoursToDraw);
+
+                const getY1 = d => isSum ? yScale(-axisDomain[0] + d) : yScale(axisDomain[0] - d);
+                const getY2 = d => isSum ? yScale(-axisDomain[1] + d) : yScale(axisDomain[1] - d);
+
+                contourLines.enter()
                     .append("line")
-                    .attr("class", "sum-line")
-                    .attr("x1", d => xScale(axisDomain[0]))
-                    .attr("y1", d => yScale(-axisDomain[0] + d))
-                    .attr("x2", d => xScale(axisDomain[1]))
-                    .attr("y2", d => yScale(-axisDomain[1] + d))
-                    .merge(sumLines)
-                    .transition().duration(200)
-                    .attr("x1", d => xScale(axisDomain[0]))
-                    .attr("y1", d => yScale(-axisDomain[0] + d))
-                    .attr("x2", d => xScale(axisDomain[1]))
-                    .attr("y2", d => yScale(-axisDomain[1] + d));
-                    
-                sumLines.exit().remove();
+                    .attr("class", "contour-line")
+                    .attr("x1", xScale(axisDomain[0]))
+                    .attr("y1", getY1)
+                    .attr("x2", xScale(axisDomain[1]))
+                    .attr("y2", getY2)
+                    .merge(contourLines)
+                    .transition().duration(250)
+                    .attr("x1", xScale(axisDomain[0]))
+                    .attr("y1", getY1)
+                    .attr("x2", xScale(axisDomain[1]))
+                    .attr("y2", getY2);
+
+                contourLines.exit().remove();
             } else {
                 sumLinesGroup.selectAll("*").remove();
             }
@@ -363,7 +456,7 @@
             // 2. Data Points
             const pointsGroup = d3.select("#data-points-group");
             const points = pointsGroup.selectAll("circle").data(currentData);
-            
+
             points.enter()
                 .append("circle")
                 .attr("class", "data-point")
@@ -374,47 +467,51 @@
                 .transition().duration(200)
                 .attr("cx", d => xScale(d.x))
                 .attr("cy", d => yScale(d.y));
-                
+
             points.exit().remove();
+
+            // Helper for orthogonal projection onto active axis
+            // Sum axis (y = x): ((x+y)/2, (x+y)/2)
+            // Diff axis (y = -x): ((x-y)/2, -(x-y)/2)
+            const getProjX = d => isSum ? (d.x + d.y) / 2 : (d.x - d.y) / 2;
+            const getProjY = d => isSum ? (d.x + d.y) / 2 : -(d.x - d.y) / 2;
 
             // 3. Projections
             const projLinesGroup = d3.select("#projection-lines-group");
             const projPointsGroup = d3.select("#projected-points-group");
-            
+
             if (showProj) {
-                // Projection lines (dashed)
                 const projLines = projLinesGroup.selectAll("line.projection-line").data(currentData);
-                
+
                 projLines.enter()
                     .append("line")
                     .attr("class", "projection-line")
                     .attr("x1", d => xScale(d.x))
                     .attr("y1", d => yScale(d.y))
-                    .attr("x2", d => xScale((d.x + d.y) / 2))
-                    .attr("y2", d => yScale((d.x + d.y) / 2))
+                    .attr("x2", d => xScale(getProjX(d)))
+                    .attr("y2", d => yScale(getProjY(d)))
                     .merge(projLines)
-                    .transition().duration(200)
+                    .transition().duration(250)
                     .attr("x1", d => xScale(d.x))
                     .attr("y1", d => yScale(d.y))
-                    .attr("x2", d => xScale((d.x + d.y) / 2))
-                    .attr("y2", d => yScale((d.x + d.y) / 2));
-                    
+                    .attr("x2", d => xScale(getProjX(d)))
+                    .attr("y2", d => yScale(getProjY(d)));
+
                 projLines.exit().remove();
 
-                // Projected points (on green line)
                 const projPts = projPointsGroup.selectAll("circle.projection-point").data(currentData);
-                
+
                 projPts.enter()
                     .append("circle")
                     .attr("class", "projection-point")
                     .attr("r", 3)
-                    .attr("cx", d => xScale((d.x + d.y) / 2))
-                    .attr("cy", d => yScale((d.x + d.y) / 2))
+                    .attr("cx", d => xScale(getProjX(d)))
+                    .attr("cy", d => yScale(getProjY(d)))
                     .merge(projPts)
-                    .transition().duration(200)
-                    .attr("cx", d => xScale((d.x + d.y) / 2))
-                    .attr("cy", d => yScale((d.x + d.y) / 2));
-                    
+                    .transition().duration(250)
+                    .attr("cx", d => xScale(getProjX(d)))
+                    .attr("cy", d => yScale(getProjY(d)));
+
                 projPts.exit().remove();
             } else {
                 projLinesGroup.selectAll("*").remove();
@@ -428,43 +525,39 @@
             if (showTriangle || showSquares) {
                 const stdX = Math.sqrt(varX);
                 const stdY = Math.sqrt(varY);
-                const stdSum = Math.sqrt(calcVar);
-                
-                if (stdSum > 0.01) {
-                    // Match the visual spread of the data bounds (+/- 2 std devs = 4 total)
-                    const scaleSpread = 4.0; 
-                    
-                    // Center anchor based on the data centroid
+
+                if (stdVal > 0.01) {
+                    const scaleSpread = 4.0;
                     const cx = meanX;
                     const cy = meanY;
 
-                    // Apply the geometric 1/sqrt(2) compression so standard deviations correctly translate 
-                    // from abstract mathematical values into accurate visual lengths on the diagonal plane
-                    const S = scaleSpread / Math.sqrt(2); 
-                    
-                    // Side lengths scaled geometrically
-                    const lenC = stdSum * S;
+                    // 1/sqrt(2) geometric scaling factor
+                    const S = scaleSpread / Math.sqrt(2);
+
+                    const lenC = stdVal * S;
                     const lenA = stdX * S;
                     const lenB = stdY * S;
-                    
-                    // The hypotenuse lies exactly on the y = x line (angle = 45 degrees or PI/4)
-                    const angleAC = Math.PI / 4;
-                    
-                    // Calculate exact endpoints geometrically (preventing distortion)
+
+                    // Sum hypotenuse lies on y = x (+45 deg); Diff hypotenuse lies on y = -x (-45 deg)
+                    const angleAC = isSum ? Math.PI / 4 : -Math.PI / 4;
+
                     const dx = (lenC / 2) * Math.cos(angleAC);
                     const dy = (lenC / 2) * Math.sin(angleAC);
-                    
+
                     const Ax = cx - dx;
                     const Ay = cy - dy;
                     const Cx = cx + dx;
                     const Cy = cy + dy;
-                    
-                    const cos_alpha = Math.max(-1, Math.min(1, (stdX + rho * stdY) / stdSum));
+
+                    // Effective correlation for the Law of Cosines: +rho for Sum, -rho for Difference
+                    const effRho = isSum ? rho : -rho;
+                    const cos_alpha = Math.max(-1, Math.min(1, (stdX + effRho * stdY) / stdVal));
                     const alpha = Math.acos(cos_alpha);
-                    
-                    // SUBTRACT the alpha angle so sigma_X aligns parallel to X-axis when rho=0
-                    const angleAB = angleAC - alpha; 
-                    
+
+                    // When rho = 0, subtracting alpha for Sum (+45 - 45 = 0) and adding alpha for Diff (-45 + 45 = 0)
+                    // keeps the sigma_X side horizontal along the X-axis!
+                    const angleAB = isSum ? (angleAC - alpha) : (angleAC + alpha);
+
                     const Bx = Ax + lenA * Math.cos(angleAB);
                     const By = Ay + lenA * Math.sin(angleAB);
 
@@ -475,19 +568,19 @@
                             const vy = y2 - y1;
                             const n1 = {x: -vy, y: vx};
                             const n2 = {x: vy, y: -vx};
-                            
+
                             const c1 = {x: (x1+x2)/2 + n1.x/2, y: (y1+y2)/2 + n1.y/2};
                             const c2 = {x: (x1+x2)/2 + n2.x/2, y: (y1+y2)/2 + n2.y/2};
-                            
+
                             const dist1 = Math.hypot(c1.x - x3, c1.y - y3);
                             const dist2 = Math.hypot(c2.x - x3, c2.y - y3);
                             const n = dist1 > dist2 ? n1 : n2;
-                            
+
                             const px1 = x1 + n.x;
                             const py1 = y1 + n.y;
                             const px2 = x2 + n.x;
                             const py2 = y2 + n.y;
-                            
+
                             triangleGroup.append("polygon")
                                 .attr("points", `${xScale(x1)},${yScale(y1)} ${xScale(px1)},${yScale(py1)} ${xScale(px2)},${yScale(py2)} ${xScale(x2)},${yScale(y2)}`)
                                 .attr("fill", color)
@@ -497,12 +590,12 @@
                                 .attr("stroke-dasharray", "4");
 
                             triangleGroup.append("rect")
-                                .attr("x", xScale((x1+x2)/2 + n.x/2) - 30)
+                                .attr("x", xScale((x1+x2)/2 + n.x/2) - 34)
                                 .attr("y", yScale((y1+y2)/2 + n.y/2) - 10)
-                                .attr("width", 60)
+                                .attr("width", 68)
                                 .attr("height", 20)
                                 .attr("fill", "white")
-                                .attr("opacity", 0.7)
+                                .attr("opacity", 0.75)
                                 .attr("rx", 4);
 
                             triangleGroup.append("text")
@@ -513,12 +606,12 @@
                                 .attr("class", "text-[12px] font-bold fill-slate-800")
                                 .html(label);
                         };
-                        
+
                         drawSquare(Ax, Ay, Bx, By, Cx, Cy, "#3b82f6", `Var(X)`);
                         drawSquare(Cx, Cy, Bx, By, Ax, Ay, "#ec4899", `Var(Y)`);
-                        drawSquare(Ax, Ay, Cx, Cy, Bx, By, "#10b981", `Var(X+Y)`);
+                        drawSquare(Ax, Ay, Cx, Cy, Bx, By, "#10b981", isSum ? `Var(X+Y)` : `Var(X-Y)`);
                     }
-                    
+
                     // Draw Standard Deviation Triangle if toggled
                     if (showTriangle) {
                         triangleGroup.append("polygon")
@@ -538,20 +631,20 @@
                             const pt1 = {x: Bx + sSize * uAB.x/lenAB_data, y: By + sSize * uAB.y/lenAB_data};
                             const pt2 = {x: pt1.x + sSize * uCB.x/lenCB_data, y: pt1.y + sSize * uCB.y/lenCB_data};
                             const pt3 = {x: Bx + sSize * uCB.x/lenCB_data, y: By + sSize * uCB.y/lenCB_data};
-                            
+
                             triangleGroup.append("path")
                                 .attr("d", `M ${xScale(pt1.x)} ${yScale(pt1.y)} L ${xScale(pt2.x)} ${yScale(pt2.y)} L ${xScale(pt3.x)} ${yScale(pt3.y)}`)
                                 .attr("fill", "none")
                                 .attr("stroke", "#8b5cf6")
                                 .attr("stroke-width", 1.5);
                         }
-                        
+
                         // Extension line and arc for exterior angle when rho != 0
                         if (Math.abs(rho) >= 0.01) {
                             const uAB = {x: Bx - Ax, y: By - Ay};
                             const lenAB_data = Math.hypot(uAB.x, uAB.y);
                             const dirAB = {x: uAB.x/lenAB_data, y: uAB.y/lenAB_data};
-                            
+
                             triangleGroup.append("line")
                                 .attr("x1", xScale(Bx)).attr("y1", yScale(By))
                                 .attr("x2", xScale(Bx + 1.8 * dirAB.x)).attr("y2", yScale(By + 1.8 * dirAB.y))
@@ -565,22 +658,21 @@
                             const sBx = xScale(Bx), sBy = yScale(By);
                             const arcX1 = xScale(Bx + r * dirAB.x), arcY1 = yScale(By + r * dirAB.y);
                             const arcX2 = xScale(Bx + r * dirBC.x), arcY2 = yScale(By + r * dirBC.y);
-                            
+
                             const rx = Math.abs(xScale(r) - xScale(0));
-                        const ry = Math.abs(yScale(r) - yScale(0));
+                            const ry = Math.abs(yScale(r) - yScale(0));
 
-                        const v1x = arcX1 - sBx, v1y = arcY1 - sBy;
-                        const v2x = arcX2 - sBx, v2y = arcY2 - sBy;
-                        // Match the sweep flag directly to the SVG cross-product sign to curve outwards
-                        const sweep = (v1x * v2y - v1y * v2x) > 0 ? 1 : 0; 
+                            const v1x = arcX1 - sBx, v1y = arcY1 - sBy;
+                            const v2x = arcX2 - sBx, v2y = arcY2 - sBy;
+                            const sweep = (v1x * v2y - v1y * v2x) > 0 ? 1 : 0; 
 
-                        triangleGroup.append("path")
-                            .attr("d", `M ${arcX1} ${arcY1} A ${rx} ${ry} 0 0 ${sweep} ${arcX2} ${arcY2}`)
-                            .attr("fill", "none").attr("stroke", "#8b5cf6").attr("stroke-width", 1.5);
+                            triangleGroup.append("path")
+                                .attr("d", `M ${arcX1} ${arcY1} A ${rx} ${ry} 0 0 ${sweep} ${arcX2} ${arcY2}`)
+                                .attr("fill", "none").attr("stroke", "#8b5cf6").attr("stroke-width", 1.5);
 
-                        const midDir = {x: dirAB.x + dirBC.x, y: dirAB.y + dirBC.y};
+                            const midDir = {x: dirAB.x + dirBC.x, y: dirAB.y + dirBC.y};
                             const lenMid = Math.hypot(midDir.x, midDir.y);
-                            
+
                             triangleGroup.append("text")
                                 .attr("x", xScale(Bx + 1.3 * r * midDir.x / lenMid))
                                 .attr("y", yScale(By + 1.3 * r * midDir.y / lenMid))
@@ -591,25 +683,25 @@
 
                         // Labels for Standard Deviation sides
                         triangleGroup.append("text")
-                            .attr("x", xScale((Ax+Bx)/2) - 15)
-                            .attr("y", yScale((Ay+By)/2) + 5)
-                            .attr("text-anchor", "end")
+                            .attr("x", xScale((Ax+Bx)/2))
+                            .attr("y", yScale((Ay+By)/2) + (isSum ? 18 : -10))
+                            .attr("text-anchor", "middle")
                             .attr("class", "text-[15px] font-bold fill-violet-700")
                             .html(`<tspan>σ</tspan><tspan baseline-shift="sub" font-size="0.7em">X</tspan>`);
 
                         triangleGroup.append("text")
-                            .attr("x", xScale((Bx+Cx)/2) + 5)
-                            .attr("y", yScale((By+Cy)/2) - 10)
+                            .attr("x", xScale((Bx+Cx)/2) + 12)
+                            .attr("y", yScale((By+Cy)/2))
                             .attr("text-anchor", "start")
                             .attr("class", "text-[15px] font-bold fill-violet-700")
                             .html(`<tspan>σ</tspan><tspan baseline-shift="sub" font-size="0.7em">Y</tspan>`);
-                            
+
                         triangleGroup.append("text")
-                            .attr("x", xScale((Ax+Cx)/2) + 15)
-                            .attr("y", yScale((Ay+Cy)/2) + 15)
-                            .attr("text-anchor", "start")
-                            .attr("class", "text-[15px] font-bold fill-violet-700 bg-white")
-                            .html(`<tspan>σ</tspan><tspan baseline-shift="sub" font-size="0.7em">X+Y</tspan>`);
+                            .attr("x", xScale((Ax+Cx)/2) + (isSum ? -12 : 12))
+                            .attr("y", yScale((Ay+Cy)/2) - 12)
+                            .attr("text-anchor", isSum ? "end" : "start")
+                            .attr("class", "text-[15px] font-bold fill-emerald-700")
+                            .html(`<tspan>σ</tspan><tspan baseline-shift="sub" font-size="0.7em">${isSum ? 'X+Y' : 'X-Y'}</tspan>`);
                     }
                 }
             }
@@ -618,24 +710,30 @@
             d3.select("#data-points-group").selectAll("circle")
                 .on("mouseover", function(event, d) {
                     d3.select(this).attr("r", 6).attr("fill", "#ef4444").attr("opacity", 1);
-                    
+
                     const tooltip = d3.select("#tooltip");
                     const [mx, my] = d3.pointer(event, container);
-                    
+
                     tooltip.transition().duration(100).style("opacity", 1);
-                    tooltip.html(`X: ${d.x.toFixed(2)}<br>Y: ${d.y.toFixed(2)}<br><span class="text-red-500 font-bold">Sum: ${d.sum.toFixed(2)}</span>`)
+                    const metricHTML = isSum
+                        ? `<span class="text-red-500 font-bold">Sum (X+Y): ${d.sum.toFixed(2)}</span><br><span class="text-slate-400 text-xs">Diff (X-Y): ${d.diff.toFixed(2)}</span>`
+                        : `<span class="text-red-500 font-bold">Diff (X-Y): ${d.diff.toFixed(2)}</span><br><span class="text-slate-400 text-xs">Sum (X+Y): ${d.sum.toFixed(2)}</span>`;
+
+                    tooltip.html(`X: ${d.x.toFixed(2)}<br>Y: ${d.y.toFixed(2)}<br>${metricHTML}`)
                            .style("left", (mx + 15) + "px")
                            .style("top", (my - 25) + "px");
-                    
+
                     if (showProj) {
+                        const px = getProjX(d);
+                        const py = getProjY(d);
                         projLinesGroup.append("line")
                             .attr("id", "highlight-proj")
                             .attr("x1", xScale(d.x)).attr("y1", yScale(d.y))
-                            .attr("x2", xScale((d.x + d.y) / 2)).attr("y2", yScale((d.x + d.y) / 2))
+                            .attr("x2", xScale(px)).attr("y2", yScale(py))
                             .attr("stroke", "#ef4444").attr("stroke-width", 2);
                         projPointsGroup.append("circle")
                             .attr("id", "highlight-proj-pt")
-                            .attr("cx", xScale((d.x + d.y)/2)).attr("cy", yScale((d.x + d.y)/2))
+                            .attr("cx", xScale(px)).attr("cy", yScale(py))
                             .attr("r", 5).attr("fill", "#ef4444");
                     }
                 })
@@ -647,7 +745,11 @@
                 });
         }
 
-        // Add event listeners to controls
+        // Event Listeners for Mode Toggle
+        document.getElementById('btn-mode-sum').addEventListener('click', () => setMode('sum'));
+        document.getElementById('btn-mode-diff').addEventListener('click', () => setMode('diff'));
+
+        // Event Listeners for Sliders & Checkboxes
         document.getElementById('corr-slider').addEventListener('input', updateVis);
         document.getElementById('varx-slider').addEventListener('input', updateVis);
         document.getElementById('vary-slider').addEventListener('input', updateVis);
@@ -666,7 +768,7 @@
         initVis();
         updateVis();
 
-        // Render MathJax equations after a short delay to ensure DOM is ready
+        // Render MathJax equations
         setTimeout(() => {
             if (window.MathJax) {
                 MathJax.typesetPromise();
@@ -686,7 +788,6 @@
                 if (cancelFullScreen) cancelFullScreen.call(doc);
             }
         });
-
     </script>
 </body>
 </html>
