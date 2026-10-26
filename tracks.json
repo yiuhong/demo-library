@@ -291,7 +291,7 @@
     {
       "id": "association",
       "title": "Association",
-      "summary": "This path is for how two variables move together, from shared movement to a share of variance, then a sum or a difference. By the end you can say that positive correlation widens the sum and narrows the difference.",
+      "summary": "This path is for how two variables move together, from shared movement to a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference.",
       "status": "draft",
       "steps": [
         {
@@ -318,12 +318,13 @@
         },
         {
           "href": "statistics/additivity_of_variance.html",
-          "title": "Additivity of Variance",
-          "note": "A sum and a difference both combine two variables, but shared movement enters them in opposite ways. Positive correlation increases the variance of X + Y and reduces the variance of X − Y; when nothing is shared, the covariance term is zero and the two variances add in either case. The path ends here, with Var(X ± Y) carrying that covariance term.",
+          "title": "Additivity of Variance & SS",
+          "note": "Sum of squares is simply another way to measure deviation — the same idea as variance, kept as a total rather than an average. Because squared deviations are always positive, those totals add cleanly. The catch is mild: since they are squares, adding or subtracting two variables still has to carry their correlation, which widens a sum and narrows a difference when the association is positive.",
           "formulae": [
             "Var(X + Y) = Var(X) + Var(Y) + 2 Cov(X, Y)",
             "Var(X − Y) = Var(X) + Var(Y) − 2 Cov(X, Y)",
-            "if Cov(X, Y) = 0, both equal Var(X) + Var(Y)"
+            "SS(X + Y) = SS(X) + SS(Y) + 2 SP(X, Y)",
+            "SS(X − Y) = SS(X) + SS(Y) − 2 SP(X, Y)"
           ],
           "image": "tracks/images/association/03-additivity.png",
           "imageAlt": "Three bars. Var(X) and Var(Y) are each 1. The third bar stacks those two parts into Var(X+Y) = 2. A note says the covariance term is 0."
