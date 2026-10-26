@@ -3,10 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Additivity of Variance: Sum vs. Difference</title>
+    <title>Additivity of Variance & Sum of Squares: Sum vs. Difference</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            startup: {
+                typeset: true
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -28,14 +39,16 @@
         .tooltip {
             position: absolute;
             background-color: white;
-            padding: 8px;
-            border-radius: 4px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.2s;
-            font-size: 0.875rem;
+            transition: opacity 0.15s;
+            font-size: 0.8rem;
             z-index: 50;
+            min-width: 210px;
         }
         input[type=range] {
             accent-color: #3b82f6;
@@ -55,119 +68,200 @@
 
         <div class="lg:col-span-1 flex flex-col gap-6">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900 mb-3">Additivity of Variance</h1>
+                <h1 class="text-2xl font-bold text-slate-900 mb-3">Additivity of Variance &amp; $SS$</h1>
 
                 <!-- Mode Toggle -->
                 <div class="bg-slate-200/80 p-1 rounded-xl flex mb-4 border border-slate-300/60">
                     <button id="btn-mode-sum" class="flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-sm">
-                        Sum: \( X + Y \)
+                        Sum: $Z = X + Y$
                     </button>
                     <button id="btn-mode-diff" class="flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900">
-                        Difference: \( X - Y \)
+                        Difference: $Z = X - Y$
                     </button>
                 </div>
 
                 <!-- Dynamic Explanation for Sum -->
                 <div id="explanation-sum">
-                    <p class="text-sm text-slate-600 mb-4 font-medium">Why is the variance of \( X + Y \) measured perpendicular to \( y = -x \)?</p>
-                    <div class="prose prose-sm prose-slate space-y-2 text-sm text-slate-600">
-                        <p><strong>1. Lines of Constant Sum:</strong> The equation \( X + Y = C \) (or \( y = -x + C \)) represents lines with a slope of \(-1\). Every point on a specific red line has the exact same sum.</p>
-                        <p><strong>2. Maximum Change:</strong> To change the sum \( C \) as quickly as possible, you must move perpendicular to these lines, which is along the green line \( y = x \).</p>
-                        <p><strong>3. Projection:</strong> The variance of \( X + Y \) is the spread of the data when projected onto this perpendicular direction (the green axis).</p>
-                        <p><strong>4. Standard Deviation Triangle:</strong> Positive correlation (\( \rho > 0 \)) aligns the data cloud with \( y = x \), opening the hinge angle so the spread adds up (\(+2\rho\sigma_X\sigma_Y\)).</p>
-                        <p><strong>5. The \( 1/\sqrt{2} \) Factor:</strong> Points on \( y = x \) at \((c/2, c/2)\) have a sum of \(c\), which is at Euclidean distance \( c/\sqrt{2} \) from the origin. Scaling by \( 1/\sqrt{2} \) translates abstract sums into exact screen coordinates.</p>
+                    <p class="text-sm text-slate-600 mb-3 font-medium">Why do Variance and Sum of Squares ($SS$) of $Z = X + Y$ project onto $y = x$?</p>
+                    <div class="prose prose-sm prose-slate space-y-2 text-xs text-slate-600">
+                        <p><strong>1. Lines of Constant Sum:</strong> Defining $Z = X + Y$, the line $Z = C$ (or $y = -x + C$) has slope $-1$. Every point on a red contour line shares the exact same sum $Z$.</p>
+                        <p><strong>2. Orthogonal Projection:</strong> Moving perpendicular to $y = -x$ along $y = x$ changes $Z$ fastest. Each green point's distance from the mean along $y = x$ is $d_{\perp} = \frac{Z_i - \bar{Z}}{\sqrt{2}} = \frac{(X_i+Y_i) - (\bar{X}+\bar{Y})}{\sqrt{2}}$.</p>
+                        <p><strong>3. Sum of Squares ($SS$) Decomposition:</strong> Squaring and summing all deviations $\sum(Z_i - \bar{Z})^2$ yields $SS_{X+Y} = SS_X + SS_Y + 2\,SP_{XY}$, where $SP_{XY} = \sum(X_i-\bar{X})(Y_i-\bar{Y})$ is the Sum of Cross-Products.</p>
+                        <p><strong>4. Dividing by $df = N - 1$:</strong> Dividing the entire $SS$ identity by $N - 1$ yields the sample variance law: $s_{X+Y}^2 = s_X^2 + s_Y^2 + 2r s_X s_Y$.</p>
                     </div>
                 </div>
 
                 <!-- Dynamic Explanation for Difference -->
                 <div id="explanation-diff" class="hidden">
-                    <p class="text-sm text-slate-600 mb-4 font-medium">Why does positive correlation <em>reduce</em> the variance of \( X - Y \)?</p>
-                    <div class="prose prose-sm prose-slate space-y-2 text-sm text-slate-600">
-                        <p><strong>1. Lines of Constant Difference:</strong> The equation \( X - Y = C \) (or \( y = x - C \)) represents lines with a slope of \(+1\). Every point on a specific red line has the exact same difference (e.g., along \( y = x \), the difference is \(0\)).</p>
-                        <p><strong>2. Maximum Change:</strong> To change the difference \( C \) as quickly as possible, you must move perpendicular to \( y = x \), which is along the green line \( y = -x \) (towards the bottom-right).</p>
-                        <p><strong>3. Projection & Cancelation:</strong> When \( X \) and \( Y \) are positively correlated (\( \rho > 0 \)), points cluster tightly along \( y = x \). Projecting onto \( y = -x \) yields a tiny spread because variations in \( X \) and \( Y \) cancel each other out!</p>
-                        <p><strong>4. Standard Deviation Triangle:</strong> Because we subtract \( Y \), the \(-\sigma_Y\) vector flips direction. Now, positive correlation closes the hinge angle, shrinking the hypotenuse (\(-2\rho\sigma_X\sigma_Y\)).</p>
+                    <p class="text-sm text-slate-600 mb-3 font-medium">Why does positive correlation <em>shrink</em> $SS_{X-Y}$ and $\text{Var}(Z)$ for $Z = X - Y$?</p>
+                    <div class="prose prose-sm prose-slate space-y-2 text-xs text-slate-600">
+                        <p><strong>1. Lines of Constant Difference:</strong> Defining $Z = X - Y$, the line $Z = C$ (or $y = x - C$) has slope $+1$. Along $y = x$, $X = Y$ so the difference $Z = 0$.</p>
+                        <p><strong>2. Projection &amp; Cancelation:</strong> When $\rho > 0$, points cluster along $y = x$. Projecting onto $y = -x$ gives distance $d_{\perp} = \frac{|Z_i - \bar{Z}|}{\sqrt{2}}$, producing tiny deviations because shared fluctuations cancel out.</p>
+                        <p><strong>3. Sum of Squares ($SS$) Decomposition:</strong> Subtracting $Y$ flips the sign of the cross-product term: $SS_{X-Y} = \sum(Z_i - \bar{Z})^2 = SS_X + SS_Y - 2\,SP_{XY}$.</p>
+                        <p><strong>4. Geometric Cosine Law:</strong> Positive $SP_{XY}$ closes the hinge angle between the $\sqrt{SS_X}$ and $-\sqrt{SS_Y}$ vectors, directly reducing $SS_{X-Y}$.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="controls-container p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 class="font-semibold text-slate-800 mb-4">Interactive Parameters</h3>
+            <div class="controls-container p-5 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="font-semibold text-slate-800 mb-4 text-sm uppercase tracking-wider">Interactive Parameters</h3>
 
-                <div class="mb-5">
+                <div class="mb-4">
                     <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
-                        <span>Correlation (\( \rho \))</span>
-                        <span id="corr-val">0.00</span>
+                        <span>Correlation ($\rho$)</span>
+                        <span id="corr-val" class="font-mono text-blue-600 font-semibold">0.00</span>
                     </label>
                     <input type="range" id="corr-slider" min="-0.95" max="0.95" step="0.05" value="0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
-                    <p class="text-xs text-slate-500 mt-1">Acts as the hinge angle between the std dev vectors.</p>
                 </div>
 
-                <div class="mb-5">
+                <div class="mb-4">
                     <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
-                        <span>Variance of X (\( \sigma_X^2 \))</span>
-                        <span id="varx-val">1.0</span>
+                        <span>Variance of $X$ ($\sigma_X^2$)</span>
+                        <span id="varx-val" class="font-mono text-blue-600 font-semibold">1.0</span>
                     </label>
                     <input type="range" id="varx-slider" min="0.1" max="3.0" step="0.1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 </div>
 
-                <div class="mb-5">
+                <div class="mb-4">
                     <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
-                        <span>Variance of Y (\( \sigma_Y^2 \))</span>
-                        <span id="vary-val">1.0</span>
+                        <span>Variance of $Y$ ($\sigma_Y^2$)</span>
+                        <span id="vary-val" class="font-mono text-blue-600 font-semibold">1.0</span>
                     </label>
                     <input type="range" id="vary-slider" min="0.1" max="3.0" step="0.1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-slate-200">
-                    <div class="flex items-center gap-2 mb-2">
+                <div class="mb-4">
+                    <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
+                        <span>Sample Size ($N$) <span class="text-xs text-slate-400 font-normal">($df =$ <span id="df-val">99</span>)</span></span>
+                        <span id="n-val" class="font-mono text-blue-600 font-semibold">100</span>
+                    </label>
+                    <input type="range" id="n-slider" min="20" max="300" step="10" value="100" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    <p class="text-[11px] text-slate-500 mt-1">Scales total $SS = (N-1)\sigma^2$ while holding $\sigma^2$ constant.</p>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-200 space-y-2">
+                    <div class="flex items-center gap-2">
                         <input type="checkbox" id="show-sum-lines" checked class="rounded text-red-500 focus:ring-red-500">
-                        <label for="show-sum-lines" id="label-contour-lines" class="text-sm font-medium text-slate-700">Show Lines of Constant Sum</label>
-                    </div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <input type="checkbox" id="show-projections" checked class="rounded text-blue-500 focus:ring-blue-500">
-                        <label for="show-projections" class="text-sm font-medium text-slate-700">Show Point Projections (Dashed paths)</label>
-                    </div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <input type="checkbox" id="show-triangle" class="rounded text-violet-500 focus:ring-violet-500">
-                        <label for="show-triangle" class="text-sm font-medium text-slate-700">Show Std Dev Triangle (Law of Cosines)</label>
+                        <label for="show-sum-lines" id="label-contour-lines" class="text-xs font-medium text-slate-700">Show Lines of Constant Sum</label>
                     </div>
                     <div class="flex items-center gap-2">
-                        <input type="checkbox" id="show-squares" class="rounded text-amber-500 focus:ring-amber-500">
-                        <label for="show-squares" class="text-sm font-medium text-slate-700">Show Variance Squares (Area = Variance)</label>
+                        <input type="checkbox" id="show-projections" checked class="rounded text-blue-500 focus:ring-blue-500">
+                        <label for="show-projections" class="text-xs font-medium text-slate-700">Show Point Projections (Dashed paths)</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="show-triangle" class="rounded text-violet-500 focus:ring-violet-500">
+                        <label for="show-triangle" class="text-xs font-medium text-slate-700">Show Std Dev / $\sqrt{SS}$ Triangle (Law of Cosines)</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="show-squares" checked class="rounded text-emerald-500 focus:ring-emerald-500">
+                        <label for="show-squares" class="text-xs font-medium text-slate-700">Show Summary Variance &amp; $SS$ Squares</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="show-point-ss" checked class="rounded text-amber-500 focus:ring-amber-500">
+                        <label for="show-point-ss" class="text-xs font-medium text-slate-700">Show Individual Deviation Square on Hover</label>
                     </div>
                 </div>
 
-                <div class="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                    <h4 class="text-sm font-semibold text-slate-800 mb-2">Calculated Variance</h4>
-                    <p id="formula-sum" class="text-sm text-slate-600">\( \text{Var}(X+Y) = \sigma_X^2 + \sigma_Y^2 + 2\rho\sigma_X\sigma_Y \)</p>
-                    <p id="formula-diff" class="text-sm text-slate-600 hidden">\( \text{Var}(X-Y) = \sigma_X^2 + \sigma_Y^2 - 2\rho\sigma_X\sigma_Y \)</p>
-                    <div class="flex items-baseline justify-between mt-2">
-                        <p class="text-lg font-bold text-emerald-600">Value: <span id="calc-var">2.00</span></p>
-                        <p class="text-xs text-slate-400">Other: <span id="calc-var-other">2.00</span></p>
+                <!-- Variance & Sum of Squares Decomposition Cards -->
+                <div class="mt-5 space-y-3">
+                    <div class="p-3.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">Theoretical Variance ($\sigma_Z^2$)</h4>
+                            <span class="text-[11px] text-slate-400">Mean Square ($SS_Z / df$)</span>
+                        </div>
+                        <p id="formula-sum" class="text-xs text-slate-600">$\sigma_{X+Y}^2 = \sigma_X^2 + \sigma_Y^2 + 2\rho\sigma_X\sigma_Y$</p>
+                        <p id="formula-diff" class="text-xs text-slate-600 hidden">$\sigma_{X-Y}^2 = \sigma_X^2 + \sigma_Y^2 - 2\rho\sigma_X\sigma_Y$</p>
+                        <div class="flex items-baseline justify-between mt-2">
+                            <p class="text-base font-bold text-emerald-600">
+                                <span id="calc-var-label-sum">$\text{Var}(X+Y)$</span><span id="calc-var-label-diff" class="hidden">$\text{Var}(X-Y)$</span>:
+                                <span id="calc-var" class="font-mono">2.00</span>
+                            </p>
+                            <p class="text-xs text-slate-400">
+                                <span id="calc-var-other-sum">$\text{Var}(X-Y)$</span><span id="calc-var-other-diff" class="hidden">$\text{Var}(X+Y)$</span>:
+                                <span id="calc-var-other-val" class="font-mono">2.00</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 bg-amber-50/60 rounded-lg border border-amber-200/80">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-amber-900">Sum of Squares ($SS_Z$) Partition</h4>
+                            <span class="text-[11px] font-medium text-amber-700">$df = N - 1 =$ <span id="card-df">99</span></span>
+                        </div>
+                        <p id="ss-formula-sum" class="text-xs text-amber-800 mb-2">$SS_{X+Y} = SS_X + SS_Y + 2\,SP_{XY} \quad (Z = X + Y)$</p>
+                        <p id="ss-formula-diff" class="text-xs text-amber-800 mb-2 hidden">$SS_{X-Y} = SS_X + SS_Y - 2\,SP_{XY} \quad (Z = X - Y)$</p>
+
+                        <!-- Visual Breakdown Grid -->
+                        <div class="grid grid-cols-3 gap-1.5 text-center bg-white/90 p-2 rounded border border-amber-200/60 text-xs">
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-semibold">$SS_X$</div>
+                                <div id="val-ssx" class="font-mono font-bold text-blue-600">99.0</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-semibold">$SS_Y$</div>
+                                <div id="val-ssy" class="font-mono font-bold text-pink-600">99.0</div>
+                            </div>
+                            <div>
+                                <div id="label-2sp-sum" class="text-[10px] text-slate-400 font-semibold">$+2\,SP_{XY}$</div>
+                                <div id="label-2sp-diff" class="text-[10px] text-slate-400 font-semibold hidden">$-2\,SP_{XY}$</div>
+                                <div id="val-2sp" class="font-mono font-bold text-violet-600">+0.0</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-baseline justify-between mt-2.5 pt-2 border-t border-amber-200/60">
+                            <div>
+                                <span class="text-xs font-semibold text-amber-900" id="label-ss-total-sum">$SS_{X+Y}$ (Theo):</span>
+                                <span class="text-xs font-semibold text-amber-900 hidden" id="label-ss-total-diff">$SS_{X-Y}$ (Theo):</span>
+                                <span id="val-ss-total" class="text-base font-bold text-emerald-700 font-mono ml-1">198.0</span>
+                            </div>
+                            <div class="text-[11px] text-slate-500">
+                                Empirical: <span id="val-ss-emp" class="font-mono font-semibold text-slate-700">198.0</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="lg:col-span-2 flex justify-center items-start">
+        <div class="lg:col-span-2 flex flex-col items-center">
             <div class="bg-white p-4 rounded-xl shadow-md border border-slate-200 w-full overflow-hidden">
-                <div id="vis-container" class="relative w-full aspect-square max-w-[600px] mx-auto">
-                    <div id="tooltip" class="tooltip"></div>
+                <div id="vis-container" class="relative w-full aspect-square max-w-[620px] mx-auto">
+                    <!-- Pre-rendered MathJax Tooltip DOM Structure -->
+                    <div id="tooltip" class="tooltip">
+                        <div class="font-bold text-slate-800 border-b border-slate-100 pb-1 mb-1">
+                            Observation #<span id="tt-obs-id">1</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-x-2 text-xs items-baseline">
+                            <span class="text-slate-500">$X_i, Y_i$:</span>
+                            <span id="tt-xy" class="font-mono text-right">0.00, 0.00</span>
+                            <span id="tt-mode-sum" class="text-emerald-700 font-semibold">$Z_i = X_i + Y_i$:</span>
+                            <span id="tt-mode-diff" class="text-emerald-700 font-semibold hidden">$Z_i = X_i - Y_i$:</span>
+                            <span id="tt-mode-val" class="font-mono font-bold text-emerald-700 text-right">0.00</span>
+                            <span class="text-amber-700 font-semibold">Sq. Dev $(Z_i - \bar{Z})^2$:</span>
+                            <span id="tt-sqdev" class="font-mono font-bold text-amber-700 text-right">0.00</span>
+                            <span class="text-slate-400 text-[11px]">$(X_i-\bar{X})^2, (Y_i-\bar{Y})^2$:</span>
+                            <span id="tt-sqxy" class="font-mono text-slate-500 text-[11px] text-right">0.00, 0.00</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+                <div class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-slate-600">
                     <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full bg-blue-500 opacity-60"></div> Data (X, Y)
+                        <div class="w-3 h-3 rounded-full bg-blue-500 opacity-60"></div> Data $(X_i, Y_i)$
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="w-4 h-1 bg-red-400 opacity-50"></div>
-                        <span id="legend-contour-sum">\( X + Y = C \)</span>
-                        <span id="legend-contour-diff" class="hidden">\( X - Y = C \)</span>
+                        <span id="legend-contour-sum">Constant Sum ($Z = X + Y = C$)</span>
+                        <span id="legend-contour-diff" class="hidden">Constant Diff ($Z = X - Y = C$)</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="w-4 h-1 bg-emerald-500"></div>
-                        <span id="legend-axis-sum">Projection Axis (\( y = x \))</span>
-                        <span id="legend-axis-diff" class="hidden">Projection Axis (\( y = -x \))</span>
+                        <span id="legend-axis-sum">Projection Axis ($y = x$)</span>
+                        <span id="legend-axis-diff" class="hidden">Projection Axis ($y = -x$)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 border border-amber-500 bg-amber-500/20"></div>
+                        <span id="legend-sqdev-sum">Hover Deviation Square ($d_{\perp}^2 = \frac{1}{2}(Z_i - \bar{Z})^2$, where $Z = X + Y$)</span>
+                        <span id="legend-sqdev-diff" class="hidden">Hover Deviation Square ($d_{\perp}^2 = \frac{1}{2}(Z_i - \bar{Z})^2$, where $Z = X - Y$)</span>
                     </div>
                 </div>
             </div>
@@ -177,8 +271,7 @@
     <script>
         // Constants and Margins
         const container = document.getElementById('vis-container');
-        const margin = { top: 50, right: 50, bottom: 50, left: 50 };
-        const numPoints = 250;
+        const margin = { top: 45, right: 45, bottom: 45, left: 45 };
         const axisDomain = [-5, 5];
 
         let width, height, xScale, yScale, svg, gMain;
@@ -186,11 +279,10 @@
         // State variables
         let currentMode = 'sum'; // 'sum' or 'diff'
         let currentData = [];
-        let currentRho = null;
-        let currentVarX = null;
-        let currentVarY = null;
+        let baseStandardNormals = []; // Cached unit normals so changing sliders scales smoothly
+        let maxN = 300;
 
-        // Box-Muller transform for normal distribution
+        // Box-Muller transform for standard normal distribution
         function randomNormal() {
             let u = 0, v = 0;
             while(u === 0) u = Math.random();
@@ -198,21 +290,28 @@
             return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
         }
 
-        // Generate correlated bivariate normal data
-        function generateData(rho, varX, varY) {
+        // Initialize reusable standard normal pairs
+        function initBaseNormals() {
+            baseStandardNormals = [];
+            for (let i = 0; i < maxN; i++) {
+                baseStandardNormals.push({
+                    z1: randomNormal(),
+                    z2: randomNormal()
+                });
+            }
+        }
+
+        // Generate correlated bivariate normal data for active N
+        function generateData(rho, varX, varY, n) {
             const stdX = Math.sqrt(varX);
             const stdY = Math.sqrt(varY);
             const data = [];
 
-            for (let i = 0; i < numPoints; i++) {
-                const z1 = randomNormal();
-                const z2 = randomNormal();
-
-                // Cholesky decomposition to introduce correlation
+            for (let i = 0; i < n; i++) {
+                const { z1, z2 } = baseStandardNormals[i];
                 const x = stdX * z1;
                 const y = stdY * (rho * z1 + Math.sqrt(1 - rho * rho) * z2);
-
-                data.push({ x: x, y: y, sum: x + y, diff: x - y });
+                data.push({ id: i, x: x, y: y, sum: x + y, diff: x - y });
             }
             return data;
         }
@@ -232,15 +331,33 @@
                 btnSum.className = "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
             }
 
-            // Toggle Explanation & Formulas
+            // Toggle Explanation & Pre-typeset MathJax Formulas
             document.getElementById('explanation-sum').classList.toggle('hidden', !isSum);
             document.getElementById('explanation-diff').classList.toggle('hidden', isSum);
             document.getElementById('formula-sum').classList.toggle('hidden', !isSum);
             document.getElementById('formula-diff').classList.toggle('hidden', isSum);
+            document.getElementById('ss-formula-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('ss-formula-diff').classList.toggle('hidden', isSum);
             document.getElementById('legend-contour-sum').classList.toggle('hidden', !isSum);
             document.getElementById('legend-contour-diff').classList.toggle('hidden', isSum);
             document.getElementById('legend-axis-sum').classList.toggle('hidden', !isSum);
             document.getElementById('legend-axis-diff').classList.toggle('hidden', isSum);
+            document.getElementById('legend-sqdev-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('legend-sqdev-diff').classList.toggle('hidden', isSum);
+
+            // Toggle Variance & SS Partition MathJax Labels
+            document.getElementById('calc-var-label-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('calc-var-label-diff').classList.toggle('hidden', isSum);
+            document.getElementById('calc-var-other-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('calc-var-other-diff').classList.toggle('hidden', isSum);
+            document.getElementById('label-2sp-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('label-2sp-diff').classList.toggle('hidden', isSum);
+            document.getElementById('label-ss-total-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('label-ss-total-diff').classList.toggle('hidden', isSum);
+
+            // Toggle Tooltip Mode Label
+            document.getElementById('tt-mode-sum').classList.toggle('hidden', !isSum);
+            document.getElementById('tt-mode-diff').classList.toggle('hidden', isSum);
 
             document.getElementById('label-contour-lines').textContent = isSum 
                 ? "Show Lines of Constant Sum" 
@@ -337,6 +454,22 @@
             gMain.append("g").attr("id", "data-points-group").attr("clip-path", "url(#plot-clip)");
             gMain.append("g").attr("id", "projected-points-group").attr("class", "non-interactive-layer").attr("clip-path", "url(#plot-clip)");
             gMain.append("g").attr("id", "triangle-group").attr("class", "non-interactive-layer");
+            gMain.append("g").attr("id", "hover-ss-group").attr("class", "non-interactive-layer").attr("clip-path", "url(#plot-clip)");
+        }
+
+        // Helper to construct a geometric square on the projection axis from projected point (px, py) to projected mean (mpx, mpy)
+        function buildDeviationSquarePolygon(px, py, mpx, mpy) {
+            const vx = px - mpx;
+            const vy = py - mpy;
+            // Normal vector perpendicular to projection axis
+            const nx = -vy;
+            const ny = vx;
+            return [
+                [xScale(mpx), yScale(mpy)],
+                [xScale(px), yScale(py)],
+                [xScale(px + nx), yScale(py + ny)],
+                [xScale(mpx + nx), yScale(mpy + ny)]
+            ].map(pt => pt.join(",")).join(" ");
         }
 
         function updateVis() {
@@ -344,27 +477,71 @@
             const rho = parseFloat(document.getElementById('corr-slider').value);
             const varX = parseFloat(document.getElementById('varx-slider').value);
             const varY = parseFloat(document.getElementById('vary-slider').value);
+            const n = parseInt(document.getElementById('n-slider').value, 10);
+            const df = n - 1;
+
             const showProj = document.getElementById('show-projections').checked;
             const showSumLines = document.getElementById('show-sum-lines').checked;
             const showTriangle = document.getElementById('show-triangle').checked;
             const showSquares = document.getElementById('show-squares').checked;
 
-            // Update UI values
+            // Update UI parameter labels
             document.getElementById('corr-val').textContent = rho.toFixed(2);
             document.getElementById('varx-val').textContent = varX.toFixed(1);
             document.getElementById('vary-val').textContent = varY.toFixed(1);
+            document.getElementById('n-val').textContent = n;
+            document.getElementById('df-val').textContent = df;
+            document.getElementById('card-df').textContent = df;
 
-            const varSum = Math.max(0, varX + varY + 2 * rho * Math.sqrt(varX) * Math.sqrt(varY));
-            const varDiff = Math.max(0, varX + varY - 2 * rho * Math.sqrt(varX) * Math.sqrt(varY));
+            // Theoretical Variances & Sum of Squares
+            const covXY = rho * Math.sqrt(varX) * Math.sqrt(varY);
+            const varSum = Math.max(0, varX + varY + 2 * covXY);
+            const varDiff = Math.max(0, varX + varY - 2 * covXY);
             const calcVar = isSum ? varSum : varDiff;
             const otherVar = isSum ? varDiff : varSum;
 
+            const theoSSX = df * varX;
+            const theoSSY = df * varY;
+            const theoSPXY = df * covXY;
+            const theo2SP = (isSum ? 2 : -2) * theoSPXY;
+            const theoSSTotal = df * calcVar;
+
             document.getElementById('calc-var').textContent = calcVar.toFixed(2);
-            document.getElementById('calc-var-other').textContent = `${isSum ? 'Var(X-Y)' : 'Var(X+Y)'}: ${otherVar.toFixed(2)}`;
+            document.getElementById('calc-var-other-val').textContent = otherVar.toFixed(2);
+
+            document.getElementById('val-ssx').textContent = theoSSX.toFixed(1);
+            document.getElementById('val-ssy').textContent = theoSSY.toFixed(1);
+            document.getElementById('val-2sp').textContent = (theo2SP >= 0 ? '+' : '') + theo2SP.toFixed(1);
+            document.getElementById('val-ss-total').textContent = theoSSTotal.toFixed(1);
+
+            // Generate current sample data
+            currentData = generateData(rho, varX, varY, n);
+
+            // Calculate empirical sample means and empirical Sum of Squares
+            let meanX = 0, meanY = 0;
+            currentData.forEach(d => { meanX += d.x; meanY += d.y; });
+            meanX /= n;
+            meanY /= n;
+
+            let empSSX = 0, empSSY = 0, empSPXY = 0, empSSTotal = 0;
+            currentData.forEach(d => {
+                const dx = d.x - meanX;
+                const dy = d.y - meanY;
+                const dz = isSum ? (dx + dy) : (dx - dy);
+                d.dx = dx;
+                d.dy = dy;
+                d.dz = dz;
+                d.sqDev = dz * dz;
+                empSSX += dx * dx;
+                empSSY += dy * dy;
+                empSPXY += dx * dy;
+                empSSTotal += dz * dz;
+            });
+
+            document.getElementById('val-ss-emp').textContent = empSSTotal.toFixed(1);
 
             // Update Diagonal Reference Lines based on Mode
             if (isSum) {
-                // Zero-sum line is y = -x
                 d3.select("#zero-contour-line")
                     .attr("x1", xScale(axisDomain[0])).attr("y1", yScale(-axisDomain[0]))
                     .attr("x2", xScale(axisDomain[1])).attr("y2", yScale(-axisDomain[1]));
@@ -373,9 +550,8 @@
                 d3.select("#zero-contour-label")
                     .attr("x", zx).attr("y", zy - 10)
                     .attr("transform", `rotate(45, ${zx}, ${zy})`)
-                    .text("y = -x (Sum = 0)");
+                    .text("y = -x (Z = X + Y = 0)");
 
-                // Projection axis is y = x (pointing towards +X, +Y)
                 d3.select("#proj-axis-line")
                     .attr("x1", xScale(axisDomain[0])).attr("y1", yScale(axisDomain[0]))
                     .attr("x2", xScale(axisDomain[1])).attr("y2", yScale(axisDomain[1]));
@@ -384,9 +560,8 @@
                 d3.select("#proj-axis-label")
                     .attr("x", px).attr("y", py - 10)
                     .attr("transform", `rotate(-45, ${px}, ${py})`)
-                    .text("Direction of Sum (y = x)");
+                    .text("Direction of Z = X + Y (y = x)");
             } else {
-                // Zero-difference line is y = x
                 d3.select("#zero-contour-line")
                     .attr("x1", xScale(axisDomain[0])).attr("y1", yScale(axisDomain[0]))
                     .attr("x2", xScale(axisDomain[1])).attr("y2", yScale(axisDomain[1]));
@@ -395,9 +570,8 @@
                 d3.select("#zero-contour-label")
                     .attr("x", zx).attr("y", zy - 10)
                     .attr("transform", `rotate(-45, ${zx}, ${zy})`)
-                    .text("y = x (Diff = 0)");
+                    .text("y = x (Z = X - Y = 0)");
 
-                // Projection axis is y = -x (pointing towards +X, -Y where X - Y increases)
                 d3.select("#proj-axis-line")
                     .attr("x1", xScale(axisDomain[0])).attr("y1", yScale(-axisDomain[0]))
                     .attr("x2", xScale(axisDomain[1])).attr("y2", yScale(-axisDomain[1]));
@@ -406,31 +580,16 @@
                 d3.select("#proj-axis-label")
                     .attr("x", px).attr("y", py - 10)
                     .attr("transform", `rotate(45, ${px}, ${py})`)
-                    .text("Direction of Diff (y = -x)");
+                    .text("Direction of Z = X - Y (y = -x)");
             }
 
-            // Generate new data ONLY if distribution parameters changed
-            if (rho !== currentRho || varX !== currentVarX || varY !== currentVarY || !currentData.length) {
-                currentData = generateData(rho, varX, varY);
-                currentRho = rho;
-                currentVarX = varX;
-                currentVarY = varY;
-            }
-
-            // Calculate centroid of data for triangle anchoring
-            let meanX = 0, meanY = 0;
-            currentData.forEach(d => { meanX += d.x; meanY += d.y; });
-            meanX /= currentData.length;
-            meanY /= currentData.length;
-
-            // 1. Update Constant Contour Lines (Sum: y = -x + C, Diff: y = x - C)
+            // 1. Update Constant Contour Lines
             const stdVal = Math.sqrt(calcVar);
-            const contoursToDraw = [-2*stdVal, -stdVal, stdVal, 2*stdVal];
+            const contoursToDraw = [-2 * stdVal, -stdVal, stdVal, 2 * stdVal];
             const sumLinesGroup = d3.select("#sum-lines-group");
 
             if (showSumLines && stdVal > 0.01) {
                 const contourLines = sumLinesGroup.selectAll("line.contour-line").data(contoursToDraw);
-
                 const getY1 = d => isSum ? yScale(-axisDomain[0] + d) : yScale(axisDomain[0] - d);
                 const getY2 = d => isSum ? yScale(-axisDomain[1] + d) : yScale(axisDomain[1] - d);
 
@@ -442,7 +601,6 @@
                     .attr("x2", xScale(axisDomain[1]))
                     .attr("y2", getY2)
                     .merge(contourLines)
-                    .transition().duration(250)
                     .attr("x1", xScale(axisDomain[0]))
                     .attr("y1", getY1)
                     .attr("x2", xScale(axisDomain[1]))
@@ -453,9 +611,15 @@
                 sumLinesGroup.selectAll("*").remove();
             }
 
+            // Helper for orthogonal projection onto active axis
+            const getProjX = d => isSum ? (d.x + d.y) / 2 : (d.x - d.y) / 2;
+            const getProjY = d => isSum ? (d.x + d.y) / 2 : -(d.x - d.y) / 2;
+            const meanProjX = isSum ? (meanX + meanY) / 2 : (meanX - meanY) / 2;
+            const meanProjY = isSum ? (meanX + meanY) / 2 : -(meanX - meanY) / 2;
+
             // 2. Data Points
             const pointsGroup = d3.select("#data-points-group");
-            const points = pointsGroup.selectAll("circle").data(currentData);
+            const points = pointsGroup.selectAll("circle").data(currentData, d => d.id);
 
             points.enter()
                 .append("circle")
@@ -464,34 +628,22 @@
                 .attr("cx", d => xScale(d.x))
                 .attr("cy", d => yScale(d.y))
                 .merge(points)
-                .transition().duration(200)
                 .attr("cx", d => xScale(d.x))
                 .attr("cy", d => yScale(d.y));
 
             points.exit().remove();
-
-            // Helper for orthogonal projection onto active axis
-            // Sum axis (y = x): ((x+y)/2, (x+y)/2)
-            // Diff axis (y = -x): ((x-y)/2, -(x-y)/2)
-            const getProjX = d => isSum ? (d.x + d.y) / 2 : (d.x - d.y) / 2;
-            const getProjY = d => isSum ? (d.x + d.y) / 2 : -(d.x - d.y) / 2;
 
             // 3. Projections
             const projLinesGroup = d3.select("#projection-lines-group");
             const projPointsGroup = d3.select("#projected-points-group");
 
             if (showProj) {
-                const projLines = projLinesGroup.selectAll("line.projection-line").data(currentData);
+                const projLines = projLinesGroup.selectAll("line.projection-line").data(currentData, d => d.id);
 
                 projLines.enter()
                     .append("line")
                     .attr("class", "projection-line")
-                    .attr("x1", d => xScale(d.x))
-                    .attr("y1", d => yScale(d.y))
-                    .attr("x2", d => xScale(getProjX(d)))
-                    .attr("y2", d => yScale(getProjY(d)))
                     .merge(projLines)
-                    .transition().duration(250)
                     .attr("x1", d => xScale(d.x))
                     .attr("y1", d => yScale(d.y))
                     .attr("x2", d => xScale(getProjX(d)))
@@ -499,16 +651,13 @@
 
                 projLines.exit().remove();
 
-                const projPts = projPointsGroup.selectAll("circle.projection-point").data(currentData);
+                const projPts = projPointsGroup.selectAll("circle.projection-point").data(currentData, d => d.id);
 
                 projPts.enter()
                     .append("circle")
                     .attr("class", "projection-point")
                     .attr("r", 3)
-                    .attr("cx", d => xScale(getProjX(d)))
-                    .attr("cy", d => yScale(getProjY(d)))
                     .merge(projPts)
-                    .transition().duration(250)
                     .attr("cx", d => xScale(getProjX(d)))
                     .attr("cy", d => yScale(getProjY(d)));
 
@@ -518,7 +667,7 @@
                 projPointsGroup.selectAll("*").remove();
             }
 
-            // 4. Standard Deviation Geometry (Triangle and Squares)
+            // 4. Standard Deviation & Sum of Squares Geometry (Triangle and Summary Squares)
             const triangleGroup = d3.select("#triangle-group");
             triangleGroup.selectAll("*").remove();
 
@@ -527,7 +676,7 @@
                 const stdY = Math.sqrt(varY);
 
                 if (stdVal > 0.01) {
-                    const scaleSpread = 4.0;
+                    const scaleSpread = 3.6;
                     const cx = meanX;
                     const cy = meanY;
 
@@ -536,9 +685,7 @@
 
                     const lenC = stdVal * S;
                     const lenA = stdX * S;
-                    const lenB = stdY * S;
 
-                    // Sum hypotenuse lies on y = x (+45 deg); Diff hypotenuse lies on y = -x (-45 deg)
                     const angleAC = isSum ? Math.PI / 4 : -Math.PI / 4;
 
                     const dx = (lenC / 2) * Math.cos(angleAC);
@@ -549,21 +696,18 @@
                     const Cx = cx + dx;
                     const Cy = cy + dy;
 
-                    // Effective correlation for the Law of Cosines: +rho for Sum, -rho for Difference
                     const effRho = isSum ? rho : -rho;
                     const cos_alpha = Math.max(-1, Math.min(1, (stdX + effRho * stdY) / stdVal));
                     const alpha = Math.acos(cos_alpha);
 
-                    // When rho = 0, subtracting alpha for Sum (+45 - 45 = 0) and adding alpha for Diff (-45 + 45 = 0)
-                    // keeps the sigma_X side horizontal along the X-axis!
                     const angleAB = isSum ? (angleAC - alpha) : (angleAC + alpha);
 
                     const Bx = Ax + lenA * Math.cos(angleAB);
                     const By = Ay + lenA * Math.sin(angleAB);
 
-                    // Draw Variance Squares if toggled
+                    // Draw Summary Variance & SS Squares if toggled
                     if (showSquares) {
-                        const drawSquare = (x1, y1, x2, y2, x3, y3, color, label) => {
+                        const drawSquare = (x1, y1, x2, y2, x3, y3, color, varLabel, ssSubscript, ssValue) => {
                             const vx = x2 - x1;
                             const vy = y2 - y1;
                             const n1 = {x: -vy, y: vx};
@@ -574,45 +718,64 @@
 
                             const dist1 = Math.hypot(c1.x - x3, c1.y - y3);
                             const dist2 = Math.hypot(c2.x - x3, c2.y - y3);
-                            const n = dist1 > dist2 ? n1 : n2;
+                            const nVec = dist1 > dist2 ? n1 : n2;
 
-                            const px1 = x1 + n.x;
-                            const py1 = y1 + n.y;
-                            const px2 = x2 + n.x;
-                            const py2 = y2 + n.y;
+                            const px1 = x1 + nVec.x;
+                            const py1 = y1 + nVec.y;
+                            const px2 = x2 + nVec.x;
+                            const py2 = y2 + nVec.y;
 
                             triangleGroup.append("polygon")
                                 .attr("points", `${xScale(x1)},${yScale(y1)} ${xScale(px1)},${yScale(py1)} ${xScale(px2)},${yScale(py2)} ${xScale(x2)},${yScale(y2)}`)
                                 .attr("fill", color)
-                                .attr("opacity", 0.1)
+                                .attr("opacity", 0.12)
                                 .attr("stroke", color)
                                 .attr("stroke-width", 2)
                                 .attr("stroke-dasharray", "4");
 
+                            const centerX = xScale((x1+x2)/2 + nVec.x/2);
+                            const centerY = yScale((y1+y2)/2 + nVec.y/2);
+
                             triangleGroup.append("rect")
-                                .attr("x", xScale((x1+x2)/2 + n.x/2) - 34)
-                                .attr("y", yScale((y1+y2)/2 + n.y/2) - 10)
-                                .attr("width", 68)
-                                .attr("height", 20)
+                                .attr("x", centerX - 48)
+                                .attr("y", centerY - 17)
+                                .attr("width", 96)
+                                .attr("height", 34)
                                 .attr("fill", "white")
-                                .attr("opacity", 0.75)
-                                .attr("rx", 4);
+                                .attr("opacity", 0.88)
+                                .attr("stroke", color)
+                                .attr("stroke-width", 1)
+                                .attr("rx", 5);
 
                             triangleGroup.append("text")
-                                .attr("x", xScale((x1+x2)/2 + n.x/2))
-                                .attr("y", yScale((y1+y2)/2 + n.y/2))
+                                .attr("x", centerX)
+                                .attr("y", centerY - 4)
                                 .attr("text-anchor", "middle")
                                 .attr("alignment-baseline", "middle")
-                                .attr("class", "text-[12px] font-bold fill-slate-800")
-                                .html(label);
+                                .attr("class", "text-[11px] font-bold fill-slate-800")
+                                .text(varLabel);
+
+                            triangleGroup.append("text")
+                                .attr("x", centerX)
+                                .attr("y", centerY + 9)
+                                .attr("text-anchor", "middle")
+                                .attr("alignment-baseline", "middle")
+                                .attr("class", "text-[10px] font-mono font-semibold fill-amber-700")
+                                .html(`<tspan font-style="italic">SS</tspan><tspan baseline-shift="sub" font-size="0.75em">${ssSubscript}</tspan><tspan> = ${ssValue}</tspan>`);
                         };
 
-                        drawSquare(Ax, Ay, Bx, By, Cx, Cy, "#3b82f6", `Var(X)`);
-                        drawSquare(Cx, Cy, Bx, By, Ax, Ay, "#ec4899", `Var(Y)`);
-                        drawSquare(Ax, Ay, Cx, Cy, Bx, By, "#10b981", isSum ? `Var(X+Y)` : `Var(X-Y)`);
+                        drawSquare(Ax, Ay, Bx, By, Cx, Cy, "#3b82f6", `Var(X) = ${varX.toFixed(1)}`, "X", theoSSX.toFixed(0));
+                        drawSquare(Cx, Cy, Bx, By, Ax, Ay, "#ec4899", `Var(Y) = ${varY.toFixed(1)}`, "Y", theoSSY.toFixed(0));
+                        drawSquare(
+                            Ax, Ay, Cx, Cy, Bx, By,
+                            "#10b981",
+                            `${isSum ? 'Var(X+Y)' : 'Var(X-Y)'} = ${calcVar.toFixed(2)}`,
+                            isSum ? "X+Y" : "X-Y",
+                            theoSSTotal.toFixed(0)
+                        );
                     }
 
-                    // Draw Standard Deviation Triangle if toggled
+                    // Draw Standard Deviation / sqrt(SS) Triangle if toggled
                     if (showTriangle) {
                         triangleGroup.append("polygon")
                             .attr("points", `${xScale(Ax)},${yScale(Ay)} ${xScale(Bx)},${yScale(By)} ${xScale(Cx)},${yScale(Cy)}`)
@@ -621,13 +784,12 @@
                             .attr("stroke-width", 2)
                             .attr("stroke-linejoin", "round");
 
-                        // Draw right angle if rho is roughly 0
                         if (Math.abs(rho) < 0.01) {
                             const uAB = {x: Ax - Bx, y: Ay - By};
                             const uCB = {x: Cx - Bx, y: Cy - By};
                             const lenAB_data = Math.hypot(uAB.x, uAB.y);
                             const lenCB_data = Math.hypot(uCB.x, uCB.y);
-                            const sSize = 0.4;
+                            const sSize = 0.35;
                             const pt1 = {x: Bx + sSize * uAB.x/lenAB_data, y: By + sSize * uAB.y/lenAB_data};
                             const pt2 = {x: pt1.x + sSize * uCB.x/lenCB_data, y: pt1.y + sSize * uCB.y/lenCB_data};
                             const pt3 = {x: Bx + sSize * uCB.x/lenCB_data, y: By + sSize * uCB.y/lenCB_data};
@@ -639,7 +801,6 @@
                                 .attr("stroke-width", 1.5);
                         }
 
-                        // Extension line and arc for exterior angle when rho != 0
                         if (Math.abs(rho) >= 0.01) {
                             const uAB = {x: Bx - Ax, y: By - Ay};
                             const lenAB_data = Math.hypot(uAB.x, uAB.y);
@@ -647,14 +808,14 @@
 
                             triangleGroup.append("line")
                                 .attr("x1", xScale(Bx)).attr("y1", yScale(By))
-                                .attr("x2", xScale(Bx + 1.8 * dirAB.x)).attr("y2", yScale(By + 1.8 * dirAB.y))
+                                .attr("x2", xScale(Bx + 1.6 * dirAB.x)).attr("y2", yScale(By + 1.6 * dirAB.y))
                                 .attr("stroke", "#a78bfa").attr("stroke-dasharray", "4").attr("stroke-width", 1.5);
 
                             const uBC = {x: Cx - Bx, y: Cy - By};
                             const lenBC = Math.hypot(uBC.x, uBC.y);
                             const dirBC = {x: uBC.x/lenBC, y: uBC.y/lenBC};
 
-                            const r = 0.8;
+                            const r = 0.75;
                             const sBx = xScale(Bx), sBy = yScale(By);
                             const arcX1 = xScale(Bx + r * dirAB.x), arcY1 = yScale(By + r * dirAB.y);
                             const arcX2 = xScale(Bx + r * dirBC.x), arcY2 = yScale(By + r * dirBC.y);
@@ -674,39 +835,41 @@
                             const lenMid = Math.hypot(midDir.x, midDir.y);
 
                             triangleGroup.append("text")
-                                .attr("x", xScale(Bx + 1.3 * r * midDir.x / lenMid))
-                                .attr("y", yScale(By + 1.3 * r * midDir.y / lenMid))
+                                .attr("x", xScale(Bx + 1.25 * r * midDir.x / lenMid))
+                                .attr("y", yScale(By + 1.25 * r * midDir.y / lenMid))
                                 .attr("text-anchor", "middle").attr("alignment-baseline", "middle")
-                                .attr("class", "text-[14px] font-bold fill-violet-700")
-                                .text("θ");
+                                .attr("class", "text-[13px] font-bold fill-violet-700")
+                                .html("&#952;");
                         }
 
-                        // Labels for Standard Deviation sides
+                        // Side Labels
                         triangleGroup.append("text")
                             .attr("x", xScale((Ax+Bx)/2))
                             .attr("y", yScale((Ay+By)/2) + (isSum ? 18 : -10))
                             .attr("text-anchor", "middle")
-                            .attr("class", "text-[15px] font-bold fill-violet-700")
-                            .html(`<tspan>σ</tspan><tspan baseline-shift="sub" font-size="0.7em">X</tspan>`);
+                            .attr("class", "text-[14px] font-bold fill-violet-700")
+                            .html(`<tspan>&#963;</tspan><tspan baseline-shift="sub" font-size="0.7em">X</tspan>`);
 
                         triangleGroup.append("text")
                             .attr("x", xScale((Bx+Cx)/2) + 12)
                             .attr("y", yScale((By+Cy)/2))
                             .attr("text-anchor", "start")
-                            .attr("class", "text-[15px] font-bold fill-violet-700")
-                            .html(`<tspan>σ</tspan><tspan baseline-shift="sub" font-size="0.7em">Y</tspan>`);
+                            .attr("class", "text-[14px] font-bold fill-violet-700")
+                            .html(`<tspan>&#963;</tspan><tspan baseline-shift="sub" font-size="0.7em">Y</tspan>`);
 
                         triangleGroup.append("text")
                             .attr("x", xScale((Ax+Cx)/2) + (isSum ? -12 : 12))
                             .attr("y", yScale((Ay+Cy)/2) - 12)
                             .attr("text-anchor", isSum ? "end" : "start")
-                            .attr("class", "text-[15px] font-bold fill-emerald-700")
-                            .html(`<tspan>σ</tspan><tspan baseline-shift="sub" font-size="0.7em">${isSum ? 'X+Y' : 'X-Y'}</tspan>`);
+                            .attr("class", "text-[14px] font-bold fill-emerald-700")
+                            .html(`<tspan>&#963;</tspan><tspan baseline-shift="sub" font-size="0.7em">${isSum ? 'X+Y' : 'X-Y'}</tspan>`);
                     }
                 }
             }
 
-            // Interactive Tooltips
+            // 5. Interactive Tooltips + Individual Point Squared Deviation Highlight (on Hover)
+            const hoverSSGroup = d3.select("#hover-ss-group");
+
             d3.select("#data-points-group").selectAll("circle")
                 .on("mouseover", function(event, d) {
                     d3.select(this).attr("r", 6).attr("fill", "#ef4444").attr("opacity", 1);
@@ -714,34 +877,50 @@
                     const tooltip = d3.select("#tooltip");
                     const [mx, my] = d3.pointer(event, container);
 
+                    const px = getProjX(d);
+                    const py = getProjY(d);
+
+                    const modeVal = isSum ? d.sum : d.diff;
+
+                    // Update pre-rendered MathJax tooltip value nodes
+                    document.getElementById('tt-obs-id').textContent = d.id + 1;
+                    document.getElementById('tt-xy').textContent = `${d.x.toFixed(2)}, ${d.y.toFixed(2)}`;
+                    document.getElementById('tt-mode-val').textContent = modeVal.toFixed(2);
+                    document.getElementById('tt-sqdev').textContent = d.sqDev.toFixed(2);
+                    document.getElementById('tt-sqxy').textContent = `${(d.dx * d.dx).toFixed(2)}, ${(d.dy * d.dy).toFixed(2)}`;
+
                     tooltip.transition().duration(100).style("opacity", 1);
-                    const metricHTML = isSum
-                        ? `<span class="text-red-500 font-bold">Sum (X+Y): ${d.sum.toFixed(2)}</span><br><span class="text-slate-400 text-xs">Diff (X-Y): ${d.diff.toFixed(2)}</span>`
-                        : `<span class="text-red-500 font-bold">Diff (X-Y): ${d.diff.toFixed(2)}</span><br><span class="text-slate-400 text-xs">Sum (X+Y): ${d.sum.toFixed(2)}</span>`;
+                    tooltip
+                        .style("left", Math.min(container.clientWidth - 220, mx + 15) + "px")
+                        .style("top", Math.max(10, my - 35) + "px");
 
-                    tooltip.html(`X: ${d.x.toFixed(2)}<br>Y: ${d.y.toFixed(2)}<br>${metricHTML}`)
-                           .style("left", (mx + 15) + "px")
-                           .style("top", (my - 25) + "px");
+                    // Draw highlighted projection line and (if enabled) squared deviation box on the projection axis
+                    hoverSSGroup.selectAll("*").remove();
 
-                    if (showProj) {
-                        const px = getProjX(d);
-                        const py = getProjY(d);
-                        projLinesGroup.append("line")
-                            .attr("id", "highlight-proj")
-                            .attr("x1", xScale(d.x)).attr("y1", yScale(d.y))
-                            .attr("x2", xScale(px)).attr("y2", yScale(py))
-                            .attr("stroke", "#ef4444").attr("stroke-width", 2);
-                        projPointsGroup.append("circle")
-                            .attr("id", "highlight-proj-pt")
-                            .attr("cx", xScale(px)).attr("cy", yScale(py))
-                            .attr("r", 5).attr("fill", "#ef4444");
+                    const showPointSS = document.getElementById('show-point-ss').checked;
+                    if (showPointSS) {
+                        hoverSSGroup.append("polygon")
+                            .attr("points", buildDeviationSquarePolygon(px, py, meanProjX, meanProjY))
+                            .attr("fill", "#f59e0b")
+                            .attr("fill-opacity", 0.28)
+                            .attr("stroke", "#d97706")
+                            .attr("stroke-width", 1.8);
                     }
+
+                    hoverSSGroup.append("line")
+                        .attr("x1", xScale(d.x)).attr("y1", yScale(d.y))
+                        .attr("x2", xScale(px)).attr("y2", yScale(py))
+                        .attr("stroke", "#ef4444").attr("stroke-width", 1.8)
+                        .attr("stroke-dasharray", "3,3");
+
+                    hoverSSGroup.append("circle")
+                        .attr("cx", xScale(px)).attr("cy", yScale(py))
+                        .attr("r", 5).attr("fill", "#ef4444");
                 })
                 .on("mouseout", function() {
                     d3.select(this).attr("r", 4).attr("fill", "#3b82f6").attr("opacity", 0.6);
-                    d3.select("#tooltip").transition().duration(200).style("opacity", 0);
-                    d3.select("#highlight-proj").remove();
-                    d3.select("#highlight-proj-pt").remove();
+                    d3.select("#tooltip").transition().duration(150).style("opacity", 0);
+                    hoverSSGroup.selectAll("*").remove();
                 });
         }
 
@@ -753,10 +932,12 @@
         document.getElementById('corr-slider').addEventListener('input', updateVis);
         document.getElementById('varx-slider').addEventListener('input', updateVis);
         document.getElementById('vary-slider').addEventListener('input', updateVis);
+        document.getElementById('n-slider').addEventListener('input', updateVis);
         document.getElementById('show-projections').addEventListener('change', updateVis);
         document.getElementById('show-sum-lines').addEventListener('change', updateVis);
         document.getElementById('show-triangle').addEventListener('change', updateVis);
         document.getElementById('show-squares').addEventListener('change', updateVis);
+        document.getElementById('show-point-ss').addEventListener('change', updateVis);
 
         // Handle window resize
         window.addEventListener('resize', () => {
@@ -765,21 +946,15 @@
         });
 
         // Initial setup
+        initBaseNormals();
         initVis();
         updateVis();
-
-        // Render MathJax equations
-        setTimeout(() => {
-            if (window.MathJax) {
-                MathJax.typesetPromise();
-            }
-        }, 500);
 
         document.getElementById('fullscreen-btn').addEventListener('click', () => {
             const doc = window.document;
             const docEl = doc.documentElement;
 
-            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullScreen;
             const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
             if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
