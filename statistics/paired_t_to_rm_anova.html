@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>From Paired t-Test to Repeated-Measures ANOVA</title>
+  <!-- KaTeX for Mathematical Typesetting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <!-- KaTeX Auto-Render for inline text formatting -->
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-app: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --border-focus: #cbd5e1;
+
+      /* Semantic Variance Colors */
+      --col-total: #475569;
+      --col-between: #2563eb;
+      --col-Between-bg: #eff6ff;
+      --col-within: #d97706;
+      --col-within-bg: #fffbeb;
+      --col-subjects: #0d9488;
+      --col-subjects-bg: #f0fdfa;
+      --col-error: #e11d48;
+      --col-error-bg: #fff1f2;
+      --col-diff: #7c3aed;
+      --col-diff-bg: #f5f3ff;
+
+      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--bg-app); color: var(--text-main); line-height: 1.5; padding-bottom: 3rem; }
+
+    /* Header & Mode Navigation */
+    header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
+    .header-container { max-width: 1520px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; }
+    .title-group h1 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-main); }
+    .title-group p { font-size: 0.82rem; color: var(--text-muted); }
+
+    .mode-switcher { display: inline-flex; background: var(--bg-subtle); padding: 0.25rem; border-radius: 10px; border: 1px solid var(--border); gap: 0.25rem; }
+    .mode-btn { border: none; background: transparent; padding: 0.5rem 0.9rem; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); border-radius: 7px; cursor: pointer; transition: all 0.18s ease; font-family: inherit; display: flex; align-items: center; gap: 0.4rem; }
+    .mode-btn:hover { color: var(--text-main); }
+    .mode-btn.active { background: var(--bg-card); color: var(--col-between); box-shadow: var(--shadow-sm); }
+    .mode-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; padding: 0.1rem 0.35rem; border-radius: 4px; background: #e2e8f0; color: #334155; }
+    .mode-btn.active .mode-badge { background: var(--col-Between-bg); color: var(--col-between); }
+
+    /* Main Container */
+    .main-container { max-width: 1520px; margin: 1.25rem auto; padding: 0 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+    /* Top Control Bar */
+    .control-bar { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; box-shadow: var(--shadow-sm); display: grid; grid-template-columns: 1.15fr 1.85fr; gap: 1.5rem; align-items: center; }
+    @media (max-width: 1150px) { .control-bar { grid-template-columns: 1fr; } .slider-panel { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 1rem; } }
+
+    .slider-panel { display: flex; flex-direction: column; gap: 0.65rem; padding-right: 1rem; border-right: 1px solid var(--border); }
+    .slider-header { display: flex; justify-content: space-between; align-items: center; }
+    .slider-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+    .r-readout { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--col-subjects-bg); color: var(--col-subjects); border: 1px solid #99f6e4; }
+    
+    .slider-row { display: flex; align-items: center; gap: 0.75rem; }
+    input[type="range"] { flex: 1; accent-color: var(--col-subjects); height: 6px; background: #cbd5e1; border-radius: 4px; cursor: pointer; }
+    
+    .preset-group { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .preset-btn { font-size: 0.75rem; font-weight: 600; padding: 0.32rem 0.65rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-muted); cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .preset-btn:hover { background: #e2e8f0; color: var(--text-main); }
+    .preset-btn.active { background: var(--text-main); color: #fff; border-color: var(--text-main); }
+
+    /* Formula Toggles (Hierarchical) */
+    .toggles-panel { display: flex; flex-direction: column; gap: 0.65rem; }
+    .toggles-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .toggles-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+    
+    .subject-filter { display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .subject-filter select { font-family: inherit; font-size: 0.8rem; font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 6px; border: 1px solid var(--border-focus); background: var(--bg-card); color: var(--text-main); cursor: pointer; }
+
+    .variance-tree { display: flex; flex-direction: column; gap: 0.6rem; }
+    .tree-level { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; }
+    .tree-indent { padding-left: 1.5rem; border-left: 2px solid var(--border-focus); margin-left: 0.5rem; }
+    .math-symbol { font-weight: 700; color: var(--text-muted); font-size: 0.9rem; margin: 0 0.1rem; }
+
+    .toggle-pill { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.7rem; border-radius: 999px; font-size: 0.76rem; font-weight: 600; border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-muted); cursor: pointer; user-select: none; transition: all 0.15s ease; }
+    .toggle-pill:hover { border-color: #94a3b8; color: var(--text-main); }
+    .toggle-pill input { display: none; }
+    .pill-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+    .toggle-pill.active[data-overlay="total"] { background: #f1f5f9; border-color: var(--col-total); color: var(--col-total); }
+    .toggle-pill.active[data-overlay="between"] { background: var(--col-Between-bg); border-color: var(--col-between); color: var(--col-between); }
+    .toggle-pill.active[data-overlay="within"] { background: var(--col-within-bg); border-color: var(--col-within); color: var(--col-within); }
+    .toggle-pill.active[data-overlay="subjects"] { background: var(--col-subjects-bg); border-color: var(--col-subjects); color: var(--col-subjects); }
+    .toggle-pill.active[data-overlay="error"] { background: var(--col-error-bg); border-color: var(--col-error); color: var(--col-error); }
+    .toggle-pill.active[data-overlay="diff"] { background: var(--col-diff-bg); border-color: var(--col-diff); color: var(--col-diff); }
+
+    /* Dashboard Grid */
+    .dashboard-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 1.25rem; align-items: stretch; }
+    @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.15rem 1.25rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 0.75rem; transition: opacity 0.3s ease; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; border-bottom: 1px solid var(--bg-subtle); padding-bottom: 0.6rem; }
+    .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; }
+    .card-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; }
+    .drag-hint { font-size: 0.73rem; font-weight: 600; color: var(--col-between); background: var(--col-Between-bg); padding: 0.25rem 0.55rem; border-radius: 6px; white-space: nowrap; border: 1px solid #bfdbfe; }
+
+    /* SVG Canvas */
+    .svg-container { width: 100%; position: relative; user-select: none; }
+    svg { width: 100%; height: auto; display: block; overflow: visible; }
+    .subject-node { cursor: ns-resize; transition: r 0.15s ease, filter 0.1s ease; }
+    .subject-node:hover { r: 8.5px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25)); }
+    .subject-node:focus { outline: none; stroke: #334155; stroke-width: 3px; filter: drop-shadow(0 0 6px rgba(15,23,42,0.4)); r: 8.5px; }
+    .subject-line { transition: stroke-opacity 0.2s ease, stroke-width 0.2s ease; }
+
+    /* Legend */
+    .subject-legend { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem; padding-top: 0.4rem; border-top: 1px solid var(--bg-subtle); font-size: 0.76rem; }
+    .legend-items { display: flex; flex-wrap: wrap; gap: 0.65rem; }
+    .legend-item { display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 600; color: var(--text-muted); cursor: pointer; padding: 0.15rem 0.4rem; border-radius: 4px; transition: background 0.15s; }
+    .legend-item:hover { background: var(--bg-subtle); color: var(--text-main); }
+    .legend-swatch { width: 10px; height: 10px; border-radius: 50%; }
+
+    /* Right Panel & KPIs */
+    .right-panel-split { display: grid; grid-template-rows: auto auto; gap: 1rem; }
+    .kpi-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+    .kpi-box { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; padding: 0.55rem 0.7rem; text-align: center; }
+    .kpi-box.highlight-power { background: var(--col-subjects-bg); border-color: #99f6e4; transition: all 0.3s; }
+    .kpi-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); }
+    .kpi-val { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-top: 0.1rem; }
+    .kpi-sub { font-size: 0.7rem; color: var(--text-light); font-family: 'JetBrains Mono', monospace; }
+
+    /* Bottom Grid */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 1.25rem; transition: grid-template-columns 0.3s ease; }
+    @media (max-width: 1280px) { .bottom-grid { grid-template-columns: 1fr; } }
+    
+    .formula-box { background: var(--bg-subtle); border-radius: 8px; padding: 0.75rem 0.9rem; border: 1px solid var(--border); overflow-x: auto; min-height: 50px; }
+    .math-breakdown { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.82rem; }
+    .breakdown-row { display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.55rem; border-radius: 6px; background: var(--bg-card); border: 1px solid var(--border); }
+    .breakdown-row .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+    /* ANOVA Table */
+    .anova-table { width: 100%; border-collapse: collapse; font-size: 0.77rem; margin-top: 0.25rem; }
+    .anova-table th, .anova-table td { padding: 0.42rem 0.5rem; text-align: right; border-bottom: 1px solid var(--border); }
+    .anova-table th:first-child, .anova-table td:first-child { text-align: left; font-weight: 600; }
+    .anova-table th { background: var(--bg-subtle); color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.69rem; }
+    .anova-table tr.row-between td:first-child { color: var(--col-between); }
+    .anova-table tr.row-subjects td:first-child { color: var(--col-subjects); }
+    .anova-table tr.row-error td:first-child { color: var(--col-error); }
+    .anova-table tr.row-unadj { background: #fffbeb; color: #92400e; }
+    .mono-num { font-family: 'JetBrains Mono', monospace; }
+    
+    .rosetta-card { background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #cbd5e1; }
+    #pedagogical-tooltip { position: fixed; pointer-events: none; z-index: 9999; background: #0f172a; color: #f8fafc; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.76rem; max-width: 280px; line-height: 1.4; box-shadow: var(--shadow-md); opacity: 0; transition: opacity 0.12s ease; }
+  </style>
+</head>
+<body>
+
+<div id="pedagogical-tooltip"></div>
+
+<header>
+  <div class="header-container">
+    <div class="title-group">
+      <h1>From Paired <em>t</em>-Test to Repeated-Measures ANOVA</h1>
+      <p>How Cross-Timepoint Correlation ($r$) &amp; Subject Variance ($SS_{\text{Subjects}}$) Partition Out Noise to Boost Statistical Power</p>
+    </div>
+
+    <div class="mode-switcher" role="tablist" aria-label="Analysis Mode Switcher">
+      <button class="mode-btn active" data-mode="ttest" id="btn-mode-ttest">
+        <span>Mode A: Paired <em>t</em>-Test</span>
+        <span class="mode-badge">k = 2</span>
+      </button>
+      <button class="mode-btn" data-mode="anova" id="btn-mode-anova">
+        <span>Mode B: RM ANOVA</span>
+        <span class="mode-badge">k = 3</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="main-container">
+  <section class="card" id="background-insight" aria-label="Background">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Background</div>
+        <div class="card-subtitle">Why correlation shrinks difference-score noise</div>
+      </div>
+    </div>
+    <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.55; margin:0;">
+      The difference-score standard deviation already has the pre–post correlation built into it. A more positive covariance shrinks $s_D$: when scores move together, people who score high at one timepoint tend to score high at the other, so individual change scores stay small — and that smaller $s_D$ is what feeds $SS_{\text{Error}}$. The same positive covariance enlarges $SS_{\text{Subjects}}$, because subject sums of squares track how far each person's average sits from the grand mean. Together, $SS_{\text{Subjects}}$ and $SS_{\text{Error}}$ make up $SS_{\text{Within}}$ — the within-timepoint scatter that is not caused by time, but by stable individual differences plus residual error. By partitioning out those individual differences, repeated-measures ANOVA (and the paired $t$) cut noise that an independent test would leave intact.
+    </p>
+  </section>
+
+  <section class="control-bar">
+    <div class="slider-panel">
+      <div class="slider-header">
+        <span class="slider-title" data-tip="Controls how consistently subjects maintain their relative standing across timepoints.">
+          Cross-Timepoint Correlation / Subject Consistency ($r$)
+        </span>
+        <span class="r-readout" id="r-live-badge">r = +0.85</span>
+      </div>
+      <div class="slider-row">
+        <span style="font-size:0.75rem; font-family:'JetBrains Mono'; color:var(--text-muted);">-0.50</span>
+        <input type="range" id="r-slider" min="-0.45" max="0.98" step="0.01" value="0.85" aria-label="Cross-timepoint correlation slider" />
+        <span style="font-size:0.75rem; font-family:'JetBrains Mono'; color:var(--text-muted);">+0.98</span>
+      </div>
+      <div class="preset-group">
+        <button class="preset-btn active" id="preset-high" data-tip="Subjects have strong baseline differences that persist across timepoints (Parallel trajectories -> large SS_Subjects -> tiny SS_Error).">High Positive (r ≈ 0.90)</button>
+        <button class="preset-btn" id="preset-zero" data-tip="No consistent subject baseline across timepoints (Crossing trajectories -> SS_Subjects ≈ 0 -> large SS_Error).">Zero (r ≈ 0.00)</button>
+        <button class="preset-btn" id="preset-neg" data-tip="Subjects flip rank order between timepoints (Negative covariance inflates difference score variance s_D²).">Negative (r ≈ -0.40)</button>
+      </div>
+    </div>
+
+    <div class="toggles-panel">
+      <div class="toggles-header">
+        <span class="toggles-title">Geometric Deviation Vectors (Click to Overlay):</span>
+        <div class="subject-filter">
+          <label for="subject-select">Inspect Subject:</label>
+          <select id="subject-select">
+            <option value="all">All Subjects (S₁–S₆)</option>
+            <option value="0" selected>Isolate S₁ (Blue)</option>
+            <option value="1">Isolate S₂ (Orange)</option>
+            <option value="2">Isolate S₃ (Green)</option>
+            <option value="3">Isolate S₄ (Purple)</option>
+            <option value="4">Isolate S₅ (Gold)</option>
+            <option value="5">Isolate S₆ (Sky Blue)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="variance-tree">
+        <div class="tree-level">
+          <label class="toggle-pill" data-overlay="total" data-tip="Total Deviation: Distance from score to Grand Mean."><input type="checkbox" value="total" /><span class="pill-dot" style="background:var(--col-total)"></span><span>Total ($X_{ik} - \bar{X}_G$)</span></label>
+          <span class="math-symbol">=</span>
+          <label class="toggle-pill" data-overlay="between" data-tip="Between-Timepoints Effect: How far each Timepoint Mean sits from the Grand Mean."><input type="checkbox" value="between" /><span class="pill-dot" style="background:var(--col-between)"></span><span>Timepoint ($\bar{X}_k - \bar{X}_G$)</span></label>
+          <span class="math-symbol">+</span>
+          <label class="toggle-pill" data-overlay="within" data-tip="Within-Timepoint Spread: The total spread around a timepoint's mean. (SS_Within = SS_Subjects + SS_Error). Independent tests treat ALL this spread as random error!"><input type="checkbox" value="within" /><span class="pill-dot" style="background:var(--col-within)"></span><span>Within ($X_{ik} - \bar{X}_k$)</span></label>
+        </div>
+        
+        <div class="tree-level tree-indent">
+          <span style="color:var(--text-muted); font-size: 0.78rem; font-weight: 600; margin-right: 0.2rem;">↳ <i>Within</i> partitions into:</span>
+          <label class="toggle-pill" data-overlay="subjects" data-tip="Subject Baseline: Distance from person's average to the Grand Mean. RM-ANOVA removes this from the error term!"><input type="checkbox" value="subjects" /><span class="pill-dot" style="background:var(--col-subjects)"></span><span>Subject ($\bar{S}_i - \bar{X}_G$)</span></label>
+          <span class="math-symbol">+</span>
+          <label class="toggle-pill" data-overlay="error" data-tip="Residual Error: The true 'unexplained' variance left over AFTER removing the Subject Baseline from the Within spread."><input type="checkbox" value="error" /><span class="pill-dot" style="background:var(--col-error)"></span><span>Residual ($SS_{\text{Error}}$)</span></label>
+        </div>
+
+        <div class="tree-level" style="margin-top: 0.2rem;">
+          <span style="color:var(--text-muted); font-size: 0.78rem; font-weight: 600; margin-right: 0.2rem;">Paired t-Test Slope:</span>
+          <label class="toggle-pill active" data-overlay="diff" data-tip="Paired Difference Scores: Trajectory slopes between Timepoint 1 and 2."><input type="checkbox" value="diff" checked /><span class="pill-dot" style="background:var(--col-diff)"></span><span>Difference ($D_i$)</span></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-grid">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title"><span>1. Interactive Subject Trajectories &amp; Geometry</span></div>
+          <div class="card-subtitle">Connected raw scores ($N = 6$) across Timepoints with Subject Means ($\bar{S}_i$) axis</div>
+        </div>
+        <span class="drag-hint">↕ Drag / Focus+Arrows to move points</span>
+      </div>
+
+      <div class="svg-container">
+        <svg id="main-dot-svg" viewBox="0 0 760 440" aria-label="Interactive Connected Dot Plot"></svg>
+      </div>
+
+      <div class="subject-legend">
+        <div class="legend-items" id="subject-legend-list"></div>
+        <div style="color:var(--text-light); font-size:0.74rem;">Click a badge or use dropdown to isolate vectors</div>
+      </div>
+    </div>
+
+    <div class="right-panel-split">
+      <div class="kpi-strip">
+        <div class="kpi-box">
+          <div class="kpi-label">Unadjusted (Indep.)</div>
+          <div class="kpi-val" id="kpi-indep-stat">F = 2.64</div>
+          <div class="kpi-sub" id="kpi-indep-p">p = 0.104 (NS)</div>
+        </div>
+        <div class="kpi-box highlight-power" id="kpi-rm-container">
+          <div class="kpi-label" id="kpi-rm-label">Paired t-Test (k=2)</div>
+          <div class="kpi-val" id="kpi-rm-stat" style="color:var(--col-subjects)">t = 4.25</div>
+          <div class="kpi-sub" id="kpi-rm-p">p = 0.0001 ***</div>
+        </div>
+        <div class="kpi-box" data-tip="Percentage of within-timepoint noise (SS_Within) explained by stable individual baseline differences (SS_Subjects).">
+          <div class="kpi-label">Noise Removed</div>
+          <div class="kpi-val" id="kpi-noise-removed" style="color:var(--col-between)">89.4%</div>
+          <div class="kpi-sub" id="kpi-error-drop">SS<sub>Subj</sub> / SS<sub>Within</sub></div>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">2. Difference Score ($D_i$) &amp; $SS$ Partitioning</div>
+            <div class="card-subtitle">Observe variance carving out as correlation adjusts</div>
+          </div>
+        </div>
+        <div class="svg-container">
+          <svg id="right-viz-svg" viewBox="0 0 580 365" aria-label="Difference Scores and Variance Partitioning"></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bottom-grid" id="bottom-grid-container">
+    <div class="card" id="card-math-ttest" style="border-color: var(--col-diff);">
+      <div class="card-header">
+        <div>
+          <div class="card-title" style="color:var(--col-diff);"><span>A. Paired $t$-Test</span></div>
+          <div class="card-subtitle">
+            <span id="ttest-subtitle-active">Timepoint 1 vs 2 ($D_i = X_{i2} - X_{i1}$)</span>
+            <span id="ttest-subtitle-inactive" style="display:none;">Omnibus Test Active</span>
+          </div>
+        </div>
+      </div>
+      
+      <div id="ttest-active-view">
+        <div class="formula-box" id="katex-ttest-main"></div>
+        <div class="math-breakdown">
+          <div class="breakdown-row"><span>Mean Difference ($\bar{D}$):</span><span class="mono" id="val-dbar" style="color:var(--col-between)"></span></div>
+          <div class="breakdown-row"><span>Unadj Variance ($s_1^2 + s_2^2$):</span><span class="mono" id="val-s1s2"></span></div>
+          <div class="breakdown-row" style="background:var(--col-subjects-bg); border-color:#99f6e4;">
+            <span style="color:var(--col-subjects); font-weight:600;">Covariance ($-2 r_{12} s_1 s_2$):</span><span class="mono" id="val-cov-term" style="color:var(--col-subjects);"></span>
+          </div>
+          <div class="breakdown-row" style="background:var(--col-error-bg); border-color:#fecdd3;">
+            <span style="color:var(--col-error); font-weight:600;">Diff Variance ($s_D^2$):</span><span class="mono" id="val-sd2" style="color:var(--col-error);"></span>
+          </div>
+          <div class="breakdown-row"><span>Paired $t$-Statistic:</span><span class="mono" id="val-t-stat" style="font-size:0.95rem;"></span></div>
+        </div>
+      </div>
+      
+      <div id="ttest-inactive-view" style="display: none; padding: 1.25rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.75rem; color: #94a3b8;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <strong style="color:var(--text-main); font-size: 0.95rem;">Not Applicable</strong>
+        <div style="margin-top: 0.5rem;">
+          A single Paired $t$-Test evaluates exactly two timepoints.<br><br>
+          In a 3-timepoint design, the RM-ANOVA conducts an omnibus test across all three simultaneously. Switch to <strong>Mode A</strong> to view the $t$-Test mechanics.
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="card-math-anova">
+      <div class="card-header">
+        <div>
+          <div class="card-title" style="color:var(--col-between);">
+            <span id="anova-panel-title">B. RM-ANOVA</span>
+          </div>
+          <div class="card-subtitle">Carving $SS_{\text{Subjects}}$ reduces $MS_{\text{Error}}$</div>
+        </div>
+      </div>
+      <div class="formula-box" id="katex-anova-main"></div>
+      <table class="anova-table" aria-label="ANOVA Summary">
+        <thead><tr><th>Source</th><th>$SS$</th><th>$df$</th><th>$MS$</th><th>$F$</th><th>$p$-val</th></tr></thead>
+        <tbody id="anova-table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="card rosetta-card" id="card-math-rosetta">
+      <div class="card-header">
+        <div>
+          <div class="card-title" style="color:var(--col-subjects);"><span>C. Mathematical Equivalence</span></div>
+          <div class="card-subtitle" id="rosetta-subtitle">Identities Linking Paired $t$ &amp; RM-ANOVA</div>
+        </div>
+      </div>
+      
+      <div id="rosetta-description" style="font-size:0.79rem; color:var(--text-muted); line-height:1.45; margin-bottom: 0.25rem;">
+        <strong>Parallel paths = tiny error:</strong> High $r \implies$ large $SS_{\text{Subjects}} \implies$ uniform slopes (small $s_D^2$) $\implies$ tiny $SS_{\text{Error}}$.
+      </div>
+      
+      <div class="formula-box" id="katex-rosetta-identities"></div>
+      
+      <div class="math-breakdown" id="rosetta-active-verify">
+        <div class="breakdown-row" style="border-left: 3px solid var(--col-between);">
+          <span>Identity 1: $t^2 = F_{(1, N-1)}$ (for $k=2$)</span>
+          <span class="mono" id="val-rosetta-1" style="color:var(--col-between)"></span>
+        </div>
+        <div class="breakdown-row" style="border-left: 3px solid var(--col-subjects);">
+          <span>Identity 2: $SS_{\text{Subjects}} = \frac{(N-1)(s_1^2 + s_2^2 + 2rs_1s_2)}{2}$</span>
+          <span class="mono" id="val-rosetta-2" style="color:var(--col-subjects)"></span>
+        </div>
+        <div class="breakdown-row" style="border-left: 3px solid var(--col-error);">
+          <span>Identity 3: $SS_{\text{Error}} = \frac{(N-1)s_D^2}{2}$</span>
+          <span class="mono" id="val-rosetta-3" style="color:var(--col-error)"></span>
+        </div>
+        <div class="breakdown-row">
+          <span>Identity 4: $SS_{\text{Between}} = \frac{N \cdot \bar{D}^2}{2}$</span>
+          <span class="mono" id="val-rosetta-4"></span>
+        </div>
+      </div>
+
+      <div id="rosetta-inactive-verify" style="display: none; padding: 1.25rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.75rem; color: #94a3b8;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <strong style="color:var(--text-main); font-size: 0.95rem;">Omnibus Test Active</strong>
+        <div style="margin-top: 0.5rem;">
+          The strict mathematical equivalence ($t^2 = F$) applies exclusively to $k=2$ designs.<br><br>
+          In a 3-timepoint design, the ANOVA evaluates all relationships simultaneously and cannot be reduced to a single $t$-test. Switch back to <strong>Mode A</strong> to view the exact algebraic identities.
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function() {
+  "use strict";
+
+  const N = 6;
+  const SUBJECT_COLORS = ['#0072B2', '#D55E00', '#009E73', '#CC79A7', '#E69F00', '#56B4E9'];
+  const SUBJECT_LABELS = ['S₁', 'S₂', 'S₃', 'S₄', 'S₅', 'S₆'];
+  const COND_MEANS = [10.0, 14.0, 18.0];
+  const TARGET_SD = 4.50; 
+
+  const u_subj = [-1.46385, -0.87831, -0.29277, 0.29277, 0.87831, 1.46385];
+  const w1 = [ 0.72008, -1.30924,  0.32731,  0.98193, -1.11285,  0.39277];
+  const w2 = [-0.88045,  0.40249,  1.28294, -1.18232,  0.17609,  0.20125];
+  const w3 = [ 0.16037,  0.90675, -1.61025,  0.20039,  0.93676, -0.59402];
+
+  function normalizeVector(vec) {
+    const mean = vec.reduce((a, b) => a + b, 0) / N;
+    const centered = vec.map(v => v - mean);
+    const ss = centered.reduce((a, b) => a + b * b, 0);
+    const scale = Math.sqrt((N - 1) / ss);
+    return centered.map(v => v * scale);
+  }
+
+  const U = normalizeVector(u_subj);
+  const W_RAW = [normalizeVector(w1), normalizeVector(w2), normalizeVector(w3)];
+  const W = W_RAW.map(wk => {
+    const dotUW = wk.reduce((acc, val, i) => acc + val * U[i], 0) / (N - 1);
+    const ortho = wk.map((val, i) => val - dotUW * U[i]);
+    return normalizeVector(ortho);
+  });
+
+  const state = {
+    mode: 'ttest',          
+    sliderR: 0.85,          
+    selectedSubject: 0,     
+    overlays: { total: false, between: false, within: false, subjects: false, error: false, diff: true },
+    hoveredOverlay: null,
+    scores: Array.from({ length: N }, () => [0, 0, 0]),
+    focusedNodeData: null
+  };
+
+  function generateScoresFromR(r) {
+    const clampedR = Math.max(-0.48, Math.min(0.99, r));
+    const alpha2 = Math.max(0, (2 * clampedR + 1) / 3);
+    const beta2 = Math.max(0, 1 - alpha2);
+    const alpha = Math.sqrt(alpha2);
+    const beta = Math.sqrt(beta2);
+
+    for (let i = 0; i < N; i++) {
+      for (let k = 0; k < 3; k++) {
+        state.scores[i][k] = COND_MEANS[k] + TARGET_SD * (alpha * U[i] + beta * W[k][i]);
+      }
+    }
+  }
+
+  function computeStats() {
+    const activeK = state.mode === 'anova' ? 3 : 2;
+    const condMeans = [], condVars = [], condSDs = [], ssWithinPerCond = [];
+
+    for (let k = 0; k < 3; k++) {
+      let sum = 0;
+      for (let i = 0; i < N; i++) sum += state.scores[i][k];
+      const mean = sum / N;
+      condMeans.push(mean);
+      let ss = 0;
+      for (let i = 0; i < N; i++) ss += Math.pow(state.scores[i][k] - mean, 2);
+      ssWithinPerCond.push(ss);
+      const v = ss / (N - 1);
+      condVars.push(v);
+      condSDs.push(Math.sqrt(v));
+    }
+
+    let grandSum = 0;
+    for (let i = 0; i < N; i++) for (let k = 0; k < activeK; k++) grandSum += state.scores[i][k];
+    const grandMean = grandSum / (N * activeK);
+
+    const subjMeans = [];
+    for (let i = 0; i < N; i++) {
+      let sSum = 0;
+      for (let k = 0; k < activeK; k++) sSum += state.scores[i][k];
+      subjMeans.push(sSum / activeK);
+    }
+
+    let ssTotal = 0, ssBetween = 0, ssWithin = 0, ssSubjects = 0, ssError = 0;
+    for (let k = 0; k < activeK; k++) {
+      ssBetween += N * Math.pow(condMeans[k] - grandMean, 2);
+      for (let i = 0; i < N; i++) {
+        const x = state.scores[i][k];
+        ssTotal += Math.pow(x - grandMean, 2);
+        ssWithin += Math.pow(x - condMeans[k], 2);
+        ssError += Math.pow((x - condMeans[k]) - (subjMeans[i] - grandMean), 2);
+      }
+    }
+    for (let i = 0; i < N; i++) ssSubjects += activeK * Math.pow(subjMeans[i] - grandMean, 2);
+
+    const dfBetween = activeK - 1, dfWithin = activeK * (N - 1), dfSubjects = N - 1, dfError = (N - 1) * (activeK - 1), dfTotal = N * activeK - 1;
+    const msBetween = ssBetween / dfBetween, msWithin = ssWithin / dfWithin, msSubjects = ssSubjects / dfSubjects, msError = Math.max(1e-9, ssError / dfError);
+
+    const fRM = msBetween / msError;
+    const pRM = fDistPValue(fRM, dfBetween, dfError);
+    const fIndep = msBetween / Math.max(1e-9, msWithin);
+    const pIndep = fDistPValue(fIndep, dfBetween, dfWithin);
+
+    const diffs = [];
+    for (let i = 0; i < N; i++) diffs.push(state.scores[i][1] - state.scores[i][0]);
+    const dBar = diffs.reduce((a, b) => a + b, 0) / N;
+    const ssDiff = diffs.reduce((acc, d) => acc + Math.pow(d - dBar, 2), 0);
+    const sD2 = ssDiff / (N - 1);
+    const sD = Math.sqrt(Math.max(1e-9, sD2));
+    const tStat = dBar / (sD / Math.sqrt(N));
+    const pTTest = fDistPValue(tStat * tStat, 1, N - 1);
+
+    let cov12Sum = 0;
+    for (let i = 0; i < N; i++) cov12Sum += (state.scores[i][0] - condMeans[0]) * (state.scores[i][1] - condMeans[1]);
+    const cov12 = cov12Sum / (N - 1);
+    const r12 = cov12 / Math.max(1e-9, condSDs[0] * condSDs[1]);
+
+    let rAvg = r12;
+    if (activeK === 3) {
+      let r13 = computePairR(0, 2, condMeans, condSDs);
+      let r23 = computePairR(1, 2, condMeans, condSDs);
+      rAvg = (r12 + r13 + r23) / 3;
+    }
+
+    const grandMean2 = (condMeans[0] + condMeans[1]) / 2;
+    const ssBetween2 = N * (Math.pow(condMeans[0] - grandMean2, 2) + Math.pow(condMeans[1] - grandMean2, 2));
+    const ssWithin2 = ssWithinPerCond[0] + ssWithinPerCond[1];
+    let ssSubjects2 = 0;
+    for (let i = 0; i < N; i++) ssSubjects2 += 2 * Math.pow(((state.scores[i][0] + state.scores[i][1]) / 2) - grandMean2, 2);
+    const ssError2 = ssWithin2 - ssSubjects2;
+
+    return {
+      activeK, condMeans, condVars, condSDs, grandMean, subjMeans,
+      ssTotal, ssBetween, ssWithin, ssSubjects, ssError,
+      dfBetween, dfWithin, dfSubjects, dfError, dfTotal,
+      msBetween, msWithin, msSubjects, msError,
+      fRM, pRM, fIndep, pIndep, diffs, dBar, sD2, sD, tStat, pTTest, r12, rAvg, cov12,
+      ssBetween2, ssWithin2, ssSubjects2, ssError2
+    };
+  }
+
+  function computePairR(k1, k2, means, sds) {
+    let c = 0;
+    for (let i = 0; i < N; i++) c += (state.scores[i][k1] - means[k1]) * (state.scores[i][k2] - means[k2]);
+    return (c / (N - 1)) / Math.max(1e-9, sds[k1] * sds[k2]);
+  }
+
+  function logGamma(z) {
+    const c = [ 76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.001208650973866179, -0.000005395239384953 ];
+    let x = z, y = z, tmp = x + 5.5;
+    tmp -= (x + 0.5) * Math.log(tmp);
+    let ser = 1.000000000190015;
+    for (let j = 0; j < 6; j++) ser += c[j] / ++y;
+    return -tmp + Math.log(2.5066282746310005 * ser / x);
+  }
+  function betacf(x, a, b) {
+    const maxIter = 150, eps = 3e-7;
+    let qab = a + b, qap = a + 1, qam = a - 1, c = 1, d = 1 - qab * x / qap;
+    if (Math.abs(d) < 1e-30) d = 1e-30;
+    d = 1 / d; let h = d;
+    for (let m = 1; m <= maxIter; m++) {
+      let m2 = 2 * m;
+      let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+      d = 1 + aa * d; if (Math.abs(d) < 1e-30) d = 1e-30;
+      c = 1 + aa / c; if (Math.abs(c) < 1e-30) c = 1e-30;
+      d = 1 / d; h *= d * c;
+      aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+      d = 1 + aa * d; if (Math.abs(d) < 1e-30) d = 1e-30;
+      c = 1 + aa / c; if (Math.abs(c) < 1e-30) c = 1e-30;
+      d = 1 / d; let del = d * c; h *= del;
+      if (Math.abs(del - 1.0) < eps) break;
+    }
+    return h;
+  }
+  function regIncompleteBeta(x, a, b) {
+    if (x <= 0) return 0; if (x >= 1) return 1;
+    const bt = Math.exp(logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+    return x < (a + 1) / (a + b + 2) ? bt * betacf(x, a, b) / a : 1 - bt * betacf(1 - x, b, a) / b;
+  }
+  function fDistPValue(F, df1, df2) {
+    if (F <= 0 || isNaN(F)) return 1.0;
+    return regIncompleteBeta(df2 / (df2 + df1 * F), df2 / 2, df1 / 2);
+  }
+  function formatP(p) {
+    if (p < 0.0001) return '< .0001 ***';
+    if (p < 0.001) return p.toFixed(4) + ' ***';
+    if (p < 0.01) return p.toFixed(3) + ' **';
+    if (p < 0.05) return p.toFixed(3) + ' *';
+    return p.toFixed(3) + ' (NS)';
+  }
+
+  const mainSvg = document.getElementById('main-dot-svg');
+  const Y_MIN = 0, Y_MAX = 28, PLOT_LEFT = 62, PLOT_RIGHT = 580, PLOT_TOP = 32, PLOT_BOTTOM = 390, SUBJ_AXIS_X = 665;
+  function yToPx(val) { return PLOT_BOTTOM - ((val - Y_MIN) / (Y_MAX - Y_MIN)) * (PLOT_BOTTOM - PLOT_TOP); }
+  function pxToY(px) { return Math.max(1.0, Math.min(27.0, Y_MIN + ((PLOT_BOTTOM - px) / (PLOT_BOTTOM - PLOT_TOP)) * (Y_MAX - Y_MIN))); }
+  function condToX(k, activeK) { return activeK === 2 ? [165, 445, 555][k] : [135, 345, 555][k]; }
+
+  function renderMainDotPlot(stats) {
+    const activeK = stats.activeK;
+    let html = `
+      <defs>
+        <marker id="arrow-between" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="var(--col-between)" /></marker>
+        <marker id="arrow-subjects" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="var(--col-subjects)" /></marker>
+        <marker id="arrow-error" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="var(--col-error)" /></marker>
+      </defs>
+    `;
+
+    for (let y = 0; y <= 28; y += 4) {
+      const py = yToPx(y);
+      html += `<line x1="${PLOT_LEFT}" y1="${py}" x2="${PLOT_RIGHT}" y2="${py}" stroke="#e2e8f0" stroke-width="1" />
+               <text x="${PLOT_LEFT - 10}" y="${py + 4}" text-anchor="end" font-size="11" fill="#64748b" font-family="JetBrains Mono">${y}</text>`;
+    }
+    
+    html += `<text x="18" y="${(PLOT_TOP + PLOT_BOTTOM) / 2}" transform="rotate(-90, 18, ${(PLOT_TOP + PLOT_BOTTOM) / 2})" text-anchor="middle" font-size="12" font-weight="700" fill="#334155">Outcome Score (X<tspan baseline-shift="sub" font-size="75%">ik</tspan>)</text>`;
+
+    const condTitles = ['Timepoint 1 (T₁)', 'Timepoint 2 (T₂)', 'Timepoint 3 (T₃)'];
+    const condSubs = ['Baseline', 'Intervention', 'Follow-up'];
+    for (let k = 0; k < 3; k++) {
+      const cx = condToX(k, activeK);
+      const isDimmed = (activeK === 2 && k === 2), opacity = isDimmed ? 0.22 : 1.0;
+      html += `<g opacity="${opacity}">
+        <line x1="${cx}" y1="${PLOT_TOP}" x2="${cx}" y2="${PLOT_BOTTOM}" stroke="#cbd5e1" stroke-dasharray="3,3" stroke-width="1.2" />
+        <text x="${cx}" y="${PLOT_BOTTOM + 22}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#0f172a">${condTitles[k]}</text>
+        <text x="${cx}" y="${PLOT_BOTTOM + 38}" text-anchor="middle" font-size="11" fill="#64748b">${condSubs[k]}</text>
+      </g>`;
+    }
+
+    const pyGrand = yToPx(stats.grandMean);
+    html += `
+      <line x1="${PLOT_LEFT}" y1="${pyGrand}" x2="${SUBJ_AXIS_X + 45}" y2="${pyGrand}" stroke="var(--col-total)" stroke-width="2.5" stroke-dasharray="6,4" />
+      <rect x="${PLOT_LEFT + 6}" y="${pyGrand - 18}" width="112" height="16" rx="3" fill="#f1f5f9" opacity="0.92" />
+      <text x="${PLOT_LEFT + 10}" y="${pyGrand - 6}" font-size="10.5" font-weight="700" fill="var(--col-total)" font-family="JetBrains Mono">Grand X̄<tspan baseline-shift="sub" font-size="75%">G</tspan> = ${stats.grandMean.toFixed(1)}</text>
+    `;
+
+    if (activeK > 1) {
+      let path = '';
+      for (let k = 0; k < activeK; k++) {
+        path += (k === 0 ? `M ${condToX(k, activeK)} ${yToPx(stats.condMeans[k])}` : ` L ${condToX(k, activeK)} ${yToPx(stats.condMeans[k])}`);
+      }
+      html += `<path d="${path}" fill="none" stroke="var(--col-between)" stroke-width="4" stroke-opacity="0.4" stroke-dasharray="8,4" />`;
+    }
+
+    for (let k = 0; k < activeK; k++) {
+      const cx = condToX(k, activeK), pyMean = yToPx(stats.condMeans[k]);
+      html += `
+        <line x1="${cx - 34}" y1="${pyMean}" x2="${cx + 34}" y2="${pyMean}" stroke="var(--col-between)" stroke-width="3.5" stroke-linecap="round" />
+        <rect x="${cx - 42}" y="${pyMean - 22}" width="84" height="17" rx="4" fill="var(--col-Between-bg)" stroke="#bfdbfe" />
+        <text x="${cx}" y="${pyMean - 10}" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--col-between)" font-family="JetBrains Mono">X̄<tspan baseline-shift="sub" font-size="75%">${k + 1}</tspan> = ${stats.condMeans[k].toFixed(1)}</text>
+      `;
+      if (state.overlays.between || state.hoveredOverlay === 'between') {
+        const vx = cx - 26;
+        if (Math.abs(pyMean - pyGrand) > 3) {
+          html += `<line x1="${vx}" y1="${pyGrand}" x2="${vx}" y2="${pyMean}" stroke="var(--col-between)" stroke-width="3.5" marker-end="url(#arrow-between)" />
+                   <text x="${vx - 6}" y="${(pyGrand + pyMean) / 2 + 4}" text-anchor="end" font-size="10" font-weight="700" fill="var(--col-between)" font-family="JetBrains Mono">${(stats.condMeans[k] - stats.grandMean >= 0 ? '+' : '') + (stats.condMeans[k] - stats.grandMean).toFixed(1)}</text>`;
+        }
+      }
+    }
+
+    html += `
+      <line x1="${SUBJ_AXIS_X}" y1="${PLOT_TOP}" x2="${SUBJ_AXIS_X}" y2="${PLOT_BOTTOM}" stroke="#99f6e4" stroke-width="2" />
+      <text x="${SUBJ_AXIS_X}" y="${PLOT_TOP - 10}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--col-subjects)">Subject Means (S̄<tspan baseline-shift="sub" font-size="75%">i</tspan>)</text>
+    `;
+
+    const isIsolated = state.selectedSubject !== 'all';
+    const selSubj = isIsolated ? parseInt(state.selectedSubject, 10) : -1;
+
+    for (let i = 0; i < N; i++) {
+      const col = SUBJECT_COLORS[i];
+      const emph = !isIsolated || selSubj === i;
+      const lineOpacity = emph ? (state.overlays.diff ? 0.95 : 0.72) : 0.14;
+      const strokeW = emph ? (state.overlays.diff ? 3.2 : 2.2) : 1.2;
+      const jitter = isIsolated ? 0 : (i - 2.5) * 4.5;
+      
+      const x1 = condToX(0, activeK) + jitter, y1 = yToPx(state.scores[i][0]);
+      const x2 = condToX(1, activeK) + jitter, y2 = yToPx(state.scores[i][1]);
+      html += `<line class="subject-line" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${strokeW}" stroke-opacity="${lineOpacity}" />`;
+
+      if ((state.overlays.diff || state.hoveredOverlay === 'diff') && emph) {
+        const di = stats.diffs[i];
+        html += `<rect x="${(x1+x2)/2 - 28}" y="${(y1+y2)/2 - 10}" width="56" height="16" rx="4" fill="var(--col-diff-bg)" stroke="var(--col-diff)" stroke-width="1" />
+                 <text x="${(x1+x2)/2}" y="${(y1+y2)/2 + 2}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--col-diff)" font-family="JetBrains Mono">D<tspan baseline-shift="sub" font-size="75%">${i+1}</tspan>=${di >= 0 ? '+' : ''}${di.toFixed(1)}</text>`;
+      }
+
+      const x3 = condToX(2, activeK) + jitter, y3 = yToPx(state.scores[i][2]);
+      const seg2Opacity = activeK === 3 ? lineOpacity : 0.1;
+      html += `<line class="subject-line" x1="${x2}" y1="${y2}" x2="${x3}" y2="${y3}" stroke="${col}" stroke-width="${strokeW}" stroke-opacity="${seg2Opacity}" ${activeK === 2 ? 'stroke-dasharray="3,3"' : ''} />`;
+
+      const pySubjMean = yToPx(stats.subjMeans[i]);
+      const lastActiveX = condToX(activeK - 1, activeK) + jitter, lastActiveY = yToPx(state.scores[i][activeK - 1]);
+      if (emph) {
+        html += `<line x1="${lastActiveX}" y1="${lastActiveY}" x2="${SUBJ_AXIS_X}" y2="${pySubjMean}" stroke="${col}" stroke-width="1" stroke-dasharray="2,3" stroke-opacity="0.45" />`;
+      }
+
+      html += `
+        <g opacity="${emph ? 1 : 0.2}">
+          <circle cx="${SUBJ_AXIS_X}" cy="${pySubjMean}" r="5" fill="${col}" stroke="#fff" stroke-width="1.5" />
+          <text x="${SUBJ_AXIS_X + 10}" y="${pySubjMean + 3.5}" font-size="10.5" font-weight="700" fill="${col}" font-family="JetBrains Mono">S̄<tspan baseline-shift="sub" font-size="75%">${i+1}</tspan>=${stats.subjMeans[i].toFixed(1)}</text>
+        </g>
+      `;
+
+      if ((state.overlays.subjects || state.hoveredOverlay === 'subjects') && emph) {
+        const offsetSubX = SUBJ_AXIS_X - 10 - (isIsolated ? 0 : (i - 2.5) * 3);
+        if (Math.abs(pySubjMean - pyGrand) > 2) {
+          html += `<line x1="${offsetSubX}" y1="${pyGrand}" x2="${offsetSubX}" y2="${pySubjMean}" stroke="var(--col-subjects)" stroke-width="2.5" marker-end="url(#arrow-subjects)" />`;
+        }
+      }
+    }
+
+    for (let i = 0; i < N; i++) {
+      const emph = !isIsolated || selSubj === i;
+      const jitter = isIsolated ? 0 : (i - 2.5) * 4.5;
+      const subjOffsetVal = stats.subjMeans[i] - stats.grandMean;
+
+      for (let k = 0; k < 3; k++) {
+        const isDimmed = (activeK === 2 && k === 2);
+        const cx = condToX(k, activeK) + jitter;
+        const scoreVal = state.scores[i][k], pyScore = yToPx(scoreVal), pyCondMean = yToPx(stats.condMeans[k]);
+        const predictedVal = stats.condMeans[k] + subjOffsetVal, pyPredicted = yToPx(predictedVal);
+
+        if (emph && k < activeK) {
+          if (state.overlays.total || state.hoveredOverlay === 'total') {
+            html += `<line x1="${cx - 14}" y1="${pyGrand}" x2="${cx - 14}" y2="${pyScore}" stroke="var(--col-total)" stroke-width="2" stroke-dasharray="3,2" />`;
+          }
+          if (state.overlays.within || state.hoveredOverlay === 'within') {
+            html += `<line x1="${cx - 7}" y1="${pyCondMean}" x2="${cx - 7}" y2="${pyScore}" stroke="var(--col-within)" stroke-width="2.4" />`;
+            if (isIsolated) html += `<text x="${cx - 12}" y="${(pyCondMean + pyScore) / 2 + 3}" text-anchor="end" font-size="9.5" font-weight="700" fill="var(--col-within)" font-family="JetBrains Mono">Within: ${(scoreVal - stats.condMeans[k]).toFixed(1)}</text>`;
+          }
+          if (state.overlays.subjects || state.hoveredOverlay === 'subjects') {
+            if (Math.abs(pyPredicted - pyCondMean) > 2) {
+              html += `<line x1="${cx + 6}" y1="${pyCondMean}" x2="${cx + 6}" y2="${pyPredicted}" stroke="var(--col-subjects)" stroke-width="2.5" stroke-dasharray="4,2" marker-end="url(#arrow-subjects)" />
+                       <circle cx="${cx + 6}" cy="${pyPredicted}" r="3.2" fill="var(--col-subjects)" />`;
+              if (isIsolated) html += `<text x="${cx + 13}" y="${(pyCondMean + pyPredicted) / 2 + 3}" font-size="9.5" font-weight="700" fill="var(--col-subjects)" font-family="JetBrains Mono">Subj: ${(subjOffsetVal >= 0 ? '+' : '') + subjOffsetVal.toFixed(1)}</text>`;
+            }
+          }
+          if (state.overlays.error || state.hoveredOverlay === 'error') {
+            if (Math.abs(pyScore - pyPredicted) > 1.5) {
+              html += `<line x1="${cx + 14}" y1="${pyPredicted}" x2="${cx + 14}" y2="${pyScore}" stroke="var(--col-error)" stroke-width="3.2" marker-end="url(#arrow-error)" />`;
+            }
+            if (isIsolated) {
+              const errVal = scoreVal - predictedVal;
+              html += `<rect x="${cx + 19}" y="${(pyPredicted + pyScore) / 2 - 8}" width="64" height="14" rx="3" fill="var(--col-error-bg)" />
+                       <text x="${cx + 22}" y="${(pyPredicted + pyScore) / 2 + 2.5}" font-size="9.5" font-weight="700" fill="var(--col-error)" font-family="JetBrains Mono">e=${(errVal >= 0 ? '+' : '') + errVal.toFixed(2)}</text>`;
+            }
+          }
+        }
+
+        const nodeOpacity = isDimmed ? 0.22 : (emph ? 1.0 : 0.25);
+        const tabIndex = (!isDimmed && emph) ? "0" : "-1";
+        
+        html += `
+          <g class="draggable-group" opacity="${nodeOpacity}">
+            <circle class="subject-node" data-subj="${i}" data-cond="${k}" cx="${cx}" cy="${pyScore}" r="${emph ? 7 : 5.5}" fill="${SUBJECT_COLORS[i]}" stroke="#ffffff" stroke-width="2" tabindex="${tabIndex}" role="slider" aria-label="Score S${i+1} C${k+1}" />
+            <text x="${cx + (k === 0 ? -12 : 12)}" y="${pyScore + 3.5}" text-anchor="${k === 0 ? 'end' : 'start'}" font-size="10" font-weight="700" fill="${SUBJECT_COLORS[i]}" pointer-events="none">${SUBJECT_LABELS[i]}</text>
+          </g>
+        `;
+      }
+    }
+
+    mainSvg.innerHTML = html;
+
+    if (state.focusedNodeData) {
+      const nodeToFocus = mainSvg.querySelector(`.subject-node[data-subj="${state.focusedNodeData.subj}"][data-cond="${state.focusedNodeData.cond}"]`);
+      if (nodeToFocus) nodeToFocus.focus();
+      state.focusedNodeData = null;
+    }
+  }
+
+  const rightSvg = document.getElementById('right-viz-svg');
+  function renderRightPanel(stats) {
+    let html = '';
+    const dLeft = 48, dRight = 235, dTop = 38, dBottom = 325, dCenterX = (dLeft + dRight) / 2;
+    
+    // Dynamic boundary scaling to prevent visual overflow
+    const dScores = stats.diffs;
+    const actMin = Math.min(...dScores, stats.dBar - stats.sD);
+    const actMax = Math.max(...dScores, stats.dBar + stats.sD);
+    const dMin = Math.floor(Math.min(-6, actMin - 2) / 4) * 4;
+    const dMax = Math.ceil(Math.max(14, actMax + 2) / 4) * 4;
+    const step = Math.max(4, Math.ceil((dMax - dMin) / 5));
+
+    const dToY = (val) => dBottom - ((val - dMin) / (dMax - dMin)) * (dBottom - dTop);
+
+    html += `<text x="${dCenterX}" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">Sub-Plot 1: Diff Scores (D<tspan baseline-shift="sub" font-size="75%">i</tspan>)</text>
+             <text x="${dCenterX}" y="31" text-anchor="middle" font-size="10" fill="#64748b" font-family="JetBrains Mono">D<tspan baseline-shift="sub" font-size="75%">i</tspan> = X<tspan baseline-shift="sub" font-size="75%">i2</tspan> - X<tspan baseline-shift="sub" font-size="75%">i1</tspan>  (s<tspan baseline-shift="sub" font-size="75%">D</tspan> = ${stats.sD.toFixed(2)})</text>
+             <rect x="${dLeft}" y="${dTop}" width="${dRight - dLeft}" height="${dBottom - dTop}" rx="6" fill="#f8fafc" stroke="#e2e8f0" />`;
+
+    for (let d = dMin; d <= dMax; d += step) {
+      const py = dToY(d);
+      html += `<line x1="${dLeft}" y1="${py}" x2="${dRight}" y2="${py}" stroke="${d === 0 ? '#94a3b8' : '#e2e8f0'}" stroke-dasharray="${d === 0 ? '3,2' : 'none'}" />
+               <text x="${dLeft - 6}" y="${py + 3.5}" text-anchor="end" font-size="10" fill="#64748b" font-family="JetBrains Mono">${d >= 0 ? '+' + d : d}</text>`;
+    }
+
+    const pyDBar = dToY(stats.dBar), pyTopSD = dToY(Math.min(dMax, stats.dBar + stats.sD)), pyBotSD = dToY(Math.max(dMin, stats.dBar - stats.sD));
+    html += `<rect x="${dLeft + 12}" y="${pyTopSD}" width="${dRight - dLeft - 24}" height="${Math.max(2, pyBotSD - pyTopSD)}" fill="var(--col-diff)" fill-opacity="0.1" rx="4" />
+             <line x1="${dLeft + 6}" y1="${pyDBar}" x2="${dRight - 6}" y2="${pyDBar}" stroke="var(--col-diff)" stroke-width="2.5" />
+             <text x="${dRight - 8}" y="${pyDBar - 6}" text-anchor="end" font-size="10" font-weight="700" fill="var(--col-diff)" font-family="JetBrains Mono">D̄ = +${stats.dBar.toFixed(2)}</text>`;
+
+    const isIsolated = state.selectedSubject !== 'all', selSubj = isIsolated ? parseInt(state.selectedSubject, 10) : -1;
+    for (let i = 0; i < N; i++) {
+      const di = stats.diffs[i], pyD = dToY(Math.max(dMin, Math.min(dMax, di))), dx = dLeft + 34 + i * 24, emph = !isIsolated || selSubj === i, op = emph ? 1.0 : 0.25;
+      html += `<g opacity="${op}">
+        <line x1="${dx}" y1="${pyDBar}" x2="${dx}" y2="${pyD}" stroke="var(--col-error)" stroke-width="2" stroke-dasharray="2,2" />
+        <circle cx="${dx}" cy="${pyD}" r="5.5" fill="${SUBJECT_COLORS[i]}" stroke="#fff" stroke-width="1.5" />
+        <text x="${dx}" y="${pyD + (di >= stats.dBar ? -8 : 14)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${SUBJECT_COLORS[i]}">${SUBJECT_LABELS[i]}</text>
+      </g>`;
+    }
+
+    html += `<text x="${dCenterX}" y="${dBottom + 20}" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--col-error)">Spread around D̄ = s<tspan baseline-shift="sub" font-size="75%">D</tspan><tspan baseline-shift="super" font-size="75%">2</tspan> = ${stats.sD2.toFixed(2)}</text>
+             <text x="${dCenterX}" y="${dBottom + 34}" text-anchor="middle" font-size="10" fill="#64748b">(High r → tight cluster → large t!)</text>`;
+
+    const bLeft = 285, bRight = 565, bTop = 38, bBottom = 325, bCenterX = (bLeft + bRight) / 2, barHeightMax = bBottom - bTop;
+    html += `<text x="${bCenterX}" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">Sub-Plot 2: SS Variance Partitioning (k=${stats.activeK})</text>
+             <text x="${bCenterX}" y="31" text-anchor="middle" font-size="10" fill="#64748b" font-family="JetBrains Mono">SS<tspan baseline-shift="sub" font-size="75%">Total</tspan> = ${stats.ssTotal.toFixed(1)}</text>`;
+
+    const totalSS = Math.max(1, stats.ssTotal), hBetween = (stats.ssBetween / totalSS) * barHeightMax, hWithin = (stats.ssWithin / totalSS) * barHeightMax, hSubjects = (stats.ssSubjects / totalSS) * barHeightMax, hError = (stats.ssError / totalSS) * barHeightMax;
+    const bar1X = 315, barW = 92, bar2X = 445;
+    const yB1_Between = bBottom - hBetween, yB1_Within = yB1_Between - hWithin;
+
+    html += `<g>
+        <rect x="${bar1X}" y="${yB1_Between}" width="${barW}" height="${Math.max(0, hBetween)}" fill="var(--col-between)" rx="3" />
+        <rect x="${bar1X}" y="${yB1_Within}" width="${barW}" height="${Math.max(0, hWithin)}" fill="var(--col-within)" rx="3" />
+        <text x="${bar1X + barW / 2}" y="${yB1_Between + hBetween / 2 + 4}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Bet</tspan>: ${stats.ssBetween.toFixed(0)}</text>
+        ${hWithin > 28 ? `<text x="${bar1X + barW / 2}" y="${yB1_Within + hWithin / 2 - 2}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Within</tspan></text><text x="${bar1X + barW / 2}" y="${yB1_Within + hWithin / 2 + 12}" text-anchor="middle" font-size="10" font-weight="600" fill="#fff" font-family="JetBrains Mono">${stats.ssWithin.toFixed(1)} (Noise)</text>` : ''}
+        <text x="${bar1X + barW / 2}" y="${bBottom + 18}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#334155">Independent</text>
+        <text x="${bar1X + barW / 2}" y="${bBottom + 32}" text-anchor="middle" font-size="9.5" fill="#64748b">(Unadjusted)</text>
+      </g>`;
+
+    const yB2_Between = bBottom - hBetween, yB2_Subjects = yB2_Between - hSubjects, yB2_Error = yB2_Subjects - hError;
+    html += `<line x1="${bar1X + barW}" y1="${yB1_Between}" x2="${bar2X}" y2="${yB2_Between}" stroke="#94a3b8" stroke-dasharray="3,2" />
+             <line x1="${bar1X + barW}" y1="${yB1_Within}" x2="${bar2X}" y2="${yB2_Error}" stroke="#94a3b8" stroke-dasharray="3,2" />
+      <g>
+        <rect x="${bar2X}" y="${yB2_Between}" width="${barW}" height="${Math.max(0, hBetween)}" fill="var(--col-between)" rx="3" />
+        <rect x="${bar2X}" y="${yB2_Subjects}" width="${barW}" height="${Math.max(0, hSubjects)}" fill="var(--col-subjects)" fill-opacity="0.88" stroke="#0f766e" stroke-dasharray="3,2" rx="3" />
+        <rect x="${bar2X}" y="${yB2_Error}" width="${barW}" height="${Math.max(0, hError)}" fill="var(--col-error)" rx="3" />
+        <text x="${bar2X + barW / 2}" y="${yB2_Between + hBetween / 2 + 4}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Bet</tspan>: ${stats.ssBetween.toFixed(0)}</text>
+        ${hSubjects > 26 ? `<text x="${bar2X + barW / 2}" y="${yB2_Subjects + hSubjects / 2 - 2}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Subjects</tspan></text><text x="${bar2X + barW / 2}" y="${yB2_Subjects + hSubjects / 2 + 11}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#ccfbf1" font-family="JetBrains Mono">-${stats.ssSubjects.toFixed(1)} (Removed!)</text>` : ''}
+        ${hError > 18 ? `<text x="${bar2X + barW / 2}" y="${yB2_Error + hError / 2 + 4}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff" font-family="JetBrains Mono">SS<tspan baseline-shift="sub" font-size="75%">Err</tspan>: ${stats.ssError.toFixed(1)}</text>` : `<text x="${bar2X + barW / 2}" y="${Math.max(14, yB2_Error - 5)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--col-error)" font-family="JetBrains Mono">SS<tspan baseline-shift="sub" font-size="75%">Error</tspan>: ${stats.ssError.toFixed(1)}</text>`}
+        <text x="${bar2X + barW / 2}" y="${bBottom + 18}" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--col-subjects)">Repeated-Meas.</text>
+        <text x="${bar2X + barW / 2}" y="${bBottom + 32}" text-anchor="middle" font-size="9.5" fill="#64748b">(Paired Design)</text>
+      </g>`;
+
+    rightSvg.innerHTML = html;
+  }
+
+  function updateNumericPanels(stats) {
+    const rDisplay = state.mode === 'anova' ? stats.rAvg : stats.r12;
+    document.getElementById('r-live-badge').textContent = `${state.mode === 'anova' ? 'r̄' : 'r₁₂'} = ${(rDisplay >= 0 ? '+' : '') + rDisplay.toFixed(2)}`;
+    
+    document.getElementById('kpi-indep-stat').textContent = `F( ${stats.dfBetween}, ${stats.dfWithin} ) = ${stats.fIndep.toFixed(2)}`;
+    document.getElementById('kpi-indep-p').textContent = `p = ${formatP(stats.pIndep)}`;
+
+    if (state.mode === 'ttest') {
+      document.getElementById('kpi-rm-label').textContent = 'Paired t-Test (k=2)';
+      document.getElementById('kpi-rm-stat').textContent = `t(${N - 1}) = ${stats.tStat.toFixed(2)}`;
+      document.getElementById('kpi-rm-p').textContent = `p = ${formatP(stats.pTTest)}`;
+      document.getElementById('ttest-subtitle-active').style.display = 'inline';
+      document.getElementById('ttest-subtitle-inactive').style.display = 'none';
+      document.getElementById('ttest-active-view').style.display = 'block';
+      document.getElementById('ttest-inactive-view').style.display = 'none';
+      document.getElementById('card-math-ttest').style.opacity = '1';
+    } else {
+      document.getElementById('kpi-rm-label').textContent = 'RM-ANOVA (k=3)';
+      document.getElementById('kpi-rm-stat').textContent = `F( ${stats.dfBetween}, ${stats.dfError} ) = ${stats.fRM.toFixed(2)}`;
+      document.getElementById('kpi-rm-p').textContent = `p = ${formatP(stats.pRM)}`;
+      document.getElementById('ttest-subtitle-active').style.display = 'none';
+      document.getElementById('ttest-subtitle-inactive').style.display = 'inline';
+      document.getElementById('ttest-active-view').style.display = 'none';
+      document.getElementById('ttest-inactive-view').style.display = 'flex';
+      document.getElementById('card-math-ttest').style.opacity = '0.85';
+    }
+
+    const pctRemoved = (stats.ssSubjects / Math.max(1e-9, stats.ssWithin)) * 100;
+    const noiseKpiEl = document.getElementById('kpi-noise-removed');
+    const noiseSubEl = document.getElementById('kpi-error-drop');
+    const rmContainer = document.getElementById('kpi-rm-container');
+    
+    if (rDisplay < 0) {
+      noiseKpiEl.style.color = 'var(--col-error)';
+      rmContainer.style.borderColor = 'var(--col-error)';
+      rmContainer.style.background = 'var(--col-error-bg)';
+      document.getElementById('kpi-rm-stat').style.color = 'var(--col-error)';
+      noiseSubEl.innerHTML = `SS<sub>Subj</sub> / SS<sub>Within</sub><br><span style="color:var(--col-error); font-weight:700;">(Penalty: r < 0)</span>`;
+    } else {
+      noiseKpiEl.style.color = 'var(--col-between)';
+      rmContainer.style.borderColor = '#99f6e4';
+      rmContainer.style.background = 'var(--col-subjects-bg)';
+      document.getElementById('kpi-rm-stat').style.color = 'var(--col-subjects)';
+      noiseSubEl.innerHTML = `SS<sub>Subj</sub> / SS<sub>Within</sub>`;
+    }
+    noiseKpiEl.textContent = `${pctRemoved.toFixed(1)}%`;
+
+    const s1SqPlusS2Sq = stats.condVars[0] + stats.condVars[1];
+    const twoCov = 2 * stats.cov12;
+    
+    document.getElementById('val-dbar').innerHTML = `${stats.dBar >= 0 ? '+' : ''}${stats.dBar.toFixed(2)}`;
+    document.getElementById('val-s1s2').innerHTML = `${s1SqPlusS2Sq.toFixed(2)}  (${stats.condVars[0].toFixed(1)} + ${stats.condVars[1].toFixed(1)})`;
+    document.getElementById('val-cov-term').innerHTML = `${(-twoCov >= 0 ? '+' : '') + (-twoCov).toFixed(2)}  (r<sub>12</sub> = ${stats.r12.toFixed(2)})`;
+    document.getElementById('val-sd2').innerHTML = `${stats.sD2.toFixed(2)}  (s<sub>D</sub> = ${stats.sD.toFixed(2)})`;
+    document.getElementById('val-t-stat').innerHTML = `t(5) = ${stats.tStat.toFixed(2)}, p = ${formatP(stats.pTTest)}`;
+
+    document.getElementById('anova-panel-title').innerHTML = `B. RM-ANOVA (k = ${stats.activeK})`;
+    const tbody = document.getElementById('anova-table-body');
+    tbody.innerHTML = `
+      <tr class="row-between">
+        <td>Between Timepoints</td>
+        <td class="mono-num">${stats.ssBetween.toFixed(2)}</td>
+        <td class="mono-num">${stats.dfBetween}</td>
+        <td class="mono-num">${stats.msBetween.toFixed(2)}</td>
+        <td class="mono-num" style="font-weight:700; color:var(--col-between)">${stats.fRM.toFixed(2)}</td>
+        <td class="mono-num" style="font-weight:700">${formatP(stats.pRM)}</td>
+      </tr>
+      <tr class="row-subjects">
+        <td>Subjects (Removed!)</td>
+        <td class="mono-num">${stats.ssSubjects.toFixed(2)}</td>
+        <td class="mono-num">${stats.dfSubjects}</td>
+        <td class="mono-num">${stats.msSubjects.toFixed(2)}</td>
+        <td class="mono-num" style="color:#94a3b8">—</td>
+        <td class="mono-num" style="color:#94a3b8">—</td>
+      </tr>
+      <tr class="row-error">
+        <td>Residual Error (SS<sub>Error</sub>)</td>
+        <td class="mono-num">${stats.ssError.toFixed(2)}</td>
+        <td class="mono-num">${stats.dfError}</td>
+        <td class="mono-num" style="font-weight:700; color:var(--col-error)">${stats.msError.toFixed(2)}</td>
+        <td class="mono-num">—</td>
+        <td class="mono-num">—</td>
+      </tr>
+      <tr style="font-weight:700; background:#f8fafc;">
+        <td>Total</td>
+        <td class="mono-num">${stats.ssTotal.toFixed(2)}</td>
+        <td class="mono-num">${stats.dfTotal}</td>
+        <td class="mono-num">—</td>
+        <td class="mono-num">—</td>
+        <td class="mono-num">—</td>
+      </tr>
+      <tr class="row-unadj" title="Comparison if pairing were ignored">
+        <td>⚠️ If Unadjusted (Indep.)</td>
+        <td class="mono-num">${stats.ssWithin.toFixed(2)}</td>
+        <td class="mono-num">${stats.dfWithin}</td>
+        <td class="mono-num">${stats.msWithin.toFixed(2)}</td>
+        <td class="mono-num" style="font-weight:700">${stats.fIndep.toFixed(2)}</td>
+        <td class="mono-num">${formatP(stats.pIndep)}</td>
+      </tr>
+    `;
+
+    // Toggle panels for Rosetta Stone equivalence
+    if (state.mode === 'ttest') {
+      document.getElementById('katex-rosetta-identities').style.display = 'block';
+      document.getElementById('rosetta-description').style.display = 'block';
+      document.getElementById('rosetta-active-verify').style.display = 'flex';
+      document.getElementById('rosetta-inactive-verify').style.display = 'none';
+
+      document.getElementById('val-rosetta-1').innerHTML = `${stats.tStat.toFixed(2)}<sup>2</sup> = ${(stats.tStat * stats.tStat).toFixed(2)} = F`;
+      document.getElementById('val-rosetta-2').innerHTML = `${stats.ssSubjects2.toFixed(2)} = ${stats.ssSubjects2.toFixed(2)} ✓`;
+      document.getElementById('val-rosetta-3').innerHTML = `5 × ${stats.sD2.toFixed(2)} / 2 = ${(((N - 1) * stats.sD2) / 2).toFixed(2)} ✓`;
+      document.getElementById('val-rosetta-4').innerHTML = `${((N * stats.dBar * stats.dBar) / 2).toFixed(2)} = ${stats.ssBetween2.toFixed(2)} ✓`;
+    } else {
+      document.getElementById('katex-rosetta-identities').style.display = 'none';
+      document.getElementById('rosetta-description').style.display = 'none';
+      document.getElementById('rosetta-active-verify').style.display = 'none';
+      document.getElementById('rosetta-inactive-verify').style.display = 'flex';
+    }
+
+    if (window.katex) renderKaTeXBlocks(stats);
+  }
+
+  function renderKaTeXBlocks(stats) {
+    const latexT = String.raw`t = \frac{\bar{D}}{s_D / \sqrt{N}} = \frac{${stats.dBar.toFixed(2)}}{\sqrt{\frac{${stats.sD2.toFixed(2)}}{${N}}}} = \mathbf{${stats.tStat.toFixed(2)}}, \quad s_D^2 = s_1^2 + s_2^2 - \underbrace{2 r s_1 s_2}_{\text{Covariance}}`;
+    
+    // F-Ratio with specific \textcolor commands to prevent bleeding and correctly color parentheses
+    const latexANOVA = String.raw`\begin{aligned} 
+    SS_{\text{Total}} &= \textcolor{#2563eb}{SS_{\text{Between}}} + \textcolor{#d97706}{\underbrace{\textcolor{#0d9488}{SS_{\text{Subjects}}} + \textcolor{#e11d48}{SS_{\text{Error}}}}_{SS_{\text{Within}} = ${stats.ssWithin.toFixed(1)}}} \\[1em] 
+    F &= \frac{\textcolor{#2563eb}{MS_{\text{Between}}}}{\textcolor{#e11d48}{MS_{\text{Error}}}} = \frac{\textcolor{#2563eb}{SS_{\text{Between}}} / df_{\text{Between}}}{\textcolor{#e11d48}{SS_{\text{Error}}} / \textcolor{#e11d48}{df_{\text{Error}}}} \\[1em] 
+    &= \frac{${stats.ssBetween.toFixed(1)} / ${stats.dfBetween}}{\textcolor{#0f172a}{(}\textcolor{#d97706}{SS_{\text{Within}}} \textcolor{#0f172a}{-} \textcolor{#0d9488}{SS_{\text{Subjects}}}\textcolor{#0f172a}{)} / \textcolor{#e11d48}{(N-1)(k-1)}} \\[1em] 
+    &= \frac{${stats.ssBetween.toFixed(1)} / ${stats.dfBetween}}{\textcolor{#0f172a}{(}\textcolor{#d97706}{${stats.ssWithin.toFixed(1)}} \textcolor{#0f172a}{-} \mathbf{\textcolor{#0d9488}{${stats.ssSubjects.toFixed(1)}}}\textcolor{#0f172a}{)} / \textcolor{#e11d48}{${stats.dfError}}} = \mathbf{${stats.fRM.toFixed(2)}} 
+    \end{aligned}`;
+    
+    const latexRosetta = String.raw`\begin{aligned} 
+    \textcolor{#0d9488}{SS_{\text{Subjects}}} &= \frac{(N-1)(s_1^2 + s_2^2 + \mathbf{\underbrace{2rs_1s_2}_{\text{Covariance}}})}{2} \\[1em] 
+    \textcolor{#e11d48}{SS_{\text{Error}}} &= \frac{(N-1)(s_1^2 + s_2^2 - \mathbf{\underbrace{2rs_1s_2}_{\text{Covariance}}})}{2} = \frac{(N-1)s_D^2}{2} 
+    \end{aligned}`;
+
+    window.katex.render(latexT, document.getElementById('katex-ttest-main'), { displayMode: true, throwOnError: false });
+    window.katex.render(latexANOVA, document.getElementById('katex-anova-main'), { displayMode: true, throwOnError: false });
+    window.katex.render(latexRosetta, document.getElementById('katex-rosetta-identities'), { displayMode: true, throwOnError: false });
+  }
+
+  function updateAll() {
+    const stats = computeStats();
+    renderMainDotPlot(stats);
+    renderRightPanel(stats);
+    updateNumericPanels(stats);
+  }
+
+  function initSubjectLegend() {
+    let html = '';
+    for (let i = 0; i < N; i++) html += `<div class="legend-item" data-subj-idx="${i}"><span class="legend-swatch" style="background:${SUBJECT_COLORS[i]}"></span><span>${SUBJECT_LABELS[i]}</span></div>`;
+    const container = document.getElementById('subject-legend-list'); container.innerHTML = html;
+    container.querySelectorAll('.legend-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const sel = document.getElementById('subject-select');
+        sel.value = (sel.value === item.getAttribute('data-subj-idx')) ? 'all' : item.getAttribute('data-subj-idx');
+        state.selectedSubject = sel.value; updateAll();
+      });
+    });
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+      state.mode = btn.getAttribute('data-mode');
+      document.getElementById('card-math-ttest').style.borderColor = state.mode === 'ttest' ? 'var(--col-diff)' : 'var(--border)';
+      if (state.mode === 'ttest') { 
+        state.overlays.diff = true; 
+        document.querySelector('.toggle-pill[data-overlay="diff"]').classList.add('active'); 
+        document.querySelector('.toggle-pill[data-overlay="diff"] input').checked = true; 
+      }
+      updateAll();
+    });
+  });
+
+  const presetBtns = document.querySelectorAll('.preset-btn');
+  function setSliderR(val, activeBtnId) {
+    state.sliderR = parseFloat(val); document.getElementById('r-slider').value = state.sliderR;
+    presetBtns.forEach(b => b.classList.toggle('active', b.id === activeBtnId));
+    generateScoresFromR(state.sliderR); updateAll();
+  }
+  document.getElementById('r-slider').addEventListener('input', (e) => setSliderR(e.target.value, null));
+  document.getElementById('preset-high').addEventListener('click', () => setSliderR(0.90, 'preset-high'));
+  document.getElementById('preset-zero').addEventListener('click', () => setSliderR(0.00, 'preset-zero'));
+  document.getElementById('preset-neg').addEventListener('click', () => setSliderR(-0.40, 'preset-neg'));
+  document.getElementById('subject-select').addEventListener('change', (e) => { state.selectedSubject = e.target.value; updateAll(); });
+
+  document.querySelectorAll('.toggle-pill').forEach(pill => {
+    const key = pill.getAttribute('data-overlay'), cb = pill.querySelector('input');
+    pill.addEventListener('click', (e) => { e.preventDefault(); state.overlays[key] = !state.overlays[key]; cb.checked = state.overlays[key]; pill.classList.toggle('active', state.overlays[key]); updateAll(); });
+    pill.addEventListener('mouseenter', () => { state.hoveredOverlay = key; updateAll(); });
+    pill.addEventListener('mouseleave', () => { state.hoveredOverlay = null; updateAll(); });
+  });
+
+  let draggingNode = null;
+  mainSvg.addEventListener('pointerdown', (e) => {
+    const target = e.target.closest('.subject-node'); if (!target) return; e.preventDefault();
+    draggingNode = { subj: parseInt(target.getAttribute('data-subj'), 10), cond: parseInt(target.getAttribute('data-cond'), 10) };
+    mainSvg.setPointerCapture(e.pointerId); presetBtns.forEach(b => b.classList.remove('active'));
+  });
+  mainSvg.addEventListener('pointermove', (e) => {
+    if (!draggingNode) return;
+    const pt = mainSvg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    state.scores[draggingNode.subj][draggingNode.cond] = pxToY(pt.matrixTransform(mainSvg.getScreenCTM().inverse()).y);
+    requestAnimationFrame(() => updateAll());
+  });
+  window.addEventListener('pointerup', () => { draggingNode = null; });
+
+  mainSvg.addEventListener('keydown', (e) => {
+    const target = e.target.closest('.subject-node'); if (!target) return;
+    const subj = parseInt(target.getAttribute('data-subj'), 10), cond = parseInt(target.getAttribute('data-cond'), 10);
+    const STEP = e.shiftKey ? 2.0 : 0.5;
+    let changed = false;
+    if (e.key === 'ArrowUp') { state.scores[subj][cond] = Math.min(Y_MAX, state.scores[subj][cond] + STEP); changed = true; e.preventDefault(); }
+    else if (e.key === 'ArrowDown') { state.scores[subj][cond] = Math.max(Y_MIN, state.scores[subj][cond] - STEP); changed = true; e.preventDefault(); }
+    if (changed) { state.focusedNodeData = { subj, cond }; updateAll(); }
+  });
+
+  const tooltipEl = document.getElementById('pedagogical-tooltip');
+  document.querySelectorAll('[data-tip]').forEach(el => {
+    el.addEventListener('mouseenter', () => { tooltipEl.textContent = el.getAttribute('data-tip'); tooltipEl.style.opacity = '1'; });
+    el.addEventListener('mousemove', (e) => { tooltipEl.style.left = Math.min(window.innerWidth - 295, e.clientX + 14) + 'px'; tooltipEl.style.top = Math.min(window.innerHeight - 90, e.clientY + 16) + 'px'; });
+    el.addEventListener('mouseleave', () => { tooltipEl.style.opacity = '0'; });
+  });
+
+  initSubjectLegend();
+  generateScoresFromR(state.sliderR);
+  
+  // Wait for initial DOM load, run calculations, and THEN parse all math globally
+  window.addEventListener('load', () => {
+    updateAll();
+    if (window.renderMathInElement) {
+      window.renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ],
+        throwOnError: false
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>
