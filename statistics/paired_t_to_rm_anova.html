@@ -188,18 +188,6 @@
 </header>
 
 <main class="main-container">
-  <section class="card" id="background-insight" aria-label="Background">
-    <div class="card-header">
-      <div>
-        <div class="card-title">Background</div>
-        <div class="card-subtitle">Why correlation shrinks difference-score noise</div>
-      </div>
-    </div>
-    <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.55; margin:0;">
-      The difference-score standard deviation already has the pre–post correlation built into it. A more positive covariance shrinks $s_D$: when scores move together, people who score high at one timepoint tend to score high at the other, so individual change scores stay small — and that smaller $s_D$ is what feeds $SS_{\text{Error}}$. The same positive covariance enlarges $SS_{\text{Subjects}}$, because subject sums of squares track how far each person's average sits from the grand mean. Together, $SS_{\text{Subjects}}$ and $SS_{\text{Error}}$ make up $SS_{\text{Within}}$ — the within-timepoint scatter that is not caused by time, but by stable individual differences plus residual error. By partitioning out those individual differences, repeated-measures ANOVA (and the paired $t$) cut noise that an independent test would leave intact.
-    </p>
-  </section>
-
   <section class="control-bar">
     <div class="slider-panel">
       <div class="slider-header">

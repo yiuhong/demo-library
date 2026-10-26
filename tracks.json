@@ -226,19 +226,30 @@
     {
       "id": "anova",
       "title": "ANOVA",
-      "summary": "This path is for comparing means across groups, from two groups to a split of variation. By the end you can say where the variation comes from and what the usual reading assumes.",
+      "summary": "This path is for comparing means, from separate groups to the same people and a split of variation. By the end you can say where the variation comes from and what the usual reading assumes.",
       "status": "draft",
       "steps": [
         {
           "href": "statistics/t_test_to_anova.html",
           "title": "From t-Test to ANOVA",
-          "note": "With two groups, a t-test asks whether the means differ by more than the scatter inside the groups. ANOVA asks the same kind of question when there may be more than two means: is the variation among group means large relative to the variation left inside groups? Opening the comparison that way leads to an explicit split of total variation.",
+          "note": "With two groups, a t-test asks whether the means differ by more than the scatter inside the groups. ANOVA asks the same kind of question when there may be more than two means: is the variation among group means large relative to the variation left inside groups? When each person is measured more than once, that inside scatter depends on how their scores move together.",
           "formulae": [
             "F = MS_between / MS_within",
             "for two groups, t² = F"
           ],
           "image": "tracks/images/anova/01-two-means-three-means.png",
           "imageAlt": "Two panels with the same within-group scatter. The left panel has group means at 40 and 60. The right panel has group means at 30, 50, and 70. A short horizontal line marks each mean."
+        },
+        {
+          "href": "statistics/paired_t_to_rm_anova.html",
+          "title": "From Paired t-Test to RM-ANOVA",
+          "note": "The difference-score standard deviation already has the pre–post correlation built into it. A more positive covariance shrinks s_D: when scores move together, people who score high at one timepoint tend to score high at the other, so individual change scores stay small — and that smaller s_D is what feeds SS_Error. The same positive covariance enlarges SS_Subjects, because subject sums of squares track how far each person's average sits from the grand mean. Together, SS_Subjects and SS_Error make up SS_Within — the within-timepoint scatter that is not caused by time, but by stable individual differences plus residual error. By partitioning out those individual differences, the paired t and repeated-measures ANOVA cut noise that an independent test would leave intact.",
+          "formulae": [
+            "s_D² = s₁² + s₂² − 2 r s₁ s₂",
+            "SS_Within = SS_Subjects + SS_Error",
+            "SS_Error = (N − 1) s_D² / 2",
+            "for k = 2, t² = F"
+          ]
         },
         {
           "href": "statistics/partitioning_sum_of_squares_anova.html",
