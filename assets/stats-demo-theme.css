@@ -1,0 +1,234 @@
+/*
+ * Shared chrome theme for statistics teaching demos.
+ * Matches the monochrome Hyperspace library used by yiuhong.github.io
+ * and this repo's index (panels #f6f6f6, white cards, black borders,
+ * black/white pills, Arial/Helvetica UI type).
+ *
+ * Chart and data-encoding colours stay local to each demo.
+ * Do not put series colours, histogram fills, mean/median/mode markers,
+ * SS partitions, or other pedagogical encodings in this file.
+ */
+
+:root {
+    --demo-bg: #f6f6f6;
+    --demo-card: #ffffff;
+    --demo-text: #000000;
+    --demo-border: #000000;
+    --demo-panel: #f6f6f6;
+    --demo-radius: 4px;
+    --demo-font: Arial, Helvetica, sans-serif;
+}
+
+.demo-page {
+    background: var(--demo-bg) !important;
+    color: var(--demo-text) !important;
+    font-family: var(--demo-font) !important;
+}
+
+.demo-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0 0 1.25rem;
+}
+
+.demo-card {
+    background: var(--demo-card) !important;
+    color: var(--demo-text) !important;
+    border: 1px solid var(--demo-border) !important;
+    border-radius: var(--demo-radius) !important;
+    box-shadow: none !important;
+    font-family: var(--demo-font);
+}
+
+.demo-panel {
+    background: var(--demo-panel) !important;
+    color: var(--demo-text) !important;
+    border: 1px solid var(--demo-border) !important;
+    border-radius: var(--demo-radius) !important;
+    box-shadow: none !important;
+}
+
+.demo-header {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border: 1px solid #000000 !important;
+    border-radius: var(--demo-radius);
+    padding: 1.05rem 1.25rem;
+    font-family: var(--demo-font);
+}
+
+.demo-card > .demo-header {
+    border: none !important;
+    border-bottom: 1px solid #000000 !important;
+    border-radius: 0;
+    margin: 0;
+}
+
+.demo-header h1,
+.demo-header h2,
+.demo-header p,
+.demo-header strong {
+    color: #ffffff !important;
+    font-family: var(--demo-font);
+}
+
+.demo-header h1,
+.demo-header h2 {
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    margin: 0 0 0.35rem;
+}
+
+.demo-header p {
+    margin: 0;
+}
+
+.demo-back {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0.5em 1em;
+    border: 1px solid #000000 !important;
+    border-radius: 3em !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    font-family: var(--demo-font);
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    text-decoration: none !important;
+}
+
+.demo-back:hover {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+.demo-btn,
+.demo-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    height: auto;
+    margin: 0;
+    padding: 0.55em 1.1em;
+    border: 1px solid #000000 !important;
+    border-radius: 3em !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    font-family: var(--demo-font);
+    font-size: 0.82rem;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    text-transform: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.demo-btn:hover,
+.demo-chip:hover {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+.demo-btn-primary,
+.demo-chip.is-active {
+    background: #000000 !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+.demo-btn-primary:hover,
+.demo-chip.is-active:hover {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+.demo-btn:focus,
+.demo-chip:focus,
+.demo-back:focus {
+    outline: none;
+}
+
+.demo-btn:focus-visible,
+.demo-chip:focus-visible,
+.demo-back:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.demo-chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0.35rem;
+    background: var(--demo-panel);
+    border: 1px solid var(--demo-border);
+    border-radius: var(--demo-radius);
+}
+
+.demo-chip-group .demo-chip {
+    flex: 1 1 auto;
+}
+
+.demo-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    justify-content: center;
+    padding: 1rem 1.25rem;
+    background: var(--demo-card);
+    border-bottom: 1px solid var(--demo-border);
+}
+
+.demo-footer {
+    background: var(--demo-panel) !important;
+    color: var(--demo-text) !important;
+    border-top: 1px solid var(--demo-border) !important;
+    font-family: var(--demo-font);
+}
+
+.demo-divider {
+    border-top: 1px solid var(--demo-border);
+}
+
+.demo-page input[type="range"] {
+    accent-color: #000000;
+}
+
+.demo-page .demo-header :is(h1, h2, h3, p, span, strong) {
+    color: #ffffff !important;
+}
+
+.demo-prose,
+.demo-prose p,
+.demo-prose strong,
+.demo-card > h3,
+.demo-card > h4,
+.demo-card label,
+.demo-card .demo-panel h4,
+.demo-card .demo-panel p:not(.text-emerald-600) {
+    color: var(--demo-text);
+}
+
+.demo-page .demo-card h1,
+.demo-page .demo-card h2,
+.demo-page .demo-card h3,
+.demo-page .demo-card h4,
+.demo-page .demo-card p,
+.demo-page .demo-card label,
+.demo-page .demo-prose,
+.demo-page .demo-prose p,
+.demo-page .demo-prose strong {
+    font-family: var(--demo-font);
+}

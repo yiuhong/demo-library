@@ -5,16 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Additivity of Variance: Sum vs. Difference</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-        }
         .controls-container {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
+            background: var(--demo-card);
         }
         .axis-path { fill: none; stroke: #94a3b8; stroke-width: 1.5px; }
         .axis-tick { stroke: #cbd5e1; stroke-width: 1px; }
@@ -36,33 +32,39 @@
             transition: opacity 0.2s;
             font-size: 0.875rem;
             z-index: 50;
-        }
-        input[type=range] {
-            accent-color: #3b82f6;
+            border: 1px solid var(--demo-border);
+            color: var(--demo-text);
+            font-family: var(--demo-font);
         }
     </style>
 </head>
-<body class="text-slate-800 min-h-screen flex flex-col items-center py-8 px-4">
+<body class="demo-page min-h-screen py-8 px-4">
 
-    <button id="fullscreen-btn" class="fixed top-4 right-4 md:top-6 md:right-6 z-50 flex items-center gap-2 bg-slate-800 text-white px-3 py-2 rounded-lg shadow-md hover:bg-slate-700 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-        </svg>
-        <span class="hidden sm:inline text-sm font-medium">Fullscreen</span>
-    </button>
+    <div class="max-w-6xl w-full mx-auto">
+    <div class="demo-topbar">
+        <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+        <button id="fullscreen-btn" class="demo-btn demo-btn-primary" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+            <span class="hidden sm:inline">Fullscreen</span>
+        </button>
+    </div>
 
-    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         <div class="lg:col-span-1 flex flex-col gap-6">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900 mb-3">Additivity of Variance</h1>
+            <div class="demo-prose">
+                <header class="demo-header mb-4">
+                    <h1 class="text-2xl font-bold">Additivity of Variance</h1>
+                </header>
 
                 <!-- Mode Toggle -->
-                <div class="bg-slate-200/80 p-1 rounded-xl flex mb-4 border border-slate-300/60">
-                    <button id="btn-mode-sum" class="flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-sm">
+                <div class="demo-chip-group mb-4">
+                    <button id="btn-mode-sum" class="demo-chip is-active flex-1" type="button">
                         Sum: \( X + Y \)
                     </button>
-                    <button id="btn-mode-diff" class="flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900">
+                    <button id="btn-mode-diff" class="demo-chip flex-1" type="button">
                         Difference: \( X - Y \)
                     </button>
                 </div>
@@ -91,7 +93,7 @@
                 </div>
             </div>
 
-            <div class="controls-container p-6 rounded-xl shadow-sm border border-slate-200">
+            <div class="controls-container demo-card p-6">
                 <h3 class="font-semibold text-slate-800 mb-4">Interactive Parameters</h3>
 
                 <div class="mb-5">
@@ -119,7 +121,7 @@
                     <input type="range" id="vary-slider" min="0.1" max="3.0" step="0.1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-slate-200">
+                <div class="demo-divider mt-6 pt-4">
                     <div class="flex items-center gap-2 mb-2">
                         <input type="checkbox" id="show-sum-lines" checked class="rounded text-red-500 focus:ring-red-500">
                         <label for="show-sum-lines" id="label-contour-lines" class="text-sm font-medium text-slate-700">Show Lines of Constant Sum</label>
@@ -138,7 +140,7 @@
                     </div>
                 </div>
 
-                <div class="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div class="demo-panel mt-6 p-4">
                     <h4 class="text-sm font-semibold text-slate-800 mb-2">Calculated Variance</h4>
                     <p id="formula-sum" class="text-sm text-slate-600">\( \text{Var}(X+Y) = \sigma_X^2 + \sigma_Y^2 + 2\rho\sigma_X\sigma_Y \)</p>
                     <p id="formula-diff" class="text-sm text-slate-600 hidden">\( \text{Var}(X-Y) = \sigma_X^2 + \sigma_Y^2 - 2\rho\sigma_X\sigma_Y \)</p>
@@ -151,7 +153,7 @@
         </div>
 
         <div class="lg:col-span-2 flex justify-center items-start">
-            <div class="bg-white p-4 rounded-xl shadow-md border border-slate-200 w-full overflow-hidden">
+            <div class="demo-card p-4 w-full overflow-hidden">
                 <div id="vis-container" class="relative w-full aspect-square max-w-[600px] mx-auto">
                     <div id="tooltip" class="tooltip"></div>
                 </div>
@@ -172,6 +174,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <script>
@@ -225,11 +228,11 @@
             const btnSum = document.getElementById('btn-mode-sum');
             const btnDiff = document.getElementById('btn-mode-diff');
             if (isSum) {
-                btnSum.className = "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-sm";
-                btnDiff.className = "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+                btnSum.className = "demo-chip is-active flex-1";
+                btnDiff.className = "demo-chip flex-1";
             } else {
-                btnDiff.className = "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-sm";
-                btnSum.className = "flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+                btnDiff.className = "demo-chip is-active flex-1";
+                btnSum.className = "demo-chip flex-1";
             }
 
             // Toggle Explanation & Formulas
