@@ -1,0 +1,212 @@
+/*
+ * Shared pedagogical colour tokens for neuroscience teaching demos.
+ *
+ * Page chrome (background, cards, Back link, monochrome buttons) stays in
+ * assets/neuroscience-demo-theme.css. This file is only the data-encoding
+ * palette: series, markers, tissue layers, optodes, and the text that names
+ * those encodings.
+ *
+ * Use the same token everywhere a role means the same thing (CSS var(), or
+ * neuroViz.color('--viz-…') from assets/neuroscience-viz-theme.js for canvas
+ * / Chart.js). Do not add a one-off hex for a role listed here.
+ *
+ * Washes (--*-soft / --*-mid / --*-line) mix the role colour into the dark
+ * lab card (--viz-surface, the same hex as the demo card). Plot overlays
+ * (--*-faint, epoch soft / line) mix into transparent so they stay tints on
+ * the dark trace, not pale washes. Do not mix these into white.
+ *
+ * Roles
+ *   --viz-delta/theta/alpha/beta/gamma
+ *                     EEG bands, slow → fast. Slider, border, name, wave,
+ *                     and spectrum bar for that band.
+ *   --viz-raw         Raw / ongoing EEG trace (time-domain composite).
+ *   --viz-erp-wave    Canonical ERP schematic waveform.
+ *   --viz-erp-p1/n1/p2/n2/p3
+ *                     Component markers and the labels that name them.
+ *                     P2 is orange so it is not the same mark as N1.
+ *   --viz-average     Running ensemble average. Same indigo as the schematic
+ *                     wave until a demo needs them to diverge.
+ *   --viz-true-erp    Ground-truth target ERP (dashed). Distinct from N1.
+ *   --viz-trial       A single noisy trial.
+ *   --viz-stimulus    Stimulus-onset trigger (dashed line and its label).
+ *   --viz-epoch       Analysis window locked to the trigger. Alias of the
+ *                     running average so the window stays with that series.
+ *   --viz-hbo/hbr/hbt Oxyhemoglobin, deoxyhemoglobin, total hemoglobin.
+ *                     830 nm copy uses --viz-hbo; 690 nm copy uses --viz-hbr,
+ *                     because those phrases name the chromophore.
+ *   --viz-emitter     NIRS source optode. Same rose hex as HbO until a demo
+ *                     needs the hardware to diverge from the chromophore.
+ *   --viz-detector    NIRS detector optode (cyan).
+ *   --viz-vessel      Vessel wall and the badge that names the vessel.
+ *   --viz-path        Banana-shaped optical path.
+ *   --viz-activation  Neural-activation sparks and the ACTIVATED badge.
+ *   --viz-scalp/skull/csf/brain
+ *                     Tissue layers. The legend swatch uses the same token
+ *                     as the layer stroke. Brain fill / fold are mixes of
+ *                     --viz-brain into the plot so the interior cannot drift
+ *                     to a different hue.
+ *   --viz-quality-*   SNR quality phrases only (low / mid / high). Not series.
+ *
+ * Example batch: EEG signal decomposition, the ERP simulator, and the fNIRS
+ * mechanism page. neuroscience/eeg_illustration.html is not on this file yet.
+ */
+
+:root {
+    --viz-surface: #0f172a;
+    --viz-plot: #020617;
+
+    --viz-delta: #3b82f6;
+    --viz-theta: #06b6d4;
+    --viz-alpha: #10b981;
+    --viz-beta: #f59e0b;
+    --viz-gamma: #ef4444;
+    --viz-raw: #f8fafc;
+
+    --viz-erp-wave: #818cf8;
+    --viz-erp-p1: #fbbf24;
+    --viz-erp-n1: #10b981;
+    --viz-erp-p2: #fb923c;
+    --viz-erp-n2: #38bdf8;
+    --viz-erp-p3: #a78bfa;
+
+    --viz-average: #818cf8;
+    --viz-true-erp: #34d399;
+    --viz-trial: #f87171;
+    --viz-stimulus: #f87171;
+    --viz-epoch: var(--viz-average);
+
+    --viz-hbo: #fb7185;
+    --viz-hbr: #60a5fa;
+    --viz-hbt: #c084fc;
+
+    --viz-emitter: #fb7185;
+    --viz-detector: #22d3ee;
+    --viz-vessel: #f87171;
+    --viz-path: #fbbf24;
+    --viz-activation: #fbbf24;
+
+    --viz-scalp: #c49a84;
+    --viz-skull: #dcdcdc;
+    --viz-csf: #5b9fb0;
+    --viz-brain: #6ea887;
+    --viz-brain-fill: color-mix(in srgb, var(--viz-brain) 24%, var(--viz-plot));
+    --viz-brain-deep: color-mix(in srgb, var(--viz-brain) 10%, var(--viz-plot));
+    --viz-brain-fold: color-mix(in srgb, var(--viz-brain) 36%, var(--viz-plot));
+
+    --viz-quality-low: #f87171;
+    --viz-quality-mid: #fbbf24;
+    --viz-quality-high: #34d399;
+
+    --viz-trial-faint: color-mix(in srgb, var(--viz-trial) 50%, transparent);
+    --viz-epoch-soft: color-mix(in srgb, var(--viz-epoch) 16%, transparent);
+    --viz-epoch-line: color-mix(in srgb, var(--viz-epoch) 40%, transparent);
+
+    --viz-hbo-soft: color-mix(in srgb, var(--viz-hbo) 16%, var(--viz-surface));
+    --viz-hbo-mid: color-mix(in srgb, var(--viz-hbo) 30%, var(--viz-surface));
+    --viz-hbo-line: color-mix(in srgb, var(--viz-hbo) 46%, var(--viz-surface));
+
+    --viz-hbr-soft: color-mix(in srgb, var(--viz-hbr) 16%, var(--viz-surface));
+    --viz-hbr-mid: color-mix(in srgb, var(--viz-hbr) 30%, var(--viz-surface));
+    --viz-hbr-line: color-mix(in srgb, var(--viz-hbr) 46%, var(--viz-surface));
+
+    --viz-hbt-soft: color-mix(in srgb, var(--viz-hbt) 16%, var(--viz-surface));
+    --viz-hbt-mid: color-mix(in srgb, var(--viz-hbt) 30%, var(--viz-surface));
+    --viz-hbt-line: color-mix(in srgb, var(--viz-hbt) 46%, var(--viz-surface));
+
+    --viz-emitter-soft: color-mix(in srgb, var(--viz-emitter) 16%, var(--viz-surface));
+    --viz-emitter-line: color-mix(in srgb, var(--viz-emitter) 46%, var(--viz-surface));
+    --viz-detector-soft: color-mix(in srgb, var(--viz-detector) 16%, var(--viz-surface));
+    --viz-detector-line: color-mix(in srgb, var(--viz-detector) 46%, var(--viz-surface));
+    --viz-vessel-soft: color-mix(in srgb, var(--viz-vessel) 16%, var(--viz-surface));
+    --viz-vessel-line: color-mix(in srgb, var(--viz-vessel) 46%, var(--viz-surface));
+    --viz-activation-soft: color-mix(in srgb, var(--viz-activation) 18%, var(--viz-surface));
+    --viz-activation-line: color-mix(in srgb, var(--viz-activation) 48%, var(--viz-surface));
+}
+
+.viz-ink-delta { color: var(--viz-delta) !important; }
+.viz-bg-delta { background-color: var(--viz-delta) !important; color: #ffffff !important; }
+.viz-ink-theta { color: var(--viz-theta) !important; }
+.viz-bg-theta { background-color: var(--viz-theta) !important; color: #ffffff !important; }
+.viz-ink-alpha { color: var(--viz-alpha) !important; }
+.viz-bg-alpha { background-color: var(--viz-alpha) !important; color: #ffffff !important; }
+.viz-ink-beta { color: var(--viz-beta) !important; }
+.viz-bg-beta { background-color: var(--viz-beta) !important; color: #ffffff !important; }
+.viz-ink-gamma { color: var(--viz-gamma) !important; }
+.viz-bg-gamma { background-color: var(--viz-gamma) !important; color: #ffffff !important; }
+.viz-ink-raw { color: var(--viz-raw) !important; }
+
+.viz-ink-erp-wave { color: var(--viz-erp-wave) !important; }
+.viz-bg-erp-wave { background-color: var(--viz-erp-wave) !important; }
+.viz-fill-erp-wave { fill: var(--viz-erp-wave) !important; }
+.viz-stroke-erp-wave { stroke: var(--viz-erp-wave) !important; }
+
+.viz-ink-erp-p1 { color: var(--viz-erp-p1) !important; }
+.viz-bg-erp-p1 { background-color: var(--viz-erp-p1) !important; }
+.viz-fill-erp-p1 { fill: var(--viz-erp-p1) !important; }
+.viz-ink-erp-n1 { color: var(--viz-erp-n1) !important; }
+.viz-bg-erp-n1 { background-color: var(--viz-erp-n1) !important; }
+.viz-fill-erp-n1 { fill: var(--viz-erp-n1) !important; }
+.viz-ink-erp-p2 { color: var(--viz-erp-p2) !important; }
+.viz-bg-erp-p2 { background-color: var(--viz-erp-p2) !important; }
+.viz-fill-erp-p2 { fill: var(--viz-erp-p2) !important; }
+.viz-ink-erp-n2 { color: var(--viz-erp-n2) !important; }
+.viz-bg-erp-n2 { background-color: var(--viz-erp-n2) !important; }
+.viz-fill-erp-n2 { fill: var(--viz-erp-n2) !important; }
+.viz-ink-erp-p3 { color: var(--viz-erp-p3) !important; }
+.viz-bg-erp-p3 { background-color: var(--viz-erp-p3) !important; }
+.viz-fill-erp-p3 { fill: var(--viz-erp-p3) !important; }
+
+.viz-ink-average { color: var(--viz-average) !important; }
+.viz-bg-average { background-color: var(--viz-average) !important; }
+.viz-ink-true-erp { color: var(--viz-true-erp) !important; }
+.viz-bg-true-erp { background-color: var(--viz-true-erp) !important; }
+.viz-border-true-erp { border-color: var(--viz-true-erp) !important; }
+.viz-accent-true-erp { accent-color: var(--viz-true-erp); }
+.viz-ink-trial { color: var(--viz-trial) !important; }
+.viz-bg-trial { background-color: var(--viz-trial) !important; }
+.viz-accent-trial { accent-color: var(--viz-trial); }
+.viz-ink-stimulus { color: var(--viz-stimulus) !important; }
+.viz-fill-stimulus { fill: var(--viz-stimulus) !important; }
+.viz-stroke-stimulus { stroke: var(--viz-stimulus) !important; }
+
+.viz-ink-hbo { color: var(--viz-hbo) !important; }
+.viz-bg-hbo { background-color: var(--viz-hbo) !important; }
+.viz-soft-hbo { background-color: var(--viz-hbo-soft) !important; }
+.viz-mid-hbo { background-color: var(--viz-hbo-mid) !important; }
+.viz-border-hbo { border-color: var(--viz-hbo-line) !important; }
+.viz-ink-hbr { color: var(--viz-hbr) !important; }
+.viz-bg-hbr { background-color: var(--viz-hbr) !important; }
+.viz-soft-hbr { background-color: var(--viz-hbr-soft) !important; }
+.viz-mid-hbr { background-color: var(--viz-hbr-mid) !important; }
+.viz-border-hbr { border-color: var(--viz-hbr-line) !important; }
+.viz-ink-hbt { color: var(--viz-hbt) !important; }
+.viz-bg-hbt { background-color: var(--viz-hbt) !important; }
+.viz-soft-hbt { background-color: var(--viz-hbt-soft) !important; }
+.viz-mid-hbt { background-color: var(--viz-hbt-mid) !important; }
+.viz-border-hbt { border-color: var(--viz-hbt-line) !important; }
+
+.viz-ink-emitter { color: var(--viz-emitter) !important; }
+.viz-bg-emitter { background-color: var(--viz-emitter) !important; }
+.viz-soft-emitter { background-color: var(--viz-emitter-soft) !important; }
+.viz-border-emitter { border-color: var(--viz-emitter-line) !important; }
+.viz-ink-detector { color: var(--viz-detector) !important; }
+.viz-bg-detector { background-color: var(--viz-detector) !important; }
+.viz-soft-detector { background-color: var(--viz-detector-soft) !important; }
+.viz-border-detector { border-color: var(--viz-detector-line) !important; }
+.viz-ink-vessel { color: var(--viz-vessel) !important; }
+.viz-bg-vessel { background-color: var(--viz-vessel) !important; }
+.viz-soft-vessel { background-color: var(--viz-vessel-soft) !important; }
+.viz-border-vessel { border-color: var(--viz-vessel-line) !important; }
+.viz-ink-activation { color: var(--viz-activation) !important; }
+.viz-bg-activation { background-color: var(--viz-activation) !important; }
+.viz-soft-activation { background-color: var(--viz-activation-soft) !important; }
+.viz-border-activation { border-color: var(--viz-activation-line) !important; }
+
+.viz-bg-scalp { background-color: var(--viz-scalp) !important; }
+.viz-bg-skull { background-color: var(--viz-skull) !important; }
+.viz-bg-csf { background-color: var(--viz-csf) !important; }
+.viz-bg-brain { background-color: var(--viz-brain) !important; }
+
+.viz-ink-quality-low { color: var(--viz-quality-low) !important; }
+.viz-ink-quality-mid { color: var(--viz-quality-mid) !important; }
+.viz-ink-quality-high { color: var(--viz-quality-high) !important; }

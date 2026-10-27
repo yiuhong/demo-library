@@ -7,6 +7,8 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/neuroscience-demo-theme.css">
+    <link rel="stylesheet" href="../assets/neuroscience-viz-theme.css">
+    <script src="../assets/neuroscience-viz-theme.js"></script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -70,27 +72,27 @@
                     
                     <!-- Labels Layer (HTML positioning overlay for sleekness) -->
                     <div class="absolute inset-0 pointer-events-none p-4 select-none">
-                        <div class="absolute top-4 left-6 bg-rose-500/10 border border-rose-500/20 backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-bold text-rose-300 flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                        <div class="absolute top-4 left-6 viz-soft-emitter border viz-border-emitter backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-bold viz-ink-emitter flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full viz-bg-emitter animate-pulse"></span>
                             NIRS Emitter (690nm + 830nm)
                         </div>
-                        <div class="absolute top-4 right-6 bg-cyan-500/10 border border-cyan-500/20 backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-bold text-cyan-300 flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
+                        <div class="absolute top-4 right-6 viz-soft-detector border viz-border-detector backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-bold viz-ink-detector flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full viz-bg-detector animate-pulse"></span>
                             NIRS Detector
                         </div>
                         
                         <!-- Blood Vessel Network Label -->
-                        <div class="absolute bottom-4 left-6 bg-red-500/10 border border-red-500/20 backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-bold text-red-400 flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                        <div class="absolute bottom-4 left-6 viz-soft-vessel border viz-border-vessel backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-bold viz-ink-vessel flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full viz-bg-vessel animate-pulse"></span>
                             Blood Vessel Flow (O₂Hb & HHb)
                         </div>
 
                         <!-- Layer indicators -->
                         <div class="absolute right-4 bottom-24 text-[10px] font-mono text-slate-500 flex flex-col items-end gap-1">
-                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#8d5b4c]"></span> Scalp</div>
-                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#dcdcdc]"></span> Skull</div>
-                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#5b9fb0]"></span> CSF</div>
-                            <div class="flex items-center gap-2"><span class="w-3 h-1 bg-[#244b36]"></span> Brain Tissue</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 viz-bg-scalp"></span> Scalp</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 viz-bg-skull"></span> Skull</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 viz-bg-csf"></span> CSF</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-1 viz-bg-brain"></span> Brain Tissue</div>
                         </div>
                     </div>
                 </div>
@@ -100,9 +102,9 @@
                     <div>
                         <span class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Optode System Wavelengths</span>
                         <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-1 text-xs font-bold rounded-lg border text-blue-400 border-blue-500/20 bg-blue-500/5">690 nm (HHb Target)</span>
+                            <span class="px-2.5 py-1 text-xs font-bold rounded-lg border viz-ink-hbr viz-border-hbr viz-soft-hbr">690 nm (HHb Target)</span>
                             <span class="text-xs text-slate-500 font-bold">+</span>
-                            <span class="px-2.5 py-1 text-xs font-bold rounded-lg border text-rose-400 border-rose-500/20 bg-rose-500/5">830 nm (O₂Hb Target)</span>
+                            <span class="px-2.5 py-1 text-xs font-bold rounded-lg border viz-ink-hbo viz-border-hbo viz-soft-hbo">830 nm (O₂Hb Target)</span>
                         </div>
                         <span class="text-[10px] text-slate-500 mt-1 block">Simultaneous emission allows multi-hemoglobin state sorting.</span>
                     </div>
@@ -123,15 +125,15 @@
             <!-- Hemoglobin Details and Dynamic Capillary Model -->
             <div class="demo-card p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded bg-rose-500"></span> 
+                    <h3 class="text-sm font-bold viz-ink-hbo uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded viz-bg-hbo"></span> 
                         Oxyhemoglobin (O₂Hb)
                     </h3>
                     <p class="text-xs text-slate-400 leading-relaxed">
-                        Highly oxygenated blood entering the tissue. In near-infrared spectroscopy, <span class="text-rose-400 font-semibold">830 nm</span> light is primarily absorbed by O₂Hb because of its specific chemical properties and oxygenated state.
+                        Highly oxygenated blood entering the tissue. In near-infrared spectroscopy, <span class="viz-ink-hbo font-semibold">830 nm</span> light is primarily absorbed by O₂Hb because of its specific chemical properties and oxygenated state.
                     </p>
-                    <div class="mt-4 flex items-center gap-3 bg-rose-500/5 border border-rose-500/10 rounded-xl p-3">
-                        <div class="w-12 h-12 shrink-0 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 font-bold text-[9px] text-center leading-tight p-1">
+                    <div class="mt-4 flex items-center gap-3 viz-soft-hbo border viz-border-hbo rounded-xl p-3">
+                        <div class="w-12 h-12 shrink-0 rounded-full viz-mid-hbo flex items-center justify-center viz-ink-hbo font-bold text-[9px] text-center leading-tight p-1">
                             Oxygen<br>Level
                         </div>
                         <div>
@@ -142,15 +144,15 @@
                 </div>
 
                 <div>
-                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded bg-blue-500"></span> 
+                    <h3 class="text-sm font-bold viz-ink-hbr uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded viz-bg-hbr"></span> 
                         Deoxyhemoglobin (HHb)
                     </h3>
                     <p class="text-xs text-slate-400 leading-relaxed">
-                        Deoxygenated blood returning through capillary networks. <span class="text-blue-400 font-semibold">690 nm</span> light exhibits higher optical absorption for HHb, making it the primary target wavelength for detecting oxygen depletion.
+                        Deoxygenated blood returning through capillary networks. <span class="viz-ink-hbr font-semibold">690 nm</span> light exhibits higher optical absorption for HHb, making it the primary target wavelength for detecting oxygen depletion.
                     </p>
-                    <div class="mt-4 flex items-center gap-3 bg-blue-500/5 border border-blue-500/10 rounded-xl p-3">
-                        <div class="w-12 h-12 shrink-0 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-[9px] text-center leading-tight p-1">
+                    <div class="mt-4 flex items-center gap-3 viz-soft-hbr border viz-border-hbr rounded-xl p-3">
+                        <div class="w-12 h-12 shrink-0 rounded-full viz-mid-hbr flex items-center justify-center viz-ink-hbr font-bold text-[9px] text-center leading-tight p-1">
                             Oxygen<br>Level
                         </div>
                         <div>
@@ -184,19 +186,19 @@
                 
                 <!-- Micro dashboard showing instantaneous parameters (Rounded strictly to 1 decimal place without -0.0) -->
                 <div class="grid grid-cols-3 gap-2.5 pt-2 border-t border-slate-800/80">
-                    <div class="bg-rose-500/5 border border-rose-500/10 rounded-xl p-2.5 text-center">
-                        <div class="text-[10px] text-rose-400 font-bold uppercase tracking-wide">&Delta;O₂Hb</div>
-                        <div id="metric-hbo" class="text-lg font-mono font-extrabold text-rose-500">0.0</div>
+                    <div class="viz-soft-hbo border viz-border-hbo rounded-xl p-2.5 text-center">
+                        <div class="text-[10px] viz-ink-hbo font-bold uppercase tracking-wide">&Delta;O₂Hb</div>
+                        <div id="metric-hbo" class="text-lg font-mono font-extrabold viz-ink-hbo">0.0</div>
                         <div class="text-[9px] text-slate-500">&mu;M * mm</div>
                     </div>
-                    <div class="bg-blue-500/5 border border-blue-500/10 rounded-xl p-2.5 text-center">
-                        <div class="text-[10px] text-blue-400 font-bold uppercase tracking-wide">&Delta;HHb</div>
-                        <div id="metric-hbr" class="text-lg font-mono font-extrabold text-blue-500">0.0</div>
+                    <div class="viz-soft-hbr border viz-border-hbr rounded-xl p-2.5 text-center">
+                        <div class="text-[10px] viz-ink-hbr font-bold uppercase tracking-wide">&Delta;HHb</div>
+                        <div id="metric-hbr" class="text-lg font-mono font-extrabold viz-ink-hbr">0.0</div>
                         <div class="text-[9px] text-slate-500">&mu;M * mm</div>
                     </div>
-                    <div class="bg-purple-500/5 border border-purple-500/10 rounded-xl p-2.5 text-center">
-                        <div class="text-[10px] text-purple-400 font-bold uppercase tracking-wide">&Delta;[HbT]</div>
-                        <div id="metric-hbt" class="text-lg font-mono font-extrabold text-purple-500">0.0</div>
+                    <div class="viz-soft-hbt border viz-border-hbt rounded-xl p-2.5 text-center">
+                        <div class="text-[10px] viz-ink-hbt font-bold uppercase tracking-wide">&Delta;[HbT]</div>
+                        <div id="metric-hbt" class="text-lg font-mono font-extrabold viz-ink-hbt">0.0</div>
                         <div class="text-[9px] text-slate-500">Total Blood Vol</div>
                     </div>
                 </div>
@@ -283,6 +285,28 @@
     <script>
         // Constants & Configuration
         const TWO_PI = Math.PI * 2;
+
+        const ink = {
+            hbo: neuroViz.color('--viz-hbo'),
+            hbr: neuroViz.color('--viz-hbr'),
+            hbt: neuroViz.color('--viz-hbt'),
+            emitter: neuroViz.color('--viz-emitter'),
+            detector: neuroViz.color('--viz-detector'),
+            vessel: neuroViz.color('--viz-vessel'),
+            path: neuroViz.color('--viz-path'),
+            activation: neuroViz.color('--viz-activation'),
+            scalp: neuroViz.color('--viz-scalp'),
+            skull: neuroViz.color('--viz-skull'),
+            csf: neuroViz.color('--viz-csf'),
+            brain: neuroViz.color('--viz-brain'),
+            brainFill: neuroViz.color('--viz-brain-fill'),
+            brainDeep: neuroViz.color('--viz-brain-deep'),
+            brainFold: neuroViz.color('--viz-brain-fold'),
+            hboTrail: neuroViz.withAlpha('--viz-hbo', 0.25),
+            hbrTrail: neuroViz.withAlpha('--viz-hbr', 0.25),
+            hboFill: neuroViz.withAlpha('--viz-hbo', 0.14),
+            hbrFill: neuroViz.withAlpha('--viz-hbr', 0.14)
+        };
         
         // Fixed sensor angle boundaries on scalp circle (Adjusted closer together)
         const emitterAngle = Math.PI * 1.38;   
@@ -386,8 +410,8 @@
                     {
                         label: 'ΔO₂Hb (Oxyhemoglobin)',
                         data: Array(40).fill(0),
-                        borderColor: '#f43f5e',
-                        backgroundColor: 'rgba(244, 63, 94, 0.05)',
+                        borderColor: ink.hbo,
+                        backgroundColor: ink.hboFill,
                         borderWidth: 2.5,
                         pointRadius: 0,
                         tension: 0.3,
@@ -396,8 +420,8 @@
                     {
                         label: 'ΔHHb (Deoxyhemoglobin)',
                         data: Array(40).fill(0),
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        borderColor: ink.hbr,
+                        backgroundColor: ink.hbrFill,
                         borderWidth: 2.5,
                         pointRadius: 0,
                         tension: 0.3,
@@ -405,7 +429,7 @@
                     },
                     {
                         label: 'Δ[HbT] (Total Blood Volume)',
-                        borderColor: '#a855f7',
+                        borderColor: ink.hbt,
                         data: Array(40).fill(0),
                         borderDash: [5, 5],
                         borderWidth: 1.5,
@@ -468,26 +492,26 @@
                     {
                         label: 'O₂Hb (Oxy)',
                         data: [0.15, 0.22, 0.35, 0.55, 0.78, 0.95, 1.05, 1.25, 1.55, 1.95],
-                        borderColor: '#f43f5e',
+                        borderColor: ink.hbo,
                         borderWidth: 2.5,
                         tension: 0.4,
                         pointRadius: (context) => {
                             const val = context.chart.data.labels[context.dataIndex];
                             return (val === 690 || val === 830) ? 6 : 0;
                         },
-                        pointBackgroundColor: '#f43f5e'
+                        pointBackgroundColor: ink.hbo
                     },
                     {
                         label: 'HHb (Deoxy)',
                         data: [1.85, 1.45, 1.15, 0.92, 0.85, 0.95, 1.02, 1.05, 0.98, 0.88],
-                        borderColor: '#3b82f6',
+                        borderColor: ink.hbr,
                         borderWidth: 2.5,
                         tension: 0.4,
                         pointRadius: (context) => {
                             const val = context.chart.data.labels[context.dataIndex];
                             return (val === 690 || val === 830) ? 6 : 0;
                         },
-                        pointBackgroundColor: '#3b82f6'
+                        pointBackgroundColor: ink.hbr
                     }
                 ]
             },
@@ -528,7 +552,7 @@
             if (!state.isActivated) {
                 state.isActivated = true;
                 state.activationTimer = 180; // duration in frames (~3 seconds)
-                activationBadge.className = "px-2 py-0.5 text-[10px] rounded-full border border-rose-500 bg-rose-500/20 text-rose-300 uppercase font-mono tracking-widest animate-pulse";
+                activationBadge.className = "px-2 py-0.5 text-[10px] rounded-full border viz-border-activation viz-soft-activation viz-ink-activation uppercase font-mono tracking-widest animate-pulse";
                 activationBadge.textContent = "ACTIVATED";
                 triggerNeuronSparks();
             }
@@ -746,14 +770,14 @@
                 for (let i = 1; i < this.pathHistory.length; i++) {
                     ctx.lineTo(this.pathHistory[i].x, this.pathHistory[i].y);
                 }
-                ctx.strokeStyle = this.wl === 690 ? 'rgba(59, 130, 246, 0.25)' : 'rgba(244, 63, 94, 0.25)';
+                ctx.strokeStyle = this.wl === 690 ? ink.hbrTrail : ink.hboTrail;
                 ctx.lineWidth = 1.2;
                 ctx.stroke();
 
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.isGuided ? 2.5 : 1.8, 0, TWO_PI);
-                ctx.fillStyle = this.wl === 690 ? '#3b82f6' : '#f43f5e';
-                ctx.shadowColor = this.wl === 690 ? '#3b82f6' : '#f43f5e';
+                ctx.fillStyle = this.wl === 690 ? ink.hbr : ink.hbo;
+                ctx.shadowColor = this.wl === 690 ? ink.hbr : ink.hbo;
                 ctx.shadowBlur = this.isGuided ? 6 : 2;
                 ctx.fill();
                 ctx.shadowBlur = 0; 
@@ -765,8 +789,8 @@
         function drawAnatomicalLayers(geo) {
             ctx.beginPath();
             ctx.arc(geo.centerX, geo.centerY, geo.rBrain, Math.PI, Math.PI * 2);
-            ctx.fillStyle = '#0f1f1a';
-            ctx.strokeStyle = '#244b36';
+            ctx.fillStyle = ink.brainFill;
+            ctx.strokeStyle = ink.brain;
             ctx.lineWidth = 3;
             ctx.fill();
             ctx.stroke();
@@ -782,8 +806,8 @@
                 const wy = geo.centerY + Math.sin(angle) * rWavy;
                 ctx.lineTo(wx, wy);
             }
-            ctx.strokeStyle = '#1d3b2a';
-            ctx.fillStyle = '#0a1411';
+            ctx.strokeStyle = ink.brainFold;
+            ctx.fillStyle = ink.brainDeep;
             ctx.lineWidth = 2;
             ctx.fill();
             ctx.stroke();
@@ -796,19 +820,19 @@
             
             ctx.beginPath();
             ctx.arc(geo.centerX, geo.centerY, (geo.rCsf + geo.rSkull)/2, Math.PI, Math.PI * 2);
-            ctx.strokeStyle = '#5b9fb0';
+            ctx.strokeStyle = ink.csf;
             ctx.lineWidth = 1.5;
             ctx.stroke();
 
             ctx.beginPath();
             ctx.arc(geo.centerX, geo.centerY, geo.rSkull, Math.PI, Math.PI * 2);
-            ctx.strokeStyle = '#dcdcdc';
+            ctx.strokeStyle = ink.skull;
             ctx.lineWidth = 8;
             ctx.stroke();
 
             ctx.beginPath();
             ctx.arc(geo.centerX, geo.centerY, geo.rScalp, Math.PI, Math.PI * 2);
-            ctx.strokeStyle = '#8d5b4c';
+            ctx.strokeStyle = ink.scalp;
             ctx.lineWidth = 10;
             ctx.stroke();
         }
@@ -829,7 +853,7 @@
             
             ctx.lineWidth = 1.5;
             const wallGlowOpacity = 0.2 + state.vascularDrive * 0.4;
-            ctx.strokeStyle = `rgba(244, 63, 94, ${wallGlowOpacity})`;
+            ctx.strokeStyle = neuroViz.alpha(ink.vessel, wallGlowOpacity);
             ctx.beginPath();
             ctx.arc(geo.centerX, geo.centerY, Math.max(0.1, rVessel - wallThickness / 2), startAngle, endAngle);
             ctx.stroke();
@@ -868,11 +892,11 @@
                 ctx.arc(x, y, Math.max(1, wallThickness * 0.15), 0, TWO_PI);
                 
                 if (cell.type === 'O2Hb') {
-                    ctx.fillStyle = '#f43f5e';
-                    ctx.shadowColor = '#f43f5e';
+                    ctx.fillStyle = ink.hbo;
+                    ctx.shadowColor = ink.hbo;
                 } else {
-                    ctx.fillStyle = '#3b82f6';
-                    ctx.shadowColor = '#3b82f6';
+                    ctx.fillStyle = ink.hbr;
+                    ctx.shadowColor = ink.hbr;
                 }
                 ctx.shadowBlur = 6;
                 ctx.fill();
@@ -906,10 +930,10 @@
             ctx.save();
             try {
                 const grad = ctx.createRadialGradient(geo.centerX, geo.centerY - 50, r0, geo.centerX, geo.centerY - 50, r1);
-                grad.addColorStop(0, 'rgba(234, 179, 8, 0.0)');
-                grad.addColorStop(0.7, 'rgba(234, 179, 8, 0.06)');
-                grad.addColorStop(0.85, 'rgba(234, 179, 8, 0.18)'); 
-                grad.addColorStop(1, 'rgba(234, 179, 8, 0.0)');
+                grad.addColorStop(0, neuroViz.alpha(ink.path, 0));
+                grad.addColorStop(0.7, neuroViz.alpha(ink.path, 0.06));
+                grad.addColorStop(0.85, neuroViz.alpha(ink.path, 0.18));
+                grad.addColorStop(1, neuroViz.alpha(ink.path, 0));
 
                 ctx.beginPath();
                 ctx.arc(geo.centerX, geo.centerY, Math.max(0.1, geo.rScalp - 5), emitterAngle, detectorAngle);
@@ -928,10 +952,10 @@
             const ctrlY = (geo.emitterY + geo.detectorY) / 2 + (geo.rScalp - geo.rBrain) * 3.2;
             ctx.quadraticCurveTo(ctrlX, ctrlY, geo.detectorX, geo.detectorY);
             
-            ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+            ctx.strokeStyle = neuroViz.alpha(ink.path, 0.85);
             ctx.lineWidth = 2.5;
             ctx.setLineDash([6, 6]);
-            ctx.shadowColor = 'rgba(251, 191, 36, 0.6)';
+            ctx.shadowColor = neuroViz.alpha(ink.path, 0.6);
             ctx.shadowBlur = 6;
             ctx.stroke();
 
@@ -974,8 +998,8 @@
                 } else {
                     ctx.beginPath();
                     ctx.arc(s.x, s.y, s.size, 0, TWO_PI);
-                    ctx.fillStyle = `rgba(251, 191, 36, ${s.alpha})`;
-                    ctx.shadowColor = '#fbbf24';
+                    ctx.fillStyle = neuroViz.alpha(ink.activation, s.alpha);
+                    ctx.shadowColor = ink.activation;
                     ctx.shadowBlur = 8;
                     ctx.fill();
                     ctx.shadowBlur = 0;
@@ -985,14 +1009,14 @@
             ctx.save();
             ctx.translate(geo.emitterX, geo.emitterY);
             ctx.rotate(emitterAngle + Math.PI / 2);
-            ctx.fillStyle = '#f43f5e';
+            ctx.fillStyle = ink.emitter;
             ctx.fillRect(-10, -3, 20, 6);
             ctx.fillStyle = '#1e293b';
             ctx.fillRect(-6, -15, 12, 12);
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
             ctx.lineWidth = 1;
             ctx.strokeRect(-6, -15, 12, 12);
-            ctx.strokeStyle = '#f43f5e';
+            ctx.strokeStyle = ink.emitter;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(0, -15);
@@ -1003,14 +1027,14 @@
             ctx.save();
             ctx.translate(geo.detectorX, geo.detectorY);
             ctx.rotate(detectorAngle + Math.PI / 2);
-            ctx.fillStyle = '#22d3ee';
+            ctx.fillStyle = ink.detector;
             ctx.fillRect(-10, -3, 20, 6);
             ctx.fillStyle = '#1e293b';
             ctx.fillRect(-6, -15, 12, 12);
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
             ctx.lineWidth = 1;
             ctx.strokeRect(-6, -15, 12, 12);
-            ctx.strokeStyle = '#22d3ee';
+            ctx.strokeStyle = ink.detector;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(0, -15);
@@ -1020,7 +1044,7 @@
             if (detectorFlash > 0) {
                 ctx.beginPath();
                 ctx.arc(0, 0, detectorFlash * 2.5, 0, TWO_PI);
-                ctx.strokeStyle = `rgba(34, 211, 238, ${detectorFlash / 8})`;
+                ctx.strokeStyle = neuroViz.alpha(ink.detector, detectorFlash / 8);
                 ctx.lineWidth = 2;
                 ctx.stroke();
                 detectorFlash--;
