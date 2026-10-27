@@ -7,6 +7,7 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     
     <!-- D3.js for Visualizations -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -18,15 +19,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        
         .slider {
             -webkit-appearance: none; width: 100%; height: 6px; border-radius: 5px; background: #e2e8f0; outline: none;
         }
         .slider::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; transition: background .15s ease-in-out;
+            -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #000000; cursor: pointer; border: 1px solid #000000;
         }
-        .slider::-webkit-slider-thumb:hover { background: #2563eb; }
+        .slider::-webkit-slider-thumb:hover { background: #ffffff; }
 
         /* SVG Element Styles */
         .data-point { fill-opacity: 0.8; stroke-width: 1.5; cursor: pointer; }
@@ -34,7 +33,7 @@
         .grand-mean-line { stroke: #0f172a; stroke-width: 5; stroke-dasharray: 6; cursor: pointer; }
         .deviation-line { stroke-width: 2; stroke-opacity: 0.6; }
         
-        .custom-checkbox { accent-color: #3b82f6; width: 1.1rem; height: 1.1rem; cursor: pointer; flex-shrink: 0; }
+        .custom-checkbox { accent-color: #000000; width: 1.1rem; height: 1.1rem; cursor: pointer; flex-shrink: 0; }
         
         /* Custom scrollbar for small horizontal overflow areas */
         .scroll-hide::-webkit-scrollbar { display: none; }
@@ -58,18 +57,23 @@
         }
     </style>
 </head>
-<body class="antialiased min-h-screen pb-20">
+<body class="demo-page antialiased min-h-screen pb-20">
 
-    <header class="bg-white shadow-sm border-b border-slate-200 py-6 mb-8 sticky top-0 z-40">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-2xl font-bold text-slate-900">From T-Test to ANOVA: Partitioning Variation</h1>
-            <p class="mt-1 text-slate-600">Relationship between difference and variance</p>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+        </div>
+    </div>
+    <header class="demo-header mx-4 sm:mx-6 lg:mx-auto max-w-6xl mb-8">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold">From T-Test to ANOVA: Partitioning Variation</h1>
+            <p class="mt-1">Relationship between difference and variance</p>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
-        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <section class="demo-card demo-prose p-6">
             <p class="text-slate-700 leading-relaxed">
                 The independent t-test is typically conceptualized as evaluating the mean difference between two groups relative to the Standard Error (SE), asking the fundamental question: <strong>"Is there a difference in scores between the groups?"</strong> However, it can also be understood by partitioning the <strong>Total Variation</strong> in all scores into two distinct pieces. This conceptually shifts our question to: <strong>"Does knowing group membership tell us about the variation in scores?"</strong>
             </p>
@@ -86,11 +90,11 @@
         </section>
 
         <!-- Visualization Space -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="demo-card overflow-hidden">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-0">
                 
                 <!-- Controls Sidebar (Takes 1 of 4 columns) -->
-                <div class="p-6 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-200 space-y-5 lg:col-span-1">
+                <div class="p-6 demo-panel border-b lg:border-b-0 lg:border-r border-black space-y-5 lg:col-span-1">
                     <h3 class="font-semibold text-slate-800 border-b pb-2">Adjust Data</h3>
                     
                     <div>
@@ -325,7 +329,7 @@
         </div>
 
         <!-- The Core Lesson -->
-        <div class="bg-slate-800 rounded-xl shadow-sm p-8 text-center text-white relative overflow-hidden mt-4">
+        <div class="demo-header mt-4 text-center">
             <h2 class="text-2xl font-bold mb-4">Linear vs Squared</h2>
             <p class="text-slate-300 max-w-4xl mx-auto text-lg mb-6 leading-relaxed">
                 The core difference between a T-Test and ANOVA is a simple shift in scale. A T-Test compares <strong>linear units</strong> (raw mean differences), while ANOVA compares <strong>squared units</strong> (variances). Because they measure the exact same underlying reality, calculating the ratio of Signal to Noise using either method yields the exact same statistical truth!

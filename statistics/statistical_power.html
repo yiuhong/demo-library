@@ -5,18 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sampling Distributions of the Sample Mean (under $H_0$ and $H_1$)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.6/jstat.min.js"></script>
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f8fafc;
-        color: #1e293b;
-    }
-
-        .chart-container {
+    .chart-container {
             position: relative;
             width: 100%;
             height: 520px;
@@ -51,31 +44,34 @@
 
         .toggle-checkbox:checked {
             right: 0;
-            border-color: #4f46e5;
+            border-color: #000000;
         }
         .toggle-checkbox:checked + .toggle-label {
-            background-color: #4f46e5;
+            background-color: #000000;
         }
     </style>
 </head>
-<body class="p-6 md:p-10 max-w-6xl mx-auto">
-    <!-- Floating Fullscreen Button -->
-    <button id="fullscreen-btn" class="fixed top-4 right-4 md:top-6 md:right-6 z-50 bg-slate-800 hover:bg-slate-700 text-white p-2 md:px-4 md:py-2 rounded-lg shadow-lg flex items-center gap-2 transition-colors duration-200" title="Toggle Fullscreen">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"/>
-        </svg>
-        <span class="hidden sm:inline font-medium text-sm">Fullscreen</span>
-    </button>
+<body class="demo-page p-6 md:p-10">
+    <div class="max-w-6xl mx-auto w-full">
+    <div class="demo-topbar">
+        <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+        <button id="fullscreen-btn" class="demo-btn demo-btn-primary" type="button" title="Toggle Fullscreen">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"/>
+            </svg>
+            <span class="hidden sm:inline font-medium text-sm">Fullscreen</span>
+        </button>
+    </div>
 
-    <header class="mb-8 text-center md:text-left">
-        <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Understanding Statistical Power</h1>
-        <p class="text-slate-600 max-w-3xl">Interact with the parameters below to see how they affect the distributions of the Null (H₀) and Alternative (H₁) hypotheses.</p>
+    <header class="demo-header mb-6">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2">Understanding Statistical Power</h1>
+        <p class="max-w-3xl">Interact with the parameters below to see how they affect the distributions of the Null (H₀) and Alternative (H₁) hypotheses.</p>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         <!-- Controls Panel -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-6 h-fit">
+        <div class="demo-card p-6 flex flex-col gap-6 h-fit">
             <h2 class="text-xl font-semibold text-slate-800 border-b pb-2">Parameters</h2>
             
             <!-- Significance Level (Alpha) -->
@@ -198,7 +194,7 @@
         <div class="lg:col-span-2 flex flex-col gap-6">
             
             <!-- Visualization -->
-            <div id="chart-wrapper" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative">
+            <div id="chart-wrapper" class="demo-card p-6 relative">
                 <div class="flex flex-wrap justify-between items-center mb-4 gap-2 pr-12">
                     <h2 class="text-xl font-semibold text-slate-800">Sampling Distributions of the Sample Mean</h2>
                     <!-- Legend -->
@@ -762,5 +758,6 @@
         // Initial Chart Render
         updateChart();
     </script>
+    </div>
 </body>
 </html>

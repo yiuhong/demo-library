@@ -15,16 +15,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css">
   <style>
     :root {
-      --bg-app: #f8fafc;
+      --bg-app: #f6f6f6;
       --bg-card: #ffffff;
-      --bg-subtle: #f1f5f9;
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --text-light: #64748b;
-      --border: #e2e8f0;
-      --border-focus: #cbd5e1;
+      --bg-subtle: #f6f6f6;
+      --text-main: #000000;
+      --text-muted: #1a1a1a;
+      --text-light: #333333;
+      --border: #000000;
+      --border-focus: #000000;
 
       /* Semantic Variance Colors */
       --col-total: #475569;
@@ -39,26 +40,25 @@
       --col-diff: #7c3aed;
       --col-diff-bg: #f5f3ff;
 
-      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
-      --radius: 12px;
+      --shadow-sm: none;
+      --shadow-md: none;
+      --radius: 4px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background-color: var(--bg-app); color: var(--text-main); line-height: 1.5; padding-bottom: 3rem; }
+    body { font-family: var(--demo-font, Arial, Helvetica, sans-serif); background-color: var(--bg-app); color: var(--text-main); line-height: 1.5; padding-bottom: 3rem; }
 
-    /* Header & Mode Navigation */
-    header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
+    header { background: #000000; color: #ffffff; border-bottom: 1px solid #000000; padding: 1rem 1.5rem; position: sticky; top: 0; z-index: 100; box-shadow: none; }
     .header-container { max-width: 1520px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; }
-    .title-group h1 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-main); }
-    .title-group p { font-size: 0.82rem; color: var(--text-muted); }
+    .title-group h1 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; color: #ffffff; }
+    .title-group p { font-size: 0.82rem; color: #ffffff; }
 
-    .mode-switcher { display: inline-flex; background: var(--bg-subtle); padding: 0.25rem; border-radius: 10px; border: 1px solid var(--border); gap: 0.25rem; }
-    .mode-btn { border: none; background: transparent; padding: 0.5rem 0.9rem; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); border-radius: 7px; cursor: pointer; transition: all 0.18s ease; font-family: inherit; display: flex; align-items: center; gap: 0.4rem; }
-    .mode-btn:hover { color: var(--text-main); }
-    .mode-btn.active { background: var(--bg-card); color: var(--col-between); box-shadow: var(--shadow-sm); }
-    .mode-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; padding: 0.1rem 0.35rem; border-radius: 4px; background: #e2e8f0; color: #334155; }
-    .mode-btn.active .mode-badge { background: var(--col-Between-bg); color: var(--col-between); }
+    .mode-switcher { display: inline-flex; background: #ffffff; padding: 0.25rem; border-radius: 4px; border: 1px solid #ffffff; gap: 0.25rem; }
+    .mode-btn { border: 1px solid transparent; background: transparent; padding: 0.5rem 0.9rem; font-size: 0.82rem; font-weight: 700; color: #000000; border-radius: 3em; cursor: pointer; transition: all 0.18s ease; font-family: inherit; display: flex; align-items: center; gap: 0.4rem; }
+    .mode-btn:hover { color: #000000; background: #f6f6f6; }
+    .mode-btn.active { background: #000000; color: #ffffff; box-shadow: none; border-color: #ffffff; }
+    .mode-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; padding: 0.1rem 0.35rem; border-radius: 4px; background: #e2e8f0; color: #000000; }
+    .mode-btn.active .mode-badge { background: #ffffff; color: #000000; }
 
     /* Main Container */
     .main-container { max-width: 1520px; margin: 1.25rem auto; padding: 0 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
@@ -170,6 +170,7 @@
 <header>
   <div class="header-container">
     <div class="title-group">
+      <a class="demo-back" href="../index.html" style="margin-bottom:0.65rem">← Teaching Materials Library</a>
       <h1>From Paired <em>t</em>-Test to Repeated-Measures ANOVA</h1>
       <p>How Cross-Timepoint Correlation ($r$) &amp; Subject Variance ($SS_{\text{Subjects}}$) Partition Out Noise to Boost Statistical Power</p>
     </div>

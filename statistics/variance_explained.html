@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Variance Explained</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
+            font-family: var(--demo-font, Arial, Helvetica, sans-serif);
+            background-color: var(--demo-bg, #f6f6f6);
+            color: var(--demo-text, #000);
             margin: 0;
             padding: 0;
             display: flex;
@@ -95,13 +96,13 @@
 
         .tooltip {
             position: absolute;
-            background-color: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.375rem;
+            background-color: var(--demo-card);
+            border: 1px solid var(--demo-border);
+            border-radius: var(--demo-radius);
             padding: 0.5rem;
             font-size: 0.875rem;
-            color: #334155;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: var(--demo-text);
+            box-shadow: none;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
@@ -109,14 +110,19 @@
         }
     </style>
 </head>
-<body>
+<body class="demo-page">
     <div id="tooltip" class="tooltip"></div>
 
     <div class="container flex flex-col items-center">
+        <div class="demo-topbar w-full">
+            <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+        </div>
         
         <div class="text-center mb-8 w-full">
-            <h1 class="text-4xl font-bold text-slate-800 mb-4">Variance Explained (Variation Explained)</h1>
-            <p class="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            <header class="demo-header mb-6">
+                <h1 class="text-4xl font-bold">Variance Explained (Variation Explained)</h1>
+            </header>
+            <p class="text-lg max-w-3xl mx-auto leading-relaxed">
                 Adjust the relationship between X and Y using the slider. 
                 Notice how as the effect strengthens, the data points cluster tighter around the prediction lines, 
                 increasing the proportion of <strong class="text-blue-600 whitespace-nowrap">Variance Explained (<i>R</i>&sup2; or <i>&eta;</i>&sup2;)</strong>.
@@ -128,14 +134,14 @@
             </p>
             
             <div class="flex justify-center mt-6">
-                <div class="bg-slate-100 p-1 rounded-lg inline-flex">
-                    <button id="btn-continuous" class="px-4 py-2 rounded-md bg-white shadow-sm text-sm font-medium text-slate-800 transition-all">Continuous X (Regression)</button>
-                    <button id="btn-categorical" class="px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-slate-800 transition-all">Categorical X (ANOVA)</button>
+                <div class="demo-chip-group">
+                    <button id="btn-continuous" class="demo-chip is-active" type="button">Continuous X (Regression)</button>
+                    <button id="btn-categorical" class="demo-chip" type="button">Categorical X (ANOVA)</button>
                 </div>
             </div>
         </div>
 
-        <div class="w-full max-w-2xl bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+        <div class="w-full max-w-2xl demo-card p-6 mb-8">
             <div class="slider-container relative pt-1">
                 <div class="flex justify-between items-center mb-4">
                     <label for="variance-slider" class="form-label text-slate-700 font-semibold text-lg">
@@ -174,12 +180,12 @@
 
         <div class="flex flex-col lg:flex-row gap-8 w-full justify-center items-start">
             
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 w-full lg:w-1/2">
+            <div class="demo-card p-6 w-full lg:w-1/2">
                 <h2 class="text-xl font-semibold mb-4 text-center text-slate-700">Scatterplot</h2>
                 <div id="scatterplot" class="w-full relative"></div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 w-full lg:w-1/2 flex flex-col h-full">
+            <div class="demo-card p-6 w-full lg:w-1/2 flex flex-col h-full">
                 
                 <div class="text-center mb-4">
                     <h2 id="title-proportion" class="text-xl font-semibold text-slate-700">Proportion Explained (<i>R</i>&sup2;)</h2>
@@ -765,8 +771,8 @@
             if (!isCategorical) return;
             isCategorical = false;
             
-            btnContinuous.className = "px-4 py-2 rounded-md bg-white shadow-sm text-sm font-medium text-slate-800 transition-all";
-            btnCategorical.className = "px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-slate-800 transition-all";
+            btnContinuous.className = "demo-chip is-active";
+            btnCategorical.className = "demo-chip";
             
             document.getElementById('slider-label').innerHTML = "Variance Explained (<i>R</i>&sup2;)";
             document.getElementById('direction-toggle').style.display = "flex";
@@ -797,8 +803,8 @@
             if (isCategorical) return;
             isCategorical = true;
             
-            btnCategorical.className = "px-4 py-2 rounded-md bg-white shadow-sm text-sm font-medium text-slate-800 transition-all";
-            btnContinuous.className = "px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-slate-800 transition-all";
+            btnCategorical.className = "demo-chip is-active";
+            btnContinuous.className = "demo-chip";
             
             document.getElementById('slider-label').innerHTML = "Variance Explained (<i>&eta;</i>&sup2;)";
             document.getElementById('direction-toggle').style.display = "none";

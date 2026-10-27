@@ -5,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skewed Distribution vs Normal Distribution</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-        }
         .chart-container {
             position: relative;
             width: 100%;
@@ -80,30 +76,30 @@
         }
     </style>
 </head>
-<body class="p-4 md:p-8 flex flex-col items-center">
+<body class="demo-page p-4 md:p-8 flex flex-col items-center">
 
-    <!-- Floating Fullscreen Button -->
-    <button id="fullscreen-btn" class="fixed top-4 right-4 md:top-6 md:right-6 z-50 bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-colors text-sm font-medium">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-        </svg>
-        <span class="hidden sm:inline">Fullscreen</span>
-    </button>
-
-    <!-- Interactive Hover Tooltip -->
     <div id="cursor-tooltip" class="chart-tooltip"></div>
 
     <div class="max-w-6xl w-full">
-        <header class="mb-8 text-center md:text-left">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+            <button id="fullscreen-btn" class="demo-btn demo-btn-primary" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                </svg>
+                <span class="hidden sm:inline">Fullscreen</span>
+            </button>
+        </div>
+        <header class="demo-header mb-6">
             <h1 class="text-3xl font-bold mb-2">Skewed vs. Normal Distribution</h1>
-            <p class="text-slate-600 max-w-3xl">
+            <p class="max-w-3xl">
                 Explore how a skewed distribution deviates from a theoretical normal distribution. 
                 Adjust the skewness parameter to see the effect on the density curves and the Quantile-Quantile (Q-Q) plot.
                 Toggle between Raw Scores and Standardized Scores (Mean=0, Variance=1) to see how standardization aligns the shapes.
             </p>
         </header>
 
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
+        <div class="demo-card p-6 mb-8">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
                 <div class="flex items-center gap-4 w-full md:w-1/2">
                     <label for="skew-slider" class="font-semibold whitespace-nowrap">Skewness (&alpha;):</label>
@@ -135,7 +131,7 @@
         </div>
 
         <!-- BOXPLOT PANEL -->
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-8 flex flex-col">
+        <div class="demo-card p-4 mb-8 flex flex-col">
             <h2 class="text-lg font-semibold mb-1 text-center">Boxplots (Normal vs. Skewed)</h2>
             <p class="text-xs text-slate-500 text-center mb-2">
                 Compare the medians (center lines), Interquartile Ranges (boxes), and <span class="font-bold text-slate-700">Outliers (circles)</span>. 
@@ -147,7 +143,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             <!-- Density Plot Panel -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+            <div class="demo-card p-4 flex flex-col">
                 <h2 class="text-lg font-semibold mb-1 text-center">1. Density Curves</h2>
                 <p class="text-xs text-slate-500 text-center mb-4">
                     Regions in <span class="font-bold text-red-500">Red</span> show where skewed concentration is higher than normal.
@@ -156,7 +152,7 @@
             </div>
 
             <!-- CDF Plot Panel -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+            <div class="demo-card p-4 flex flex-col">
                 <h2 class="text-lg font-semibold mb-1 text-center">2. Cumulative (CDF)</h2>
                 <p class="text-xs text-slate-500 text-center mb-4">
                     The horizontal gap between the curves reveals the exact difference in values at any given percentile.
@@ -165,7 +161,7 @@
             </div>
 
             <!-- Q-Q Plot Panel -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+            <div class="demo-card p-4 flex flex-col">
                 <h2 class="text-lg font-semibold mb-1 text-center">3. Q-Q Plot</h2>
                 <p class="text-xs text-slate-500 text-center mb-4">
                     Plots the exact horizontal gaps from the CDF. Points in <span class="font-bold text-red-500">Red</span> indicate Skewed > Normal.
