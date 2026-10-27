@@ -6,6 +6,8 @@
     <title>Interactive EEG Signal Decomposition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/neuroscience-demo-theme.css">
+    <link rel="stylesheet" href="../assets/neuroscience-viz-theme.css">
+    <script src="../assets/neuroscience-viz-theme.js"></script>
     <style>
         canvas { display: block; width: 100%; border-radius: var(--demo-radius-sm); background-color: var(--demo-plot); }
         .slider-thumb::-webkit-slider-thumb {
@@ -16,11 +18,23 @@
             border-radius: 50%;
             cursor: pointer;
         }
-        .slider-delta::-webkit-slider-thumb { background: #3b82f6; }
-        .slider-theta::-webkit-slider-thumb { background: #06b6d4; }
-        .slider-alpha::-webkit-slider-thumb { background: #10b981; }
-        .slider-beta::-webkit-slider-thumb { background: #f59e0b; }
-        .slider-gamma::-webkit-slider-thumb { background: #ef4444; }
+        .slider-thumb::-moz-range-thumb {
+            border: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .slider-delta::-webkit-slider-thumb { background: var(--viz-delta); }
+        .slider-delta::-moz-range-thumb { background: var(--viz-delta); }
+        .slider-theta::-webkit-slider-thumb { background: var(--viz-theta); }
+        .slider-theta::-moz-range-thumb { background: var(--viz-theta); }
+        .slider-alpha::-webkit-slider-thumb { background: var(--viz-alpha); }
+        .slider-alpha::-moz-range-thumb { background: var(--viz-alpha); }
+        .slider-beta::-webkit-slider-thumb { background: var(--viz-beta); }
+        .slider-beta::-moz-range-thumb { background: var(--viz-beta); }
+        .slider-gamma::-webkit-slider-thumb { background: var(--viz-gamma); }
+        .slider-gamma::-moz-range-thumb { background: var(--viz-gamma); }
     </style>
 </head>
 <body class="demo-page h-screen flex flex-col md:flex-row overflow-hidden">
@@ -86,11 +100,11 @@
     <script>
         // Constants & Configuration based on Table I
         const BANDS = [
-            { id: 'delta', name: 'Delta', freq: 2, range: '0.3 - 4 Hz', trait: 'Deep sleep', color: '#3b82f6', defaultAmp: 0.8 },
-            { id: 'theta', name: 'Theta', freq: 6, range: '4 - 8 Hz', trait: 'Deep Meditation', color: '#06b6d4', defaultAmp: 0.4 },
-            { id: 'alpha', name: 'Alpha', freq: 10, range: '8 - 13 Hz', trait: 'Eyes closed, awake', color: '#10b981', defaultAmp: 0.6 },
-            { id: 'beta',  name: 'Beta',  freq: 20, range: '13 - 30 Hz', trait: 'Eyes opened, thinking', color: '#f59e0b', defaultAmp: 0.3 },
-            { id: 'gamma', name: 'Gamma', freq: 40, range: '30+ Hz', trait: 'Unifying consciousness', color: '#ef4444', defaultAmp: 0.1 }
+            { id: 'delta', name: 'Delta', freq: 2, range: '0.3 - 4 Hz', trait: 'Deep sleep', token: '--viz-delta', defaultAmp: 0.8 },
+            { id: 'theta', name: 'Theta', freq: 6, range: '4 - 8 Hz', trait: 'Deep Meditation', token: '--viz-theta', defaultAmp: 0.4 },
+            { id: 'alpha', name: 'Alpha', freq: 10, range: '8 - 13 Hz', trait: 'Eyes closed, awake', token: '--viz-alpha', defaultAmp: 0.6 },
+            { id: 'beta',  name: 'Beta',  freq: 20, range: '13 - 30 Hz', trait: 'Eyes opened, thinking', token: '--viz-beta', defaultAmp: 0.3 },
+            { id: 'gamma', name: 'Gamma', freq: 40, range: '30+ Hz', trait: 'Unifying consciousness', token: '--viz-gamma', defaultAmp: 0.1 }
         ];
 
         // State
@@ -114,10 +128,10 @@
             BANDS.forEach(band => {
                 // 1. Create Control Sliders with real-time Amplitude and Power readouts
                 const controlHtml = `
-                    <div class="demo-inset rounded-lg p-3 border-l-4" style="border-color: ${band.color}">
+                    <div class="demo-inset rounded-lg p-3 border-l-4" style="border-color: var(${band.token})">
                         <div class="flex justify-between items-start mb-1">
                             <div>
-                                <span class="font-bold text-slate-100">${band.name}</span>
+                                <span class="font-bold" style="color: var(${band.token})">${band.name}</span>
                                 <span class="text-xs text-slate-400 ml-1">(${band.range})</span>
                             </div>
                             <div class="flex flex-col items-end text-right">
@@ -146,7 +160,7 @@
                 const canvasHtml = `
                     <div class="flex-grow relative min-h-[60px]">
                         <canvas id="canvas-${band.id}" class="absolute inset-0 w-full h-full border border-slate-700/50"></canvas>
-                        <div class="absolute top-1 left-2 text-xs font-semibold px-2 py-0.5 rounded bg-slate-900/80 backdrop-blur-sm" style="color: ${band.color}">${band.name}</div>
+                        <div class="absolute top-1 left-2 text-xs font-semibold px-2 py-0.5 rounded bg-slate-900/80 backdrop-blur-sm" style="color: var(${band.token})">${band.name}</div>
                     </div>
                 `;
                 decomposedDiv.insertAdjacentHTML('beforeend', canvasHtml);
@@ -260,8 +274,8 @@
 
                 // Gradient for bar
                 const gradient = ctx.createLinearGradient(0, y, 0, height - 20);
-                gradient.addColorStop(0, band.color);
-                gradient.addColorStop(1, `${band.color}33`); // 20% opacity
+                gradient.addColorStop(0, neuroViz.color(band.token));
+                gradient.addColorStop(1, neuroViz.withAlpha(band.token, 0.2));
 
                 ctx.fillStyle = gradient;
                 // Add border radius effect to top of bar (with compatibility fallback)
@@ -317,11 +331,11 @@
             const rawCanvas = document.getElementById('rawCanvas');
             const powerCanvas = document.getElementById('powerCanvas');
             
-            drawWaveform(rawCanvas.getContext('2d'), rawCanvas.parentElement.clientWidth, rawCanvas.parentElement.clientHeight, signalHistories.raw, '#f8fafc', 2);
+            drawWaveform(rawCanvas.getContext('2d'), rawCanvas.parentElement.clientWidth, rawCanvas.parentElement.clientHeight, signalHistories.raw, neuroViz.color('--viz-raw'), 2);
             
             BANDS.forEach(band => {
                 const bCanvas = document.getElementById(`canvas-${band.id}`);
-                drawWaveform(bCanvas.getContext('2d'), bCanvas.parentElement.clientWidth, bCanvas.parentElement.clientHeight, signalHistories[band.id], band.color, 1.5);
+                drawWaveform(bCanvas.getContext('2d'), bCanvas.parentElement.clientWidth, bCanvas.parentElement.clientHeight, signalHistories[band.id], neuroViz.color(band.token), 1.5);
             });
 
             drawPowerSpectrum(powerCanvas.getContext('2d'), powerCanvas.parentElement.clientWidth, powerCanvas.parentElement.clientHeight);

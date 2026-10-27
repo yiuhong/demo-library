@@ -7,6 +7,8 @@
     <!-- Tailwind CSS for modern, premium scientific UI -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/neuroscience-demo-theme.css">
+    <link rel="stylesheet" href="../assets/neuroscience-viz-theme.css">
+    <script src="../assets/neuroscience-viz-theme.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -94,9 +96,9 @@
                     <div class="flex justify-between items-center text-[10px] text-slate-500 mb-2">
                         <span>$\text{Amplitude } (\mu\text{V})$</span>
                         <div class="flex items-center gap-3">
-                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-slate-600 inline-block"></span> Individual Trials (Noise)</span>
-                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-indigo-500 inline-block"></span> Running Average</span>
-                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 border-t border-dashed border-emerald-400 inline-block"></span> True Target ERP</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 viz-bg-trial inline-block"></span> Individual Trials (Noise)</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 viz-bg-average inline-block"></span> Running Average</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 border-t border-dashed viz-border-true-erp inline-block"></span> True Target ERP</span>
                         </div>
                     </div>
                     
@@ -137,18 +139,18 @@
                         
                         <div>
                             <div class="flex justify-between mb-1 text-slate-400">
-                                <label for="slider-noise" class="flex items-center gap-1"><i data-lucide="radio" class="w-3.5 h-3.5 text-slate-500"></i> Noise Amplitude (Background EEG):</label>
-                                <span id="val-noise" class="text-indigo-400 font-mono">20 µV</span>
+                                <label for="slider-noise" class="flex items-center gap-1"><i data-lucide="radio" class="w-3.5 h-3.5 viz-ink-trial"></i> Noise Amplitude (Background EEG):</label>
+                                <span id="val-noise" class="viz-ink-trial font-mono">20 µV</span>
                             </div>
-                            <input type="range" id="slider-noise" min="5" max="40" value="20" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                            <input type="range" id="slider-noise" min="5" max="40" value="20" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer viz-accent-trial">
                         </div>
 
                         <div>
                             <div class="flex justify-between mb-1 text-slate-400">
-                                <label for="slider-signal" class="flex items-center gap-1"><i data-lucide="waveform" class="w-3.5 h-3.5 text-emerald-500"></i> Signal Amplitude (True ERP):</label>
-                                <span id="val-signal" class="text-emerald-400 font-mono">5 µV</span>
+                                <label for="slider-signal" class="flex items-center gap-1"><i data-lucide="waveform" class="w-3.5 h-3.5 viz-ink-true-erp"></i> Signal Amplitude (True ERP):</label>
+                                <span id="val-signal" class="viz-ink-true-erp font-mono">5 µV</span>
                             </div>
-                            <input type="range" id="slider-signal" min="1" max="20" value="5" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                            <input type="range" id="slider-signal" min="1" max="20" value="5" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer viz-accent-true-erp">
                         </div>
                     </div>
                 </div>
@@ -162,12 +164,12 @@
                     </div>
                     <div class="demo-panel p-3 flex flex-col">
                         <span class="text-[10px] text-slate-500 uppercase tracking-wider">Noise Reduction Factor</span>
-                        <span class="text-sm font-semibold text-indigo-400 mt-1" id="noise-reduction">1.00x</span>
+                        <span class="text-sm font-semibold viz-ink-average mt-1" id="noise-reduction">1.00x</span>
                         <span class="text-[9px] text-slate-500 mt-0.5">Proportional to $1 / \sqrt{N}$</span>
                     </div>
                     <div class="demo-panel p-3 flex flex-col">
                         <span class="text-[10px] text-slate-500 uppercase tracking-wider">Estimated Post-Average SNR</span>
-                        <span class="text-sm font-semibold text-emerald-400 mt-1" id="avg-snr">0.25</span>
+                        <span class="text-sm font-semibold viz-ink-quality-low mt-1" id="avg-snr">0.25</span>
                         <span class="text-[9px] text-slate-500 mt-0.5">$\text{SNR}_{\text{post}} = \text{SNR}_{\text{raw}} \cdot \sqrt{N}$</span>
                     </div>
                 </div>
@@ -177,7 +179,7 @@
             <div class="demo-card p-5 flex flex-col gap-3">
                 <div class="flex justify-between items-center">
                     <h3 class="demo-kicker text-xs flex items-center gap-1.5">
-                        <i data-lucide="pulse" class="w-4 h-4 text-rose-500"></i> Ongoing EEG Recorder Timeline
+                        <i data-lucide="pulse" class="w-4 h-4 viz-ink-stimulus"></i> Ongoing EEG Recorder Timeline
                     </h3>
                     <span class="text-[10px] text-emerald-400 flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Streaming Channel #64</span>
                 </div>
@@ -225,11 +227,11 @@
                         <svg viewBox="0 0 500 240" class="w-full h-auto mt-2 select-none" id="anatomy-svg">
                             <!-- Background Axis Lines -->
                             <line x1="10" y1="120" x2="490" y2="120" stroke="#1e293b" stroke-width="1.5" /> <!-- Baseline -->
-                            <line x1="70" y1="15" x2="70" y2="225" stroke="#1e293b" stroke-width="1.5" stroke-dasharray="2,2"/> <!-- Stimulus Onset -->
+                            <line x1="70" y1="15" x2="70" y2="225" class="viz-stroke-stimulus" stroke-width="1.5" stroke-dasharray="2,2"/> <!-- Stimulus Onset -->
                             
                             <!-- X Axis Arrows and Markers -->
                             <path d="M 490 120 L 485 116 M 490 120 L 485 124" stroke="#475569" stroke-width="1.5" />
-                            <text x="75" y="235" fill="#64748b" font-size="9" font-family="sans-serif">Stimulus Onset</text>
+                            <text x="75" y="235" class="viz-fill-stimulus" font-size="9" font-family="sans-serif">Stimulus Onset</text>
                             <text x="450" y="112" fill="#64748b" font-size="9" font-family="sans-serif">600 ms</text>
                             
                             <!-- Classical Cortical ERP Components (P1, N1, P2, N2, P3) -->
@@ -242,42 +244,42 @@
                                      C 250 160, 255 100, 270 100 
                                      C 290 100, 310 190, 350 190 
                                      C 420 190, 450 120, 490 120" 
-                                  fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                  fill="none" class="viz-stroke-erp-wave" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
 
                             <!-- Interactive Component Hotspots/Points -->
                             <!-- 1. Cortical P1 -->
                             <g class="cursor-pointer group select-all" onclick="selectComponent('p1')" transform="translate(110, 140)">
-                                <circle r="6" fill="#f59e0b" class="animate-pulse opacity-60 group-hover:opacity-100 transition" />
-                                <circle r="3.5" fill="#f59e0b" />
-                                <text y="15" text-anchor="middle" class="fill-amber-400 font-bold text-[9px]">P1</text>
+                                <circle r="6" class="viz-fill-erp-p1 animate-pulse opacity-60 group-hover:opacity-100 transition" />
+                                <circle r="3.5" class="viz-fill-erp-p1" />
+                                <text y="15" text-anchor="middle" class="viz-fill-erp-p1 font-bold text-[9px]">P1</text>
                             </g>
 
                             <!-- 2. Cortical N1 -->
                             <g class="cursor-pointer group" onclick="selectComponent('n1')" transform="translate(150, 70)">
-                                <circle r="6" fill="#10b981" class="opacity-0 group-hover:opacity-100 transition" />
-                                <circle r="3.5" fill="#10b981" />
-                                <text y="-10" text-anchor="middle" class="fill-emerald-400 font-bold text-[9px]">N1</text>
+                                <circle r="6" class="viz-fill-erp-n1 opacity-0 group-hover:opacity-100 transition" />
+                                <circle r="3.5" class="viz-fill-erp-n1" />
+                                <text y="-10" text-anchor="middle" class="viz-fill-erp-n1 font-bold text-[9px]">N1</text>
                             </g>
 
                             <!-- 3. Cortical P2 -->
                             <g class="cursor-pointer group" onclick="selectComponent('p2')" transform="translate(230, 160)">
-                                <circle r="6" fill="#10b981" class="opacity-0 group-hover:opacity-100 transition" />
-                                <circle r="3.5" fill="#10b981" />
-                                <text y="15" text-anchor="middle" class="fill-emerald-400 font-bold text-[9px]">P2</text>
+                                <circle r="6" class="viz-fill-erp-p2 opacity-0 group-hover:opacity-100 transition" />
+                                <circle r="3.5" class="viz-fill-erp-p2" />
+                                <text y="15" text-anchor="middle" class="viz-fill-erp-p2 font-bold text-[9px]">P2</text>
                             </g>
 
                             <!-- 4. Cortical N2 -->
                             <g class="cursor-pointer group" onclick="selectComponent('n2')" transform="translate(270, 100)">
-                                <circle r="6" fill="#0ea5e9" class="opacity-0 group-hover:opacity-100 transition" />
-                                <circle r="3.5" fill="#0ea5e9" />
-                                <text y="-10" text-anchor="middle" class="fill-sky-400 font-bold text-[9px]">N2</text>
+                                <circle r="6" class="viz-fill-erp-n2 opacity-0 group-hover:opacity-100 transition" />
+                                <circle r="3.5" class="viz-fill-erp-n2" />
+                                <text y="-10" text-anchor="middle" class="viz-fill-erp-n2 font-bold text-[9px]">N2</text>
                             </g>
 
                             <!-- 5. Late Cognitive P300 -->
                             <g class="cursor-pointer group" onclick="selectComponent('p3')" transform="translate(350, 190)">
-                                <circle r="7" fill="#8b5cf6" class="animate-pulse opacity-75 group-hover:opacity-100 transition" />
-                                <circle r="4" fill="#8b5cf6" />
-                                <text y="16" text-anchor="middle" class="fill-violet-400 font-bold text-[9px] tracking-wide">P3 (P300)</text>
+                                <circle r="7" class="viz-fill-erp-p3 animate-pulse opacity-75 group-hover:opacity-100 transition" />
+                                <circle r="4" class="viz-fill-erp-p3" />
+                                <text y="16" text-anchor="middle" class="viz-fill-erp-p3 font-bold text-[9px] tracking-wide">P3 (P300)</text>
                             </g>
                         </svg>
                     </div>
@@ -286,9 +288,9 @@
                     <div id="component-detail-box" class="demo-panel p-4 flex flex-col gap-1 transition-all">
                         <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 mb-1.5">
                             <span class="text-xs uppercase font-mono text-slate-500">Selected ERP Component</span>
-                            <span id="comp-latency" class="text-[10px] bg-slate-800 text-indigo-400 px-2 py-0.5 rounded font-mono font-bold">40 - 60 ms</span>
+                            <span id="comp-latency" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded font-mono font-bold" style="color: var(--viz-erp-p1)">40 - 60 ms</span>
                         </div>
-                        <h4 id="comp-title" class="text-sm font-bold text-white">Cortical P1 (P50 Wave)</h4>
+                        <h4 id="comp-title" class="text-sm font-bold" style="color: var(--viz-erp-p1)">Cortical P1 (P50 Wave)</h4>
                         <p id="comp-desc" class="text-xs text-slate-400 leading-relaxed mt-1">
                             An early sensory positive component reflecting initial processing in the primary auditory cortex. It is often used to study sensory gating (e.g., the brain's ability to filter out redundant auditory information).
                         </p>
@@ -351,16 +353,16 @@
                 </p>
                 <div class="demo-panel p-3 text-xs flex flex-col gap-2">
                     <div class="flex justify-between border-b border-slate-800 pb-1.5 text-slate-400">
-                        <span>$\text{Target ERP Signal}$</span>
-                        <span id="math-sig" class="text-white font-mono">5.0 µV</span>
+                        <span class="viz-ink-true-erp">$\text{Target ERP Signal}$</span>
+                        <span id="math-sig" class="viz-ink-true-erp font-mono">5.0 µV</span>
                     </div>
                     <div class="flex justify-between border-b border-slate-800 pb-1.5 text-slate-400">
-                        <span>$\text{Background EEG Noise Level} / \sqrt{N}$</span>
-                        <span id="math-noise" class="text-white font-mono">20.0 µV</span>
+                        <span class="viz-ink-trial">$\text{Background EEG Noise Level} / \sqrt{N}$</span>
+                        <span id="math-noise" class="viz-ink-trial font-mono">20.0 µV</span>
                     </div>
                     <div class="flex justify-between pt-0.5 text-slate-300 font-bold">
-                        <span class="text-indigo-400 font-semibold flex items-center gap-1">Calculated Quality Factor:</span>
-                        <span id="math-quality" class="text-rose-400 font-mono">Unsatisfactory</span>
+                        <span class="font-semibold flex items-center gap-1">Calculated Quality Factor:</span>
+                        <span id="math-quality" class="viz-ink-quality-low font-mono">Unsatisfactory</span>
                     </div>
                 </div>
             </div>
@@ -407,6 +409,24 @@
         const mathSig = document.getElementById('math-sig');
         const mathNoise = document.getElementById('math-noise');
         const mathQuality = document.getElementById('math-quality');
+
+        const plotInk = {
+            trial: neuroViz.color('--viz-trial-faint'),
+            trueErp: neuroViz.color('--viz-true-erp'),
+            average: neuroViz.color('--viz-average'),
+            raw: neuroViz.color('--viz-raw'),
+            stimulus: neuroViz.color('--viz-stimulus'),
+            epoch: neuroViz.color('--viz-epoch-soft'),
+            epochLine: neuroViz.color('--viz-epoch-line')
+        };
+
+        const componentToken = {
+            p1: '--viz-erp-p1',
+            n1: '--viz-erp-n1',
+            p2: '--viz-erp-p2',
+            n2: '--viz-erp-n2',
+            p3: '--viz-erp-p3'
+        };
 
         // Simulation parameters
         let numTrials = 0;
@@ -606,11 +626,11 @@
             const postAvgSNR = rawSNRVal * reductionFactor;
             avgSnrReadout.innerText = postAvgSNR.toFixed(2);
             if (postAvgSNR < 0.5) {
-                avgSnrReadout.className = 'text-sm font-semibold text-rose-500 mt-1';
+                avgSnrReadout.className = 'text-sm font-semibold viz-ink-quality-low mt-1';
             } else if (postAvgSNR < 1.5) {
-                avgSnrReadout.className = 'text-sm font-semibold text-amber-500 mt-1';
+                avgSnrReadout.className = 'text-sm font-semibold viz-ink-quality-mid mt-1';
             } else {
-                avgSnrReadout.className = 'text-sm font-semibold text-emerald-400 mt-1';
+                avgSnrReadout.className = 'text-sm font-semibold viz-ink-quality-high mt-1';
             }
 
             // Theorem and verification box updates
@@ -623,13 +643,13 @@
                 mathQuality.className = "text-slate-400 font-mono";
             } else if (postAvgSNR < 1.0) {
                 mathQuality.innerText = "Unsatisfactory (Highly Obscured)";
-                mathQuality.className = "text-rose-500 font-mono";
+                mathQuality.className = "viz-ink-quality-low font-mono";
             } else if (postAvgSNR < 1.8) {
                 mathQuality.innerText = "Acceptable Clinical Resolution";
-                mathQuality.className = "text-amber-400 font-mono";
+                mathQuality.className = "viz-ink-quality-mid font-mono";
             } else {
                 mathQuality.innerText = "Premium Research Quality";
-                mathQuality.className = "text-emerald-400 font-mono text-glow";
+                mathQuality.className = "viz-ink-quality-high font-mono text-glow";
             }
         }
 
@@ -668,7 +688,7 @@
 
             // 1. Draw raw latest trial if exists
             if (numTrials > 0) {
-                ctx.strokeStyle = 'rgba(239, 68, 68, 0.18)'; // Translucent light red
+                ctx.strokeStyle = plotInk.trial;
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.moveTo(mapX(0), mapY(latestTrial[0]));
@@ -679,7 +699,7 @@
             }
 
             // 2. Draw ground truth target ERP
-            ctx.strokeStyle = 'rgba(52, 211, 153, 0.55)'; // Dashed emerald green representation
+            ctx.strokeStyle = plotInk.trueErp;
             ctx.lineWidth = 1.5;
             ctx.setLineDash([5, 4]);
             ctx.beginPath();
@@ -692,7 +712,7 @@
 
             // 3. Draw active running average signal line
             if (numTrials > 0) {
-                ctx.strokeStyle = '#6366f1'; // Premium bold indigo
+                ctx.strokeStyle = plotInk.average;
                 ctx.lineWidth = 2.5;
                 ctx.beginPath();
                 ctx.moveTo(mapX(0), mapY(currentAverage[0]));
@@ -775,16 +795,16 @@
 
                 // Render epoch background only if visually active inside viewport boundaries
                 if (xTrigger + epochWidth > 0 && xTrigger < tw) {
-                    tlCtx.fillStyle = 'rgba(99, 102, 241, 0.06)';
+                    tlCtx.fillStyle = plotInk.epoch;
                     tlCtx.fillRect(xTrigger, 0, epochWidth, th);
-                    tlCtx.strokeStyle = 'rgba(99, 102, 241, 0.18)';
+                    tlCtx.strokeStyle = plotInk.epochLine;
                     tlCtx.lineWidth = 1;
                     tlCtx.strokeRect(xTrigger, 0, epochWidth, th);
                 }
             });
 
             // Draw the continuous scrolling EEG wave
-            tlCtx.strokeStyle = '#4f46e5';
+            tlCtx.strokeStyle = plotInk.raw;
             tlCtx.lineWidth = 1.3;
             tlCtx.beginPath();
             tlCtx.moveTo(0, th / 2 - (timelineBuffer[0] * scaleY));
@@ -800,7 +820,7 @@
 
                 if (xTrigger > 0 && xTrigger < tw) {
                     // Vertical red stimulus trigger indicator line
-                    tlCtx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
+                    tlCtx.strokeStyle = plotInk.stimulus;
                     tlCtx.lineWidth = 1;
                     tlCtx.setLineDash([3, 3]);
                     tlCtx.beginPath();
@@ -810,7 +830,7 @@
                     tlCtx.setLineDash([]);
 
                     // Trigger title tag
-                    tlCtx.fillStyle = '#ef4444';
+                    tlCtx.fillStyle = plotInk.stimulus;
                     tlCtx.font = 'bold 8px monospace';
                     tlCtx.fillText(`S${trigger.num}`, xTrigger + 5, 12);
                 }
@@ -856,6 +876,11 @@
             document.getElementById('comp-title').innerText = info.title;
             document.getElementById('comp-latency').innerText = info.latency;
             document.getElementById('comp-desc').innerText = info.desc;
+            var token = componentToken[id];
+            if (token) {
+                document.getElementById('comp-title').style.color = 'var(' + token + ')';
+                document.getElementById('comp-latency').style.color = 'var(' + token + ')';
+            }
             
             // Add subtle pulse highlight animation to panel
             const p = document.getElementById('component-detail-box');
