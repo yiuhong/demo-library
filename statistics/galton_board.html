@@ -17,19 +17,41 @@
             touch-action: none;
             user-select: none;
         }
+        .demo-page .grid > * {
+            min-width: 0;
+        }
+        .math-block,
+        .formula-fit {
+            max-width: 100%;
+            min-width: 0;
+        }
+        .formula-chip {
+            display: inline-block;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            vertical-align: middle;
+            overflow-wrap: anywhere;
+        }
         .katex-display {
             margin: 0.45em 0 !important;
-            overflow: visible !important;
+            max-width: 100%;
             padding: 0.15em 0;
-        }
-        .math-block {
-            overflow: visible !important;
         }
         .demo-header .katex {
             color: #ffffff;
         }
         .demo-page input[type="checkbox"] {
             accent-color: #000000;
+        }
+        @media (max-width: 640px) {
+            .math-block {
+                padding-left: 0.65rem;
+                padding-right: 0.65rem;
+            }
+            .formula-box {
+                padding: 0.7rem;
+            }
         }
     </style>
 </head>
@@ -248,8 +270,8 @@
                 From the binomial count to a normal curve
             </h2>
             <div class="flex flex-wrap items-center gap-2.5">
-                <span id="mathParamBadge" class="text-xs font-semibold px-3 py-1 border border-black bg-white"></span>
-                <span id="skewStatusBadge" class="text-xs font-semibold px-3 py-1 border border-black"></span>
+                <span id="mathParamBadge" class="formula-chip formula-fit text-xs font-semibold px-3 py-1 border border-black bg-white"></span>
+                <span id="skewStatusBadge" class="formula-chip formula-fit text-xs font-semibold px-3 py-1 border border-black"></span>
             </div>
         </div>
 
@@ -263,21 +285,22 @@
                     <p class="text-xs sm:text-sm leading-relaxed mb-3">
                         Each bead passes through $n$ rows of pegs. Let $X_i \in \{0, 1\}$ denote a left ($0$) or right ($1$) bounce at row $i$ with probability $\mathbb{P}(X_i = 1) = p$. The final horizontal bin index $k$ is the sum of $n$ independent Bernoulli trials:
                     </p>
-                    <div class="math-block bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;">
+                    <div class="math-block formula-fit bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;">
                         <div data-katex-display="X = \sum_{i=1}^{n} X_i \sim \text{Binomial}(n, p)"></div>
-                        <div data-katex-display="P(X = k) = \binom{n}{k} p^k (1 - p)^{n - k}, \quad k \in \{0, 1, \dots, n\}"></div>
+                        <div data-katex-display="P(X = k) = \binom{n}{k} p^{k}(1-p)^{n-k}"></div>
+                        <div data-katex-display="k \in \{0, 1, \ldots, n\}"></div>
                     </div>
-                    <div class="mt-3 bg-white border border-black p-3.5 overflow-visible" style="border-radius: 4px;">
+                    <div class="formula-box formula-fit mt-3 bg-white border border-black p-3.5" style="border-radius: 4px;">
                         <div class="flex flex-wrap items-center justify-between gap-1 text-xs mb-1.5">
-                            <span id="calcBinomialHeader" class="font-bold viz-ink-group-c">Theoretical binomial probability</span>
+                            <span id="calcBinomialHeader" class="formula-chip formula-fit font-bold viz-ink-group-c">Theoretical binomial probability</span>
                             <span id="calcBinomialEmpirical" class="text-[11px] font-semibold px-2 py-0.5 border border-black bg-white viz-ink-group-a"></span>
                         </div>
-                        <div id="calcBinomialEq" class="text-xs py-1 overflow-visible break-words"></div>
+                        <div id="calcBinomialEq" class="text-xs py-1"></div>
                     </div>
                 </div>
-                <div class="text-xs border-t border-black pt-3 mt-3 flex items-center justify-between gap-2 flex-wrap">
-                    <span>Binomial coefficient: $\binom{n}{k} = \frac{n!}{k!(n-k)!}$</span>
-                    <span id="liveModeProb" class="font-semibold"></span>
+                <div class="formula-fit text-xs border-t border-black pt-3 mt-3 flex items-center justify-between gap-2 flex-wrap">
+                    <span class="formula-chip formula-fit">Binomial coefficient: $\binom{n}{k} = \frac{n!}{k!(n-k)!}$</span>
+                    <span id="liveModeProb" class="formula-chip formula-fit font-semibold"></span>
                 </div>
             </div>
 
@@ -290,21 +313,21 @@
                     <p class="text-xs sm:text-sm leading-relaxed mb-3">
                         Because $X$ is the sum of $n$ independent and identically distributed (i.i.d.) variables with mean $p$ and variance $p(1-p)$, its exact mean and variance over $n$ rows are $\mu = np$ and $\sigma^2 = np(1-p)$. For large $n$, $P(X=k)$ converges to the Gaussian density $f(k)$:
                     </p>
-                    <div class="math-block bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;">
+                    <div class="math-block formula-fit bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;">
                         <div data-katex-display="\mu = np, \qquad \sigma = \sqrt{np(1-p)}"></div>
-                        <div data-katex-display="P(X = k) \approx f(k) = \frac{1}{\sigma\sqrt{2\pi}} \exp\!\left( -\frac{(k - \mu)^2}{2\sigma^2} \right)"></div>
+                        <div data-katex-display="\begin{aligned} P(X = k) \approx f(k) &= \frac{1}{\sigma\sqrt{2\pi}} \\ &\times \exp\!\left( -\frac{(k - \mu)^2}{2\sigma^2} \right) \end{aligned}"></div>
                     </div>
-                    <div class="mt-3 bg-white border border-black p-3.5 overflow-visible" style="border-radius: 4px;">
+                    <div class="formula-box formula-fit mt-3 bg-white border border-black p-3.5" style="border-radius: 4px;">
                         <div class="flex flex-wrap items-center justify-between gap-1 text-xs mb-1.5">
-                            <span id="calcGaussianHeader" class="font-bold viz-ink-density">Theoretical Gaussian approximation</span>
+                            <span id="calcGaussianHeader" class="formula-chip formula-fit font-bold viz-ink-density">Theoretical Gaussian approximation</span>
                             <span id="calcApproxDiff" class="text-[11px] font-semibold px-2 py-0.5 border border-black bg-white"></span>
                         </div>
-                        <div id="calcGaussianEq" class="text-xs py-1 overflow-visible break-words"></div>
+                        <div id="calcGaussianEq" class="text-xs py-1"></div>
                     </div>
                 </div>
-                <div class="text-xs border-t border-black pt-3 mt-3 flex items-center justify-between gap-2 flex-wrap">
-                    <span>Current $\mathcal{N}(\mu, \sigma^2)$ parameters:</span>
-                    <span id="liveNormalFormula" class="font-bold viz-ink-density"></span>
+                <div class="formula-fit text-xs border-t border-black pt-3 mt-3 flex items-center justify-between gap-2 flex-wrap">
+                    <span class="formula-chip formula-fit">Current $\mathcal{N}(\mu, \sigma^2)$ parameters:</span>
+                    <span id="liveNormalFormula" class="formula-chip formula-fit font-bold viz-ink-density"></span>
                 </div>
             </div>
         </div>
@@ -362,6 +385,74 @@
             }
         }
 
+        function formulaContentWidth(el) {
+            const cs = getComputedStyle(el);
+            return el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        }
+
+        // Scale a formula down until its ink fits the panel. Line breaks in the TeX
+        // do the wrapping; this only shrinks a line that is still wider than the card.
+        function formulaAvailableWidth(host) {
+            let available = formulaContentWidth(host);
+            if (host.classList.contains('formula-chip') && host.parentElement) {
+                const parentWidth = formulaContentWidth(host.parentElement);
+                const cs = getComputedStyle(host);
+                const chrome = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)
+                    + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+                available = Math.min(available, Math.max(0, parentWidth - chrome));
+            }
+            return available;
+        }
+
+        function katexInk(katex) {
+            let left = Infinity;
+            let right = -Infinity;
+            katex.querySelectorAll('.katex-html .base').forEach((base) => {
+                const rect = base.getBoundingClientRect();
+                if (rect.width < 0.5 || rect.height < 0.5) return;
+                left = Math.min(left, rect.left);
+                right = Math.max(right, rect.right);
+            });
+            if (!isFinite(left) || !isFinite(right)) return null;
+            return { left: left, right: right, width: right - left };
+        }
+
+        function fitFormulaHost(host) {
+            const available = formulaAvailableWidth(host);
+            if (!(available > 0)) return;
+            const hostRect = host.getBoundingClientRect();
+            const cs = getComputedStyle(host);
+            const contentLeft = hostRect.left + parseFloat(cs.borderLeftWidth) + parseFloat(cs.paddingLeft);
+            const contentRight = hostRect.right - parseFloat(cs.borderRightWidth) - parseFloat(cs.paddingRight);
+            host.querySelectorAll('.katex').forEach((katex) => {
+                const signature = Math.round(available) + '|' + (katex.textContent || '');
+                if (katex.dataset.fitSignature === signature) return;
+                katex.style.fontSize = '';
+                let ink = katexInk(katex);
+                if (!ink) return;
+                const overflows = ink.width > available + 0.5
+                    || ink.left < contentLeft - 0.5
+                    || ink.right > contentRight + 0.5;
+                if (!overflows) {
+                    katex.dataset.fitSignature = signature;
+                    return;
+                }
+                const computed = parseFloat(getComputedStyle(katex).fontSize);
+                let size = Math.max(8, computed * (available / Math.max(ink.width, 1)));
+                katex.style.fontSize = size + 'px';
+                ink = katexInk(katex);
+                if (ink && (ink.width > available + 0.5 || ink.left < contentLeft - 0.5 || ink.right > contentRight + 0.5)) {
+                    size = Math.max(8, size * (available / Math.max(ink.width, 1)) * 0.98);
+                    katex.style.fontSize = size + 'px';
+                }
+                katex.dataset.fitSignature = signature;
+            });
+        }
+
+        function fitFormulae() {
+            document.querySelectorAll('.formula-fit').forEach(fitFormulaHost);
+        }
+
         // Render all static math blocks and inline delimiters reliably
         function typesetStaticMath() {
             document.querySelectorAll('[data-katex-display]').forEach((el) => {
@@ -375,6 +466,7 @@
                     throwOnError: false
                 });
             }
+            fitFormulae();
         }
 
         // Simulation State & Parameters
@@ -674,7 +766,8 @@
                 }
             }
 
-            // 1. Binomial Calculation Box (Compact single-line fit without scrolling)
+            // 1. Binomial calculation. Stacked lines stay inside the panel; fitFormulae
+            // shrinks any line that is still wider than the card on a narrow screen.
             const binomHeader = document.getElementById('calcBinomialHeader');
             if (binomHeader) {
                 const modeLabel = isHovered ? 'Hovered' : (isLocked ? 'Highlighted' : 'Mean/Mode');
@@ -692,8 +785,8 @@
             if (binomEqEl) {
                 const qVal = (1 - biasP).toFixed(2);
                 const pVal = biasP.toFixed(2);
-                const texBinom = `P(X=${targetK}) = \\binom{${numRows}}{${targetK}}(${pVal})^{${targetK}}(${qVal})^{${numRows - targetK}} = ${comb} \\cdot (${pVal})^{${targetK}}(${qVal})^{${numRows - targetK}} = \\mathbf{${binomProb.toFixed(4)}} \\; (${(binomProb * 100).toFixed(2)}\\%)`;
-                renderTexElement(binomEqEl, texBinom, false);
+                const texBinom = `\\begin{aligned} P(X=${targetK}) &= \\binom{${numRows}}{${targetK}}(${pVal})^{${targetK}}(${qVal})^{${numRows - targetK}} \\\\ &= ${comb} \\cdot (${pVal})^{${targetK}}(${qVal})^{${numRows - targetK}} \\\\ &= \\mathbf{${binomProb.toFixed(4)}} \\; (${(binomProb * 100).toFixed(2)}\\%) \\end{aligned}`;
+                renderTexElement(binomEqEl, texBinom, true);
             }
 
             // 2. Gaussian Calculation Box
@@ -710,9 +803,10 @@
 
             const gaussEqEl = document.getElementById('calcGaussianEq');
             if (gaussEqEl) {
-                const texGauss = `f(${targetK}) = \\frac{1}{${stdDev.toFixed(2)}\\sqrt{2\\pi}} \\exp\\!\\left( -\\frac{(${targetK} - ${mean.toFixed(2)})^2}{2(${stdDev.toFixed(2)})^2} \\right) = \\mathbf{${gaussProb.toFixed(4)}} \\; (${(gaussProb * 100).toFixed(2)}\\%)`;
-                renderTexElement(gaussEqEl, texGauss, false);
+                const texGauss = `\\begin{aligned} f(${targetK}) &= \\frac{1}{${stdDev.toFixed(2)}\\sqrt{2\\pi}} \\\\ &\\times \\exp\\!\\left( -\\frac{(${targetK} - ${mean.toFixed(2)})^2}{2(${stdDev.toFixed(2)})^2} \\right) \\\\ &= \\mathbf{${gaussProb.toFixed(4)}} \\; (${(gaussProb * 100).toFixed(2)}\\%) \\end{aligned}`;
+                renderTexElement(gaussEqEl, texGauss, true);
             }
+            fitFormulae();
         }
 
         // Update the live mathematical formula badges directly with KaTeX when n or p changes
@@ -1816,6 +1910,7 @@
         // Responsive Resize Handling
         window.addEventListener('resize', () => {
             setupBoardGeometry();
+            fitFormulae();
         });
 
         // Start the simulation & typeset all equations
