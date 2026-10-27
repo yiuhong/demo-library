@@ -16,6 +16,10 @@ The central-limit figure uses an exponential population with mean 1 and standard
 
 The Horowitz figure follows `statistics/horowitz_1974_simulation_CLT.html`: 96 sample means, each of size 10, from a normal population with mean 50 and standard deviation 15.8. The overlay is `N(50, 5²)`, because `15.8 / √10 ≈ 5`. NumPy seed 1974. In that draw the mean of the means is about 50.2 and the standard deviation of the means is about 4.9.
 
+## Galton board
+
+`statistics/galton_board.html` sends each bead through `n` rows of pegs. The bin is the count of right bounces. The demonstration opens at `n = 12` and `p = 1/2`, so that count is Binomial(12, 1/2), with `μ = np = 6` and `σ = √(np(1 − p)) = √3 ≈ 1.73`. The bars are those exact probabilities. The curve is the normal density with that mean and standard deviation. The highlighted path is six right bounces, then six left bounces, and it ends in bin 6.
+
 ## Chi-square
 
 `ν` is the degrees of freedom. The demonstration writes the same sum as `χ²_k = Σ Zᵢ²` and calls the count `k`. The curves are `ν = 1`, `3`, and `5`. The `ν = 1` density is unbounded at 0, so the axes cut it off.
