@@ -6,6 +6,7 @@
     <title>Event-Related Potentials (ERP) Simulator & Explorer</title>
     <!-- Tailwind CSS for modern, premium scientific UI -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/neuroscience-demo-theme.css">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -33,21 +34,6 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
     <style>
-        /* Custom scrollbar styling for technical feel */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
         .text-glow {
             text-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
         }
@@ -56,18 +42,20 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+<body class="demo-page min-h-screen flex flex-col">
 
     <!-- Header -->
-    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <header class="demo-header sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col gap-3">
+            <a class="demo-back self-start" href="../index.html">← Teaching Materials Library</a>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <div class="flex items-center gap-3">
                     <span class="flex h-3 w-3 relative">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
                     </span>
-                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                    <h1 class="demo-title text-xl tracking-tight flex items-center gap-2">
                         Extraction of Event-Related Potentials (ERPs)
                     </h1>
                 </div>
@@ -76,9 +64,10 @@
                 </p>
             </div>
             <div class="flex items-center gap-2">
-                <span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700 flex items-center gap-1.5">
+                <span class="demo-pill text-xs px-2.5 py-1">
                     <i data-lucide="activity" class="w-3.5 h-3.5 text-indigo-400"></i> Signal Averager Engine Active
                 </span>
+            </div>
             </div>
         </div>
     </header>
@@ -90,18 +79,18 @@
         <div class="lg:col-span-7 flex flex-col gap-6">
             
             <!-- Dynamic Diagram / Simulation Deck -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl flex flex-col gap-5">
+            <div class="demo-card p-5 flex flex-col gap-5">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                    <h2 class="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                    <h2 class="demo-kicker text-sm flex items-center gap-2">
                         <i data-lucide="sliders" class="w-4 h-4"></i> Interactive Averaging Simulation
                     </h2>
                     <div class="flex items-center gap-3">
-                        <span class="text-xs text-slate-400">Trials ($N$): <strong id="trial-counter" class="text-white text-sm bg-slate-800 px-2 py-0.5 rounded ml-1">0</strong></span>
+                        <span class="text-xs text-slate-400">Trials ($N$): <strong id="trial-counter" class="demo-value text-sm px-2 py-0.5 ml-1">0</strong></span>
                     </div>
                 </div>
 
                 <!-- Simulation Graph Canvas Container -->
-                <div class="canvas-container bg-slate-950 rounded-lg border border-slate-800 p-4">
+                <div class="canvas-container demo-plot p-4">
                     <div class="flex justify-between items-center text-[10px] text-slate-500 mb-2">
                         <span>$\text{Amplitude } (\mu\text{V})$</span>
                         <div class="flex items-center gap-3">
@@ -111,7 +100,7 @@
                         </div>
                     </div>
                     
-                    <canvas id="erp-canvas" class="w-full h-64 bg-slate-950 rounded block cursor-crosshair"></canvas>
+                    <canvas id="erp-canvas" class="w-full h-64 block cursor-crosshair"></canvas>
                     
                     <!-- X-Axis Labels -->
                     <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-2">
@@ -125,19 +114,19 @@
                 </div>
 
                 <!-- Live Control Board -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-900/50 p-4 rounded-lg border border-slate-800">
+                <div class="demo-panel grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                     <!-- Stimulation controls -->
                     <div class="flex flex-col gap-3">
                         <span class="text-xs font-semibold text-slate-300">Stimulus Presentation Actions</span>
                         <div class="grid grid-cols-2 gap-2">
-                            <button id="btn-single-trial" class="bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium text-xs py-2.5 px-3 rounded-lg transition flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-500/10">
+                            <button id="btn-single-trial" class="demo-btn demo-btn-primary text-xs py-2.5 px-3">
                                 <i data-lucide="plus-circle" class="w-4 h-4"></i> Trigger 1 Trial
                             </button>
-                            <button id="btn-batch-trials" class="bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-medium text-xs py-2.5 px-3 rounded-lg transition flex items-center justify-center gap-1.5">
+                            <button id="btn-batch-trials" class="demo-btn text-xs py-2.5 px-3">
                                 <i data-lucide="play" class="w-4 h-4" id="batch-icon"></i> Run 50 Trials
                             </button>
                         </div>
-                        <button id="btn-reset" class="bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-900/50 text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+                        <button id="btn-reset" class="demo-btn demo-btn-danger text-xs py-2">
                             <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear Average & Reset
                         </button>
                     </div>
@@ -166,17 +155,17 @@
 
                 <!-- Analytical Live Readings -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex flex-col">
+                    <div class="demo-panel p-3 flex flex-col">
                         <span class="text-[10px] text-slate-500 uppercase tracking-wider">Raw Signal-to-Noise Ratio (SNR)</span>
                         <span class="text-sm font-semibold text-slate-300 mt-1" id="raw-snr">1 : 4.00</span>
                         <span class="text-[9px] text-slate-500 mt-0.5">$\text{Ratio} = \frac{\text{Signal}}{\text{Noise}}$ before averaging</span>
                     </div>
-                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex flex-col">
+                    <div class="demo-panel p-3 flex flex-col">
                         <span class="text-[10px] text-slate-500 uppercase tracking-wider">Noise Reduction Factor</span>
                         <span class="text-sm font-semibold text-indigo-400 mt-1" id="noise-reduction">1.00x</span>
                         <span class="text-[9px] text-slate-500 mt-0.5">Proportional to $1 / \sqrt{N}$</span>
                     </div>
-                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex flex-col">
+                    <div class="demo-panel p-3 flex flex-col">
                         <span class="text-[10px] text-slate-500 uppercase tracking-wider">Estimated Post-Average SNR</span>
                         <span class="text-sm font-semibold text-emerald-400 mt-1" id="avg-snr">0.25</span>
                         <span class="text-[9px] text-slate-500 mt-0.5">$\text{SNR}_{\text{post}} = \text{SNR}_{\text{raw}} \cdot \sqrt{N}$</span>
@@ -185,15 +174,15 @@
             </div>
 
             <!-- Continuous Timeline Display (Simulates scrolling multichannel EEG showing triggers) -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col gap-3">
+            <div class="demo-card p-5 flex flex-col gap-3">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <h3 class="demo-kicker text-xs flex items-center gap-1.5">
                         <i data-lucide="pulse" class="w-4 h-4 text-rose-500"></i> Ongoing EEG Recorder Timeline
                     </h3>
                     <span class="text-[10px] text-emerald-400 flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Streaming Channel #64</span>
                 </div>
-                <div class="bg-slate-950 border border-slate-800 rounded-lg p-2 overflow-hidden relative">
-                    <canvas id="timeline-canvas" class="w-full h-20 bg-slate-950 block"></canvas>
+                <div class="demo-plot p-2 overflow-hidden relative">
+                    <canvas id="timeline-canvas" class="w-full h-20 block"></canvas>
                     <div class="absolute bottom-2 right-2 text-[9px] text-slate-500 bg-slate-900/90 border border-slate-800 px-1.5 py-0.5 rounded">
                         Continuous Sweep Speed: 1.0s/div
                     </div>
@@ -209,13 +198,13 @@
         <div class="lg:col-span-5 flex flex-col gap-6">
 
             <!-- Tabbed Interface for Explanations and Wave Anatomy -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden flex flex-col flex-grow">
+            <div class="demo-card overflow-hidden flex flex-col flex-grow">
                 <!-- Navigation Tabs -->
-                <div class="flex border-b border-slate-800 bg-slate-900/60 p-1">
-                    <button id="tab-anatomy-btn" class="flex-1 py-2.5 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 text-indigo-400 bg-slate-850 border border-slate-800/80">
+                <div class="flex border-b border-slate-800 p-1 gap-1">
+                    <button id="tab-anatomy-btn" class="demo-chip is-active flex-1 py-2.5 text-xs">
                         <i data-lucide="activity" class="w-3.5 h-3.5"></i> ERP Wave Anatomy
                     </button>
-                    <button id="tab-math-btn" class="flex-1 py-2.5 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200">
+                    <button id="tab-math-btn" class="demo-chip flex-1 py-2.5 text-xs">
                         <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Biophysics & Math
                     </button>
                 </div>
@@ -229,7 +218,7 @@
                     </div>
 
                     <!-- Interactive SVG Waveform Plot -->
-                    <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 relative">
+                    <div class="demo-plot p-4 relative">
                         <div class="absolute top-1 left-2 text-[8px] font-mono text-slate-500 uppercase">Interactive Schematic</div>
                         <div class="absolute top-1 right-2 text-[8px] font-mono text-slate-500">Amplitude ($\mu\text{V}$) is inverted (- is UP)</div>
                         
@@ -294,7 +283,7 @@
                     </div>
 
                     <!-- Selected Component Information Panel -->
-                    <div id="component-detail-box" class="bg-slate-950 border border-slate-800 p-4 rounded-lg flex flex-col gap-1 transition-all">
+                    <div id="component-detail-box" class="demo-panel p-4 flex flex-col gap-1 transition-all">
                         <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 mb-1.5">
                             <span class="text-xs uppercase font-mono text-slate-500">Selected ERP Component</span>
                             <span id="comp-latency" class="text-[10px] bg-slate-800 text-indigo-400 px-2 py-0.5 rounded font-mono font-bold">40 - 60 ms</span>
@@ -321,7 +310,7 @@
                             <p class="mt-1">
                                 An ongoing recording is divided into stimulus-locked trials $S_j(t) = s(t) + n_j(t)$, where $s(t)$ is the consistent time-locked ERP wave (signal), and $n_j(t)$ is the random uncorrelated noise (background EEG) on trial $j$.
                             </p>
-                            <p class="mt-2 bg-slate-950 p-2 rounded text-center border border-slate-800 text-white font-mono text-xs">
+                            <p class="demo-panel demo-mono mt-2 p-2 text-center text-xs">
                                 $$\text{Average}(t) = \frac{1}{N} \sum_{j=1}^{N} S_j(t) = s(t) + \frac{1}{N}\sum_{j=1}^{N} n_j(t)$$
                             </p>
                         </div>
@@ -331,7 +320,7 @@
                             <p class="mt-1">
                                 Assuming the background EEG noise $n_j(t)$ is Gaussian with a mean of zero and variance of $\sigma^2$, and is completely uncorrelated across trials, the variance of the averaged noise goes down with $N$ trials:
                             </p>
-                            <p class="mt-2 bg-slate-950 p-2 rounded text-center border border-slate-800 text-white font-mono text-xs">
+                            <p class="demo-panel demo-mono mt-2 p-2 text-center text-xs">
                                 $$\sigma_{\text{average}} = \frac{\sigma}{\sqrt{N}}$$
                             </p>
                             <p class="mt-2">
@@ -353,14 +342,14 @@
             </div>
 
             <!-- Block containing mathematical interactive proof -->
-            <div class="bg-gradient-to-br from-indigo-950/40 to-slate-900 border border-indigo-900/40 p-5 rounded-xl flex flex-col gap-3">
-                <h4 class="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+            <div class="demo-card p-5 flex flex-col gap-3">
+                <h4 class="demo-kicker text-xs flex items-center gap-1.5">
                     <i data-lucide="calculator" class="w-4 h-4"></i> Interactive Noise Reduction Theorem
                 </h4>
                 <p class="text-xs text-slate-300 leading-relaxed">
                     By adjusting the sliders, you change the parameters of the simulation in real time. Standard clinical recordings aim for a target post-average Signal-to-Noise Ratio (SNR) of at least <strong>$1.5$ to $2.0$</strong> to make safe clinical judgments.
                 </p>
-                <div class="bg-slate-950/80 border border-slate-800 rounded-lg p-3 text-xs flex flex-col gap-2">
+                <div class="demo-panel p-3 text-xs flex flex-col gap-2">
                     <div class="flex justify-between border-b border-slate-800 pb-1.5 text-slate-400">
                         <span>$\text{Target ERP Signal}$</span>
                         <span id="math-sig" class="text-white font-mono">5.0 µV</span>
@@ -381,7 +370,7 @@
     </main>
 
     <!-- Footer of Page -->
-    <footer class="border-t border-slate-800 bg-slate-950/80 py-4 px-6 mt-8">
+    <footer class="demo-footer py-4 px-6 mt-8">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
             <p>© 2026 Interactive Neurophysiology Simulator. Built for advanced computational cognitive neuroscience research.</p>
             <div class="flex items-center gap-4">
@@ -557,16 +546,14 @@
             if (batchInterval) {
                 clearInterval(batchInterval);
                 batchInterval = null;
-                batchBtn.classList.remove('bg-indigo-600', 'text-white');
-                batchBtn.classList.add('bg-slate-800', 'text-slate-100');
+                batchBtn.classList.remove('is-running');
                 batchIcon.setAttribute('data-lucide', 'play');
                 lucide.createIcons();
                 return;
             }
 
             // Start ticking trials
-            batchBtn.classList.remove('bg-slate-800', 'text-slate-100');
-            batchBtn.classList.add('bg-emerald-600', 'text-white', 'hover:bg-emerald-500');
+            batchBtn.classList.add('is-running');
             batchIcon.setAttribute('data-lucide', 'pause');
             lucide.createIcons();
 
@@ -577,8 +564,7 @@
                 if (batchTrialsCount >= 50) {
                     clearInterval(batchInterval);
                     batchInterval = null;
-                    batchBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500', 'text-white');
-                    batchBtn.classList.add('bg-slate-800', 'text-slate-100');
+                    batchBtn.classList.remove('is-running');
                     batchIcon.setAttribute('data-lucide', 'play');
                     lucide.createIcons();
                 }
@@ -596,8 +582,7 @@
                 batchInterval = null;
                 const batchBtn = document.getElementById('btn-batch-trials');
                 const batchIcon = document.getElementById('batch-icon');
-                batchBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500', 'text-white');
-                batchBtn.classList.add('bg-slate-800', 'text-slate-100');
+                batchBtn.classList.remove('is-running');
                 batchIcon.setAttribute('data-lucide', 'play');
                 lucide.createIcons();
             }
@@ -874,11 +859,9 @@
             
             // Add subtle pulse highlight animation to panel
             const p = document.getElementById('component-detail-box');
-            p.classList.remove('border-slate-800');
-            p.classList.add('border-indigo-500', 'bg-indigo-950/20');
+            p.classList.add('is-hot');
             setTimeout(() => {
-                p.classList.remove('border-indigo-500', 'bg-indigo-950/20');
-                p.classList.add('border-slate-800');
+                p.classList.remove('is-hot');
             }, 500);
         }
 
@@ -910,21 +893,15 @@
         const tabMathContent = document.getElementById('tab-math-content');
 
         tabAnatomyBtn.addEventListener('click', () => {
-            tabAnatomyBtn.classList.add('text-indigo-400', 'bg-slate-850', 'border', 'border-slate-800/80');
-            tabAnatomyBtn.classList.remove('text-slate-400');
-            tabMathBtn.classList.remove('text-indigo-400', 'bg-slate-850', 'border', 'border-slate-800/80');
-            tabMathBtn.classList.add('text-slate-400');
-            
+            tabAnatomyBtn.classList.add('is-active');
+            tabMathBtn.classList.remove('is-active');
             tabAnatomyContent.classList.remove('hidden');
             tabMathContent.classList.add('hidden');
         });
 
         tabMathBtn.addEventListener('click', () => {
-            tabMathBtn.classList.add('text-indigo-400', 'bg-slate-850', 'border', 'border-slate-800/80');
-            tabMathBtn.classList.remove('text-slate-400');
-            tabAnatomyBtn.classList.remove('text-indigo-400', 'bg-slate-850', 'border', 'border-slate-800/80');
-            tabAnatomyBtn.classList.add('text-slate-400');
-            
+            tabMathBtn.classList.add('is-active');
+            tabAnatomyBtn.classList.remove('is-active');
             tabMathContent.classList.remove('hidden');
             tabAnatomyContent.classList.add('hidden');
         });

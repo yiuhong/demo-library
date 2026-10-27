@@ -1,0 +1,340 @@
+/*
+ * Shared chrome theme for neuroscience teaching demos.
+ * Dark slate lab matched to the ERP simulator: page slate-950 (#020617),
+ * panels slate-900 (#0f172a), borders slate-800, indigo brand accents.
+ *
+ * Chart and data-encoding colours stay local to each demo.
+ * Do not put EEG band colours, ERP component markers, waveform strokes,
+ * fNIRS HbO/HbR/HbT series, wavelength badges, tissue layers, stimulus
+ * markers, or other pedagogical encodings in this file.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+    --demo-bg: #020617;
+    --demo-card: #0f172a;
+    --demo-panel: #020617;
+    --demo-inset: #1e293b;
+    --demo-plot: #020617;
+    --demo-header-bg: rgba(15, 23, 42, 0.88);
+    --demo-text: #f1f5f9;
+    --demo-muted: #94a3b8;
+    --demo-faint: #64748b;
+    --demo-border: #1e293b;
+    --demo-border-strong: #334155;
+    --demo-accent: #6366f1;
+    --demo-accent-strong: #4f46e5;
+    --demo-accent-hover: #818cf8;
+    --demo-accent-text: #a5b4fc;
+    --demo-accent-soft: rgba(99, 102, 241, 0.14);
+    --demo-accent-border: rgba(99, 102, 241, 0.45);
+    --demo-danger: #f87171;
+    --demo-danger-bg: rgba(127, 29, 29, 0.4);
+    --demo-danger-border: rgba(127, 29, 29, 0.55);
+    --demo-radius: 0.75rem;
+    --demo-radius-sm: 0.5rem;
+    --demo-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    --demo-font: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --demo-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html {
+    background: var(--demo-bg);
+    color-scheme: dark;
+}
+
+.demo-page {
+    background: var(--demo-bg) !important;
+    color: var(--demo-text) !important;
+    font-family: var(--demo-font) !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+.demo-page ::selection {
+    background: var(--demo-accent);
+    color: #ffffff;
+}
+
+.demo-page .code-font,
+.demo-mono {
+    font-family: var(--demo-mono) !important;
+}
+
+.demo-header {
+    background: var(--demo-header-bg) !important;
+    color: var(--demo-text) !important;
+    border-bottom: 1px solid var(--demo-border) !important;
+    backdrop-filter: blur(12px);
+    font-family: var(--demo-font);
+}
+
+.demo-title {
+    color: var(--demo-text) !important;
+    background-image: none !important;
+    background-clip: border-box !important;
+    -webkit-background-clip: border-box !important;
+    -webkit-text-fill-color: var(--demo-text) !important;
+    font-family: var(--demo-font) !important;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+}
+
+.demo-kicker {
+    color: var(--demo-accent-text) !important;
+    font-family: var(--demo-font);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.demo-sidebar {
+    background: var(--demo-card) !important;
+    color: var(--demo-text) !important;
+    border-right: 1px solid var(--demo-border) !important;
+    font-family: var(--demo-font);
+}
+
+.demo-card {
+    background: var(--demo-card) !important;
+    color: var(--demo-text);
+    border: 1px solid var(--demo-border) !important;
+    border-radius: var(--demo-radius) !important;
+    box-shadow: var(--demo-shadow) !important;
+    backdrop-filter: none !important;
+    font-family: var(--demo-font);
+}
+
+.demo-panel {
+    background: var(--demo-panel) !important;
+    color: var(--demo-text);
+    border: 1px solid var(--demo-border) !important;
+    border-radius: var(--demo-radius-sm) !important;
+    box-shadow: none !important;
+}
+
+/* Background and radius only — left-border series colours stay inline. */
+.demo-inset {
+    background: var(--demo-inset) !important;
+    border-radius: var(--demo-radius-sm) !important;
+    box-shadow: none !important;
+}
+
+.demo-plot {
+    background: var(--demo-plot) !important;
+    border: 1px solid var(--demo-border) !important;
+    border-radius: var(--demo-radius-sm) !important;
+    box-shadow: none !important;
+}
+
+/* Full-bleed sim view: plot colour only, no extra frame. */
+.demo-stage {
+    background: var(--demo-plot) !important;
+}
+
+.demo-footer {
+    background: var(--demo-bg) !important;
+    color: var(--demo-faint) !important;
+    border-top: 1px solid var(--demo-border) !important;
+    font-family: var(--demo-font);
+}
+
+.demo-back {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    margin: 0;
+    padding: 0.4em 0.9em;
+    border: 1px solid var(--demo-border-strong) !important;
+    border-radius: 999px !important;
+    background: rgba(15, 23, 42, 0.72) !important;
+    color: var(--demo-text) !important;
+    box-shadow: none !important;
+    font-family: var(--demo-font);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    text-decoration: none !important;
+}
+
+.demo-back:hover {
+    background: var(--demo-accent-strong) !important;
+    border-color: var(--demo-accent-strong) !important;
+    color: #ffffff !important;
+}
+
+.demo-btn,
+.demo-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.55em 1em;
+    border: 1px solid var(--demo-border-strong) !important;
+    border-radius: var(--demo-radius-sm) !important;
+    background: var(--demo-inset) !important;
+    color: var(--demo-text) !important;
+    box-shadow: none !important;
+    font-family: var(--demo-font);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    text-transform: none;
+    text-decoration: none !important;
+    cursor: pointer;
+    transform: none !important;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.demo-btn:hover,
+.demo-chip:hover {
+    background: #334155 !important;
+    color: #ffffff !important;
+}
+
+.demo-btn-primary,
+.demo-chip.is-active,
+.demo-btn.is-running {
+    background: var(--demo-accent-strong) !important;
+    border-color: var(--demo-accent-strong) !important;
+    color: #ffffff !important;
+}
+
+.demo-btn-primary:hover,
+.demo-chip.is-active:hover,
+.demo-btn.is-running:hover {
+    background: var(--demo-accent-hover) !important;
+    border-color: var(--demo-accent-hover) !important;
+    color: #ffffff !important;
+}
+
+.demo-btn-danger {
+    background: var(--demo-danger-bg) !important;
+    border-color: var(--demo-danger-border) !important;
+    color: var(--demo-danger) !important;
+}
+
+.demo-btn-danger:hover {
+    background: rgba(127, 29, 29, 0.6) !important;
+    color: #fecaca !important;
+}
+
+.demo-btn:focus,
+.demo-chip:focus,
+.demo-back:focus {
+    outline: none;
+}
+
+.demo-btn:focus-visible,
+.demo-chip:focus-visible,
+.demo-back:focus-visible {
+    outline: 2px solid var(--demo-accent-text);
+    outline-offset: 3px;
+}
+
+.demo-option {
+    background: rgba(2, 6, 23, 0.55) !important;
+    border: 1px solid var(--demo-border) !important;
+    border-radius: var(--demo-radius-sm) !important;
+    box-shadow: none !important;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.demo-option:hover {
+    background: rgba(30, 41, 59, 0.85) !important;
+}
+
+.demo-option.is-active {
+    background: var(--demo-accent-soft) !important;
+    border-color: var(--demo-accent-border) !important;
+}
+
+.step-card.demo-option {
+    border-left-width: 2px !important;
+    border-radius: 0 var(--demo-radius-sm) var(--demo-radius-sm) 0 !important;
+}
+
+.demo-step-label {
+    color: var(--demo-faint) !important;
+}
+
+.demo-option.is-active .demo-step-label {
+    color: var(--demo-accent-text) !important;
+}
+
+.demo-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--demo-border-strong);
+    display: inline-block;
+    flex: none;
+}
+
+.demo-option.is-active .demo-dot {
+    background: var(--demo-accent);
+}
+
+.demo-pill,
+.demo-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--demo-inset) !important;
+    color: var(--demo-muted) !important;
+    border: 1px solid var(--demo-border-strong) !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+    font-family: var(--demo-font);
+    font-weight: 600;
+}
+
+.demo-value {
+    color: var(--demo-text) !important;
+}
+
+.demo-mark {
+    background: var(--demo-accent-strong) !important;
+    color: #ffffff !important;
+    border: 1px solid transparent !important;
+    border-radius: var(--demo-radius-sm) !important;
+    box-shadow: none !important;
+}
+
+.demo-page .demo-header :is(h1, p),
+.demo-page .demo-sidebar > p,
+.demo-page .demo-card > p {
+    font-family: var(--demo-font);
+}
+
+.demo-muted {
+    color: var(--demo-muted) !important;
+}
+
+.demo-panel.is-hot {
+    border-color: var(--demo-accent) !important;
+    background: rgba(49, 46, 129, 0.28) !important;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--demo-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--demo-border-strong);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
