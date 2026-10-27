@@ -116,6 +116,16 @@
           "imageAlt": "Sampling distributions of the mean for an exponential population with mean 1. The n = 2 curve is low and right-skewed, n = 8 is taller, and n = 32 is a tall narrow curve on the dashed line at μ = 1."
         },
         {
+          "href": "statistics/galton_board.html",
+          "title": "Galton Board",
+          "note": "Each bead on a Galton board takes a left or right bounce at every peg. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape. The board is the central limit theorem you can watch: many small independent chances, added together, approach a normal curve.",
+          "formulae": [
+            "X = X₁ + … + Xₙ ~ Binomial(n, p)",
+            "μ = np,  σ = √(np(1 − p))",
+            "P(X = k) ≈ (1 / (σ√(2π))) exp(−(k − μ)² / (2σ²))"
+          ]
+        },
+        {
           "href": "statistics/horowitz_1974_simulation_CLT.html",
           "title": "Horowitz (1974) CLT Simulation",
           "note": "The central limit theorem is easier to trust when you can watch sample means accumulate. Horowitz's 1974 simulation draws samples again and again in a classroom setting; the collection of sample means takes on a normal shape. Once means behave like normals, sums of squared standard normals become the next building block.",
