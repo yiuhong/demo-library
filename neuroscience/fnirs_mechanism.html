@@ -6,58 +6,25 @@
     <title>fNIRS Mechanism Simulator</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/neuroscience-demo-theme.css">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Fonts -->
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap');
-        
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #0b0f19;
-        }
-
-        /* Glassmorphism utility classes */
-        .glass-panel {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .glass-panel-glow {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.5);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(59, 130, 246, 0.3);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(59, 130, 246, 0.5);
-        }
-    </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col">
+<body class="demo-page min-h-screen flex flex-col">
 
     <!-- Header Section -->
-    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md py-4 px-6 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <header class="demo-header py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col gap-3">
+            <a class="demo-back self-start" href="../index.html">← Teaching Materials Library</a>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/30">
-                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="demo-mark p-2.5">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-indigo-400 to-rose-400 bg-clip-text text-transparent">
+                    <h1 class="demo-title text-xl">
                         fNIRS Explorer
                     </h1>
                     <p class="text-xs text-slate-400 font-medium">Functional Near-Infrared Spectroscopy Mechanism & Physics Simulator</p>
@@ -65,7 +32,7 @@
             </div>
             
             <div class="flex items-center gap-3">
-                <button id="btn-trigger-activation" class="px-5 py-2.5 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-semibold rounded-xl text-sm transition-all transform hover:scale-[1.03] active:scale-95 shadow-lg shadow-rose-500/20 flex items-center gap-2">
+                <button id="btn-trigger-activation" class="demo-btn demo-btn-primary relative px-5 py-2.5 text-sm">
                     <svg class="w-4 h-4 animate-ping absolute" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="10" stroke-width="2" />
                     </svg>
@@ -74,9 +41,10 @@
                     </svg>
                     <span>Trigger Neural Activation</span>
                 </button>
-                <button id="btn-reset" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl transition flex items-center justify-center" title="Reset Simulation">
+                <button id="btn-reset" class="demo-btn px-5 py-2.5 text-sm" title="Reset Simulation">
                     <span class="text-xs font-semibold">Reset</span>
                 </button>
+            </div>
             </div>
         </div>
     </header>
@@ -88,16 +56,16 @@
         <div class="lg:col-span-7 flex flex-col gap-6">
             
             <!-- Biological / Physical Interactive Canvas -->
-            <div class="glass-panel glass-panel-glow rounded-3xl overflow-hidden flex flex-col">
+            <div class="demo-card overflow-hidden flex flex-col">
                 <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
-                        <h2 class="font-bold text-sm tracking-wide uppercase text-slate-300">Anatomical Model</h2>
+                        <h2 class="demo-kicker text-sm">Anatomical Model</h2>
                     </div>
                 </div>
 
                 <!-- Simulation Viewport -->
-                <div class="relative bg-slate-950/80 flex-grow aspect-[4/3] flex items-center justify-center">
+                <div class="demo-stage relative flex-grow aspect-[4/3] flex items-center justify-center">
                     <canvas id="simulation-canvas" class="w-full h-full block cursor-pointer"></canvas>
                     
                     <!-- Labels Layer (HTML positioning overlay for sleekness) -->
@@ -139,7 +107,7 @@
                         <span class="text-[10px] text-slate-500 mt-1 block">Simultaneous emission allows multi-hemoglobin state sorting.</span>
                     </div>
 
-                    <div class="bg-slate-950/40 rounded-xl p-3 border border-slate-800 flex justify-between items-center">
+                    <div class="demo-panel p-3 flex justify-between items-center">
                         <div>
                             <div class="text-[10px] text-slate-500 uppercase tracking-widest font-mono">Laser Optic Core</div>
                             <div class="text-xs font-bold text-slate-300">Continuous Pulsed Acquisition</div>
@@ -153,7 +121,7 @@
             </div>
 
             <!-- Hemoglobin Details and Dynamic Capillary Model -->
-            <div class="glass-panel rounded-3xl p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="demo-card p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded bg-rose-500"></span> 
@@ -199,10 +167,10 @@
         <div class="lg:col-span-5 flex flex-col gap-6">
             
             <!-- Real-time Signal Output Graph -->
-            <div class="glass-panel glass-panel-glow rounded-3xl p-6 flex flex-col gap-4">
+            <div class="demo-card p-6 flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="font-bold text-sm tracking-wide uppercase text-slate-300">fNIRS Signal Display</h2>
+                        <h2 class="demo-kicker text-sm">fNIRS Signal Display</h2>
                         <p class="text-[11px] text-slate-400">Concentration Changes (&Delta;O₂Hb, &Delta;HHb, &Delta;[HbT]) over time</p>
                     </div>
                     <span id="activation-badge" class="px-2 py-0.5 text-[10px] rounded-full border border-slate-700 bg-slate-800 text-slate-400 uppercase font-mono tracking-widest">
@@ -235,9 +203,9 @@
             </div>
 
             <!-- Optical Absorption Spectra Chart -->
-            <div class="glass-panel rounded-3xl p-6">
+            <div class="demo-card p-6">
                 <div>
-                    <h2 class="font-bold text-sm tracking-wide uppercase text-slate-300">Optical Absorption Spectrum</h2>
+                    <h2 class="demo-kicker text-sm">Optical Absorption Spectrum</h2>
                     <p class="text-[11px] text-slate-400 mb-3">Extinction coefficient of O₂Hb and HHb across NIR window</p>
                 </div>
                 <div class="h-40 relative">
@@ -249,10 +217,10 @@
             </div>
 
             <!-- Interactive Guide & Step-by-Step Explanation -->
-            <div class="glass-panel rounded-3xl p-6 flex-grow flex flex-col justify-between">
+            <div class="demo-card p-6 flex-grow flex flex-col justify-between">
                 <div>
-                    <h2 class="font-bold text-sm tracking-wide uppercase text-slate-300 mb-4 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h2 class="demo-kicker text-sm mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                         Interactive Science Guide
@@ -260,10 +228,10 @@
                     
                     <!-- Vertical steps tracker -->
                     <div class="space-y-4">
-                        <div id="step-1" class="step-card border-l-2 border-emerald-500 bg-emerald-500/5 p-3 rounded-r-xl transition cursor-pointer">
+                        <div id="step-1" class="step-card demo-option is-active p-3 cursor-pointer">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Step 1</span>
-                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                <span class="demo-step-label text-xs font-bold uppercase tracking-widest">Step 1</span>
+                                <span class="demo-dot"></span>
                             </div>
                             <h4 class="text-xs font-bold text-slate-200 mt-1">Neurovascular Coupling</h4>
                             <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
@@ -271,10 +239,10 @@
                             </p>
                         </div>
 
-                        <div id="step-2" class="step-card border-l-2 border-slate-700 bg-slate-900/40 p-3 rounded-r-xl transition cursor-pointer">
+                        <div id="step-2" class="step-card demo-option p-3 cursor-pointer">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Step 2</span>
-                                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+                                <span class="demo-step-label text-xs font-bold uppercase tracking-widest">Step 2</span>
+                                <span class="demo-dot"></span>
                             </div>
                             <h4 class="text-xs font-bold text-slate-300 mt-1">The Near-Infrared Window</h4>
                             <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
@@ -282,10 +250,10 @@
                             </p>
                         </div>
 
-                        <div id="step-3" class="step-card border-l-2 border-slate-700 bg-slate-900/40 p-3 rounded-r-xl transition cursor-pointer">
+                        <div id="step-3" class="step-card demo-option p-3 cursor-pointer">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Step 3</span>
-                                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+                                <span class="demo-step-label text-xs font-bold uppercase tracking-widest">Step 3</span>
+                                <span class="demo-dot"></span>
                             </div>
                             <h4 class="text-xs font-bold text-slate-300 mt-1">Modified Beer-Lambert Law</h4>
                             <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
@@ -301,7 +269,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800 bg-slate-950/60 py-4 px-6 text-center text-xs text-slate-500">
+    <footer class="demo-footer py-4 px-6 text-center text-xs">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>&copy; 2026 Interactive Neuro-Engineering Simulations</span>
             <div class="flex gap-4">
@@ -456,7 +424,7 @@
                         labels: {
                             color: '#94a3b8',
                             boxWidth: 12,
-                            font: { size: 10, family: 'Plus Jakarta Sans' }
+                            font: { size: 10, family: 'Inter' }
                         }
                     }
                 },
@@ -468,7 +436,7 @@
                             display: true,
                             text: 'Concentration Change (μM · mm)',
                             color: '#64748b',
-                            font: { size: 9, family: 'Plus Jakarta Sans', weight: 'bold' }
+                            font: { size: 9, family: 'Inter', weight: 'bold' }
                         },
                         grid: { color: 'rgba(51, 65, 85, 0.2)' },
                         ticks: { 
@@ -482,7 +450,7 @@
                             display: true,
                             text: 'Time (relative)',
                             color: '#64748b',
-                            font: { size: 9, family: 'Plus Jakarta Sans', weight: 'bold' }
+                            font: { size: 9, family: 'Inter', weight: 'bold' }
                         },
                         grid: { display: false }
                     }
@@ -610,13 +578,9 @@
         steps.forEach((stepId) => {
             document.getElementById(stepId).addEventListener('click', () => {
                 steps.forEach(id => {
-                    const el = document.getElementById(id);
-                    el.className = "step-card border-l-2 border-slate-700 bg-slate-900/40 p-3 rounded-r-xl transition cursor-pointer";
-                    el.querySelector('span:nth-child(2)').className = "w-2 h-2 rounded-full bg-slate-700";
+                    document.getElementById(id).classList.remove('is-active');
                 });
-                const activeEl = document.getElementById(stepId);
-                activeEl.className = "step-card border-l-2 border-emerald-500 bg-emerald-500/5 p-3 rounded-r-xl transition cursor-pointer";
-                activeEl.querySelector('span:nth-child(2)').className = "w-2 h-2 rounded-full bg-emerald-400";
+                document.getElementById(stepId).classList.add('is-active');
             });
         });
 
@@ -927,7 +891,7 @@
             ctx.stroke();
 
             ctx.fillStyle = '#94a3b8';
-            ctx.font = 'bold 10px "Plus Jakarta Sans", sans-serif';
+            ctx.font = 'bold 10px "Inter", sans-serif';
             ctx.textAlign = 'right';
             ctx.shadowColor = '#000';
             ctx.shadowBlur = 2;

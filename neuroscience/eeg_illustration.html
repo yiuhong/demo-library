@@ -6,6 +6,7 @@
     <title>Interactive EEG Biophysics Simulator</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/neuroscience-demo-theme.css">
     <!-- MathJax Configuration and Script for LaTeX rendering -->
     <script>
         window.MathJax = {
@@ -19,43 +20,26 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-        }
         .code-font {
             font-family: 'JetBrains Mono', monospace;
         }
-        /* Custom scrollbars */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+<body class="demo-page min-h-screen flex flex-col overflow-x-hidden">
 
     <!-- Header Section -->
-    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <header class="demo-header sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col gap-3">
+            <a class="demo-back self-start" href="../index.html">← Teaching Materials Library</a>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <div class="p-2 bg-indigo-600 rounded-lg shadow-lg shadow-indigo-500/30">
+                <div class="demo-mark p-2">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+                    <h1 class="demo-title text-xl">
                         EEG Biophysics Explorer
                     </h1>
                     <p class="text-xs text-slate-400">Interactive simulation of synaptic dipole generation & volume conduction</p>
@@ -64,13 +48,14 @@
             
             <!-- Quick Stats -->
             <div class="flex items-center gap-4 text-xs code-font">
-                <div class="bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-1.5 flex items-center gap-2">
+                <div class="demo-pill px-3 py-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span>SIGNAL LEVEL: <span id="stat-microvolts" class="text-emerald-400 font-bold">~12 µV</span></span>
                 </div>
-                <div class="bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-1.5 flex items-center gap-2">
+                <div class="demo-pill px-3 py-1.5">
                     <span>SYNCHRONY: <span id="stat-sync" class="text-indigo-400 font-bold">50%</span></span>
                 </div>
+            </div>
             </div>
         </div>
     </header>
@@ -82,13 +67,13 @@
         <section class="lg:col-span-4 flex flex-col gap-6">
             
             <!-- Panel 1: Simulation Controls -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-5">
+            <div class="demo-card p-5 flex flex-col gap-5">
                 <div class="flex items-center justify-between">
-                    <h2 class="font-semibold text-slate-200 flex items-center gap-2 text-sm uppercase tracking-wider">
+                    <h2 class="demo-kicker text-sm flex items-center gap-2">
                         <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                         Physiological Variables
                     </h2>
-                    <span class="text-xs bg-slate-800 px-2 py-0.5 rounded text-indigo-300 font-medium">Real-time</span>
+                    <span class="demo-pill text-xs px-2 py-0.5 text-indigo-300">Real-time</span>
                 </div>
 
                 <!-- Synchrony Slider -->
@@ -192,15 +177,15 @@
 
                 <!-- Simulation Controls (Play/Pause/Reset) -->
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800">
-                    <button id="btn-play" class="flex items-center justify-center gap-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-lg text-xs font-medium transition-all">
+                    <button id="btn-play" class="demo-btn py-2 px-3 text-xs">
                         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
                         <span>Pause</span>
                     </button>
-                    <button id="btn-step" class="flex items-center justify-center gap-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all">
+                    <button id="btn-step" class="demo-btn py-2 px-3 text-xs">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
                         <span>Step</span>
                     </button>
-                    <button id="btn-reset" class="flex items-center justify-center gap-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all">
+                    <button id="btn-reset" class="demo-btn py-2 px-3 text-xs">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"/></svg>
                         <span>Reset</span>
                     </button>
@@ -208,21 +193,21 @@
             </div>
 
             <!-- Panel 2: Interactive Tutorials -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
-                <h3 class="font-semibold text-slate-200 flex items-center gap-2 text-sm uppercase tracking-wider">
+            <div class="demo-card p-5 flex flex-col gap-4">
+                <h3 class="demo-kicker text-sm flex items-center gap-2">
                     <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     Guided Physics Concepts
                 </h3>
                 <div class="flex flex-col gap-2">
-                    <button onclick="loadTutorial('dipole')" class="tutorial-btn active flex flex-col items-start gap-1 p-2.5 rounded-lg border border-indigo-500/30 bg-indigo-500/5 text-left transition-all hover:bg-indigo-500/10">
+                    <button onclick="loadTutorial('dipole')" class="tutorial-btn demo-option is-active flex flex-col items-start gap-1 p-2.5 text-left">
                         <span class="text-xs font-semibold text-indigo-300">1. The Synaptic Dipole</span>
                         <span class="text-[10px] text-slate-400">Learn how EPSPs and IPSPs create positive/negative voltage poles along a pyramidal cell.</span>
                     </button>
-                    <button onclick="loadTutorial('synchrony')" class="tutorial-btn flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-800 bg-slate-950 text-left transition-all hover:bg-slate-800">
+                    <button onclick="loadTutorial('synchrony')" class="tutorial-btn demo-option flex flex-col items-start gap-1 p-2.5 text-left">
                         <span class="text-xs font-semibold text-purple-300">2. Why Synchrony is Crucial</span>
                         <span class="text-[10px] text-slate-400">Discover how out-of-phase signals cancel each other, while synchronous firing builds observable scalp voltages.</span>
                     </button>
-                    <button onclick="loadTutorial('conduction')" class="tutorial-btn flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-800 bg-slate-950 text-left transition-all hover:bg-slate-800">
+                    <button onclick="loadTutorial('conduction')" class="tutorial-btn demo-option flex flex-col items-start gap-1 p-2.5 text-left">
                         <span class="text-xs font-semibold text-pink-300">3. Volume Conduction & Filtering</span>
                         <span class="text-[10px] text-slate-400">See how cerebrospinal fluid, bone, and skin disperse and low-pass filter electrical fields.</span>
                     </button>
@@ -232,7 +217,7 @@
 
         <!-- Center Column: Main Live Interactive Biophysics Visualization (5 cols) -->
         <section class="lg:col-span-5 flex flex-col gap-4">
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex-grow flex flex-col relative">
+            <div class="demo-card p-4 flex-grow flex flex-col relative">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></span>
@@ -244,7 +229,7 @@
                 </div>
 
                 <!-- Simulation Canvas Wrapper -->
-                <div class="relative flex-grow min-h-[480px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
+                <div class="demo-plot relative flex-grow min-h-[480px] overflow-hidden">
                     <canvas id="canvas-biophysics" class="absolute inset-0 w-full h-full cursor-crosshair"></canvas>
                     
                     <!-- Dynamic Layer Tag Float (changes on hover or click) -->
@@ -257,9 +242,9 @@
         <section class="lg:col-span-3 flex flex-col gap-6">
             
             <!-- Real-time Oscilloscope (Graph) -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col gap-3">
+            <div class="demo-card p-4 flex flex-col gap-3">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-semibold text-slate-200 flex items-center gap-2 text-xs uppercase tracking-wider">
+                    <h3 class="demo-kicker text-xs flex items-center gap-2">
                         <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                         Amplified EEG Output
                     </h3>
@@ -270,14 +255,14 @@
                 </div>
 
                 <!-- Scope Canvas -->
-                <div class="relative h-32 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                <div class="demo-plot relative h-32 overflow-hidden flex items-center justify-center">
                     <canvas id="canvas-oscilloscope" class="absolute inset-0 w-full h-full"></canvas>
                     <div class="absolute left-10 top-2 code-font text-[9px] bg-slate-900/90 border border-slate-800 px-1 py-0.5 rounded text-emerald-400/80 z-10">60Hz Notch Active</div>
                     <div class="absolute right-2 bottom-2 code-font text-[9px] bg-slate-900/90 border border-slate-800 px-1 py-0.5 rounded text-slate-500 z-10" id="scale-indicator">10 µV / div</div>
                 </div>
 
                 <!-- Live Signal Analytics -->
-                <div class="grid grid-cols-2 gap-2 text-center text-xs code-font bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                <div class="demo-panel grid grid-cols-2 gap-2 text-center text-xs code-font p-2.5">
                     <div class="border-r border-slate-800">
                         <div class="text-[9px] text-slate-500">PEAK-TO-PEAK</div>
                         <div class="text-emerald-400 font-bold" id="val-peak">12.4 µV</div>
@@ -290,13 +275,13 @@
             </div>
 
             <!-- Contextual Inspector (updates when clicking layers or items) -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex-grow flex flex-col gap-4 min-h-[280px]">
+            <div class="demo-card p-5 flex-grow flex flex-col gap-4 min-h-[280px]">
                 <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
                     <div class="p-1 rounded bg-indigo-500/10 text-indigo-400" id="inspector-icon">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider">Anatomy & Biophysics</h3>
+                        <h3 class="demo-kicker text-xs">Anatomy & Biophysics</h3>
                         <p class="text-[9px] text-slate-500">Inspection panel</p>
                     </div>
                 </div>
@@ -313,7 +298,7 @@
                         </p>
                     </div>
                     
-                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-850 space-y-1.5" id="inspector-bio-fact">
+                    <div class="demo-panel p-3 space-y-1.5" id="inspector-bio-fact">
                         <span class="text-[10px] font-semibold text-indigo-300 uppercase tracking-wider block">Key Biophysics Fact</span>
                         <p class="text-[10px] text-slate-400 leading-normal">
                             Individual action potentials (spikes) do not generate EEG signals. Instead, EEG is formed by the spatial summation of slower synaptic potentials (EPSPs and IPSPs).
@@ -326,7 +311,7 @@
     </main>
 
     <!-- Footer / Sources Info -->
-    <footer class="border-t border-slate-900 bg-slate-950 px-6 py-4 mt-auto">
+    <footer class="demo-footer px-6 py-4 mt-auto">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div>
                 <span>Based on Freeman (2004a, b) biophysical models of cortical dipoles.</span>
@@ -547,14 +532,14 @@
                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
                     <span>Pause</span>
                 `;
-                btnPlay.className = "flex items-center justify-center gap-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all";
+                btnPlay.className = "demo-btn py-2 px-3 text-xs";
                 requestAnimationFrame(loop);
             } else {
                 btnPlay.innerHTML = `
                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
                     <span>Play</span>
                 `;
-                btnPlay.className = "flex items-center justify-center gap-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-medium transition-all";
+                btnPlay.className = "demo-btn demo-btn-primary py-2 px-3 text-xs";
             }
         });
 
@@ -655,12 +640,12 @@
         function loadTutorial(concept) {
             // Remove active classes
             document.querySelectorAll('.tutorial-btn').forEach(btn => {
-                btn.className = "tutorial-btn flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-800 bg-slate-950 text-left transition-all hover:bg-slate-800";
+                btn.className = "tutorial-btn demo-option flex flex-col items-start gap-1 p-2.5 text-left";
             });
 
             // Set clicked active
             const currentButton = event.currentTarget;
-            currentButton.className = "tutorial-btn active flex flex-col items-start gap-1 p-2.5 rounded-lg border border-indigo-500/30 bg-indigo-500/5 text-left transition-all hover:bg-indigo-500/10";
+            currentButton.className = "tutorial-btn demo-option is-active flex flex-col items-start gap-1 p-2.5 text-left";
 
             if (concept === 'dipole') {
                 sliderSynchrony.value = 40;
