@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Building the Normal Distribution</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     
     <!-- KaTeX Core -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -14,7 +15,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
     
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         .step-content {
             display: none;
             animation: fadeIn 0.4s ease-in-out;
@@ -27,15 +27,18 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
+<body class="demo-page h-screen flex flex-col overflow-hidden">
 
-    <!-- Header -->
-    <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm z-10 shrink-0">
-        <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+    <div class="demo-topbar px-4 pt-3 shrink-0">
+        <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+    </div>
+
+    <header class="demo-header mx-4 mb-3 flex items-center justify-between shrink-0">
+        <h1 class="text-xl font-bold flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
             Building the Normal Distribution
         </h1>
-        <div class="text-sm font-medium bg-blue-100 text-blue-800 py-1 px-3 rounded-full" id="step-indicator">
+        <div class="demo-value" id="step-indicator">
             Step 1 of 8
         </div>
     </header>
@@ -44,16 +47,16 @@
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
         
         <!-- Sidebar / Controls -->
-        <aside class="w-full md:w-1/3 lg:w-1/4 bg-white border-r border-slate-200 flex flex-col shadow-lg z-10 overflow-hidden">
+        <aside class="demo-card w-full md:w-1/3 lg:w-1/4 mx-4 mb-4 flex flex-col overflow-hidden">
             <div class="p-6 flex-1 overflow-y-auto">
                 
                 <!-- Step 1 -->
                 <div id="step-1" class="step-content active">
-                    <h2 class="text-lg font-bold mb-3 text-blue-700">1. Exponential Growth</h2>
+                    <h2 class="text-lg font-bold mb-3">1. Exponential Growth</h2>
                     <p class="text-slate-600 text-sm mb-4">
                         Before building a bell curve, let's look at basic exponential growth: $e^x$. As $x$ gets larger, the value shoots up to infinity. This doesn't work for probabilities, which must be finite!
                     </p>
-                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4 text-center overflow-x-auto" id="math-1"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-1"></div>
                     <div class="flex justify-center mb-4">
                         <canvas id="mini-graph-1" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
                     </div>
@@ -64,11 +67,11 @@
 
                 <!-- Step 2 -->
                 <div id="step-2" class="step-content">
-                    <h2 class="text-lg font-bold mb-3 text-blue-700">2. Exponential Decay</h2>
+                    <h2 class="text-lg font-bold mb-3">2. Exponential Decay</h2>
                     <p class="text-slate-600 text-sm mb-4">
                         What if we make the exponent negative? The function $e^{-x}$ decays beautifully to zero on the right, but it explodes to infinity on the left! We need a function that decays on <em>both</em> sides.
                     </p>
-                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4 text-center overflow-x-auto" id="math-2"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-2"></div>
                     <div class="flex justify-center mb-4">
                         <canvas id="mini-graph-2" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
                     </div>
@@ -79,12 +82,12 @@
 
                 <!-- Step 3 -->
                 <div id="step-3" class="step-content">
-                    <h2 class="text-lg font-bold mb-3 text-blue-700">3. Distance from the Center</h2>
+                    <h2 class="text-lg font-bold mb-3">3. Distance from the Center</h2>
                     <p class="text-slate-600 text-sm mb-4">
                         To fix the infinite growth, we want a shape that is highest at the center ($x=0$) and drops off as we move away in either direction. 
                         By raising Euler's number to a negative absolute distance ($-|x|$), we get a peak at 1 that shrinks symmetrically.
                     </p>
-                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4 text-center overflow-x-auto" id="math-3"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-3"></div>
                     <div class="flex justify-center mb-4">
                         <canvas id="mini-graph-3" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
                     </div>
@@ -95,11 +98,11 @@
 
                 <!-- Step 4 -->
                 <div id="step-4" class="step-content">
-                    <h2 class="text-lg font-bold mb-3 text-blue-700">4. The Smooth Bell Shape</h2>
+                    <h2 class="text-lg font-bold mb-3">4. The Smooth Bell Shape</h2>
                     <p class="text-slate-600 text-sm mb-4">
                         By replacing the absolute distance with a <strong>squared</strong> distance ($x^2$), the sharp peak becomes beautifully smooth and rounded—creating the foundation of the famous "bell" shape.
                     </p>
-                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4 text-center overflow-x-auto" id="math-4"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-4"></div>
                     <div class="flex justify-center mb-4">
                         <canvas id="mini-graph-4" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
                     </div>
@@ -110,11 +113,11 @@
 
                 <!-- Step 5 -->
                 <div id="step-5" class="step-content">
-                    <h2 class="text-lg font-bold mb-3 text-blue-700">5. The "1/2" Math Trick</h2>
+                    <h2 class="text-lg font-bold mb-3">5. The "1/2" Math Trick</h2>
                     <p class="text-slate-600 text-sm mb-4">
                         To fix the awkward fraction, we add a $1/2$ into the exponent. Why? In calculus, the derivative of $\frac{1}{2}x^2$ is simply $x$. 
                     </p>
-                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4 text-center overflow-x-auto" id="math-5"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-5"></div>
                     <div class="flex justify-center mb-4">
                         <canvas id="mini-graph-5" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
                     </div>
@@ -125,11 +128,11 @@
 
                 <!-- Step 6 -->
                 <div id="step-6" class="step-content">
-                    <h2 class="text-lg font-bold mb-3 text-blue-700">6. Adding Spread ($\sigma$)</h2>
+                    <h2 class="text-lg font-bold mb-3">6. Adding Spread ($\sigma$)</h2>
                     <p class="text-slate-600 text-sm mb-4">
                         Not all data is tightly clustered. We introduce a variable $\sigma$ (sigma), known as the <strong>Standard Deviation</strong>, to control how spread out the bell curve is.
                     </p>
-                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4 text-center overflow-x-auto" id="math-6"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-6"></div>
                     <div class="flex justify-center mb-4">
                         <canvas id="mini-graph-6" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
                     </div>
@@ -140,11 +143,11 @@
 
                 <!-- Step 7 -->
                 <div id="step-7" class="step-content">
-                    <h2 class="text-lg font-bold mb-3 text-blue-700">7. Shifting the Center ($\mu$)</h2>
+                    <h2 class="text-lg font-bold mb-3">7. Shifting the Center ($\mu$)</h2>
                     <p class="text-slate-600 text-sm mb-4">
                         Data doesn't always center around zero. We introduce $\mu$ (mu), the <strong>Mean</strong>, to shift the entire curve left or right.
                     </p>
-                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4 text-center overflow-x-auto" id="math-7"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-7"></div>
                     <div class="flex justify-center mb-4">
                         <canvas id="mini-graph-7" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
                     </div>
@@ -155,7 +158,7 @@
 
                 <!-- Step 8 -->
                 <div id="step-8" class="step-content">
-                    <h2 class="text-lg font-bold mb-3 text-blue-700">8. Normalization (Area = 1)</h2>
+                    <h2 class="text-lg font-bold mb-3">8. Normalization (Area = 1)</h2>
                     <p class="text-slate-600 text-sm mb-4">
                         A true <em>probability</em> distribution must have a total area under the curve equal to 1 (representing 100% probability). 
                     </p>
@@ -163,7 +166,7 @@
                         Currently, when you increase $\sigma$, the area grows. Calculus tells us the area of our previous function is exactly $\sigma\sqrt{2\pi}$. 
                         By dividing our function by this constant, the area remains perfectly locked at 1, no matter how much you stretch it!
                     </p>
-                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4 text-center overflow-x-auto" id="math-8"></div>
+                    <div class="demo-panel p-3 mb-4 text-center overflow-x-auto" id="math-8"></div>
                     <div class="flex justify-center mb-4">
                         <canvas id="mini-graph-8" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
                     </div>
@@ -175,19 +178,19 @@
             </div>
             
             <!-- Navigation Buttons -->
-            <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-between shrink-0">
-                <button id="btn-prev" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
+            <div class="p-4 border-t border-black bg-white flex justify-between shrink-0">
+                <button id="btn-prev" class="demo-btn" type="button">
                     Previous
                 </button>
-                <button id="btn-next" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
+                <button id="btn-next" class="demo-btn demo-btn-primary" type="button">
                     Next Step
                 </button>
             </div>
         </aside>
 
         <!-- Graph / Canvas Area -->
-        <section class="flex-1 bg-white relative p-4 md:p-8 flex flex-col min-h-[400px]">
-            <div class="w-full flex-1 bg-slate-50 rounded-xl border border-slate-200 shadow-inner relative overflow-hidden" id="canvas-container">
+        <section class="demo-card flex-1 relative p-4 md:p-8 mx-0 md:mr-4 mb-4 flex flex-col min-h-[400px]">
+            <div class="demo-panel w-full flex-1 relative overflow-hidden" id="canvas-container">
                 <canvas id="graph-canvas" class="absolute inset-0 w-full h-full"></canvas>
             </div>
             <!-- Legend / Insight -->

@@ -4,27 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boxplot and outliers</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <style>
         :root {
             --primary: #2563eb;
             --box-fill: #bfdbfe;
             --line-color: #1e293b;
             --point-color: #ef4444;
-            --bg-color: #f8fafc;
+            --bg-color: #f6f6f6;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: var(--demo-font, Arial, Helvetica, sans-serif);
             background-color: var(--bg-color);
-            color: #333;
+            color: #000000;
             max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
         }
 
         h1 {
             text-align: center;
-            color: var(--line-color);
+            color: #ffffff;
             margin-bottom: 5px;
         }
 
@@ -37,10 +38,11 @@
         }
 
         .container {
-            background: white;
-            border-radius: 12px;
+            background: var(--demo-card, #fff);
+            border: 1px solid #000000;
+            border-radius: 4px;
             padding: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: none;
         }
 
         /* Controls Styles */
@@ -49,10 +51,10 @@
             flex-direction: column;
             gap: 15px;
             margin-bottom: 20px;
-            background: #f8fafc;
+            background: #f6f6f6;
             padding: 18px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            border: 1px solid #000000;
         }
 
         .controls {
@@ -108,7 +110,7 @@
         }
 
         input:checked + .slider {
-            background-color: var(--primary);
+            background-color: #000000;
         }
 
         input:checked + .slider:before {
@@ -124,23 +126,25 @@
 
         .btn {
             padding: 8px 16px;
-            border: 2px solid var(--primary);
-            background: white;
-            color: var(--primary);
-            border-radius: 6px;
+            border: 1px solid #000000;
+            background: #ffffff;
+            color: #000000;
+            border-radius: 3em;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            font-family: var(--demo-font, Arial, Helvetica, sans-serif);
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: background-color 0.15s ease, color 0.15s ease;
         }
 
         .btn:hover {
-            background: #eff6ff;
+            background: #000000;
+            color: #ffffff;
         }
 
         .btn.active {
-            background: var(--primary);
-            color: white;
+            background: #000000;
+            color: #ffffff;
         }
 
         /* SVG Chart Area */
@@ -167,11 +171,11 @@
         }
 
         .stat-card {
-            background: #f1f5f9;
+            background: #f6f6f6;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 4px;
             text-align: center;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #000000;
         }
 
         .stat-label {
@@ -185,7 +189,7 @@
         .stat-value {
             font-size: 1.5rem;
             font-weight: bold;
-            color: var(--primary);
+            color: #000000;
             margin-top: 5px;
         }
 
@@ -207,7 +211,12 @@
 </head>
 <body>
 
-    <h1>Boxplot and outliers</h1>
+    <div class="demo-topbar">
+        <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+    </div>
+    <header class="demo-header" style="margin-bottom:1.25rem;">
+        <h1>Boxplot and outliers</h1>
+    </header>
     <p class="explanation">
         <strong>Are outliers not the min and max?</strong> The absolute minimum and maximum <em>are</em> the actual extremes of the data. 
         However, in a boxplot, the whiskers only extend to the lowest and highest typical values within a mathematically expected range (Tukey's Fences). 

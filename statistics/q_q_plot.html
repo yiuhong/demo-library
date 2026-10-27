@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Q-Q Plot for Normality Examination</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
+            background-color: var(--demo-bg);
+            color: var(--demo-text);
+            font-family: var(--demo-font);
             margin: 0;
             padding: 20px;
             display: flex;
@@ -21,11 +22,12 @@
         .container {
             width: 100%;
             max-width: 1024px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            background: var(--demo-card);
+            border: 1px solid var(--demo-border);
+            border-radius: var(--demo-radius);
+            box-shadow: none;
             padding: 24px;
-            margin-top: 20px;
+            margin-top: 12px;
         }
 
         .axis text {
@@ -92,24 +94,27 @@
         }
 
         button {
-            padding: 8px 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            background-color: white;
-            color: #475569;
-            font-weight: 500;
+            padding: 0.55em 1.1em;
+            border: 1px solid #000000;
+            border-radius: 3em;
+            background-color: #ffffff;
+            color: #000000;
+            font-family: var(--demo-font);
+            font-weight: bold;
+            font-size: 0.82rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: background-color 0.15s ease, color 0.15s ease;
         }
 
         button:hover {
-            background-color: #f1f5f9;
+            background-color: #000000;
+            color: #ffffff;
         }
 
         button.active {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
+            background-color: #000000;
+            color: #ffffff;
+            border-color: #000000;
         }
 
         .chart-container {
@@ -153,17 +158,20 @@
         }
     </style>
 </head>
-<body>
+<body class="demo-page">
 
-<button id="fullscreen-btn" class="fixed top-4 right-4 md:top-6 md:right-6 z-50 flex items-center gap-2 bg-slate-800 text-white px-3 py-2 rounded-lg shadow-lg hover:bg-slate-700 transition-colors">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-    </svg>
-    <span class="hidden sm:inline font-medium text-sm">Fullscreen</span>
-</button>
+<div class="demo-topbar" style="width:100%;max-width:1024px;">
+    <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+    <button id="fullscreen-btn" class="demo-btn demo-btn-primary" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+        </svg>
+        <span class="hidden sm:inline font-medium text-sm">Fullscreen</span>
+    </button>
+</div>
 
 <div class="container">
-    <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">Interactive Q-Q Plot Explorer</h1>
+    <h1 class="text-2xl font-bold text-center mb-2">Interactive Q-Q Plot Explorer</h1>
     <p class="text-center text-slate-600 mb-6">Visualizing Normality with Quantile-Quantile Plots and Marginal Histograms</p>
 
     <div class="info-panel text-sm text-slate-700">
@@ -181,7 +189,7 @@
         <span class="text-slate-600 font-medium text-sm">Raw Data</span>
         <label class="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" id="standardize-toggle" class="sr-only peer" checked>
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
         </label>
         <span class="text-slate-600 font-medium text-sm">Standardized Data</span>
     </div>
