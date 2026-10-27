@@ -69,7 +69,6 @@
 
     <div class="flex flex-wrap items-center gap-2">
         <button id="btnPlayPause" class="demo-btn demo-btn-primary" type="button">
-            <span id="playPauseIcon" class="w-2.5 h-2.5 rounded-full bg-white"></span>
             <span id="playPauseText">Flowing</span>
         </button>
         <button id="btnBurst" class="demo-btn demo-btn-primary" type="button">
@@ -1782,17 +1781,14 @@
         // Event Listeners for UI Controls
         const btnPlayPause = document.getElementById('btnPlayPause');
         const playPauseText = document.getElementById('playPauseText');
-        const playPauseIcon = document.getElementById('playPauseIcon');
 
         btnPlayPause.addEventListener('click', () => {
             isFlowing = !isFlowing;
             if (isFlowing) {
                 playPauseText.textContent = 'Flowing';
-                playPauseIcon.className = 'w-2.5 h-2.5 rounded-full bg-white';
                 btnPlayPause.className = 'demo-btn demo-btn-primary';
             } else {
                 playPauseText.textContent = 'Paused';
-                playPauseIcon.className = 'w-2.5 h-2.5 rounded-full bg-black';
                 btnPlayPause.className = 'demo-btn';
             }
         });
