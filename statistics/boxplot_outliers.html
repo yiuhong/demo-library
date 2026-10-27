@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boxplot and outliers</title>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --box-fill: #bfdbfe;
-            --line-color: #1e293b;
-            --point-color: #ef4444;
             --bg-color: #f6f6f6;
         }
 
@@ -67,8 +65,6 @@
         }
 
         .sample-badge {
-            background: #e0e7ff;
-            color: #1e40af;
             padding: 4px 14px;
             border-radius: 20px;
             font-size: 0.85rem;
@@ -196,7 +192,7 @@
         .svg-label {
             font-family: sans-serif;
             font-size: 14px;
-            fill: var(--line-color);
+            fill: #1e293b;
         }
         
         .fence-label {
@@ -232,7 +228,7 @@
                     <button class="btn active" id="btn-normal">Normal</button>
                     <button class="btn" id="btn-positive">Positive Skew</button>
                 </div>
-                <span class="sample-badge">Sample Size: <strong>n = 100</strong></span>
+                <span class="sample-badge viz-soft-group-a viz-ink-group-a">Sample Size: <strong>n = 100</strong></span>
             </div>
             <div class="controls">
                 <span style="color: #64748b;">Hide Data Points</span>
@@ -359,17 +355,17 @@
             let svgContent = `<svg viewBox="0 0 ${width} ${height}">
                 <defs>
                     <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--primary)" />
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--viz-group-a)" />
                     </marker>
                 </defs>`;
 
             // 0. Draw Y-axis
             const axisX = padding;
-            svgContent += `<line x1="${axisX}" y1="${height - padding + 10}" x2="${axisX}" y2="${padding - 10}" stroke="var(--line-color)" stroke-width="2"/>`;
+            svgContent += `<line x1="${axisX}" y1="${height - padding + 10}" x2="${axisX}" y2="${padding - 10}" stroke="#1e293b" stroke-width="2"/>`;
             
             for(let i = 0; i <= 140; i += 10) {
                 const y = mapY(i);
-                svgContent += `<line x1="${axisX - 5}" y1="${y}" x2="${axisX}" y2="${y}" stroke="var(--line-color)" stroke-width="2"/>`;
+                svgContent += `<line x1="${axisX - 5}" y1="${y}" x2="${axisX}" y2="${y}" stroke="#1e293b" stroke-width="2"/>`;
                 svgContent += `<text x="${axisX - 10}" y="${y + 5}" class="svg-label" text-anchor="end">${i}</text>`;
             }
 
@@ -381,8 +377,8 @@
                 const clampUpper = Math.min(stats.upperFence, axisMax + 10);
                 
                 // Fence dashed lines across box area
-                svgContent += `<line x1="${centerX - 60}" y1="${mapY(clampLower)}" x2="${centerX + 60}" y2="${mapY(clampLower)}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8,4"/>`;
-                svgContent += `<line x1="${centerX - 60}" y1="${mapY(clampUpper)}" x2="${centerX + 60}" y2="${mapY(clampUpper)}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8,4"/>`;
+                svgContent += `<line x1="${centerX - 60}" y1="${mapY(clampLower)}" x2="${centerX + 60}" y2="${mapY(clampLower)}" stroke="var(--viz-reference)" stroke-width="2" stroke-dasharray="8,4"/>`;
+                svgContent += `<line x1="${centerX - 60}" y1="${mapY(clampUpper)}" x2="${centerX + 60}" y2="${mapY(clampUpper)}" stroke="var(--viz-reference)" stroke-width="2" stroke-dasharray="8,4"/>`;
 
                 leftLabels.push({
                     text: 'Upper Fence (+1.5x IQR)',
@@ -406,7 +402,7 @@
                     leftLabels.push({
                         text: 'Outliers',
                         y: mapY(midVal),
-                        color: 'var(--point-color)',
+                        color: 'var(--viz-null)',
                         fontStyle: 'normal',
                         fontWeight: 'bold'
                     });
@@ -418,7 +414,7 @@
                     leftLabels.push({
                         text: 'Outliers',
                         y: mapY(midVal),
-                        color: 'var(--point-color)',
+                        color: 'var(--viz-null)',
                         fontStyle: 'normal',
                         fontWeight: 'bold'
                     });
@@ -441,20 +437,20 @@
             });
 
             // 2. Draw Whiskers Line
-            svgContent += `<line x1="${centerX}" y1="${mapY(stats.minWhisker)}" x2="${centerX}" y2="${mapY(stats.maxWhisker)}" stroke="#1e293b" stroke-width="3" stroke-dasharray="6,4"/>`;
+            svgContent += `<line x1="${centerX}" y1="${mapY(stats.minWhisker)}" x2="${centerX}" y2="${mapY(stats.maxWhisker)}" stroke="var(--viz-total)" stroke-width="3" stroke-dasharray="6,4"/>`;
 
             // 3. Draw Box (Q1 to Q3)
             const boxTop = mapY(stats.q3);
             const boxBottom = mapY(stats.q1);
-            svgContent += `<rect x="${centerX - boxWidth/2}" y="${boxTop}" width="${boxWidth}" height="${boxBottom - boxTop}" fill="var(--box-fill)" stroke="var(--line-color)" stroke-width="3" rx="4"/>`;
+            svgContent += `<rect x="${centerX - boxWidth/2}" y="${boxTop}" width="${boxWidth}" height="${boxBottom - boxTop}" fill="var(--viz-group-a-mid)" stroke="var(--viz-total)" stroke-width="3" rx="4"/>`;
 
             // 4. Draw Median Line (Q2)
-            svgContent += `<line x1="${centerX - boxWidth/2}" y1="${mapY(stats.q2)}" x2="${centerX + boxWidth/2}" y2="${mapY(stats.q2)}" stroke="var(--line-color)" stroke-width="4"/>`;
+            svgContent += `<line x1="${centerX - boxWidth/2}" y1="${mapY(stats.q2)}" x2="${centerX + boxWidth/2}" y2="${mapY(stats.q2)}" stroke="var(--viz-median)" stroke-width="4"/>`;
 
             // 5. Draw Whisker Caps
             const whiskerWidth = 40;
-            svgContent += `<line x1="${centerX - whiskerWidth/2}" y1="${mapY(stats.minWhisker)}" x2="${centerX + whiskerWidth/2}" y2="${mapY(stats.minWhisker)}" stroke="var(--line-color)" stroke-width="3"/>`;
-            svgContent += `<line x1="${centerX - whiskerWidth/2}" y1="${mapY(stats.maxWhisker)}" x2="${centerX + whiskerWidth/2}" y2="${mapY(stats.maxWhisker)}" stroke="var(--line-color)" stroke-width="3"/>`;
+            svgContent += `<line x1="${centerX - whiskerWidth/2}" y1="${mapY(stats.minWhisker)}" x2="${centerX + whiskerWidth/2}" y2="${mapY(stats.minWhisker)}" stroke="var(--viz-total)" stroke-width="3"/>`;
+            svgContent += `<line x1="${centerX - whiskerWidth/2}" y1="${mapY(stats.maxWhisker)}" x2="${centerX + whiskerWidth/2}" y2="${mapY(stats.maxWhisker)}" stroke="var(--viz-total)" stroke-width="3"/>`;
 
             // 6. Prepare Right-Side Labels
             const rightLabels = [
@@ -492,7 +488,8 @@
             // Draw Right-Side Labels
             const labelOffset = boxWidth/2 + 25; 
             rightLabels.forEach(lbl => {
-                svgContent += `<text x="${centerX + labelOffset}" y="${lbl.y - 2}" class="svg-label" text-anchor="start" font-weight="bold">${lbl.name}</text>`;
+                const nameFill = lbl.name === 'Q2 (Median)' ? ' style="fill: var(--viz-median)"' : '';
+                svgContent += `<text x="${centerX + labelOffset}" y="${lbl.y - 2}" class="svg-label" text-anchor="start" font-weight="bold"${nameFill}>${lbl.name}</text>`;
                 svgContent += `<text x="${centerX + labelOffset}" y="${lbl.y + 14}" class="svg-label" text-anchor="start" font-size="12px" fill="#64748b">${lbl.sub}</text>`;
             });
 
@@ -501,18 +498,18 @@
                 const pseudoRandom = Math.sin(index * 12.9898) * 43758.5453;
                 const jitter = (pseudoRandom - Math.floor(pseudoRandom) - 0.5) * 60; 
                 
-                svgContent += `<circle class="data-point" style="opacity: ${pointsOpacity}" cx="${centerX + jitter}" cy="${mapY(val)}" r="3.5" fill="var(--point-color)" stroke="white" stroke-width="0.5"/>`;
+                svgContent += `<circle class="data-point" style="opacity: ${pointsOpacity}" cx="${centerX + jitter}" cy="${mapY(val)}" r="3.5" fill="var(--viz-sample)" stroke="white" stroke-width="0.5"/>`;
             });
             
             stats.outliers.forEach((val, index) => {
                 const jitter = (index % 2 === 0 ? 1 : -1) * 12;
-                svgContent += `<circle class="data-point" style="opacity: ${pointsOpacity}" cx="${centerX + jitter}" cy="${mapY(val)}" r="4.5" fill="var(--point-color)" stroke="var(--line-color)" stroke-width="1.5"/>`;
+                svgContent += `<circle class="data-point" style="opacity: ${pointsOpacity}" cx="${centerX + jitter}" cy="${mapY(val)}" r="4.5" fill="var(--viz-null)" stroke="var(--viz-null)" stroke-width="1.5"/>`;
             });
 
             // Annotate IQR on left
             const iqrX = centerX - boxWidth/2 - 25;
-            svgContent += `<line x1="${iqrX}" y1="${mapY(stats.q1)}" x2="${iqrX}" y2="${mapY(stats.q3)}" stroke="var(--primary)" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>`;
-            svgContent += `<text x="${iqrX - 10}" y="${mapY((stats.q1+stats.q3)/2) + 5}" class="svg-label" text-anchor="end" fill="var(--primary)" font-weight="bold" font-size="14px">IQR (${stats.iqr})</text>`;
+            svgContent += `<line x1="${iqrX}" y1="${mapY(stats.q1)}" x2="${iqrX}" y2="${mapY(stats.q3)}" stroke="var(--viz-group-a)" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>`;
+            svgContent += `<text x="${iqrX - 10}" y="${mapY((stats.q1+stats.q3)/2) + 5}" class="svg-label" text-anchor="end" style="fill: var(--viz-group-a)" font-weight="bold" font-size="14px">IQR (${stats.iqr})</text>`;
 
             svgContent += `</svg>`;
             document.getElementById('chart').innerHTML = svgContent;

@@ -8,6 +8,8 @@
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     
     <!-- KaTeX for rendering mathematical formulas beautifully -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -131,7 +133,7 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="font-medium">Empirical Standard Error <span class="text-xs text-slate-400">(Actual Std Dev of means)</span>:</span>
-                        <span id="emp-se" class="font-mono font-bold text-lg text-indigo-700">--</span>
+                        <span id="emp-se" class="font-mono font-bold text-lg viz-ink-se">--</span>
                     </div>
                 </div>
             </div>
@@ -292,14 +294,14 @@
                 else ctxPop.lineTo(canvasX, canvasY);
             }
             
-            ctxPop.strokeStyle = '#f43f5e'; // Tailwind rose-500
+            ctxPop.strokeStyle = statsViz.color('--viz-group-b');
             ctxPop.lineWidth = 6;
             ctxPop.stroke();
 
             // Fill area under the curve for visual appeal
             ctxPop.lineTo(width - padding, height - padding);
             ctxPop.lineTo(padding, height - padding);
-            ctxPop.fillStyle = 'rgba(244, 63, 94, 0.15)'; // Transparent rose
+            ctxPop.fillStyle = statsViz.rgba('--viz-group-b', 0.15);
             ctxPop.fill();
         }
 
@@ -392,7 +394,7 @@
             ctxSample.restore();
 
             // Draw Histogram Bars
-            ctxSample.fillStyle = 'rgba(99, 102, 241, 0.7)'; // Tailwind indigo-500 transparent
+            ctxSample.fillStyle = statsViz.rgba('--viz-group-a', 0.7);
             ctxSample.strokeStyle = 'white';
             ctxSample.lineWidth = 2;
 
@@ -415,7 +417,7 @@
                 const exponent = -Math.pow(x - currentDist.mean, 2) / (2 * Math.pow(theoreticalSE, 2));
                 const yDensity = (1 / (theoreticalSE * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
                 
-                // USE TOTAL ITERATIONS HERE so the green target line stays at the final height
+                // USE TOTAL ITERATIONS HERE so the theoretical target line stays at the final height
                 const expectedCount = yDensity * totalIterations * binWidth;
                 
                 const canvasX = padding + ((x - minX) / (maxX - minX)) * (width - 2 * padding);
@@ -425,7 +427,7 @@
                 else ctxSample.lineTo(canvasX, canvasY);
             }
             
-            ctxSample.strokeStyle = '#10b981'; // Tailwind emerald-500
+            ctxSample.strokeStyle = statsViz.color('--viz-density');
             ctxSample.lineWidth = 6;
             ctxSample.stroke();
             
@@ -433,17 +435,18 @@
             ctxSample.font = '20px sans-serif';
             ctxSample.textAlign = 'right';
             
-            ctxSample.fillStyle = 'rgba(99, 102, 241, 0.7)';
+            ctxSample.fillStyle = statsViz.rgba('--viz-group-a', 0.7);
             ctxSample.fillRect(width - padding - 220, padding + 10, 20, 20);
-            ctxSample.fillStyle = '#334155'; // slate-700
+            ctxSample.fillStyle = statsViz.color('--viz-group-a');
             ctxSample.fillText('Simulated Means', width - padding - 10, padding + 27);
             
-            ctxSample.strokeStyle = '#10b981';
+            ctxSample.strokeStyle = statsViz.color('--viz-density');
             ctxSample.lineWidth = 4;
             ctxSample.beginPath();
             ctxSample.moveTo(width - padding - 220, padding + 50);
             ctxSample.lineTo(width - padding - 200, padding + 50);
             ctxSample.stroke();
+            ctxSample.fillStyle = statsViz.color('--viz-density');
             ctxSample.fillText('Theoretical Normal', width - padding - 10, padding + 57);
         }
 

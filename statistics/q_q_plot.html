@@ -6,6 +6,8 @@
     <title>Q-Q Plot for Normality Examination</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
@@ -46,27 +48,27 @@
         }
 
         .dot {
-            fill: #3b82f6;
+            fill: var(--viz-sample);
             fill-opacity: 0.6;
-            stroke: #2563eb;
+            stroke: var(--viz-sample);
             stroke-width: 1px;
             transition: all 0.5s ease-in-out;
         }
         
         .dot:hover {
-            fill: #ef4444;
+            fill: var(--viz-highlight);
             fill-opacity: 1;
             r: 6;
         }
 
         .reference-line {
-            stroke: #ef4444;
+            stroke: var(--viz-reference);
             stroke-width: 2;
             stroke-dasharray: 4;
         }
 
         .bar {
-            fill: #cbd5e1;
+            fill: var(--viz-group-a-mid);
             transition: all 0.5s ease-in-out;
         }
         
@@ -126,8 +128,8 @@
         }
 
         .info-panel {
-            background-color: #f0fdf4;
-            border-left: 4px solid #22c55e;
+            background-color: var(--viz-significant-soft);
+            border-left: 4px solid var(--viz-significant);
             padding: 16px;
             margin-bottom: 24px;
             border-radius: 4px;
@@ -135,12 +137,12 @@
         
         .info-panel h3 {
             margin-top: 0;
-            color: #166534;
+            color: var(--viz-significant);
         }
         
         #dynamic-description {
             font-style: italic;
-            color: #475569;
+            color: var(--viz-significant);
         }
         
         .tooltip {
@@ -174,13 +176,13 @@
     <h1 class="text-2xl font-bold text-center mb-2">Interactive Q-Q Plot Explorer</h1>
     <p class="text-center text-slate-600 mb-6">Visualizing Normality with Quantile-Quantile Plots and Marginal Histograms</p>
 
-    <div class="info-panel text-sm text-slate-700">
-        <h3>How to read this plot:</h3>
+    <div class="info-panel viz-soft-significant viz-ink-significant text-sm">
+        <h3 class="viz-ink-significant">How to read this plot:</h3>
         <p class="mb-2">A Normal Q-Q (Quantile-Quantile) plot compares the distribution of your data against a theoretical normal distribution.</p>
         <ul class="list-disc pl-5 space-y-1">
             <li><strong>X-axis:</strong> Theoretical Quantiles from a standard normal distribution (Z-scores). (The histogram below shows this perfect bell curve).</li>
             <li><strong>Y-axis:</strong> Sample Quantiles from the chosen data distribution. (The histogram on the left shows the shape of the data).</li>
-            <li><strong>Reference Line:</strong> The red dashed line connects the 25th and 75th percentiles (the middle 50%). If the blue dots fall closely along this line, the data is normally distributed.</li>
+            <li><strong>Reference Line:</strong> The dashed reference line connects the 25th and 75th percentiles (the middle 50%). If the blue dots fall closely along this line, the data is normally distributed.</li>
         </ul>
         <p class="mt-3 font-semibold">Current State: <span id="dynamic-description">Normal Distribution - Dots align with the reference line.</span></p>
     </div>
@@ -446,7 +448,8 @@
             .attr("transform", d => `translate(${xScale(d.x0)}, 0)`) 
             .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
             .attr("height", d => xHistScale(d.length))
-            .style("fill", "#94a3b8"); 
+            .style("fill", "var(--viz-reference)")
+            .style("opacity", 0.45); 
             
         topHistGroup.append("line")
             .attr("x1", 0).attr("x2", scatterWidth)
@@ -568,23 +571,23 @@
         switch(type) {
             case 'normal':
                 descEl.innerHTML = "<strong>Normal Distribution:</strong> Points align closely along the straight reference line. Both histograms look like symmetrical bell curves.";
-                descEl.style.color = "#166534"; 
+                descEl.style.color = statsViz.color('--viz-significant');
                 break;
             case 'pos-skew':
                 descEl.innerHTML = "<strong>Positively Skewed (Right-tailed):</strong> Points curve upwards at both ends forming a 'U' shape. Notice the heavy bunching at the bottom of the left histogram.";
-                descEl.style.color = "#b91c1c"; 
+                descEl.style.color = statsViz.color('--viz-null');
                 break;
             case 'neg-skew':
                 descEl.innerHTML = "<strong>Negatively Skewed (Left-tailed):</strong> Points curve downwards at both ends forming an inverted 'U'. Notice the heavy bunching at the top of the left histogram.";
-                descEl.style.color = "#b91c1c";
+                descEl.style.color = statsViz.color('--viz-null');
                 break;
             case 'heavy-tails':
                 descEl.innerHTML = "<strong>Heavy Tails (Leptokurtic):</strong> Points form an 'S' shape. The ends dip below the line on the left and rise above it on the right. More extreme values exist than expected.";
-                descEl.style.color = "#c2410c"; 
+                descEl.style.color = statsViz.color('--viz-group-c');
                 break;
             case 'light-tails':
                 descEl.innerHTML = "<strong>Light Tails (Platykurtic):</strong> Points form an inverted 'S' shape. Data lacks extreme values compared to a normal distribution.";
-                descEl.style.color = "#0369a1"; 
+                descEl.style.color = statsViz.color('--viz-group-a');
                 break;
         }
     }

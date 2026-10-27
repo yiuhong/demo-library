@@ -8,6 +8,8 @@
     <!-- Load Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <!-- Load Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Load jStat for statistical functions -->
@@ -24,10 +26,7 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#3b82f6',
-                        secondary: '#10b981',
-                        surface: '#f8fafc',
-                        textMain: '#1e293b'
+                        primary: 'var(--viz-group-a)'
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -50,7 +49,7 @@
             height: 16px;
             width: 16px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: var(--viz-group-a);
             cursor: pointer;
             margin-top: -6px;
         }
@@ -138,12 +137,12 @@
                 <!-- Target Power Indicator -->
                 <div class="pt-4 border-t border-gray-200">
                      <p class="text-sm font-medium text-gray-700 mb-2">Target Power Requires Total \(N\):</p>
-                     <div class="bg-blue-50 text-blue-800 p-3 rounded-lg flex flex-col items-center justify-center">
+                     <div class="viz-soft-group-a viz-ink-group-a p-3 rounded-lg flex flex-col items-center justify-center">
                          <div class="flex items-baseline">
                              <span class="text-2xl font-bold" id="requiredN">-</span>
                              <span class="ml-2 text-sm">total samples</span>
                          </div>
-                         <div class="text-xs mt-1 text-blue-600 font-medium" id="groupSizes">
+                         <div class="text-xs mt-1 viz-ink-group-a font-medium" id="groupSizes">
                              (Group 1: -, Group 2: -)
                          </div>
                      </div>
@@ -326,8 +325,8 @@
                                 {
                                     label: 'Statistical Power',
                                     data: curveData,
-                                    borderColor: 'rgba(59, 130, 246, 1)', // Tailwind blue-500
-                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                    borderColor: statsViz.color('--viz-group-a'),
+                                    backgroundColor: statsViz.rgba('--viz-group-a', 0.1),
                                     borderWidth: 3,
                                     tension: 0.4, // Smooth curve
                                     fill: true,
@@ -337,7 +336,7 @@
                                 {
                                     label: `Target Power (${targetPwr.toFixed(2)})`,
                                     data: referenceLine,
-                                    borderColor: 'rgba(239, 68, 68, 0.8)', // Tailwind red-500
+                                    borderColor: statsViz.rgba('--viz-difference', 0.8),
                                     borderWidth: 2,
                                     borderDash: [5, 5],
                                     pointRadius: 0,
@@ -347,7 +346,7 @@
                                     label: 'Required Sample Size',
                                     data: intersectionPoint,
                                     type: 'scatter',
-                                    backgroundColor: 'rgba(239, 68, 68, 1)', // Highlight red
+                                    backgroundColor: statsViz.color('--viz-difference'),
                                     borderColor: '#ffffff',
                                     borderWidth: 2,
                                     pointRadius: 6,

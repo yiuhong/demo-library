@@ -6,6 +6,8 @@
     <title>Covariance and Correlation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <!-- Add MathJax for beautiful math rendering -->
     <script>
@@ -29,7 +31,7 @@
         .point:hover {
             r: 9;
             stroke-width: 2.5;
-            fill: #4338ca; /* darker indigo on hover */
+            fill: color-mix(in srgb, var(--viz-sample) 72%, black);
         }
 
         /* Custom Toggle Switch Styles based on sibling selectors */
@@ -108,7 +110,7 @@
                         <div class="toggle-circle absolute cursor-pointer"></div>
                     </div>
                     <div class="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex items-center gap-2">
-                        <div class="w-3 h-0.5 bg-blue-500"></div> Show X Deviations
+                        <div class="w-3 h-0.5 viz-bg-group-a"></div> Show X Deviations
                     </div>
                 </label>
 
@@ -119,7 +121,7 @@
                         <div class="toggle-circle absolute cursor-pointer"></div>
                     </div>
                     <div class="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex items-center gap-2">
-                        <div class="w-0.5 h-3 bg-amber-500"></div> Show Y Deviations
+                        <div class="w-0.5 h-3 viz-bg-group-c"></div> Show Y Deviations
                     </div>
                 </label>
 
@@ -141,7 +143,7 @@
                         <div class="toggle-circle absolute cursor-pointer"></div>
                     </div>
                     <div class="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex items-center gap-2">
-                        <div class="w-4 h-0 bg-transparent border-t-2 border-dashed border-purple-500"></div> Show Trendline
+                        <div class="w-4 h-0 bg-transparent border-t-2 border-dashed" style="border-color: var(--viz-explained)"></div> Show Trendline
                     </div>
                 </label>
             </div>
@@ -152,11 +154,11 @@
                 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="demo-panel p-3">
-                        <div class="text-xs text-slate-500 mb-1 font-medium">Mean of X (<span class="text-blue-600">x̄</span>)</div>
+                        <div class="text-xs text-slate-500 mb-1 font-medium">Mean of X (<span class="viz-ink-group-a">x̄</span>)</div>
                         <div id="stat-mean-x" class="text-lg font-bold text-slate-700 font-mono">0.00</div>
                     </div>
                     <div class="demo-panel p-3">
-                        <div class="text-xs text-slate-500 mb-1 font-medium">Mean of Y (<span class="text-amber-600">ȳ</span>)</div>
+                        <div class="text-xs text-slate-500 mb-1 font-medium">Mean of Y (<span class="viz-ink-group-c">ȳ</span>)</div>
                         <div id="stat-mean-y" class="text-lg font-bold text-slate-700 font-mono">0.00</div>
                     </div>
                     
@@ -173,13 +175,13 @@
                 <!-- Core Metrics -->
                 <div class="demo-panel p-4 mt-2">
                     <div class="flex justify-between items-end mb-3">
-                        <div class="text-sm font-semibold text-indigo-900">Covariance <span class="text-xs font-normal opacity-70 block">s(x,y)</span></div>
-                        <div id="stat-cov" class="text-2xl font-bold text-indigo-700 font-mono tracking-tight">0.00</div>
+                        <div class="text-sm font-semibold viz-ink-reference">Covariance <span class="text-xs font-normal opacity-70 block">s(x,y)</span></div>
+                        <div id="stat-cov" class="text-2xl font-bold viz-ink-reference font-mono tracking-tight">0.00</div>
                     </div>
                     <div class="h-px w-full bg-black/20 my-2"></div>
-                    <div class="flex justify-between items-end">
-                        <div class="text-sm font-semibold text-purple-900">Correlation <span class="text-xs font-normal opacity-70 block">Pearson's r</span></div>
-                        <div id="stat-cor" class="text-2xl font-bold text-purple-700 font-mono tracking-tight">0.000</div>
+                    <div class="flex justify-between items-end border-l-4 pl-3 viz-border-explained">
+                        <div class="text-sm font-semibold viz-ink-explained">Correlation <span class="text-xs font-normal opacity-70 block">Pearson's r</span></div>
+                        <div id="stat-cor" class="text-2xl font-bold viz-ink-reference font-mono tracking-tight">0.000</div>
                     </div>
                 </div>
 
@@ -221,12 +223,12 @@
 
                 <div class="mt-4 demo-card p-3.5 text-xs leading-relaxed">
                     <div class="flex items-start gap-2 mb-2">
-                        <span class="shrink-0 w-3.5 h-3.5 mt-0.5 bg-emerald-100 border border-emerald-400 rounded-sm"></span> 
-                        <p><strong class="text-emerald-700">Positive Area:</strong> Point is above both means or below both means. Increases covariance.</p>
+                        <span class="shrink-0 w-3.5 h-3.5 mt-0.5 border viz-soft-significant viz-border-significant rounded-sm"></span> 
+                        <p><strong class="viz-ink-significant">Positive Area:</strong> Point is above both means or below both means. Increases covariance.</p>
                     </div>
                     <div class="flex items-start gap-2">
-                        <span class="shrink-0 w-3.5 h-3.5 mt-0.5 bg-rose-100 border border-rose-400 rounded-sm"></span> 
-                        <p><strong class="text-rose-700">Negative Area:</strong> Point is above one mean but below the other. Decreases covariance.</p>
+                        <span class="shrink-0 w-3.5 h-3.5 mt-0.5 border viz-soft-residual viz-border-residual rounded-sm"></span> 
+                        <p><strong class="viz-ink-residual">Negative Area:</strong> Point is above one mean but below the other. Decreases covariance.</p>
                     </div>
                 </div>
             </div>
@@ -295,7 +297,7 @@
             .on("start", function(event, d) {
                 d3.select(this)
                     .raise()
-                    .attr("stroke", "#1e293b")
+                    .attr("stroke", statsViz.color("--viz-total"))
                     .attr("stroke-width", 3)
                     .attr("r", 9);
             })
@@ -366,16 +368,16 @@
             const formattedCov = Math.abs(stats.cov) > 100 ? Math.round(stats.cov) : stats.cov.toFixed(2);
             covEl.textContent = formattedCov;
             
-            if (stats.cov > 1) covEl.className = "text-2xl font-bold font-mono tracking-tight text-emerald-600";
-            else if (stats.cov < -1) covEl.className = "text-2xl font-bold font-mono tracking-tight text-rose-600";
-            else covEl.className = "text-2xl font-bold font-mono tracking-tight text-indigo-700";
+            if (stats.cov > 1) covEl.className = "text-2xl font-bold font-mono tracking-tight viz-ink-significant";
+            else if (stats.cov < -1) covEl.className = "text-2xl font-bold font-mono tracking-tight viz-ink-null";
+            else covEl.className = "text-2xl font-bold font-mono tracking-tight viz-ink-reference";
 
             const corEl = document.getElementById('stat-cor');
             corEl.textContent = stats.cor.toFixed(3);
             
-            if (stats.cor > 0.1) corEl.className = "text-2xl font-bold font-mono tracking-tight text-emerald-600";
-            else if (stats.cor < -0.1) corEl.className = "text-2xl font-bold font-mono tracking-tight text-rose-600";
-            else corEl.className = "text-2xl font-bold font-mono tracking-tight text-purple-700";
+            if (stats.cor > 0.1) corEl.className = "text-2xl font-bold font-mono tracking-tight viz-ink-significant";
+            else if (stats.cor < -0.1) corEl.className = "text-2xl font-bold font-mono tracking-tight viz-ink-null";
+            else corEl.className = "text-2xl font-bold font-mono tracking-tight viz-ink-reference";
         }
 
         function initChart() {
@@ -492,7 +494,7 @@
             meanXLine.enter().append("line").attr("class", "mean-x")
                 .merge(meanXLine)
                 .attr("y1", 0).attr("y2", innerHeight)
-                .attr("stroke", "#2563eb").attr("stroke-width", 2).attr("stroke-dasharray", "6,4").attr("opacity", 0.7)
+                .attr("stroke", statsViz.color("--viz-group-a")).attr("stroke-width", 2).attr("stroke-dasharray", "6,4").attr("opacity", 0.7)
                 .attr("x1", d => xScale(d)).attr("x2", d => xScale(d));
             
             // Mean Y Line
@@ -500,7 +502,7 @@
             meanYLine.enter().append("line").attr("class", "mean-y")
                 .merge(meanYLine)
                 .attr("x1", 0).attr("x2", innerWidth)
-                .attr("stroke", "#d97706").attr("stroke-width", 2).attr("stroke-dasharray", "6,4").attr("opacity", 0.7)
+                .attr("stroke", statsViz.color("--viz-group-c")).attr("stroke-width", 2).attr("stroke-dasharray", "6,4").attr("opacity", 0.7)
                 .attr("y1", d => yScale(d)).attr("y2", d => yScale(d));
 
             // --- 2. Draw Covariance Areas ---
@@ -517,12 +519,12 @@
                 .attr("height", d => Math.abs(yScale(d.y) - yScale(meanY)))
                 .attr("fill", d => {
                     const isPositive = (d.x - meanX) * (d.y - meanY) >= 0;
-                    return isPositive ? "#34d399" : "#fb7185"; // emerald-400 : rose-400
+                    return isPositive ? statsViz.rgba("--viz-significant", 0.35) : statsViz.rgba("--viz-residual", 0.35);
                 })
-                .attr("opacity", 0.15)
+                .attr("opacity", 1)
                 .attr("stroke", d => {
                     const isPositive = (d.x - meanX) * (d.y - meanY) >= 0;
-                    return isPositive ? "#059669" : "#e11d48"; // emerald-600 : rose-600
+                    return isPositive ? statsViz.color("--viz-significant") : statsViz.color("--viz-residual");
                 })
                 .attr("stroke-width", 1)
                 .attr("rx", 2); 
@@ -551,7 +553,7 @@
                     // Y value at the far right edge of the chart (x = domainMax)
                     return yScale(m * domainMax + b);
                 })
-                .attr("stroke", "#8b5cf6") // purple-500 (matches correlation stat box)
+                .attr("stroke", statsViz.color("--viz-explained")) // explained, same as the correlation stat border
                 .attr("stroke-width", 2.5)
                 .attr("stroke-dasharray", "8,6")
                 .attr("opacity", 0.9);
@@ -565,7 +567,7 @@
                 .attr("x2", d => xScale(d.x))
                 .attr("y1", d => yScale(d.y))
                 .attr("y2", d => yScale(d.y))
-                .attr("stroke", "#3b82f6") 
+                .attr("stroke", statsViz.color("--viz-group-a")) 
                 .attr("stroke-width", 2)
                 .attr("opacity", 0.6)
                 .attr("stroke-linecap", "round");
@@ -578,7 +580,7 @@
                 .attr("x2", d => xScale(d.x))
                 .attr("y1", d => yScale(meanY))
                 .attr("y2", d => yScale(d.y))
-                .attr("stroke", "#f59e0b") 
+                .attr("stroke", statsViz.color("--viz-group-c")) 
                 .attr("stroke-width", 2)
                 .attr("opacity", 0.6)
                 .attr("stroke-linecap", "round");
@@ -591,7 +593,7 @@
             points.enter().append("circle")
                 .attr("class", "point")
                 .attr("r", 7)
-                .attr("fill", "#4f46e5")
+                .attr("fill", statsViz.color("--viz-sample"))
                 .attr("stroke", "#fff")
                 .attr("stroke-width", 2)
                 .style("filter", "drop-shadow(0px 3px 3px rgba(0,0,0,0.2))")

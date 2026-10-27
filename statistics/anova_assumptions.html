@@ -6,6 +6,8 @@
     <title>ANOVA Assumptions, Type I Error &amp; Power Interactive Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -100,7 +102,7 @@
         <h1 class="text-xl sm:text-2xl font-bold">ANOVA Assumptions: Type I Error &amp; Power Lab</h1>
     </header>
     <p class="text-sm mt-4 leading-relaxed max-w-4xl">
-        Explore how violating Normality, Homoscedasticity, and Independence impacts both <span class="text-rose-700 font-medium">Type I Error (&alpha;)</span> under <span class="mono">H<sub>0</sub></span> and <span class="text-emerald-700 font-medium">Statistical Power (1&minus;&beta;)</span> under <span class="mono">H<sub>1</sub></span>.
+        Explore how violating Normality, Homoscedasticity, and Independence impacts both <span class="viz-ink-null font-medium">Type I Error (&alpha;)</span> under <span class="mono">H<sub>0</sub></span> and <span class="viz-ink-significant font-medium">Statistical Power (1&minus;&beta;)</span> under <span class="mono">H<sub>1</sub></span>.
     </p>
 </div>
 
@@ -128,8 +130,8 @@
         <button type="button" data-tab="normality" class="tab-btn tab-active text-left p-3.5 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-sky-700 mono">Assumption 1 &bull; Normality</span>
-                    <span id="badge-normality" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-700 border border-emerald-600 font-medium">Holds</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider viz-ink-group-a mono">Assumption 1 &bull; Normality</span>
+                    <span id="badge-normality" class="px-2 py-0.5 text-[11px] rounded-full viz-soft-significant viz-ink-significant border viz-border-significant font-medium">Holds</span>
                 </div>
                 <h3 class="text-sm font-bold text-black mt-1">1. Normality of Residuals</h3>
                 <p class="text-xs text-neutral-700 mt-0.5">Minimal impact on Type I error (&alpha;), but outliers inflate <span class="mono text-neutral-800">MS<sub>W</sub></span> and crush Power!</p>
@@ -139,8 +141,8 @@
         <button type="button" data-tab="homoscedasticity" class="tab-btn text-left p-3.5 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-700 mono">Assumption 2 &bull; Homoscedasticity</span>
-                    <span id="badge-homoscedasticity" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-700 border border-emerald-600 font-medium">Holds</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider viz-ink-se mono">Assumption 2 &bull; Homoscedasticity</span>
+                    <span id="badge-homoscedasticity" class="px-2 py-0.5 text-[11px] rounded-full viz-soft-significant viz-ink-significant border viz-border-significant font-medium">Holds</span>
                 </div>
                 <h3 class="text-sm font-bold text-black mt-1">2. Homogeneity of Variance</h3>
                 <p class="text-xs text-neutral-700 mt-0.5">Equal variances (<span class="mono text-neutral-800">&sigma;<sub>A</sub><sup>2</sup> = &sigma;<sub>B</sub><sup>2</sup> = &sigma;<sub>C</sub><sup>2</sup></span>). High spread swamps signal or warps <span class="mono text-neutral-800">&alpha;</span>.</p>
@@ -150,8 +152,8 @@
         <button type="button" data-tab="independence" class="tab-btn text-left p-3.5 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-amber-700 mono">Assumption 3 &bull; Independence</span>
-                    <span id="badge-independence" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-700 border border-emerald-600 font-medium">Holds</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider viz-ink-group-c mono">Assumption 3 &bull; Independence</span>
+                    <span id="badge-independence" class="px-2 py-0.5 text-[11px] rounded-full viz-soft-significant viz-ink-significant border viz-border-significant font-medium">Holds</span>
                 </div>
                 <h3 class="text-sm font-bold text-black mt-1">3. Independence of Errors</h3>
                 <p class="text-xs text-neutral-700 mt-0.5">Uncorrelated errors (<span class="mono text-neutral-800">&rho; = 0</span>). Clustering explodes <span class="mono text-neutral-800">&alpha;</span> and ruins true sensitivity.</p>
@@ -167,40 +169,40 @@
         <div class="flex items-center justify-between border-b border-black pb-3">
             <div>
                 <h3 id="controlPanelTitle" class="text-sm font-bold text-black uppercase tracking-wider">Assumption 1: Normality Controls</h3>
-                <p id="activeMeansSubtitle" class="text-xs text-neutral-700">True means: <span class="mono text-neutral-800">&mu; = [50, 50, 50]</span> (H<sub>0</sub>) vs <span class="mono text-emerald-700">[46, 50, 54]</span> (H<sub>1</sub>)</p>
+                <p id="activeMeansSubtitle" class="text-xs text-neutral-700">True means: <span class="mono text-neutral-800">&mu; = [50, 50, 50]</span> (H<sub>0</sub>) vs <span class="mono viz-ink-h1">[46, 50, 54]</span> (H<sub>1</sub>)</p>
             </div>
         </div>
 
         <!-- Global Hypothesis Segmented Toggle Control & Power Effect Size Control -->
-        <div class="p-3.5 rounded bg-[#f6f6f6] border border-emerald-600 space-y-2.5">
+        <div class="p-3.5 rounded bg-[#f6f6f6] border border-black space-y-2.5">
             <div class="flex items-center justify-between gap-2">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Hypothesis Visibility Toggles</span>
-                <span id="activeHypothesisPill" class="px-2 py-0.5 rounded text-[10px] mono font-semibold bg-indigo-500/20 text-indigo-700 border border-indigo-600">Showing Both (H0 &amp; H1)</span>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-black">Hypothesis Visibility Toggles</span>
+                <span id="activeHypothesisPill" class="px-2 py-0.5 rounded text-[10px] mono font-semibold bg-white text-black border border-black">Showing Both (H0 &amp; H1)</span>
             </div>
             <p class="text-[11px] text-neutral-700 leading-snug">
-                Toggle <span class="mono text-sky-700">H<sub>0</sub></span> and <span class="mono text-emerald-700">H<sub>1</sub></span> on or off to view a single hypothesis state or both together:
+                Toggle <span class="mono viz-ink-h0">H<sub>0</sub></span> and <span class="mono viz-ink-h1">H<sub>1</sub></span> on or off to view a single hypothesis state or both together:
             </p>
             <!-- Segmented Control with Independent H0 and H1 Toggles -->
             <div class="grid grid-cols-2 gap-1.5 bg-white p-1 rounded border border-black text-xs font-medium" role="group" aria-label="Hypothesis visibility segmented toggles">
-                <button id="btnViewH0" type="button" aria-pressed="true" class="py-2 px-2.5 rounded-md bg-sky-500/20 text-sky-800 border border-sky-600 transition flex items-center justify-between gap-1.5">
+                <button id="btnViewH0" type="button" aria-pressed="true" class="py-2 px-2.5 rounded-md viz-soft-h0 viz-ink-h0 border viz-border-h0 transition flex items-center justify-between gap-1.5">
                     <span class="flex items-center gap-1.5 truncate">
-                        <span id="dotViewH0" class="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_6px_#38bdf8] shrink-0"></span>
+                        <span id="dotViewH0" class="w-2 h-2 rounded-full viz-bg-h0 shrink-0"></span>
                         <span>H<sub>0</sub> True (<span class="mono">&mu;<sub>i</sub>=50</span>)</span>
                     </span>
-                    <span id="stateBadgeH0" class="px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-sky-400/25 text-sky-800">ON</span>
+                    <span id="stateBadgeH0" class="px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase viz-bg-h0">ON</span>
                 </button>
-                <button id="btnViewH1" type="button" aria-pressed="true" class="py-2 px-2.5 rounded-md bg-emerald-500/20 text-emerald-800 border border-emerald-600 transition flex items-center justify-between gap-1.5">
+                <button id="btnViewH1" type="button" aria-pressed="true" class="py-2 px-2.5 rounded-md viz-soft-h1 viz-ink-h1 border viz-border-h1 transition flex items-center justify-between gap-1.5">
                     <span class="flex items-center gap-1.5 truncate">
-                        <span id="dotViewH1" class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] shrink-0"></span>
+                        <span id="dotViewH1" class="w-2 h-2 rounded-full viz-bg-h1 shrink-0"></span>
                         <span>H<sub>1</sub> True (<span class="mono">&pm;&Delta;&mu;</span>)</span>
                     </span>
-                    <span id="stateBadgeH1" class="px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-emerald-400/25 text-emerald-800">ON</span>
+                    <span id="stateBadgeH1" class="px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase viz-bg-h1">ON</span>
                 </button>
             </div>
             <div id="effectDeltaContainer" class="pt-1 space-y-1 transition-opacity duration-150">
                 <div class="flex justify-between text-[11px] font-medium">
-                    <span class="text-neutral-800">True H<sub>1</sub> Effect Spread (<span class="mono text-emerald-700">&Delta;&mu;</span> for Power)</span>
-                    <span id="val-effectDelta" class="mono text-emerald-700">&plusmn;4.0 (&mu; = 46, 50, 54)</span>
+                    <span class="text-neutral-800">True H<sub>1</sub> Effect Spread (<span class="mono viz-ink-h1">&Delta;&mu;</span> for Power)</span>
+                    <span id="val-effectDelta" class="mono viz-ink-h1">&plusmn;4.0 (&mu; = 46, 50, 54)</span>
                 </div>
                 <input id="slider-effectDelta" type="range" min="2.0" max="6.5" step="0.5" value="4.0" class="w-full">
             </div>
@@ -208,14 +210,14 @@
 
         <!-- Assumption 1 Controls: Normality -->
         <div id="page-controls-normality" class="space-y-4">
-            <div class="p-4 rounded bg-[#f6f6f6] border border-sky-600 space-y-3">
+            <div class="p-4 rounded bg-[#f6f6f6] border viz-border-group-a space-y-3">
                 <div class="flex justify-between text-xs font-medium">
-                    <span class="text-sky-700 font-semibold">Skewness &amp; Outlier Severity</span>
+                    <span class="viz-ink-group-a font-semibold">Skewness &amp; Outlier Severity</span>
                     <span id="val-skew" class="mono text-black">0.0 (Normal)</span>
                 </div>
                 <input id="slider-skew" type="range" min="0" max="3" step="0.1" value="0" class="w-full">
                 <p class="text-xs text-neutral-700 leading-relaxed">
-                    Under <span class="mono text-black">H<sub>0</sub></span>, both <span class="mono text-black">MS<sub>B</sub></span> and <span class="mono text-black">MS<sub>W</sub></span> scale together so Type I Error (&alpha;) stays near ~5%. Under <span class="mono text-emerald-700">H<sub>1</sub></span>, squared outliers balloon <span class="mono text-black">MS<sub>Within</sub></span> while the true signal <span class="mono text-emerald-700">&Delta;&mu;</span> stays fixed&mdash;crushing Statistical Power!
+                    Under <span class="mono text-black">H<sub>0</sub></span>, both <span class="mono text-black">MS<sub>B</sub></span> and <span class="mono text-black">MS<sub>W</sub></span> scale together so Type I Error (&alpha;) stays near ~5%. Under <span class="mono viz-ink-h1">H<sub>1</sub></span>, squared outliers balloon <span class="mono text-black">MS<sub>Within</sub></span> while the true signal <span class="mono viz-ink-h1">&Delta;&mu;</span> stays fixed&mdash;crushing Statistical Power!
                 </p>
             </div>
 
@@ -236,20 +238,20 @@
 
             <div class="p-3.5 rounded bg-[#f6f6f6] border border-black space-y-2">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-sky-700">Why Skewness Hurts Power: Noise Inflation</span>
-                    <span id="stat-snr-badge" class="text-[10px] mono text-emerald-700">Ideal Noise</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider viz-ink-group-a">Why Skewness Hurts Power: Noise Inflation</span>
+                    <span id="stat-snr-badge" class="text-[10px] mono viz-ink-significant">Ideal Noise</span>
                 </div>
                 <p class="text-[11px] text-neutral-800 leading-relaxed">
-                    Squaring extreme outliers inflates <span class="mono text-black">SS<sub>Within</sub></span> and <span class="mono text-black">MS<sub>Within</sub></span>, drowning out true treatment differences (<span class="mono text-emerald-700">&Delta;&mu;</span>):
+                    Squaring extreme outliers inflates <span class="mono text-black">SS<sub>Within</sub></span> and <span class="mono text-black">MS<sub>Within</sub></span>, drowning out true treatment differences (<span class="mono viz-ink-h1">&Delta;&mu;</span>):
                 </p>
                 <div class="grid grid-cols-2 gap-2 pt-1 text-center">
                     <div class="p-2 rounded bg-white border border-black">
                         <div class="text-[10px] text-neutral-700">&sum; e<sub>ij</sub><sup>2</sup> (SS<sub>Within</sub>)</div>
-                        <div id="stat-ssw" class="text-sm font-bold text-sky-700 mono mt-0.5">4608.0</div>
+                        <div id="stat-ssw" class="text-sm font-bold viz-ink-residual mono mt-0.5">4608.0</div>
                     </div>
                     <div class="p-2 rounded bg-white border border-black">
                         <div class="text-[10px] text-neutral-700">SS<sub>W</sub> / df<sub>W</sub> (MS<sub>Within</sub>)</div>
-                        <div id="stat-msw" class="text-sm font-bold text-indigo-700 mono mt-0.5">64.00</div>
+                        <div id="stat-msw" class="text-sm font-bold viz-ink-residual mono mt-0.5">64.00</div>
                     </div>
                 </div>
             </div>
@@ -257,15 +259,15 @@
 
         <!-- Assumption 2 Controls: Homoscedasticity -->
         <div id="page-controls-homoscedasticity" class="space-y-4 hidden">
-            <div class="p-4 rounded bg-[#f6f6f6] border border-indigo-600 space-y-3">
+            <div class="p-4 rounded bg-[#f6f6f6] border viz-border-se space-y-3">
                 <div class="flex justify-between text-xs font-medium">
-                    <span class="text-indigo-700 font-semibold">Group SD Ratio (<span class="mono">&sigma;<sub>C</sub> / &sigma;<sub>A</sub></span>)</span>
+                    <span class="viz-ink-se font-semibold">Group SD Ratio (<span class="mono">&sigma;<sub>C</sub> / &sigma;<sub>A</sub></span>)</span>
                     <span id="val-varRatio" class="mono text-black">1.0x (Equal)</span>
                 </div>
                 <input id="slider-varRatio" type="range" min="1" max="5" step="0.2" value="1" class="w-full">
                 <div class="flex items-center justify-between pt-2.5 border-t border-neutral-300">
-                    <label for="toggle-unbalanced" class="text-xs text-black cursor-pointer font-medium">Unbalanced Sample Sizes (<span class="mono text-indigo-700">n<sub>A</sub>=45, n<sub>B</sub>=25, n<sub>C</sub>=8</span>)</label>
-                    <input id="toggle-unbalanced" type="checkbox" class="w-4 h-4 accent-indigo-600 rounded cursor-pointer">
+                    <label for="toggle-unbalanced" class="text-xs text-black cursor-pointer font-medium">Unbalanced Sample Sizes (<span class="mono viz-ink-se">n<sub>A</sub>=45, n<sub>B</sub>=25, n<sub>C</sub>=8</span>)</label>
+                    <input id="toggle-unbalanced" type="checkbox" class="w-4 h-4 viz-accent-se rounded cursor-pointer">
                 </div>
                 <p class="text-xs text-neutral-700 leading-relaxed">
                     With balanced <span class="mono">n</span>, inflating variance in Groups B &amp; C bloats pooled <span class="mono">MS<sub>Within</sub></span> and crushes Power. With unbalanced <span class="mono">n</span> (<span class="mono">n<sub>C</sub>=8</span>), <span class="mono">MS<sub>Within</sub></span> is underestimated&mdash;inflating Type I Error while true Size-Adjusted Power still collapses!
@@ -290,9 +292,9 @@
 
         <!-- Assumption 3 Controls: Independence -->
         <div id="page-controls-independence" class="space-y-4 hidden">
-            <div class="p-4 rounded bg-[#f6f6f6] border border-amber-600 space-y-3">
+            <div class="p-4 rounded bg-[#f6f6f6] border viz-border-group-c space-y-3">
                 <div class="flex justify-between text-xs font-medium">
-                    <span class="text-amber-700 font-semibold">Within-Group Correlation (<span class="mono">&rho;</span>)</span>
+                    <span class="viz-ink-group-c font-semibold">Within-Group Correlation (<span class="mono">&rho;</span>)</span>
                     <span id="val-rho" class="mono text-black">0.00 (Independent)</span>
                 </div>
                 <input id="slider-rho" type="range" min="0" max="0.85" step="0.05" value="0" class="w-full">
@@ -302,36 +304,36 @@
             </div>
 
             <!-- F-Ratio Panel -->
-            <div class="p-3.5 rounded bg-[#f6f6f6] border border-amber-600 space-y-3">
+            <div class="p-3.5 rounded bg-[#f6f6f6] border viz-border-group-c space-y-3">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700"><i>F</i>-Ratio (<span class="mono">MS<sub>B</sub> / MS<sub>W</sub></span>)</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider viz-ink-group-c"><i>F</i>-Ratio (<span class="mono">MS<sub>B</sub> / MS<sub>W</sub></span>)</span>
                     <span id="ind-scale-label" class="text-[10px] mono text-neutral-700">Shared Scale: 0&ndash;300</span>
                 </div>
 
                 <div class="space-y-1.5">
                     <div class="flex items-center justify-between text-[11px]">
-                        <span class="text-black font-medium">Numerator (<span class="mono text-rose-700">MS<sub>Between</sub></span>)</span>
-                        <span id="ind-msb-badge" class="px-1.5 py-0.5 rounded bg-rose-500/15 border border-rose-600 text-[10px] mono text-rose-700 font-semibold">1.00&times; Baseline (&rho;=0)</span>
+                        <span class="text-black font-medium">Numerator (<span class="mono viz-ink-explained">MS<sub>Between</sub></span>)</span>
+                        <span id="ind-msb-badge" class="px-1.5 py-0.5 rounded viz-soft-explained border viz-border-explained text-[10px] mono viz-ink-explained font-semibold">1.00&times; Baseline (&rho;=0)</span>
                     </div>
                     <div class="relative h-3 w-full bg-neutral-200 rounded-full overflow-hidden border border-black">
-                        <div id="ind-msb-bar" class="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-full transition-all duration-150" style="width: 21%"></div>
+                        <div id="ind-msb-bar" class="h-full viz-bg-explained rounded-full transition-all duration-150" style="width: 21%"></div>
                     </div>
                     <div class="flex justify-between text-[10px] text-neutral-700 mono">
-                        <span id="ind-msb-readout" class="text-rose-700 font-semibold">Sample MS<sub>B</sub> = 26.9</span>
+                        <span id="ind-msb-readout" class="viz-ink-explained font-semibold">Sample MS<sub>B</sub> = 26.9</span>
                         <span id="ind-msb-base" class="text-neutral-700">&rho;=0 Baseline: 26.9</span>
                     </div>
                 </div>
 
                 <div class="space-y-1.5 pt-2 border-t border-neutral-300">
                     <div class="flex items-center justify-between text-[11px]">
-                        <span class="text-black font-medium">Denominator (<span class="mono text-sky-700">MS<sub>Within</sub></span>)</span>
-                        <span id="ind-msw-badge" class="px-1.5 py-0.5 rounded bg-sky-500/15 border border-sky-600 text-[10px] mono text-sky-700 font-semibold">1.00&times; Baseline (&rho;=0)</span>
+                        <span class="text-black font-medium">Denominator (<span class="mono viz-ink-residual">MS<sub>Within</sub></span>)</span>
+                        <span id="ind-msw-badge" class="px-1.5 py-0.5 rounded viz-soft-residual border viz-border-residual text-[10px] mono viz-ink-residual font-semibold">1.00&times; Baseline (&rho;=0)</span>
                     </div>
                     <div class="relative h-3 w-full bg-neutral-200 rounded-full overflow-hidden border border-black">
-                        <div id="ind-msw-bar" class="h-full bg-gradient-to-r from-sky-500 to-indigo-400 rounded-full transition-all duration-150" style="width: 21%"></div>
+                        <div id="ind-msw-bar" class="h-full viz-bg-residual rounded-full transition-all duration-150" style="width: 21%"></div>
                     </div>
                     <div class="flex justify-between text-[10px] text-neutral-700 mono">
-                        <span id="ind-msw-readout" class="text-sky-700 font-semibold">Sample MS<sub>W</sub> = 64.0</span>
+                        <span id="ind-msw-readout" class="viz-ink-residual font-semibold">Sample MS<sub>W</sub> = 64.0</span>
                         <span id="ind-msw-base" class="text-neutral-700">&rho;=0 Baseline: 64.0</span>
                     </div>
                 </div>
@@ -357,7 +359,7 @@
         <div class="p-4 rounded bg-[#f6f6f6] border border-black space-y-3">
             <div class="flex items-center justify-between gap-2">
                 <span id="sampleCardHeader" class="text-xs font-semibold uppercase tracking-wider text-neutral-700">ANOVA &amp; Power Metrics</span>
-                <span id="sampleDecisionBadge" class="px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-700 border border-emerald-600">Retains H<sub>0</sub></span>
+                <span id="sampleDecisionBadge" class="px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight viz-soft-significant viz-ink-significant border viz-border-significant">Retains H<sub>0</sub></span>
             </div>
 
             <!-- 4-Card Readout Grid: Sample F, Sample p, Type I Error, Statistical Power -->
@@ -370,14 +372,14 @@
                     <div id="label-stat-p" class="text-[11px] text-neutral-700">Sample <i>p</i>-value</div>
                     <div id="stat-p" class="text-sm sm:text-base font-bold text-black mono mt-0.5">0.658</div>
                 </div>
-                <div id="card-type1" class="p-2.5 rounded bg-white border border-rose-600 transition-opacity duration-150">
+                <div id="card-type1" class="p-2.5 rounded bg-white border viz-border-null transition-opacity duration-150">
                     <div class="text-[11px] text-neutral-800 font-medium">Type I Error (&alpha;)</div>
-                    <div id="stat-type1" class="text-base font-bold text-emerald-700 mono mt-0.5">5.0%</div>
+                    <div id="stat-type1" class="text-base font-bold viz-ink-null mono mt-0.5">5.0%</div>
                     <div id="sub-type1" class="text-[10px] text-neutral-700 mono">False Pos. (H<sub>0</sub>)</div>
                 </div>
-                <div id="card-power" class="p-2.5 rounded bg-white border border-emerald-600 transition-opacity duration-150">
+                <div id="card-power" class="p-2.5 rounded bg-white border viz-border-significant transition-opacity duration-150">
                     <div class="text-[11px] text-neutral-800 font-medium">Power (1 &minus; &beta;)</div>
-                    <div id="stat-power" class="text-base font-bold text-emerald-700 mono mt-0.5">81.2%</div>
+                    <div id="stat-power" class="text-base font-bold viz-ink-significant mono mt-0.5">81.2%</div>
                     <div id="stat-adj-power" class="text-[10px] text-neutral-700 mono">True Adj: 81.0%</div>
                 </div>
             </div>
@@ -399,7 +401,7 @@
                 <div class="mb-2.5">
                     <div class="flex items-center justify-between gap-2">
                         <h3 class="text-sm font-bold text-black">1. Group Data &amp; Means (<span class="mono">y&#772;<sub>i</sub></span>)</h3>
-                        <span id="plot1TrueMuBadge" class="text-[11px] mono text-sky-700 shrink-0">H0 &amp; H1 Shown</span>
+                        <span id="plot1TrueMuBadge" class="text-[11px] mono text-black shrink-0">H0 &amp; H1 Shown</span>
                     </div>
                     <p id="plot1Subtitle" class="text-xs text-neutral-700 mt-0.5">Jittered points, group means (bars), and &plusmn;1 SD boxes</p>
                 </div>
@@ -412,14 +414,14 @@
             <div class="demo-card p-4 flex flex-col justify-between">
                 <div class="mb-2.5 space-y-1">
                     <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
-                        <h3 id="diagTitle" class="text-sm font-bold text-sky-700">2. Diagnostic: Normal Q-Q Plot</h3>
+                        <h3 id="diagTitle" class="text-sm font-bold viz-ink-group-a">2. Diagnostic: Normal Q-Q Plot</h3>
                         <div class="flex items-center gap-1.5 shrink-0 ml-auto">
                             <div id="qqModeToggle" class="inline-flex rounded bg-[#f6f6f6] p-0.5 border border-black text-[10px] font-medium">
-                                <button id="btnQQPooled" type="button" class="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-700 border border-sky-600 transition">Pooled (All N)</button>
+                                <button id="btnQQPooled" type="button" class="px-2 py-0.5 rounded-md viz-soft-group-a viz-ink-group-a border viz-border-group-a transition">Pooled (All N)</button>
                                 <button id="btnQQByGroup" type="button" class="px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition">By Group</button>
                             </div>
                             <div id="indModeToggle" class="hidden inline-flex rounded bg-[#f6f6f6] p-0.5 border border-black text-[10px] font-medium">
-                                <button id="btnIndSequence" type="button" class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-700 border border-amber-600 transition">Sequence</button>
+                                <button id="btnIndSequence" type="button" class="px-2 py-0.5 rounded-md viz-soft-group-c viz-ink-group-c border viz-border-group-c transition">Sequence</button>
                                 <button id="btnIndLag" type="button" class="px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition">Lag-1 Scatter</button>
                             </div>
                             <span id="diagBadge" class="hidden text-[11px] mono px-2 py-0.5 rounded border border-black bg-white text-black">Levene / Spread</span>
@@ -441,16 +443,16 @@
                     <p id="mcSubtitle" class="text-xs text-neutral-700">Use the H<sub>0</sub> and H<sub>1</sub> toggles to show one distribution at a time or both together</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2.5 text-[11px] mono shrink-0">
-                    <span class="inline-flex items-center gap-1.5 text-amber-700 leading-none whitespace-nowrap">
-                        <span class="w-3 h-0.5 bg-amber-400 inline-block shrink-0"></span>
+                    <span class="inline-flex items-center gap-1.5 viz-ink-density leading-none whitespace-nowrap">
+                        <span class="w-3 h-0.5 viz-bg-density inline-block shrink-0"></span>
                         <span>Theoretical Null <i>F</i></span>
                     </span>
-                    <button id="legendToggleH0" type="button" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-rose-600 bg-rose-500/10 text-rose-700 leading-none whitespace-nowrap transition hover:bg-rose-500/20" title="Click to toggle H0 distribution">
-                        <span class="w-2.5 h-2.5 rounded-sm bg-rose-500/70 border border-rose-400 inline-block shrink-0"></span>
+                    <button id="legendToggleH0" type="button" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border viz-border-null viz-soft-null viz-ink-null leading-none whitespace-nowrap transition" title="Click to toggle H0 distribution">
+                        <span class="w-2.5 h-2.5 rounded-sm viz-bg-null inline-block shrink-0"></span>
                         <span>H<sub>0</sub> Null (&alpha; Reject)</span>
                     </button>
-                    <button id="legendToggleH1" type="button" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-emerald-600 bg-emerald-500/10 text-emerald-700 leading-none whitespace-nowrap transition hover:bg-emerald-500/20" title="Click to toggle H1 distribution">
-                        <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500/60 border border-emerald-400 inline-block shrink-0"></span>
+                    <button id="legendToggleH1" type="button" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border viz-border-significant viz-soft-significant viz-ink-significant leading-none whitespace-nowrap transition" title="Click to toggle H1 distribution">
+                        <span class="w-2.5 h-2.5 rounded-sm viz-bg-significant inline-block shrink-0"></span>
                         <span>H<sub>1</sub> Power (1&minus;&beta;)</span>
                     </button>
                 </div>
@@ -463,19 +465,19 @@
         <!-- Educational Breakdown Cards for Active Assumption -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="demo-card p-4 space-y-1.5">
-                <div class="text-xs font-bold uppercase tracking-wider text-rose-700 flex items-center gap-1.5">
+                <div class="text-xs font-bold uppercase tracking-wider viz-ink-null flex items-center gap-1.5">
                     <span>[!]</span> Effect on Type I Error (&alpha;)
                 </div>
                 <p id="eduProblem" class="text-xs text-neutral-800 leading-relaxed"></p>
             </div>
             <div class="demo-card p-4 space-y-1.5">
-                <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
+                <div class="text-xs font-bold uppercase tracking-wider viz-ink-significant flex items-center gap-1.5">
                     <span>[*]</span> Effect on Power (1 &minus; &beta;)
                 </div>
                 <p id="eduPower" class="text-xs text-neutral-800 leading-relaxed"></p>
             </div>
             <div class="demo-card p-4 space-y-1.5">
-                <div class="text-xs font-bold uppercase tracking-wider text-sky-700 flex items-center gap-1.5">
+                <div class="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1.5">
                     <span>[+]</span> Detection &amp; Remedies
                 </div>
                 <p id="eduRemedy" class="text-xs text-neutral-800 leading-relaxed"></p>
@@ -501,6 +503,13 @@
 </main>
 
 <script>
+    function groupColor(i) {
+        return statsViz.color(['group-a', 'group-b', 'group-c'][i]);
+    }
+    function groupRgba(i, alpha) {
+        return statsViz.rgba(['group-a', 'group-b', 'group-c'][i], alpha);
+    }
+
     // --- State & Configuration ---
     const pageOrder = ['normality', 'homoscedasticity', 'independence'];
     const MC_RUNS = 800;
@@ -551,7 +560,7 @@
             diagSubtitle: 'Compare Pooled Residuals (all <i>N</i> together) vs. Separate by Group',
             diagBadge: 'Q-Q Plot',
             problem: 'With balanced sample sizes (<span class="mono text-black">n = 25</span>) and identically skewed groups, the Central Limit Theorem stabilizes group means and both <span class="mono text-black">MS<sub>B</sub></span> and <span class="mono text-black">MS<sub>W</sub></span> scale up proportionally. Thus, <b>Type I Error (&alpha;) stays remarkably close to ~5%</b> (often 4.2%&ndash;5.8%).',
-            power: '<b>Statistical Power (1&minus;&beta;) plummets!</b> Squaring heavy right-tail outliers blows up <span class="mono text-black">SS<sub>Within</sub></span> and <span class="mono text-black">MS<sub>Within</sub></span> while the true treatment signal (<span class="mono text-emerald-700">&Delta;&mu;</span>) stays constant. This shrinks the non-centrality parameter and drags the <i>F</i>-ratio down, masking real treatment effects.',
+            power: '<b>Statistical Power (1&minus;&beta;) plummets!</b> Squaring heavy right-tail outliers blows up <span class="mono text-black">SS<sub>Within</sub></span> and <span class="mono text-black">MS<sub>Within</sub></span> while the true treatment signal (<span class="mono viz-ink-h1">&Delta;&mu;</span>) stays constant. This shrinks the non-centrality parameter and drags the <i>F</i>-ratio down, masking real treatment effects.',
             remedy: 'Inspect a pooled Q-Q plot for tail curvature. To restore lost statistical power under heavy skewness, apply a variance-stabilizing transformation (<span class="mono text-black">log(y)</span>, Box-Cox), use the rank-based <b>Kruskal-Wallis test</b>, or use trimmed means.'
         },
         homoscedasticity: {
@@ -992,7 +1001,7 @@
 
         // Grand Mean Reference Line (y = 50)
         ctx.save();
-        ctx.strokeStyle = '#525252';
+        ctx.strokeStyle = statsViz.color('reference');
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
         ctx.moveTo(pad.left, y50);
@@ -1005,7 +1014,6 @@
         ctx.fillText(state.showH1 ? 'Grand Mean = 50' : 'Null mu = 50', w - pad.right - 4, y50 - 4);
         ctx.restore();
 
-        const colors = ['#38bdf8', '#818cf8', '#fbbf24'];
         const labels = ['Group A', 'Group B', 'Group C'];
         const trueSD = 8.0;
         const trueMeansH1 = [50 - state.effectDelta, 50, 50 + state.effectDelta];
@@ -1023,7 +1031,7 @@
                         mean: state.anovaH0.groupMeans[g],
                         sd: state.anovaH0.groupSDs[g],
                         trueMu: 50,
-                        color: '#38bdf8'
+                        color: 'h0'
                     },
                     {
                         key: 'H1',
@@ -1032,7 +1040,7 @@
                         mean: state.anovaH1.groupMeans[g],
                         sd: state.anovaH1.groupSDs[g],
                         trueMu: trueMeansH1[g],
-                        color: '#10b981'
+                        color: 'h1'
                     }
                 ];
 
@@ -1040,7 +1048,7 @@
                     const subCx = cx + cfg.offset;
                     const yTrue = yToPx(cfg.trueMu);
                     ctx.save();
-                    ctx.strokeStyle = cfg.color + '88';
+                    ctx.strokeStyle = statsViz.rgba(cfg.color, 0.53);
                     ctx.lineWidth = 1.2;
                     ctx.setLineDash([2, 2]);
                     ctx.beginPath();
@@ -1051,21 +1059,21 @@
 
                     const yTop = Math.max(pad.top, Math.min(pad.top + ph, yToPx(cfg.mean + cfg.sd)));
                     const yBot = Math.max(pad.top, Math.min(pad.top + ph, yToPx(cfg.mean - cfg.sd)));
-                    ctx.fillStyle = cfg.color + '20';
-                    ctx.strokeStyle = cfg.color + '88';
+                    ctx.fillStyle = statsViz.rgba(cfg.color, 0.13);
+                    ctx.strokeStyle = statsViz.rgba(cfg.color, 0.53);
                     ctx.lineWidth = 1.1;
                     ctx.fillRect(subCx - 14, yTop, 28, Math.max(2, yBot - yTop));
                     ctx.strokeRect(subCx - 14, yTop, 28, Math.max(2, yBot - yTop));
 
                     const yMean = Math.max(pad.top, Math.min(pad.top + ph, yToPx(cfg.mean)));
-                    ctx.strokeStyle = cfg.color;
+                    ctx.strokeStyle = statsViz.color(cfg.color);
                     ctx.lineWidth = 2.2;
                     ctx.beginPath();
                     ctx.moveTo(subCx - 16, yMean);
                     ctx.lineTo(subCx + 16, yMean);
                     ctx.stroke();
 
-                    ctx.fillStyle = cfg.color;
+                    ctx.fillStyle = statsViz.color(cfg.color);
                     for (let i = 0; i < cfg.arr.length; i++) {
                         const jitter = pseudoOffset(i * 12.9898 + g * 78.233) * 18;
                         const px = subCx + jitter;
@@ -1076,7 +1084,7 @@
                     }
 
                     // Tag H0 / H1 above each sub-column
-                    ctx.fillStyle = cfg.color;
+                    ctx.fillStyle = statsViz.color(cfg.color);
                     ctx.font = '600 8.5px JetBrains Mono';
                     ctx.textAlign = 'center';
                     ctx.fillText(cfg.key, subCx, pad.top - 6);
@@ -1108,7 +1116,7 @@
                 if (isH1) {
                     const yTrueMu = yToPx(trueMeansH1[g]);
                     ctx.save();
-                    ctx.strokeStyle = 'rgba(16, 185, 129, 0.65)';
+                    ctx.strokeStyle = statsViz.rgba('h1', 0.65);
                     ctx.lineWidth = 1.5;
                     ctx.setLineDash([3, 2]);
                     ctx.beginPath();
@@ -1122,7 +1130,7 @@
                     const yGhostTop = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean + trueSD)));
                     const yGhostBot = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean - trueSD)));
                     ctx.save();
-                    ctx.strokeStyle = 'rgba(82, 82, 82, 0.55)';
+                    ctx.strokeStyle = statsViz.rgba('reference', 0.55);
                     ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
                     ctx.lineWidth = 1.25;
                     ctx.setLineDash([3, 3]);
@@ -1133,8 +1141,8 @@
 
                 const yTop = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean + sd)));
                 const yBot = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean - sd)));
-                ctx.fillStyle = colors[g] + '22';
-                ctx.strokeStyle = colors[g] + '88';
+                ctx.fillStyle = groupRgba(g, 0.13);
+                ctx.strokeStyle = groupRgba(g, 0.53);
                 ctx.lineWidth = 1.2;
                 ctx.fillRect(cx - 25, yTop, 50, Math.max(2, yBot - yTop));
                 ctx.strokeRect(cx - 25, yTop, 50, Math.max(2, yBot - yTop));
@@ -1142,7 +1150,7 @@
                 const yBaseMean = Math.max(pad.top, Math.min(pad.top + ph, yToPx(baseMean)));
                 const yMean = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean)));
 
-                ctx.strokeStyle = colors[g];
+                ctx.strokeStyle = groupColor(g);
                 ctx.lineWidth = 2.5;
                 ctx.beginPath();
                 ctx.moveTo(cx - 30, yMean);
@@ -1152,10 +1160,10 @@
                 if (state.activeTab === 'independence' && state.rho > 0) {
                     const arrowX = cx + 35;
                     const rhoDrift = mean - baseMean;
-                    drawVerticalArrow(ctx, arrowX, yBaseMean, yMean, '#f43f5e');
+                    drawVerticalArrow(ctx, arrowX, yBaseMean, yMean, statsViz.color('null'));
                     if (Math.abs(rhoDrift) >= 0.8) {
                         ctx.save();
-                        ctx.fillStyle = '#be123c';
+                        ctx.fillStyle = statsViz.color('null');
                         ctx.font = '600 9px JetBrains Mono';
                         ctx.textAlign = 'left';
                         const labelY = (yBaseMean + yMean) / 2 + 3;
@@ -1164,7 +1172,7 @@
                     }
                 }
 
-                ctx.fillStyle = colors[g];
+                ctx.fillStyle = groupColor(g);
                 for (let i = 0; i < arr.length; i++) {
                     const jitter = pseudoOffset(i * 12.9898 + g * 78.233) * 34;
                     const px = cx + jitter;
@@ -1198,7 +1206,6 @@
 
         // Note: Within-group residuals e_ij = y_ij - ybar_i and true errors y_ij - mu_i are invariant to H0 vs H1
         const residuals = state.anovaH0.residuals;
-        const colors = ['#38bdf8', '#818cf8', '#fbbf24'];
         const trueGroupMeansH0 = [50, 50, 50];
 
         if (state.activeTab === 'normality') {
@@ -1228,7 +1235,7 @@
             });
 
             ctx.save();
-            ctx.strokeStyle = '#f43f5e';
+            ctx.strokeStyle = statsViz.color('reference');
             ctx.lineWidth = 1.5;
             ctx.setLineDash([5, 4]);
             ctx.beginPath();
@@ -1236,7 +1243,7 @@
             ctx.lineTo(xToPx(2.8), yToPx(2.8));
             ctx.stroke();
 
-            ctx.fillStyle = '#f43f5e';
+            ctx.fillStyle = statsViz.color('reference');
             ctx.font = '500 9px JetBrains Mono';
             ctx.textAlign = 'left';
             ctx.fillText('Ideal Normal (y = x)', xToPx(0.8), yToPx(1.85));
@@ -1251,7 +1258,7 @@
                     const p = (i + 0.5) / N;
                     const theoQ = normInv(p);
                     const empQ = Math.max(minQ, Math.min(maxQ, sorted[i].val / pooledSD));
-                    ctx.fillStyle = colors[sorted[i].group];
+                    ctx.fillStyle = groupColor(sorted[i].group);
                     ctx.beginPath();
                     ctx.arc(xToPx(theoQ), yToPx(empQ), 3, 0, Math.PI * 2);
                     ctx.fill();
@@ -1261,7 +1268,7 @@
                     const groupRes = residuals.filter(r => r.group === g).sort((a, b) => a.val - b.val);
                     const n = groupRes.length;
                     const gSD = state.anovaH0.groupSDs[g] || 1;
-                    ctx.strokeStyle = colors[g] + '88';
+                    ctx.strokeStyle = groupRgba(g, 0.53);
                     ctx.lineWidth = 1.2;
                     ctx.beginPath();
                     for (let i = 0; i < n; i++) {
@@ -1279,7 +1286,7 @@
                         const p = (i + 0.5) / n;
                         const theoQ = normInv(p);
                         const empQ = Math.max(minQ, Math.min(maxQ, groupRes[i].val / gSD));
-                        ctx.fillStyle = colors[g];
+                        ctx.fillStyle = groupColor(g);
                         ctx.beginPath();
                         ctx.arc(xToPx(theoQ), yToPx(empQ), 3, 0, Math.PI * 2);
                         ctx.fill();
@@ -1323,7 +1330,7 @@
 
             const cxs = [0, 1, 2].map(g => pad.left + (pw * (g + 0.5)) / 3);
             ctx.save();
-            ctx.strokeStyle = '#f43f5e';
+            ctx.strokeStyle = statsViz.color('se');
             ctx.lineWidth = 2;
             ctx.setLineDash([4, 4]);
             ctx.beginPath();
@@ -1334,7 +1341,7 @@
             }
             ctx.stroke();
 
-            ctx.fillStyle = '#f43f5e';
+            ctx.fillStyle = statsViz.color('se');
             ctx.font = '500 9px JetBrains Mono';
             ctx.textAlign = 'left';
             ctx.fillText('SD Funnel Trajectory', cxs[0] + 10, Math.max(pad.top + 10, yToPx(state.anovaH0.groupSDs[0]) - 8));
@@ -1342,7 +1349,7 @@
 
             for (let g = 0; g < 3; g++) {
                 const groupRes = residuals.filter(r => r.group === g);
-                ctx.fillStyle = colors[g];
+                ctx.fillStyle = groupColor(g);
                 groupRes.forEach((r, idx) => {
                     const jitter = pseudoOffset(idx * 91.7 + g * 13.3) * 28;
                     ctx.beginPath();
@@ -1351,7 +1358,7 @@
                 });
 
                 const sd = state.anovaH0.groupSDs[g];
-                ctx.fillStyle = '#f43f5e';
+                ctx.fillStyle = statsViz.color('se');
                 ctx.beginPath();
                 ctx.arc(cxs[g], yToPx(sd), 5, 0, Math.PI * 2);
                 ctx.fill();
@@ -1361,7 +1368,7 @@
                 ctx.textAlign = 'center';
                 ctx.fillText(`Group ${String.fromCharCode(65 + g)}`, cxs[g], h - 20);
 
-                ctx.fillStyle = '#be123c';
+                ctx.fillStyle = statsViz.color('se');
                 ctx.font = '10px JetBrains Mono';
                 ctx.fillText(`SD = ${sd.toFixed(1)}`, cxs[g], h - 7);
             }
@@ -1432,7 +1439,7 @@
                 const intercept = meanY - slope * meanX;
 
                 ctx.save();
-                ctx.strokeStyle = '#f43f5e';
+                ctx.strokeStyle = statsViz.color('null');
                 ctx.lineWidth = 1.8;
                 ctx.setLineDash([5, 4]);
                 const x1 = -maxLim * 0.85, x2 = maxLim * 0.85;
@@ -1443,14 +1450,14 @@
                 ctx.lineTo(xToPx(x2), yToPx(y2));
                 ctx.stroke();
 
-                ctx.fillStyle = '#be123c';
+                ctx.fillStyle = statsViz.color('null');
                 ctx.font = '600 10px JetBrains Mono';
                 ctx.textAlign = 'left';
                 ctx.fillText(`Empirical Lag-1 r = ${rEmp >= 0 ? '+' : ''}${rEmp.toFixed(2)}`, pad.left + 8, pad.top + 14);
                 ctx.restore();
 
                 pairs.forEach(p => {
-                    ctx.fillStyle = colors[p.group];
+                    ctx.fillStyle = groupColor(p.group);
                     ctx.beginPath();
                     ctx.arc(xToPx(p.prev), yToPx(p.curr), 3, 0, Math.PI * 2);
                     ctx.fill();
@@ -1503,7 +1510,7 @@
                     const meanDrift = state.anovaH0.groupMeans[g] - muG;
 
                     ctx.save();
-                    ctx.strokeStyle = colors[g] + '66';
+                    ctx.strokeStyle = groupRgba(g, 0.4);
                     ctx.lineWidth = 1.2;
                     ctx.setLineDash([3, 3]);
                     ctx.beginPath();
@@ -1512,7 +1519,7 @@
                     ctx.stroke();
                     ctx.restore();
 
-                    ctx.strokeStyle = colors[g];
+                    ctx.strokeStyle = groupColor(g);
                     ctx.lineWidth = 1.6;
                     ctx.beginPath();
                     groupPts.forEach((r, i) => {
@@ -1526,7 +1533,7 @@
                     groupPts.forEach((r, i) => {
                         const x = pad.left + (i / Math.max(1, groupPts.length - 1)) * pw;
                         const y = yToPx(r.raw - muG);
-                        ctx.fillStyle = colors[g];
+                        ctx.fillStyle = groupColor(g);
                         ctx.beginPath();
                         ctx.arc(x, y, 2.8, 0, Math.PI * 2);
                         ctx.fill();
@@ -1625,11 +1632,11 @@
 
                 const isReject = fMid >= fCrit;
                 ctx.fillStyle = isReject
-                    ? `rgba(244, 63, 94, ${0.68 * fillScale})`
-                    : `rgba(56, 189, 248, ${0.38 * fillScale})`;
+                    ? statsViz.rgba('null', 0.68 * fillScale)
+                    : statsViz.rgba('h0', 0.38 * fillScale);
                 ctx.strokeStyle = isReject
-                    ? 'rgba(244, 63, 94, 0.95)'
-                    : 'rgba(56, 189, 248, 0.85)';
+                    ? statsViz.rgba('null', 0.95)
+                    : statsViz.rgba('h0', 0.85);
                 ctx.lineWidth = 1;
                 ctx.fillRect(x, y, Math.max(1, bw), bh);
                 ctx.strokeRect(x, y, Math.max(1, bw), bh);
@@ -1650,11 +1657,11 @@
 
                 const isPowerHit = fMid >= fCrit;
                 ctx.fillStyle = isPowerHit
-                    ? `rgba(16, 185, 129, ${0.50 * fillScale})`
-                    : `rgba(148, 163, 184, ${0.28 * fillScale})`;
+                    ? statsViz.rgba('significant', 0.50 * fillScale)
+                    : statsViz.rgba('reference', 0.28 * fillScale);
                 ctx.strokeStyle = isPowerHit
-                    ? 'rgba(52, 211, 153, 0.95)'
-                    : 'rgba(148, 163, 184, 0.65)';
+                    ? statsViz.rgba('significant', 0.95)
+                    : statsViz.rgba('reference', 0.65);
                 ctx.lineWidth = 1.1;
                 ctx.fillRect(x, y, Math.max(1, bw), bh);
                 ctx.strokeRect(x, y, Math.max(1, bw), bh);
@@ -1678,8 +1685,8 @@
 
         if (hasOverflowH0) {
             const fillScaleH0 = state.showH1 ? 0.85 : 1.0;
-            ctx.fillStyle = `rgba(244, 63, 94, ${0.68 * fillScaleH0})`;
-            ctx.strokeStyle = 'rgba(244, 63, 94, 0.95)';
+            ctx.fillStyle = statsViz.rgba('null', 0.68 * fillScaleH0);
+            ctx.strokeStyle = statsViz.rgba('null', 0.95);
             ctx.lineWidth = 1;
             ctx.fillRect(xOverflow, yOverflowH0, bwOverflow, bhH0);
             ctx.strokeRect(xOverflow, yOverflowH0, bwOverflow, bhH0);
@@ -1687,15 +1694,15 @@
 
         if (hasOverflowH1) {
             const fillScaleH1 = state.showH0 ? 0.82 : 1.0;
-            ctx.fillStyle = `rgba(16, 185, 129, ${0.50 * fillScaleH1})`;
-            ctx.strokeStyle = 'rgba(52, 211, 153, 0.95)';
+            ctx.fillStyle = statsViz.rgba('significant', 0.50 * fillScaleH1);
+            ctx.strokeStyle = statsViz.rgba('significant', 0.95);
             ctx.lineWidth = 1.1;
             ctx.fillRect(xOverflow, yOverflowH1, bwOverflow, bhH1);
             ctx.strokeRect(xOverflow, yOverflowH1, bwOverflow, bhH1);
         }
 
         if (hasOverflowH0) {
-            ctx.fillStyle = '#be123c';
+            ctx.fillStyle = statsViz.color('null');
             ctx.font = '600 9px JetBrains Mono';
             ctx.textAlign = 'right';
             const labelYH0 = hasOverflowH1
@@ -1705,7 +1712,7 @@
         }
 
         if (hasOverflowH1) {
-            ctx.fillStyle = '#047857';
+            ctx.fillStyle = statsViz.color('significant');
             ctx.font = '600 9px JetBrains Mono';
             ctx.textAlign = 'right';
             const labelYH1 = hasOverflowH0
@@ -1715,7 +1722,7 @@
         }
 
         // Theoretical Central F(df1, df2) Curve
-        ctx.strokeStyle = '#fbbf24';
+        ctx.strokeStyle = statsViz.color('density');
         ctx.lineWidth = 2.0;
         ctx.beginPath();
         for (let px = 0; px <= pw; px += 3) {
@@ -1730,7 +1737,7 @@
         // Nominal Critical F Threshold Line
         const xCrit = xToPx(fCrit);
         ctx.save();
-        ctx.strokeStyle = '#f43f5e';
+        ctx.strokeStyle = statsViz.color('null');
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 4]);
         ctx.beginPath();
@@ -1743,14 +1750,14 @@
         if (type1Rate > 8.5 && fCritEmp95 < maxF) {
             const xEmp = xToPx(fCritEmp95);
             ctx.save();
-            ctx.strokeStyle = '#a855f7';
+            ctx.strokeStyle = statsViz.color('se');
             ctx.lineWidth = 1.6;
             ctx.setLineDash([2, 3]);
             ctx.beginPath();
             ctx.moveTo(xEmp, pad.top);
             ctx.lineTo(xEmp, pad.top + ph);
             ctx.stroke();
-            ctx.fillStyle = '#6b21a8';
+            ctx.fillStyle = statsViz.color('se');
             ctx.font = '600 9px JetBrains Mono';
             ctx.textAlign = 'left';
             ctx.fillText(`True 5% Cutoff=${fCritEmp95.toFixed(1)}`, Math.min(w - pad.right - 115, xEmp + 4), pad.top + 56);
@@ -1768,12 +1775,12 @@
 
         if (state.showH0) {
             lineY += 14;
-            ctx.fillStyle = '#be123c';
+            ctx.fillStyle = statsViz.color('null');
             ctx.fillText(`Type I Error (H0 Reject): ${type1Rate.toFixed(1)}%`, textX, lineY);
         }
         if (state.showH1) {
             lineY += 14;
-            ctx.fillStyle = '#047857';
+            ctx.fillStyle = statsViz.color('significant');
             ctx.fillText(`Power (H1 Reject): ${nominalPower.toFixed(1)}% (Size-Adj: ${adjPower.toFixed(1)}%)`, textX, lineY);
         }
 
@@ -1790,7 +1797,7 @@
         ctx.textAlign = 'center';
         let axisCaption = 'F-Statistic (Showing Both H0 Null & H1 True Effect Distributions)';
         if (state.showH0 && !state.showH1) {
-            axisCaption = 'F-Statistic under H0 Only (Blue = Retain H0 | Red = Type I Error False Positive)';
+            axisCaption = 'F-Statistic under H0 Only (Blue = Retain H0 | Rose = Type I Error False Positive)';
         } else if (!state.showH0 && state.showH1) {
             axisCaption = 'F-Statistic under H1 Only (Grey = Type II Error Miss | Green = Statistical Power 1 - beta)';
         }
@@ -1813,7 +1820,7 @@
         const mHigh = (50 + d).toFixed(1).replace('.0', '');
         document.getElementById('val-effectDelta').textContent = `+/-${d.toFixed(1)} (mu = ${mLow}, 50, ${mHigh})`;
         document.getElementById('activeMeansSubtitle').innerHTML =
-            `H<sub>0</sub>: <span class="mono text-neutral-800">[50, 50, 50]</span> &bull; H<sub>1</sub>: <span class="mono text-emerald-700">[${mLow}, 50, ${mHigh}]</span>`;
+            `H<sub>0</sub>: <span class="mono text-neutral-800">[50, 50, 50]</span> &bull; H<sub>1</sub>: <span class="mono viz-ink-h1">[${mLow}, 50, ${mHigh}]</span>`;
 
         // Sync Segmented Toggle Buttons (H0 and H1)
         const btnH0 = document.getElementById('btnViewH0');
@@ -1827,11 +1834,11 @@
 
         btnH0.setAttribute('aria-pressed', String(state.showH0));
         if (state.showH0) {
-            btnH0.className = 'py-2 px-2.5 rounded-md bg-sky-500/20 text-sky-800 border border-sky-600 transition flex items-center justify-between gap-1.5';
-            dotH0.className = 'w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_6px_#38bdf8] shrink-0';
+            btnH0.className = 'py-2 px-2.5 rounded-md viz-soft-h0 viz-ink-h0 border viz-border-h0 transition flex items-center justify-between gap-1.5';
+            dotH0.className = 'w-2 h-2 rounded-full viz-bg-h0 shrink-0';
             badgeH0.textContent = 'ON';
-            badgeH0.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-sky-400/25 text-sky-800';
-            legendH0.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-rose-600 bg-rose-500/15 text-rose-700 leading-none whitespace-nowrap transition hover:bg-rose-500/25';
+            badgeH0.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase viz-bg-h0';
+            legendH0.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border viz-border-null viz-soft-null viz-ink-null leading-none whitespace-nowrap transition';
         } else {
             btnH0.className = 'py-2 px-2.5 rounded-md bg-white text-neutral-500 border border-neutral-300 hover:text-black transition flex items-center justify-between gap-1.5';
             dotH0.className = 'w-2 h-2 rounded-full bg-slate-600 shrink-0';
@@ -1842,11 +1849,11 @@
 
         btnH1.setAttribute('aria-pressed', String(state.showH1));
         if (state.showH1) {
-            btnH1.className = 'py-2 px-2.5 rounded-md bg-emerald-500/20 text-emerald-800 border border-emerald-600 transition flex items-center justify-between gap-1.5';
-            dotH1.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] shrink-0';
+            btnH1.className = 'py-2 px-2.5 rounded-md viz-soft-h1 viz-ink-h1 border viz-border-h1 transition flex items-center justify-between gap-1.5';
+            dotH1.className = 'w-2 h-2 rounded-full viz-bg-h1 shrink-0';
             badgeH1.textContent = 'ON';
-            badgeH1.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-emerald-400/25 text-emerald-800';
-            legendH1.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-emerald-600 bg-emerald-500/15 text-emerald-700 leading-none whitespace-nowrap transition hover:bg-emerald-500/25';
+            badgeH1.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase viz-bg-h1';
+            legendH1.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border viz-border-significant viz-soft-significant viz-ink-significant leading-none whitespace-nowrap transition';
         } else {
             btnH1.className = 'py-2 px-2.5 rounded-md bg-white text-neutral-500 border border-neutral-300 hover:text-black transition flex items-center justify-between gap-1.5';
             dotH1.className = 'w-2 h-2 rounded-full bg-slate-600 shrink-0';
@@ -1861,19 +1868,19 @@
         const plot1Badge = document.getElementById('plot1TrueMuBadge');
         if (bothOn) {
             pill.textContent = 'Showing Both (H0 & H1)';
-            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold bg-indigo-500/20 text-indigo-700 border border-indigo-600';
+            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold bg-white text-black border border-black';
             plot1Badge.textContent = `H0: [50,50,50] | H1: [${mLow},50,${mHigh}]`;
-            plot1Badge.className = 'text-[11px] mono text-indigo-700 shrink-0';
+            plot1Badge.className = 'text-[11px] mono text-black shrink-0';
         } else if (state.showH1) {
             pill.textContent = 'Showing H1 Only (True Effect)';
-            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold bg-emerald-500/20 text-emerald-700 border border-emerald-600';
+            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold viz-soft-h1 viz-ink-h1 border viz-border-h1';
             plot1Badge.textContent = `H1: mu = [${mLow}, 50, ${mHigh}]`;
-            plot1Badge.className = 'text-[11px] mono text-emerald-700 shrink-0';
+            plot1Badge.className = 'text-[11px] mono viz-ink-h1 shrink-0';
         } else {
             pill.textContent = 'Showing H0 Only (True Null)';
-            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold bg-sky-500/20 text-sky-700 border border-sky-600';
+            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold viz-soft-h0 viz-ink-h0 border viz-border-h0';
             plot1Badge.textContent = 'H0: mu = [50, 50, 50]';
-            plot1Badge.className = 'text-[11px] mono text-sky-700 shrink-0';
+            plot1Badge.className = 'text-[11px] mono viz-ink-h0 shrink-0';
         }
 
         const isFirst = pageIdx === 0;
@@ -1896,10 +1903,10 @@
             const el = document.getElementById(id);
             if (!violated) {
                 el.textContent = 'Holds';
-                el.className = 'px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-700 border border-emerald-600 font-medium';
+                el.className = 'px-2 py-0.5 text-[11px] rounded-full viz-soft-significant viz-ink-significant border viz-border-significant font-medium';
             } else {
                 el.textContent = warnText;
-                el.className = 'px-2 py-0.5 text-[11px] rounded-full bg-rose-500/20 text-rose-700 border border-rose-600 font-medium';
+                el.className = 'px-2 py-0.5 text-[11px] rounded-full viz-soft-null viz-ink-null border viz-border-null font-medium';
             }
         };
         setBadge('badge-normality', state.skew >= 0.5, 'Violated');
@@ -1916,7 +1923,13 @@
         diagBadgeEl.textContent = info.diagBadge;
         diagBadgeEl.classList.toggle('hidden', state.activeTab !== 'homoscedasticity');
 
-        document.getElementById('diagTitle').textContent = info.diagTitle;
+        const diagTitleEl = document.getElementById('diagTitle');
+        diagTitleEl.textContent = info.diagTitle;
+        diagTitleEl.className = 'text-sm font-bold ' + ({
+            normality: 'viz-ink-group-a',
+            homoscedasticity: 'viz-ink-se',
+            independence: 'viz-ink-group-c'
+        }[state.activeTab] || 'text-black');
         document.getElementById('diagSubtitle').innerHTML = info.diagSubtitle;
 
         document.getElementById('eduProblem').innerHTML = info.problem;
@@ -1930,10 +1943,10 @@
             if (bothOn) {
                 document.getElementById('label-stat-f').innerHTML = 'Sample <i>F</i> (H<sub>0</sub> | H<sub>1</sub>)';
                 document.getElementById('stat-f').innerHTML =
-                    `<span class="text-sky-700">${state.anovaH0.F.toFixed(2)}</span> <span class="text-slate-600">|</span> <span class="text-emerald-700">${state.anovaH1.F.toFixed(2)}</span>`;
+                    `<span class="viz-ink-h0">${state.anovaH0.F.toFixed(2)}</span> <span class="text-slate-600">|</span> <span class="viz-ink-h1">${state.anovaH1.F.toFixed(2)}</span>`;
                 document.getElementById('label-stat-p').innerHTML = 'Sample <i>p</i> (H<sub>0</sub> | H<sub>1</sub>)';
                 document.getElementById('stat-p').innerHTML =
-                    `<span class="text-sky-700">${fmtP(state.anovaH0.p)}</span> <span class="text-slate-600">|</span> <span class="text-emerald-700">${fmtP(state.anovaH1.p)}</span>`;
+                    `<span class="viz-ink-h0">${fmtP(state.anovaH0.p)}</span> <span class="text-slate-600">|</span> <span class="viz-ink-h1">${fmtP(state.anovaH1.p)}</span>`;
             } else if (state.showH1) {
                 document.getElementById('label-stat-f').innerHTML = 'Sample <i>F</i> (H<sub>1</sub>)';
                 document.getElementById('stat-f').textContent = state.anovaH1.F.toFixed(2);
@@ -1957,8 +1970,8 @@
                     ? `MS_W = ${noiseMult.toFixed(1)}x Ideal`
                     : `Noise Inflated ${noiseMult.toFixed(1)}x!`;
                 snrBadge.className = noiseMult <= 1.25
-                    ? 'text-[10px] mono text-emerald-700'
-                    : 'text-[10px] mono text-rose-700 font-semibold';
+                    ? 'text-[10px] mono viz-ink-significant'
+                    : 'text-[10px] mono viz-ink-null font-semibold';
             }
 
             // Update Independence F-Ratio bars
@@ -2002,22 +2015,22 @@
                 const h0Status = state.anovaH0.p < 0.05 ? 'H0: Type I Err' : 'H0: Retained';
                 const h1Status = state.anovaH1.p < 0.05 ? 'H1: Detected' : 'H1: Missed';
                 decBadge.innerHTML = `${h0Status} &bull; ${h1Status}`;
-                decBadge.className = 'px-2.5 py-1 rounded text-[11px] font-semibold text-right leading-tight bg-indigo-500/20 text-indigo-800 border border-indigo-600';
+                decBadge.className = 'px-2.5 py-1 rounded text-[11px] font-semibold text-right leading-tight bg-white text-black border border-black';
             } else if (state.showH0) {
                 if (state.anovaH0.p < 0.05) {
                     decBadge.innerHTML = 'Type I Error! (False Positive)';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-rose-500/20 text-rose-700 border border-rose-600';
+                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight viz-soft-null viz-ink-null border viz-border-null';
                 } else {
                     decBadge.innerHTML = 'Correctly Retains H<sub>0</sub>';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-700 border border-emerald-600';
+                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight viz-soft-significant viz-ink-significant border viz-border-significant';
                 }
             } else {
                 if (state.anovaH1.p < 0.05) {
                     decBadge.innerHTML = 'True Positive! (Detects H<sub>1</sub>)';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-700 border border-emerald-600';
+                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight viz-soft-significant viz-ink-significant border viz-border-significant';
                 } else {
                     decBadge.innerHTML = 'Type II Error! (Missed Effect)';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-amber-500/20 text-amber-700 border border-amber-600';
+                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight viz-soft-beta viz-ink-beta border viz-border-beta';
                 }
             }
         }
@@ -2041,29 +2054,24 @@
         commEl.classList.toggle('hidden', !state.showH0);
         powerCommEl.classList.toggle('hidden', !state.showH1);
 
+        type1El.className = 'text-base font-bold viz-ink-null mono mt-0.5';
         if (type1Rate <= 7.0) {
-            type1El.className = 'text-base font-bold text-emerald-700 mono mt-0.5';
-            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> <span class="mono text-emerald-700">${type1Rate.toFixed(1)}%</span> stays close to the nominal <span class="mono text-neutral-800">5.0%</span> level.`;
+            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> <span class="mono viz-ink-null">${type1Rate.toFixed(1)}%</span> stays close to the nominal <span class="mono text-neutral-800">5.0%</span> level.`;
         } else if (type1Rate <= 15.0) {
-            type1El.className = 'text-base font-bold text-amber-700 mono mt-0.5';
-            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> Moderately inflated to <span class="mono text-amber-700">${type1Rate.toFixed(1)}%</span> (nominal <span class="mono">5.0%</span>).`;
+            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> Moderately inflated to <span class="mono viz-ink-null">${type1Rate.toFixed(1)}%</span> (nominal <span class="mono">5.0%</span>).`;
         } else {
-            type1El.className = 'text-base font-bold text-rose-700 mono mt-0.5';
-            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> Severely inflated to <span class="mono text-rose-700">${type1Rate.toFixed(1)}%</span>! Nominal <i>p</i>-values are invalid.`;
+            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> Severely inflated to <span class="mono viz-ink-null">${type1Rate.toFixed(1)}%</span>! Nominal <i>p</i>-values are invalid.`;
         }
 
+        powerEl.className = 'text-base font-bold viz-ink-significant mono mt-0.5';
         if (type1Rate > 10.0) {
-            powerEl.className = 'text-base font-bold text-amber-700 mono mt-0.5';
-            powerCommEl.innerHTML = `<b>Power Warning:</b> Nominal rejection (<span class="mono text-amber-700">${nominalPower.toFixed(1)}%</span>) is artificially inflated by false positives! True <b>Size-Adjusted Power</b> (at true 5% &alpha;) is only <span class="mono text-rose-700">${adjPower.toFixed(1)}%</span>.`;
+            powerCommEl.innerHTML = `<b>Power Warning:</b> Nominal rejection (<span class="mono viz-ink-significant">${nominalPower.toFixed(1)}%</span>) is artificially inflated by false positives! True <b>Size-Adjusted Power</b> (at true 5% &alpha;) is only <span class="mono viz-ink-significant">${adjPower.toFixed(1)}%</span>.`;
         } else if (nominalPower >= 70.0) {
-            powerEl.className = 'text-base font-bold text-emerald-700 mono mt-0.5';
-            powerCommEl.innerHTML = `<b>Statistical Power (1&minus;&beta;):</b> Strong sensitivity (<span class="mono text-emerald-700">${nominalPower.toFixed(1)}%</span>) to detect the true <span class="mono">&Delta;&mu; = &plusmn;${state.effectDelta.toFixed(1)}</span> effect.`;
+            powerCommEl.innerHTML = `<b>Statistical Power (1&minus;&beta;):</b> Strong sensitivity (<span class="mono viz-ink-significant">${nominalPower.toFixed(1)}%</span>) to detect the true <span class="mono viz-ink-h1">&Delta;&mu; = &plusmn;${state.effectDelta.toFixed(1)}</span> effect.`;
         } else if (nominalPower >= 45.0) {
-            powerEl.className = 'text-base font-bold text-amber-700 mono mt-0.5';
-            powerCommEl.innerHTML = `<b>Statistical Power (1&minus;&beta;):</b> Reduced to <span class="mono text-amber-700">${nominalPower.toFixed(1)}%</span> because inflated <span class="mono">MS<sub>Within</sub></span> partially masks the treatment signal.`;
+            powerCommEl.innerHTML = `<b>Statistical Power (1&minus;&beta;):</b> Reduced to <span class="mono viz-ink-significant">${nominalPower.toFixed(1)}%</span> because inflated <span class="mono">MS<sub>Within</sub></span> partially masks the treatment signal.`;
         } else {
-            powerEl.className = 'text-base font-bold text-rose-700 mono mt-0.5';
-            powerCommEl.innerHTML = `<b>Severe Power Loss!</b> Power dropped to <span class="mono text-rose-700">${nominalPower.toFixed(1)}%</span> (Type II Error &beta; = <span class="mono">${(100 - nominalPower).toFixed(1)}%</span>) as extreme error variance swamps <span class="mono">MS<sub>Between</sub></span>.`;
+            powerCommEl.innerHTML = `<b>Severe Power Loss!</b> Power dropped to <span class="mono viz-ink-significant">${nominalPower.toFixed(1)}%</span> (Type II Error <span class="viz-ink-beta">&beta; = ${(100 - nominalPower).toFixed(1)}%</span>) as extreme error variance swamps <span class="mono">MS<sub>Between</sub></span>.`;
         }
     }
 
@@ -2159,13 +2167,13 @@
     const btnQQByGroup = document.getElementById('btnQQByGroup');
     btnQQPooled.addEventListener('click', () => {
         state.qqMode = 'pooled';
-        btnQQPooled.className = 'px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-700 border border-sky-600 transition';
+        btnQQPooled.className = 'px-2 py-0.5 rounded-md viz-soft-group-a viz-ink-group-a border viz-border-group-a transition';
         btnQQByGroup.className = 'px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition';
         renderDiagnosticPlot();
     });
     btnQQByGroup.addEventListener('click', () => {
         state.qqMode = 'byGroup';
-        btnQQByGroup.className = 'px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-700 border border-sky-600 transition';
+        btnQQByGroup.className = 'px-2 py-0.5 rounded-md viz-soft-group-a viz-ink-group-a border viz-border-group-a transition';
         btnQQPooled.className = 'px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition';
         renderDiagnosticPlot();
     });
@@ -2174,14 +2182,14 @@
     const btnIndLag = document.getElementById('btnIndLag');
     btnIndSequence.addEventListener('click', () => {
         state.indMode = 'sequence';
-        btnIndSequence.className = 'px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-700 border border-amber-600 transition';
+        btnIndSequence.className = 'px-2 py-0.5 rounded-md viz-soft-group-c viz-ink-group-c border viz-border-group-c transition';
         btnIndLag.className = 'px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition';
         updateUI();
         renderDiagnosticPlot();
     });
     btnIndLag.addEventListener('click', () => {
         state.indMode = 'lag';
-        btnIndLag.className = 'px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-700 border border-amber-600 transition';
+        btnIndLag.className = 'px-2 py-0.5 rounded-md viz-soft-group-c viz-ink-group-c border viz-border-group-c transition';
         btnIndSequence.className = 'px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition';
         updateUI();
         renderDiagnosticPlot();

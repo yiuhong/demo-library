@@ -6,6 +6,8 @@
     <title>A target analogy of the confidence intervals</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -45,28 +47,28 @@
             opacity: 0.8;
             transform: translateX(2px);
         }
-        .bullseye-center { fill: #ef4444; }
+        .bullseye-center { fill: var(--viz-mean); }
         .target-ring {
             fill: none;
-            stroke: #334155;
+            stroke: var(--viz-reference);
             stroke-dasharray: 4, 4;
         }
         .dart, .ci-mean {
             transition: fill 0.3s, opacity 0.3s;
         }
         .dart-halo {
-            fill: rgba(59, 130, 246, 0.1);
-            stroke: #3b82f6;
+            fill: color-mix(in srgb, var(--viz-se) 12%, transparent);
+            stroke: var(--viz-se);
             stroke-width: 2px;
             transition: fill 0.4s ease, stroke 0.4s ease;
         }
         .halo-hit {
-            fill: rgba(16, 185, 129, 0.15);
-            stroke: #10b981;
+            fill: color-mix(in srgb, var(--viz-significant) 15%, transparent);
+            stroke: var(--viz-significant);
         }
         .halo-miss {
-            fill: rgba(244, 63, 94, 0.15);
-            stroke: #f43f5e;
+            fill: color-mix(in srgb, var(--viz-null) 15%, transparent);
+            stroke: var(--viz-null);
         }
         .multiplier-btn, .shooter-btn {
             padding: 6px 12px;
@@ -122,8 +124,8 @@
         <!-- PANEL 1: Controls & Story (Left) -->
         <div class="lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-1 pb-4">
             
-            <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-100">
-                <h3 class="font-bold text-emerald-900 mb-1 text-sm">Shooter Skill (Standard Error)</h3>
+            <div class="viz-soft-se rounded-xl p-3 border viz-border-se">
+                <h3 class="font-bold viz-ink-se mb-1 text-sm">Shooter Skill (Standard Error)</h3>
                 <div class="flex gap-1 justify-center mt-2">
                     <button class="shooter-btn" data-skill="0.5">Good</button>
                     <button class="shooter-btn active" data-skill="1.0">Avg</button>
@@ -131,8 +133,8 @@
                 </div>
             </div>
 
-            <div class="bg-indigo-50 rounded-xl p-3 border border-indigo-100">
-                <h3 class="font-bold text-indigo-900 mb-1 text-sm">Range (Multiplier)</h3>
+            <div class="demo-panel rounded-xl p-3">
+                <h3 class="font-bold mb-1 text-sm">Range (Multiplier)</h3>
                 <div class="flex gap-1 justify-center mt-2">
                     <button class="multiplier-btn active" data-mult="1">68% (1 SE)</button>
                     <button class="multiplier-btn" data-mult="1.96">95% (1.96 SE)</button>
@@ -144,8 +146,8 @@
             <div class="step-card active" id="step1" onclick="setMode(1)">
                 <h2 class="text-lg font-bold mb-1 text-slate-800">1. Multiple shots (samples)</h2>
                 <div class="text-xs text-slate-600 space-y-1">
-                    <p>We see the True Mean (Red Center) casting a range that traps predictable sample means (Blue Dots).</p>
-                    <p class="font-semibold text-blue-700 mt-2 bg-blue-50 p-1.5 rounded border border-blue-100">Note: This central circle shows the Margin of Error based on the Standard Error (SE). It visualizes the sampling distribution, not a Confidence Interval.</p>
+                    <p>We see the True Mean (<span class="viz-ink-mean">Red Center</span>) casting a range that traps predictable sample means (<span class="viz-ink-group-a">Blue Dots</span>).</p>
+                    <p class="font-semibold viz-ink-se mt-2 viz-soft-se p-1.5 rounded border viz-border-se">Note: This purple circle is the Margin of Error from the Standard Error (SE). It shows the sampling spread around the blue sample means, not a Confidence Interval.</p>
                 </div>
             </div>
 
@@ -154,7 +156,7 @@
                 <h2 class="text-lg font-bold mb-1 text-slate-800">2. One shot (sample)</h2>
                 <div class="text-xs text-slate-600 space-y-1">
                     <p>You only get one sample. We reverse it: Draw the range around the single dart. Does it capture the invisible center?</p>
-                    <p class="font-semibold text-indigo-700 mt-2 bg-indigo-50 p-1.5 rounded border border-indigo-100">Click on any dot or line in either graph to select it and test if its confidence interval captures the true mean!</p>
+                    <p class="font-semibold text-slate-700 mt-2 bg-slate-50 p-1.5 rounded border border-slate-200">Click on any dot or line in either graph to select it and test if its confidence interval captures the true mean!</p>
                 </div>
             </div>
 
@@ -162,7 +164,7 @@
             <div class="step-card" id="step3" onclick="setMode(3)">
                 <h2 class="text-lg font-bold mb-1 text-slate-800">3. The Long Run</h2>
                 <div class="text-xs text-slate-600 space-y-1">
-                    <p>Drawing ranges around all 100 samples. <strong class="text-emerald-600">Green ranges</strong> succeed. <strong class="text-rose-600">Red ranges</strong> fail.</p>
+                    <p>Drawing ranges around all 100 samples. <strong class="viz-ink-significant">Green ranges</strong> succeed. <strong class="viz-ink-null">Red ranges</strong> fail.</p>
                 </div>
             </div>
             
@@ -181,7 +183,7 @@
                 <h3 class="font-bold text-slate-700 text-xs uppercase tracking-wide">Target</h3>
                 <div class="flex gap-4 text-[10px] text-right">
                     <div><span class="text-slate-400 font-bold uppercase">Range:</span> <span id="statMultiplier" class="font-bold text-slate-700">68% (1 SE)</span></div>
-                    <div id="scoreBoard" style="opacity: 0; transition: opacity 0.3s;"><span class="text-slate-400 font-bold uppercase">Hits:</span> <span id="statCaptured" class="font-bold text-emerald-600">-- / 100</span></div>
+                    <div id="scoreBoard" style="opacity: 0; transition: opacity 0.3s;"><span class="text-slate-400 font-bold uppercase">Hits:</span> <span id="statCaptured" class="font-bold viz-ink-significant">-- / 100</span></div>
                 </div>
             </div>
 
@@ -331,14 +333,14 @@
                     .attr("class", "target-ring")
                     .attr("cx", centerX).attr("cy", centerY)
                     .attr("r", i * fixedScale)
-                    .style("stroke", "#334155")
+                    .style("stroke", statsViz.color("--viz-reference"))
                     .style("opacity", 0.4);
             }
 
             bullseyeGroup.selectAll("*").remove();
             bullseyeGroup.append("circle")
                 .attr("cx", centerX).attr("cy", centerY).attr("r", 7)
-                .attr("fill", "white").attr("stroke", "#ef4444").attr("stroke-width", 2);
+                .attr("fill", "white").attr("stroke", statsViz.color("--viz-mean")).attr("stroke-width", 2);
             bullseyeGroup.append("circle")
                 .attr("cx", centerX).attr("cy", centerY).attr("r", 3)
                 .attr("class", "bullseye-center");
@@ -349,7 +351,7 @@
                 .merge(truthLine)
                 .attr("x1", ciCenterX).attr("x2", ciCenterX)
                 .attr("y1", 0).attr("y2", ciHeight)
-                .attr("stroke", "#475569").attr("stroke-width", 2).attr("stroke-dasharray", "4, 4");
+                .attr("stroke", statsViz.color("--viz-mean")).attr("stroke-width", 2).attr("stroke-dasharray", "4, 4");
                 
             // Baseline for the distributions
             const baseLine = ciBgGroup.selectAll(".ci-baseline").data([0]);
@@ -357,7 +359,7 @@
                 .merge(baseLine)
                 .attr("x1", 0).attr("x2", ciWidth)
                 .attr("y1", CI_TOP_MARGIN).attr("y2", CI_TOP_MARGIN)
-                .attr("stroke", "#475569").attr("stroke-width", 1);
+                .attr("stroke", statsViz.color("--viz-reference")).attr("stroke-width", 1);
         }
 
         // --- STREAMING_CHUNK: Core Visual Update Engine ---
@@ -385,7 +387,7 @@
                 .on("click", function(event, d) { handleDartClick(event, d.id); })
                 .merge(dots).transition(t)
                 .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", 4.5)
-                .style("fill", "#3b82f6")
+                .style("fill", statsViz.color("--viz-group-a"))
                 .style("opacity", d => {
                     if (currentMode === 1 || currentMode === 3) return 1;
                     return d.id === currentDartIndex ? 1 : 0.35;
@@ -425,11 +427,11 @@
             // Update Axes Colors dynamically
             ciBgGroup.selectAll(".ci-truth")
                 .transition(t)
-                .attr("stroke", "#475569");
+                .attr("stroke", statsViz.color("--viz-mean"));
                 
             ciBgGroup.selectAll(".ci-baseline")
                 .transition(t)
-                .attr("stroke", "#475569");
+                .attr("stroke", statsViz.color("--viz-reference"));
 
             // 1. The Shaded "Range" (Mode 1 only)
             const ciNet = ciBgGroup.selectAll(".ci-net").data([0]);
@@ -437,7 +439,7 @@
                 .merge(ciNet).transition(t)
                 .attr("x", ciCenterX - radius).attr("y", CI_TOP_MARGIN)
                 .attr("width", radius * 2).attr("height", ciHeight - CI_TOP_MARGIN)
-                .attr("fill", "#3b82f6")
+                .attr("fill", statsViz.color("--viz-se"))
                 .style("opacity", currentMode === 1 ? 0.08 : 0);
 
             // 1.5. Normal Distributions (Top Area)
@@ -446,8 +448,8 @@
             trueDist.enter().append("path").attr("class", "ci-true-dist")
                 .merge(trueDist).transition(t)
                 .attr("d", generateNormalPath(ciCenterX, activeSE, 70, CI_TOP_MARGIN))
-                .attr("fill", "rgba(148, 163, 184, 0.1)")
-                .attr("stroke", "#94a3b8")
+                .attr("fill", statsViz.rgba("--viz-density", 0.08))
+                .attr("stroke", statsViz.color("--viz-density"))
                 .attr("stroke-width", 1.5)
                 .attr("stroke-dasharray", "4, 4")
                 .style("opacity", 1);
@@ -470,8 +472,8 @@
                 .merge(sampleDist)
                 .transition(t)
                 .attr("d", d => generateNormalPath(d.x, activeSE, 70, CI_TOP_MARGIN))
-                .attr("fill", d => d.status === 'hit' ? "rgba(16, 185, 129, 0.12)" : "rgba(244, 63, 94, 0.12)")
-                .attr("stroke", d => d.status === 'hit' ? "#10b981" : "#f43f5e")
+                .attr("fill", d => d.status === 'hit' ? statsViz.rgba("--viz-significant", 0.12) : statsViz.rgba("--viz-null", 0.12))
+                .attr("stroke", d => d.status === 'hit' ? statsViz.color("--viz-significant") : statsViz.color("--viz-null"))
                 .attr("stroke-width", 2)
                 .style("opacity", 1);
 
@@ -497,7 +499,7 @@
                 .merge(bounds).transition(t)
                 .attr("x1", d => d.x).attr("x2", d => d.x)
                 .attr("y1", d => d.y1).attr("y2", d => d.y2)
-                .attr("stroke", d => d.status === 'hit' ? "#10b981" : "#f43f5e")
+                .attr("stroke", d => d.status === 'hit' ? statsViz.color("--viz-significant") : statsViz.color("--viz-null"))
                 .style("opacity", 0.8);
 
             // 1.75. Projection Line linking the curve to the sample dot (Mode 2)
@@ -520,7 +522,7 @@
                 .merge(ciProj).transition(t)
                 .attr("x1", d => d.x).attr("x2", d => d.x)
                 .attr("y1", d => d.y1).attr("y2", d => d.y2)
-                .attr("stroke", d => d.status === 'hit' ? "#10b981" : "#f43f5e")
+                .attr("stroke", d => d.status === 'hit' ? statsViz.color("--viz-significant") : statsViz.color("--viz-null"))
                 .style("opacity", 0.5);
 
             // 2. The Confidence Interval Lines (Modes 2 & 3)
@@ -531,7 +533,7 @@
                 .merge(ciLines).transition(t)
                 .attr("x1", d => d.ciX - radius).attr("x2", d => d.ciX + radius)
                 .attr("y1", d => d.ciY).attr("y2", d => d.ciY)
-                .attr("stroke", d => d.dist <= radius ? "#10b981" : "#f43f5e") // Colors identically match 2D Hits/Misses
+                .attr("stroke", d => d.dist <= radius ? statsViz.color("--viz-significant") : statsViz.color("--viz-null")) // Hits and misses match the 2D ranges
                 .style("opacity", d => {
                     if (currentMode === 1) return 0; // Hide lines in God View
                     if (currentMode === 2) return d.id === currentDartIndex ? 1 : 0.35;
@@ -546,8 +548,8 @@
                 .merge(ciDots).transition(t)
                 .attr("cx", d => d.ciX).attr("cy", d => d.ciY).attr("r", 3.5)
                 .attr("fill", d => {
-                    if (currentMode === 1) return "#3b82f6";
-                    return d.dist <= radius ? "#10b981" : "#f43f5e";
+                    if (currentMode === 1) return statsViz.color("--viz-group-a");
+                    return d.dist <= radius ? statsViz.color("--viz-significant") : statsViz.color("--viz-null");
                 })
                 .style("opacity", d => {
                     if (currentMode === 1) return 1;

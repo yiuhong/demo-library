@@ -6,6 +6,8 @@
     <title>Building the Normal Distribution</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     
     <!-- KaTeX Core -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -170,7 +172,7 @@
                     <div class="flex justify-center mb-4">
                         <canvas id="mini-graph-8" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
                     </div>
-                    <div class="bg-blue-50 border border-blue-200 text-blue-800 px-3 py-2 rounded text-sm font-semibold text-center" id="area-display">
+                    <div class="viz-soft-density viz-ink-density border px-3 py-2 rounded text-sm font-semibold text-center" id="area-display" style="border-color: var(--viz-density);">
                         Total Area = 1.000
                     </div>
                 </div>
@@ -438,7 +440,7 @@
                 ctx.lineTo(width, yZero);
                 ctx.lineTo(0, yZero);
                 ctx.closePath();
-                ctx.fillStyle = 'rgba(59, 130, 246, 0.15)';
+                ctx.fillStyle = statsViz.rgba('--viz-density', 0.15);
                 ctx.fill();
                 
                 // Redraw top stroke after filling
@@ -452,7 +454,7 @@
                 }
             }
 
-            ctx.strokeStyle = '#2563eb';
+            ctx.strokeStyle = statsViz.color('--viz-density');
             ctx.lineWidth = 2;
             ctx.stroke();
         }
@@ -537,7 +539,7 @@
                 ctx.lineTo(width, yZero);
                 ctx.lineTo(0, yZero);
                 ctx.closePath();
-                ctx.fillStyle = 'rgba(59, 130, 246, 0.15)'; // blue-500 with opacity
+                ctx.fillStyle = statsViz.rgba('--viz-density', 0.15);
                 ctx.fill();
                 
                 // Redraw the path for the stroke so it sits on top of the fill cleanly
@@ -549,7 +551,7 @@
             }
 
             // Execute line drawing
-            ctx.strokeStyle = '#2563eb'; // blue-600
+            ctx.strokeStyle = statsViz.color('--viz-density');
             ctx.lineWidth = 3;
             ctx.stroke();
             
@@ -559,7 +561,7 @@
                 let peakY = calculateY(m, currentStep);
                 
                 ctx.setLineDash([5, 5]);
-                ctx.strokeStyle = '#ef4444'; // red-500
+                ctx.strokeStyle = statsViz.color('--viz-mean');
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.moveTo(mapX(m, width), mapY(0, height));
@@ -568,7 +570,7 @@
                 ctx.setLineDash([]);
                 
                 // Text for mean
-                ctx.fillStyle = '#ef4444';
+                ctx.fillStyle = statsViz.color('--viz-mean');
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'bottom';
                 ctx.fillText(`μ = ${m.toFixed(1)}`, mapX(m, width) + 5, mapY(peakY, height) - 5);

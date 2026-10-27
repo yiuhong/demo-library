@@ -8,6 +8,8 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- MathJax for rendering math formulas -->
@@ -50,7 +52,7 @@
     </div>
     <header class="bg-black text-white py-8 px-4 sm:px-8 border-b border-black">
         <div class="max-w-6xl mx-auto">
-            <div class="flex items-center gap-3 mb-2 text-indigo-400 font-semibold tracking-wide text-sm uppercase">
+            <div class="flex items-center gap-3 mb-2 text-slate-300 font-semibold tracking-wide text-sm uppercase">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                 Interactive Statistics Visualizer
             </div>
@@ -58,7 +60,7 @@
                 Partitioning Sum of Squares in ANOVA
             </h1>
             <p class="text-slate-300 text-base sm:text-lg max-w-3xl leading-relaxed">
-                Discover why total variation (Sum of Squares) breaks down cleanly into <span class="text-indigo-300 font-semibold">Group Effect</span> and <span class="text-emerald-300 font-semibold">Individual Deviation</span>, and see why the cross-product term magically vanishes!
+                Discover why total variation (Sum of Squares) breaks down cleanly into <span class="viz-ink-explained font-semibold">Group Effect</span> and <span class="viz-ink-residual font-semibold">Individual Deviation</span>, and see why the cross-product term magically vanishes!
             </p>
         </div>
     </header>
@@ -69,7 +71,7 @@
         <!-- SECTION 1: The Core Intuition & Analogy -->
         <section class="demo-card p-6 sm:p-8">
             <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">1</span>
+                <span class="w-8 h-8 rounded-lg bg-white text-black border border-black flex items-center justify-center text-sm font-bold">1</span>
                 The Group Project Analogy
             </h2>
             <p class="text-slate-600 mb-6 leading-relaxed">
@@ -85,16 +87,16 @@
                     <p class="text-xs text-slate-500">How far an individual student's score is from the overall class grand average.</p>
                 </div>
                 <!-- Card 2 -->
-                <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-200 hover:border-indigo-300 transition-all">
-                    <div class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">Group Component $(a)$</div>
-                    <div class="text-lg font-bold text-indigo-900 mb-2">Group Mean − Class Mean</div>
-                    <p class="text-xs text-indigo-700">How much the team's environment raised or lowered all team members together.</p>
+                <div class="viz-soft-explained p-5 rounded-xl border viz-border-explained transition-all">
+                    <div class="text-xs font-bold viz-ink-explained uppercase tracking-wider mb-1">Group Component $(a)$</div>
+                    <div class="text-lg font-bold viz-ink-explained mb-2">Group Mean − Class Mean</div>
+                    <p class="text-xs viz-ink-explained">How much the team's environment raised or lowered all team members together.</p>
                 </div>
                 <!-- Card 3 -->
-                <div class="bg-emerald-50 p-5 rounded-xl border border-emerald-200 hover:border-emerald-300 transition-all">
-                    <div class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Individual Component $(b)$</div>
-                    <div class="text-lg font-bold text-emerald-900 mb-2">Student Score − Group Mean</div>
-                    <p class="text-xs text-emerald-700">The student's unique personal contribution above or below their own team average.</p>
+                <div class="viz-soft-residual p-5 rounded-xl border viz-border-residual transition-all">
+                    <div class="text-xs font-bold viz-ink-residual uppercase tracking-wider mb-1">Individual Component $(b)$</div>
+                    <div class="text-lg font-bold viz-ink-residual mb-2">Student Score − Group Mean</div>
+                    <p class="text-xs viz-ink-residual">The student's unique personal contribution above or below their own team average.</p>
                 </div>
             </div>
 
@@ -102,18 +104,18 @@
             <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner text-center overflow-x-auto mb-6 space-y-5">
                 <div>
                     <div class="text-xs text-slate-400 uppercase tracking-widest mb-2 font-semibold">1. Partitioning of Total Deviation</div>
-                    <div class="text-lg sm:text-xl font-mono text-indigo-300">
+                    <div class="text-lg sm:text-xl font-mono text-slate-200">
                         $\underbrace{(y_{ij} - \bar{y})}_{\text{Total Deviation}} = \underbrace{(\bar{y}_i - \bar{y})}_{\text{Group Effect } (a)} + \underbrace{(y_{ij} - \bar{y}_i)}_{\text{Individual Component } (b)}$
                     </div>
                     <p class="text-xs text-slate-400 mt-3">Notice that if you simplify the right side, $\bar{y}_i$ cancels out, proving the equality always holds true!</p>
                 </div>
 
                 <div class="border-t border-slate-800 pt-5">
-                    <div class="text-xs text-amber-400 uppercase tracking-widest mb-2 font-semibold">2. Partitioning of Sum of Squares (Squaring & Summing)</div>
-                    <div class="text-lg sm:text-xl font-mono text-amber-300 mb-2">
+                    <div class="text-xs viz-ink-total uppercase tracking-widest mb-2 font-semibold">2. Partitioning of Sum of Squares (Squaring & Summing)</div>
+                    <div class="text-lg sm:text-xl font-mono viz-ink-total mb-2">
                         $SS_{\text{Total}} = SS_{\text{Between}} + SS_{\text{Within}}$
                     </div>
-                    <div class="text-base sm:text-lg font-mono text-emerald-300">
+                    <div class="text-base sm:text-lg font-mono text-slate-200">
                         $\underbrace{\sum_{i}\sum_{j} (y_{ij} - \bar{y})^2}_{SS_{\text{Total}}} = \underbrace{\sum_{i} n_i (\bar{y}_i - \bar{y})^2}_{SS_{\text{Between}}} + \underbrace{\sum_{i}\sum_{j} (y_{ij} - \bar{y}_i)^2}_{SS_{\text{Within}}}$
                     </div>
                     <p class="text-xs text-slate-400 mt-3">Here, $i$ represents the group index, $j$ represents the individual student within that group, and $n_i$ is the number of students in group $i$.</p>
@@ -121,24 +123,24 @@
             </div>
 
             <!-- Why Square? Callout -->
-            <details class="bg-amber-50 rounded-xl border border-amber-200 shadow-sm group">
-                <summary class="p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between hover:bg-amber-100/50 transition-colors rounded-xl">
-                    <h3 class="text-base font-bold text-amber-900 flex items-center gap-2 m-0">
-                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <details class="bg-white rounded-xl border border-slate-300 shadow-sm group">
+                <summary class="p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center justify-between hover:bg-slate-50 transition-colors rounded-xl">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2 m-0">
+                        <svg class="w-5 h-5 text-slate-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Why do we need to SQUARE the deviations?
                     </h3>
-                    <svg class="w-5 h-5 text-amber-600 transition-transform duration-200 group-open:rotate-180 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <svg class="w-5 h-5 text-slate-600 transition-transform duration-200 group-open:rotate-180 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </summary>
-                <div class="p-5 pt-0 grid grid-cols-1 md:grid-cols-2 gap-6 mt-1 border-t border-amber-200/50">
+                <div class="p-5 pt-0 grid grid-cols-1 md:grid-cols-2 gap-6 mt-1 border-t border-slate-200">
                     <div>
-                        <h4 class="font-bold text-amber-800 text-sm mb-1">1. The "Zero-Sum" Problem</h4>
-                        <p class="text-xs text-amber-900/80 leading-relaxed">
+                        <h4 class="font-bold text-slate-800 text-sm mb-1">1. The "Zero-Sum" Problem</h4>
+                        <p class="text-xs text-slate-700 leading-relaxed">
                             If we try to measure total "spread" by just adding up these raw deviations for everyone, the students above average cancel out the students below average. The sum is mathematically forced to be zero: $\sum (y_{ij} - \bar{y}) = 0$. A sum of 0 tells us nothing about how spread out the class actually is!
                         </p>
                     </div>
                     <div>
-                        <h4 class="font-bold text-amber-800 text-sm mb-1">2. Squaring solves it</h4>
-                        <p class="text-xs text-amber-900/80 leading-relaxed">
+                        <h4 class="font-bold text-slate-800 text-sm mb-1">2. Squaring solves it</h4>
+                        <p class="text-xs text-slate-700 leading-relaxed">
                             By squaring the deviations $(y_{ij} - \bar{y})^2$, we force every distance to be positive so they accumulate into a "Sum of Squares". Additionally, unlike absolute values, <strong>squaring</strong> interacts with the math in a way that makes overlapping group-and-individual pieces disappear entirely (which you'll see in Section 3).
                         </p>
                     </div>
@@ -151,7 +153,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
                     <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                        <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">2</span>
+                        <span class="w-8 h-8 rounded-lg bg-white text-black border border-black flex items-center justify-center text-sm font-bold">2</span>
                         Interactive Data Studio
                     </h2>
                     <p class="text-slate-500 text-sm mt-1">Adjust student scores or choose a scenario to observe live variance decomposition.</p>
@@ -167,73 +169,73 @@
             <!-- Student Score Inputs -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <!-- Group 1 -->
-                <div class="bg-indigo-50/50 p-5 rounded-xl border border-indigo-100">
+                <div class="viz-soft-group-a p-5 rounded-xl border viz-border-group-a">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-bold text-indigo-900 flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-indigo-600"></span> Group A (Alpha)
+                        <h3 class="font-bold viz-ink-group-a flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full viz-bg-group-a"></span> Group A (Alpha)
                         </h3>
-                        <span id="group-a-mean-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 code-font">Mean: 80</span>
+                        <span id="group-a-mean-badge" class="text-xs font-bold px-2 py-0.5 rounded viz-mid-group-a viz-ink-group-a code-font">Mean: 80</span>
                     </div>
                     <div class="space-y-3">
                         <div>
                             <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Alice:</span> <span id="val-A1" class="font-semibold">70</span></div>
-                            <input type="range" min="40" max="120" value="70" id="input-A1" class="w-full accent-indigo-600" oninput="updateCalculations()">
+                            <input type="range" min="40" max="120" value="70" id="input-A1" class="w-full viz-accent-group-a" oninput="updateCalculations()">
                         </div>
                         <div>
                             <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Bob:</span> <span id="val-A2" class="font-semibold">80</span></div>
-                            <input type="range" min="40" max="120" value="80" id="input-A2" class="w-full accent-indigo-600" oninput="updateCalculations()">
+                            <input type="range" min="40" max="120" value="80" id="input-A2" class="w-full viz-accent-group-a" oninput="updateCalculations()">
                         </div>
                         <div>
                             <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Charlie:</span> <span id="val-A3" class="font-semibold">90</span></div>
-                            <input type="range" min="40" max="120" value="90" id="input-A3" class="w-full accent-indigo-600" oninput="updateCalculations()">
+                            <input type="range" min="40" max="120" value="90" id="input-A3" class="w-full viz-accent-group-a" oninput="updateCalculations()">
                         </div>
                     </div>
                 </div>
 
                 <!-- Group 2 -->
-                <div class="bg-emerald-50/50 p-5 rounded-xl border border-emerald-100">
+                <div class="viz-soft-group-b p-5 rounded-xl border viz-border-group-b">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-bold text-emerald-900 flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-emerald-600"></span> Group B (Beta)
+                        <h3 class="font-bold viz-ink-group-b flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full viz-bg-group-b"></span> Group B (Beta)
                         </h3>
-                        <span id="group-b-mean-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 code-font">Mean: 60</span>
+                        <span id="group-b-mean-badge" class="text-xs font-bold px-2 py-0.5 rounded viz-mid-group-b viz-ink-group-b code-font">Mean: 60</span>
                     </div>
                     <div class="space-y-3">
                         <div>
                             <div class="flex justify-between text-xs text-slate-600 mb-1"><span>David:</span> <span id="val-B1" class="font-semibold">50</span></div>
-                            <input type="range" min="40" max="120" value="50" id="input-B1" class="w-full accent-emerald-600" oninput="updateCalculations()">
+                            <input type="range" min="40" max="120" value="50" id="input-B1" class="w-full viz-accent-group-b" oninput="updateCalculations()">
                         </div>
                         <div>
                             <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Eva:</span> <span id="val-B2" class="font-semibold">60</span></div>
-                            <input type="range" min="40" max="120" value="60" id="input-B2" class="w-full accent-emerald-600" oninput="updateCalculations()">
+                            <input type="range" min="40" max="120" value="60" id="input-B2" class="w-full viz-accent-group-b" oninput="updateCalculations()">
                         </div>
                         <div>
                             <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Frank:</span> <span id="val-B3" class="font-semibold">70</span></div>
-                            <input type="range" min="40" max="120" value="70" id="input-B3" class="w-full accent-emerald-600" oninput="updateCalculations()">
+                            <input type="range" min="40" max="120" value="70" id="input-B3" class="w-full viz-accent-group-b" oninput="updateCalculations()">
                         </div>
                     </div>
                 </div>
 
                 <!-- Group 3 -->
-                <div class="bg-amber-50/50 p-5 rounded-xl border border-amber-100">
+                <div class="viz-soft-group-c p-5 rounded-xl border viz-border-group-c">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-bold text-amber-900 flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-amber-600"></span> Group C (Gamma)
+                        <h3 class="font-bold viz-ink-group-c flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full viz-bg-group-c"></span> Group C (Gamma)
                         </h3>
-                        <span id="group-c-mean-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 code-font">Mean: 100</span>
+                        <span id="group-c-mean-badge" class="text-xs font-bold px-2 py-0.5 rounded viz-mid-group-c viz-ink-group-c code-font">Mean: 100</span>
                     </div>
                     <div class="space-y-3">
                         <div>
                             <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Grace:</span> <span id="val-C1" class="font-semibold">90</span></div>
-                            <input type="range" min="40" max="120" value="90" id="input-C1" class="w-full accent-amber-600" oninput="updateCalculations()">
+                            <input type="range" min="40" max="120" value="90" id="input-C1" class="w-full viz-accent-group-c" oninput="updateCalculations()">
                         </div>
                         <div>
                             <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Henry:</span> <span id="val-C2" class="font-semibold">100</span></div>
-                            <input type="range" min="40" max="120" value="100" id="input-C2" class="w-full accent-amber-600" oninput="updateCalculations()">
+                            <input type="range" min="40" max="120" value="100" id="input-C2" class="w-full viz-accent-group-c" oninput="updateCalculations()">
                         </div>
                         <div>
                             <div class="flex justify-between text-xs text-slate-600 mb-1"><span>Ivy:</span> <span id="val-C3" class="font-semibold">110</span></div>
-                            <input type="range" min="40" max="120" value="110" id="input-C3" class="w-full accent-amber-600" oninput="updateCalculations()">
+                            <input type="range" min="40" max="120" value="110" id="input-C3" class="w-full viz-accent-group-c" oninput="updateCalculations()">
                         </div>
                     </div>
                 </div>
@@ -245,27 +247,27 @@
                     Visualizing Scores & Deviations
                 </h3>
                 <p class="text-slate-500 text-sm mb-4">
-                    Look at how individual scores relate to Group Means (dashed colored lines) and the Grand Mean (bold dark line). Hover over the lines to see their values!
+                    Look at how individual scores relate to Group Means (dashed colored lines) and the Grand Mean (bold red line). Hover over the lines to see their values!
                 </p>
 
                 <!-- Toggle Controls for Distance Indicators -->
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                     <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         Toggle Visual Indicators:
                     </span>
                     <div class="flex flex-wrap gap-4 text-xs font-medium text-slate-700">
-                        <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-amber-600 transition">
-                            <input type="checkbox" id="toggle-sst" onchange="updateCalculations()" class="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 accent-amber-600">
-                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Total Deviation</span>
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="toggle-sst" onchange="updateCalculations()" class="rounded w-4 h-4" style="accent-color: var(--viz-total)">
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full inline-block" style="background: var(--viz-total)"></span> Total Deviation</span>
                         </label>
-                        <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-indigo-600 transition">
-                            <input type="checkbox" id="toggle-ssb" checked onchange="updateCalculations()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 accent-indigo-600">
-                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span> Group Effect ($a$)</span>
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="toggle-ssb" checked onchange="updateCalculations()" class="rounded w-4 h-4 viz-accent-explained">
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full viz-bg-explained inline-block"></span> Group Effect ($a$)</span>
                         </label>
-                        <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-emerald-600 transition">
-                            <input type="checkbox" id="toggle-ssw" checked onchange="updateCalculations()" class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 accent-emerald-600">
-                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Ind. Deviation ($b$)</span>
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="toggle-ssw" checked onchange="updateCalculations()" class="rounded w-4 h-4">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full viz-bg-group-a inline-block"></span><span class="w-2 h-2 rounded-full viz-bg-group-b inline-block"></span><span class="w-2 h-2 rounded-full viz-bg-group-c inline-block"></span> Ind. Deviation ($b$)</span>
                         </label>
                     </div>
                 </div>
@@ -279,39 +281,39 @@
 
             <!-- Sum of Squares Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <div class="text-xs text-slate-500 font-medium">Total Sum of Squares ($SS_{\text{Total}}$)</div>
-                    <div id="sst-display" class="text-2xl font-bold text-slate-800 code-font mt-1">2,800.0</div>
+                <div class="viz-soft-total p-4 rounded-xl border viz-border-total">
+                    <div class="text-xs viz-ink-total font-medium">Total Sum of Squares ($SS_{\text{Total}}$)</div>
+                    <div id="sst-display" class="text-2xl font-bold viz-ink-total code-font mt-1">2,800.0</div>
                     <div class="text-xs text-slate-500 mt-1">Total score variation</div>
                 </div>
-                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-200">
-                    <div class="text-xs text-indigo-700 font-medium">Between-Group ($SS_{\text{Between}}$)</div>
-                    <div id="ssb-display" class="text-2xl font-bold text-indigo-900 code-font mt-1">2,400.0</div>
-                    <div id="ssb-pct" class="text-xs text-indigo-600 font-medium mt-1">85.7% of total variance</div>
+                <div class="viz-soft-explained p-4 rounded-xl border viz-border-explained">
+                    <div class="text-xs viz-ink-explained font-medium">Between-Group ($SS_{\text{Between}}$)</div>
+                    <div id="ssb-display" class="text-2xl font-bold viz-ink-explained code-font mt-1">2,400.0</div>
+                    <div id="ssb-pct" class="text-xs viz-ink-explained font-medium mt-1">85.7% of total variance</div>
                 </div>
-                <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
-                    <div class="text-xs text-emerald-700 font-medium">Within-Group ($SS_{\text{Within}}$)</div>
-                    <div id="ssw-display" class="text-2xl font-bold text-emerald-900 code-font mt-1">400.0</div>
-                    <div id="ssw-pct" class="text-xs text-emerald-600 font-medium mt-1">14.3% of total variance</div>
+                <div class="viz-soft-residual p-4 rounded-xl border viz-border-residual">
+                    <div class="text-xs viz-ink-residual font-medium">Within-Group ($SS_{\text{Within}}$)</div>
+                    <div id="ssw-display" class="text-2xl font-bold viz-ink-residual code-font mt-1">400.0</div>
+                    <div id="ssw-pct" class="text-xs viz-ink-residual font-medium mt-1">14.3% of total variance</div>
                 </div>
             </div>
 
             <!-- Ratio Metrics Banner for ANOVA & Effect Size -->
             <div class="mt-6 pt-6 border-t border-slate-200">
                 <h3 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M12 7h.01"></path></svg>
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M12 7h.01"></path></svg>
                     Forming Ratio Metrics: Group Effect Size & ANOVA
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Metric 1: Eta-Squared -->
-                    <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-5 rounded-xl border border-indigo-800 shadow-sm">
+                    <div class="viz-soft-explained p-5 rounded-xl border viz-border-explained shadow-sm">
                         <div class="flex justify-between items-start">
-                            <span class="text-xs font-semibold text-indigo-300 uppercase tracking-wider">Effect Size ($\eta^2$)</span>
-                            <span class="text-[10px] bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded border border-indigo-400/30">Variance Explained</span>
+                            <span class="text-xs font-semibold viz-ink-explained uppercase tracking-wider">Effect Size ($\eta^2$)</span>
+                            <span class="text-[10px] viz-mid-explained viz-ink-explained px-2 py-0.5 rounded border viz-border-explained">Variance Explained</span>
                         </div>
-                        <div class="text-xs text-slate-300 mt-2">$\eta^2 = \frac{SS_{\text{Between}}}{SS_{\text{Total}}}$</div>
-                        <div id="eta-sq-display" class="text-3xl font-extrabold text-indigo-300 code-font my-2">0.857 (85.7%)</div>
-                        <p id="eta-sq-desc" class="text-xs text-slate-300 leading-relaxed">
+                        <div class="text-xs text-slate-700 mt-2">$\eta^2 = \frac{SS_{\text{Between}}}{SS_{\text{Total}}}$</div>
+                        <div id="eta-sq-display" class="text-3xl font-extrabold viz-ink-explained code-font my-2">0.857 (85.7%)</div>
+                        <p id="eta-sq-desc" class="text-xs text-slate-700 leading-relaxed">
                             85.7% of all score differences are explained purely by which group a student belongs to.
                         </p>
                     </div>
@@ -322,11 +324,11 @@
                         <div class="space-y-2 mt-2">
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-slate-600">$MS_{\text{Between}} \, (df=2)$:</span>
-                                <span id="msb-display" class="font-bold code-font text-indigo-700">1,200.0</span>
+                                <span id="msb-display" class="font-bold code-font viz-ink-explained">1,200.0</span>
                             </div>
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-slate-600">$MS_{\text{Within}} \, (df=6)$:</span>
-                                <span id="msw-display" class="font-bold code-font text-emerald-700">66.7</span>
+                                <span id="msw-display" class="font-bold code-font viz-ink-residual">66.7</span>
                             </div>
                         </div>
                         <p class="text-[11px] text-slate-500 mt-3 pt-2 border-t border-slate-200">
@@ -335,14 +337,14 @@
                     </div>
 
                     <!-- Metric 3: ANOVA F-Ratio -->
-                    <div class="bg-amber-50/80 p-5 rounded-xl border border-amber-200">
+                    <div class="viz-soft-group-c p-5 rounded-xl border viz-border-group-c">
                         <div class="flex justify-between items-start">
-                            <span class="text-xs font-bold text-amber-900 uppercase tracking-wider">ANOVA $F$-Statistic</span>
-                            <span id="f-badge" class="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded">Signal / Noise</span>
+                            <span class="text-xs font-bold viz-ink-group-c uppercase tracking-wider">ANOVA $F$-Statistic</span>
+                            <span id="f-badge" class="text-[10px] viz-mid-group-c viz-ink-group-c font-bold px-2 py-0.5 rounded">Signal / Noise</span>
                         </div>
-                        <div class="text-xs text-amber-800 mt-2">$F = \frac{MS_{\text{Between}}}{MS_{\text{Within}}}$</div>
-                        <div id="f-ratio-display" class="text-3xl font-extrabold text-amber-900 code-font my-2">18.00</div>
-                        <p id="f-ratio-desc" class="text-xs text-amber-950 leading-relaxed">
+                        <div class="text-xs viz-ink-group-c mt-2">$F = \frac{MS_{\text{Between}}}{MS_{\text{Within}}}$</div>
+                        <div id="f-ratio-display" class="text-3xl font-extrabold viz-ink-group-c code-font my-2">18.00</div>
+                        <p id="f-ratio-desc" class="text-xs viz-ink-group-c leading-relaxed">
                             Group effect signal is <strong>18.0×</strong> stronger than individual within-group noise!
                         </p>
                     </div>
@@ -353,7 +355,7 @@
         <!-- SECTION 3: The Algebraic Magic - Why the Cross-Product Vanishes -->
         <section class="demo-card p-6 sm:p-8">
             <h2 class="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">3</span>
+                <span class="w-8 h-8 rounded-lg bg-white text-black border border-black flex items-center justify-center text-sm font-bold">3</span>
                 The Math Magic: Why Cross-Products Sum to Zero
             </h2>
             <p class="text-slate-600 text-sm mb-6 leading-relaxed">
@@ -365,19 +367,19 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 <div class="bg-slate-900 text-white p-3.5 rounded-xl flex flex-col justify-between shadow-sm">
                     <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Grand Mean ($\bar{y}$)</span>
-                    <span id="sec4-grand-mean" class="text-xl font-bold text-amber-400 code-font mt-1">80.0</span>
+                    <span id="sec4-grand-mean" class="text-xl font-bold viz-ink-mean code-font mt-1">80.0</span>
                 </div>
-                <div class="bg-indigo-50 border border-indigo-200 p-3.5 rounded-xl flex flex-col justify-between">
-                    <span class="text-[11px] text-indigo-600 font-semibold uppercase tracking-wider">Group A Mean ($\bar{y}_A$)</span>
-                    <span id="sec4-group-a-mean" class="text-xl font-bold text-indigo-900 code-font mt-1">80.0</span>
+                <div class="viz-soft-group-a border viz-border-group-a p-3.5 rounded-xl flex flex-col justify-between">
+                    <span class="text-[11px] viz-ink-group-a font-semibold uppercase tracking-wider">Group A Mean ($\bar{y}_A$)</span>
+                    <span id="sec4-group-a-mean" class="text-xl font-bold viz-ink-group-a code-font mt-1">80.0</span>
                 </div>
-                <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl flex flex-col justify-between">
-                    <span class="text-[11px] text-emerald-600 font-semibold uppercase tracking-wider">Group B Mean ($\bar{y}_B$)</span>
-                    <span id="sec4-group-b-mean" class="text-xl font-bold text-emerald-900 code-font mt-1">60.0</span>
+                <div class="viz-soft-group-b border viz-border-group-b p-3.5 rounded-xl flex flex-col justify-between">
+                    <span class="text-[11px] viz-ink-group-b font-semibold uppercase tracking-wider">Group B Mean ($\bar{y}_B$)</span>
+                    <span id="sec4-group-b-mean" class="text-xl font-bold viz-ink-group-b code-font mt-1">60.0</span>
                 </div>
-                <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl flex flex-col justify-between">
-                    <span class="text-[11px] text-amber-700 font-semibold uppercase tracking-wider">Group C Mean ($\bar{y}_C$)</span>
-                    <span id="sec4-group-c-mean" class="text-xl font-bold text-amber-900 code-font mt-1">100.0</span>
+                <div class="viz-soft-group-c border viz-border-group-c p-3.5 rounded-xl flex flex-col justify-between">
+                    <span class="text-[11px] viz-ink-group-c font-semibold uppercase tracking-wider">Group C Mean ($\bar{y}_C$)</span>
+                    <span id="sec4-group-c-mean" class="text-xl font-bold viz-ink-group-c code-font mt-1">100.0</span>
                 </div>
             </div>
 
@@ -391,21 +393,21 @@
                             <th class="p-2.5 font-bold text-center">Score ($y_{ij}$)</th>
                             <th class="p-2.5 font-bold text-center bg-slate-200/70 text-slate-800">Group Mean ($\bar{y}_i$)</th>
                             <th class="p-2.5 font-bold text-center">Total Dev ($a + b$)</th>
-                            <th class="p-2.5 font-bold text-center bg-indigo-50 text-indigo-900">Group Effect ($a$)</th>
-                            <th class="p-2.5 font-bold text-center bg-emerald-50 text-emerald-900">Ind. Dev ($b$)</th>
+                            <th class="p-2.5 font-bold text-center viz-soft-explained viz-ink-explained">Group Effect ($a$)</th>
+                            <th class="p-2.5 font-bold text-center viz-soft-residual viz-ink-residual">Ind. Dev ($b$)</th>
                             <th class="p-2.5 font-bold text-center bg-slate-200/60 text-slate-900">
                                 Total Sq $(a + b)^2$
                                 <span class="block text-[10px] font-semibold text-slate-500">($SS_{\text{Total}}$)</span>
                             </th>
-                            <th class="p-2.5 font-bold text-center bg-indigo-100/60 text-indigo-950">
+                            <th class="p-2.5 font-bold text-center viz-mid-explained viz-ink-explained">
                                 Group Sq $a^2$
-                                <span class="block text-[10px] font-semibold text-indigo-600">($SS_{\text{Between}}$)</span>
+                                <span class="block text-[10px] font-semibold viz-ink-explained">($SS_{\text{Between}}$)</span>
                             </th>
-                            <th class="p-2.5 font-bold text-center bg-emerald-100/60 text-emerald-950">
+                            <th class="p-2.5 font-bold text-center viz-mid-residual viz-ink-residual">
                                 Ind Sq $b^2$
-                                <span class="block text-[10px] font-semibold text-emerald-600">($SS_{\text{Within}}$)</span>
+                                <span class="block text-[10px] font-semibold viz-ink-residual">($SS_{\text{Within}}$)</span>
                             </th>
-                            <th class="p-2.5 font-bold text-center bg-amber-100 text-amber-900">Cross-Term $2ab$</th>
+                            <th class="p-2.5 font-bold text-center bg-slate-100 text-slate-800">Cross-Term $2ab$</th>
                         </tr>
                     </thead>
                     <tbody id="student-table-body" class="divide-y divide-slate-200 font-mono">
@@ -418,15 +420,15 @@
             </div>
 
             <!-- Zero Sum Highlight Box -->
-            <div class="mt-6 p-5 rounded-xl border border-emerald-200 bg-emerald-50/80 flex flex-col md:flex-row items-start md:items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-2xl flex-shrink-0">
+            <div class="mt-6 p-5 rounded-xl border viz-border-residual viz-soft-residual flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div class="w-12 h-12 rounded-full viz-bg-residual flex items-center justify-center font-bold text-2xl flex-shrink-0">
                     0
                 </div>
                 <div>
-                    <h3 class="font-bold text-emerald-950 text-base">The Within-Group Sum Rule: $\sum b_{ij} = 0$</h3>
-                    <p class="text-xs text-emerald-800 mt-1 leading-relaxed">
+                    <h3 class="font-bold viz-ink-residual text-base">The Within-Group Sum Rule: $\sum b_{ij} = 0$</h3>
+                    <p class="text-xs viz-ink-residual mt-1 leading-relaxed">
                         By definition, individual scores within any group sum up to that group's mean! Therefore, individual deviations $b_{ij} = (y_{ij} - \bar{y}_i)$ inside any team <strong>MUST sum to exactly ZERO</strong>. Since group effect $a_i$ is constant for all members of team $i$, the sum of cross-products is:
-                        <span class="block text-emerald-900 font-bold code-font text-sm mt-1">
+                        <span class="block viz-ink-residual font-bold code-font text-sm mt-1">
                             $\sum_{j} 2 a_i b_{ij} = 2 a_i \sum_{j} b_{ij} = 2 a_i \times (0) = 0$
                         </span>
                     </p>
@@ -444,17 +446,17 @@
     <script>
         // Student Data Model
         const students = [
-            { id: 'A1', group: 0, groupName: 'Group A', name: 'Alice', inputId: 'input-A1', valId: 'val-A1', color: '#4f46e5' },
-            { id: 'A2', group: 0, groupName: 'Group A', name: 'Bob', inputId: 'input-A2', valId: 'val-A2', color: '#4f46e5' },
-            { id: 'A3', group: 0, groupName: 'Group A', name: 'Charlie', inputId: 'input-A3', valId: 'val-A3', color: '#4f46e5' },
+            { id: 'A1', group: 0, groupName: 'Group A', name: 'Alice', inputId: 'input-A1', valId: 'val-A1', color: 'group-a' },
+            { id: 'A2', group: 0, groupName: 'Group A', name: 'Bob', inputId: 'input-A2', valId: 'val-A2', color: 'group-a' },
+            { id: 'A3', group: 0, groupName: 'Group A', name: 'Charlie', inputId: 'input-A3', valId: 'val-A3', color: 'group-a' },
 
-            { id: 'B1', group: 1, groupName: 'Group B', name: 'David', inputId: 'input-B1', valId: 'val-B1', color: '#059669' },
-            { id: 'B2', group: 1, groupName: 'Group B', name: 'Eva', inputId: 'input-B2', valId: 'val-B2', color: '#059669' },
-            { id: 'B3', group: 1, groupName: 'Group B', name: 'Frank', inputId: 'input-B3', valId: 'val-B3', color: '#059669' },
+            { id: 'B1', group: 1, groupName: 'Group B', name: 'David', inputId: 'input-B1', valId: 'val-B1', color: 'group-b' },
+            { id: 'B2', group: 1, groupName: 'Group B', name: 'Eva', inputId: 'input-B2', valId: 'val-B2', color: 'group-b' },
+            { id: 'B3', group: 1, groupName: 'Group B', name: 'Frank', inputId: 'input-B3', valId: 'val-B3', color: 'group-b' },
 
-            { id: 'C1', group: 2, groupName: 'Group C', name: 'Grace', inputId: 'input-C1', valId: 'val-C1', color: '#d97706' },
-            { id: 'C2', group: 2, groupName: 'Group C', name: 'Henry', inputId: 'input-C2', valId: 'val-C2', color: '#d97706' },
-            { id: 'C3', group: 2, groupName: 'Group C', name: 'Ivy', inputId: 'input-C3', valId: 'val-C3', color: '#d97706' }
+            { id: 'C1', group: 2, groupName: 'Group C', name: 'Grace', inputId: 'input-C1', valId: 'val-C1', color: 'group-c' },
+            { id: 'C2', group: 2, groupName: 'Group C', name: 'Henry', inputId: 'input-C2', valId: 'val-C2', color: 'group-c' },
+            { id: 'C3', group: 2, groupName: 'Group C', name: 'Ivy', inputId: 'input-C3', valId: 'val-C3', color: 'group-c' }
         ];
 
         let scoresChart = null;
@@ -490,7 +492,7 @@
                 ctx.clip();
 
                 const yGrand = y.getPixelForValue(options.grandMean);
-                const colors = ['#4f46e5', '#059669', '#d97706'];
+                const colors = [statsViz.color('group-a'), statsViz.color('group-b'), statsViz.color('group-c')];
 
                 // 1. Draw Total Deviation
                 if (showSST) {
@@ -498,7 +500,7 @@
                         const meta = chart.getDatasetMeta(i);
                         meta.data.forEach((point) => {
                             ctx.beginPath();
-                            ctx.strokeStyle = '#f59e0b';
+                            ctx.strokeStyle = statsViz.color('total');
                             ctx.lineWidth = 1.5;
                             ctx.setLineDash([2, 3]);
                             ctx.moveTo(point.x, yGrand);
@@ -557,7 +559,7 @@
                             const indicatorX = x.getPixelForValue(index - 0.41);
                             if (Math.abs(yGrand - yGroup) > 3) {
                                 ctx.beginPath();
-                                ctx.strokeStyle = colors[index];
+                                ctx.strokeStyle = statsViz.color('explained');
                                 ctx.lineWidth = 2;
                                 ctx.moveTo(indicatorX, yGrand);
                                 ctx.lineTo(indicatorX, yGroup);
@@ -576,7 +578,7 @@
                                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
                                 ctx.lineWidth = 5;
                                 ctx.strokeText('Group Effect (a)', 0, 0);
-                                ctx.fillStyle = colors[index];
+                                ctx.fillStyle = statsViz.color('explained');
                                 ctx.fillText('Group Effect (a)', 0, 0);
                                 ctx.restore();
                             }
@@ -586,7 +588,7 @@
 
                 // 4. Draw Grand Mean ON TOP
                 ctx.beginPath();
-                ctx.strokeStyle = '#0f172a';
+                ctx.strokeStyle = statsViz.color('mean');
                 ctx.lineWidth = 2.5;
                 ctx.setLineDash([]);
                 ctx.moveTo(left, yGrand);
@@ -598,7 +600,7 @@
                 ctx.lineWidth = 5;
                 ctx.lineJoin = 'miter';
                 ctx.strokeText('Grand Mean', left + 10, yGrand - 8);
-                ctx.fillStyle = '#0f172a';
+                ctx.fillStyle = statsViz.color('mean');
                 ctx.fillText('Grand Mean', left + 10, yGrand - 8);
 
                 ctx.restore();
@@ -617,7 +619,7 @@
                 }
                 
                 const yGrand = y.getPixelForValue(options.grandMean);
-                const colors = ['#4f46e5', '#059669', '#d97706']; 
+                const colors = [statsViz.color('group-a'), statsViz.color('group-b'), statsViz.color('group-c')]; 
                 
                 // Helper to draw custom line tooltip
                 const drawLineTooltip = (text, bg, fg, yPos) => {
@@ -661,7 +663,7 @@
                 
                 // 1. Check if hovering Grand Mean
                 if (Math.abs(mousePos.y - yGrand) < 8) {
-                    drawLineTooltip(`Grand Mean: ${options.grandMean.toFixed(1)}`, '#0f172a', '#ffffff', yGrand);
+                    drawLineTooltip(`Grand Mean: ${options.grandMean.toFixed(1)}`, statsViz.color('mean'), '#ffffff', yGrand);
                     hoveringOverLine = true;
                 }
                 
@@ -701,21 +703,21 @@
                         {
                             label: 'Group A Students',
                             data: [],
-                            backgroundColor: '#4f46e5',
+                            backgroundColor: statsViz.color('group-a'),
                             pointRadius: 7,
                             pointHoverRadius: 9
                         },
                         {
                             label: 'Group B Students',
                             data: [],
-                            backgroundColor: '#059669',
+                            backgroundColor: statsViz.color('group-b'),
                             pointRadius: 7,
                             pointHoverRadius: 9
                         },
                         {
                             label: 'Group C Students',
                             data: [],
-                            backgroundColor: '#d97706',
+                            backgroundColor: statsViz.color('group-c'),
                             pointRadius: 7,
                             pointHoverRadius: 9
                         }
@@ -842,12 +844,12 @@
                     <td class="p-2.5 text-center font-bold">${score}</td>
                     <td class="p-2.5 text-center bg-slate-100/80 text-slate-700 font-semibold">${groupMean.toFixed(1)}</td>
                     <td class="p-2.5 text-center ${totalDev >= 0 ? 'text-slate-700' : 'text-slate-500'}">${totalDev > 0 ? '+' : ''}${totalDev.toFixed(1)}</td>
-                    <td class="p-2.5 text-center bg-indigo-50/50 text-indigo-900 font-bold">${groupEffect > 0 ? '+' : ''}${groupEffect.toFixed(1)}</td>
-                    <td class="p-2.5 text-center bg-emerald-50/50 text-emerald-900 font-bold">${indDev > 0 ? '+' : ''}${indDev.toFixed(1)}</td>
+                    <td class="p-2.5 text-center viz-soft-explained viz-ink-explained font-bold">${groupEffect > 0 ? '+' : ''}${groupEffect.toFixed(1)}</td>
+                    <td class="p-2.5 text-center viz-soft-residual viz-ink-residual font-bold">${indDev > 0 ? '+' : ''}${indDev.toFixed(1)}</td>
                     <td class="p-2.5 text-center bg-slate-100/60 font-bold text-slate-900">${totalDevSq.toFixed(1)}</td>
-                    <td class="p-2.5 text-center bg-indigo-50/30 font-semibold text-indigo-900">${groupEffectSq.toFixed(1)}</td>
-                    <td class="p-2.5 text-center bg-emerald-50/30 font-semibold text-emerald-900">${indDevSq.toFixed(1)}</td>
-                    <td class="p-2.5 text-center font-bold ${Math.abs(crossTerm) < 0.001 ? 'text-emerald-600' : (crossTerm > 0 ? 'text-indigo-600' : 'text-amber-600')}">
+                    <td class="p-2.5 text-center viz-soft-explained font-semibold viz-ink-explained">${groupEffectSq.toFixed(1)}</td>
+                    <td class="p-2.5 text-center viz-soft-residual font-semibold viz-ink-residual">${indDevSq.toFixed(1)}</td>
+                    <td class="p-2.5 text-center font-bold ${Math.abs(crossTerm) < 0.001 ? 'viz-ink-significant' : 'text-slate-700'}">
                         ${crossTerm > 0 ? '+' : ''}${crossTerm.toFixed(1)}
                     </td>
                 `;
@@ -859,21 +861,21 @@
             tableFoot.innerHTML = `
                 <tr>
                     <td colspan="3" class="p-3 text-left">SUM OF ALL STUDENTS (&Sigma;)</td>
-                    <td class="p-3 text-center text-amber-400 text-xs">Grand Mean = ${grandMean.toFixed(1)}</td>
+                    <td class="p-3 text-center viz-ink-mean text-xs">Grand Mean = ${grandMean.toFixed(1)}</td>
                     <td class="p-3 text-center text-slate-400">0.0</td>
                     <td class="p-3 text-center text-slate-400">0.0</td>
                     <td class="p-3 text-center text-slate-400">0.0</td>
-                    <td class="p-3 text-center bg-slate-800 text-white border-t-2 border-slate-400">
-                        <div class="text-[10px] text-slate-300 font-sans uppercase tracking-wider mb-0.5">SS<sub>Total</sub></div>
+                    <td class="p-3 text-center border-t-2" style="background: var(--viz-total); color: #ffffff; border-color: var(--viz-total)">
+                        <div class="text-[10px] font-sans uppercase tracking-wider mb-0.5" style="color: #ffffff">SS<sub>Total</sub></div>
                         <div class="text-sm font-extrabold">${ssTotal.toFixed(1)}</div>
                     </td>
-                    <td class="p-3 text-center bg-indigo-950 text-indigo-200 border-t-2 border-indigo-400">
-                        <div class="text-[10px] text-indigo-300 font-sans uppercase tracking-wider mb-0.5">SS<sub>Between</sub></div>
-                        <div class="text-sm font-extrabold text-white">${ssBetween.toFixed(1)}</div>
+                    <td class="p-3 text-center viz-bg-explained border-t-2 viz-border-explained">
+                        <div class="text-[10px] font-sans uppercase tracking-wider mb-0.5">SS<sub>Between</sub></div>
+                        <div class="text-sm font-extrabold">${ssBetween.toFixed(1)}</div>
                     </td>
-                    <td class="p-3 text-center bg-emerald-950 text-emerald-200 border-t-2 border-emerald-400">
-                        <div class="text-[10px] text-emerald-300 font-sans uppercase tracking-wider mb-0.5">SS<sub>Within</sub></div>
-                        <div class="text-sm font-extrabold text-white">${ssWithin.toFixed(1)}</div>
+                    <td class="p-3 text-center viz-bg-residual border-t-2 viz-border-residual">
+                        <div class="text-[10px] font-sans uppercase tracking-wider mb-0.5">SS<sub>Within</sub></div>
+                        <div class="text-sm font-extrabold">${ssWithin.toFixed(1)}</div>
                     </td>
                     <td class="p-3 text-center bg-slate-900 text-slate-200 font-extrabold text-sm border-t-2 border-slate-500">
                         <div class="text-[10px] text-slate-400 font-sans uppercase tracking-wider mb-0.5">&Sigma; 2ab</div>
