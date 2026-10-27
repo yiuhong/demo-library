@@ -6,6 +6,8 @@
     <title>Bessel's Correction Simulation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
@@ -79,10 +81,10 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                 <!-- Population Truth -->
-                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-center flex flex-col justify-center">
-                    <div class="text-xs text-emerald-600 font-bold uppercase tracking-wide mb-1">True Population Variance</div>
-                    <div class="text-3xl font-bold text-emerald-800" id="trueVarianceDisplay">100.00</div>
-                    <div class="text-xs text-emerald-600 mt-1 font-medium">Population Mean: 50</div>
+                <div class="viz-soft-significant border viz-border-significant p-4 rounded-lg text-center flex flex-col justify-center">
+                    <div class="text-xs viz-ink-significant font-bold uppercase tracking-wide mb-1">True Population Variance</div>
+                    <div class="text-3xl font-bold viz-ink-significant" id="trueVarianceDisplay">100.00</div>
+                    <div class="text-xs viz-ink-significant mt-1 font-medium">Population Mean: 50</div>
                 </div>
 
                 <!-- Simulation Progress -->
@@ -92,19 +94,19 @@
                 </div>
 
                 <!-- Biased Estimate (n) -->
-                <div class="bg-rose-50 border border-rose-200 p-4 rounded-lg text-center relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
-                    <div class="text-xs text-rose-600 font-bold uppercase tracking-wide mb-1">Avg. Biased Var. (Div by $n$)</div>
-                    <div class="text-3xl font-bold text-rose-800" id="biasedAvgDisplay">0.00</div>
-                    <div class="text-xs text-rose-600 mt-1 font-medium">Systematic Underestimate</div>
+                <div class="viz-soft-null border viz-border-null p-4 rounded-lg text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full viz-bg-null"></div>
+                    <div class="text-xs viz-ink-null font-bold uppercase tracking-wide mb-1">Avg. Biased Var. (Div by $n$)</div>
+                    <div class="text-3xl font-bold viz-ink-null" id="biasedAvgDisplay">0.00</div>
+                    <div class="text-xs viz-ink-null mt-1 font-medium">Systematic Underestimate</div>
                 </div>
 
                 <!-- Unbiased Estimate (n-1) -->
-                <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-center relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-                    <div class="text-xs text-blue-600 font-bold uppercase tracking-wide mb-1">Avg. Unbiased Var. (Div $n-1$)</div>
-                    <div class="text-3xl font-bold text-blue-800" id="unbiasedAvgDisplay">0.00</div>
-                    <div class="text-xs text-blue-600 mt-1 font-medium">Bessel's Correction</div>
+                <div class="viz-soft-group-a border viz-border-group-a p-4 rounded-lg text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full viz-bg-group-a"></div>
+                    <div class="text-xs viz-ink-group-a font-bold uppercase tracking-wide mb-1">Avg. Unbiased Var. (Div $n-1$)</div>
+                    <div class="text-3xl font-bold viz-ink-group-a" id="unbiasedAvgDisplay">0.00</div>
+                    <div class="text-xs viz-ink-group-a mt-1 font-medium">Bessel's Correction</div>
                 </div>
             </div>
 
@@ -275,10 +277,10 @@
                 
                 let comparisonHtml = "";
                 if (biasedIsCloser) {
-                    comparisonHtml = `<div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg shadow-sm">
-                        <p class="text-sm text-amber-800 font-bold mb-1">Interesting Observation:</p>
-                        <p class="text-sm text-amber-700">For this specific random sample, the <strong>biased</strong> estimate (${latestStats.biasedVar.toFixed(2)}) happened to be closer to the true variance (${TRUE_VARIANCE}) than the unbiased estimate (${latestStats.unbiasedVar.toFixed(2)}).</p>
-                        <p class="text-xs text-amber-600 mt-2">Across all ${totalSamples} samples drawn so far, the biased estimate randomly happened to be closer <strong>${((biasedCloserCount/totalSamples)*100).toFixed(1)}%</strong> of the time. However, on <em>average</em>, the unbiased estimate remains mathematically correct.</p>
+                    comparisonHtml = `<div class="mt-4 p-3 rounded-lg shadow-sm border viz-soft-null viz-border-null">
+                        <p class="text-sm viz-ink-null font-bold mb-1">Interesting Observation:</p>
+                        <p class="text-sm viz-ink-null">For this specific random sample, the <strong>biased</strong> estimate (${latestStats.biasedVar.toFixed(2)}) happened to be closer to the true variance (${TRUE_VARIANCE}) than the unbiased estimate (${latestStats.unbiasedVar.toFixed(2)}).</p>
+                        <p class="text-xs viz-ink-null mt-2">Across all ${totalSamples} samples drawn so far, the biased estimate randomly happened to be closer <strong>${((biasedCloserCount/totalSamples)*100).toFixed(1)}%</strong> of the time. However, on <em>average</em>, the unbiased estimate remains mathematically correct.</p>
                     </div>`;
                 } else {
                     comparisonHtml = `<div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg shadow-sm">
@@ -292,18 +294,18 @@
                         <div>
                             <p class="mb-1"><span class="font-semibold text-slate-700">Data Points:</span> <span class="font-mono text-xs">[${sampleStr}]</span></p>
                             <p class="mb-1"><span class="font-semibold text-slate-700">Sample Mean ($\\bar{x}$):</span> ${latestStats.mean.toFixed(2)}</p>
-                            <p><span class="font-semibold text-rose-600">Sum of Squares (SS):</span> ${latestStats.ss.toFixed(2)}</p>
-                            <p class="text-xs mt-3 text-slate-600 border-l-2 border-indigo-300 pl-3 italic">
+                            <p><span class="font-semibold viz-ink-null">Sum of Squares (SS):</span> ${latestStats.ss.toFixed(2)}</p>
+                            <p class="text-xs mt-3 text-slate-600 border-l-2 pl-3 italic" style="border-color: var(--viz-mean)">
                                 Because the data points cluster around their <em>own</em> sample mean (${latestStats.mean.toFixed(2)}) rather than the true population mean (${POP_MEAN}), the Sum of Squares (${latestStats.ss.toFixed(2)}) is artificially minimized.
                             </p>
                         </div>
                         <div class="space-y-3">
-                            <div class="bg-rose-50 p-3 rounded-lg border border-rose-100 shadow-sm ${biasedIsCloser ? 'ring-2 ring-amber-400' : ''}">
-                                <span class="font-semibold text-rose-800 text-sm uppercase tracking-wide">Biased Calculation:</span><br>
+                            <div class="viz-soft-null p-3 rounded-lg border viz-border-null shadow-sm" style="${biasedIsCloser ? 'box-shadow: 0 0 0 2px var(--viz-null)' : ''}">
+                                <span class="font-semibold viz-ink-null text-sm uppercase tracking-wide">Biased Calculation:</span><br>
                                 <div class="mt-2 text-lg">$\\frac{SS}{n} = \\frac{${latestStats.ss.toFixed(2)}}{${n}} = \\mathbf{${latestStats.biasedVar.toFixed(2)}}$</div>
                             </div>
-                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 shadow-sm ${!biasedIsCloser ? 'ring-2 ring-blue-400' : ''}">
-                                <span class="font-semibold text-blue-800 text-sm uppercase tracking-wide">Unbiased Calculation (Correction):</span><br>
+                            <div class="viz-soft-group-a p-3 rounded-lg border viz-border-group-a shadow-sm" style="${!biasedIsCloser ? 'box-shadow: 0 0 0 2px var(--viz-group-a)' : ''}">
+                                <span class="font-semibold viz-ink-group-a text-sm uppercase tracking-wide">Unbiased Calculation (Correction):</span><br>
                                 <div class="mt-2 text-lg">$\\frac{SS}{n-1} = \\frac{${latestStats.ss.toFixed(2)}}{${n-1}} = \\mathbf{${latestStats.unbiasedVar.toFixed(2)}}$</div>
                             </div>
                         </div>
@@ -339,8 +341,8 @@
                         {
                             label: `Avg Biased Var (/n)`,
                             data: chartDataBiased,
-                            borderColor: '#ef4444', 
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderColor: statsViz.color('--viz-null'),
+                            backgroundColor: statsViz.rgba('--viz-null', 0.1),
                             borderWidth: 3,
                             pointRadius: 0, 
                             tension: 0.1,
@@ -349,8 +351,8 @@
                         {
                             label: `Avg Unbiased Var (/n-1)`,
                             data: chartDataUnbiased,
-                            borderColor: '#3b82f6', 
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderColor: statsViz.color('--viz-group-a'),
+                            backgroundColor: statsViz.rgba('--viz-group-a', 0.1),
                             borderWidth: 3,
                             pointRadius: 0,
                             tension: 0.1,
@@ -360,7 +362,7 @@
                         {
                             label: 'True Population Variance (σ²)',
                             data: chartDataTruth,
-                            borderColor: '#10b981', 
+                            borderColor: statsViz.color('--viz-significant'), 
                             borderWidth: 2,
                             borderDash: [5, 5],
                             pointRadius: 0,
@@ -371,7 +373,7 @@
                             type: 'scatter',
                             label: 'Individual Biased Var',
                             data: chartScatterBiased,
-                            backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                            backgroundColor: statsViz.rgba('--viz-null', 0.7),
                             borderColor: 'transparent',
                             pointRadius: 4,
                             pointHoverRadius: 6,
@@ -381,7 +383,7 @@
                             type: 'scatter',
                             label: 'Individual Unbiased Var',
                             data: chartScatterUnbiased,
-                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            backgroundColor: statsViz.rgba('--viz-group-a', 0.7),
                             borderColor: 'transparent',
                             pointRadius: 4,
                             pointHoverRadius: 6,
@@ -433,8 +435,8 @@
                         {
                             label: 'Sum of Squared Deviations (SS)',
                             data: [],
-                            borderColor: '#94a3b8',
-                            backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                            borderColor: statsViz.color('--viz-reference'),
+                            backgroundColor: statsViz.rgba('--viz-reference', 0.25),
                             borderWidth: 2,
                             pointRadius: 0,
                             fill: true,
@@ -445,8 +447,8 @@
                             type: 'scatter',
                             label: 'SS around Sample Mean (x̄) - Always the Minimum!',
                             data: [],
-                            backgroundColor: '#3b82f6', 
-                            borderColor: '#1e3a8a',
+                            backgroundColor: statsViz.color('--viz-mean'),
+                            borderColor: statsViz.color('--viz-mean'),
                             borderWidth: 2,
                             pointRadius: 7,
                             pointHoverRadius: 9,
@@ -456,8 +458,8 @@
                             type: 'scatter',
                             label: 'SS around True Pop. Mean (μ) - Always Higher',
                             data: [],
-                            backgroundColor: '#10b981', 
-                            borderColor: '#064e3b',
+                            backgroundColor: statsViz.color('--viz-significant'),
+                            borderColor: statsViz.color('--viz-significant'),
                             borderWidth: 2,
                             pointRadius: 7,
                             pointHoverRadius: 9,

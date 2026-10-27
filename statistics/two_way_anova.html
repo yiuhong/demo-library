@@ -6,6 +6,8 @@
     <title>Interactive Two-Way ANOVA Omnibus Test</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
     <style>
@@ -60,9 +62,9 @@
             font-family: var(--demo-font);
         }
         /* Group Colors */
-        .color-g1 { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; }
-        .color-g2 { background-color: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; }
-        .color-g3 { background-color: rgba(245, 158, 11, 0.08); border-left: 4px solid #f59e0b; }
+        .color-g1 { background-color: var(--viz-group-a-soft); border-left: 4px solid var(--viz-group-a); }
+        .color-g2 { background-color: var(--viz-group-b-soft); border-left: 4px solid var(--viz-group-b); }
+        .color-g3 { background-color: var(--viz-group-c-soft); border-left: 4px solid var(--viz-group-c); }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
     </style>
@@ -132,37 +134,37 @@
 
                 <!-- Group 1 Cell Means -->
                 <div class="mb-3 color-g1 p-2.5 rounded">
-                    <div class="font-bold text-sm text-blue-900 mb-1.5 flex justify-between">
+                    <div class="font-bold text-sm viz-ink-group-a mb-1.5 flex justify-between">
                         <span>Group 1 Means</span>
-                        <span class="text-xs font-normal text-blue-700">Blue</span>
+                        <span class="text-xs font-normal viz-ink-group-a">Blue</span>
                     </div>
                     <div class="slider-container">
                         <span class="slider-label text-slate-700">● Female (μ<sub>1F</sub>)</span>
                         <input type="range" id="m1F" min="25" max="75" value="38" step="1">
-                        <span class="slider-value text-blue-700" id="m1F-val">38</span>
+                        <span class="slider-value viz-ink-group-a" id="m1F-val">38</span>
                     </div>
                     <div class="slider-container">
                         <span class="slider-label text-slate-700">▲ Male (μ<sub>1M</sub>)</span>
                         <input type="range" id="m1M" min="25" max="75" value="46" step="1">
-                        <span class="slider-value text-blue-700" id="m1M-val">46</span>
+                        <span class="slider-value viz-ink-group-a" id="m1M-val">46</span>
                     </div>
                 </div>
 
                 <!-- Group 2 Cell Means -->
                 <div class="mb-3 color-g2 p-2.5 rounded">
-                    <div class="font-bold text-sm text-emerald-900 mb-1.5 flex justify-between">
+                    <div class="font-bold text-sm viz-ink-group-b mb-1.5 flex justify-between">
                         <span>Group 2 Means</span>
-                        <span class="text-xs font-normal text-emerald-700">Green</span>
+                        <span class="text-xs font-normal viz-ink-group-b">Teal</span>
                     </div>
                     <div class="slider-container">
                         <span class="slider-label text-slate-700">● Female (μ<sub>2F</sub>)</span>
                         <input type="range" id="m2F" min="25" max="75" value="48" step="1">
-                        <span class="slider-value text-emerald-700" id="m2F-val">48</span>
+                        <span class="slider-value viz-ink-group-b" id="m2F-val">48</span>
                     </div>
                     <div class="slider-container">
                         <span class="slider-label text-slate-700">▲ Male (μ<sub>2M</sub>)</span>
                         <input type="range" id="m2M" min="25" max="75" value="56" step="1">
-                        <span class="slider-value text-emerald-700" id="m2M-val">56</span>
+                        <span class="slider-value viz-ink-group-b" id="m2M-val">56</span>
                     </div>
                 </div>
 
@@ -171,23 +173,23 @@
                     <h3 class="text-sm font-semibold mb-2 text-slate-800">Toggle SS Deviations on Dot Plot</h3>
                     <div class="grid grid-cols-1 gap-2 text-xs">
                         <label class="flex items-start space-x-2 cursor-pointer p-1 hover:bg-slate-100 rounded">
-                            <input type="checkbox" id="toggle-ssa" class="mt-0.5 h-3.5 w-3.5 rounded text-blue-600">
+                            <input type="checkbox" id="toggle-ssa" class="mt-0.5 h-3.5 w-3.5 rounded viz-accent-explained">
                             <span><strong>SS<sub>Group</sub> (Main Effect A):</strong> Group Marginal Means (<span class="font-mono">x̄<sub>i·</sub></span>) to Grand Mean</span>
                         </label>
                         <label class="flex items-start space-x-2 cursor-pointer p-1 hover:bg-slate-100 rounded">
-                            <input type="checkbox" id="toggle-ssb" class="mt-0.5 h-3.5 w-3.5 rounded text-pink-600">
+                            <input type="checkbox" id="toggle-ssb" class="mt-0.5 h-3.5 w-3.5 rounded viz-accent-level-f">
                             <span><strong>SS<sub>Gender</sub> (Main Effect B):</strong> Gender Marginal Means (<span class="font-mono">x̄<sub>·j</sub></span>) to Grand Mean</span>
                         </label>
                         <label class="flex items-start space-x-2 cursor-pointer p-1 hover:bg-slate-100 rounded">
-                            <input type="checkbox" id="toggle-ssab" class="mt-0.5 h-3.5 w-3.5 rounded text-purple-600">
+                            <input type="checkbox" id="toggle-ssab" class="mt-0.5 h-3.5 w-3.5 rounded viz-accent-se">
                             <span><strong>SS<sub>Interaction</sub> (A × B):</strong> Cell Means (<span class="font-mono">x̄<sub>ij</sub></span>) to Expected Additive Mean</span>
                         </label>
                         <label class="flex items-start space-x-2 cursor-pointer p-1 hover:bg-slate-100 rounded">
-                            <input type="checkbox" id="toggle-ssw" class="mt-0.5 h-3.5 w-3.5 rounded text-emerald-600">
+                            <input type="checkbox" id="toggle-ssw" class="mt-0.5 h-3.5 w-3.5 rounded viz-accent-residual">
                             <span><strong>SS<sub>Within</sub> (Error):</strong> Individual Dots to their Cell Mean (<span class="font-mono">x̄<sub>ij</sub></span>)</span>
                         </label>
                         <label class="flex items-start space-x-2 cursor-pointer p-1 hover:bg-slate-100 rounded">
-                            <input type="checkbox" id="toggle-sst" class="mt-0.5 h-3.5 w-3.5 rounded text-red-600">
+                            <input type="checkbox" id="toggle-sst" class="mt-0.5 h-3.5 w-3.5 rounded" style="accent-color: var(--viz-total)">
                             <span><strong>SS<sub>Total</sub>:</strong> Individual Dots to Grand Mean (<span class="font-mono">x̄<sub>··</sub></span>)</span>
                         </label>
                     </div>
@@ -202,8 +204,8 @@
                         <thead>
                             <tr class="border-b border-slate-300 text-slate-600 bg-slate-100">
                                 <th class="py-1.5 px-2 text-left">Group</th>
-                                <th class="py-1.5 px-2 text-pink-700">● Female</th>
-                                <th class="py-1.5 px-2 text-indigo-700">▲ Male</th>
+                                <th class="py-1.5 px-2 viz-ink-level-f">● Female</th>
+                                <th class="py-1.5 px-2 viz-ink-level-m">▲ Male</th>
                                 <th class="py-1.5 px-2 bg-slate-200/70 font-bold text-slate-800">Group Mean (x̄<sub>i·</sub>)</th>
                             </tr>
                         </thead>
@@ -213,16 +215,16 @@
                         <tfoot>
                             <tr class="border-t-2 border-slate-300 bg-slate-200/70 font-bold font-mono text-slate-800">
                                 <td class="py-1.5 px-2 text-left font-sans">Gender Mean (x̄<sub>·j</sub>)</td>
-                                <td id="marg-f" class="py-1.5 px-2 text-pink-700">-</td>
-                                <td id="marg-m" class="py-1.5 px-2 text-indigo-700">-</td>
-                                <td id="grand-mean-cell" class="py-1.5 px-2 bg-red-100 text-red-700 border border-red-300" title="Grand Mean">0.00</td>
+                                <td id="marg-f" class="py-1.5 px-2 viz-ink-level-f">-</td>
+                                <td id="marg-m" class="py-1.5 px-2 viz-ink-level-m">-</td>
+                                <td id="grand-mean-cell" class="py-1.5 px-2 viz-soft-mean viz-ink-mean border viz-border-difference" title="Grand Mean">0.00</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
                 <div class="mt-2 text-[11px] text-slate-500 flex justify-between">
                     <span>Each cell has <span id="cell-n-note" class="font-semibold">4</span> observations.</span>
-                    <span class="text-red-600 font-semibold">Red box = Grand Mean (x̄<sub>··</sub>)</span>
+                    <span class="viz-ink-mean font-semibold">Red box = Grand Mean (x̄<sub>··</sub>)</span>
                 </div>
             </div>
         </div>
@@ -237,9 +239,9 @@
                     <div class="flex items-center justify-between mb-1">
                         <h2 class="text-base font-semibold">Sample Data by Group & Gender</h2>
                         <div class="flex items-center space-x-3 text-xs text-slate-600">
-                            <span class="text-pink-600 font-bold">● Female</span>
-                            <span class="text-indigo-600 font-bold">▲ Male</span>
-                            <span class="text-red-500 font-semibold">┆ Grand Mean</span>
+                            <span class="viz-ink-level-f font-bold">● Female</span>
+                            <span class="viz-ink-level-m font-bold">▲ Male</span>
+                            <span class="viz-ink-mean font-semibold">┆ Grand Mean</span>
                         </div>
                     </div>
                     <p class="text-xs text-slate-500 mb-2" id="breakdown-info">
@@ -275,10 +277,10 @@
                     
                     <!-- NEW: Stacked Bar for Variance Partitioning -->
                     <div class="w-full bg-slate-200 rounded h-6 flex overflow-hidden shadow-inner border border-slate-300 relative group cursor-help">
-                        <div id="bar-ssa" class="h-full bg-blue-500 transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
-                        <div id="bar-ssb" class="h-full bg-pink-500 transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
-                        <div id="bar-ssab" class="h-full bg-purple-500 transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
-                        <div id="bar-ssw" class="h-full bg-emerald-500 transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
+                        <div id="bar-ssa" class="h-full viz-bg-explained transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
+                        <div id="bar-ssb" class="h-full viz-bg-level-f transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
+                        <div id="bar-ssab" class="h-full viz-bg-se transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
+                        <div id="bar-ssw" class="h-full viz-bg-residual transition-all duration-500 flex items-center justify-center text-[10px] text-white font-bold overflow-hidden whitespace-nowrap"></div>
                     </div>
                     <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-medium px-1">
                         <span>0%</span>
@@ -290,46 +292,46 @@
                 <!-- Formula Breakdown Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     <div class="math-block">
-                        <div class="font-bold text-blue-900 border-b border-slate-300 pb-1 mb-1">
+                        <div class="font-bold viz-ink-explained border-b border-slate-300 pb-1 mb-1">
                             1. Main Effect of Group (Factor A)
                         </div>
                         <div class="text-[11px] text-slate-600 mb-1">SS<sub>A</sub> = n·k<sub>B</sub> Σ (x̄<sub>i·</sub> − x̄<sub>··</sub>)² &nbsp;|&nbsp; df<sub>A</sub> = k<sub>A</sub> − 1</div>
-                        <div id="ssa-calc" class="text-xs text-blue-800 truncate"></div>
+                        <div id="ssa-calc" class="text-xs viz-ink-explained truncate"></div>
                     </div>
 
                     <div class="math-block">
-                        <div class="font-bold text-pink-900 border-b border-slate-300 pb-1 mb-1">
+                        <div class="font-bold viz-ink-level-f border-b border-slate-300 pb-1 mb-1">
                             2. Main Effect of Gender (Factor B)
                         </div>
                         <div class="text-[11px] text-slate-600 mb-1">SS<sub>B</sub> = n·k<sub>A</sub> Σ (x̄<sub>·j</sub> − x̄<sub>··</sub>)² &nbsp;|&nbsp; df<sub>B</sub> = k<sub>B</sub> − 1</div>
-                        <div id="ssb-calc" class="text-xs text-pink-800 truncate"></div>
+                        <div id="ssb-calc" class="text-xs viz-ink-level-f truncate"></div>
                     </div>
 
                     <div class="math-block">
-                        <div class="font-bold text-purple-900 border-b border-slate-300 pb-1 mb-1">
+                        <div class="font-bold viz-ink-se border-b border-slate-300 pb-1 mb-1">
                             3. Interaction Effect (Group × Gender)
                         </div>
                         <div class="text-[11px] text-slate-600 mb-1">SS<sub>AB</sub> = n ΣΣ (x̄<sub>ij</sub> − x̄<sub>i·</sub> − x̄<sub>·j</sub> + x̄<sub>··</sub>)² &nbsp;|&nbsp; df<sub>AB</sub> = (k<sub>A</sub>−1)(k<sub>B</sub>−1)</div>
-                        <div id="ssab-calc" class="text-xs text-purple-800 truncate"></div>
+                        <div id="ssab-calc" class="text-xs viz-ink-se truncate"></div>
                         
-                        <details class="mt-3 bg-purple-50 border-l-[3px] border-purple-500 rounded text-[11px] text-purple-900 leading-snug shadow-sm whitespace-normal group">
-                            <summary class="cursor-pointer font-semibold text-purple-900 text-xs p-2 hover:bg-purple-100/50 transition-colors flex justify-between items-center outline-none rounded-r">
+                        <details class="mt-3 viz-soft-se border-l-[3px] viz-border-se rounded text-[11px] viz-ink-se leading-snug shadow-sm whitespace-normal group">
+                            <summary class="cursor-pointer font-semibold viz-ink-se text-xs p-2 transition-colors flex justify-between items-center outline-none rounded-r">
                                 <span>How to Calculate SS<sub>Interaction</sub></span>
                                 <span class="transform group-open:rotate-180 transition-transform duration-200 text-[10px]">▼</span>
                             </summary>
-                            <div class="p-2.5 pt-0 border-t border-purple-100 mt-1">
+                            <div class="p-2.5 pt-0 border-t viz-border-se mt-1">
                                 <p class="mb-1.5 mt-1.5">It measures the "surprise" in each cell beyond the basic main effects:</p>
                                 <ul class="list-disc list-inside space-y-1 ml-0.5">
                                     <li>
                                         <strong>1. Expected Mean:</strong> Add the Group and Gender means, then subtract the Grand Mean (to avoid double-counting the baseline). 
-                                        <span class="block ml-3 font-mono bg-purple-100/50 px-1 py-0.5 mt-0.5 rounded w-fit">Expected = x̄<sub>i·</sub> + x̄<sub>·j</sub> - x̄</span>
+                                        <span class="block ml-3 font-mono viz-soft-se px-1 py-0.5 mt-0.5 rounded w-fit">Expected = x̄<sub>i·</sub> + x̄<sub>·j</sub> - x̄</span>
                                     </li>
                                     <li>
                                         <strong>2. Deviation:</strong> Subtract this Expected mean from the Actual cell mean (<span class="font-mono">x̄<sub>ij</sub></span>) to find the interaction "surprise."
                                     </li>
                                     <li>
                                         <strong>3. Sum Across Cells:</strong> Square these deviations, multiply by the people per cell (<span class="font-mono">n</span>), and sum them up across all cells (<span class="font-mono">ΣΣ</span>).
-                                        <span class="block ml-3 font-mono bg-purple-100/50 px-1 py-0.5 mt-0.5 rounded w-fit">SS<sub>AB</sub> = n ΣΣ (x̄<sub>ij</sub> - Expected)²</span>
+                                        <span class="block ml-3 font-mono viz-soft-se px-1 py-0.5 mt-0.5 rounded w-fit">SS<sub>AB</sub> = n ΣΣ (x̄<sub>ij</sub> - Expected)²</span>
                                     </li>
                                 </ul>
                             </div>
@@ -337,11 +339,11 @@
                     </div>
 
                     <div class="math-block">
-                        <div class="font-bold text-emerald-900 border-b border-slate-300 pb-1 mb-1">
+                        <div class="font-bold viz-ink-residual border-b border-slate-300 pb-1 mb-1">
                             4. Within-Cells Error (Residual)
                         </div>
                         <div class="text-[11px] text-slate-600 mb-1">SS<sub>W</sub> = ΣΣΣ (y<sub>ijk</sub> − x̄<sub>ij</sub>)² &nbsp;|&nbsp; df<sub>W</sub> = N − k<sub>A</sub>k<sub>B</sub></div>
-                        <div id="ssw-calc" class="text-xs text-emerald-800 truncate"></div>
+                        <div id="ssw-calc" class="text-xs viz-ink-residual truncate"></div>
                     </div>
                 </div>
 
@@ -399,7 +401,8 @@
     const K_B = 2; // Genders: 0 = Female ('F'), 1 = Male ('M')
     const GENDERS = ['F', 'M'];
     const GENDER_LABELS = { F: 'Female', M: 'Male' };
-    const GROUP_COLORS = ['#3b82f6', '#10b981', '#f59e0b'];
+    const GROUP_COLORS = [statsViz.color('group-a'), statsViz.color('group-b'), statsViz.color('group-c')];
+    function genderColor(g) { return statsViz.color(g === 'F' ? 'level-f' : 'level-m'); }
 
     let data = [];
     let stats = {};
@@ -465,10 +468,10 @@
     // Define arrowhead markers for the breakdown path
     dotSvg.append("defs").selectAll("marker")
         .data([
-            {id: "arrow-Group", color: "#3b82f6"},
-            {id: "arrow-Gender", color: "#db2777"},
-            {id: "arrow-Interact", color: "#9333ea"},
-            {id: "arrow-Error", color: "#10b981"}
+            {id: "arrow-Group", color: statsViz.color('explained')},
+            {id: "arrow-Gender", color: statsViz.color('level-f')},
+            {id: "arrow-Interact", color: statsViz.color('se')},
+            {id: "arrow-Error", color: statsViz.color('residual')}
         ])
         .enter().append("marker")
         .attr("id", d => d.id)
@@ -543,31 +546,31 @@
         .call(d3.axisBottom(fXScale));
 
     const fCritAreaPath = fSvg.append("path")
-        .attr("fill", "rgba(148, 163, 184, 0.2)");
+        .attr("fill", statsViz.rgba('reference', 0.2));
 
     const fAreaPath = fSvg.append("path")
-        .attr("fill", "rgba(239, 68, 68, 0.45)");
+        .attr("fill", statsViz.rgba('null', 0.45));
 
     const fLinePath = fSvg.append("path")
         .attr("fill", "none")
-        .attr("stroke", "#334155")
+        .attr("stroke", statsViz.color('density'))
         .attr("stroke-width", 2.2);
 
     const fMarkerLine = fSvg.append("line")
-        .attr("stroke", "#dc2626")
+        .attr("stroke", statsViz.color('null'))
         .attr("stroke-width", 2.2)
         .attr("stroke-dasharray", "4,4")
         .attr("y1", 0)
         .attr("y2", fHeight);
 
     const fMarkerText = fSvg.append("text")
-        .attr("fill", "#dc2626")
+        .attr("fill", statsViz.color('null'))
         .attr("font-size", "12px")
         .attr("font-weight", "bold")
         .attr("y", -4);
 
     const fDfLabel = fSvg.append("text")
-        .attr("fill", "#334155")
+        .attr("fill", statsViz.color('density'))
         .attr("font-size", "12px")
         .attr("font-weight", "bold")
         .attr("x", fWidth - 6)
@@ -729,7 +732,7 @@
         // 1. Update 3x2 Means Matrix Table
         const matrixBody = document.getElementById('means-matrix-body');
         matrixBody.innerHTML = '';
-        const badgeColors = ['bg-blue-500', 'bg-emerald-500', 'bg-amber-500'];
+        const badgeColors = ['viz-bg-group-a', 'viz-bg-group-b', 'viz-bg-group-c'];
 
         for (let g = 1; g <= K_A; g++) {
             const mF = stats.cellMeans[`G${g}_F`];
@@ -785,11 +788,11 @@
 
         // 3. Update Full Two-Way ANOVA Table
         const rows = [
-            { id: 'A', name: 'Group (Factor A)', ss: stats.ssA, df: stats.dfA, ms: stats.msA, f: stats.fA, p: stats.pA, color: 'text-blue-700' },
-            { id: 'B', name: 'Gender (Factor B)', ss: stats.ssB, df: stats.dfB, ms: stats.msB, f: stats.fB, p: stats.pB, color: 'text-pink-700' },
-            { id: 'AB', name: 'Group × Gender (A×B)', ss: stats.ssAB, df: stats.dfAB, ms: stats.msAB, f: stats.fAB, p: stats.pAB, color: 'text-purple-700' },
-            { id: 'W', name: 'Within Cells (Error)', ss: stats.ssW, df: stats.dfW, ms: stats.msW, f: null, p: null, color: 'text-emerald-800' },
-            { id: 'T', name: 'Total', ss: stats.ssT, df: stats.dfT, ms: null, f: null, p: null, color: 'text-slate-900 font-bold' }
+            { id: 'A', name: 'Group (Factor A)', ss: stats.ssA, df: stats.dfA, ms: stats.msA, f: stats.fA, p: stats.pA, color: 'viz-ink-explained' },
+            { id: 'B', name: 'Gender (Factor B)', ss: stats.ssB, df: stats.dfB, ms: stats.msB, f: stats.fB, p: stats.pB, color: 'viz-ink-level-f' },
+            { id: 'AB', name: 'Group × Gender (A×B)', ss: stats.ssAB, df: stats.dfAB, ms: stats.msAB, f: stats.fAB, p: stats.pAB, color: 'viz-ink-se' },
+            { id: 'W', name: 'Within Cells (Error)', ss: stats.ssW, df: stats.dfW, ms: stats.msW, f: null, p: null, color: 'viz-ink-residual' },
+            { id: 'T', name: 'Total', ss: stats.ssT, df: stats.dfT, ms: null, f: null, p: null, color: 'viz-ink-total font-bold' }
         ];
 
         const anovaBody = document.getElementById('anova-table-body');
@@ -798,7 +801,7 @@
         rows.forEach(r => {
             const isSelected = r.id === activeFEffect;
             const tr = document.createElement('tr');
-            tr.className = `${isSelected ? 'bg-amber-50/90' : 'hover:bg-slate-50'} transition-colors ${r.id === 'T' ? 'bg-slate-100 border-t-2 border-slate-300' : ''}`;
+            tr.className = `${isSelected ? 'bg-slate-100' : 'hover:bg-slate-50'} transition-colors ${r.id === 'T' ? 'viz-soft-total border-t-2 viz-border-total' : ''}`;
             if (r.f !== null) {
                 tr.style.cursor = 'pointer';
                 tr.title = 'Click to view this effect on the F-Distribution curve below';
@@ -807,7 +810,7 @@
 
             const sig = r.p !== null && r.p < 0.05;
             const badge = r.p !== null
-                ? `<span class="px-2 py-0.5 rounded text-xs font-sans font-semibold ${sig ? 'bg-green-100 text-green-800' : 'bg-slate-200 text-slate-600'}">${sig ? 'Significant' : 'Not Sig.'}</span>`
+                ? `<span class="px-2 py-0.5 rounded text-xs font-sans font-semibold ${sig ? 'viz-soft-significant viz-ink-significant' : 'bg-slate-200 text-slate-600'}">${sig ? 'Significant' : 'Not Sig.'}</span>`
                 : '';
 
             tr.innerHTML = `
@@ -818,7 +821,7 @@
                 <td class="py-2 px-3 text-right">${r.df}</td>
                 <td class="py-2 px-3 text-right">${r.ms !== null ? r.ms.toFixed(2) : '—'}</td>
                 <td class="py-2 px-3 text-right font-bold">${r.f !== null ? r.f.toFixed(2) : '—'}</td>
-                <td class="py-2 px-3 text-right ${sig ? 'text-green-700 font-bold' : ''}">${r.p !== null ? formatP(r.p) : '—'}</td>
+                <td class="py-2 px-3 text-right ${sig ? 'viz-ink-significant font-bold' : ''}">${r.p !== null ? formatP(r.p) : '—'}</td>
                 <td class="py-2 px-3 text-center">${badge}</td>
             `;
             anovaBody.appendChild(tr);
@@ -846,7 +849,7 @@
             enter => enter.append("rect").attr("class", "row-strip")
                 .attr("x", 0)
                 .attr("rx", 4)
-                .attr("fill", d => d.startsWith('G1') ? 'rgba(59,130,246,0.38)' : d.startsWith('G2') ? 'rgba(16,185,129,0.38)' : 'rgba(245,158,11,0.05)'),
+                .attr("fill", d => d.startsWith('G1') ? statsViz.rgba('group-a', 0.16) : d.startsWith('G2') ? statsViz.rgba('group-b', 0.16) : statsViz.rgba('group-c', 0.1)),
             update => update
         )
         .attr("y", d => yRowScale(d))
@@ -863,7 +866,7 @@
         const sstLines = sstLayer.selectAll("line.sst-line").data(showSST ? data : [], d => d.id);
         sstLines.join(
             enter => enter.append("line").attr("class", "sst-line")
-                .attr("stroke", "#fca5a5").attr("stroke-width", 1.3).attr("stroke-dasharray", "3,3")
+                .attr("stroke", statsViz.color('total')).attr("stroke-width", 1.3).attr("stroke-dasharray", "3,3")
                 .attr("x1", d => d.x).attr("y1", d => d.y).attr("x2", d => d.x).attr("y2", d => d.y)
                 .call(e => e.transition().duration(400).attr("x2", xScale(stats.grandMean))),
             update => update.transition().duration(400)
@@ -880,7 +883,7 @@
         const ssaLines = ssaLayer.selectAll("line.ssa-line").data(ssaData, d => d.group);
         ssaLines.join(
             enter => enter.append("line").attr("class", "ssa-line")
-                .attr("stroke", d => GROUP_COLORS[d.group - 1])
+                .attr("stroke", statsViz.color('explained'))
                 .attr("stroke-width", 7).attr("stroke-linecap", "round").attr("opacity", 0.65)
                 .attr("y1", d => d.y).attr("y2", d => d.y)
                 .attr("x1", d => xScale(d.mean)).attr("x2", xScale(stats.grandMean)),
@@ -892,8 +895,8 @@
 
         // 3. SS_Gender (Factor B: Gender Marginal Means to Grand Mean)
         const ssbData = showSSB ? [
-            { gender: 'F', mean: stats.genderMeans.F, y: dotHeight * 0.25, color: '#db2777', shape: d3.symbolCircle },
-            { gender: 'M', mean: stats.genderMeans.M, y: dotHeight * 0.75, color: '#4f46e5', shape: d3.symbolTriangle }
+            { gender: 'F', mean: stats.genderMeans.F, y: dotHeight * 0.25, color: statsViz.color('level-f'), shape: d3.symbolCircle },
+            { gender: 'M', mean: stats.genderMeans.M, y: dotHeight * 0.75, color: statsViz.color('level-m'), shape: d3.symbolTriangle }
         ] : [];
         const ssbLines = ssbLayer.selectAll("line.ssb-line").data(ssbData, d => d.gender);
         ssbLines.join(
@@ -929,7 +932,7 @@
         const ssabLines = ssabLayer.selectAll("line.ssab-line").data(ssabData, d => d.key);
         ssabLines.join(
             enter => enter.append("line").attr("class", "ssab-line")
-                .attr("stroke", "#9333ea").attr("stroke-width", 5).attr("stroke-linecap", "round").attr("opacity", 0.8)
+                .attr("stroke", statsViz.color('se')).attr("stroke-width", 5).attr("stroke-linecap", "round").attr("opacity", 0.8)
                 .attr("y1", d => d.y).attr("y2", d => d.y)
                 .attr("x1", d => xScale(d.cellMean)).attr("x2", d => xScale(d.expected)),
             update => update.transition().duration(400)
@@ -942,7 +945,7 @@
         const sswLines = sswLayer.selectAll("line.ssw-line").data(showSSW ? data : [], d => d.id);
         sswLines.join(
             enter => enter.append("line").attr("class", "ssw-line")
-                .attr("stroke", d => GROUP_COLORS[d.group - 1])
+                .attr("stroke", statsViz.color('residual'))
                 .attr("stroke-width", 1.6).attr("opacity", 0.75)
                 .attr("x1", d => d.x).attr("y1", d => d.y)
                 .attr("x2", d => xScale(stats.cellMeans[d.cellKey])).attr("y2", d => d.y),
@@ -976,7 +979,7 @@
         gMeanLine.join(
             enter => enter.append("line").attr("class", "grand-mean")
                 .attr("y1", 0).attr("y2", dotHeight)
-                .attr("stroke", "#ef4444").attr("stroke-width", 2).attr("stroke-dasharray", "5,4"),
+                .attr("stroke", statsViz.color('mean')).attr("stroke-width", 2).attr("stroke-dasharray", "5,4"),
             update => update
         ).transition().duration(400)
             .attr("x1", d => xScale(d)).attr("x2", d => xScale(d))
@@ -991,13 +994,13 @@
                 .attr("class", "data-pt")
                 .attr("d", d => symbolGen.type(d.gender === 'F' ? d3.symbolCircle : d3.symbolTriangle)())
                 .attr("fill", d => GROUP_COLORS[d.group - 1])
-                .attr("stroke", d => d.gender === 'F' ? '#db2777' : '#4f46e5')
+                .attr("stroke", d => genderColor(d.gender))
                 .attr("stroke-width", 2)
                 .attr("transform", d => `translate(${d.x},${d.y})`)
                 .style("cursor", "pointer")
                 .on("mouseover", function (event, d) {
                     if (selectedPoint && selectedPoint.id === d.id) return;
-                    d3.select(this).attr("stroke", "#0f172a").attr("stroke-width", 2.5);
+                    d3.select(this).attr("stroke", statsViz.color('highlight')).attr("stroke-width", 2.5);
                     tooltip.style("opacity", 0.95)
                         .html(`<strong>Group ${d.group} (${GENDER_LABELS[d.gender]})</strong><br>Value: ${d.val.toFixed(2)}<br>Cell Mean: ${stats.cellMeans[d.cellKey].toFixed(2)}`)
                         .style("left", (event.pageX + 12) + "px")
@@ -1005,7 +1008,7 @@
                 })
                 .on("mouseout", function (event, d) {
                     if (selectedPoint && selectedPoint.id === d.id) return;
-                    d3.select(this).attr("stroke", d.gender === 'F' ? '#db2777' : '#4f46e5').attr("stroke-width", 2);
+                    d3.select(this).attr("stroke", genderColor(d.gender)).attr("stroke-width", 2);
                     tooltip.style("opacity", 0);
                 })
                 .on("click", function(event, d) {
@@ -1034,14 +1037,14 @@
         if (!selectedPoint) {
             bInfo.innerHTML = `Solid vertical ticks show the 4 sample cell means (<span class="font-mono">x̄<sub>ij</sub></span>). <strong>Click any data point</strong> to view its step-by-step linear breakdown.`;
             pts.attr("opacity", 1)
-               .attr("stroke", d => d.gender === 'F' ? '#db2777' : '#4f46e5')
+               .attr("stroke", d => genderColor(d.gender))
                .attr("stroke-width", 2);
             return;
         }
         
         // Dim unselected points
         pts.attr("opacity", d => d.id === selectedPoint.id ? 1 : 0.15)
-           .attr("stroke", d => d.id === selectedPoint.id ? '#0f172a' : (d.gender === 'F' ? '#db2777' : '#4f46e5'))
+           .attr("stroke", d => d.id === selectedPoint.id ? statsViz.color('highlight') : genderColor(d.gender))
            .attr("stroke-width", d => d.id === selectedPoint.id ? 2.5 : 2);
            
         const d = selectedPoint;
@@ -1053,18 +1056,20 @@
         const error = d.val - stats.cellMeans[d.cellKey];
         
         // Update Breakdown Text
-        bInfo.innerHTML = `<strong>Linear Path:</strong> <span class="font-mono text-slate-800">${d.val.toFixed(2)}</span> = <span class="text-red-600 font-medium">GM (${GM.toFixed(1)})</span> + <span class="text-blue-600 font-medium">Group (${effA>0?'+':''}${effA.toFixed(1)})</span> + <span class="text-pink-600 font-medium">Gender (${effB>0?'+':''}${effB.toFixed(1)})</span> + <span class="text-purple-600 font-medium">Interact (${effAB>0?'+':''}${effAB.toFixed(1)})</span> + <span class="text-emerald-600 font-medium">Error (${error>0?'+':''}${error.toFixed(1)})</span>`;
+        const genderInk = d.gender === 'F' ? 'viz-ink-level-f' : 'viz-ink-level-m';
+        bInfo.innerHTML = `<strong>Linear Path:</strong> <span class="font-mono text-slate-800">${d.val.toFixed(2)}</span> = <span class="viz-ink-mean font-medium">GM (${GM.toFixed(1)})</span> + <span class="viz-ink-explained font-medium">Group (${effA>0?'+':''}${effA.toFixed(1)})</span> + <span class="${genderInk} font-medium">Gender (${effB>0?'+':''}${effB.toFixed(1)})</span> + <span class="viz-ink-se font-medium">Interact (${effAB>0?'+':''}${effAB.toFixed(1)})</span> + <span class="viz-ink-residual font-medium">Error (${error>0?'+':''}${error.toFixed(1)})</span>`;
         
         // Determine whether to cascade the visual breakdown above or below the dot
         const isTop = d.y < dotHeight / 2;
         let currentY = isTop ? d.y + 60 : d.y - 60;
         const stepY = isTop ? -15 : 15;
         
+        d3.select('#arrow-Gender path').attr('fill', genderColor(d.gender));
         const steps = [
-            { name: "Group", val: effA, color: "#3b82f6", marker: "arrow-Group" },
-            { name: "Gender", val: effB, color: "#db2777", marker: "arrow-Gender" },
-            { name: "Interact", val: effAB, color: "#9333ea", marker: "arrow-Interact" },
-            { name: "Error", val: error, color: "#10b981", marker: "arrow-Error" }
+            { name: "Group", val: effA, color: statsViz.color('explained'), marker: "arrow-Group" },
+            { name: "Gender", val: effB, color: genderColor(d.gender), marker: "arrow-Gender" },
+            { name: "Interact", val: effAB, color: statsViz.color('se'), marker: "arrow-Interact" },
+            { name: "Error", val: error, color: statsViz.color('residual'), marker: "arrow-Error" }
         ];
         
         let currentX = GM;
@@ -1119,7 +1124,7 @@
             .attr("cy", d.y)
             .attr("r", 10)
             .attr("fill", "none")
-            .attr("stroke", "#0f172a")
+            .attr("stroke", statsViz.color('highlight'))
             .attr("stroke-width", 2)
             .attr("stroke-dasharray", "3,2");
     }
@@ -1143,8 +1148,8 @@
             .y(d => intYScale(d.mean));
 
         const profiles = [
-            { gender: 'F', label: 'Female', color: '#db2777', dash: 'none', pts: femalePts },
-            { gender: 'M', label: 'Male', color: '#4f46e5', dash: '5,4', pts: malePts }
+            { gender: 'F', label: 'Female', color: statsViz.color('level-f'), dash: 'none', pts: femalePts },
+            { gender: 'M', label: 'Male', color: statsViz.color('level-m'), dash: '5,4', pts: malePts }
         ];
 
         // Lines
@@ -1180,7 +1185,7 @@
         nodes.join(
             enter => enter.append("path").attr("class", "int-node")
                 .attr("d", d => symbolGen.type(d.gender === 'F' ? d3.symbolCircle : d3.symbolTriangle)())
-                .attr("fill", d => d.gender === 'F' ? '#db2777' : '#4f46e5')
+                .attr("fill", d => genderColor(d.gender))
                 .attr("stroke", "#ffffff").attr("stroke-width", 1.5),
             update => update
         ).transition().duration(400)
@@ -1190,7 +1195,7 @@
         const badge = document.getElementById('parallel-badge');
         if (stats.pAB < 0.05) {
             badge.textContent = `Non-Parallel (Sig. Interaction, p = ${formatP(stats.pAB)})`;
-            badge.className = "text-[11px] px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-semibold";
+            badge.className = "text-[11px] px-2 py-0.5 rounded viz-soft-significant viz-ink-significant font-semibold";
         } else {
             badge.textContent = "Roughly Parallel (No Sig. Interaction)";
             badge.className = "text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium";

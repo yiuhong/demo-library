@@ -8,6 +8,8 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     
     <!-- D3.js for Visualizations -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -30,10 +32,10 @@
         /* SVG Element Styles */
         .data-point { fill-opacity: 0.8; stroke-width: 1.5; cursor: pointer; }
         .mean-line { stroke-width: 5; stroke-dasharray: 4; cursor: pointer; }
-        .grand-mean-line { stroke: #0f172a; stroke-width: 5; stroke-dasharray: 6; cursor: pointer; }
+        .grand-mean-line { stroke: var(--viz-reference); stroke-width: 5; stroke-dasharray: 6; cursor: pointer; }
         .deviation-line { stroke-width: 2; stroke-opacity: 0.6; }
         
-        .custom-checkbox { accent-color: #000000; width: 1.1rem; height: 1.1rem; cursor: pointer; flex-shrink: 0; }
+        .custom-checkbox { width: 1.1rem; height: 1.1rem; cursor: pointer; flex-shrink: 0; }
         
         /* Custom scrollbar for small horizontal overflow areas */
         .scroll-hide::-webkit-scrollbar { display: none; }
@@ -78,13 +80,13 @@
                 The independent t-test is typically conceptualized as evaluating the mean difference between two groups relative to the Standard Error (SE), asking the fundamental question: <strong>"Is there a difference in scores between the groups?"</strong> However, it can also be understood by partitioning the <strong>Total Variation</strong> in all scores into two distinct pieces. This conceptually shifts our question to: <strong>"Does knowing group membership tell us about the variation in scores?"</strong>
             </p>
             <div class="flex flex-col md:flex-row gap-4 mt-4">
-                <div class="flex-1 bg-red-50 border border-red-100 p-4 rounded-lg">
-                    <strong class="text-red-800">1. Within-Group Variation (Sum of Squares Within / SSW)</strong>
-                    <p class="text-sm text-red-700 mt-1">Natural spread around their own group's mean (Noise).</p>
+                <div class="flex-1 viz-soft-residual border viz-border-residual p-4 rounded-lg">
+                    <strong class="viz-ink-residual">1. Within-Group Variation (Sum of Squares Within / SSW)</strong>
+                    <p class="text-sm viz-ink-residual mt-1">Natural spread around their own group's mean (Noise).</p>
                 </div>
-                <div class="flex-1 bg-green-50 border border-green-100 p-4 rounded-lg">
-                    <strong class="text-green-800">2. Between-Group Variation (Sum of Squares Between / SSB)</strong>
-                    <p class="text-sm text-green-700 mt-1">Spread between the group means and the grand mean (Signal).</p>
+                <div class="flex-1 viz-soft-explained border viz-border-explained p-4 rounded-lg">
+                    <strong class="viz-ink-explained">2. Between-Group Variation (Sum of Squares Between / SSB)</strong>
+                    <p class="text-sm viz-ink-explained mt-1">Spread between the group means and the grand mean (Signal).</p>
                 </div>
             </div>
         </section>
@@ -99,14 +101,14 @@
                     
                     <div>
                         <label class="block text-sm font-medium flex justify-between mb-1">
-                            <span class="text-blue-600">Group A Mean</span> <span id="val-mean-a" class="text-slate-500">40</span>
+                            <span class="viz-ink-group-a">Group A Mean</span> <span id="val-mean-a" class="text-slate-500">40</span>
                         </label>
                         <input type="range" id="t-mean-a" min="20" max="80" value="40" class="slider">
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium flex justify-between mb-1">
-                            <span class="text-orange-500">Group B Mean</span> <span id="val-mean-b" class="text-slate-500">60</span>
+                            <span class="viz-ink-group-b">Group B Mean</span> <span id="val-mean-b" class="text-slate-500">60</span>
                         </label>
                         <input type="range" id="t-mean-b" min="20" max="80" value="60" class="slider">
                     </div>
@@ -121,30 +123,30 @@
                     <div class="pt-4 border-t border-slate-200 flex flex-col gap-3.5">
                         <p class="text-sm font-semibold text-slate-700 mb-1">💡 Compare anchor points:</p>
                         <label class="flex items-center gap-3 group cursor-pointer">
-                            <input type="checkbox" id="t-toggle-mean-diff" class="custom-checkbox">
+                            <input type="checkbox" id="t-toggle-mean-diff" class="custom-checkbox viz-accent-difference">
                             <div class="flex flex-col">
-                                <span class="text-[13px] text-green-700 font-medium leading-tight">Mean Diff (MD)</span>
-                                <span class="text-[11px] text-green-600/80 font-mono">|x̄₁ - x̄₂|</span>
+                                <span class="text-[13px] viz-ink-difference font-medium leading-tight">Mean Diff (MD)</span>
+                                <span class="text-[11px] viz-ink-difference font-mono">|x̄₁ - x̄₂|</span>
                             </div>
                         </label>
                         <label class="flex items-center gap-3 group cursor-pointer">
-                            <input type="checkbox" id="t-toggle-between" class="custom-checkbox">
+                            <input type="checkbox" id="t-toggle-between" class="custom-checkbox viz-accent-explained">
                             <div class="flex flex-col">
-                                <span class="text-[13px] text-green-700 font-medium leading-tight">SS Between (SSB)</span>
-                                <span class="text-[11px] text-green-600/80 font-mono">&Sigma;n(x̄ - X̄)²</span>
+                                <span class="text-[13px] viz-ink-explained font-medium leading-tight">SS Between (SSB)</span>
+                                <span class="text-[11px] viz-ink-explained font-mono">&Sigma;n(x̄ - X̄)²</span>
                             </div>
                         </label>
                         <label class="flex items-center gap-3 group cursor-pointer">
-                            <input type="checkbox" id="t-toggle-within" class="custom-checkbox">
+                            <input type="checkbox" id="t-toggle-within" class="custom-checkbox viz-accent-residual">
                             <div class="flex flex-col">
-                                <span class="text-[13px] text-red-600 font-medium leading-tight">SS Within (SSW)</span>
-                                <span class="text-[11px] text-red-500/80 font-mono">&Sigma;(x - x̄)²</span>
+                                <span class="text-[13px] viz-ink-residual font-medium leading-tight">SS Within (SSW)</span>
+                                <span class="text-[11px] viz-ink-residual font-mono">&Sigma;(x - x̄)²</span>
                             </div>
                         </label>
                         <label class="flex items-center gap-3 group cursor-pointer">
-                            <input type="checkbox" id="t-toggle-total" class="custom-checkbox">
+                            <input type="checkbox" id="t-toggle-total" class="custom-checkbox" style="accent-color: var(--viz-total)">
                             <div class="flex flex-col">
-                                <span class="text-[13px] text-slate-700 font-medium leading-tight">Total Var (SST)</span>
+                                <span class="text-[13px] viz-ink-total font-medium leading-tight">Total Var (SST)</span>
                                 <span class="text-[11px] text-slate-500/80 font-mono">&Sigma;(x - X̄)² = SSB + SSW</span>
                             </div>
                         </label>
@@ -162,15 +164,15 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch mt-4">
             
             <!-- T-Test Panel (Takes 3 columns / 25%) -->
-            <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-blue-200 overflow-hidden flex flex-col">
-                <div class="bg-blue-50 px-4 py-3 border-b border-blue-200 font-semibold text-blue-900">
+            <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border viz-border-difference overflow-hidden flex flex-col">
+                <div class="viz-soft-difference px-4 py-3 border-b viz-border-difference font-semibold viz-ink-difference">
                     T-Test (Mean Difference)
                 </div>
                 <div class="p-4 flex flex-col gap-4 text-sm flex-grow">
                     <!-- Mean Difference (Signal) -->
                     <div class="bg-slate-50 p-3 rounded border border-slate-200">
                         <div class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 mb-1">Mean Difference (MD)</div>
-                        <div class="font-mono font-bold text-blue-700 text-base" id="out-mdiff">0.00</div>
+                        <div class="font-mono font-bold viz-ink-difference text-base" id="out-mdiff">0.00</div>
                     </div>
                     
                     <!-- Standard Error & Pooled Variance (Noise) -->
@@ -178,23 +180,23 @@
                         <!-- Pooled Variance (MSW) -->
                         <div class="bg-slate-50 p-3 rounded border border-slate-200">
                             <div class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 mb-1">Pooled Variance (MSW)</div>
-                            <div class="font-mono font-bold text-slate-600 text-base" id="out-pooled-var">0.00</div>
+                            <div class="font-mono font-bold viz-ink-residual text-base" id="out-pooled-var">0.00</div>
                         </div>
                         
                         <!-- Standard Error -->
                         <div class="bg-slate-50 p-3 rounded border border-slate-200">
                             <div class="text-[10px] uppercase tracking-wider font-semibold text-slate-500 mb-1">Standard Error (SE)</div>
                             <div class="text-[9px] text-slate-400 leading-tight mb-2 italic normal-case tracking-normal">Derived from Pooled Variance</div>
-                            <div class="font-mono font-bold text-amber-600 text-base" id="out-se">0.00</div>
+                            <div class="font-mono font-bold viz-ink-se text-base" id="out-se">0.00</div>
                         </div>
                     </div>
 
-                    <div class="mt-auto bg-blue-50 p-3.5 rounded border border-blue-100 flex flex-col gap-2.5">
-                        <div class="flex justify-between items-end border-b border-blue-200/60 pb-2">
-                            <div class="text-blue-800 font-semibold leading-tight">t-statistic<br><span class="text-[11px] font-normal opacity-80">(MD / SE)</span></div>
-                            <div class="text-3xl font-mono font-bold text-blue-700 leading-none" id="out-tstat">0.00</div>
+                    <div class="mt-auto viz-soft-difference p-3.5 rounded border viz-border-difference flex flex-col gap-2.5">
+                        <div class="flex justify-between items-end border-b viz-border-difference pb-2">
+                            <div class="viz-ink-difference font-semibold leading-tight">t-statistic<br><span class="text-[11px] font-normal opacity-80">(MD / SE)</span></div>
+                            <div class="text-3xl font-mono font-bold viz-ink-difference leading-none" id="out-tstat">0.00</div>
                         </div>
-                        <div class="flex justify-between items-center text-[11px] text-blue-700">
+                        <div class="flex justify-between items-center text-[11px] viz-ink-difference">
                             <span>df: <span id="out-tdf" class="font-bold text-xs">8</span></span>
                             <span>p-value: <span id="out-t-pval" class="font-bold text-xs">0.00</span></span>
                         </div>
@@ -217,11 +219,11 @@
                             <div>
                                 <strong class="text-slate-900">2. Accounting for "Mass":</strong> A T-Test's signal (MD) ignores sample size. ANOVA multiplies by sample size (n) because it calculates the total shifted "mass" of <em>every individual</em>, not just the abstract averages.
                                 <details class="mt-1 cursor-pointer group">
-                                    <summary class="text-[10px] text-blue-700 font-semibold hover:text-blue-900 transition-colors inline-flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> How math maps MD to n</summary>
-                                    <div class="mt-2 p-2.5 bg-blue-50/70 border border-blue-100 rounded text-[10px] leading-relaxed space-y-2 cursor-auto">
+                                    <summary class="text-[10px] viz-ink-difference font-semibold transition-colors inline-flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> How math maps MD to n</summary>
+                                    <div class="mt-2 p-2.5 viz-soft-difference border viz-border-difference rounded text-[10px] leading-relaxed space-y-2 cursor-auto">
                                         <p><strong>The Idea:</strong> The Mean Difference (<strong>MD</strong>) relates to <strong>SSB</strong>, which involves the distance from group means to the <strong>Grand Mean</strong>, weighted by the number of individuals (<strong>n</strong>). Because our two groups are equal in size, the Grand Mean is perfectly halfway between them—thus bringing a factor of <strong>1/2</strong> into the formula naturally!</p>
                                         <p>Squaring that half-distance (<strong>MD&sup2;/4</strong>) and multiplying by the weight of individuals (<strong>n</strong>) for both groups gives: <strong>n(MD&sup2;/4) + n(MD&sup2;/4) = (n/2)MD&sup2;</strong>.</p>
-                                        <div class="border-t border-blue-200/60 my-1"></div>
+                                        <div class="border-t viz-border-difference my-1"></div>
                                         <p><strong>Unequal Groups?</strong> The Grand Mean acts like a center of gravity. The distance ratio depends directly on the group size ratio! The universal mathematical factor that seamlessly handles this gravity for both Signal and Noise is <strong>(n&#8321; &times; n&#8322;) / (n&#8321; + n&#8322;)</strong>. When n&#8321; = n&#8322; = n, this perfectly reduces back to <strong>n/2</strong>.</p>
                                     </div>
                                 </details>
@@ -243,13 +245,13 @@
                     <div class="flex flex-col gap-3 w-full">
                         <!-- Signal (Numerator) Pipeline -->
                         <div class="bg-white p-2.5 rounded-lg shadow-sm border border-slate-200 z-10 overflow-x-auto scroll-hide">
-                            <div class="text-[10px] font-bold text-green-700 uppercase tracking-wider mb-2 border-b pb-1 text-center">Signal Pipeline</div>
+                            <div class="text-[10px] font-bold viz-ink-explained uppercase tracking-wider mb-2 border-b pb-1 text-center">Signal Pipeline</div>
                             <div class="flex items-center justify-between text-xs px-2 min-w-[300px]">
-                                <div class="text-center"><div class="font-bold text-blue-700 text-sm">MD</div><div id="out-mid-d" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
+                                <div class="text-center"><div class="font-bold viz-ink-difference text-sm">MD</div><div id="out-mid-d" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
                                 <div class="text-[9px] text-slate-400 text-center flex flex-col items-center shrink-0 mx-2"><svg class="w-3 h-3 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg><span>square</span></div>
                                 <div class="text-center"><div class="font-bold text-slate-700 text-sm">MD&sup2;</div><div id="out-mid-dsq" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
                                 <div class="text-[9px] text-slate-400 text-center flex flex-col items-center shrink-0 mx-2"><svg class="w-3 h-3 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg><span>&times; 2.5</span></div>
-                                <div class="text-center"><div class="font-bold text-green-600 text-sm">MSB</div><div id="out-mid-msb" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
+                                <div class="text-center"><div class="font-bold viz-ink-explained text-sm">MSB</div><div id="out-mid-msb" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
                                 <div class="text-[9px] text-slate-400 text-center flex flex-col items-center shrink-0 mx-2"><svg class="w-3 h-3 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg><span>&times; df(1)</span></div>
                                 <div class="text-center"><div class="font-bold text-slate-900 text-sm">SSB</div><div id="out-mid-ssb-mid" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
                             </div>
@@ -257,13 +259,13 @@
 
                         <!-- Noise (Denominator) Pipeline -->
                         <div class="bg-white p-2.5 rounded-lg shadow-sm border border-slate-200 z-10 overflow-x-auto scroll-hide">
-                            <div class="text-[10px] font-bold text-red-600 uppercase tracking-wider mb-2 border-b pb-1 text-center">Noise Pipeline</div>
+                            <div class="text-[10px] font-bold viz-ink-residual uppercase tracking-wider mb-2 border-b pb-1 text-center">Noise Pipeline</div>
                             <div class="flex items-center justify-between text-xs px-2 min-w-[300px]">
-                                <div class="text-center"><div class="font-bold text-blue-700 text-sm">SE</div><div id="out-mid-se" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
+                                <div class="text-center"><div class="font-bold viz-ink-se text-sm">SE</div><div id="out-mid-se" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
                                 <div class="text-[9px] text-slate-400 text-center flex flex-col items-center shrink-0 mx-2"><svg class="w-3 h-3 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg><span>square</span></div>
                                 <div class="text-center"><div class="font-bold text-slate-700 text-sm">SE&sup2;</div><div id="out-mid-sesq" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
                                 <div class="text-[9px] text-slate-400 text-center flex flex-col items-center shrink-0 mx-2"><svg class="w-3 h-3 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg><span>&times; 2.5</span></div>
-                                <div class="text-center"><div class="font-bold text-red-500 text-sm">MSW</div><div id="out-mid-msw" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
+                                <div class="text-center"><div class="font-bold viz-ink-residual text-sm">MSW</div><div id="out-mid-msw" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
                                 <div class="text-[9px] text-slate-400 text-center flex flex-col items-center shrink-0 mx-2"><svg class="w-3 h-3 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg><span>&times; df(8)</span></div>
                                 <div class="text-center"><div class="font-bold text-slate-900 text-sm">SSW</div><div id="out-mid-ssw-mid" class="text-[10px] text-slate-500 font-mono mt-0.5">0.00</div></div>
                             </div>
@@ -274,8 +276,8 @@
             </div>
 
             <!-- ANOVA Panel (Takes 3 columns / 25%) - Reorganized to flow vertically instead of horizontally to fit elegantly in the space -->
-            <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-purple-200 overflow-hidden flex flex-col">
-                <div class="bg-purple-50 px-4 py-3 border-b border-purple-200 font-semibold text-purple-900">
+            <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border viz-border-se overflow-hidden flex flex-col">
+                <div class="viz-soft-se px-4 py-3 border-b viz-border-se font-semibold viz-ink-se">
                     ANOVA (Variances)
                 </div>
                 <div class="p-4 flex flex-col gap-4 text-sm flex-grow">
@@ -290,10 +292,10 @@
                             <span>&divide; df (<span id="out-dfb">1</span>)</span>
                             <span>&darr;</span>
                         </div>
-                        <div class="w-full bg-green-50/70 p-2.5 pt-6 rounded border border-green-100">
-                            <div class="text-[10px] uppercase tracking-wider font-semibold text-green-700 mb-0.5">Mean Square Between (MSB)</div>
-                            <div class="text-[9px] text-green-600/80 leading-tight mb-1.5 italic normal-case tracking-normal">(variance of group averages)</div>
-                            <div class="font-mono font-bold text-green-700 text-base" id="out-msb">0.00</div>
+                        <div class="w-full viz-soft-explained p-2.5 pt-6 rounded border viz-border-explained">
+                            <div class="text-[10px] uppercase tracking-wider font-semibold viz-ink-explained mb-0.5">Mean Square Between (MSB)</div>
+                            <div class="text-[9px] viz-ink-explained leading-tight mb-1.5 italic normal-case tracking-normal">(variance of group averages)</div>
+                            <div class="font-mono font-bold viz-ink-explained text-base" id="out-msb">0.00</div>
                         </div>
                     </div>
                     
@@ -307,19 +309,19 @@
                             <span>&divide; df (<span id="out-dfw">8</span>)</span>
                             <span>&darr;</span>
                         </div>
-                        <div class="w-full bg-red-50/70 p-2.5 pt-6 rounded border border-red-100">
-                            <div class="text-[10px] uppercase tracking-wider font-semibold text-red-600 mb-0.5">Mean Square Within (MSW)</div>
-                            <div class="text-[9px] text-red-600/80 leading-tight mb-1.5 italic normal-case tracking-normal">(average of group variances)</div>
-                            <div class="font-mono font-bold text-red-600 text-base" id="out-msw">0.00</div>
+                        <div class="w-full viz-soft-residual p-2.5 pt-6 rounded border viz-border-residual">
+                            <div class="text-[10px] uppercase tracking-wider font-semibold viz-ink-residual mb-0.5">Mean Square Within (MSW)</div>
+                            <div class="text-[9px] viz-ink-residual leading-tight mb-1.5 italic normal-case tracking-normal">(average of group variances)</div>
+                            <div class="font-mono font-bold viz-ink-residual text-base" id="out-msw">0.00</div>
                         </div>
                     </div>
 
-                    <div class="mt-auto bg-purple-50 p-3.5 rounded border border-purple-100 flex flex-col gap-2.5">
-                        <div class="flex justify-between items-end border-b border-purple-200/60 pb-2">
-                            <div class="text-purple-800 font-semibold leading-tight">F-statistic<br><span class="text-[11px] font-normal opacity-80">(MSB / MSW)</span></div>
-                            <div class="text-3xl font-mono font-bold text-purple-700 leading-none" id="out-fstat">0.00</div>
+                    <div class="mt-auto viz-soft-se p-3.5 rounded border viz-border-se flex flex-col gap-2.5">
+                        <div class="flex justify-between items-end border-b viz-border-se pb-2">
+                            <div class="viz-ink-se font-semibold leading-tight">F-statistic<br><span class="text-[11px] font-normal opacity-80">(MSB / MSW)</span></div>
+                            <div class="text-3xl font-mono font-bold viz-ink-group-c leading-none" id="out-fstat">0.00</div>
                         </div>
-                        <div class="flex justify-between items-center text-[11px] text-purple-700">
+                        <div class="flex justify-between items-center text-[11px] viz-ink-se">
                             <span>df: <span id="out-f-dfb" class="font-bold text-xs">1</span>, <span id="out-f-dfw" class="font-bold text-xs">8</span></span>
                             <span>p-value: <span id="out-pval" class="font-bold text-xs">0.000</span></span>
                         </div>
@@ -334,23 +336,23 @@
             <p class="text-slate-300 max-w-4xl mx-auto text-lg mb-6 leading-relaxed">
                 The core difference between a T-Test and ANOVA is a simple shift in scale. A T-Test compares <strong>linear units</strong> (raw mean differences), while ANOVA compares <strong>squared units</strong> (variances). Because they measure the exact same underlying reality, calculating the ratio of Signal to Noise using either method yields the exact same statistical truth!
             </p>
-            <div class="text-blue-200 max-w-4xl mx-auto text-sm sm:text-base mb-8 bg-slate-700/50 p-6 rounded-lg border border-slate-600 text-left">
+            <div class="text-slate-200 max-w-4xl mx-auto text-sm sm:text-base mb-8 bg-slate-700/50 p-6 rounded-lg border border-slate-600 text-left">
                 <ul class="space-y-4 list-disc pl-5">
                     <li><strong>1. A Universal Metric:</strong> A simple subtraction only works for exactly two groups. Variance solves this by measuring how far <em>every</em> group is from a shared <strong>Grand Mean</strong>, scaling effortlessly to handle any number of groups where simple subtraction fails.</li>
                     <li><strong>2. The Same Reality:</strong> For exactly two groups, measuring the direct distance between them (T-Test) and measuring their variance from the Grand Mean (ANOVA) are simply two ways of describing the exact same gap.</li>
                 </ul>
             </div>
             <div class="flex flex-wrap justify-center items-center gap-4 text-3xl font-mono bg-slate-900 inline-flex px-10 py-5 rounded-xl border border-slate-700 shadow-inner">
-                <div class="text-blue-400 flex items-center">t&sup2; = <span id="out-tsq" class="ml-3 font-bold">0.00</span></div>
+                <div class="viz-ink-difference flex items-center">t&sup2; = <span id="out-tsq" class="ml-3 font-bold">0.00</span></div>
                 <div class="text-slate-500 text-xl mx-4">EQUALS</div>
-                <div class="text-purple-400 flex items-center">F = <span id="out-fcopy" class="ml-3 font-bold">0.00</span></div>
+                <div class="viz-ink-group-c flex items-center">F = <span id="out-fcopy" class="ml-3 font-bold">0.00</span></div>
             </div>
         </div>
     </main>
 
     <script>
         const nPerGroup = 5; 
-        const colors = { A: "#3b82f6", B: "#f97316", Grand: "#0f172a" };
+        const colors = { A: statsViz.color('group-a'), B: statsViz.color('group-b'), Grand: statsViz.color('reference') };
 
         function generateZScores(n) {
             const zScores = [];
@@ -542,12 +544,12 @@
                 });
 
             layerTotal.selectAll("line").data(data, d => d.id).join("line")
-                .attr("class", "deviation-line").attr("stroke", "#94a3b8")
+                .attr("class", "deviation-line").attr("stroke", statsViz.color("total"))
                 .attr("x1", d => clampX(d.val)).attr("x2", clampX(grandMean))
                 .attr("y1", d => d.y).attr("y2", d => d.y);
 
             layerWithin.selectAll("line").data(data, d => d.id).join("line")
-                .attr("class", "deviation-line").attr("stroke", "#ef4444")
+                .attr("class", "deviation-line").attr("stroke", statsViz.color("residual"))
                 .attr("x1", d => clampX(d.val)).attr("x2", d => clampX(d.actualMean))
                 .attr("y1", d => d.y).attr("y2", d => d.y);
 
@@ -565,7 +567,7 @@
             
             layerBetween.append("text")
                 .attr("x", clampX(grandMean)).attr("y", 56)
-                .attr("text-anchor", "middle").attr("fill", "#059669").style("font-size", "11px").style("font-weight", "600")
+                .attr("text-anchor", "middle").attr("fill", statsViz.color("explained")).style("font-size", "11px").style("font-weight", "600")
                 .text(`SS Between (SSB): ${fmtDec(ssb)}`);
 
             layerMeanDiff.selectAll("*").remove();
@@ -574,10 +576,10 @@
             layerMeanDiff.append("line")
                 .attr("x1", clampX(min)).attr("x2", clampX(max))
                 .attr("y1", 20).attr("y2", 20)
-                .attr("stroke", "#16a34a").attr("stroke-width", 3);
+                .attr("stroke", statsViz.color("difference")).attr("stroke-width", 3);
             layerMeanDiff.append("text")
                 .attr("x", clampX((min + max) / 2)).attr("y", 12)
-                .attr("text-anchor", "middle").attr("fill", "#16a34a").style("font-size", "12px").style("font-weight", "700")
+                .attr("text-anchor", "middle").attr("fill", statsViz.color("difference")).style("font-size", "12px").style("font-weight", "700")
                 .text(`Diff: ${fmtDec(meanDiff)}`);
             
         }

@@ -6,6 +6,8 @@
     <title>Sampling Distributions of the Sample Mean (under $H_0$ and $H_1$)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.6/jstat.min.js"></script>
     <style>
@@ -16,11 +18,11 @@
         }
 
         :root {
-            --h0-color: #3b82f6; /* Blue for Null Hypothesis */
-            --h1-color: #ef4444; /* Red for Alternative Hypothesis */
-            --alpha-color: #8b5cf6; /* Purple for Alpha (Type I Error) */
-            --beta-color: #f59e0b; /* Amber for Beta (Type II Error) */
-            --power-color: #10b981; /* Green for Power */
+            --h0-color: var(--viz-h0);
+            --h1-color: var(--viz-h1);
+            --alpha-color: var(--viz-null); /* Type I. Rose, not purple. */
+            --beta-color: var(--viz-beta);
+            --power-color: var(--viz-significant);
         }
 
         .axis-label {
@@ -33,7 +35,7 @@
         }
 
         input[type=range] {
-            accent-color: #4f46e5;
+            accent-color: var(--viz-group-a);
         }
 
         .chart-tooltip {
@@ -78,7 +80,7 @@
             <div>
                 <div class="flex justify-between mb-1">
                     <label for="alpha-slider" class="text-sm font-medium text-slate-700">Significance Level (α)</label>
-                    <span id="alpha-val" class="text-sm font-bold text-indigo-600">0.05</span>
+                    <span id="alpha-val" class="text-sm font-bold viz-ink-group-a">0.05</span>
                 </div>
                 <input type="range" id="alpha-slider" min="0.01" max="0.20" step="0.01" value="0.05" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 <p class="text-xs text-slate-500 mt-1">Probability of rejecting H₀ when it is true (Type I Error).</p>
@@ -88,7 +90,7 @@
             <div>
                 <div class="flex justify-between mb-1">
                     <label for="mu0-slider" class="text-sm font-medium text-slate-700">Null Mean (μ₀)</label>
-                    <span id="mu0-val" class="text-sm font-bold text-indigo-600">0.0</span>
+                    <span id="mu0-val" class="text-sm font-bold viz-ink-group-a">0.0</span>
                 </div>
                 <input type="range" id="mu0-slider" min="-4" max="4" step="0.5" value="0.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 <p class="text-xs text-slate-500 mt-1">The hypothesized mean under H₀.</p>
@@ -98,29 +100,29 @@
             <div>
                 <div class="flex justify-between mb-1">
                     <label for="mu1-slider" class="text-sm font-medium text-slate-700">Alternative Mean (μ₁)</label>
-                    <span id="mu1-val" class="text-sm font-bold text-indigo-600">2.0</span>
+                    <span id="mu1-val" class="text-sm font-bold viz-ink-group-a">2.0</span>
                 </div>
                 <input type="range" id="mu1-slider" min="-4" max="8" step="0.5" value="2.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 <p class="text-xs text-slate-500 mt-1">Assumed true mean for power calculation.</p>
             </div>
 
             <!-- Cohen's d Explanation Card -->
-            <div class="bg-indigo-50/60 p-3.5 rounded-xl border border-indigo-100 flex flex-col gap-2">
+            <div class="viz-soft-group-a p-3.5 rounded-xl border viz-border-group-a flex flex-col gap-2">
                 <div class="flex justify-between items-center">
                     <span class="text-xs font-semibold text-slate-800">Cohen's d (Effect Size)</span>
-                    <span id="cohens-d-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">Small (d = 0.40)</span>
+                    <span id="cohens-d-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-full border viz-soft-group-c viz-ink-group-c viz-border-group-c">Small (d = 0.40)</span>
                 </div>
                 
                 <!-- Live Formula Step-by-Step -->
-                <div class="bg-white p-2 rounded-lg border border-indigo-100 text-center font-mono text-xs text-slate-700 shadow-sm">
-                    d = <span class="text-slate-400">|μ₁ - μ₀| / σ</span> = |<span id="formula-mu1">2.0</span> - <span id="formula-mu0">0.0</span>| / <span id="formula-sd">5.0</span> = <span id="formula-d" class="font-bold text-indigo-600">0.40</span>
+                <div class="bg-white p-2 rounded-lg border viz-border-group-a text-center font-mono text-xs text-slate-700 shadow-sm">
+                    d = <span class="text-slate-400">|μ₁ - μ₀| / σ</span> = |<span id="formula-mu1">2.0</span> - <span id="formula-mu0">0.0</span>| / <span id="formula-sd">5.0</span> = <span id="formula-d" class="font-bold viz-ink-group-a">0.40</span>
                 </div>
 
                 <p class="text-[11px] text-slate-600 leading-snug">
                     <strong class="text-slate-700">What it means:</strong> Cohen's <em>d</em> measures the distance between μ₀ and μ₁ in units of standard deviation (σ).
                 </p>
 
-                <div class="flex justify-between text-[10px] text-slate-400 border-t border-indigo-100/60 pt-1.5">
+                <div class="flex justify-between text-[10px] text-slate-400 border-t viz-border-group-a pt-1.5">
                     <span>Small: d ≈ 0.2</span>
                     <span>Medium: d ≈ 0.5</span>
                     <span>Large: d ≈ 0.8</span>
@@ -131,7 +133,7 @@
             <div>
                 <div class="flex justify-between mb-1">
                     <label for="sd-slider" class="text-sm font-medium text-slate-700">Population Std Dev (σ)</label>
-                    <span id="sd-val" class="text-sm font-bold text-indigo-600">5.0</span>
+                    <span id="sd-val" class="text-sm font-bold viz-ink-group-a">5.0</span>
                 </div>
                 <input type="range" id="sd-slider" min="3" max="8" step="0.5" value="5.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 <p class="text-xs text-slate-500 mt-1">Variability in the population data.</p>
@@ -141,7 +143,7 @@
             <div>
                 <div class="flex justify-between mb-1">
                     <label for="sample-size-slider" class="text-sm font-medium text-slate-700">Sample Size (n)</label>
-                    <span id="sample-size-val" class="text-sm font-bold text-indigo-600">30</span>
+                    <span id="sample-size-val" class="text-sm font-bold viz-ink-group-a">30</span>
                 </div>
                 <input type="range" id="sample-size-slider" min="10" max="100" step="1" value="30" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                 <p class="text-xs text-slate-500 mt-1">Standard Error (SE) = σ / √n = <span id="se-calc-val" class="font-semibold text-slate-700">0.91</span></p>
@@ -152,11 +154,11 @@
                  <span class="text-sm font-medium text-slate-700 block mb-2">Test Type</span>
                  <div class="flex gap-4">
                     <label class="inline-flex items-center cursor-pointer">
-                        <input type="radio" name="test-type" value="two-tailed" class="text-indigo-600 focus:ring-indigo-500">
+                        <input type="radio" name="test-type" value="two-tailed" class="viz-accent-group-a">
                         <span class="ml-2 text-sm text-slate-700">Two-tailed</span>
                     </label>
                     <label class="inline-flex items-center cursor-pointer">
-                        <input type="radio" name="test-type" value="one-tailed" checked class="text-indigo-600 focus:ring-indigo-500">
+                        <input type="radio" name="test-type" value="one-tailed" checked class="viz-accent-group-a">
                         <span class="ml-2 text-sm text-slate-700">One-tailed</span>
                     </label>
                  </div>
@@ -169,20 +171,20 @@
                     <!-- H0 Toggle -->
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-slate-600 flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block opacity-80"></span> Null (H₀)
+                            <span class="w-3 h-3 rounded-full viz-bg-h0 inline-block opacity-80"></span> Null (H₀)
                         </span>
                         <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="toggle-h0" id="toggle-h0" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-200 ease-in-out border-slate-300 z-10 top-0 left-0 checked:left-auto checked:border-indigo-600"/>
+                            <input type="checkbox" name="toggle-h0" id="toggle-h0" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-200 ease-in-out border-slate-300 z-10 top-0 left-0 checked:left-auto"/>
                             <label for="toggle-h0" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
                         </div>
                     </div>
                     <!-- H1 Toggle -->
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-slate-600 flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-red-500 inline-block opacity-80"></span> Alternative (H₁)
+                            <span class="w-3 h-3 rounded-full viz-bg-h1 inline-block opacity-80"></span> Alternative (H₁)
                         </span>
                         <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="toggle-h1" id="toggle-h1" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-200 ease-in-out border-slate-300 z-10 top-0 left-0 checked:left-auto checked:border-indigo-600"/>
+                            <input type="checkbox" name="toggle-h1" id="toggle-h1" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-200 ease-in-out border-slate-300 z-10 top-0 left-0 checked:left-auto"/>
                             <label for="toggle-h1" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
                         </div>
                     </div>
@@ -199,11 +201,11 @@
                     <h2 class="text-xl font-semibold text-slate-800">Sampling Distributions of the Sample Mean</h2>
                     <!-- Legend -->
                     <div class="flex flex-wrap gap-3 text-xs">
-                        <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block mr-1 opacity-80"></span> Null (H₀)</div>
-                        <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-red-500 inline-block mr-1 opacity-80"></span> Alternative (H₁)</div>
-                        <div class="flex items-center"><span class="w-3 h-3 rounded bg-purple-500 inline-block mr-1 opacity-80"></span> α (Type I)</div>
-                        <div class="flex items-center"><span class="w-3 h-3 rounded bg-amber-500 inline-block mr-1 opacity-80"></span> β (Type II)</div>
-                        <div class="flex items-center"><span class="w-3 h-3 rounded bg-emerald-500 inline-block mr-1 opacity-80"></span> Power (1-β)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded-full viz-bg-h0 inline-block mr-1 opacity-80"></span> Null (H₀)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded-full viz-bg-h1 inline-block mr-1 opacity-80"></span> Alternative (H₁)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded viz-bg-null inline-block mr-1 opacity-80"></span> α (Type I)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded viz-bg-beta inline-block mr-1 opacity-80"></span> β (Type II)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded viz-bg-significant inline-block mr-1 opacity-80"></span> Power (1-β)</div>
                     </div>
                 </div>
                 <div id="chart" class="chart-container"></div>
@@ -214,38 +216,38 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 
                 <!-- Confidence (1-Alpha) -->
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-5 transition-opacity"></div>
-                    <div class="text-blue-600 text-xs font-semibold uppercase tracking-wider mb-1">True Negative</div>
+                <div class="viz-soft-h0 p-4 rounded-xl border viz-border-h0 relative overflow-hidden group">
+                    <div class="absolute inset-0 viz-bg-h0 opacity-0 group-hover:opacity-5 transition-opacity"></div>
+                    <div class="viz-ink-h0 text-xs font-semibold uppercase tracking-wider mb-1">True Negative</div>
                     <div class="text-slate-700 text-sm mb-2">Confidence Level (1-α)</div>
-                    <div id="stat-confidence" class="text-2xl font-bold text-blue-700">95.0%</div>
+                    <div id="stat-confidence" class="text-2xl font-bold viz-ink-h0">95.0%</div>
                     <p class="text-[10px] text-slate-500 mt-2 leading-tight">Correctly failing to reject H₀ when it is true.</p>
                 </div>
 
                 <!-- Alpha (Type 1) -->
-                <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-purple-500 opacity-0 group-hover:opacity-5 transition-opacity"></div>
-                    <div class="text-purple-600 text-xs font-semibold uppercase tracking-wider mb-1">False Positive</div>
+                <div class="viz-soft-null p-4 rounded-xl border viz-border-null relative overflow-hidden group">
+                    <div class="absolute inset-0 viz-bg-null opacity-0 group-hover:opacity-5 transition-opacity"></div>
+                    <div class="viz-ink-null text-xs font-semibold uppercase tracking-wider mb-1">False Positive</div>
                     <div class="text-slate-700 text-sm mb-2">Type I Error (α)</div>
-                    <div id="stat-alpha" class="text-2xl font-bold text-purple-700">5.0%</div>
+                    <div id="stat-alpha" class="text-2xl font-bold viz-ink-null">5.0%</div>
                     <p class="text-[10px] text-slate-500 mt-2 leading-tight">Incorrectly rejecting H₀ when it is actually true.</p>
                 </div>
 
                 <!-- Beta (Type 2) -->
-                <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-amber-500 opacity-0 group-hover:opacity-5 transition-opacity"></div>
-                    <div class="text-amber-600 text-xs font-semibold uppercase tracking-wider mb-1">False Negative</div>
+                <div class="viz-soft-beta p-4 rounded-xl border viz-border-beta relative overflow-hidden group">
+                    <div class="absolute inset-0 viz-bg-beta opacity-0 group-hover:opacity-5 transition-opacity"></div>
+                    <div class="viz-ink-beta text-xs font-semibold uppercase tracking-wider mb-1">False Negative</div>
                     <div class="text-slate-700 text-sm mb-2">Type II Error (β)</div>
-                    <div id="stat-beta" class="text-2xl font-bold text-amber-700">--.-%</div>
+                    <div id="stat-beta" class="text-2xl font-bold viz-ink-beta">--.-%</div>
                     <p class="text-[10px] text-slate-500 mt-2 leading-tight">Failing to reject H₀ when H₁ is actually true.</p>
                 </div>
 
                 <!-- Power (1-Beta) -->
-                <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-emerald-500 opacity-0 group-hover:opacity-5 transition-opacity"></div>
-                    <div class="text-emerald-600 text-xs font-semibold uppercase tracking-wider mb-1">True Positive</div>
+                <div class="viz-soft-significant p-4 rounded-xl border viz-border-significant relative overflow-hidden group">
+                    <div class="absolute inset-0 viz-bg-significant opacity-0 group-hover:opacity-5 transition-opacity"></div>
+                    <div class="viz-ink-significant text-xs font-semibold uppercase tracking-wider mb-1">True Positive</div>
                     <div class="text-slate-700 text-sm mb-2">Power (1-β)</div>
-                    <div id="stat-power" class="text-2xl font-bold text-emerald-700">--.-%</div>
+                    <div id="stat-power" class="text-2xl font-bold viz-ink-significant">--.-%</div>
                     <p class="text-[10px] text-slate-500 mt-2 leading-tight">Correctly rejecting H₀ when H₁ is actually true.</p>
                 </div>
 
@@ -389,12 +391,12 @@
         // Mean and critical value lines
         const mu0Line = g.append("line").attr("stroke", "var(--h0-color)").attr("stroke-dasharray", "4,4").attr("stroke-width", 1.5).attr("opacity", 0.8).attr("clip-path", "url(#chart-clip)");
         const mu1Line = g.append("line").attr("stroke", "var(--h1-color)").attr("stroke-dasharray", "4,4").attr("stroke-width", 1.5).attr("opacity", 0.8).attr("clip-path", "url(#chart-clip)");
-        const critLine1 = g.append("line").attr("stroke", "#1e293b").attr("stroke-width", 2).attr("stroke-dasharray", "2,2").attr("clip-path", "url(#chart-clip)");
-        const critLine2 = g.append("line").attr("stroke", "#1e293b").attr("stroke-width", 2).attr("stroke-dasharray", "2,2").attr("clip-path", "url(#chart-clip)").style("display", "none");
+        const critLine1 = g.append("line").attr("stroke", "var(--viz-reference)").attr("stroke-width", 2).attr("stroke-dasharray", "2,2").attr("clip-path", "url(#chart-clip)");
+        const critLine2 = g.append("line").attr("stroke", "var(--viz-reference)").attr("stroke-width", 2).attr("stroke-dasharray", "2,2").attr("clip-path", "url(#chart-clip)").style("display", "none");
 
         // Labels
-        const critLabel1 = g.append("text").attr("fill", "#1e293b").attr("font-size", "11px").attr("font-weight", "600").attr("text-anchor", "middle").attr("y", -10);
-        const critLabel2 = g.append("text").attr("fill", "#1e293b").attr("font-size", "11px").attr("font-weight", "600").attr("text-anchor", "middle").attr("y", -10).style("display", "none");
+        const critLabel1 = g.append("text").attr("fill", "var(--viz-reference)").attr("font-size", "11px").attr("font-weight", "600").attr("text-anchor", "middle").attr("y", -10);
+        const critLabel2 = g.append("text").attr("fill", "var(--viz-reference)").attr("font-size", "11px").attr("font-weight", "600").attr("text-anchor", "middle").attr("y", -10).style("display", "none");
 
         const h0Label = g.append("text").attr("class", "h0-label").attr("fill", "var(--h0-color)").attr("font-size", "13px").attr("font-weight", "700").attr("text-anchor", "middle").text("Null (H₀)");
         const h1Label = g.append("text").attr("class", "h1-label").attr("fill", "var(--h1-color)").attr("font-size", "13px").attr("font-weight", "700").attr("text-anchor", "middle").text("Alternative (H₁)");
@@ -457,13 +459,13 @@
 
             if (cohensD >= 0.8) {
                 interpretation = "Large";
-                badgeClass = "bg-emerald-100 text-emerald-800 border-emerald-200";
+                badgeClass = "viz-soft-significant viz-ink-significant viz-border-significant";
             } else if (cohensD >= 0.5) {
                 interpretation = "Medium";
-                badgeClass = "bg-blue-100 text-blue-800 border-blue-200";
+                badgeClass = "viz-soft-group-a viz-ink-group-a viz-border-group-a";
             } else if (cohensD >= 0.2) {
                 interpretation = "Small";
-                badgeClass = "bg-indigo-100 text-indigo-800 border-indigo-200";
+                badgeClass = "viz-soft-group-c viz-ink-group-c viz-border-group-c";
             }
 
             badge.innerText = `${interpretation} (d = ${cohensD.toFixed(2)})`;

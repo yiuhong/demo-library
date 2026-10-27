@@ -6,6 +6,8 @@
     <title>Paired Samples: Sampling Distribution of Mean Differences</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
         MathJax = {
@@ -40,7 +42,7 @@
 
         /* SVG Chart Styles */
         .bar {
-            fill: #8b5cf6; /* Purple theme for differences */
+            fill: var(--viz-difference); /* Difference scores */
             opacity: 0.7;
             transition: height 0.2s, y 0.2s;
         }
@@ -61,9 +63,9 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); opacity: 1; z-index: 20; }
-            50% { transform: scale(3); box-shadow: 0 0 10px 5px rgba(245, 158, 11, 0); opacity: 1; z-index: 20; background-color: #f59e0b; }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); opacity: 0.6; z-index: 1; }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 var(--viz-highlight); opacity: 1; z-index: 20; }
+            50% { transform: scale(3); box-shadow: 0 0 10px 5px var(--viz-highlight); opacity: 1; z-index: 20; background-color: var(--viz-highlight); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; opacity: 0.6; z-index: 1; }
         }
         .pulse-highlight {
             animation: pulse 0.6s ease-out forwards;
@@ -92,17 +94,17 @@
                 </div>
                 
                 <!-- Callout Banner explaining subject linkage -->
-                <div class="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-2 rounded-lg mb-3 flex items-start gap-1.5">
+                <div class="demo-panel text-xs p-2 mb-3 flex items-start gap-1.5">
                     <span class="text-base">💡</span>
                     <span><strong>Linked Subject Concept:</strong> Each participant ($P$) is measured twice. <strong>Hover over any dot</strong> in either box to highlight that exact same participant's twin score!</span>
                 </div>
 
                 <div class="flex flex-col gap-3 mb-2">
                     <!-- Pre-test Box -->
-                    <div class="bg-blue-50/50 border border-blue-100 rounded-lg p-2">
-                        <div class="flex justify-between items-center text-[11px] uppercase tracking-wider font-bold text-blue-800 mb-1.5 px-1">
+                    <div class="viz-soft-before border viz-border-before rounded-lg p-2">
+                        <div class="flex justify-between items-center text-[11px] uppercase tracking-wider font-bold viz-ink-before mb-1.5 px-1">
                             <span>Pre-test Scores</span>
-                            <span class="bg-blue-200/50 px-1.5 py-0.5 rounded">$\mu_{pre} = 50$</span>
+                            <span class="viz-bg-before px-1.5 py-0.5 rounded">$\mu_{pre} = 50$</span>
                         </div>
                         <div id="pop-pre-container" class="container-box h-20 w-full relative bg-white">
                             <!-- Pre pieces injected here -->
@@ -110,10 +112,10 @@
                     </div>
                     
                     <!-- Post-test Box -->
-                    <div class="bg-emerald-50/50 border border-emerald-100 rounded-lg p-2">
-                        <div class="flex justify-between items-center text-[11px] uppercase tracking-wider font-bold text-emerald-800 mb-1.5 px-1">
+                    <div class="viz-soft-after border viz-border-after rounded-lg p-2">
+                        <div class="flex justify-between items-center text-[11px] uppercase tracking-wider font-bold viz-ink-after mb-1.5 px-1">
                             <span>Post-test Scores</span>
-                            <span class="bg-emerald-200/50 px-1.5 py-0.5 rounded">$\mu_{post} = 55$</span>
+                            <span class="viz-bg-after px-1.5 py-0.5 rounded">$\mu_{post} = 55$</span>
                         </div>
                         <div id="pop-post-container" class="container-box h-20 w-full relative bg-white">
                             <!-- Post pieces injected here -->
@@ -123,7 +125,7 @@
                 
                 <div class="demo-panel text-[11px] font-bold mt-2 mb-1 text-center uppercase tracking-wider py-1">
                     Distribution of Differences ($D = Post - Pre$)
-                    <span class="ml-2 text-purple-600">$\mu_D = 5, \sigma_D = 10$</span>
+                    <span class="ml-2 viz-ink-difference">$\mu_D = 5, \sigma_D = 10$</span>
                 </div>
                 <div id="pop-dist-chart" class="h-32 w-full mt-auto"></div>
             </div>
@@ -137,7 +139,7 @@
                         <div class="flex justify-between text-[10px] text-slate-400 font-bold uppercase px-2 mb-1">
                             <span>Participant ID</span>
                             <span>Pre $\rightarrow$ Post</span>
-                            <span class="text-purple-500">Diff ($D$)</span>
+                            <span class="viz-ink-difference">Diff ($D$)</span>
                         </div>
                         <div id="sample-display" class="demo-panel flex flex-wrap gap-2 justify-center min-h-[120px] w-full p-3 content-start">
                             <!-- Drawn pair cards appear here -->
@@ -150,15 +152,15 @@
                     <div class="demo-panel grid grid-cols-3 gap-2 text-center w-full p-2">
                         <div>
                             <div class="text-[10px] text-slate-500 uppercase tracking-wide font-bold mb-0.5" title="Mean of differences">Mean ($\bar{d}$)</div>
-                            <div id="current-mean" class="text-2xl font-extrabold text-purple-600 h-8 flex items-center justify-center">--</div>
+                            <div id="current-mean" class="text-2xl font-extrabold viz-ink-difference h-8 flex items-center justify-center">--</div>
                         </div>
                         <div>
                             <div class="text-[10px] text-slate-500 uppercase tracking-wide font-bold mb-0.5" title="Standard Deviation of differences">SD ($s_D$)</div>
-                            <div id="current-sd" class="text-2xl font-extrabold text-emerald-600 h-8 flex items-center justify-center">--</div>
+                            <div id="current-sd" class="text-2xl font-extrabold viz-ink-total h-8 flex items-center justify-center">--</div>
                         </div>
                         <div>
                             <div class="text-[10px] text-slate-500 uppercase tracking-wide font-bold mb-0.5" title="Standard Error (s_D / √n)">Est. SE</div>
-                            <div id="current-se" class="text-2xl font-extrabold text-blue-600 h-8 flex items-center justify-center">--</div>
+                            <div id="current-se" class="text-2xl font-extrabold viz-ink-se h-8 flex items-center justify-center">--</div>
                         </div>
                     </div>
                 </div>
@@ -180,7 +182,7 @@
             <div class="demo-card p-5 flex flex-col">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold">Sampling Distribution</h2>
-                    <span class="text-xs font-semibold bg-purple-100 px-2 py-1 rounded text-purple-700" id="stats-counter">0 / 100 Exp.</span>
+                    <span class="text-xs font-semibold viz-soft-difference px-2 py-1 rounded viz-ink-difference" id="stats-counter">0 / 100 Exp.</span>
                 </div>
                 
                 <div class="flex-grow flex flex-col">
@@ -199,7 +201,7 @@
                     <div class="demo-divider col-span-2 pt-2">
                         <div class="text-[10px] text-slate-500 uppercase font-bold leading-tight mb-1" title="Average of Est. SE">Avg. Estimated SE (using $s_D$)</div>
                         <div class="flex items-baseline gap-2">
-                            <div class="text-lg font-bold text-blue-700" id="stat-est-se">--</div>
+                            <div class="text-lg font-bold viz-ink-se" id="stat-est-se">--</div>
                             <div class="text-[10px] font-semibold text-slate-400">Theoretical ($\sigma_D/\sqrt{n}$): ~3.16</div>
                         </div>
                     </div>
@@ -214,17 +216,17 @@
                 In a paired (dependent) $t$-test, each subject is measured twice (Pre and Post). Notice how a single sample draws a linked pair from both populations simultaneously. The test evaluates the <strong>difference scores</strong> ($D$) within each pair.
             </p>
             
-            <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-4">
-                <h4 class="text-sm font-bold text-indigo-900 mb-2 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="demo-panel p-4 mb-4">
+                <h4 class="text-sm font-bold mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Why is a Paired t-test identical to a One-Sample t-test?
                 </h4>
-                <p class="text-indigo-800 text-sm leading-relaxed mb-3">
+                <p class="text-sm leading-relaxed mb-3">
                     A paired-samples $t$-test is mathematically identical to performing a <strong>one-sample $t$-test</strong> on the column of difference scores. Here is why:
                 </p>
-                <ul class="list-disc pl-5 text-sm text-indigo-800 space-y-2">
+                <ul class="list-disc pl-5 text-sm space-y-2">
                     <li><strong>Null Hypothesis Transformation:</strong> The paired $t$-test tests whether the mean of Pre-test scores equals the mean of Post-test scores ($H_0: \mu_{pre} = \mu_{post}$). By subtracting them ($D = Post - Pre$), this is exactly equivalent to testing if the mean of the differences is zero ($H_0: \mu_D = 0$).</li>
                     <li><strong>Removing Between-Subject Variance:</strong> Since we are testing the same individual twice, their baseline performance is "subtracted out". We no longer care about the variance in the Pre-test box or the Post-test box individually; we <em>only</em> care about the variance of the difference scores ($s_D$).</li>
                     <li><strong>The Formula:</strong> The test statistic is calculated as $t = \frac{\bar{d} - \mu_0}{s_D / \sqrt{n}}$. If our null hypothesis is no change, then $\mu_0 = 0$, simplifying the numerator to just $\bar{d}$. This is the exact formula for a one-sample $t$-test against 0.</li>
@@ -316,7 +318,7 @@
             visualPop.forEach(p => {
                 // Pre Piece
                 const prePiece = document.createElement('div');
-                prePiece.className = 'score-piece bg-blue-500 cursor-pointer';
+                prePiece.className = 'score-piece viz-bg-before cursor-pointer';
                 prePiece.style.left = `${p.pre_x}%`;
                 prePiece.style.top = `${p.pre_y}%`;
                 prePiece.id = `pre-piece-${p.id}`;
@@ -329,7 +331,7 @@
 
                 // Post Piece
                 const postPiece = document.createElement('div');
-                postPiece.className = 'score-piece bg-emerald-500 cursor-pointer';
+                postPiece.className = 'score-piece viz-bg-after cursor-pointer';
                 postPiece.style.left = `${p.post_x}%`;
                 postPiece.style.top = `${p.post_y}%`;
                 postPiece.id = `post-piece-${p.id}`;
@@ -366,11 +368,11 @@
             sampleDisplayEl.innerHTML = '<div class="text-slate-400 italic flex items-center justify-center w-full h-full text-sm">Waiting to sample pairs...</div>';
             
             currentMeanEl.innerText = '--';
-            currentMeanEl.classList.remove('text-purple-600');
+            currentMeanEl.classList.remove('viz-ink-difference');
             currentSdEl.innerText = '--';
-            currentSdEl.classList.remove('text-emerald-600');
+            currentSdEl.classList.remove('viz-ink-total');
             currentSeEl.innerText = '--';
-            currentSeEl.classList.remove('text-blue-600');
+            currentSeEl.classList.remove('viz-ink-se');
             
             if (sampY && sampSvg) {
                  sampY.domain([0, 10]);
@@ -446,7 +448,7 @@
                 .attr("transform", d => `translate(${x(d.x0)},${y(d.length)})`)
                 .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
                 .attr("height", d => height - y(d.length))
-                .style("fill", "#cbd5e1");
+                .style("fill", "var(--viz-total-mid)");
         }
 
         let sampX, sampY, sampSvg, sampHistogram, sampWidth, sampHeight;
@@ -505,12 +507,12 @@
                 .style("fill", (d, i) => {
                     if (animateLast && sampleMeans.length > 0) {
                         const lastMean = sampleMeans[sampleMeans.length - 1];
-                        if (lastMean >= d.x0 && lastMean < d.x1) return "#f59e0b"; // Highlight newly added
+                        if (lastMean >= d.x0 && lastMean < d.x1) return statsViz.color('--viz-highlight');
                     }
-                    return "#a855f7"; // Purple
+                    return statsViz.color('--viz-difference');
                 })
                 .on("end", function(d) {
-                     if (animateLast) d3.select(this).transition().duration(500).style("fill", "#a855f7");
+                     if (animateLast) d3.select(this).transition().duration(500).style("fill", statsViz.color('--viz-difference'));
                 });
 
             bars.exit().remove();
@@ -556,14 +558,14 @@
                 pairCard.className = 'pair-card bg-white border border-slate-200 rounded p-1.5 shadow-sm w-16 flex flex-col items-center transform scale-0';
                 
                 const sign = picked.diff > 0 ? '+' : '';
-                const diffColor = picked.diff >= 0 ? 'text-purple-600' : 'text-red-500';
+                const diffColor = picked.diff >= 0 ? 'viz-ink-difference' : 'viz-ink-null';
                 
                 pairCard.innerHTML = `
                     <div class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1 rounded mb-1">P#${picked.id + 1}</div>
                     <div class="flex justify-between w-full text-[10px] px-0.5">
-                        <span class="text-blue-600 font-bold">${picked.pre.toFixed(0)}</span>
+                        <span class="viz-ink-before font-bold">${picked.pre.toFixed(0)}</span>
                         <span class="text-slate-300">→</span>
-                        <span class="text-emerald-600 font-bold">${picked.post.toFixed(0)}</span>
+                        <span class="viz-ink-after font-bold">${picked.post.toFixed(0)}</span>
                     </div>
                     <div class="w-full border-t border-slate-100 my-1"></div>
                     <div class="text-[11px] font-extrabold ${diffColor} leading-none">${sign}${picked.diff.toFixed(1)}</div>
@@ -585,13 +587,13 @@
             sampleMeans.push(mean);
             sampleSEs.push(se);
             
-            currentMeanEl.className = 'text-2xl font-extrabold text-purple-600 h-8 flex items-center justify-center';
+            currentMeanEl.className = 'text-2xl font-extrabold viz-ink-difference h-8 flex items-center justify-center';
             currentMeanEl.innerText = mean.toFixed(2);
             
-            currentSdEl.className = 'text-2xl font-extrabold text-emerald-600 h-8 flex items-center justify-center';
+            currentSdEl.className = 'text-2xl font-extrabold viz-ink-total h-8 flex items-center justify-center';
             currentSdEl.innerText = sd.toFixed(2);
 
-            currentSeEl.className = 'text-2xl font-extrabold text-blue-600 h-8 flex items-center justify-center';
+            currentSeEl.className = 'text-2xl font-extrabold viz-ink-se h-8 flex items-center justify-center';
             currentSeEl.innerText = se.toFixed(2);
 
             updateStatsUI();
@@ -644,14 +646,14 @@
                 pairCard.className = 'pair-card bg-white border border-slate-200 rounded p-1.5 shadow-sm w-16 flex flex-col items-center';
                 
                 const sign = picked.diff > 0 ? '+' : '';
-                const diffColor = picked.diff >= 0 ? 'text-purple-600' : 'text-red-500';
+                const diffColor = picked.diff >= 0 ? 'viz-ink-difference' : 'viz-ink-null';
                 
                 pairCard.innerHTML = `
                     <div class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1 rounded mb-1">P#${picked.id + 1}</div>
                     <div class="flex justify-between w-full text-[10px] px-0.5">
-                        <span class="text-blue-600 font-bold">${picked.pre.toFixed(0)}</span>
+                        <span class="viz-ink-before font-bold">${picked.pre.toFixed(0)}</span>
                         <span class="text-slate-300">→</span>
-                        <span class="text-emerald-600 font-bold">${picked.post.toFixed(0)}</span>
+                        <span class="viz-ink-after font-bold">${picked.post.toFixed(0)}</span>
                     </div>
                     <div class="w-full border-t border-slate-100 my-1"></div>
                     <div class="text-[11px] font-extrabold ${diffColor} leading-none">${sign}${picked.diff.toFixed(1)}</div>
@@ -660,13 +662,13 @@
             });
 
             // Display numerical stats for the final sample
-            currentMeanEl.className = 'text-2xl font-extrabold text-purple-600 h-8 flex items-center justify-center';
+            currentMeanEl.className = 'text-2xl font-extrabold viz-ink-difference h-8 flex items-center justify-center';
             currentMeanEl.innerText = lastMean.toFixed(2);
             
-            currentSdEl.className = 'text-2xl font-extrabold text-emerald-600 h-8 flex items-center justify-center';
+            currentSdEl.className = 'text-2xl font-extrabold viz-ink-total h-8 flex items-center justify-center';
             currentSdEl.innerText = lastSd.toFixed(2);
 
-            currentSeEl.className = 'text-2xl font-extrabold text-blue-600 h-8 flex items-center justify-center';
+            currentSeEl.className = 'text-2xl font-extrabold viz-ink-se h-8 flex items-center justify-center';
             currentSeEl.innerText = lastSe.toFixed(2);
 
             updateStatsUI();

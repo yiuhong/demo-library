@@ -37,5 +37,63 @@
         return value;
     }
 
-    global.statsViz = { color: color };
+    function channels(token) {
+        var value = color(token).replace(/\s+/g, '');
+        var hex = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+        if (hex) {
+            var h = hex[1];
+            if (h.length === 3) {
+                h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
+            }
+            return [
+                parseInt(h.slice(0, 2), 16),
+                parseInt(h.slice(2, 4), 16),
+                parseInt(h.slice(4, 6), 16)
+            ];
+        }
+        var rgb = value.match(/^rgba?\((\d+),(\d+),(\d+)/i);
+        if (rgb) {
+            return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])];
+        }
+        throw new Error('statsViz.rgba: cannot parse ' + value);
+    }
+
+    function rgba(token, alpha) {
+        var c = channels(token);
+        return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + alpha + ')';
+    }
+
+    /* Ordered pile of the same kind of term (each Zᵢ in one χ² draw).
+       Skips mean / residual / null / reference so a component cannot
+       impersonate those roles. */
+    var SERIES_CYCLE = [
+        '--viz-group-a',
+        '--viz-group-b',
+        '--viz-group-c',
+        '--viz-explained',
+        '--viz-se',
+        '--viz-median',
+        '--viz-density',
+        '--viz-mode',
+        '--viz-level-f',
+        '--viz-level-m',
+        '--viz-subject-1',
+        '--viz-subject-2',
+        '--viz-subject-3',
+        '--viz-subject-4',
+        '--viz-subject-5',
+        '--viz-subject-6'
+    ];
+
+    function series(index) {
+        var i = Math.abs(Number(index) || 0) % SERIES_CYCLE.length;
+        return color(SERIES_CYCLE[i]);
+    }
+
+    function subject(index) {
+        var n = (Math.abs(Number(index) || 0) % 6) + 1;
+        return color('--viz-subject-' + n);
+    }
+
+    global.statsViz = { color: color, rgba: rgba, series: series, subject: subject };
 })(window);

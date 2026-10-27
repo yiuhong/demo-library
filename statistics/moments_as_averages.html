@@ -6,6 +6,8 @@
     <title>Moments as Averages</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
@@ -13,7 +15,7 @@
     <style>
         .formula-box {
             background-color: #f1f5f9;
-            border-left: 4px solid #3b82f6;
+            border-left: 4px solid var(--viz-mean);
         }
         .slider-thumb {
             -webkit-appearance: none;
@@ -21,7 +23,7 @@
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: var(--viz-sample);
             cursor: pointer;
         }
         .slider-track {
@@ -41,7 +43,7 @@
             height: 16px;
             width: 16px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: var(--viz-sample);
             cursor: pointer;
             margin-top: -6px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
         }
@@ -56,7 +58,7 @@
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: var(--viz-sample);
             cursor: pointer;
             border: none;
         }
@@ -96,9 +98,9 @@
         </p>
     </header>
 
-    <div class="max-w-3xl mx-auto text-left bg-blue-50 border-l-4 border-blue-500 p-5 mb-6">
-            <h3 class="text-lg font-semibold text-blue-900 mb-2">Definition of a Moment</h3>
-            <p class="text-sm text-blue-800 leading-relaxed">
+    <div class="max-w-3xl mx-auto text-left viz-soft-group-a border-l-4 viz-border-group-a p-5 mb-6">
+            <h3 class="text-lg font-semibold viz-ink-group-a mb-2">Definition of a Moment</h3>
+            <p class="text-sm viz-ink-group-a leading-relaxed">
                 In mathematics and statistics, a <strong>moment</strong> is a quantitative measure of the shape of a set of points. The generalized \( n \)-th moment of a variable \( X \) evaluated around a reference center \( c \) and scaled by a factor \( a \) is the expected value (average) of \( \left(\frac{X - c}{a}\right)^n \). By changing \( n \), \( c \), and \( a \), we can derive the mean, variance, skewness, and kurtosis!
             </p>
         </div>
@@ -114,30 +116,30 @@
                 
                 <!-- Interactive Chart Legend (Toggles) -->
                 <div class="demo-panel flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-xs mt-4 p-3">
-                    <div class="flex items-center gap-1.5 px-2 py-1"><span class="w-3 h-3 bg-blue-500 rounded-full inline-block opacity-70"></span> Data Points</div>
+                    <div class="flex items-center gap-1.5 px-2 py-1"><span class="w-3 h-3 viz-bg-sample rounded-full inline-block opacity-70"></span> <span class="viz-ink-sample">Data Points</span></div>
                     
                     <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1.5 rounded transition-colors border border-transparent hover:border-gray-200 select-none">
-                        <input type="checkbox" id="toggle-mean" checked class="w-3.5 h-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
-                        <div class="flex items-center gap-1.5 text-blue-700 font-medium"><span class="w-4 border-t-2 border-dashed border-blue-500 inline-block"></span> 1st: Mean</div>
+                        <input type="checkbox" id="toggle-mean" checked class="w-3.5 h-3.5 viz-accent-mean rounded border-gray-300 cursor-pointer">
+                        <div class="flex items-center gap-1.5 viz-ink-mean font-medium"><span class="w-4 border-t-2 border-dashed inline-block" style="border-color: var(--viz-mean)"></span> 1st: Mean</div>
                     </label>
 
                     <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1.5 rounded transition-colors border border-transparent hover:border-gray-200 select-none">
-                        <input type="checkbox" id="toggle-var" checked class="w-3.5 h-3.5 text-green-600 rounded border-gray-300 focus:ring-green-500 cursor-pointer">
-                        <div class="flex items-center gap-1.5 text-green-700 font-medium"><span class="w-3 h-3 bg-green-200 border border-green-400 inline-block rounded-sm"></span> 2nd: Variance</div>
+                        <input type="checkbox" id="toggle-var" checked class="w-3.5 h-3.5 viz-accent-explained rounded border-gray-300 cursor-pointer">
+                        <div class="flex items-center gap-1.5 viz-ink-explained font-medium"><span class="w-3 h-3 viz-soft-explained border viz-border-explained inline-block rounded-sm"></span> 2nd: Variance</div>
                     </label>
 
                     <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1.5 rounded transition-colors border border-transparent hover:border-gray-200 select-none">
-                        <input type="checkbox" id="toggle-shape" checked class="w-3.5 h-3.5 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer">
-                        <div class="flex items-center gap-1.5 text-purple-700 font-medium"><span class="w-4 border-t-2 border-purple-500 inline-block"></span> 3rd & 4th: Shape</div>
+                        <input type="checkbox" id="toggle-shape" checked class="w-3.5 h-3.5 rounded border-gray-300 cursor-pointer" style="accent-color: var(--viz-density)">
+                        <div class="flex items-center gap-1.5 viz-ink-density font-medium"><span class="w-4 border-t-2 border-dashed inline-block" style="border-color: var(--viz-density)"></span> 3rd & 4th: Shape</div>
                     </label>
                 </div>
 
                 <!-- Dynamic Shape Analysis Badges -->
                 <div class="flex justify-center gap-4 mt-3">
-                    <div class="text-xs px-3 py-1.5 rounded-full border border-purple-200 bg-purple-50 text-purple-800 font-medium transition-colors" id="skew-badge">
+                    <div class="text-xs px-3 py-1.5 rounded-full border viz-soft-density viz-ink-density font-medium transition-colors" id="skew-badge" style="border-color: var(--viz-density)">
                         Skewness: Symmetrical
                     </div>
-                    <div class="text-xs px-3 py-1.5 rounded-full border border-orange-200 bg-orange-50 text-orange-800 font-medium transition-colors" id="kurt-badge">
+                    <div class="text-xs px-3 py-1.5 rounded-full border viz-soft-group-c viz-ink-group-c viz-border-group-c font-medium transition-colors" id="kurt-badge">
                         Kurtosis: Normal-like
                     </div>
                 </div>
@@ -173,12 +175,12 @@
                 <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                     <tr>
                         <th class="px-4 py-3 border border-gray-200">Point</th>
-                        <th class="px-4 py-3 border border-gray-200 text-blue-700">Raw Value<br><span class="normal-case font-mono mt-1 block">\( x_i \)</span></th>
+                        <th class="px-4 py-3 border border-gray-200 viz-ink-mean">Raw Value<br><span class="normal-case font-mono mt-1 block">\( x_i \)</span></th>
                         <th class="px-4 py-3 border border-gray-200 text-gray-600">Deviation<br><span class="normal-case font-mono mt-1 block">\( x_i - \mu \)</span></th>
-                        <th class="px-4 py-3 border border-gray-200 text-green-700">Dev²<br><span class="normal-case font-mono mt-1 block">\( (x_i - \mu)^2 \)</span></th>
+                        <th class="px-4 py-3 border border-gray-200 viz-ink-explained">Dev²<br><span class="normal-case font-mono mt-1 block">\( (x_i - \mu)^2 \)</span></th>
                         <th class="px-4 py-3 border border-gray-200 text-gray-600">Std. Dev ( \( z_i \) )<br><span class="normal-case font-mono mt-1 block">\( \frac{x_i - \mu}{\sigma} \)</span></th>
-                        <th class="px-4 py-3 border border-gray-200 text-purple-700">Std. Dev³<br><span class="normal-case font-mono mt-1 block">\( z_i^3 \)</span></th>
-                        <th class="px-4 py-3 border border-gray-200 text-orange-700">Std. Dev⁴<br><span class="normal-case font-mono mt-1 block">\( z_i^4 \)</span></th>
+                        <th class="px-4 py-3 border border-gray-200 viz-ink-density">Std. Dev³<br><span class="normal-case font-mono mt-1 block">\( z_i^3 \)</span></th>
+                        <th class="px-4 py-3 border border-gray-200 viz-ink-group-c">Std. Dev⁴<br><span class="normal-case font-mono mt-1 block">\( z_i^4 \)</span></th>
                     </tr>
                 </thead>
                 <tbody id="calc-table-body">
@@ -197,7 +199,7 @@
         <!-- 1st Moment: Mean -->
         <div class="demo-card p-6 flex flex-col">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold shrink-0">1</div>
+                <div class="w-8 h-8 rounded-full viz-soft-mean viz-ink-mean flex items-center justify-center font-bold shrink-0">1</div>
                 <h3 class="text-xl font-semibold">1st Moment: Mean (<span class="italic">μ</span>)</h3>
             </div>
             <p class="text-gray-600 mb-4 text-sm flex-grow">
@@ -206,7 +208,7 @@
             <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center">
                 $$ \mu = E[X] = \frac{1}{N} \sum_{i=1}^{N} x_i $$
             </div>
-            <div class="flex flex-col gap-2 bg-blue-50 p-3 rounded text-blue-900 mt-auto text-center">
+            <div class="flex flex-col gap-2 viz-soft-mean viz-ink-mean p-3 rounded mt-auto text-center">
                 <span id="mean-calc" class="font-mono text-xs sm:text-sm break-all"></span>
                 <span class="font-bold text-lg whitespace-nowrap">= <span id="mean-val">0.00</span></span>
             </div>
@@ -215,16 +217,16 @@
         <!-- 2nd Moment: Variance -->
         <div class="demo-card p-6 flex flex-col">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold shrink-0">2</div>
+                <div class="w-8 h-8 rounded-full viz-soft-explained viz-ink-explained flex items-center justify-center font-bold shrink-0">2</div>
                 <h3 class="text-xl font-semibold">2nd Central Moment: Variance (<span class="italic">σ²</span>)</h3>
             </div>
             <p class="text-gray-600 mb-4 text-sm flex-grow">
                 Variance is the average of the <em>squared differences</em> from the mean. It tells us the "scale" or how spread out the data is. <strong>Unlike higher moments, we do not divide by standard deviation here.</strong> Why? Because variance is exactly what we use to measure that scale! If we standardized the data first, the variance would always just equal 1.
             </p>
-            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: #22c55e;">
+            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: var(--viz-explained);">
                 $$ \sigma^2 = E[(X - \mu)^2] = \frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2 $$
             </div>
-            <div class="flex flex-col gap-2 bg-green-50 p-3 rounded text-green-900 mt-auto text-center">
+            <div class="flex flex-col gap-2 viz-soft-explained viz-ink-explained p-3 rounded mt-auto text-center">
                 <span id="var-calc" class="font-mono text-xs sm:text-sm break-all"></span>
                 <span class="font-bold text-lg whitespace-nowrap">= <span id="var-val">0.00</span></span>
             </div>
@@ -233,16 +235,16 @@
         <!-- 3rd Moment: Skewness -->
         <div class="demo-card p-6 flex flex-col">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold shrink-0">3</div>
+                <div class="w-8 h-8 rounded-full viz-soft-density viz-ink-density flex items-center justify-center font-bold shrink-0">3</div>
                 <h3 class="text-xl font-semibold">3rd Std. Moment: Skewness</h3>
             </div>
             <p class="text-gray-600 mb-4 text-sm flex-grow">
                 Skewness is the average of the <em>cubed differences</em>. We divide by standard deviation (σ) to <strong>standardize</strong> it, making it a "scale-free" measure of asymmetry. Because it's cubed, signs are preserved: negative outliers pull it left, positive pull it right.
             </p>
-            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: #a855f7;">
+            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: var(--viz-density);">
                 $$ \text{Skew} = E\left[\left(\frac{X - \mu}{\sigma}\right)^3\right] = \frac{1}{N} \sum_{i=1}^{N} \left(\frac{x_i - \mu}{\sigma}\right)^3 $$
             </div>
-            <div class="flex flex-col gap-2 bg-purple-50 p-3 rounded text-purple-900 mt-auto text-center">
+            <div class="flex flex-col gap-2 viz-soft-density viz-ink-density p-3 rounded mt-auto text-center">
                 <span id="skew-calc" class="font-mono text-xs sm:text-sm break-all"></span>
                 <span class="font-bold text-lg whitespace-nowrap">= <span id="skew-val">0.00</span></span>
             </div>
@@ -251,16 +253,16 @@
         <!-- 4th Moment: Kurtosis -->
         <div class="demo-card p-6 flex flex-col">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold shrink-0">4</div>
+                <div class="w-8 h-8 rounded-full viz-soft-group-c viz-ink-group-c flex items-center justify-center font-bold shrink-0">4</div>
                 <h3 class="text-xl font-semibold">4th Std. Moment: Kurtosis</h3>
             </div>
             <p class="text-gray-600 mb-4 text-sm flex-grow">
                 Kurtosis is the average of the data raised to the <em>fourth power</em>. Like skewness, we divide by standard deviation (σ) to remove units (like meters or dollars) so we can strictly measure the "tailedness" or shape of the distribution. Extreme outliers get massively amplified.
             </p>
-            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: #f97316;">
+            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: var(--viz-group-c);">
                 $$ \text{Kurtosis} = E\left[\left(\frac{X - \mu}{\sigma}\right)^4\right] = \frac{1}{N} \sum_{i=1}^{N} \left(\frac{x_i - \mu}{\sigma}\right)^4 $$
             </div>
-            <div class="flex flex-col gap-2 bg-orange-50 p-3 rounded text-orange-900 mt-auto text-center">
+            <div class="flex flex-col gap-2 viz-soft-group-c viz-ink-group-c p-3 rounded mt-auto text-center">
                 <span id="kurt-calc" class="font-mono text-xs sm:text-sm break-all"></span>
                 <span class="font-bold text-lg whitespace-nowrap">= <span id="kurt-val">0.00</span></span>
             </div>
@@ -312,36 +314,36 @@
         const varianceBand = bgGroup.append("rect")
             .attr("y", 0)
             .attr("height", height)
-            .attr("fill", "rgba(34, 197, 94, 0.1)")
-            .attr("stroke", "rgba(34, 197, 94, 0.3)")
+            .attr("fill", statsViz.rgba("--viz-explained", 0.1))
+            .attr("stroke", statsViz.rgba("--viz-explained", 0.3))
             .attr("stroke-width", 1)
             .attr("opacity", 0);
 
         // Reference Normal Curve (0 Skew, 0 Excess Kurtosis)
         const normalPath = curveGroup.append("path")
             .attr("fill", "none")
-            .attr("stroke", "#94a3b8")
+            .attr("stroke", statsViz.color("--viz-reference"))
             .attr("stroke-width", 2)
             .attr("stroke-dasharray", "5,5");
 
         // 3rd/4th Moment Indicator: KDE Curve (Actual Shape)
         const kdePath = curveGroup.append("path")
-            .attr("fill", "rgba(168, 85, 247, 0.1)")
-            .attr("stroke", "#a855f7")
+            .attr("fill", statsViz.rgba("--viz-density", 0.15))
+            .attr("stroke", statsViz.color("--viz-density"))
             .attr("stroke-width", 2.5);
 
         // 1st Moment Indicator: Mean line and text
         const meanLine = annotationGroup.append("line")
             .attr("y1", -15)
             .attr("y2", height)
-            .attr("stroke", "#3b82f6")
+            .attr("stroke", statsViz.color("--viz-mean"))
             .attr("stroke-width", 2)
             .attr("stroke-dasharray", "4,4");
 
         const meanText = annotationGroup.append("text")
             .attr("y", -20)
             .attr("text-anchor", "middle")
-            .attr("fill", "#3b82f6")
+            .attr("fill", statsViz.color("--viz-mean"))
             .attr("font-size", "14px")
             .attr("font-weight", "bold")
             .text("μ");
@@ -349,7 +351,7 @@
         const stdTextLeft = annotationGroup.append("text")
             .attr("y", height + 35)
             .attr("text-anchor", "middle")
-            .attr("fill", "#16a34a")
+            .attr("fill", statsViz.color("--viz-explained"))
             .attr("font-size", "11px")
             .attr("font-weight", "500")
             .text("-1σ");
@@ -357,7 +359,7 @@
         const stdTextRight = annotationGroup.append("text")
             .attr("y", height + 35)
             .attr("text-anchor", "middle")
-            .attr("fill", "#16a34a")
+            .attr("fill", statsViz.color("--viz-explained"))
             .attr("font-size", "11px")
             .attr("font-weight", "500")
             .text("+1σ");
@@ -458,12 +460,15 @@
             if (Math.abs(skewness) < 0.2) {
                 skewBadge.textContent = "3rd: Symmetrical";
                 skewBadge.className = "text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600 font-medium transition-colors";
+                skewBadge.style.borderColor = "";
             } else if (skewness > 0) {
                 skewBadge.textContent = "3rd: Right-Skewed (Tail Right)";
-                skewBadge.className = "text-xs px-3 py-1.5 rounded-full border border-purple-300 bg-purple-100 text-purple-800 font-medium transition-colors";
+                skewBadge.className = "text-xs px-3 py-1.5 rounded-full border viz-soft-density viz-ink-density font-medium transition-colors";
+                skewBadge.style.borderColor = "var(--viz-density)";
             } else {
                 skewBadge.textContent = "3rd: Left-Skewed (Tail Left)";
-                skewBadge.className = "text-xs px-3 py-1.5 rounded-full border border-purple-300 bg-purple-100 text-purple-800 font-medium transition-colors";
+                skewBadge.className = "text-xs px-3 py-1.5 rounded-full border viz-soft-density viz-ink-density font-medium transition-colors";
+                skewBadge.style.borderColor = "var(--viz-density)";
             }
 
             const kurtBadge = document.getElementById('kurt-badge');
@@ -471,12 +476,13 @@
             if (Math.abs(kurtosis - 3) < 0.5) {
                 kurtBadge.textContent = "4th: Normal-like Tails";
                 kurtBadge.className = "text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600 font-medium transition-colors";
+                kurtBadge.style.borderColor = "";
             } else if (kurtosis > 3) {
                 kurtBadge.textContent = "4th: Sharp Peak / Fat Tails";
-                kurtBadge.className = "text-xs px-3 py-1.5 rounded-full border border-orange-300 bg-orange-100 text-orange-800 font-medium transition-colors";
+                kurtBadge.className = "text-xs px-3 py-1.5 rounded-full border viz-soft-group-c viz-ink-group-c viz-border-group-c font-medium transition-colors";
             } else {
                 kurtBadge.textContent = "4th: Flat Peak / Light Tails";
-                kurtBadge.className = "text-xs px-3 py-1.5 rounded-full border border-orange-300 bg-orange-100 text-orange-800 font-medium transition-colors";
+                kurtBadge.className = "text-xs px-3 py-1.5 rounded-full border viz-soft-group-c viz-ink-group-c viz-border-group-c font-medium transition-colors";
             }
 
             // --- Update UI Text ---
@@ -538,27 +544,27 @@
             tfoot.innerHTML = `
                 <tr class="border-b-2 border-gray-300 bg-gray-100">
                     <td class="px-4 py-3 border-r border-gray-300 text-right text-gray-600">Sum (&Sigma;)</td>
-                    <td class="px-4 py-3 border-r border-gray-300 text-blue-600">${formatNumber(sumX)}</td>
+                    <td class="px-4 py-3 border-r border-gray-300 viz-ink-mean">${formatNumber(sumX)}</td>
                     <td class="px-4 py-3 border-r border-gray-300 text-gray-500">${formatNumber(sumDev)}</td>
-                    <td class="px-4 py-3 border-r border-gray-300 text-green-600">${formatNumber(sumDev2)}</td>
+                    <td class="px-4 py-3 border-r border-gray-300 viz-ink-explained">${formatNumber(sumDev2)}</td>
                     <td class="px-4 py-3 border-r border-gray-300 text-gray-500">${formatNumber(sumZ)}</td>
-                    <td class="px-4 py-3 border-r border-gray-300 text-purple-600">${formatNumber(sumZ3)}</td>
-                    <td class="px-4 py-3 border-gray-300 text-orange-600">${formatNumber(sumZ4)}</td>
+                    <td class="px-4 py-3 border-r border-gray-300 viz-ink-density">${formatNumber(sumZ3)}</td>
+                    <td class="px-4 py-3 border-gray-300 viz-ink-group-c">${formatNumber(sumZ4)}</td>
                 </tr>
                 <tr class="bg-gray-200 text-base shadow-inner">
                     <td class="px-4 py-4 border-r border-gray-300 text-right">Average (&Sigma; / N)</td>
-                    <td class="px-4 py-4 border-r border-gray-300 text-blue-700 bg-blue-50/50 rounded-bl">
+                    <td class="px-4 py-4 border-r border-gray-300 viz-ink-mean viz-soft-mean rounded-bl">
                         ${formatNumber(mean)} <br><span class="text-xs font-normal opacity-75">(Mean)</span>
                     </td>
                     <td class="px-4 py-4 border-r border-gray-300 text-gray-400 text-sm font-normal">Always 0</td>
-                    <td class="px-4 py-4 border-r border-gray-300 text-green-700 bg-green-50/50">
+                    <td class="px-4 py-4 border-r border-gray-300 viz-ink-explained viz-soft-explained">
                         ${formatNumber(variance)} <br><span class="text-xs font-normal opacity-75">(Variance)</span>
                     </td>
                     <td class="px-4 py-4 border-r border-gray-300 text-gray-400 text-sm font-normal">Always 0</td>
-                    <td class="px-4 py-4 border-r border-gray-300 text-purple-700 bg-purple-50/50">
+                    <td class="px-4 py-4 border-r border-gray-300 viz-ink-density viz-soft-density">
                         ${formatNumber(skewness)} <br><span class="text-xs font-normal opacity-75">(Skewness)</span>
                     </td>
-                    <td class="px-4 py-4 border-gray-300 text-orange-700 bg-orange-50/50 rounded-br">
+                    <td class="px-4 py-4 border-gray-300 viz-ink-group-c viz-soft-group-c rounded-br">
                         ${formatNumber(kurtosis)} <br><span class="text-xs font-normal opacity-75">(Kurtosis)</span>
                     </td>
                 </tr>
@@ -639,8 +645,8 @@
                 .attr("class", "data-point")
                 .attr("cy", height)
                 .attr("r", 8)
-                .attr("fill", "rgba(59, 130, 246, 0.7)") // Translucent blue
-                .attr("stroke", "#2563eb")
+                .attr("fill", statsViz.rgba("--viz-sample", 0.7))
+                .attr("stroke", statsViz.color("--viz-sample"))
                 .attr("stroke-width", 2)
                 .merge(circles)
                 .transition(t)

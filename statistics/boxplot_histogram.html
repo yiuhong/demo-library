@@ -6,6 +6,8 @@
     <title>boxplot and histogram</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         .drag-handle {
@@ -13,7 +15,7 @@
             transition: fill 0.2s;
         }
         .drag-handle:hover {
-            fill: #2563eb;
+            fill: var(--viz-group-a);
         }
         .drag-label {
             pointer-events: none;
@@ -182,15 +184,15 @@
             .attr("y2", boxCenter);
 
         const boxRect = boxGroup.append("rect")
-            .attr("fill", "#e0f2fe")
-            .attr("stroke", "#0284c7")
+            .attr("fill", statsViz.color('--viz-group-a-soft'))
+            .attr("stroke", statsViz.color('--viz-group-a'))
             .attr("stroke-width", 2)
             .attr("y", boxCenter - 25)
             .attr("height", 50)
             .attr("rx", 4);
 
         const medianLine = boxGroup.append("line")
-            .attr("stroke", "#0284c7")
+            .attr("stroke", statsViz.color('--viz-median'))
             .attr("stroke-width", 3)
             .attr("y1", boxCenter - 25)
             .attr("y2", boxCenter + 25);
@@ -363,7 +365,7 @@
             dots.join(
                 enter => enter.append("circle")
                     .attr("class", "data-point")
-                    .attr("fill", "#3b82f6")
+                    .attr("fill", statsViz.color('--viz-sample'))
                     .attr("opacity", 0.7)
                     .attr("cx", d => d.x)
                     .attr("cy", d => d.y)

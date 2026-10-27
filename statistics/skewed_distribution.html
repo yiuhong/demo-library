@@ -6,6 +6,8 @@
     <title>Skewed Distribution vs Normal Distribution</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         .chart-container {
@@ -27,37 +29,36 @@
             stroke: #cbd5e1;
         }
         .reference-line {
-            stroke: #94a3b8;
+            stroke: var(--viz-reference);
             stroke-dasharray: 4;
         }
         .line-normal {
             fill: none;
-            stroke: #3b82f6; /* Blue */
+            stroke: var(--viz-group-a);
             stroke-width: 2;
         }
         .area-normal {
-            fill: #3b82f6;
-            opacity: 0.1;
+            fill: var(--viz-group-a-soft);
         }
         .line-skewed-base {
             fill: none;
-            stroke: #94a3b8; /* Muted gray for below diagonal */
+            stroke: var(--viz-reference);
             stroke-width: 2.5;
             opacity: 0.7;
         }
         .area-skewed-base {
-            fill: #cbd5e1;
-            opacity: 0.2;
+            fill: var(--viz-reference-line);
         }
         .line-skewed-highlight {
             fill: none;
-            stroke: #ef4444; /* Red for above diagonal */
+            stroke: var(--viz-residual);
             stroke-width: 2.5;
         }
         .area-skewed-highlight {
-            fill: #ef4444;
-            opacity: 0.2;
+            fill: var(--viz-residual-soft);
         }
+        #toggle-x:checked + div { background-color: var(--viz-group-a); }
+        #toggle-y:checked + div { background-color: var(--viz-residual); }
         .chart-tooltip {
             position: absolute;
             background: rgba(15, 23, 42, 0.9);
@@ -107,8 +108,8 @@
                     <span id="skew-value" class="font-mono bg-slate-100 px-2 py-1 rounded text-sm w-12 text-center">4.0</span>
                 </div>
                 <div class="text-sm text-slate-500">
-                    <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span> Normal
-                    <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-1 ml-3"></span> Skewed
+                    <span class="inline-block w-3 h-3 rounded-full viz-bg-group-a mr-1"></span> Normal
+                    <span class="inline-block w-3 h-3 rounded-full viz-bg-residual mr-1 ml-3"></span> Skewed
                 </div>
             </div>
             
@@ -116,15 +117,15 @@
                 <div class="flex items-center">
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="toggle-x" class="sr-only peer" checked>
-                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
-                        <span class="ml-3 text-sm font-medium text-slate-700">X-Axis Unit (Normal): <span id="label-x" class="font-bold text-blue-600">Standardized</span></span>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                        <span class="ml-3 text-sm font-medium text-slate-700">X-Axis Unit (Normal): <span id="label-x" class="font-bold viz-ink-group-a">Standardized</span></span>
                     </label>
                 </div>
                 <div class="flex items-center">
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="toggle-y" class="sr-only peer" checked>
-                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
-                        <span class="ml-3 text-sm font-medium text-slate-700">Y-Axis Unit (Skewed): <span id="label-y" class="font-bold text-red-600">Standardized</span></span>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                        <span class="ml-3 text-sm font-medium text-slate-700">Y-Axis Unit (Skewed): <span id="label-y" class="font-bold viz-ink-residual">Standardized</span></span>
                     </label>
                 </div>
             </div>
@@ -146,7 +147,7 @@
             <div class="demo-card p-4 flex flex-col">
                 <h2 class="text-lg font-semibold mb-1 text-center">1. Density Curves</h2>
                 <p class="text-xs text-slate-500 text-center mb-4">
-                    Regions in <span class="font-bold text-red-500">Red</span> show where skewed concentration is higher than normal.
+                    Regions in <span class="font-bold viz-ink-residual">Red</span> show where skewed concentration is higher than normal.
                 </p>
                 <div id="density-chart" class="chart-container flex-grow"></div>
             </div>
@@ -164,7 +165,7 @@
             <div class="demo-card p-4 flex flex-col">
                 <h2 class="text-lg font-semibold mb-1 text-center">3. Q-Q Plot</h2>
                 <p class="text-xs text-slate-500 text-center mb-4">
-                    Plots the exact horizontal gaps from the CDF. Points in <span class="font-bold text-red-500">Red</span> indicate Skewed > Normal.
+                    Plots the exact horizontal gaps from the CDF. Points in <span class="font-bold viz-ink-residual">Red</span> indicate Skewed > Normal.
                 </p>
                 <div id="qq-chart" class="chart-container flex-grow"></div>
             </div>
@@ -172,23 +173,23 @@
         </div>
 
         <!-- NEW: Explanation of Concavity -->
-        <div class="bg-blue-50 border border-blue-100 p-6 rounded-xl shadow-sm mt-8 mb-4">
-            <h2 class="text-lg font-bold text-blue-900 mb-2">Reading the Curve: Concavity & The CDF Gap</h2>
-            <p class="text-sm text-blue-800 mb-3">
+        <div class="viz-soft-group-a viz-ink-group-a border viz-border-group-a p-6 rounded-xl shadow-sm mt-8 mb-4">
+            <h2 class="text-lg font-bold viz-ink-group-a mb-2">Reading the Curve: Concavity & The CDF Gap</h2>
+            <p class="text-sm mb-3">
                 Notice how the Q-Q plot isn't just a straight line, but often forms a distinct curve. This curvature—mathematically called <strong>concavity</strong>—maps directly to how the horizontal gap between the curves changes on the CDF plot.
             </p>
-            <ul class="text-sm text-blue-800 space-y-3 list-disc list-inside mb-4">
+            <ul class="text-sm space-y-3 list-disc list-inside mb-4">
                 <li>
-                    <strong>Curving Upwards (U-Shape / Positive Skew):</strong> When the Q-Q plot accelerates upwards, the Skewed values are growing faster than the Normal values. Look at the top-right of the CDF: the Red curve becomes flatter than the Blue curve and stretches far to the right. Because it climbs slower, the horizontal gap between Blue and Red rapidly <em>widens</em> as you move up. This expanding gap is what plots as a steep upward curve on the Q-Q chart!
+                    <strong>Curving Upwards (U-Shape / Positive Skew):</strong> When the Q-Q plot accelerates upwards, the Skewed values are growing faster than the Normal values. Look at the top-right of the CDF: the <span class="viz-ink-residual">Red</span> curve becomes flatter than the <span class="viz-ink-group-a">Blue</span> curve and stretches far to the right. Because it climbs slower, the horizontal gap between <span class="viz-ink-group-a">Blue</span> and <span class="viz-ink-residual">Red</span> rapidly <em>widens</em> as you move up. This expanding gap is what plots as a steep upward curve on the Q-Q chart!
                 </li>
                 <li>
                     <strong>Curving Downwards (Arch / Negative Skew):</strong> Try setting the Skewness slider to a negative number. The Q-Q plot now arches downwards. On the CDF, look at the bottom-left. The horizontal gap is widest at the lowest percentiles and <em>narrows</em> as you move up. Because the Skewed distribution is catching up to the Normal distribution, the slope on the Q-Q plot flattens out.
                 </li>
             </ul>
 
-            <h3 class="text-md font-bold text-blue-900 mt-5 mb-2">The "Density Trap": Why Height Doesn't Equal Concavity</h3>
-            <p class="text-sm text-blue-800 mb-0">
-                It is tempting to look at the Density plot and assume that when the Red curve dips <em>below</em> the Blue curve, the Q-Q plot should curve downwards. However, lower density just means the data is spread thinly. If the data is spread thin, you have to travel much further along the X-axis to collect the next 5% of data. Therefore, a lower density actually creates a <strong>steeper slope</strong> on the Q-Q plot, not a dip! Concavity is driven by the widening or narrowing of the horizontal gap on the CDF, rather than which density curve is currently taller.
+            <h3 class="text-md font-bold viz-ink-group-a mt-5 mb-2">The "Density Trap": Why Height Doesn't Equal Concavity</h3>
+            <p class="text-sm mb-0">
+                It is tempting to look at the Density plot and assume that when the <span class="viz-ink-residual">Red</span> curve dips <em>below</em> the <span class="viz-ink-group-a">Blue</span> curve, the Q-Q plot should curve downwards. However, lower density just means the data is spread thinly. If the data is spread thin, you have to travel much further along the X-axis to collect the next 5% of data. Therefore, a lower density actually creates a <strong>steeper slope</strong> on the Q-Q plot, not a dip! Concavity is driven by the widening or narrowing of the horizontal gap on the CDF, rather than which density curve is currently taller.
             </p>
         </div>
     </div>
@@ -409,8 +410,8 @@
                 .attr("text-anchor", "middle")
                 .text("Cumulative Probability (p)");
 
-            svgCDF.append("path").attr("class", "line-cdf-normal").attr("clip-path", "url(#clip-cdf)").style("fill", "none").style("stroke", "#3b82f6").style("stroke-width", 2);
-            svgCDF.append("path").attr("class", "line-cdf-skewed").attr("clip-path", "url(#clip-cdf)").style("fill", "none").style("stroke", "#ef4444").style("stroke-width", 2.5);
+            svgCDF.append("path").attr("class", "line-cdf-normal").attr("clip-path", "url(#clip-cdf)").style("fill", "none").style("stroke", statsViz.color('--viz-group-a')).style("stroke-width", 2);
+            svgCDF.append("path").attr("class", "line-cdf-skewed").attr("clip-path", "url(#clip-cdf)").style("fill", "none").style("stroke", statsViz.color('--viz-residual')).style("stroke-width", 2.5);
 
             // --- Setup Q-Q Plot ---
             svgQQ = d3.select("#qq-chart")
@@ -489,28 +490,28 @@
 
             // --- Setup Interactive Crosshairs ---
             focusDensity = svgDensity.append("g").style("display", "none");
-            focusDensity.append("line").attr("class", "hover-line-red").style("stroke", "#ef4444").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
-            focusDensity.append("line").attr("class", "hover-line-blue").style("stroke", "#3b82f6").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
-            focusDensity.append("circle").attr("class", "circle-blue").attr("r", 5).style("fill", "#3b82f6").style("stroke", "white").style("stroke-width", 1.5);
-            focusDensity.append("circle").attr("class", "circle-red").attr("r", 5).style("fill", "#ef4444").style("stroke", "white").style("stroke-width", 1.5);
+            focusDensity.append("line").attr("class", "hover-line-red").style("stroke", statsViz.color('--viz-residual')).style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusDensity.append("line").attr("class", "hover-line-blue").style("stroke", statsViz.color('--viz-group-a')).style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusDensity.append("circle").attr("class", "circle-blue").attr("r", 5).style("fill", statsViz.color('--viz-group-a')).style("stroke", "white").style("stroke-width", 1.5);
+            focusDensity.append("circle").attr("class", "circle-red").attr("r", 5).style("fill", statsViz.color('--viz-residual')).style("stroke", "white").style("stroke-width", 1.5);
 
             focusCDF = svgCDF.append("g").style("display", "none");
-            focusCDF.append("line").attr("class", "hover-line-y").style("stroke", "#94a3b8").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
-            focusCDF.append("line").attr("class", "hover-line-x-red").style("stroke", "#ef4444").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
-            focusCDF.append("line").attr("class", "hover-line-x-blue").style("stroke", "#3b82f6").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
-            focusCDF.append("circle").attr("class", "circle-blue").attr("r", 5).style("fill", "#3b82f6").style("stroke", "white").style("stroke-width", 1.5);
-            focusCDF.append("circle").attr("class", "circle-red").attr("r", 5).style("fill", "#ef4444").style("stroke", "white").style("stroke-width", 1.5);
+            focusCDF.append("line").attr("class", "hover-line-y").style("stroke", statsViz.color('--viz-reference')).style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusCDF.append("line").attr("class", "hover-line-x-red").style("stroke", statsViz.color('--viz-residual')).style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusCDF.append("line").attr("class", "hover-line-x-blue").style("stroke", statsViz.color('--viz-group-a')).style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusCDF.append("circle").attr("class", "circle-blue").attr("r", 5).style("fill", statsViz.color('--viz-group-a')).style("stroke", "white").style("stroke-width", 1.5);
+            focusCDF.append("circle").attr("class", "circle-red").attr("r", 5).style("fill", statsViz.color('--viz-residual')).style("stroke", "white").style("stroke-width", 1.5);
 
             focusQQ = svgQQ.append("g").style("display", "none");
-            focusQQ.append("line").attr("class", "hover-line-x").style("stroke", "#94a3b8").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
-            focusQQ.append("line").attr("class", "hover-line-y-red").style("stroke", "#ef4444").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
-            focusQQ.append("line").attr("class", "hover-line-y-blue").style("stroke", "#3b82f6").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
-            focusQQ.append("circle").attr("class", "circle-blue").attr("r", 5).style("fill", "#3b82f6").style("stroke", "white").style("stroke-width", 1.5);
-            focusQQ.append("circle").attr("class", "circle-red").attr("r", 5).style("fill", "#ef4444").style("stroke", "white").style("stroke-width", 1.5);
+            focusQQ.append("line").attr("class", "hover-line-x").style("stroke", statsViz.color('--viz-reference')).style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusQQ.append("line").attr("class", "hover-line-y-red").style("stroke", statsViz.color('--viz-residual')).style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusQQ.append("line").attr("class", "hover-line-y-blue").style("stroke", statsViz.color('--viz-group-a')).style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusQQ.append("circle").attr("class", "circle-blue").attr("r", 5).style("fill", statsViz.color('--viz-group-a')).style("stroke", "white").style("stroke-width", 1.5);
+            focusQQ.append("circle").attr("class", "circle-red").attr("r", 5).style("fill", statsViz.color('--viz-residual')).style("stroke", "white").style("stroke-width", 1.5);
 
             focusBoxplot = svgBoxplot.append("g").style("display", "none");
-            focusBoxplot.append("line").attr("class", "hover-line-red").style("stroke", "#ef4444").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
-            focusBoxplot.append("line").attr("class", "hover-line-blue").style("stroke", "#3b82f6").style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusBoxplot.append("line").attr("class", "hover-line-red").style("stroke", statsViz.color('--viz-residual')).style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
+            focusBoxplot.append("line").attr("class", "hover-line-blue").style("stroke", statsViz.color('--viz-group-a')).style("stroke-dasharray", "4,4").style("stroke-width", 1.5);
 
             const tooltip = d3.select("#cursor-tooltip");
 
@@ -563,8 +564,8 @@
                         // Update Tooltip Content and Position
                         tooltip.html(`
                             <div class="font-bold mb-1.5 border-b border-slate-600 pb-1.5 text-center">Quantile: ${(p * 100).toFixed(1)}%</div>
-                            <div class="flex justify-between gap-6 text-red-400 mb-1"><span>Actual (Skewed):</span> <span class="font-mono">${actualVal.toFixed(3)}</span></div>
-                            <div class="flex justify-between gap-6 text-blue-400"><span>Expected (Normal):</span> <span class="font-mono">${theoretical.toFixed(3)}</span></div>
+                            <div class="flex justify-between gap-6 viz-ink-residual mb-1"><span>Actual (Skewed):</span> <span class="font-mono">${actualVal.toFixed(3)}</span></div>
+                            <div class="flex justify-between gap-6 viz-ink-group-a"><span>Expected (Normal):</span> <span class="font-mono">${theoretical.toFixed(3)}</span></div>
                     `)
                     .style("left", pageX + "px")
                     .style("top", pageY + "px");
@@ -704,8 +705,8 @@
             };
             
             const stats = [
-                { type: "Normal", color: "#3b82f6", bg: "rgba(59, 130, 246, 0.1)", ...getBoxplotStats(normalSampleData) },
-                { type: "Skewed", color: "#ef4444", bg: "rgba(239, 68, 68, 0.1)", ...getBoxplotStats(currentSampleData) }
+                { type: "Normal", color: statsViz.color('--viz-group-a'), bg: statsViz.rgba('--viz-group-a', 0.1), ...getBoxplotStats(normalSampleData) },
+                { type: "Skewed", color: statsViz.color('--viz-residual'), bg: statsViz.rgba('--viz-residual', 0.1), ...getBoxplotStats(currentSampleData) }
             ];
             
             const boxGroup = svgBoxplot.select("#boxplot-group");
@@ -861,7 +862,7 @@
                 .merge(pointsNormal)
                 .attr("cx", d => qqX(d.theoretical))
                 .attr("cy", d => qqY(d.sample))
-                .style("fill", "#3b82f6")
+                .style("fill", statsViz.color('--viz-group-a'))
                 .style("opacity", 0.15); // Lighter opacity to serve as a baseline
 
             pointsNormal.exit().remove();
@@ -877,7 +878,7 @@
                 .merge(pointsSkewed)
                 .attr("cx", d => qqX(d.theoretical))
                 .attr("cy", d => qqY(d.sample))
-                .style("fill", d => d.sample > d.theoretical ? "#ef4444" : "#94a3b8")
+                .style("fill", d => d.sample > d.theoretical ? statsViz.color('--viz-residual') : statsViz.color('--viz-reference'))
                 .style("opacity", d => d.sample > d.theoretical ? "0.8" : "0.4");
 
             pointsSkewed.exit().remove();

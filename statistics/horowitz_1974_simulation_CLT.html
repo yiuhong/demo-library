@@ -6,6 +6,8 @@
     <title>Horowitz (1974) Sampling Distribution Simulation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
         MathJax = {
@@ -56,7 +58,7 @@
 
         /* SVG Chart Styles */
         .bar {
-            fill: #3b82f6;
+            fill: var(--viz-group-a);
             opacity: 0.7;
             transition: height 0.2s, y 0.2s;
         }
@@ -84,7 +86,7 @@
         }
         .pulse-highlight {
             animation: pulse 0.5s ease;
-            box-shadow: 0 0 10px #f59e0b;
+            box-shadow: 0 0 10px var(--viz-highlight);
             z-index: 10;
         }
 
@@ -128,7 +130,7 @@
                         <span>50</span>
                         <span>100 (High)</span>
                     </div>
-                    <div class="h-2 w-full rounded-full shadow-inner" style="background: linear-gradient(to right, hsl(0, 70%, 50%), hsl(120, 70%, 50%), hsl(240, 70%, 50%));"></div>
+                    <div class="h-2 w-full rounded-full shadow-inner" style="background: linear-gradient(to right, var(--viz-null), var(--viz-explained), var(--viz-group-a));"></div>
                 </div>
 
                 <div id="pop-dist-chart" class="h-32 w-full mt-auto"></div>
@@ -138,7 +140,7 @@
                 <h2 class="text-lg font-bold w-full mb-4">Current Sample ($n=10$)</h2>
                 
                 <div class="w-full flex-grow flex flex-col items-center justify-center space-y-6">
-                    <div id="sample-display" class="flex flex-wrap justify-center min-h-[80px] w-full bg-blue-50 rounded-lg p-4 border border-blue-100">
+                    <div id="sample-display" class="flex flex-wrap justify-center min-h-[80px] w-full viz-soft-group-a rounded-lg p-4 border viz-border-group-a">
                         <!-- Drawn pieces appear here -->
                         <div class="text-slate-400 italic flex items-center justify-center w-full h-full text-sm">
                             Waiting for drawing...
@@ -148,15 +150,15 @@
                     <div class="grid grid-cols-3 gap-2 text-center w-full">
                         <div>
                             <div class="text-[11px] text-slate-500 uppercase tracking-wide font-semibold mb-1">Mean ($\bar{x}$)</div>
-                            <div id="current-mean" class="text-3xl font-extrabold text-blue-600 h-12 flex items-center justify-center">--</div>
+                            <div id="current-mean" class="text-3xl font-extrabold viz-ink-group-a h-12 flex items-center justify-center">--</div>
                         </div>
                         <div>
                             <div class="text-[11px] text-slate-500 uppercase tracking-wide font-semibold mb-1">SD ($s$)</div>
-                            <div id="current-sd" class="text-3xl font-extrabold text-emerald-600 h-12 flex items-center justify-center">--</div>
+                            <div id="current-sd" class="text-3xl font-extrabold viz-ink-total h-12 flex items-center justify-center">--</div>
                         </div>
                         <div>
                             <div class="text-[11px] text-slate-500 uppercase tracking-wide font-semibold mb-1">Est. SE</div>
-                            <div id="current-se" class="text-3xl font-extrabold text-purple-600 h-12 flex items-center justify-center">--</div>
+                            <div id="current-se" class="text-3xl font-extrabold viz-ink-se h-12 flex items-center justify-center">--</div>
                         </div>
                     </div>
                 </div>
@@ -183,7 +185,7 @@
             <div class="demo-card p-5 flex flex-col">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold">Sampling Distribution</h2>
-                    <span class="text-xs font-semibold bg-blue-100 px-2 py-1 rounded text-blue-700" id="stats-counter">0 / 96 Students</span>
+                    <span class="text-xs font-semibold viz-soft-group-a viz-ink-group-a px-2 py-1 rounded" id="stats-counter">0 / 96 Students</span>
                 </div>
                 
                 <div class="flex-grow flex flex-col">
@@ -202,7 +204,7 @@
                     <div class="demo-divider col-span-2 pt-2">
                         <div class="text-[10px] text-slate-500 uppercase leading-tight mb-1" title="Average of the Estimated SEs (s / √n) from all samples">Avg. Estimated SE (using $s$)</div>
                         <div class="flex items-baseline gap-2">
-                            <div class="text-lg font-bold text-purple-700" id="stat-est-se">--</div>
+                            <div class="text-lg font-bold viz-ink-se" id="stat-est-se">--</div>
                             <div class="text-[10px] text-slate-400">Theoretical ($\sigma/\sqrt{n}$): ~5.00</div>
                         </div>
                     </div>
@@ -287,9 +289,35 @@
             return Math.sqrt(variance);
         }
 
+        function parseHex(hex) {
+            const h = String(hex).trim().replace('#', '');
+            const full = h.length === 3
+                ? h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2)
+                : h;
+            return [
+                parseInt(full.slice(0, 2), 16),
+                parseInt(full.slice(2, 4), 16),
+                parseInt(full.slice(4, 6), 16)
+            ];
+        }
+
+        function lerpRgb(a, b, t) {
+            return [
+                Math.round(a[0] + (b[0] - a[0]) * t),
+                Math.round(a[1] + (b[1] - a[1]) * t),
+                Math.round(a[2] + (b[2] - a[2]) * t)
+            ];
+        }
+
         function getColorForScore(score) {
-            const hue = (score / 100) * 240; 
-            return `hsl(${hue}, 70%, 50%)`;
+            const t = Math.max(0, Math.min(100, Number(score))) / 100;
+            const low = parseHex(statsViz.color('--viz-null'));
+            const mid = parseHex(statsViz.color('--viz-explained'));
+            const high = parseHex(statsViz.color('--viz-group-a'));
+            const rgb = t <= 0.5
+                ? lerpRgb(low, mid, t / 0.5)
+                : lerpRgb(mid, high, (t - 0.5) / 0.5);
+            return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
         }
 
         function initVisualization() {
@@ -319,11 +347,11 @@
             sampleDisplayEl.innerHTML = '<div class="text-slate-400 italic flex items-center justify-center w-full h-full text-sm">Waiting for drawing...</div>';
             
             currentMeanEl.innerText = '--';
-            currentMeanEl.classList.remove('text-blue-600');
+            currentMeanEl.classList.remove('viz-ink-group-a');
             currentSdEl.innerText = '--';
-            currentSdEl.classList.remove('text-emerald-600');
+            currentSdEl.classList.remove('viz-ink-total');
             currentSeEl.innerText = '--';
-            currentSeEl.classList.remove('text-purple-600');
+            currentSeEl.classList.remove('viz-ink-se');
             
             if (sampY && sampSvg) {
                  sampY.domain([0, 10]);
@@ -412,7 +440,7 @@
                 .attr("transform", d => `translate(${x(d.x0)},${y(d.length)})`)
                 .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
                 .attr("height", d => height - y(d.length))
-                .style("fill", "#94a3b8");
+                .style("fill", statsViz.color('--viz-reference'));
         }
 
         let sampX, sampY, sampSvg, sampHistogram, sampWidth, sampHeight;
@@ -495,14 +523,14 @@
                     if (animateLast && sampleMeans.length > 0) {
                         const lastMean = sampleMeans[sampleMeans.length - 1];
                         if (lastMean >= d.x0 && lastMean < d.x1) {
-                            return "#f59e0b";
+                            return statsViz.color('--viz-highlight');
                         }
                     }
-                    return "#3b82f6";
+                    return statsViz.color('--viz-group-a');
                 })
                 .on("end", function(d) {
                      if (animateLast) {
-                        d3.select(this).transition().duration(500).style("fill", "#3b82f6");
+                        d3.select(this).transition().duration(500).style("fill", statsViz.color('--viz-group-a'));
                      }
                 });
 
@@ -517,15 +545,15 @@
 
             sampleDisplayEl.innerHTML = '';
             currentMeanEl.innerText = '...';
-            currentMeanEl.classList.remove('text-blue-600');
+            currentMeanEl.classList.remove('viz-ink-group-a');
             currentMeanEl.classList.add('text-slate-400', 'animate-pulse');
             
             currentSdEl.innerText = '...';
-            currentSdEl.classList.remove('text-emerald-600');
+            currentSdEl.classList.remove('viz-ink-total');
             currentSdEl.classList.add('text-slate-400', 'animate-pulse');
 
             currentSeEl.innerText = '...';
-            currentSeEl.classList.remove('text-purple-600');
+            currentSeEl.classList.remove('viz-ink-se');
             currentSeEl.classList.add('text-slate-400', 'animate-pulse');
 
             let currentSample = [];
@@ -562,13 +590,13 @@
             sampleSEs.push(se);
             
             currentMeanEl.classList.remove('text-slate-400', 'animate-pulse');
-            currentMeanEl.classList.add('text-blue-600');
+            currentMeanEl.classList.add('viz-ink-group-a');
             
             currentSdEl.classList.remove('text-slate-400', 'animate-pulse');
-            currentSdEl.classList.add('text-emerald-600');
+            currentSdEl.classList.add('viz-ink-total');
             
             currentSeEl.classList.remove('text-slate-400', 'animate-pulse');
-            currentSeEl.classList.add('text-purple-600');
+            currentSeEl.classList.add('viz-ink-se');
             
             let start = 0;
             const duration = 500;
@@ -649,15 +677,15 @@
 
             currentMeanEl.innerText = lastMean.toFixed(2);
             currentMeanEl.classList.remove('text-slate-400');
-            currentMeanEl.classList.add('text-blue-600');
+            currentMeanEl.classList.add('viz-ink-group-a');
             
             currentSdEl.innerText = lastSd.toFixed(2);
             currentSdEl.classList.remove('text-slate-400');
-            currentSdEl.classList.add('text-emerald-600');
+            currentSdEl.classList.add('viz-ink-total');
             
             currentSeEl.innerText = lastSe.toFixed(2);
             currentSeEl.classList.remove('text-slate-400');
-            currentSeEl.classList.add('text-purple-600');
+            currentSeEl.classList.add('viz-ink-se');
 
             updateStatsUI();
             updateSamplingDistChart(false); 

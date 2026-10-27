@@ -8,6 +8,8 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     
     <!-- D3.js -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -34,6 +36,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; opacity: 0; }
+
+        #btn-toggle-dist.mode-z { background-color: var(--viz-group-a); }
+        #btn-toggle-dist.mode-x { background-color: var(--viz-group-c); }
+        #toggle-label.mode-z { color: var(--viz-group-a); }
+        #toggle-label.mode-x { color: var(--viz-group-c); }
     </style>
 </head>
 <body class="demo-page text-gray-900 min-h-screen">
@@ -46,12 +53,12 @@
         <!-- Sidebar / Control Panel -->
         <aside class="demo-card w-full lg:w-1/4 p-6 flex flex-col gap-6 overflow-y-auto">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">The <span class="text-blue-600 font-serif">$\chi^2$</span> Distribution</h1>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">The <span class="viz-ink-group-a font-serif">$\chi^2$</span> Distribution</h1>
                 <p class="text-sm text-gray-600 leading-relaxed">
                     The Chi-Square distribution represents the sum of squared independent standard normal variables.
                 </p>
                 <!-- Dynamic KaTeX Container -->
-                <div id="dynamic-formula" class="mt-4 p-3 bg-blue-50 text-blue-900 rounded-lg text-center font-semibold border border-blue-100 overflow-x-auto">
+                <div id="dynamic-formula" class="mt-4 p-3 viz-soft-group-a viz-ink-group-a viz-border-group-a rounded-lg text-center font-semibold border overflow-x-auto">
                     <!-- Initialized by JS -->
                 </div>
             </div>
@@ -61,7 +68,7 @@
                 <div>
                     <label class="flex justify-between text-sm font-medium text-gray-700 mb-1">
                         <span>Degrees of Freedom ($k$)</span>
-                        <span id="k-value-display" class="font-bold text-blue-600">3</span>
+                        <span id="k-value-display" class="font-bold viz-ink-group-a">3</span>
                     </label>
                     <input type="range" id="k-slider" min="1" max="30" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                 </div>
@@ -119,11 +126,11 @@
                     </div>
                     <div id="dist-toggle-container" class="flex items-center gap-2 mb-1 cursor-pointer group hover:opacity-80 transition-opacity" title="Toggle distribution type">
                         <span class="text-xs font-medium text-gray-500 uppercase tracking-wider select-none">Dist:</span>
-                        <button id="btn-toggle-dist" type="button" class="relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent bg-indigo-600 transition-colors duration-200 ease-in-out focus:outline-none pointer-events-none shadow-sm" role="switch" aria-checked="true">
+                        <button id="btn-toggle-dist" type="button" class="mode-z relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none pointer-events-none shadow-sm" role="switch" aria-checked="true">
                             <span class="sr-only">Toggle distribution</span>
                             <span id="toggle-knob" aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 translate-x-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
                         </button>
-                        <span id="toggle-label" class="text-xs font-semibold text-indigo-700 select-none w-32">Standard Z ~ N(0,1)</span>
+                        <span id="toggle-label" class="mode-z text-xs font-semibold select-none w-32">Standard Z ~ N(0,1)</span>
                     </div>
                 </div>
                 <div class="flex-1 w-full relative">
@@ -132,10 +139,10 @@
             </div>
 
             <!-- Interactive Bridge: Transformation -->
-            <div class="bg-indigo-50 rounded-xl shadow-sm p-4 border border-indigo-100 h-44 flex-none relative overflow-hidden flex flex-col">
-                <div class="absolute top-2 left-4 text-xs font-bold text-indigo-800 uppercase tracking-wider z-10 bg-indigo-50/95 pr-2 pb-1 rounded-br">2. Square and Sum</div>
+            <div class="viz-soft-group-a rounded-xl shadow-sm p-4 border viz-border-group-a h-44 flex-none relative overflow-hidden flex flex-col">
+                <div class="absolute top-2 left-4 text-xs font-bold viz-ink-group-a uppercase tracking-wider z-10 viz-soft-group-a pr-2 pb-1 rounded-br">2. Square and Sum</div>
                 <div id="bridge-container" class="w-full flex-1 flex flex-wrap content-start justify-center items-center gap-x-2 gap-y-3 font-serif text-lg overflow-y-auto scrollbar-thin pt-6 pb-2">
-                    <span class="text-indigo-400 italic font-sans text-base h-full flex items-center">Click "Draw 1 Sample" to observe transformation...</span>
+                    <span class="viz-ink-group-a italic font-sans text-base h-full flex items-center">Click "Draw 1 Sample" to observe transformation...</span>
                 </div>
             </div>
 
@@ -147,8 +154,8 @@
                         <div id="chart2-math" class="text-sm text-gray-500"></div>
                     </div>
                     <div class="text-sm flex items-center gap-3">
-                        <span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-500 rounded-sm"></span> Exact PDF</span>
-                        <span class="flex items-center gap-1"><span class="w-3 h-3 bg-blue-200 rounded-sm"></span> Empirical Histogram</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 viz-bg-density rounded-sm"></span> Exact PDF</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 viz-mid-group-a rounded-sm"></span> Empirical Histogram</span>
                     </div>
                 </div>
                 <div class="flex-1 w-full relative">
@@ -211,9 +218,6 @@
         const RAW_MU = 10;
         const RAW_SIGMA = 2;
         
-        // Colors corresponding to index for Z mapping (safely loops via d3 scale logic if > 10)
-        const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-
         // --- D3 Chart Setup ---
         let normalChart, chiChart;
         const margins = { top: 15, right: 20, bottom: 40, left: 50 };
@@ -248,14 +252,14 @@
                 .attr('y', margins.top)
                 .attr('width', nx(mu + sigma) - nx(mu - sigma))
                 .attr('height', nH - margins.top - margins.bottom)
-                .attr('fill', '#e0e7ff') // indigo-100
-                .attr('opacity', 0.5);
+                .attr('fill', statsViz.color('--viz-group-a-soft'));
 
             nSvg.append('text')
                 .attr('x', nx(mu))
                 .attr('y', margins.top + 20)
                 .attr('text-anchor', 'middle')
-                .attr('class', 'text-[11px] fill-indigo-700 font-medium')
+                .attr('fill', 'currentColor')
+                .attr('class', 'text-[11px] viz-ink-group-a font-medium')
                 .text(showStandardized ? 'Values in [-1, 1] shrink toward 0 when squared' : `Values in [${mu-sigma}, ${mu+sigma}] shrink toward 0 when standardized & squared`);
 
             // Draw Normal PDF
@@ -269,7 +273,7 @@
             nSvg.append('path')
                 .datum(nData)
                 .attr('fill', 'none')
-                .attr('stroke', '#4b5563') // gray-600
+                .attr('stroke', statsViz.color('--viz-density'))
                 .attr('stroke-width', 2)
                 .attr('d', lineNormal);
 
@@ -342,14 +346,15 @@
                 .attr('x2', cx(k))
                 .attr('y1', margins.top)
                 .attr('y2', cH - margins.bottom)
-                .attr('stroke', '#9ca3af') // gray-400
+                .attr('stroke', statsViz.color('--viz-mean'))
                 .attr('stroke-dasharray', '4,4')
                 .attr('stroke-width', 2);
                 
             cSvg.append('text')
                 .attr('x', cx(k) + 5)
                 .attr('y', margins.top + 10)
-                .attr('class', 'text-xs fill-gray-500 font-bold')
+                .attr('fill', 'currentColor')
+                .attr('class', 'text-xs viz-ink-mean font-bold')
                 .text(`Mean = ${k}`);
 
             // Histogram Group (drawn under line)
@@ -359,7 +364,7 @@
             cSvg.append('path')
                 .datum(cData)
                 .attr('fill', 'none')
-                .attr('stroke', '#ef4444') // red-500
+                .attr('stroke', statsViz.color('--viz-density'))
                 .attr('stroke-width', 3)
                 .attr('d', lineChi);
 
@@ -410,8 +415,7 @@
                 .attr('transform', d => `translate(${x(d.x0)}, ${Math.max(margins.top, y(d.length / scaleFactor))})`)
                 .attr('width', d => Math.max(0, x(d.x1) - x(d.x0) - 1))
                 .attr('height', d => Math.max(0, h - margins.bottom - Math.max(margins.top, y(d.length / scaleFactor))))
-                .style('fill', '#bfdbfe') // blue-200
-                .style('opacity', 0.8)
+                .style('fill', statsViz.color('--viz-group-a-mid'))
                 .attr('class', 'bar-hover transition-all');
         }
 
@@ -433,7 +437,7 @@
                 .attr('cx', d => normalChart.x(Math.max(normalChart.xMin, Math.min(normalChart.xMax, d))))
                 .attr('cy', normalChart.y(0))
                 .attr('r', 0)
-                .attr('fill', (d, i) => colorScale(i))
+                .attr('fill', (d, i) => statsViz.series(i))
                 .attr('stroke', '#fff')
                 .attr('stroke-width', 1)
                 .transition().duration(400)
@@ -460,13 +464,13 @@
 
                 const zVal = Zs[i].toFixed(2);
                 const z2Val = Z2s[i].toFixed(2);
-                const color = colorScale(i);
+                const color = statsViz.series(i);
                 
                 htmlStr += `<div class="flex flex-col items-center animate-fade-in" style="animation-delay: ${Math.min(i*50, 800)}ms">`;
                 
                 if (!showStandardized) {
                     const xVal = Xs[i].toFixed(1);
-                    htmlStr += `<div class="text-sm bg-amber-50 border border-amber-200 rounded-md px-2 py-1 mb-2 text-amber-900 shadow-sm font-semibold tracking-wide">$\\dfrac{${xVal} - ${RAW_MU}}{${RAW_SIGMA}}$</div>`;
+                    htmlStr += `<div class="text-sm viz-soft-group-c viz-ink-group-c viz-border-group-c border rounded-md px-2 py-1 mb-2 shadow-sm font-semibold tracking-wide">$\\dfrac{${xVal} - ${RAW_MU}}{${RAW_SIGMA}}$</div>`;
                 }
                 
                 htmlStr += `<span style="color:${color}" class="text-xs whitespace-nowrap">(${zVal})²</span>
@@ -475,7 +479,7 @@
                 </div>`;
                 if (i < k - 1) htmlStr += `<span class="text-gray-400 self-end pb-1">+</span>`;
             }
-            htmlStr += `<span class="text-gray-800 mx-2 self-end pb-1">=</span><span class="text-2xl font-bold text-red-600 animate-pulse self-end">${sumZ2.toFixed(2)}</span>`;
+            htmlStr += `<span class="text-gray-800 mx-2 self-end pb-1">=</span><span class="text-2xl font-bold viz-ink-density animate-pulse self-end">${sumZ2.toFixed(2)}</span>`;
             bridge.html(htmlStr);
             
             if (!showStandardized) {
@@ -499,7 +503,7 @@
                 .attr('cx', chiChart.x(Math.max(0, Math.min(chiChart.x.domain()[1], sumZ2))))
                 .attr('cy', 0)
                 .attr('r', 6)
-                .attr('fill', '#ef4444')
+                .attr('fill', statsViz.color('--viz-density'))
                 .transition().duration(600).ease(d3.easeBounce)
                 .attr('cy', chiChart.y(0))
                 .transition().duration(300)
@@ -554,21 +558,21 @@
             const label = document.getElementById('toggle-label');
             
             if (showStandardized) {
-                btn.classList.remove('bg-amber-500');
-                btn.classList.add('bg-indigo-600');
+                btn.classList.remove('mode-x');
+                btn.classList.add('mode-z');
                 btn.setAttribute('aria-checked', 'true');
                 knob.classList.remove('translate-x-0');
                 knob.classList.add('translate-x-5');
                 label.innerText = "Standard Z ~ N(0,1)";
-                label.className = "text-xs font-semibold text-indigo-700 select-none w-32 transition-colors";
+                label.className = "mode-z text-xs font-semibold select-none w-32 transition-colors";
             } else {
-                btn.classList.remove('bg-indigo-600');
-                btn.classList.add('bg-amber-500');
+                btn.classList.remove('mode-z');
+                btn.classList.add('mode-x');
                 btn.setAttribute('aria-checked', 'false');
                 knob.classList.remove('translate-x-5');
                 knob.classList.add('translate-x-0');
                 label.innerText = `Raw X ~ N(${RAW_MU}, ${RAW_SIGMA}²)`;
-                label.className = "text-xs font-semibold text-amber-700 select-none w-32 transition-colors";
+                label.className = "mode-x text-xs font-semibold select-none w-32 transition-colors";
             }
             
             updateDynamicMath();
@@ -596,7 +600,7 @@
             isAnimating = false;
             samples = [];
             document.getElementById('stat-samples').innerText = 0;
-            document.getElementById('bridge-container').innerHTML = '<span class="text-indigo-400 italic font-sans text-base">Click "Draw 1 Sample" to observe transformation...</span>';
+            document.getElementById('bridge-container').innerHTML = '<span class="viz-ink-group-a italic font-sans text-base">Click "Draw 1 Sample" to observe transformation...</span>';
             if (chiChart) chiChart.svg.select('#chi-histogram').selectAll('*').remove();
             if (normalChart) normalChart.svg.selectAll('.z-point').remove();
         }
