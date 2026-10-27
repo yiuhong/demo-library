@@ -15,11 +15,13 @@ The source code for the interactive demos is organized by subject area:
 
 ## Guided tracks
 
-Tracks are optional playlists, not filters. The index stays the full catalog. [`tracks.html`](tracks.html) reads [`tracks.json`](tracks.json) at the repo root and renders whatever is in that file. Adding, removing, or reordering materials later means editing `tracks.json`.
+Tracks are optional playlists, not filters. On the library page, **View** is Cards, List, or Tracks. Tracks uses the same page and the same menu as the catalog. The Tracks view reads [`tracks.json`](tracks.json) at the repo root and renders whatever is in that file. Adding, removing, or reordering materials later means editing `tracks.json`.
+
+Share a track from the library view: `index.html?view=tracks&track=the-id` (or `#track-the-id`). `tracks.html?track=the-id` still opens that same view.
 
 `tracks.json` is either a top-level array or an object `{ "tracks": [ ... ] }` (the file in this repo uses the object). Each track has:
 
-* `id` — slug used in shareable links (`tracks.html?track=the-id` or `tracks.html#track-the-id`)
+* `id` — slug used in shareable links (`index.html?view=tracks&track=the-id` or `#track-the-id`)
 * `title`
 * `summary` — short overview of the path
 * `status` — optional, `draft` or `ready`. Omitted means draft. Draft tracks show a draft badge.
@@ -48,4 +50,4 @@ A step is still listed if its `href` has no matching card yet, so a playlist can
 }
 ```
 
-To reorder, move the step object. You do not need to edit `tracks.html` to change a playlist.
+To reorder, move the step object. You do not need to edit the library page to change a playlist.
