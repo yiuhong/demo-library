@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Galton Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <style>
+        canvas {
+            touch-action: none;
+            user-select: none;
+        }
+        .katex-display {
+            margin: 0.45em 0 !important;
+            overflow: visible !important;
+            padding: 0.15em 0;
+        }
+        .math-block {
+            overflow: visible !important;
+        }
+        .demo-header .katex {
+            color: #ffffff;
+        }
+        .demo-page input[type="checkbox"] {
+            accent-color: #000000;
+        }
+    </style>
+</head>
+<body class="demo-page min-h-screen p-4 md:p-8">
+
+<div class="max-w-[90rem] mx-auto space-y-6">
+    <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+
+    <header class="demo-header">
+        <h1 class="text-3xl font-bold mb-2">Galton Board</h1>
+        <p class="leading-relaxed">
+            Each bead takes an independent left or right bounce at every peg. The bin it reaches counts those right bounces ($k$), and as the rows add up that pile converges to a normal curve.
+        </p>
+    </header>
+
+    <div class="flex flex-wrap items-center gap-2">
+        <button id="btnPlayPause" class="demo-btn demo-btn-primary" type="button">
+            <span id="playPauseIcon" class="w-2.5 h-2.5 rounded-full bg-white"></span>
+            <span id="playPauseText">Flowing</span>
+        </button>
+        <button id="btnBurst" class="demo-btn demo-btn-primary" type="button">
+            <span id="btnBurstText">Drop (50)</span>
+        </button>
+        <button id="btnReset" class="demo-btn" type="button">Reset</button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        <div class="demo-card lg:col-span-7 flex flex-col items-center justify-between w-full p-4 sm:p-5 relative overflow-hidden">
+            <div class="w-full flex flex-wrap items-center justify-between gap-2 pb-3 mb-2 border-b border-black text-xs">
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full inline-block" style="background: var(--viz-group-a)"></span>
+                        <span class="font-medium">Empirical bins ($k$)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-full border-2 bg-white inline-block" style="border-color: var(--viz-group-c)"></span>
+                        <span class="font-medium">Binomial PMF $P(X=k)$</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-4 h-0.5 inline-block" style="background: var(--viz-density)"></span>
+                        <span class="font-medium">Normal curve $f(k)$</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-4 h-0.5 inline-block" style="background: var(--viz-mean)"></span>
+                        <span class="font-medium">Mean ($\mu$)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-4 border-b-2 border-dashed inline-block" style="border-color: var(--viz-se)"></span>
+                        <span class="font-medium">Std dev ($\mu \pm \sigma$)</span>
+                    </div>
+                </div>
+                <div id="selectedBinStatus" class="text-[11px] font-medium">
+                    Hover a bin to inspect $k$; click a bin column to highlight
+                </div>
+            </div>
+
+            <div id="canvasContainer" class="w-full relative flex-grow flex justify-center items-center min-h-[560px] sm:min-h-[640px]">
+                <canvas id="galtonCanvas" class="w-full h-full bg-white border border-black" style="border-radius: 4px;"></canvas>
+            </div>
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col justify-start gap-3 w-full">
+            <div class="demo-card p-4">
+                <h2 class="text-xs font-bold uppercase tracking-wider mb-3 flex items-center justify-between">
+                    <span>Statistics</span>
+                    <span id="activeBallsBadge" class="demo-value text-[11px]">0 active</span>
+                </h2>
+
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div class="demo-panel p-2.5">
+                        <div class="text-xs font-medium">Settled beads ($N$)</div>
+                        <div id="statTotal" class="text-2xl font-bold mt-0.5">0</div>
+                    </div>
+                    <div class="demo-panel p-2.5">
+                        <div class="text-xs font-medium">Total var. distance</div>
+                        <div id="statError" class="text-2xl font-bold mt-0.5">--</div>
+                    </div>
+                </div>
+
+                <div class="border border-black text-xs">
+                    <div class="grid grid-cols-3 px-3.5 py-2 font-semibold border-b border-black" style="background: var(--demo-panel)">
+                        <div>Metric (on $k$)</div>
+                        <div class="text-right viz-ink-group-a">Empirical</div>
+                        <div class="text-right">Theoretical</div>
+                    </div>
+                    <div class="grid grid-cols-3 px-3.5 py-2 border-b border-black items-center">
+                        <div class="font-medium">Mean ($\mu = np$)</div>
+                        <div id="statMeanActual" class="text-right font-bold viz-ink-group-a">0.00</div>
+                        <div id="statMeanTheo" class="text-right font-bold viz-ink-mean">6.00</div>
+                    </div>
+                    <div class="grid grid-cols-3 px-3.5 py-2 items-center">
+                        <div class="font-medium">Std dev ($\sigma$)</div>
+                        <div id="statStdActual" class="text-right font-bold viz-ink-group-a">0.00</div>
+                        <div id="statStdTheo" class="text-right font-bold viz-ink-se">1.73</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-card p-4 flex flex-col gap-3">
+                <h2 class="text-xs font-bold uppercase tracking-wider">Board parameters</h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
+                    <div class="demo-panel p-3 flex flex-col justify-between h-full">
+                        <div class="flex items-center justify-between gap-2 text-xs min-h-[20px]">
+                            <label for="sliderRows" class="font-semibold leading-none whitespace-nowrap">Peg rows ($n$)</label>
+                            <span id="valRows" class="demo-value leading-none whitespace-nowrap">12 rows</span>
+                        </div>
+                        <div class="my-1.5 flex items-center">
+                            <input id="sliderRows" type="range" min="6" max="18" step="1" value="12" class="w-full">
+                        </div>
+                        <div class="grid grid-cols-3 text-[10px] font-medium leading-none">
+                            <span class="text-left">6</span>
+                            <span class="text-center">12</span>
+                            <span class="text-right">18</span>
+                        </div>
+                    </div>
+
+                    <div class="demo-panel p-3 flex flex-col justify-between h-full">
+                        <div class="flex items-center justify-between gap-2 text-xs min-h-[20px]">
+                            <label for="sliderBias" class="font-semibold leading-none whitespace-nowrap">Right bias ($p$)</label>
+                            <span id="valBias" class="demo-value leading-none whitespace-nowrap">0.50 (Fair)</span>
+                        </div>
+                        <div class="my-1.5 flex items-center">
+                            <input id="sliderBias" type="range" min="0.15" max="0.85" step="0.05" value="0.50" class="w-full">
+                        </div>
+                        <div class="grid grid-cols-3 text-[10px] font-medium leading-none">
+                            <span class="text-left">0.15 (L)</span>
+                            <span class="text-center">0.50</span>
+                            <span class="text-right">0.85 (R)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-stretch">
+                    <div class="demo-panel p-3 flex flex-col justify-between h-full">
+                        <div class="flex items-center justify-between gap-1.5 text-xs min-h-[20px]">
+                            <label for="sliderDropCount" class="font-semibold leading-none whitespace-nowrap">Number of beads</label>
+                            <span id="valDropCount" class="demo-value leading-none whitespace-nowrap">50</span>
+                        </div>
+                        <div class="my-1.5 flex items-center">
+                            <input id="sliderDropCount" type="range" min="1" max="100" step="1" value="50" class="w-full">
+                        </div>
+                        <div class="grid grid-cols-3 text-[10px] font-medium leading-none">
+                            <span class="text-left">1</span>
+                            <span class="text-center">50</span>
+                            <span class="text-right">100</span>
+                        </div>
+                    </div>
+
+                    <div class="demo-panel p-3 flex flex-col justify-between h-full">
+                        <div class="flex items-center justify-between gap-1.5 text-xs min-h-[20px]">
+                            <label for="sliderRate" class="font-semibold leading-none whitespace-nowrap">Flow rate</label>
+                            <span id="valRate" class="demo-value leading-none whitespace-nowrap">24/s</span>
+                        </div>
+                        <div class="my-1.5 flex items-center">
+                            <input id="sliderRate" type="range" min="2" max="60" step="2" value="24" class="w-full">
+                        </div>
+                        <div class="grid grid-cols-3 text-[10px] font-medium leading-none">
+                            <span class="text-left">2/s</span>
+                            <span class="text-center">30/s</span>
+                            <span class="text-right">60/s</span>
+                        </div>
+                    </div>
+
+                    <div class="demo-panel p-3 flex flex-col justify-between h-full">
+                        <div class="flex items-center justify-between gap-1.5 text-xs min-h-[20px]">
+                            <label for="sliderSpeed" class="font-semibold leading-none whitespace-nowrap">Gravity</label>
+                            <span id="valSpeed" class="demo-value leading-none whitespace-nowrap">1.2x</span>
+                        </div>
+                        <div class="my-1.5 flex items-center">
+                            <input id="sliderSpeed" type="range" min="0.5" max="2.5" step="0.1" value="1.2" class="w-full">
+                        </div>
+                        <div class="grid grid-cols-3 text-[10px] font-medium leading-none">
+                            <span class="text-left">0.5x</span>
+                            <span class="text-center">1.5x</span>
+                            <span class="text-right">2.5x</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t border-black grid grid-cols-2 sm:grid-cols-4 gap-2 items-stretch">
+                    <label class="demo-panel flex items-center gap-2 p-2 cursor-pointer">
+                        <input id="chkCurve" type="checkbox" checked class="w-4 h-4 rounded cursor-pointer shrink-0">
+                        <span class="text-xs font-semibold leading-tight">Normal curve</span>
+                    </label>
+                    <label class="demo-panel flex items-center gap-2 p-2 cursor-pointer">
+                        <input id="chkPascal" type="checkbox" class="w-4 h-4 rounded cursor-pointer shrink-0">
+                        <span class="text-xs font-semibold leading-tight">Pascal paths</span>
+                    </label>
+                    <label class="demo-panel flex items-center gap-2 p-2 cursor-pointer">
+                        <input id="chkTrails" type="checkbox" checked class="w-4 h-4 rounded cursor-pointer shrink-0">
+                        <span class="text-xs font-semibold leading-tight">Trails</span>
+                    </label>
+                    <label class="demo-panel flex items-center gap-2 p-2 cursor-pointer">
+                        <input id="chkSound" type="checkbox" class="w-4 h-4 rounded cursor-pointer shrink-0">
+                        <span class="text-xs font-semibold leading-tight">Audio</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="demo-panel p-3.5 text-xs leading-relaxed space-y-1">
+                <div class="font-bold">Reading the $k$-axis and $\pm\sigma$ markers</div>
+                <p>
+                    Each bin along the horizontal axis corresponds to $k$ ($0 \le k \le n$), counting how many times a bead bounced <strong>right</strong> out of <span id="insightRows" class="font-semibold"></span> peg rows (<span id="insightP" class="font-semibold"></span>, <span id="insightQ" class="font-semibold"></span>).
+                </p>
+                <p>
+                    The <strong class="viz-ink-mean">red dashed line</strong> marks the theoretical mean $\mu = np$. The <strong class="viz-ink-se">purple dashed lines</strong> mark one standard deviation ($\mu \pm \sigma$), where the normal curve has its inflection points (enclosing about $68.3\%$ of the distribution). Amber dots are the exact binomial probabilities; the dark blue curve is the normal approximation.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <section class="demo-card p-5 sm:p-7 space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-black pb-4">
+            <h2 class="text-base font-bold">
+                From the binomial count to a normal curve
+            </h2>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <span id="mathParamBadge" class="text-xs font-semibold px-3 py-1 border border-black bg-white"></span>
+                <span id="skewStatusBadge" class="text-xs font-semibold px-3 py-1 border border-black"></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            <div class="demo-panel p-5 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2 gap-2">
+                        <span class="text-xs font-bold uppercase tracking-wider viz-ink-group-c">1. Exact binomial PMF</span>
+                        <span class="text-xs font-semibold px-2.5 py-0.5 border border-black bg-white viz-ink-group-c">Discrete dots</span>
+                    </div>
+                    <p class="text-xs sm:text-sm leading-relaxed mb-3">
+                        Each bead passes through $n$ rows of pegs. Let $X_i \in \{0, 1\}$ denote a left ($0$) or right ($1$) bounce at row $i$ with probability $\mathbb{P}(X_i = 1) = p$. The final horizontal bin index $k$ is the sum of $n$ independent Bernoulli trials:
+                    </p>
+                    <div class="math-block bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;">
+                        <div data-katex-display="X = \sum_{i=1}^{n} X_i \sim \text{Binomial}(n, p)"></div>
+                        <div data-katex-display="P(X = k) = \binom{n}{k} p^k (1 - p)^{n - k}, \quad k \in \{0, 1, \dots, n\}"></div>
+                    </div>
+                    <div class="mt-3 bg-white border border-black p-3.5 overflow-visible" style="border-radius: 4px;">
+                        <div class="flex flex-wrap items-center justify-between gap-1 text-xs mb-1.5">
+                            <span id="calcBinomialHeader" class="font-bold viz-ink-group-c">Theoretical binomial probability</span>
+                            <span id="calcBinomialEmpirical" class="text-[11px] font-semibold px-2 py-0.5 border border-black bg-white viz-ink-group-a"></span>
+                        </div>
+                        <div id="calcBinomialEq" class="text-xs py-1 overflow-visible break-words"></div>
+                    </div>
+                </div>
+                <div class="text-xs border-t border-black pt-3 mt-3 flex items-center justify-between gap-2 flex-wrap">
+                    <span>Binomial coefficient: $\binom{n}{k} = \frac{n!}{k!(n-k)!}$</span>
+                    <span id="liveModeProb" class="font-semibold"></span>
+                </div>
+            </div>
+
+            <div class="demo-panel p-5 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2 gap-2">
+                        <span class="text-xs font-bold uppercase tracking-wider viz-ink-density">2. Gaussian density approximation</span>
+                        <span class="text-xs font-semibold px-2.5 py-0.5 border border-black bg-white viz-ink-density">Continuous curve</span>
+                    </div>
+                    <p class="text-xs sm:text-sm leading-relaxed mb-3">
+                        Because $X$ is the sum of $n$ independent and identically distributed (i.i.d.) variables with mean $p$ and variance $p(1-p)$, its exact mean and variance over $n$ rows are $\mu = np$ and $\sigma^2 = np(1-p)$. For large $n$, $P(X=k)$ converges to the Gaussian density $f(k)$:
+                    </p>
+                    <div class="math-block bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;">
+                        <div data-katex-display="\mu = np, \qquad \sigma = \sqrt{np(1-p)}"></div>
+                        <div data-katex-display="P(X = k) \approx f(k) = \frac{1}{\sigma\sqrt{2\pi}} \exp\!\left( -\frac{(k - \mu)^2}{2\sigma^2} \right)"></div>
+                    </div>
+                    <div class="mt-3 bg-white border border-black p-3.5 overflow-visible" style="border-radius: 4px;">
+                        <div class="flex flex-wrap items-center justify-between gap-1 text-xs mb-1.5">
+                            <span id="calcGaussianHeader" class="font-bold viz-ink-density">Theoretical Gaussian approximation</span>
+                            <span id="calcApproxDiff" class="text-[11px] font-semibold px-2 py-0.5 border border-black bg-white"></span>
+                        </div>
+                        <div id="calcGaussianEq" class="text-xs py-1 overflow-visible break-words"></div>
+                    </div>
+                </div>
+                <div class="text-xs border-t border-black pt-3 mt-3 flex items-center justify-between gap-2 flex-wrap">
+                    <span>Current $\mathcal{N}(\mu, \sigma^2)$ parameters:</span>
+                    <span id="liveNormalFormula" class="font-bold viz-ink-density"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    /**
+     * Interactive Galton Board Simulation
+     * Features Relative Frequency Y-Axis, interactive bin hover & click column selection,
+     * live Binomial PMF & Gaussian theoretical probability calculations, and KaTeX math rendering.
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('galtonCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvasContainer');
+
+        // Canvas series colours come from assets/stats-viz-theme.css.
+        // Channels are cached so the animation loop does not re-read CSS each frame.
+        const vizRgb = {};
+        ['sample', 'group-a', 'density', 'reference', 'total', 'group-c', 'mean', 'se'].forEach((token) => {
+            const hex = statsViz.color('--viz-' + token).replace('#', '');
+            vizRgb[token] = [
+                parseInt(hex.slice(0, 2), 16),
+                parseInt(hex.slice(2, 4), 16),
+                parseInt(hex.slice(4, 6), 16)
+            ];
+        });
+        function vizPaint(token, alpha) {
+            const c = vizRgb[token];
+            if (alpha === undefined || alpha >= 1) {
+                return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+            }
+            return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + alpha + ')';
+        }
+        const UI_FONT = "Arial, Helvetica, sans-serif";
+
+        const mathDelimiters = [
+            { left: '\$$', right: '\$$', display: true },
+            { left: '\$', right: '\$', display: false },
+            { left: '\[', right: '\]', display: true },
+            { left: '\$', right: '\$', display: false }
+        ];
+
+        // Direct KaTeX renderer for a specific element
+        function renderTexElement(el, texString, displayMode = false) {
+            if (!el) return;
+            if (window.katex && typeof window.katex.render === 'function') {
+                window.katex.render(texString, el, {
+                    displayMode: displayMode,
+                    throwOnError: false
+                });
+            } else {
+                el.textContent = texString;
+            }
+        }
+
+        // Render all static math blocks and inline delimiters reliably
+        function typesetStaticMath() {
+            document.querySelectorAll('[data-katex-display]').forEach((el) => {
+                const tex = el.getAttribute('data-katex-display');
+                renderTexElement(el, tex, true);
+            });
+
+            if (typeof window.renderMathInElement === 'function') {
+                window.renderMathInElement(document.body, {
+                    delimiters: mathDelimiters,
+                    throwOnError: false
+                });
+            }
+        }
+
+        // Simulation State & Parameters
+        let numRows = 12;
+        let biasP = 0.50;         // Probability of bouncing right
+        let dropCount = 50;       // Number of beads dropped via button (1-100)
+        let dropRate = 24;        // Balls per second
+        let speedMultiplier = 1.2;
+        let isFlowing = true;
+        let showBellCurve = true;
+        let showPascal = false;
+        let showTrails = true;
+        let soundEnabled = false;
+
+        // Interactive Bin Hover & Click Selection State
+        let hoveredBin = null;
+        let selectedBin = null;
+        let pointerPos = { x: 0, y: 0 };
+
+        // Geometry layout state (recalculated on resize or row change)
+        let width = 800;
+        let height = 640;
+        let dpr = window.devicePixelRatio || 1;
+        let boardCenterX = 400;
+        let boardTopY = 80;
+        let pegAreaHeight = 250;
+        let boardBottomY = 340;   // Bottom edge of the Galton board guard walls
+        let binTopY = 392;        // Top edge of the histogram graph (spaced below boardBottomY)
+        let binBottomY = 580;
+        let rowSpacingY = 24;
+        let colSpacingX = 32;
+        let pegRadius = 4;
+        let ballRadius = 4.5;
+
+        // Entities & Statistics
+        let pegs = [];            // 2D array [row][col] of peg coordinates and glow intensity
+        let balls = [];           // Active falling balls
+        let bins = [];            // Count of settled balls in each of the (numRows + 1) bins
+        let totalSettled = 0;
+        let spawnAccumulator = 0;
+        let lastTimestamp = performance.now();
+
+        // Web Audio API Synthesizer for subtle peg clicks
+        let audioCtx = null;
+        let lastSoundTime = 0;
+
+        function playPegTick(rowIdx) {
+            if (!soundEnabled) return;
+            const now = performance.now();
+            if (now - lastSoundTime < 28) return;
+            lastSoundTime = now;
+
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = ctx.createOscillator ? null : audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const baseFreq = 320 + (rowIdx / numRows) * 520 + (Math.random() * 40 - 20);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0008, audioCtx.currentTime + 0.045);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.05);
+            } catch (e) {
+                // Ignore audio context restriction errors
+            }
+        }
+
+        // Cross-browser helper for rounded top rectangles
+        function drawRoundedTopRect(ctx, x, y, w, h, r) {
+            const radius = Math.max(0, Math.min(r, w / 2, h));
+            ctx.beginPath();
+            ctx.moveTo(x, y + h);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.lineTo(x + w - radius, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+            ctx.lineTo(x + w, y + h);
+            ctx.closePath();
+        }
+
+        // Cross-browser helper for pill/rounded rectangles
+        function drawPillRect(ctx, x, y, w, h, r) {
+            const radius = Math.max(0, Math.min(r, w / 2, h / 2));
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + w - radius, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+            ctx.lineTo(x + w, y + h - radius);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+            ctx.lineTo(x + radius, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        // Precompute Binomial Coefficients nCr for Pascal's triangle & theoretical probabilities
+        function combinations(n, k) {
+            if (k < 0 || k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            k = Math.min(k, n - k);
+            let c = 1;
+            for (let i = 0; i < k; i++) {
+                c = c * (n - i) / (i + 1);
+            }
+            return Math.round(c);
+        }
+
+        // Compute exact Binomial probability P(X = k)
+        function getBinomialProb(n, k, p) {
+            return combinations(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+        }
+
+        // Compute Gaussian density approximation f(k)
+        function getGaussianProb(n, k, p) {
+            const mean = n * p;
+            const stdDev = Math.sqrt(n * p * (1 - p));
+            if (stdDev === 0) return 0;
+            const exponent = -0.5 * Math.pow((k - mean) / stdDev, 2);
+            return (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
+        }
+
+        // Empirical bars and beads share the sample blue. Bin index no longer shifts hue.
+        function getBinColor(binIndex, alpha = 1) {
+            return vizPaint('group-a', alpha);
+        }
+
+        // Helper to get X coordinate of a specific peg or bin
+        function getPegX(row, col) {
+            const rowStartX = boardCenterX - (row * colSpacingX) / 2;
+            return rowStartX + col * colSpacingX;
+        }
+
+        function getPegY(row) {
+            return boardTopY + row * rowSpacingY;
+        }
+
+        // Calculate vertical scaling maximum in terms of Relative Frequency
+        function getMaxRelFreqScale() {
+            let maxTheo = 0;
+            for (let k = 0; k <= numRows; k++) {
+                const p = getBinomialProb(numRows, k, biasP);
+                if (p > maxTheo) maxTheo = p;
+            }
+            const gPeak = getGaussianProb(numRows, numRows * biasP, biasP);
+            if (gPeak > maxTheo) maxTheo = gPeak;
+
+            let maxEmp = 0;
+            if (totalSettled > 0) {
+                for (let k = 0; k <= numRows; k++) {
+                    const rf = bins[k] / totalSettled;
+                    if (rf > maxEmp) maxEmp = rf;
+                }
+            }
+            return Math.max(maxTheo, maxEmp, 0.1) * 1.15;
+        }
+
+        // Calculate vertical scaling maximum in count units so bars and curves share exact scale
+        function getHistogramScaleMax() {
+            const maxRelFreq = getMaxRelFreqScale();
+            if (totalSettled === 0) return maxRelFreq;
+            return totalSettled * maxRelFreq;
+        }
+
+        // Compute current top surface Y of a bin bar so falling balls land on top of the bar
+        function getBinSurfaceY(binIdx) {
+            const maxBarHeight = binBottomY - binTopY - 12;
+            if (totalSettled === 0) return binBottomY;
+            const scaleMaxCount = getHistogramScaleMax();
+            const barHeight = scaleMaxCount > 0 ? (bins[binIdx] / scaleMaxCount) * maxBarHeight : 0;
+            return Math.max(binTopY + 5, binBottomY - barHeight);
+        }
+
+        // Initialize or recalculate board geometry, leaving left margin for Y-axis, bottom margin for X-axis,
+        // and a dedicated vertical separation gap between the Galton board and the histogram graph.
+        function setupBoardGeometry() {
+            const rect = container.getBoundingClientRect();
+            width = Math.max(320, rect.width);
+            height = Math.max(520, rect.height);
+            dpr = window.devicePixelRatio || 1;
+
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            // Shift board center slightly right so the left Relative Frequency Y-Axis has ample room
+            boardCenterX = width * 0.535;
+
+            // Vertical zones: allocate space for the peg pyramid at top, a clear separation gap, and the graph below
+            boardTopY = height * 0.085;
+            pegAreaHeight = height * 0.365;
+            rowSpacingY = pegAreaHeight / numRows;
+
+            // Horizontal spacing: ensure all (numRows + 1) bins and left Y-axis fit comfortably
+            const maxBoardWidth = width * 0.78;
+            colSpacingX = Math.min(rowSpacingY * 1.22, maxBoardWidth / (numRows + 1));
+
+            // Bottom of the last row of pegs and the lower edge of the Galton board side walls
+            const lastPegRowY = boardTopY + (numRows - 1) * rowSpacingY;
+            boardBottomY = lastPegRowY + rowSpacingY * 0.65;
+
+            // Add a distinct vertical buffer gap (~44px) so the Galton board and the graph below do not touch
+            const boardToGraphGap = Math.max(38, height * 0.068);
+            binTopY = boardBottomY + boardToGraphGap;
+            binBottomY = height - 50;
+
+            pegRadius = Math.max(2.4, Math.min(5.5, colSpacingX * 0.14));
+            ballRadius = Math.max(3.0, Math.min(6.2, colSpacingX * 0.19));
+
+            // Build peg coordinates & preserve/initialize glow state
+            const newPegs = [];
+            for (let r = 0; r < numRows; r++) {
+                const rowArr = [];
+                const y = boardTopY + r * rowSpacingY;
+                const rowStartX = boardCenterX - (r * colSpacingX) / 2;
+                for (let c = 0; c <= r; c++) {
+                    const x = rowStartX + c * colSpacingX;
+                    const prevGlow = (pegs[r] && pegs[r][c]) ? pegs[r][c].glow : 0;
+                    rowArr.push({
+                        x,
+                        y,
+                        r,
+                        c,
+                        glow: prevGlow,
+                        pascalCount: combinations(r, c)
+                    });
+                }
+                newPegs.push(rowArr);
+            }
+            pegs = newPegs;
+
+            // Re-align active balls if window was resized mid-flight
+            for (let i = 0; i < balls.length; i++) {
+                const b = balls[i];
+                b.history = [];
+                if (b.state === 'TO_FIRST_PEG') {
+                    b.startX = boardCenterX;
+                    b.startY = boardTopY - rowSpacingY * 1.35;
+                    b.targetX = getPegX(0, 0);
+                    b.targetY = getPegY(0) - pegRadius - ballRadius;
+                } else if (b.state === 'BOUNCING') {
+                    b.startX = getPegX(b.row, b.col);
+                    b.startY = getPegY(b.row) - pegRadius - ballRadius;
+                    const nextRow = b.row + 1;
+                    b.targetX = getPegX(nextRow, b.nextCol);
+                    b.targetY = getPegY(nextRow) - pegRadius - ballRadius;
+                } else if (b.state === 'INTO_BIN') {
+                    const binCenterX = getPegX(numRows, b.binIndex);
+                    b.startX = getPegX(numRows - 1, b.col);
+                    b.startY = getPegY(numRows - 1) - pegRadius - ballRadius;
+                    b.targetX = binCenterX;
+                    b.targetY = getBinSurfaceY(b.binIndex);
+                }
+            }
+        }
+
+        // Determine which bin k is being inspected for the mathematical formulation calculation
+        function getTargetCalculationBin() {
+            if (hoveredBin !== null && hoveredBin >= 0 && hoveredBin <= numRows) return hoveredBin;
+            if (selectedBin !== null && selectedBin >= 0 && selectedBin <= numRows) return selectedBin;
+            return Math.min(numRows, Math.round(numRows * biasP));
+        }
+
+        // Update the live mathematical evaluation for both Binomial PMF and Gaussian Density at bin k
+        function updateBinCalculationUI() {
+            const targetK = getTargetCalculationBin();
+            const isLocked = selectedBin !== null;
+            const isHovered = hoveredBin !== null;
+
+            const binomProb = getBinomialProb(numRows, targetK, biasP);
+            const gaussProb = getGaussianProb(numRows, targetK, biasP);
+            const comb = combinations(numRows, targetK);
+            const mean = numRows * biasP;
+            const stdDev = Math.sqrt(numRows * biasP * (1 - biasP));
+            const empRelFreq = totalSettled > 0 ? (bins[targetK] / totalSettled) : 0;
+            const absDiff = Math.abs(binomProb - gaussProb);
+
+            // Top canvas status indicator
+            const statusEl = document.getElementById('selectedBinStatus');
+            if (statusEl) {
+                if (isLocked) {
+                    statusEl.innerHTML = `<span class="viz-ink-density font-semibold">Highlighted column: k = ${targetK}</span> <span class="opacity-60">(click column again to clear)</span>`;
+                } else if (isHovered) {
+                    statusEl.innerHTML = `<span class="viz-ink-group-a font-semibold">Inspecting bin: k = ${targetK}</span> <span class="opacity-60">(click to lock highlight)</span>`;
+                } else {
+                    statusEl.textContent = 'Hover a bin to inspect k; click a bin column to highlight';
+                }
+            }
+
+            // 1. Binomial Calculation Box (Compact single-line fit without scrolling)
+            const binomHeader = document.getElementById('calcBinomialHeader');
+            if (binomHeader) {
+                const modeLabel = isHovered ? 'Hovered' : (isLocked ? 'Highlighted' : 'Mean/Mode');
+                renderTexElement(binomHeader, `\\text{Binomial PMF at } k = ${targetK} \\text{ (${modeLabel})}`, false);
+            }
+
+            const binomEmpEl = document.getElementById('calcBinomialEmpirical');
+            if (binomEmpEl) {
+                binomEmpEl.textContent = totalSettled > 0
+                    ? `Empirical: ${empRelFreq.toFixed(4)} (${(empRelFreq * 100).toFixed(2)}%)`
+                    : `Empirical: -- (N = 0)`;
+            }
+
+            const binomEqEl = document.getElementById('calcBinomialEq');
+            if (binomEqEl) {
+                const qVal = (1 - biasP).toFixed(2);
+                const pVal = biasP.toFixed(2);
+                const texBinom = `P(X=${targetK}) = \\binom{${numRows}}{${targetK}}(${pVal})^{${targetK}}(${qVal})^{${numRows - targetK}} = ${comb} \\cdot (${pVal})^{${targetK}}(${qVal})^{${numRows - targetK}} = \\mathbf{${binomProb.toFixed(4)}} \\; (${(binomProb * 100).toFixed(2)}\\%)`;
+                renderTexElement(binomEqEl, texBinom, false);
+            }
+
+            // 2. Gaussian Calculation Box
+            const gaussHeader = document.getElementById('calcGaussianHeader');
+            if (gaussHeader) {
+                const modeLabel = isHovered ? 'Hovered' : (isLocked ? 'Highlighted' : 'Mean/Mode');
+                renderTexElement(gaussHeader, `\\text{Gaussian Density at } k = ${targetK} \\text{ (${modeLabel})}`, false);
+            }
+
+            const diffEl = document.getElementById('calcApproxDiff');
+            if (diffEl) {
+                diffEl.textContent = `|P(X=${targetK}) - f(${targetK})| = ${absDiff.toFixed(4)}`;
+            }
+
+            const gaussEqEl = document.getElementById('calcGaussianEq');
+            if (gaussEqEl) {
+                const texGauss = `f(${targetK}) = \\frac{1}{${stdDev.toFixed(2)}\\sqrt{2\\pi}} \\exp\\!\\left( -\\frac{(${targetK} - ${mean.toFixed(2)})^2}{2(${stdDev.toFixed(2)})^2} \\right) = \\mathbf{${gaussProb.toFixed(4)}} \\; (${(gaussProb * 100).toFixed(2)}\\%)`;
+                renderTexElement(gaussEqEl, texGauss, false);
+            }
+        }
+
+        // Update the live mathematical formula badges directly with KaTeX when n or p changes
+        function updateMathFormulaUI() {
+            const mean = numRows * biasP;
+            const variance = numRows * biasP * (1 - biasP);
+            const stdDev = Math.sqrt(variance);
+            const modeK = Math.min(numRows, Math.floor((numRows + 1) * biasP));
+            const modeProb = (getBinomialProb(numRows, modeK, biasP) * 100).toFixed(1);
+
+            renderTexElement(
+                document.getElementById('mathParamBadge'),
+                `n = ${numRows},\\; p = ${biasP.toFixed(2)},\\; k \\in \\{0, \\dots, ${numRows}\\}`,
+                false
+            );
+
+            renderTexElement(
+                document.getElementById('liveModeProb'),
+                `\\text{Mode } k = ${modeK}\\;(${modeProb}\\%)`,
+                false
+            );
+
+            renderTexElement(
+                document.getElementById('liveNormalFormula'),
+                `\\mu = ${mean.toFixed(2)},\\; \\sigma^2 = ${variance.toFixed(2)}\\; (\\sigma = ${stdDev.toFixed(2)})`,
+                false
+            );
+
+            const skewStatusBadge = document.getElementById('skewStatusBadge');
+            if (skewStatusBadge) {
+                const np = numRows * biasP;
+                const nq = numRows * (1 - biasP);
+                const minExpected = Math.min(np, nq);
+                if (minExpected >= 5) {
+                    skewStatusBadge.className = 'text-xs font-semibold px-3 py-1 border border-black viz-soft-significant viz-ink-significant';
+                    renderTexElement(
+                        skewStatusBadge,
+                        `np = ${np.toFixed(1)},\\; n(1-p) = ${nq.toFixed(1)} \\ge 5\\; (\\text{Strong Normal Fit})`,
+                        false
+                    );
+                } else {
+                    skewStatusBadge.className = 'text-xs font-semibold px-3 py-1 border border-black viz-soft-null viz-ink-null';
+                    renderTexElement(
+                        skewStatusBadge,
+                        `np = ${np.toFixed(1)},\\; n(1-p) = ${nq.toFixed(1)} < 5\\; (\\text{Skewed / Increase } n)`,
+                        false
+                    );
+                }
+            }
+
+            renderTexElement(document.getElementById('insightRows'), `n = ${numRows}`, false);
+            renderTexElement(document.getElementById('insightP'), `p = ${biasP.toFixed(2)}`, false);
+            renderTexElement(document.getElementById('insightQ'), `1 - p = ${(1 - biasP).toFixed(2)}`, false);
+
+            updateBinCalculationUI();
+        }
+
+        // Reset simulation state
+        function resetSimulation() {
+            balls = [];
+            bins = new Array(numRows + 1).fill(0);
+            totalSettled = 0;
+            spawnAccumulator = 0;
+            if (selectedBin !== null && selectedBin > numRows) {
+                selectedBin = null;
+            }
+            if (hoveredBin !== null && hoveredBin > numRows) {
+                hoveredBin = null;
+            }
+            setupBoardGeometry();
+            updateTelemetryUI();
+            updateMathFormulaUI();
+        }
+
+        // Spawn a new bead at the top funnel
+        function spawnBall(customJitterX = 0, initialT = 0) {
+            const startX = boardCenterX + customJitterX + (Math.random() - 0.5) * 4;
+            const startY = boardTopY - rowSpacingY * 1.35;
+            const targetX = getPegX(0, 0);
+            const targetY = getPegY(0) - pegRadius - ballRadius;
+
+            balls.push({
+                state: 'TO_FIRST_PEG',
+                row: 0,
+                col: 0,
+                nextCol: 0,
+                binIndex: 0,
+                startX: startX,
+                startY: startY,
+                targetX: targetX,
+                targetY: targetY,
+                x: startX,
+                y: startY,
+                t: initialT,
+                duration: 0.24,
+                arcHeight: 0,
+                color: vizPaint('sample'),
+                history: []
+            });
+        }
+
+        // Drop a batch of beads according to current dropCount setting
+        function dropBeadsBatch(count, customOffset = 0) {
+            const staggerWindow = Math.min(1.4, Math.max(0.05, count * 0.015));
+            for (let i = 0; i < count; i++) {
+                const jitter = customOffset + (Math.random() - 0.5) * (count > 1 ? 8 : 2);
+                const delayT = count === 1 ? 0 : -(i / count) * staggerWindow;
+                spawnBall(jitter, delayT);
+            }
+        }
+
+        // Trigger bounce decision at peg (row, col)
+        function triggerPegBounce(ball, row, col) {
+            if (pegs[row] && pegs[row][col]) {
+                pegs[row][col].glow = 1.0;
+            }
+            playPegTick(row);
+
+            // Binary random decision: right (1) with probability biasP, else left (0)
+            const goRight = Math.random() < biasP ? 1 : 0;
+            const nextCol = col + goRight;
+            const nextRow = row + 1;
+
+            ball.row = row;
+            ball.col = col;
+            ball.nextCol = nextCol;
+            ball.startX = getPegX(row, col);
+            ball.startY = getPegY(row) - pegRadius - ballRadius;
+            ball.t = 0;
+            ball.color = getBinColor((nextCol / nextRow) * numRows);
+
+            if (nextRow < numRows) {
+                ball.state = 'BOUNCING';
+                const jitter = (Math.random() - 0.5) * (pegRadius * 0.4);
+                ball.targetX = getPegX(nextRow, nextCol) + jitter;
+                ball.targetY = getPegY(nextRow) - pegRadius - ballRadius;
+                ball.duration = (0.145 + Math.random() * 0.025) * Math.sqrt(12 / numRows);
+                ball.arcHeight = rowSpacingY * (0.22 + Math.random() * 0.08);
+            } else {
+                ball.state = 'INTO_BIN';
+                ball.binIndex = nextCol;
+                const binCenterX = getPegX(numRows, nextCol);
+                ball.targetX = binCenterX + (Math.random() - 0.5) * (colSpacingX * 0.34);
+                ball.targetY = getBinSurfaceY(nextCol);
+                ball.duration = (0.28 + Math.random() * 0.03) * Math.sqrt(12 / numRows);
+                ball.arcHeight = rowSpacingY * 0.18;
+            }
+        }
+
+        // Update physics for all active balls
+        function updateBalls(dt) {
+            const scaledDt = dt * speedMultiplier;
+
+            if (isFlowing) {
+                spawnAccumulator += dt * dropRate;
+                const maxActive = 350;
+                while (spawnAccumulator >= 1) {
+                    spawnAccumulator -= 1;
+                    if (balls.length < maxActive) {
+                        spawnBall();
+                    }
+                }
+            }
+
+            // Fade peg glow
+            for (let r = 0; r < pegs.length; r++) {
+                for (let c = 0; c < pegs[r].length; c++) {
+                    if (pegs[r][c].glow > 0) {
+                        pegs[r][c].glow = Math.max(0, pegs[r][c].glow - dt * 4.5);
+                    }
+                }
+            }
+
+            // Advance each ball
+            for (let i = balls.length - 1; i >= 0; i--) {
+                const b = balls[i];
+                b.t += scaledDt / b.duration;
+
+                if (b.t < 0) continue;
+
+                if (showTrails) {
+                    b.history.push({ x: b.x, y: b.y });
+                    if (b.history.length > 16) b.history.shift();
+                } else if (b.history.length > 0) {
+                    b.history.length = 0;
+                }
+
+                if (b.state === 'TO_FIRST_PEG') {
+                    const progress = Math.min(1, b.t);
+                    b.x = b.startX + (b.targetX - b.startX) * progress;
+                    b.y = b.startY + (b.targetY - b.startY) * (progress * progress);
+
+                    if (b.t >= 1) {
+                        triggerPegBounce(b, 0, 0);
+                    }
+                } else if (b.state === 'BOUNCING') {
+                    const progress = Math.min(1, b.t);
+                    b.x = b.startX + (b.targetX - b.startX) * progress;
+                    const verticalDrop = b.targetY - b.startY;
+                    const hop = -4 * b.arcHeight * progress * (1 - progress);
+                    b.y = b.startY + verticalDrop * (progress * progress) + hop;
+
+                    if (b.t >= 1) {
+                        triggerPegBounce(b, b.row + 1, b.nextCol);
+                    }
+                } else if (b.state === 'INTO_BIN') {
+                    b.targetY = getBinSurfaceY(b.binIndex);
+                    const progress = Math.min(1, b.t);
+                    const horizProgress = Math.min(1, progress * 1.35);
+                    const smoothHoriz = 1 - Math.pow(1 - horizProgress, 2);
+                    b.x = b.startX + (b.targetX - b.startX) * smoothHoriz;
+
+                    const verticalDrop = b.targetY - b.startY;
+                    const hop = -4 * b.arcHeight * progress * (1 - progress);
+                    b.y = b.startY + verticalDrop * (progress * progress) + hop;
+
+                    if (b.t >= 1) {
+                        bins[b.binIndex]++;
+                        totalSettled++;
+                        balls.splice(i, 1);
+                        updateTelemetryUI();
+                        updateBinCalculationUI();
+                    }
+                }
+            }
+        }
+
+        // Render the entire Galton Board scene
+        function drawScene() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+
+            // 1. Subtle Light Technical Grid
+            ctx.save();
+            ctx.strokeStyle = vizPaint('reference', 0.2);
+            ctx.lineWidth = 1;
+            const gridSize = 32;
+            for (let x = boardCenterX % gridSize; x < width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = boardTopY % gridSize; y < height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // 2. Top Hopper / Funnel & Side Guard Walls (terminating cleanly at boardBottomY above the graph)
+            drawFunnelAndWalls();
+
+            // 3. Bins, Y-Axis (Relative Frequency), Empirical Histogram Bars, & X-Axis k Labels
+            drawBinsAndHistogram();
+
+            // 4. Peg Pyramid (and optional Pascal's Triangle numbers)
+            drawPegs();
+
+            // 5. Active Falling Beads
+            drawBalls();
+
+            // 6. Theoretical Bell Curve & Mean / SD Overlay
+            if (showBellCurve) {
+                drawTheoreticalCurve();
+            }
+
+            // 7. Interactive Hover / Highlight Tooltip Overlay
+            drawBinTooltipOverlay();
+        }
+
+        function drawFunnelAndWalls() {
+            ctx.save();
+            const centerX = boardCenterX;
+            const nozzleHalfWidth = colSpacingX * 0.36;
+            const funnelTopY = 12;
+            const funnelNozzleY = boardTopY - rowSpacingY * 0.65;
+
+            ctx.fillStyle = vizPaint('total', 0.08);
+            ctx.beginPath();
+            ctx.moveTo(centerX - colSpacingX * 2.2, funnelTopY);
+            ctx.lineTo(centerX + colSpacingX * 2.2, funnelTopY);
+            ctx.lineTo(centerX + nozzleHalfWidth, funnelNozzleY);
+            ctx.lineTo(centerX - nozzleHalfWidth, funnelNozzleY);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.strokeStyle = vizPaint('reference');
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Left funnel wall + outer slope ending at boardBottomY (leaving space above the graph)
+            ctx.beginPath();
+            ctx.moveTo(centerX - colSpacingX * 2.2, funnelTopY);
+            ctx.lineTo(centerX - nozzleHalfWidth, funnelNozzleY);
+            ctx.lineTo(getPegX(numRows, 0) - colSpacingX * 0.55, boardBottomY);
+            ctx.stroke();
+
+            // Right funnel wall + outer slope ending at boardBottomY (leaving space above the graph)
+            ctx.beginPath();
+            ctx.moveTo(centerX + colSpacingX * 2.2, funnelTopY);
+            ctx.lineTo(centerX + nozzleHalfWidth, funnelNozzleY);
+            ctx.lineTo(getPegX(numRows, numRows) + colSpacingX * 0.55, boardBottomY);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawPegs() {
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let r = 0; r < pegs.length; r++) {
+                for (let c = 0; c < pegs[r].length; c++) {
+                    const peg = pegs[r][c];
+
+                    if (r < numRows - 1) {
+                        ctx.strokeStyle = vizPaint('reference', 0.4);
+                        ctx.lineWidth = 1.1;
+                        ctx.beginPath();
+                        ctx.moveTo(peg.x, peg.y);
+                        ctx.lineTo(pegs[r + 1][c].x, pegs[r + 1][c].y);
+                        ctx.moveTo(peg.x, peg.y);
+                        ctx.lineTo(pegs[r + 1][c + 1].x, pegs[r + 1][c + 1].y);
+                        ctx.stroke();
+                    }
+
+                    if (peg.glow > 0.01) {
+                        const glowRadius = pegRadius * (2.4 + peg.glow * 2.0);
+                        const grad = ctx.createRadialGradient(peg.x, peg.y, pegRadius * 0.4, peg.x, peg.y, glowRadius);
+                        grad.addColorStop(0, vizPaint('group-a', peg.glow * 0.45));
+                        grad.addColorStop(1, vizPaint('group-a', 0));
+                        ctx.fillStyle = grad;
+                        ctx.beginPath();
+                        ctx.arc(peg.x, peg.y, glowRadius, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    ctx.fillStyle = peg.glow > 0.1 ? vizPaint('group-a') : vizPaint('reference');
+                    ctx.beginPath();
+                    ctx.arc(peg.x, peg.y, pegRadius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(peg.x - pegRadius * 0.22, peg.y - pegRadius * 0.22, pegRadius * 0.3, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (showPascal) {
+                        const fontSize = numRows <= 12
+                            ? Math.max(8, Math.min(11, colSpacingX * 0.28))
+                            : Math.max(6.5, Math.min(9.5, colSpacingX * 0.24));
+                        ctx.font = `700 ${fontSize}px ${UI_FONT}`;
+                        const textY = peg.y + pegRadius + fontSize * 0.82;
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.92)';
+                        ctx.lineWidth = 2.8;
+                        ctx.strokeText(peg.pascalCount, peg.x, textY);
+                        ctx.fillStyle = '#000000';
+                        ctx.fillText(peg.pascalCount, peg.x, textY);
+                    }
+                }
+            }
+            ctx.restore();
+        }
+
+        function drawBalls() {
+            ctx.save();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            for (let i = 0; i < balls.length; i++) {
+                const b = balls[i];
+                if (b.t < 0) continue;
+
+                if (showTrails && b.history.length > 0) {
+                    const len = b.history.length;
+                    for (let t = 0; t < len; t++) {
+                        const pt1 = b.history[t];
+                        const pt2 = (t < len - 1) ? b.history[t + 1] : { x: b.x, y: b.y };
+                        const ratio = (t + 1) / len;
+
+                        ctx.strokeStyle = b.color;
+                        ctx.globalAlpha = Math.pow(ratio, 1.15) * 0.72;
+                        ctx.lineWidth = ballRadius * (0.45 + 1.25 * ratio);
+                        ctx.beginPath();
+                        ctx.moveTo(pt1.x, pt1.y);
+                        ctx.lineTo(pt2.x, pt2.y);
+                        ctx.stroke();
+
+                        ctx.fillStyle = b.color;
+                        ctx.globalAlpha = Math.pow(ratio, 1.3) * 0.55;
+                        ctx.beginPath();
+                        ctx.arc(pt1.x, pt1.y, ballRadius * ratio * 0.92, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = b.color;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, ballRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.22)';
+                ctx.lineWidth = 0.9;
+                ctx.stroke();
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
+                ctx.beginPath();
+                ctx.arc(b.x - ballRadius * 0.3, b.y - ballRadius * 0.3, ballRadius * 0.32, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        // Determine clean tick label step so not every single ticker is labeled
+        function shouldLabelTick(k, n) {
+            const step = n <= 12 ? 2 : 3;
+            if (k === n) return true;
+            if (k % step === 0 && (n - k) >= 2) return true;
+            return false;
+        }
+
+        function drawBinsAndHistogram() {
+            ctx.save();
+            const maxBarHeight = binBottomY - binTopY - 12;
+            const maxRelFreq = getMaxRelFreqScale();
+            const barWidth = Math.max(6, colSpacingX * 0.74);
+
+            const axisStartX = getPegX(numRows, 0) - colSpacingX * 0.65;
+            const axisEndX = getPegX(numRows, numRows) + colSpacingX * 0.65;
+
+            // 1. Subtle alternating or highlighted column backgrounds for bins
+            for (let k = 0; k <= numRows; k++) {
+                const centerX = getPegX(numRows, k);
+                const leftWallX = centerX - colSpacingX / 2;
+                const isSelected = selectedBin === k;
+                const isHovered = hoveredBin === k;
+
+                if (isSelected) {
+                    ctx.fillStyle = vizPaint('group-a', 0.14);
+                    ctx.fillRect(leftWallX, binTopY, colSpacingX, binBottomY - binTopY);
+                    ctx.strokeStyle = vizPaint('density', 0.65);
+                    ctx.lineWidth = 1.6;
+                    ctx.strokeRect(leftWallX + 0.5, binTopY, colSpacingX - 1, binBottomY - binTopY);
+                } else if (isHovered) {
+                    ctx.fillStyle = vizPaint('group-a', 0.08);
+                    ctx.fillRect(leftWallX, binTopY, colSpacingX, binBottomY - binTopY);
+                } else if (k % 2 === 0) {
+                    ctx.fillStyle = vizPaint('total', 0.06);
+                    ctx.fillRect(leftWallX, binTopY, colSpacingX, binBottomY - binTopY);
+                }
+            }
+
+            // 2. Y-Axis for Relative Frequency on the Left
+            const yAxisX = axisStartX;
+            const yAxisTop = binTopY + 4;
+
+            // Choose clean tick interval for Relative Frequency
+            let tickStep = 0.05;
+            if (maxRelFreq > 0.45) tickStep = 0.10;
+            else if (maxRelFreq <= 0.18) tickStep = 0.02;
+
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.font = `600 9.5px ${UI_FONT}`;
+
+            for (let rf = 0; rf <= maxRelFreq + 0.0001; rf += tickStep) {
+                const tickY = binBottomY - (rf / maxRelFreq) * maxBarHeight;
+                if (tickY < yAxisTop - 2) break;
+
+                // Subtle horizontal reference line across bins
+                if (rf > 0) {
+                    ctx.save();
+                    ctx.setLineDash([2, 3]);
+                    ctx.strokeStyle = vizPaint('reference', 0.28);
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(yAxisX, tickY);
+                    ctx.lineTo(axisEndX, tickY);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // Tick mark on Y-axis
+                ctx.strokeStyle = vizPaint('reference');
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(yAxisX - 4.5, tickY);
+                ctx.lineTo(yAxisX, tickY);
+                ctx.stroke();
+
+                // Tick label
+                ctx.fillStyle = vizPaint('reference');
+                ctx.fillText(rf.toFixed(2), yAxisX - 7, tickY);
+            }
+
+            // Y-Axis vertical spine + top arrowhead
+            ctx.strokeStyle = vizPaint('reference');
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(yAxisX, binBottomY);
+            ctx.lineTo(yAxisX, yAxisTop - 6);
+            ctx.stroke();
+
+            ctx.fillStyle = vizPaint('reference');
+            ctx.beginPath();
+            ctx.moveTo(yAxisX, yAxisTop - 11);
+            ctx.lineTo(yAxisX - 4, yAxisTop - 4);
+            ctx.lineTo(yAxisX + 4, yAxisTop - 4);
+            ctx.closePath();
+            ctx.fill();
+
+            // Rotated Y-Axis Title ("Relative Frequency")
+            ctx.save();
+            const yTitleX = Math.max(13, yAxisX - 40);
+            const yTitleY = (binTopY + binBottomY) / 2;
+            ctx.translate(yTitleX, yTitleY);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = `600 11px ${UI_FONT}`;
+            ctx.fillStyle = vizPaint('reference');
+            ctx.fillText('Relative Frequency', 0, 0);
+            ctx.restore();
+
+            // 3. X-Axis Floor Line with right arrow indicating k-axis
+            ctx.strokeStyle = vizPaint('reference');
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(axisStartX, binBottomY);
+            ctx.lineTo(axisEndX + 10, binBottomY);
+            ctx.stroke();
+
+            // Right arrowhead on the k-axis
+            ctx.fillStyle = vizPaint('reference');
+            ctx.beginPath();
+            ctx.moveTo(axisEndX + 14, binBottomY);
+            ctx.lineTo(axisEndX + 7, binBottomY - 4);
+            ctx.lineTo(axisEndX + 7, binBottomY + 4);
+            ctx.closePath();
+            ctx.fill();
+
+            // Right-side 'k' variable symbol at tip of axis arrow
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+            ctx.font = `italic 700 12px ${UI_FONT}`;
+            ctx.fillStyle = vizPaint('density');
+            ctx.fillText('k', axisEndX + 18, binBottomY + 4);
+
+            ctx.textAlign = 'center';
+
+            for (let k = 0; k <= numRows; k++) {
+                const centerX = getPegX(numRows, k);
+                const leftWallX = centerX - colSpacingX / 2;
+                const isSelected = selectedBin === k;
+                const isHovered = hoveredBin === k;
+
+                // Vertical Bin Divider Wall
+                ctx.strokeStyle = vizPaint('reference', 0.45);
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.moveTo(leftWallX, binTopY);
+                ctx.lineTo(leftWallX, binBottomY);
+                ctx.stroke();
+
+                if (k === numRows) {
+                    const rightWallX = centerX + colSpacingX / 2;
+                    ctx.beginPath();
+                    ctx.moveTo(rightWallX, binTopY);
+                    ctx.lineTo(rightWallX, binBottomY);
+                    ctx.stroke();
+                }
+
+                // Axis tick mark at center of bin k
+                const isMajor = shouldLabelTick(k, numRows) || isSelected || isHovered;
+                ctx.strokeStyle = (isSelected || isHovered) ? vizPaint('density') : (isMajor ? vizPaint('reference') : vizPaint('reference', 0.55));
+                ctx.lineWidth = (isSelected || isHovered) ? 2.2 : (isMajor ? 1.6 : 1.1);
+                ctx.beginPath();
+                ctx.moveTo(centerX, binBottomY);
+                ctx.lineTo(centerX, binBottomY + (isMajor ? 6 : 3.5));
+                ctx.stroke();
+
+                // Histogram Bar for settled beads in bin k
+                const count = bins[k];
+                if (count > 0 && totalSettled > 0) {
+                    const relFreq = count / totalSettled;
+                    const barHeight = Math.min(maxBarHeight, (relFreq / maxRelFreq) * maxBarHeight);
+                    const barX = centerX - barWidth / 2;
+                    const barY = binBottomY - barHeight;
+
+                    const grad = ctx.createLinearGradient(barX, barY, barX, binBottomY);
+                    if (isSelected) {
+                        grad.addColorStop(0, vizPaint('density', 0.96));
+                        grad.addColorStop(1, vizPaint('group-a', 0.65));
+                    } else if (isHovered) {
+                        grad.addColorStop(0, getBinColor(k, 1.0));
+                        grad.addColorStop(1, getBinColor(k, 0.65));
+                    } else {
+                        grad.addColorStop(0, getBinColor(k, 0.9));
+                        grad.addColorStop(1, getBinColor(k, 0.45));
+                    }
+
+                    ctx.fillStyle = grad;
+                    drawRoundedTopRect(ctx, barX, barY, barWidth, barHeight, 4);
+                    ctx.fill();
+
+                    ctx.strokeStyle = isSelected ? vizPaint('density') : getBinColor(k, 1);
+                    ctx.lineWidth = isSelected ? 2.2 : 1.5;
+                    ctx.stroke();
+
+                    // Count label above bar
+                    if (colSpacingX >= 22) {
+                        ctx.font = `700 10px ${UI_FONT}`;
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+                        ctx.lineWidth = 2.5;
+                        ctx.strokeText(count, centerX, barY - 7);
+                        ctx.fillStyle = isSelected ? vizPaint('density') : '#000000';
+                        ctx.fillText(count, centerX, barY - 7);
+                    }
+                }
+
+                // Spaced Bin Index Label k below x-axis tick
+                if (isMajor) {
+                    const tickFontSize = colSpacingX < 24 ? 9.5 : 10.5;
+                    ctx.font = `700 ${tickFontSize}px ${UI_FONT}`;
+                    ctx.fillStyle = (isSelected || isHovered) ? vizPaint('density') : vizPaint('total');
+                    ctx.fillText(`${k}`, centerX, binBottomY + 17);
+                }
+            }
+
+            // Centered X-Axis Title below tick labels
+            ctx.font = `600 11.5px ${UI_FONT}`;
+            ctx.fillStyle = vizPaint('reference');
+            ctx.textAlign = 'center';
+            ctx.fillText(`Bin Index k (Number of Right Bounces out of n = ${numRows} Rows)`, boardCenterX, binBottomY + 37);
+
+            ctx.restore();
+        }
+
+        function drawBadgePill(x, y, text, bgFill, borderStroke, textColor) {
+            ctx.save();
+            ctx.font = `700 9.5px ${UI_FONT}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const padX = 5.5;
+            const boxH = 15;
+            const textW = ctx.measureText(text).width;
+            const boxW = textW + padX * 2;
+            const clampedX = Math.max(boxW / 2 + 6, Math.min(width - boxW / 2 - 6, x));
+            drawPillRect(ctx, clampedX - boxW / 2, y - boxH / 2, boxW, boxH, 4);
+            ctx.fillStyle = bgFill;
+            ctx.fill();
+            ctx.strokeStyle = borderStroke;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = textColor;
+            ctx.fillText(text, clampedX, y + 0.5);
+            ctx.restore();
+        }
+
+        function drawTheoreticalCurve() {
+            ctx.save();
+            const maxBarHeight = binBottomY - binTopY - 12;
+            const maxRelFreq = getMaxRelFreqScale();
+
+            // Continuous Normal Approximation parameters: N(np, np(1-p))
+            const mean = numRows * biasP;
+            const variance = numRows * biasP * (1 - biasP);
+            const stdDev = Math.sqrt(variance);
+
+            const originX = getPegX(numRows, 0);
+            const minBinX = originX - colSpacingX * 0.5;
+            const maxBinX = getPegX(numRows, numRows) + colSpacingX * 0.5;
+
+            // Helper to compute Gaussian curve Y for a given k value
+            function getCurveY(kVal) {
+                const density = getGaussianProb(numRows, kVal, biasP);
+                const expectedHeight = (density / maxRelFreq) * maxBarHeight;
+                return binBottomY - Math.min(maxBarHeight * 1.04, expectedHeight);
+            }
+
+            // 1. Subtle +/- 2 SD reference lines if within board bounds
+            [-2, 2].forEach((mult) => {
+                const kSD2 = mean + mult * stdDev;
+                const xSD2 = originX + kSD2 * colSpacingX;
+                if (xSD2 >= minBinX && xSD2 <= maxBinX) {
+                    ctx.save();
+                    ctx.setLineDash([2, 4]);
+                    ctx.strokeStyle = vizPaint('se', 0.32);
+                    ctx.lineWidth = 1.1;
+                    ctx.beginPath();
+                    ctx.moveTo(xSD2, binTopY + 26);
+                    ctx.lineTo(xSD2, binBottomY);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            });
+
+            // 2. +/- 1 SD vertical dashed lines & inflection markers
+            const meanX = originX + mean * colSpacingX;
+            const leftSD1K = mean - stdDev;
+            const rightSD1K = mean + stdDev;
+            const leftSD1X = originX + leftSD1K * colSpacingX;
+            const rightSD1X = originX + rightSD1K * colSpacingX;
+            const inflectionY = getCurveY(rightSD1K);
+
+            // Shaded 1-SD band between (Mean - SD) and (Mean + SD)
+            const clampedLeftSDX = Math.max(minBinX, leftSD1X);
+            const clampedRightSDX = Math.min(maxBinX, rightSD1X);
+            if (clampedRightSDX > clampedLeftSDX) {
+                ctx.fillStyle = vizPaint('se', 0.08);
+                ctx.fillRect(clampedLeftSDX, binTopY + 22, clampedRightSDX - clampedLeftSDX, binBottomY - (binTopY + 22));
+            }
+
+            // Prevent horizontal collision between -1 SD and +1 SD pills
+            const sdPixelSpan = rightSD1X - leftSD1X;
+            const minPillSeparation = 96;
+            const extraSpread = sdPixelSpan < minPillSeparation ? (minPillSeparation - sdPixelSpan) / 2 : 0;
+
+            [
+                { kVal: leftSD1K, x: leftSD1X, pillX: leftSD1X - extraSpread, label: `\u03BC\u2212\u03C3 (${leftSD1K.toFixed(2)})` },
+                { kVal: rightSD1K, x: rightSD1X, pillX: rightSD1X + extraSpread, label: `\u03BC+\u03C3 (${rightSD1K.toFixed(2)})` }
+            ].forEach((sdItem) => {
+                if (sdItem.x >= minBinX && sdItem.x <= maxBinX) {
+                    ctx.save();
+                    ctx.setLineDash([4, 3]);
+                    ctx.strokeStyle = vizPaint('se', 0.7);
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(sdItem.x, binTopY + 28);
+                    ctx.lineTo(sdItem.x, binBottomY);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    const yCurve = getCurveY(sdItem.kVal);
+                    ctx.save();
+                    ctx.fillStyle = vizPaint('se');
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(sdItem.x, yCurve, 3.6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.restore();
+
+                    drawBadgePill(
+                        sdItem.pillX,
+                        binTopY + 28,
+                        sdItem.label,
+                        vizPaint('se', 0.12),
+                        vizPaint('se', 0.45),
+                        vizPaint('se')
+                    );
+                }
+            });
+
+            // Horizontal double-headed arrow from Mean to +1 SD
+            if (rightSD1X <= maxBinX && meanX >= minBinX) {
+                const arrowY = Math.min(binBottomY - 18, Math.max(binTopY + 54, inflectionY));
+                ctx.save();
+                ctx.strokeStyle = vizPaint('se');
+                ctx.fillStyle = vizPaint('se');
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(meanX, arrowY);
+                ctx.lineTo(rightSD1X, arrowY);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(meanX, arrowY);
+                ctx.lineTo(meanX + 5, arrowY - 3);
+                ctx.lineTo(meanX + 5, arrowY + 3);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(rightSD1X, arrowY);
+                ctx.lineTo(rightSD1X - 5, arrowY - 3);
+                ctx.lineTo(rightSD1X - 5, arrowY + 3);
+                ctx.closePath();
+                ctx.fill();
+
+                const midSpanX = (meanX + rightSD1X) / 2;
+                drawBadgePill(
+                    midSpanX,
+                    arrowY - 11,
+                    `\u03C3 = ${stdDev.toFixed(2)}`,
+                    '#ffffff',
+                    vizPaint('se', 0.5),
+                    vizPaint('se')
+                );
+                ctx.restore();
+            }
+
+            // 3. Vertical dashed line indicating theoretical Mean = np
+            ctx.save();
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = vizPaint('mean', 0.75);
+            ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.moveTo(meanX, binTopY + 12);
+            ctx.lineTo(meanX, binBottomY);
+            ctx.stroke();
+            ctx.restore();
+
+            drawBadgePill(
+                meanX,
+                binTopY + 10,
+                `\u03BC = ${mean.toFixed(2)}`,
+                vizPaint('mean', 0.12),
+                vizPaint('mean', 0.5),
+                vizPaint('mean')
+            );
+
+            // 4. Continuous Gaussian Bell Curve
+            ctx.beginPath();
+            const startK = -0.4;
+            const endK = numRows + 0.4;
+            const steps = 120;
+
+            for (let s = 0; s <= steps; s++) {
+                const kVal = startK + (s / steps) * (endK - startK);
+                const x = originX + kVal * colSpacingX;
+                const y = getCurveY(kVal);
+
+                if (s === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+
+            ctx.shadowColor = vizPaint('density', 0.28);
+            ctx.shadowBlur = 8;
+            ctx.strokeStyle = vizPaint('density');
+            ctx.lineWidth = 2.75;
+            ctx.stroke();
+
+            // 5. Plot exact discrete Binomial PMF markers at each bin center k
+            ctx.shadowBlur = 0;
+            for (let k = 0; k <= numRows; k++) {
+                const prob = getBinomialProb(numRows, k, biasP);
+                const expectedHeight = (prob / maxRelFreq) * maxBarHeight;
+                const cx = getPegX(numRows, k);
+                const cy = binBottomY - Math.min(maxBarHeight * 1.04, expectedHeight);
+                const isActive = (hoveredBin === k || selectedBin === k);
+
+                ctx.fillStyle = isActive ? vizPaint('group-c') : '#ffffff';
+                ctx.strokeStyle = vizPaint('group-c');
+                ctx.lineWidth = isActive ? 2.6 : 2.2;
+                ctx.beginPath();
+                ctx.arc(cx, cy, isActive ? 4.8 : 3.4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        // Draw floating tooltip when hovering or highlighting a bin column
+        function drawBinTooltipOverlay() {
+            const activeK = hoveredBin !== null ? hoveredBin : selectedBin;
+            if (activeK === null || activeK < 0 || activeK > numRows) return;
+
+            ctx.save();
+            const centerX = getPegX(numRows, activeK);
+            const count = bins[activeK];
+            const relFreq = totalSettled > 0 ? (count / totalSettled) : 0;
+            const binomP = getBinomialProb(numRows, activeK, biasP);
+
+            const line1 = `Bin k = ${activeK}${selectedBin === activeK ? ' (Highlighted)' : ''}`;
+            const line2 = `Rel. Freq: ${relFreq.toFixed(3)} (${(relFreq * 100).toFixed(1)}%)`;
+            const line3 = `Count: ${count}  |  Binom P: ${binomP.toFixed(3)}`;
+
+            ctx.font = `700 10.5px ${UI_FONT}`;
+            const w1 = ctx.measureText(line1).width;
+            ctx.font = `600 10px ${UI_FONT}`;
+            const w2 = ctx.measureText(line2).width;
+            const w3 = ctx.measureText(line3).width;
+
+            const boxW = Math.max(w1, w2, w3) + 20;
+            const boxH = 54;
+
+            let boxX = centerX - boxW / 2;
+            boxX = Math.max(12, Math.min(width - boxW - 12, boxX));
+            const boxY = Math.max(12, binTopY - boxH - 8);
+
+            // Shadow & Tooltip Box
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.14)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 3;
+            drawPillRect(ctx, boxX, boxY, boxW, boxH, 8);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.92)';
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.strokeStyle = selectedBin === activeK ? vizPaint('group-a') : vizPaint('reference', 0.45);
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+
+            ctx.font = `700 10.5px ${UI_FONT}`;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(line1, boxX + 10, boxY + 7);
+
+            ctx.font = `600 10px ${UI_FONT}`;
+            ctx.fillStyle = '#f6f6f6';
+            ctx.fillText(line2, boxX + 10, boxY + 22);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
+            ctx.fillText(line3, boxX + 10, boxY + 36);
+
+            ctx.restore();
+        }
+
+        // Update Statistics DOM
+        function updateTelemetryUI() {
+            document.getElementById('statTotal').textContent = totalSettled.toLocaleString();
+
+            const theoMean = numRows * biasP;
+            const theoStd = Math.sqrt(numRows * biasP * (1 - biasP));
+            document.getElementById('statMeanTheo').textContent = theoMean.toFixed(2);
+            document.getElementById('statStdTheo').textContent = theoStd.toFixed(2);
+
+            if (totalSettled === 0) {
+                document.getElementById('statMeanActual').textContent = '0.00';
+                document.getElementById('statStdActual').textContent = '0.00';
+                document.getElementById('statError').textContent = '--';
+                return;
+            }
+
+            // Compute Empirical Mean
+            let sum = 0;
+            for (let k = 0; k <= numRows; k++) {
+                sum += k * bins[k];
+            }
+            const actualMean = sum / totalSettled;
+
+            // Compute Empirical Standard Deviation & Total Variation Distance (Fit Error)
+            let varianceSum = 0;
+            let absDiffSum = 0;
+            for (let k = 0; k <= numRows; k++) {
+                varianceSum += bins[k] * Math.pow(k - actualMean, 2);
+                const empiricalProb = bins[k] / totalSettled;
+                const theoProb = getBinomialProb(numRows, k, biasP);
+                absDiffSum += Math.abs(empiricalProb - theoProb);
+            }
+            const actualStd = Math.sqrt(varianceSum / totalSettled);
+            const tvErrorPercent = (0.5 * absDiffSum * 100);
+
+            document.getElementById('statMeanActual').textContent = actualMean.toFixed(2);
+            document.getElementById('statStdActual').textContent = actualStd.toFixed(2);
+            document.getElementById('statError').textContent = tvErrorPercent.toFixed(1) + '%';
+        }
+
+        // Main Animation Loop
+        function animateLoop(timestamp) {
+            const dt = Math.min(0.05, Math.max(0, (timestamp - lastTimestamp) / 1000));
+            lastTimestamp = timestamp;
+
+            updateBalls(dt);
+            drawScene();
+
+            document.getElementById('activeBallsBadge').textContent = `${balls.length} active`;
+
+            requestAnimationFrame(animateLoop);
+        }
+
+        // Event Listeners for UI Controls
+        const btnPlayPause = document.getElementById('btnPlayPause');
+        const playPauseText = document.getElementById('playPauseText');
+        const playPauseIcon = document.getElementById('playPauseIcon');
+
+        btnPlayPause.addEventListener('click', () => {
+            isFlowing = !isFlowing;
+            if (isFlowing) {
+                playPauseText.textContent = 'Flowing';
+                playPauseIcon.className = 'w-2.5 h-2.5 rounded-full bg-white';
+                btnPlayPause.className = 'demo-btn demo-btn-primary';
+            } else {
+                playPauseText.textContent = 'Paused';
+                playPauseIcon.className = 'w-2.5 h-2.5 rounded-full bg-black';
+                btnPlayPause.className = 'demo-btn';
+            }
+        });
+
+        document.getElementById('btnBurst').addEventListener('click', () => {
+            dropBeadsBatch(dropCount);
+        });
+
+        document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+        // Sliders
+        const sliderRows = document.getElementById('sliderRows');
+        sliderRows.addEventListener('input', (e) => {
+            numRows = parseInt(e.target.value, 10);
+            document.getElementById('valRows').textContent = `${numRows} rows`;
+            resetSimulation();
+        });
+
+        const sliderBias = document.getElementById('sliderBias');
+        sliderBias.addEventListener('input', (e) => {
+            biasP = parseFloat(e.target.value);
+            let label = 'Fair';
+            if (biasP < 0.48) label = 'Left';
+            else if (biasP > 0.52) label = 'Right';
+            document.getElementById('valBias').textContent = `${biasP.toFixed(2)} (${label})`;
+            resetSimulation();
+        });
+
+        const sliderDropCount = document.getElementById('sliderDropCount');
+        sliderDropCount.addEventListener('input', (e) => {
+            dropCount = parseInt(e.target.value, 10);
+            document.getElementById('valDropCount').textContent = `${dropCount}`;
+            document.getElementById('btnBurstText').textContent = `Drop (${dropCount})`;
+        });
+
+        const sliderRate = document.getElementById('sliderRate');
+        sliderRate.addEventListener('input', (e) => {
+            dropRate = parseInt(e.target.value, 10);
+            document.getElementById('valRate').textContent = `${dropRate}/s`;
+        });
+
+        const sliderSpeed = document.getElementById('sliderSpeed');
+        sliderSpeed.addEventListener('input', (e) => {
+            speedMultiplier = parseFloat(e.target.value);
+            document.getElementById('valSpeed').textContent = `${speedMultiplier.toFixed(1)}x`;
+        });
+
+        // Checkboxes
+        document.getElementById('chkCurve').addEventListener('change', (e) => {
+            showBellCurve = e.target.checked;
+        });
+        document.getElementById('chkPascal').addEventListener('change', (e) => {
+            showPascal = e.target.checked;
+        });
+        document.getElementById('chkTrails').addEventListener('change', (e) => {
+            showTrails = e.target.checked;
+        });
+        document.getElementById('chkSound').addEventListener('change', (e) => {
+            soundEnabled = e.target.checked;
+            if (soundEnabled && !audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        });
+
+        // Helper to detect which bin index k is under pointer coordinates (x, y)
+        function getBinAtPointer(x, y) {
+            if (y < binTopY - 12 || y > binBottomY + 28) return null;
+            const firstBinLeftX = getPegX(numRows, 0) - colSpacingX / 2;
+            const k = Math.floor((x - firstBinLeftX) / colSpacingX);
+            if (k >= 0 && k <= numRows) {
+                return k;
+            }
+            return null;
+        }
+
+        // Hover over canvas bins to inspect k and relative frequency
+        canvas.addEventListener('pointermove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            pointerPos = { x, y };
+
+            const k = getBinAtPointer(x, y);
+            canvas.style.cursor = k !== null ? 'pointer' : 'default';
+
+            if (k !== hoveredBin) {
+                hoveredBin = k;
+                updateBinCalculationUI();
+            }
+        });
+
+        canvas.addEventListener('pointerleave', () => {
+            if (hoveredBin !== null) {
+                hoveredBin = null;
+                canvas.style.cursor = 'default';
+                updateBinCalculationUI();
+            }
+        });
+
+        // Click on a bin column to toggle its highlight (does not drop beads)
+        canvas.addEventListener('pointerdown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const k = getBinAtPointer(x, y);
+
+            if (k !== null) {
+                selectedBin = (selectedBin === k) ? null : k;
+            } else if (selectedBin !== null) {
+                selectedBin = null;
+            }
+            updateBinCalculationUI();
+        });
+
+        // Responsive Resize Handling
+        window.addEventListener('resize', () => {
+            setupBoardGeometry();
+        });
+
+        // Start the simulation & typeset all equations
+        typesetStaticMath();
+        resetSimulation();
+        requestAnimationFrame(animateLoop);
+
+        // Fallback pass on window load in case CDN scripts finished loading after DOMContentLoaded
+        window.addEventListener('load', () => {
+            typesetStaticMath();
+            updateMathFormulaUI();
+        });
+    });
+</script>
+
+
+</body>
+</html>
