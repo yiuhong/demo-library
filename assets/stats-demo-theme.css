@@ -271,9 +271,3 @@
 .demo-page .demo-prose strong {
     font-family: var(--demo-font);
 }
-
-/* Dark teaching labs share the library typeface and .demo-back.
-   This class does not set a page background, so lab colours stay intact. */
-.demo-lab-dark {
-    font-family: var(--demo-font) !important;
-}

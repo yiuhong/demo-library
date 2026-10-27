@@ -10,113 +10,114 @@
     <style>
         body {
             font-family: var(--demo-font, Arial, Helvetica, sans-serif);
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: var(--demo-bg, #f6f6f6);
+            color: var(--demo-text, #000000);
         }
         .mono {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'JetBrains Mono', ui-monospace, monospace;
         }
         input[type=range] {
             -webkit-appearance: none;
             appearance: none;
             background: transparent;
+            accent-color: #000000;
         }
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
-            height: 6px;
+            height: 4px;
             cursor: pointer;
-            background: #334155;
+            background: #000000;
             border-radius: 999px;
         }
         input[type=range]::-webkit-slider-thumb {
-            height: 18px;
-            width: 18px;
+            height: 16px;
+            width: 16px;
             border-radius: 50%;
-            background: #38bdf8;
+            background: #000000;
+            border: 2px solid #ffffff;
             cursor: pointer;
             -webkit-appearance: none;
             appearance: none;
             margin-top: -6px;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-            transition: transform 0.15s ease, background-color 0.15s ease;
-        }
-        input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
-            background: #7dd3fc;
+            box-shadow: none;
         }
         input[type=range]::-moz-range-track {
             width: 100%;
-            height: 6px;
+            height: 4px;
             cursor: pointer;
-            background: #334155;
+            background: #000000;
             border-radius: 999px;
         }
         input[type=range]::-moz-range-thumb {
-            height: 18px;
-            width: 18px;
-            border: none;
+            height: 16px;
+            width: 16px;
+            border: 2px solid #ffffff;
             border-radius: 50%;
-            background: #38bdf8;
+            background: #000000;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+        /* Assumption tabs are chrome; label hues stay on the spans inside. */
+        .tab-btn {
+            background: var(--demo-panel, #f6f6f6) !important;
+            border: 1px solid #000000 !important;
+            border-radius: 4px !important;
+            color: #000000;
+            box-shadow: none !important;
+        }
+        .tab-btn:hover {
+            background: #ffffff !important;
         }
         .tab-active {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15));
-            border-color: #38bdf8 !important;
-            color: #38bdf8;
+            background: #ffffff !important;
+            border-color: #000000 !important;
+            box-shadow: inset 0 0 0 1px #000000 !important;
+            color: #000000;
+        }
+        .demo-btn:disabled,
+        .demo-chip:disabled {
+            opacity: 0.4;
+            pointer-events: none;
         }
         canvas {
             width: 100%;
             height: 100%;
             display: block;
+            background: #ffffff;
         }
     </style>
 </head>
-<body class="demo-lab-dark min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
+<body class="demo-page min-h-screen flex flex-col">
 
-<header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col gap-3">
-        <div>
-            <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
-        </div>
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-            <div class="flex items-center gap-2.5">
-                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-400/30 text-sky-400 font-bold mono">F</span>
-                <h1 class="text-xl font-bold tracking-tight text-white">ANOVA Assumptions: Type I Error &amp; Power Lab</h1>
-            </div>
-            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
-                Explore how violating Normality, Homoscedasticity, and Independence impacts both <span class="text-rose-300 font-medium">Type I Error (&alpha;)</span> under <span class="mono text-slate-300">H<sub>0</sub></span> and <span class="text-emerald-300 font-medium">Statistical Power (1&minus;&beta;)</span> under <span class="mono text-slate-300">H<sub>1</sub></span>.
-            </p>
-        </div>
-        <div class="flex items-center gap-2 self-start sm:self-auto">
-            <button id="btnResample" type="button" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition flex items-center gap-1.5 shadow-sm">
-                <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                Draw New Sample
-            </button>
-            <button id="btnReset" type="button" class="px-3.5 py-2 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-xs font-medium text-sky-300 transition">
-                Reset to Ideal
-            </button>
-        </div>
+<div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-6">
+    <div class="demo-topbar">
+        <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+        <div class="flex flex-wrap items-center gap-2">
+            <button id="btnResample" type="button" class="demo-btn">Draw New Sample</button>
+            <button id="btnReset" type="button" class="demo-btn demo-btn-primary">Reset to Ideal</button>
         </div>
     </div>
-</header>
+    <header class="demo-header">
+        <h1 class="text-xl sm:text-2xl font-bold">ANOVA Assumptions: Type I Error &amp; Power Lab</h1>
+    </header>
+    <p class="text-sm mt-4 leading-relaxed max-w-4xl">
+        Explore how violating Normality, Homoscedasticity, and Independence impacts both <span class="text-rose-700 font-medium">Type I Error (&alpha;)</span> under <span class="mono">H<sub>0</sub></span> and <span class="text-emerald-700 font-medium">Statistical Power (1&minus;&beta;)</span> under <span class="mono">H<sub>1</sub></span>.
+    </p>
+</div>
 
-<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6 space-y-6">
 
 <!-- Top Assumption Navigation Bar -->
-<div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-lg">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 pb-3 border-b border-slate-800">
+<div class="demo-card p-3 sm:p-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 pb-3 border-b border-black">
         <div class="flex items-center gap-2.5">
-            <span id="pageStepPill" class="px-2.5 py-1 rounded-md bg-sky-500/20 border border-sky-400/30 text-sky-300 text-xs font-bold mono">ASSUMPTION 1 OF 3</span>
-            <h2 id="pageHeaderTitle" class="text-base sm:text-lg font-bold text-white">Normality of Residuals</h2>
+            <span id="pageStepPill" class="demo-chip">ASSUMPTION 1 OF 3</span>
+            <h2 id="pageHeaderTitle" class="text-base sm:text-lg font-bold text-black">Normality of Residuals</h2>
         </div>
         <div class="flex items-center gap-2">
-            <button id="btnPrevPage" type="button" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none border border-slate-700 text-xs font-medium text-slate-200 transition flex items-center gap-1">
+            <button id="btnPrevPage" type="button" class="demo-btn">
                 &larr; Previous Assumption
             </button>
-            <button id="btnNextPage" type="button" class="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 disabled:opacity-40 disabled:pointer-events-none border border-sky-400/30 text-xs font-medium text-sky-300 transition flex items-center gap-1">
+            <button id="btnNextPage" type="button" class="demo-btn demo-btn-primary">
                 Next Assumption &rarr;
             </button>
         </div>
@@ -124,36 +125,36 @@
 
     <!-- 3-Assumption Selector Tabs -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="assumptionTabs">
-        <button type="button" data-tab="normality" class="tab-btn tab-active text-left p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/60 transition flex flex-col justify-between">
+        <button type="button" data-tab="normality" class="tab-btn tab-active text-left p-3.5 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-sky-400 mono">Assumption 1 &bull; Normality</span>
-                    <span id="badge-normality" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">Holds</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-sky-700 mono">Assumption 1 &bull; Normality</span>
+                    <span id="badge-normality" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-700 border border-emerald-600 font-medium">Holds</span>
                 </div>
-                <h3 class="text-sm font-bold text-white mt-1">1. Normality of Residuals</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Minimal impact on Type I error (&alpha;), but outliers inflate <span class="mono text-slate-300">MS<sub>W</sub></span> and crush Power!</p>
+                <h3 class="text-sm font-bold text-black mt-1">1. Normality of Residuals</h3>
+                <p class="text-xs text-neutral-700 mt-0.5">Minimal impact on Type I error (&alpha;), but outliers inflate <span class="mono text-neutral-800">MS<sub>W</sub></span> and crush Power!</p>
             </div>
         </button>
 
-        <button type="button" data-tab="homoscedasticity" class="tab-btn text-left p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/60 transition flex flex-col justify-between">
+        <button type="button" data-tab="homoscedasticity" class="tab-btn text-left p-3.5 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400 mono">Assumption 2 &bull; Homoscedasticity</span>
-                    <span id="badge-homoscedasticity" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">Holds</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-700 mono">Assumption 2 &bull; Homoscedasticity</span>
+                    <span id="badge-homoscedasticity" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-700 border border-emerald-600 font-medium">Holds</span>
                 </div>
-                <h3 class="text-sm font-bold text-white mt-1">2. Homogeneity of Variance</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Equal variances (<span class="mono text-slate-300">&sigma;<sub>A</sub><sup>2</sup> = &sigma;<sub>B</sub><sup>2</sup> = &sigma;<sub>C</sub><sup>2</sup></span>). High spread swamps signal or warps <span class="mono text-slate-300">&alpha;</span>.</p>
+                <h3 class="text-sm font-bold text-black mt-1">2. Homogeneity of Variance</h3>
+                <p class="text-xs text-neutral-700 mt-0.5">Equal variances (<span class="mono text-neutral-800">&sigma;<sub>A</sub><sup>2</sup> = &sigma;<sub>B</sub><sup>2</sup> = &sigma;<sub>C</sub><sup>2</sup></span>). High spread swamps signal or warps <span class="mono text-neutral-800">&alpha;</span>.</p>
             </div>
         </button>
 
-        <button type="button" data-tab="independence" class="tab-btn text-left p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/60 transition flex flex-col justify-between">
+        <button type="button" data-tab="independence" class="tab-btn text-left p-3.5 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-amber-400 mono">Assumption 3 &bull; Independence</span>
-                    <span id="badge-independence" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">Holds</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-amber-700 mono">Assumption 3 &bull; Independence</span>
+                    <span id="badge-independence" class="px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-700 border border-emerald-600 font-medium">Holds</span>
                 </div>
-                <h3 class="text-sm font-bold text-white mt-1">3. Independence of Errors</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Uncorrelated errors (<span class="mono text-slate-300">&rho; = 0</span>). Clustering explodes <span class="mono text-slate-300">&alpha;</span> and ruins true sensitivity.</p>
+                <h3 class="text-sm font-bold text-black mt-1">3. Independence of Errors</h3>
+                <p class="text-xs text-neutral-700 mt-0.5">Uncorrelated errors (<span class="mono text-neutral-800">&rho; = 0</span>). Clustering explodes <span class="mono text-neutral-800">&alpha;</span> and ruins true sensitivity.</p>
             </div>
         </button>
     </div>
@@ -162,44 +163,44 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
     <!-- Left Control & Explanation Column -->
-    <div class="lg:col-span-4 space-y-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div class="lg:col-span-4 space-y-4 demo-card p-5">
+        <div class="flex items-center justify-between border-b border-black pb-3">
             <div>
-                <h3 id="controlPanelTitle" class="text-sm font-bold text-white uppercase tracking-wider">Assumption 1: Normality Controls</h3>
-                <p id="activeMeansSubtitle" class="text-xs text-slate-400">True means: <span class="mono text-slate-300">&mu; = [50, 50, 50]</span> (H<sub>0</sub>) vs <span class="mono text-emerald-300">[46, 50, 54]</span> (H<sub>1</sub>)</p>
+                <h3 id="controlPanelTitle" class="text-sm font-bold text-black uppercase tracking-wider">Assumption 1: Normality Controls</h3>
+                <p id="activeMeansSubtitle" class="text-xs text-neutral-700">True means: <span class="mono text-neutral-800">&mu; = [50, 50, 50]</span> (H<sub>0</sub>) vs <span class="mono text-emerald-700">[46, 50, 54]</span> (H<sub>1</sub>)</p>
             </div>
         </div>
 
         <!-- Global Hypothesis Segmented Toggle Control & Power Effect Size Control -->
-        <div class="p-3.5 rounded-xl bg-slate-950/90 border border-emerald-500/30 space-y-2.5">
+        <div class="p-3.5 rounded bg-[#f6f6f6] border border-emerald-600 space-y-2.5">
             <div class="flex items-center justify-between gap-2">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Hypothesis Visibility Toggles</span>
-                <span id="activeHypothesisPill" class="px-2 py-0.5 rounded text-[10px] mono font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Showing Both (H0 &amp; H1)</span>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Hypothesis Visibility Toggles</span>
+                <span id="activeHypothesisPill" class="px-2 py-0.5 rounded text-[10px] mono font-semibold bg-indigo-500/20 text-indigo-700 border border-indigo-600">Showing Both (H0 &amp; H1)</span>
             </div>
-            <p class="text-[11px] text-slate-400 leading-snug">
-                Toggle <span class="mono text-sky-300">H<sub>0</sub></span> and <span class="mono text-emerald-300">H<sub>1</sub></span> on or off to view a single hypothesis state or both together:
+            <p class="text-[11px] text-neutral-700 leading-snug">
+                Toggle <span class="mono text-sky-700">H<sub>0</sub></span> and <span class="mono text-emerald-700">H<sub>1</sub></span> on or off to view a single hypothesis state or both together:
             </p>
             <!-- Segmented Control with Independent H0 and H1 Toggles -->
-            <div class="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs font-medium" role="group" aria-label="Hypothesis visibility segmented toggles">
-                <button id="btnViewH0" type="button" aria-pressed="true" class="py-2 px-2.5 rounded-md bg-sky-500/20 text-sky-200 border border-sky-400/50 transition flex items-center justify-between gap-1.5 shadow-sm">
+            <div class="grid grid-cols-2 gap-1.5 bg-white p-1 rounded border border-black text-xs font-medium" role="group" aria-label="Hypothesis visibility segmented toggles">
+                <button id="btnViewH0" type="button" aria-pressed="true" class="py-2 px-2.5 rounded-md bg-sky-500/20 text-sky-800 border border-sky-600 transition flex items-center justify-between gap-1.5">
                     <span class="flex items-center gap-1.5 truncate">
                         <span id="dotViewH0" class="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_6px_#38bdf8] shrink-0"></span>
                         <span>H<sub>0</sub> True (<span class="mono">&mu;<sub>i</sub>=50</span>)</span>
                     </span>
-                    <span id="stateBadgeH0" class="px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-sky-400/25 text-sky-200">ON</span>
+                    <span id="stateBadgeH0" class="px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-sky-400/25 text-sky-800">ON</span>
                 </button>
-                <button id="btnViewH1" type="button" aria-pressed="true" class="py-2 px-2.5 rounded-md bg-emerald-500/20 text-emerald-200 border border-emerald-400/50 transition flex items-center justify-between gap-1.5 shadow-sm">
+                <button id="btnViewH1" type="button" aria-pressed="true" class="py-2 px-2.5 rounded-md bg-emerald-500/20 text-emerald-800 border border-emerald-600 transition flex items-center justify-between gap-1.5">
                     <span class="flex items-center gap-1.5 truncate">
                         <span id="dotViewH1" class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] shrink-0"></span>
                         <span>H<sub>1</sub> True (<span class="mono">&pm;&Delta;&mu;</span>)</span>
                     </span>
-                    <span id="stateBadgeH1" class="px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-emerald-400/25 text-emerald-200">ON</span>
+                    <span id="stateBadgeH1" class="px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-emerald-400/25 text-emerald-800">ON</span>
                 </button>
             </div>
             <div id="effectDeltaContainer" class="pt-1 space-y-1 transition-opacity duration-150">
                 <div class="flex justify-between text-[11px] font-medium">
-                    <span class="text-slate-300">True H<sub>1</sub> Effect Spread (<span class="mono text-emerald-300">&Delta;&mu;</span> for Power)</span>
-                    <span id="val-effectDelta" class="mono text-emerald-300">&plusmn;4.0 (&mu; = 46, 50, 54)</span>
+                    <span class="text-neutral-800">True H<sub>1</sub> Effect Spread (<span class="mono text-emerald-700">&Delta;&mu;</span> for Power)</span>
+                    <span id="val-effectDelta" class="mono text-emerald-700">&plusmn;4.0 (&mu; = 46, 50, 54)</span>
                 </div>
                 <input id="slider-effectDelta" type="range" min="2.0" max="6.5" step="0.5" value="4.0" class="w-full">
             </div>
@@ -207,48 +208,48 @@
 
         <!-- Assumption 1 Controls: Normality -->
         <div id="page-controls-normality" class="space-y-4">
-            <div class="p-4 rounded-xl bg-slate-950/80 border border-sky-500/40 space-y-3">
+            <div class="p-4 rounded bg-[#f6f6f6] border border-sky-600 space-y-3">
                 <div class="flex justify-between text-xs font-medium">
-                    <span class="text-sky-400 font-semibold">Skewness &amp; Outlier Severity</span>
-                    <span id="val-skew" class="mono text-slate-200">0.0 (Normal)</span>
+                    <span class="text-sky-700 font-semibold">Skewness &amp; Outlier Severity</span>
+                    <span id="val-skew" class="mono text-black">0.0 (Normal)</span>
                 </div>
                 <input id="slider-skew" type="range" min="0" max="3" step="0.1" value="0" class="w-full">
-                <p class="text-xs text-slate-400 leading-relaxed">
-                    Under <span class="mono text-slate-200">H<sub>0</sub></span>, both <span class="mono text-slate-200">MS<sub>B</sub></span> and <span class="mono text-slate-200">MS<sub>W</sub></span> scale together so Type I Error (&alpha;) stays near ~5%. Under <span class="mono text-emerald-300">H<sub>1</sub></span>, squared outliers balloon <span class="mono text-slate-200">MS<sub>Within</sub></span> while the true signal <span class="mono text-emerald-300">&Delta;&mu;</span> stays fixed&mdash;crushing Statistical Power!
+                <p class="text-xs text-neutral-700 leading-relaxed">
+                    Under <span class="mono text-black">H<sub>0</sub></span>, both <span class="mono text-black">MS<sub>B</sub></span> and <span class="mono text-black">MS<sub>W</sub></span> scale together so Type I Error (&alpha;) stays near ~5%. Under <span class="mono text-emerald-700">H<sub>1</sub></span>, squared outliers balloon <span class="mono text-black">MS<sub>Within</sub></span> while the true signal <span class="mono text-emerald-700">&Delta;&mu;</span> stays fixed&mdash;crushing Statistical Power!
                 </p>
             </div>
 
             <div>
-                <label class="text-xs font-medium text-slate-400 block mb-2">Assumption 1 Quick Scenarios:</label>
+                <label class="text-xs font-medium text-neutral-700 block mb-2">Assumption 1 Quick Scenarios:</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button type="button" data-preset="norm-ideal" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                    <button type="button" data-preset="norm-ideal" class="preset-btn demo-chip is-block text-left">
                         Bell Curve (Normal)
                     </button>
-                    <button type="button" data-preset="norm-moderate" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                    <button type="button" data-preset="norm-moderate" class="preset-btn demo-chip is-block text-left">
                         Moderate Right Skew
                     </button>
-                    <button type="button" data-preset="norm-heavy" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left col-span-2">
+                    <button type="button" data-preset="norm-heavy" class="preset-btn demo-chip is-block text-left col-span-2">
                         Extreme Skew + Outliers (Watch Power Drop!)
                     </button>
                 </div>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 space-y-2">
+            <div class="p-3.5 rounded bg-[#f6f6f6] border border-black space-y-2">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Why Skewness Hurts Power: Noise Inflation</span>
-                    <span id="stat-snr-badge" class="text-[10px] mono text-emerald-300">Ideal Noise</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-sky-700">Why Skewness Hurts Power: Noise Inflation</span>
+                    <span id="stat-snr-badge" class="text-[10px] mono text-emerald-700">Ideal Noise</span>
                 </div>
-                <p class="text-[11px] text-slate-300 leading-relaxed">
-                    Squaring extreme outliers inflates <span class="mono text-white">SS<sub>Within</sub></span> and <span class="mono text-white">MS<sub>Within</sub></span>, drowning out true treatment differences (<span class="mono text-emerald-300">&Delta;&mu;</span>):
+                <p class="text-[11px] text-neutral-800 leading-relaxed">
+                    Squaring extreme outliers inflates <span class="mono text-black">SS<sub>Within</sub></span> and <span class="mono text-black">MS<sub>Within</sub></span>, drowning out true treatment differences (<span class="mono text-emerald-700">&Delta;&mu;</span>):
                 </p>
                 <div class="grid grid-cols-2 gap-2 pt-1 text-center">
-                    <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
-                        <div class="text-[10px] text-slate-400">&sum; e<sub>ij</sub><sup>2</sup> (SS<sub>Within</sub>)</div>
-                        <div id="stat-ssw" class="text-sm font-bold text-sky-300 mono mt-0.5">4608.0</div>
+                    <div class="p-2 rounded bg-white border border-black">
+                        <div class="text-[10px] text-neutral-700">&sum; e<sub>ij</sub><sup>2</sup> (SS<sub>Within</sub>)</div>
+                        <div id="stat-ssw" class="text-sm font-bold text-sky-700 mono mt-0.5">4608.0</div>
                     </div>
-                    <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
-                        <div class="text-[10px] text-slate-400">SS<sub>W</sub> / df<sub>W</sub> (MS<sub>Within</sub>)</div>
-                        <div id="stat-msw" class="text-sm font-bold text-indigo-300 mono mt-0.5">64.00</div>
+                    <div class="p-2 rounded bg-white border border-black">
+                        <div class="text-[10px] text-neutral-700">SS<sub>W</sub> / df<sub>W</sub> (MS<sub>Within</sub>)</div>
+                        <div id="stat-msw" class="text-sm font-bold text-indigo-700 mono mt-0.5">64.00</div>
                     </div>
                 </div>
             </div>
@@ -256,31 +257,31 @@
 
         <!-- Assumption 2 Controls: Homoscedasticity -->
         <div id="page-controls-homoscedasticity" class="space-y-4 hidden">
-            <div class="p-4 rounded-xl bg-slate-950/80 border border-indigo-500/40 space-y-3">
+            <div class="p-4 rounded bg-[#f6f6f6] border border-indigo-600 space-y-3">
                 <div class="flex justify-between text-xs font-medium">
-                    <span class="text-indigo-400 font-semibold">Group SD Ratio (<span class="mono">&sigma;<sub>C</sub> / &sigma;<sub>A</sub></span>)</span>
-                    <span id="val-varRatio" class="mono text-slate-200">1.0x (Equal)</span>
+                    <span class="text-indigo-700 font-semibold">Group SD Ratio (<span class="mono">&sigma;<sub>C</sub> / &sigma;<sub>A</sub></span>)</span>
+                    <span id="val-varRatio" class="mono text-black">1.0x (Equal)</span>
                 </div>
                 <input id="slider-varRatio" type="range" min="1" max="5" step="0.2" value="1" class="w-full">
-                <div class="flex items-center justify-between pt-2.5 border-t border-slate-800/80">
-                    <label for="toggle-unbalanced" class="text-xs text-slate-200 cursor-pointer font-medium">Unbalanced Sample Sizes (<span class="mono text-indigo-300">n<sub>A</sub>=45, n<sub>B</sub>=25, n<sub>C</sub>=8</span>)</label>
-                    <input id="toggle-unbalanced" type="checkbox" class="w-4 h-4 accent-indigo-400 rounded cursor-pointer">
+                <div class="flex items-center justify-between pt-2.5 border-t border-neutral-300">
+                    <label for="toggle-unbalanced" class="text-xs text-black cursor-pointer font-medium">Unbalanced Sample Sizes (<span class="mono text-indigo-700">n<sub>A</sub>=45, n<sub>B</sub>=25, n<sub>C</sub>=8</span>)</label>
+                    <input id="toggle-unbalanced" type="checkbox" class="w-4 h-4 accent-indigo-600 rounded cursor-pointer">
                 </div>
-                <p class="text-xs text-slate-400 leading-relaxed">
+                <p class="text-xs text-neutral-700 leading-relaxed">
                     With balanced <span class="mono">n</span>, inflating variance in Groups B &amp; C bloats pooled <span class="mono">MS<sub>Within</sub></span> and crushes Power. With unbalanced <span class="mono">n</span> (<span class="mono">n<sub>C</sub>=8</span>), <span class="mono">MS<sub>Within</sub></span> is underestimated&mdash;inflating Type I Error while true Size-Adjusted Power still collapses!
                 </p>
             </div>
 
             <div>
-                <label class="text-xs font-medium text-slate-400 block mb-2">Assumption 2 Quick Scenarios:</label>
+                <label class="text-xs font-medium text-neutral-700 block mb-2">Assumption 2 Quick Scenarios:</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button type="button" data-preset="homo-ideal" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                    <button type="button" data-preset="homo-ideal" class="preset-btn demo-chip is-block text-left">
                         Equal Variances
                     </button>
-                    <button type="button" data-preset="homo-balanced" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                    <button type="button" data-preset="homo-balanced" class="preset-btn demo-chip is-block text-left">
                         Unequal SD (Balanced <i>n</i>)
                     </button>
-                    <button type="button" data-preset="homo-toxic" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left col-span-2">
+                    <button type="button" data-preset="homo-toxic" class="preset-btn demo-chip is-block text-left col-span-2">
                         Toxic Combo: High SD in Smallest Group (<i>n<sub>C</sub></i>=8)
                     </button>
                 </div>
@@ -289,63 +290,63 @@
 
         <!-- Assumption 3 Controls: Independence -->
         <div id="page-controls-independence" class="space-y-4 hidden">
-            <div class="p-4 rounded-xl bg-slate-950/80 border border-amber-500/40 space-y-3">
+            <div class="p-4 rounded bg-[#f6f6f6] border border-amber-600 space-y-3">
                 <div class="flex justify-between text-xs font-medium">
-                    <span class="text-amber-400 font-semibold">Within-Group Correlation (<span class="mono">&rho;</span>)</span>
-                    <span id="val-rho" class="mono text-slate-200">0.00 (Independent)</span>
+                    <span class="text-amber-700 font-semibold">Within-Group Correlation (<span class="mono">&rho;</span>)</span>
+                    <span id="val-rho" class="mono text-black">0.00 (Independent)</span>
                 </div>
                 <input id="slider-rho" type="range" min="0" max="0.85" step="0.05" value="0" class="w-full">
-                <p class="text-xs text-slate-400 leading-relaxed">
+                <p class="text-xs text-neutral-700 leading-relaxed">
                     Positive autocorrelation (<span class="mono">&rho; &gt; 0</span>) causes random-walk drift of group means (inflating <span class="mono">MS<sub>B</sub></span>) and shrinks local spread (<span class="mono">MS<sub>W</sub></span>). Nominal rejection skyrockets under both <span class="mono">H<sub>0</sub></span> and <span class="mono">H<sub>1</sub></span>, but true <b>Size-Adjusted Power</b> collapses because effective sample size (<span class="mono">N<sub>eff</sub></span>) shrinks!
                 </p>
             </div>
 
             <!-- F-Ratio Panel -->
-            <div class="p-3.5 rounded-xl bg-slate-950/90 border border-amber-500/30 space-y-3 shadow-inner">
+            <div class="p-3.5 rounded bg-[#f6f6f6] border border-amber-600 space-y-3">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400"><i>F</i>-Ratio (<span class="mono">MS<sub>B</sub> / MS<sub>W</sub></span>)</span>
-                    <span id="ind-scale-label" class="text-[10px] mono text-slate-400">Shared Scale: 0&ndash;300</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700"><i>F</i>-Ratio (<span class="mono">MS<sub>B</sub> / MS<sub>W</sub></span>)</span>
+                    <span id="ind-scale-label" class="text-[10px] mono text-neutral-700">Shared Scale: 0&ndash;300</span>
                 </div>
 
                 <div class="space-y-1.5">
                     <div class="flex items-center justify-between text-[11px]">
-                        <span class="text-slate-200 font-medium">Numerator (<span class="mono text-rose-300">MS<sub>Between</sub></span>)</span>
-                        <span id="ind-msb-badge" class="px-1.5 py-0.5 rounded bg-rose-500/15 border border-rose-500/30 text-[10px] mono text-rose-300 font-semibold">1.00&times; Baseline (&rho;=0)</span>
+                        <span class="text-black font-medium">Numerator (<span class="mono text-rose-700">MS<sub>Between</sub></span>)</span>
+                        <span id="ind-msb-badge" class="px-1.5 py-0.5 rounded bg-rose-500/15 border border-rose-600 text-[10px] mono text-rose-700 font-semibold">1.00&times; Baseline (&rho;=0)</span>
                     </div>
-                    <div class="relative h-3 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                    <div class="relative h-3 w-full bg-neutral-200 rounded-full overflow-hidden border border-black">
                         <div id="ind-msb-bar" class="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-full transition-all duration-150" style="width: 21%"></div>
                     </div>
-                    <div class="flex justify-between text-[10px] text-slate-400 mono">
-                        <span id="ind-msb-readout" class="text-rose-300 font-semibold">Sample MS<sub>B</sub> = 26.9</span>
-                        <span id="ind-msb-base" class="text-slate-400">&rho;=0 Baseline: 26.9</span>
+                    <div class="flex justify-between text-[10px] text-neutral-700 mono">
+                        <span id="ind-msb-readout" class="text-rose-700 font-semibold">Sample MS<sub>B</sub> = 26.9</span>
+                        <span id="ind-msb-base" class="text-neutral-700">&rho;=0 Baseline: 26.9</span>
                     </div>
                 </div>
 
-                <div class="space-y-1.5 pt-2 border-t border-slate-800/80">
+                <div class="space-y-1.5 pt-2 border-t border-neutral-300">
                     <div class="flex items-center justify-between text-[11px]">
-                        <span class="text-slate-200 font-medium">Denominator (<span class="mono text-sky-300">MS<sub>Within</sub></span>)</span>
-                        <span id="ind-msw-badge" class="px-1.5 py-0.5 rounded bg-sky-500/15 border border-sky-500/30 text-[10px] mono text-sky-300 font-semibold">1.00&times; Baseline (&rho;=0)</span>
+                        <span class="text-black font-medium">Denominator (<span class="mono text-sky-700">MS<sub>Within</sub></span>)</span>
+                        <span id="ind-msw-badge" class="px-1.5 py-0.5 rounded bg-sky-500/15 border border-sky-600 text-[10px] mono text-sky-700 font-semibold">1.00&times; Baseline (&rho;=0)</span>
                     </div>
-                    <div class="relative h-3 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                    <div class="relative h-3 w-full bg-neutral-200 rounded-full overflow-hidden border border-black">
                         <div id="ind-msw-bar" class="h-full bg-gradient-to-r from-sky-500 to-indigo-400 rounded-full transition-all duration-150" style="width: 21%"></div>
                     </div>
-                    <div class="flex justify-between text-[10px] text-slate-400 mono">
-                        <span id="ind-msw-readout" class="text-sky-300 font-semibold">Sample MS<sub>W</sub> = 64.0</span>
-                        <span id="ind-msw-base" class="text-slate-400">&rho;=0 Baseline: 64.0</span>
+                    <div class="flex justify-between text-[10px] text-neutral-700 mono">
+                        <span id="ind-msw-readout" class="text-sky-700 font-semibold">Sample MS<sub>W</sub> = 64.0</span>
+                        <span id="ind-msw-base" class="text-neutral-700">&rho;=0 Baseline: 64.0</span>
                     </div>
                 </div>
             </div>
 
             <div>
-                <label class="text-xs font-medium text-slate-400 block mb-2">Assumption 3 Quick Scenarios:</label>
+                <label class="text-xs font-medium text-neutral-700 block mb-2">Assumption 3 Quick Scenarios:</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button type="button" data-preset="ind-ideal" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                    <button type="button" data-preset="ind-ideal" class="preset-btn demo-chip is-block text-left">
                         Independent Errors
                     </button>
-                    <button type="button" data-preset="ind-mild" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left">
+                    <button type="button" data-preset="ind-mild" class="preset-btn demo-chip is-block text-left">
                         Mild Clustering (&rho;=0.35)
                     </button>
-                    <button type="button" data-preset="ind-severe" class="preset-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition text-left col-span-2">
+                    <button type="button" data-preset="ind-severe" class="preset-btn demo-chip is-block text-left col-span-2">
                         Severe Serial Correlation (&rho;=0.75)
                     </button>
                 </div>
@@ -353,37 +354,37 @@
         </div>
 
         <!-- Live ANOVA Test & Monte Carlo Power Readout -->
-        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+        <div class="p-4 rounded bg-[#f6f6f6] border border-black space-y-3">
             <div class="flex items-center justify-between gap-2">
-                <span id="sampleCardHeader" class="text-xs font-semibold uppercase tracking-wider text-slate-400">ANOVA &amp; Power Metrics</span>
-                <span id="sampleDecisionBadge" class="px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Retains H<sub>0</sub></span>
+                <span id="sampleCardHeader" class="text-xs font-semibold uppercase tracking-wider text-neutral-700">ANOVA &amp; Power Metrics</span>
+                <span id="sampleDecisionBadge" class="px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-700 border border-emerald-600">Retains H<sub>0</sub></span>
             </div>
 
             <!-- 4-Card Readout Grid: Sample F, Sample p, Type I Error, Statistical Power -->
             <div class="grid grid-cols-2 gap-2 text-center">
-                <div class="p-2 rounded-lg bg-slate-900 border border-slate-800/80">
-                    <div id="label-stat-f" class="text-[11px] text-slate-400">Sample <i>F</i></div>
-                    <div id="stat-f" class="text-sm sm:text-base font-bold text-white mono mt-0.5">0.42</div>
+                <div class="p-2 rounded bg-white border border-black">
+                    <div id="label-stat-f" class="text-[11px] text-neutral-700">Sample <i>F</i></div>
+                    <div id="stat-f" class="text-sm sm:text-base font-bold text-black mono mt-0.5">0.42</div>
                 </div>
-                <div class="p-2 rounded-lg bg-slate-900 border border-slate-800/80">
-                    <div id="label-stat-p" class="text-[11px] text-slate-400">Sample <i>p</i>-value</div>
-                    <div id="stat-p" class="text-sm sm:text-base font-bold text-white mono mt-0.5">0.658</div>
+                <div class="p-2 rounded bg-white border border-black">
+                    <div id="label-stat-p" class="text-[11px] text-neutral-700">Sample <i>p</i>-value</div>
+                    <div id="stat-p" class="text-sm sm:text-base font-bold text-black mono mt-0.5">0.658</div>
                 </div>
-                <div id="card-type1" class="p-2.5 rounded-lg bg-slate-900 border border-rose-500/30 transition-opacity duration-150">
-                    <div class="text-[11px] text-slate-300 font-medium">Type I Error (&alpha;)</div>
-                    <div id="stat-type1" class="text-base font-bold text-emerald-400 mono mt-0.5">5.0%</div>
-                    <div id="sub-type1" class="text-[10px] text-slate-400 mono">False Pos. (H<sub>0</sub>)</div>
+                <div id="card-type1" class="p-2.5 rounded bg-white border border-rose-600 transition-opacity duration-150">
+                    <div class="text-[11px] text-neutral-800 font-medium">Type I Error (&alpha;)</div>
+                    <div id="stat-type1" class="text-base font-bold text-emerald-700 mono mt-0.5">5.0%</div>
+                    <div id="sub-type1" class="text-[10px] text-neutral-700 mono">False Pos. (H<sub>0</sub>)</div>
                 </div>
-                <div id="card-power" class="p-2.5 rounded-lg bg-slate-900 border border-emerald-500/30 transition-opacity duration-150">
-                    <div class="text-[11px] text-slate-300 font-medium">Power (1 &minus; &beta;)</div>
-                    <div id="stat-power" class="text-base font-bold text-emerald-400 mono mt-0.5">81.2%</div>
-                    <div id="stat-adj-power" class="text-[10px] text-slate-400 mono">True Adj: 81.0%</div>
+                <div id="card-power" class="p-2.5 rounded bg-white border border-emerald-600 transition-opacity duration-150">
+                    <div class="text-[11px] text-neutral-800 font-medium">Power (1 &minus; &beta;)</div>
+                    <div id="stat-power" class="text-base font-bold text-emerald-700 mono mt-0.5">81.2%</div>
+                    <div id="stat-adj-power" class="text-[10px] text-neutral-700 mono">True Adj: 81.0%</div>
                 </div>
             </div>
 
-            <div class="pt-1 border-t border-slate-800/80 space-y-1.5">
-                <p class="text-[11px] text-slate-300 leading-relaxed" id="stat-commentary"></p>
-                <p class="text-[11px] text-slate-400 leading-relaxed" id="power-commentary"></p>
+            <div class="pt-1 border-t border-neutral-300 space-y-1.5">
+                <p class="text-[11px] text-neutral-800 leading-relaxed" id="stat-commentary"></p>
+                <p class="text-[11px] text-neutral-700 leading-relaxed" id="power-commentary"></p>
             </div>
         </div>
     </div>
@@ -394,101 +395,101 @@
         <!-- Top Row: Group Distributions & Specific Assumption Diagnostic -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Plot 1: Group Distributions & Means -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
+            <div class="demo-card p-4 flex flex-col justify-between">
                 <div class="mb-2.5">
                     <div class="flex items-center justify-between gap-2">
-                        <h3 class="text-sm font-bold text-white">1. Group Data &amp; Means (<span class="mono">y&#772;<sub>i</sub></span>)</h3>
-                        <span id="plot1TrueMuBadge" class="text-[11px] mono text-sky-300 shrink-0">H0 &amp; H1 Shown</span>
+                        <h3 class="text-sm font-bold text-black">1. Group Data &amp; Means (<span class="mono">y&#772;<sub>i</sub></span>)</h3>
+                        <span id="plot1TrueMuBadge" class="text-[11px] mono text-sky-700 shrink-0">H0 &amp; H1 Shown</span>
                     </div>
-                    <p id="plot1Subtitle" class="text-xs text-slate-400 mt-0.5">Jittered points, group means (bars), and &plusmn;1 SD boxes</p>
+                    <p id="plot1Subtitle" class="text-xs text-neutral-700 mt-0.5">Jittered points, group means (bars), and &plusmn;1 SD boxes</p>
                 </div>
-                <div class="relative w-full h-64 bg-slate-950/70 rounded-xl border border-slate-800/80 overflow-hidden">
+                <div class="relative w-full h-64 bg-white rounded border border-black overflow-hidden">
                     <canvas id="canvasGroups"></canvas>
                 </div>
             </div>
 
             <!-- Plot 2: Diagnostic Plot for Active Assumption -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
+            <div class="demo-card p-4 flex flex-col justify-between">
                 <div class="mb-2.5 space-y-1">
                     <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
-                        <h3 id="diagTitle" class="text-sm font-bold text-sky-400">2. Diagnostic: Normal Q-Q Plot</h3>
+                        <h3 id="diagTitle" class="text-sm font-bold text-sky-700">2. Diagnostic: Normal Q-Q Plot</h3>
                         <div class="flex items-center gap-1.5 shrink-0 ml-auto">
-                            <div id="qqModeToggle" class="inline-flex rounded-lg bg-slate-950 p-0.5 border border-slate-800 text-[10px] font-medium">
-                                <button id="btnQQPooled" type="button" class="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 transition">Pooled (All N)</button>
-                                <button id="btnQQByGroup" type="button" class="px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition">By Group</button>
+                            <div id="qqModeToggle" class="inline-flex rounded bg-[#f6f6f6] p-0.5 border border-black text-[10px] font-medium">
+                                <button id="btnQQPooled" type="button" class="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-700 border border-sky-600 transition">Pooled (All N)</button>
+                                <button id="btnQQByGroup" type="button" class="px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition">By Group</button>
                             </div>
-                            <div id="indModeToggle" class="hidden inline-flex rounded-lg bg-slate-950 p-0.5 border border-slate-800 text-[10px] font-medium">
-                                <button id="btnIndSequence" type="button" class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 transition">Sequence</button>
-                                <button id="btnIndLag" type="button" class="px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition">Lag-1 Scatter</button>
+                            <div id="indModeToggle" class="hidden inline-flex rounded bg-[#f6f6f6] p-0.5 border border-black text-[10px] font-medium">
+                                <button id="btnIndSequence" type="button" class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-700 border border-amber-600 transition">Sequence</button>
+                                <button id="btnIndLag" type="button" class="px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition">Lag-1 Scatter</button>
                             </div>
-                            <span id="diagBadge" class="hidden text-[11px] mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">Levene / Spread</span>
+                            <span id="diagBadge" class="hidden text-[11px] mono px-2 py-0.5 rounded border border-black bg-white text-black">Levene / Spread</span>
                         </div>
                     </div>
-                    <p id="diagSubtitle" class="text-xs text-slate-400 w-full">Points should hug the 45-degree reference line</p>
+                    <p id="diagSubtitle" class="text-xs text-neutral-700 w-full">Points should hug the 45-degree reference line</p>
                 </div>
-                <div class="relative w-full h-64 bg-slate-950/70 rounded-xl border border-slate-800/80 overflow-hidden">
+                <div class="relative w-full h-64 bg-white rounded border border-black overflow-hidden">
                     <canvas id="canvasDiagnostic"></canvas>
                 </div>
             </div>
         </div>
 
         <!-- Plot 3: Monte Carlo F-Distribution Simulation (H0 Type I Error & H1 Statistical Power) -->
-        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col shadow-xl">
+        <div class="demo-card p-4 flex flex-col">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <div>
-                    <h3 class="text-sm font-bold text-white">3. Monte Carlo Simulation: Sampling Distribution of <i>F</i> (800 Runs)</h3>
-                    <p id="mcSubtitle" class="text-xs text-slate-400">Use the H<sub>0</sub> and H<sub>1</sub> toggles to show one distribution at a time or both together</p>
+                    <h3 class="text-sm font-bold text-black">3. Monte Carlo Simulation: Sampling Distribution of <i>F</i> (800 Runs)</h3>
+                    <p id="mcSubtitle" class="text-xs text-neutral-700">Use the H<sub>0</sub> and H<sub>1</sub> toggles to show one distribution at a time or both together</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2.5 text-[11px] mono shrink-0">
-                    <span class="inline-flex items-center gap-1.5 text-amber-400 leading-none whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 text-amber-700 leading-none whitespace-nowrap">
                         <span class="w-3 h-0.5 bg-amber-400 inline-block shrink-0"></span>
                         <span>Theoretical Null <i>F</i></span>
                     </span>
-                    <button id="legendToggleH0" type="button" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-rose-500/40 bg-rose-500/10 text-rose-300 leading-none whitespace-nowrap transition hover:bg-rose-500/20" title="Click to toggle H0 distribution">
+                    <button id="legendToggleH0" type="button" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-rose-600 bg-rose-500/10 text-rose-700 leading-none whitespace-nowrap transition hover:bg-rose-500/20" title="Click to toggle H0 distribution">
                         <span class="w-2.5 h-2.5 rounded-sm bg-rose-500/70 border border-rose-400 inline-block shrink-0"></span>
                         <span>H<sub>0</sub> Null (&alpha; Reject)</span>
                     </button>
-                    <button id="legendToggleH1" type="button" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 leading-none whitespace-nowrap transition hover:bg-emerald-500/20" title="Click to toggle H1 distribution">
+                    <button id="legendToggleH1" type="button" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-emerald-600 bg-emerald-500/10 text-emerald-700 leading-none whitespace-nowrap transition hover:bg-emerald-500/20" title="Click to toggle H1 distribution">
                         <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500/60 border border-emerald-400 inline-block shrink-0"></span>
                         <span>H<sub>1</sub> Power (1&minus;&beta;)</span>
                     </button>
                 </div>
             </div>
-            <div class="relative w-full h-60 bg-slate-950/70 rounded-xl border border-slate-800/80 overflow-hidden">
+            <div class="relative w-full h-60 bg-white rounded border border-black overflow-hidden">
                 <canvas id="canvasMonteCarlo"></canvas>
             </div>
         </div>
 
         <!-- Educational Breakdown Cards for Active Assumption -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-1.5 shadow-lg">
-                <div class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+            <div class="demo-card p-4 space-y-1.5">
+                <div class="text-xs font-bold uppercase tracking-wider text-rose-700 flex items-center gap-1.5">
                     <span>[!]</span> Effect on Type I Error (&alpha;)
                 </div>
-                <p id="eduProblem" class="text-xs text-slate-300 leading-relaxed"></p>
+                <p id="eduProblem" class="text-xs text-neutral-800 leading-relaxed"></p>
             </div>
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-1.5 shadow-lg">
-                <div class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+            <div class="demo-card p-4 space-y-1.5">
+                <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
                     <span>[*]</span> Effect on Power (1 &minus; &beta;)
                 </div>
-                <p id="eduPower" class="text-xs text-slate-300 leading-relaxed"></p>
+                <p id="eduPower" class="text-xs text-neutral-800 leading-relaxed"></p>
             </div>
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-1.5 shadow-lg">
-                <div class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+            <div class="demo-card p-4 space-y-1.5">
+                <div class="text-xs font-bold uppercase tracking-wider text-sky-700 flex items-center gap-1.5">
                     <span>[+]</span> Detection &amp; Remedies
                 </div>
-                <p id="eduRemedy" class="text-xs text-slate-300 leading-relaxed"></p>
+                <p id="eduRemedy" class="text-xs text-neutral-800 leading-relaxed"></p>
             </div>
         </div>
 
         <!-- Bottom Navigation Footer -->
-        <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800 rounded-2xl px-5 py-3.5 shadow-xl">
-            <span id="bottomPageIndicator" class="text-xs text-slate-400 mono">Viewing Assumption 1 of 3: Normality of Residuals</span>
+        <div class="flex items-center justify-between demo-card px-5 py-3.5">
+            <span id="bottomPageIndicator" class="text-xs text-neutral-700 mono">Viewing Assumption 1 of 3: Normality of Residuals</span>
             <div class="flex items-center gap-2">
-                <button id="btnPrevPageBottom" type="button" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none border border-slate-700 text-xs font-medium text-slate-200 transition">
+                <button id="btnPrevPageBottom" type="button" class="demo-btn">
                     &larr; Prev Assumption
                 </button>
-                <button id="btnNextPageBottom" type="button" class="px-3.5 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 disabled:opacity-40 disabled:pointer-events-none border border-sky-400/30 text-xs font-medium text-sky-300 transition">
+                <button id="btnNextPageBottom" type="button" class="demo-btn demo-btn-primary">
                     Next Assumption &rarr;
                 </button>
             </div>
@@ -549,9 +550,9 @@
             diagTitle: '2. Diagnostic: Normal Q-Q Plot',
             diagSubtitle: 'Compare Pooled Residuals (all <i>N</i> together) vs. Separate by Group',
             diagBadge: 'Q-Q Plot',
-            problem: 'With balanced sample sizes (<span class="mono text-slate-200">n = 25</span>) and identically skewed groups, the Central Limit Theorem stabilizes group means and both <span class="mono text-slate-200">MS<sub>B</sub></span> and <span class="mono text-slate-200">MS<sub>W</sub></span> scale up proportionally. Thus, <b>Type I Error (&alpha;) stays remarkably close to ~5%</b> (often 4.2%&ndash;5.8%).',
-            power: '<b>Statistical Power (1&minus;&beta;) plummets!</b> Squaring heavy right-tail outliers blows up <span class="mono text-slate-200">SS<sub>Within</sub></span> and <span class="mono text-slate-200">MS<sub>Within</sub></span> while the true treatment signal (<span class="mono text-emerald-300">&Delta;&mu;</span>) stays constant. This shrinks the non-centrality parameter and drags the <i>F</i>-ratio down, masking real treatment effects.',
-            remedy: 'Inspect a pooled Q-Q plot for tail curvature. To restore lost statistical power under heavy skewness, apply a variance-stabilizing transformation (<span class="mono text-slate-200">log(y)</span>, Box-Cox), use the rank-based <b>Kruskal-Wallis test</b>, or use trimmed means.'
+            problem: 'With balanced sample sizes (<span class="mono text-black">n = 25</span>) and identically skewed groups, the Central Limit Theorem stabilizes group means and both <span class="mono text-black">MS<sub>B</sub></span> and <span class="mono text-black">MS<sub>W</sub></span> scale up proportionally. Thus, <b>Type I Error (&alpha;) stays remarkably close to ~5%</b> (often 4.2%&ndash;5.8%).',
+            power: '<b>Statistical Power (1&minus;&beta;) plummets!</b> Squaring heavy right-tail outliers blows up <span class="mono text-black">SS<sub>Within</sub></span> and <span class="mono text-black">MS<sub>Within</sub></span> while the true treatment signal (<span class="mono text-emerald-700">&Delta;&mu;</span>) stays constant. This shrinks the non-centrality parameter and drags the <i>F</i>-ratio down, masking real treatment effects.',
+            remedy: 'Inspect a pooled Q-Q plot for tail curvature. To restore lost statistical power under heavy skewness, apply a variance-stabilizing transformation (<span class="mono text-black">log(y)</span>, Box-Cox), use the rank-based <b>Kruskal-Wallis test</b>, or use trimmed means.'
         },
         homoscedasticity: {
             pageNum: 2,
@@ -560,9 +561,9 @@
             diagTitle: '2. Diagnostic: Absolute Residuals vs. Group SD',
             diagSubtitle: 'Funnel shape shows variance growing across groups A &rarr; B &rarr; C',
             diagBadge: 'Levene / Spread',
-            problem: 'With equal <span class="mono text-slate-200">n</span>, Type I error creeps up only slightly (~6&ndash;7%). However, when high variance is paired with the <b>smallest group (<span class="mono text-slate-200">n<sub>C</sub>=8</span>)</b>, the large low-variance group dominates pooled <span class="mono text-slate-200">MS<sub>Within</sub></span>, underestimating noise and driving Type I error above 25%!',
-            power: 'With balanced <span class="mono text-slate-200">n</span>, inflating variance in Groups B &amp; C bloats pooled <span class="mono text-slate-200">MS<sub>Within</sub></span> and <b>crushes Power from ~81% down to &lt;20%</b>. With unbalanced <span class="mono text-slate-200">n</span>, nominal rejection looks high only because of false positives; <b>Size-Adjusted Power</b> (at true 5% &alpha;) still collapses!',
-            remedy: 'Check for a megaphone funnel in <span class="mono text-slate-200">|e<sub>ij</sub>|</span> or run Brown-Forsythe / Levene tests. Use <b>Welch&rsquo;s ANOVA</b> (which does not pool variances across groups) or Generalized Least Squares (GLS).'
+            problem: 'With equal <span class="mono text-black">n</span>, Type I error creeps up only slightly (~6&ndash;7%). However, when high variance is paired with the <b>smallest group (<span class="mono text-black">n<sub>C</sub>=8</span>)</b>, the large low-variance group dominates pooled <span class="mono text-black">MS<sub>Within</sub></span>, underestimating noise and driving Type I error above 25%!',
+            power: 'With balanced <span class="mono text-black">n</span>, inflating variance in Groups B &amp; C bloats pooled <span class="mono text-black">MS<sub>Within</sub></span> and <b>crushes Power from ~81% down to &lt;20%</b>. With unbalanced <span class="mono text-black">n</span>, nominal rejection looks high only because of false positives; <b>Size-Adjusted Power</b> (at true 5% &alpha;) still collapses!',
+            remedy: 'Check for a megaphone funnel in <span class="mono text-black">|e<sub>ij</sub>|</span> or run Brown-Forsythe / Levene tests. Use <b>Welch&rsquo;s ANOVA</b> (which does not pool variances across groups) or Generalized Least Squares (GLS).'
         },
         independence: {
             pageNum: 3,
@@ -571,8 +572,8 @@
             diagTitle: '2. Diagnostic: Serial Correlation & Drift',
             diagSubtitle: 'Solid lines: <span class="mono">e<sub>ij</sub></span> error drift; Dashed lines: drifted group error means',
             diagBadge: 'Serial Correlation',
-            problem: 'Positive serial correlation (<span class="mono text-slate-200">&rho; &gt; 0</span>) causes consecutive observations to pull together. Group means drift far apart even under <span class="mono text-slate-200">H<sub>0</sub></span> (inflating <span class="mono text-slate-200">MS<sub>B</sub></span>) while local spread shrinks (<span class="mono text-slate-200">MS<sub>W</sub>&darr;</span>), driving <b>Type I Error (&alpha;) above 50%&ndash;70%</b>!',
-            power: 'Nominal rejection under <span class="mono text-slate-200">H<sub>1</sub></span> looks high (&gt;75%) purely because the test rejects almost everything! When calibrated to the true 95th percentile of the null distribution, <b>Size-Adjusted Power collapses (&lt;20%)</b> because correlated points contain far less independent information (<span class="mono text-slate-200">N<sub>eff</sub> &ll; N</span>).',
+            problem: 'Positive serial correlation (<span class="mono text-black">&rho; &gt; 0</span>) causes consecutive observations to pull together. Group means drift far apart even under <span class="mono text-black">H<sub>0</sub></span> (inflating <span class="mono text-black">MS<sub>B</sub></span>) while local spread shrinks (<span class="mono text-black">MS<sub>W</sub>&darr;</span>), driving <b>Type I Error (&alpha;) above 50%&ndash;70%</b>!',
+            power: 'Nominal rejection under <span class="mono text-black">H<sub>1</sub></span> looks high (&gt;75%) purely because the test rejects almost everything! When calibrated to the true 95th percentile of the null distribution, <b>Size-Adjusted Power collapses (&lt;20%)</b> because correlated points contain far less independent information (<span class="mono text-black">N<sub>eff</sub> &ll; N</span>).',
             remedy: 'Plot residuals against sequence order or Lag-1 scatter and check Durbin-Watson / ICC. Never ignore clustering: use <b>Linear Mixed-Effects Models (LMM)</b>, Repeated-Measures ANOVA, or GEE.'
         }
     };
@@ -953,10 +954,10 @@
         const yRange = maxVal - minVal || 1;
         const yToPx = (v) => pad.top + ph - ((v - minVal) / yRange) * ph;
 
-        ctx.strokeStyle = '#1e293b';
+        ctx.strokeStyle = '#e5e5e5';
         ctx.lineWidth = 1;
         const ticks = 5;
-        ctx.fillStyle = '#64748b';
+        ctx.fillStyle = '#262626';
         ctx.font = '10px JetBrains Mono';
         ctx.textAlign = 'right';
         for (let i = 0; i <= ticks; i++) {
@@ -970,8 +971,8 @@
         }
 
         ctx.save();
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '10px Inter';
+        ctx.fillStyle = '#404040';
+        ctx.font = '10px Arial, Helvetica, sans-serif';
         ctx.translate(14, pad.top + ph / 2);
         ctx.rotate(-Math.PI / 2);
         ctx.textAlign = 'center';
@@ -984,21 +985,21 @@
             const yBandTop = yToPx(50 + indepSE);
             const yBandBot = yToPx(50 - indepSE);
             ctx.save();
-            ctx.fillStyle = 'rgba(148, 163, 184, 0.09)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
             ctx.fillRect(pad.left, yBandTop, pw, Math.max(2, yBandBot - yBandTop));
             ctx.restore();
         }
 
         // Grand Mean Reference Line (y = 50)
         ctx.save();
-        ctx.strokeStyle = '#475569';
+        ctx.strokeStyle = '#525252';
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
         ctx.moveTo(pad.left, y50);
         ctx.lineTo(w - pad.right, y50);
         ctx.stroke();
 
-        ctx.fillStyle = '#94a3b8';
+        ctx.fillStyle = '#404040';
         ctx.font = '500 9px JetBrains Mono';
         ctx.textAlign = 'right';
         ctx.fillText(state.showH1 ? 'Grand Mean = 50' : 'Null mu = 50', w - pad.right - 4, y50 - 4);
@@ -1081,12 +1082,12 @@
                     ctx.fillText(cfg.key, subCx, pad.top - 6);
                 });
 
-                ctx.fillStyle = '#cbd5e1';
-                ctx.font = '600 11px Inter';
+                ctx.fillStyle = '#000000';
+                ctx.font = 'bold 11px Arial, Helvetica, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(`${labels[g]} (n=${state.groupsH0[g].length})`, cx, h - 21);
 
-                ctx.fillStyle = '#94a3b8';
+                ctx.fillStyle = '#404040';
                 ctx.font = '9.5px JetBrains Mono';
                 ctx.fillText(
                     `H0:${state.anovaH0.groupMeans[g].toFixed(1)} | H1:${state.anovaH1.groupMeans[g].toFixed(1)}`,
@@ -1121,8 +1122,8 @@
                     const yGhostTop = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean + trueSD)));
                     const yGhostBot = Math.max(pad.top, Math.min(pad.top + ph, yToPx(mean - trueSD)));
                     ctx.save();
-                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.55)';
-                    ctx.fillStyle = 'rgba(148, 163, 184, 0.05)';
+                    ctx.strokeStyle = 'rgba(82, 82, 82, 0.55)';
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
                     ctx.lineWidth = 1.25;
                     ctx.setLineDash([3, 3]);
                     ctx.fillRect(cx - 31, yGhostTop, 62, Math.max(2, yGhostBot - yGhostTop));
@@ -1154,7 +1155,7 @@
                     drawVerticalArrow(ctx, arrowX, yBaseMean, yMean, '#f43f5e');
                     if (Math.abs(rhoDrift) >= 0.8) {
                         ctx.save();
-                        ctx.fillStyle = '#fda4af';
+                        ctx.fillStyle = '#be123c';
                         ctx.font = '600 9px JetBrains Mono';
                         ctx.textAlign = 'left';
                         const labelY = (yBaseMean + yMean) / 2 + 3;
@@ -1173,12 +1174,12 @@
                     ctx.fill();
                 }
 
-                ctx.fillStyle = '#cbd5e1';
-                ctx.font = '600 11px Inter';
+                ctx.fillStyle = '#000000';
+                ctx.font = 'bold 11px Arial, Helvetica, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(`${labels[g]} (n=${arr.length})`, cx, h - 20);
 
-                ctx.fillStyle = '#64748b';
+                ctx.fillStyle = '#262626';
                 ctx.font = '10px JetBrains Mono';
                 ctx.fillText(`mean=${mean.toFixed(1)} | s=${sd.toFixed(1)}`, cx, h - 7);
             }
@@ -1205,7 +1206,7 @@
             const xToPx = (q) => pad.left + ((q - minQ) / (maxQ - minQ)) * pw;
             const yToPx = (q) => pad.top + ph - ((q - minQ) / (maxQ - minQ)) * ph;
 
-            ctx.strokeStyle = '#1e293b';
+            ctx.strokeStyle = '#e5e5e5';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(pad.left, yToPx(0));
@@ -1214,7 +1215,7 @@
             ctx.lineTo(xToPx(0), h - pad.bottom);
             ctx.stroke();
 
-            ctx.fillStyle = '#64748b';
+            ctx.fillStyle = '#262626';
             ctx.font = '10px JetBrains Mono';
             ctx.textAlign = 'right';
             [-2, 0, 2].forEach(qTick => {
@@ -1286,8 +1287,8 @@
                 }
             }
 
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '10px Inter';
+            ctx.fillStyle = '#404040';
+            ctx.font = '10px Arial, Helvetica, sans-serif';
             ctx.textAlign = 'center';
             const xTitle = state.qqMode === 'pooled'
                 ? 'Theoretical Normal Quantiles (Z) [Pooled N]'
@@ -1305,9 +1306,9 @@
             const maxR = Math.max(25, ...absRes, ...state.anovaH0.groupSDs) * 1.12;
             const yToPx = (v) => pad.top + ph - (Math.min(maxR, Math.max(0, v)) / maxR) * ph;
 
-            ctx.strokeStyle = '#1e293b';
+            ctx.strokeStyle = '#e5e5e5';
             ctx.lineWidth = 1;
-            ctx.fillStyle = '#64748b';
+            ctx.fillStyle = '#262626';
             ctx.font = '10px JetBrains Mono';
             ctx.textAlign = 'right';
             for (let i = 0; i <= 4; i++) {
@@ -1355,19 +1356,19 @@
                 ctx.arc(cxs[g], yToPx(sd), 5, 0, Math.PI * 2);
                 ctx.fill();
 
-                ctx.fillStyle = '#cbd5e1';
-                ctx.font = '600 11px Inter';
+                ctx.fillStyle = '#000000';
+                ctx.font = 'bold 11px Arial, Helvetica, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(`Group ${String.fromCharCode(65 + g)}`, cxs[g], h - 20);
 
-                ctx.fillStyle = '#fda4af';
+                ctx.fillStyle = '#be123c';
                 ctx.font = '10px JetBrains Mono';
                 ctx.fillText(`SD = ${sd.toFixed(1)}`, cxs[g], h - 7);
             }
 
             ctx.save();
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '10px Inter';
+            ctx.fillStyle = '#404040';
+            ctx.font = '10px Arial, Helvetica, sans-serif';
             ctx.translate(14, pad.top + ph / 2);
             ctx.rotate(-Math.PI / 2);
             ctx.textAlign = 'center';
@@ -1395,7 +1396,7 @@
                 const xToPx = (v) => pad.left + ((v + maxLim) / (2 * maxLim)) * pw;
                 const yToPx = (v) => pad.top + ph - ((v + maxLim) / (2 * maxLim)) * ph;
 
-                ctx.strokeStyle = '#1e293b';
+                ctx.strokeStyle = '#e5e5e5';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.moveTo(pad.left, yToPx(0));
@@ -1405,7 +1406,7 @@
                 ctx.stroke();
 
                 const tickVal = Math.round(maxLim * 0.65);
-                ctx.fillStyle = '#64748b';
+                ctx.fillStyle = '#262626';
                 ctx.font = '10px JetBrains Mono';
                 ctx.textAlign = 'right';
                 [-tickVal, 0, tickVal].forEach(t => {
@@ -1442,7 +1443,7 @@
                 ctx.lineTo(xToPx(x2), yToPx(y2));
                 ctx.stroke();
 
-                ctx.fillStyle = '#fda4af';
+                ctx.fillStyle = '#be123c';
                 ctx.font = '600 10px JetBrains Mono';
                 ctx.textAlign = 'left';
                 ctx.fillText(`Empirical Lag-1 r = ${rEmp >= 0 ? '+' : ''}${rEmp.toFixed(2)}`, pad.left + 8, pad.top + 14);
@@ -1455,8 +1456,8 @@
                     ctx.fill();
                 });
 
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = '10px Inter';
+                ctx.fillStyle = '#404040';
+                ctx.font = '10px Arial, Helvetica, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText('Previous Error at Step i - 1', pad.left + pw / 2, h - 7);
 
@@ -1471,7 +1472,7 @@
                 const maxAbs = Math.max(18, ...deviations.map(d => Math.abs(d))) * 1.08;
                 const yToPx = (v) => pad.top + ph / 2 - (Math.max(-maxAbs, Math.min(maxAbs, v)) / maxAbs) * (ph / 2);
 
-                ctx.fillStyle = '#64748b';
+                ctx.fillStyle = '#262626';
                 ctx.font = '10px JetBrains Mono';
                 ctx.textAlign = 'right';
                 [-Math.round(maxAbs * 0.75), 0, Math.round(maxAbs * 0.75)].forEach(v => {
@@ -1479,7 +1480,7 @@
                 });
 
                 ctx.save();
-                ctx.strokeStyle = '#334155';
+                ctx.strokeStyle = '#d4d4d4';
                 ctx.setLineDash([4, 4]);
                 ctx.beginPath();
                 ctx.moveTo(pad.left, yToPx(0));
@@ -1488,7 +1489,7 @@
                 ctx.restore();
 
                 const maxLen = Math.max(...state.groupsH0.map(g => g.length));
-                ctx.fillStyle = '#64748b';
+                ctx.fillStyle = '#262626';
                 ctx.font = '10px JetBrains Mono';
                 ctx.textAlign = 'center';
                 [1, Math.round(maxLen / 2), maxLen].forEach(idx => {
@@ -1532,8 +1533,8 @@
                     });
                 }
 
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = '10px Inter';
+                ctx.fillStyle = '#404040';
+                ctx.font = '10px Arial, Helvetica, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText('Observation Sequence Order (i = 1, 2, ..., n)', pad.left + pw / 2, h - 7);
 
@@ -1587,9 +1588,9 @@
         const yToPx = (d) => pad.top + ph - (Math.max(0, Math.min(maxDensity, d)) / maxDensity) * ph;
 
         // Gridlines
-        ctx.strokeStyle = '#1e293b';
+        ctx.strokeStyle = '#e5e5e5';
         ctx.lineWidth = 1;
-        ctx.fillStyle = '#64748b';
+        ctx.fillStyle = '#262626';
         ctx.font = '10px JetBrains Mono';
         ctx.textAlign = 'right';
         [0.2, 0.4, 0.6, 0.8].forEach(d => {
@@ -1602,8 +1603,8 @@
         });
 
         ctx.save();
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '10px Inter';
+        ctx.fillStyle = '#404040';
+        ctx.font = '10px Arial, Helvetica, sans-serif';
         ctx.translate(14, pad.top + ph / 2);
         ctx.rotate(-Math.PI / 2);
         ctx.textAlign = 'center';
@@ -1694,7 +1695,7 @@
         }
 
         if (hasOverflowH0) {
-            ctx.fillStyle = '#fecdd3';
+            ctx.fillStyle = '#be123c';
             ctx.font = '600 9px JetBrains Mono';
             ctx.textAlign = 'right';
             const labelYH0 = hasOverflowH1
@@ -1704,7 +1705,7 @@
         }
 
         if (hasOverflowH1) {
-            ctx.fillStyle = '#a7f3d0';
+            ctx.fillStyle = '#047857';
             ctx.font = '600 9px JetBrains Mono';
             ctx.textAlign = 'right';
             const labelYH1 = hasOverflowH0
@@ -1749,7 +1750,7 @@
             ctx.moveTo(xEmp, pad.top);
             ctx.lineTo(xEmp, pad.top + ph);
             ctx.stroke();
-            ctx.fillStyle = '#d8b4fe';
+            ctx.fillStyle = '#6b21a8';
             ctx.font = '600 9px JetBrains Mono';
             ctx.textAlign = 'left';
             ctx.fillText(`True 5% Cutoff=${fCritEmp95.toFixed(1)}`, Math.min(w - pad.right - 115, xEmp + 4), pad.top + 56);
@@ -1762,30 +1763,30 @@
         const textX = xCrit + 6;
         let lineY = pad.top + 13;
 
-        ctx.fillStyle = '#cbd5e1';
+        ctx.fillStyle = '#000000';
         ctx.fillText(`F_crit = ${fCrit.toFixed(2)} (nominal alpha = 5%)`, textX, lineY);
 
         if (state.showH0) {
             lineY += 14;
-            ctx.fillStyle = '#fda4af';
+            ctx.fillStyle = '#be123c';
             ctx.fillText(`Type I Error (H0 Reject): ${type1Rate.toFixed(1)}%`, textX, lineY);
         }
         if (state.showH1) {
             lineY += 14;
-            ctx.fillStyle = '#6ee7b7';
+            ctx.fillStyle = '#047857';
             ctx.fillText(`Power (H1 Reject): ${nominalPower.toFixed(1)}% (Size-Adj: ${adjPower.toFixed(1)}%)`, textX, lineY);
         }
 
         // X-axis ticks
-        ctx.fillStyle = '#94a3b8';
+        ctx.fillStyle = '#404040';
         ctx.font = '10px JetBrains Mono';
         ctx.textAlign = 'center';
         for (let f = 0; f <= maxF; f += 2) {
             ctx.fillText(f === maxF ? '10+' : f.toString(), xToPx(f), h - 20);
         }
 
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '10px Inter';
+        ctx.fillStyle = '#404040';
+        ctx.font = '10px Arial, Helvetica, sans-serif';
         ctx.textAlign = 'center';
         let axisCaption = 'F-Statistic (Showing Both H0 Null & H1 True Effect Distributions)';
         if (state.showH0 && !state.showH1) {
@@ -1812,7 +1813,7 @@
         const mHigh = (50 + d).toFixed(1).replace('.0', '');
         document.getElementById('val-effectDelta').textContent = `+/-${d.toFixed(1)} (mu = ${mLow}, 50, ${mHigh})`;
         document.getElementById('activeMeansSubtitle').innerHTML =
-            `H<sub>0</sub>: <span class="mono text-slate-300">[50, 50, 50]</span> &bull; H<sub>1</sub>: <span class="mono text-emerald-300">[${mLow}, 50, ${mHigh}]</span>`;
+            `H<sub>0</sub>: <span class="mono text-neutral-800">[50, 50, 50]</span> &bull; H<sub>1</sub>: <span class="mono text-emerald-700">[${mLow}, 50, ${mHigh}]</span>`;
 
         // Sync Segmented Toggle Buttons (H0 and H1)
         const btnH0 = document.getElementById('btnViewH0');
@@ -1826,32 +1827,32 @@
 
         btnH0.setAttribute('aria-pressed', String(state.showH0));
         if (state.showH0) {
-            btnH0.className = 'py-2 px-2.5 rounded-md bg-sky-500/20 text-sky-200 border border-sky-400/50 transition flex items-center justify-between gap-1.5 shadow-sm';
+            btnH0.className = 'py-2 px-2.5 rounded-md bg-sky-500/20 text-sky-800 border border-sky-600 transition flex items-center justify-between gap-1.5';
             dotH0.className = 'w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_6px_#38bdf8] shrink-0';
             badgeH0.textContent = 'ON';
-            badgeH0.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-sky-400/25 text-sky-200';
-            legendH0.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-rose-500/50 bg-rose-500/15 text-rose-300 leading-none whitespace-nowrap transition hover:bg-rose-500/25';
+            badgeH0.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-sky-400/25 text-sky-800';
+            legendH0.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-rose-600 bg-rose-500/15 text-rose-700 leading-none whitespace-nowrap transition hover:bg-rose-500/25';
         } else {
-            btnH0.className = 'py-2 px-2.5 rounded-md bg-slate-950/60 text-slate-500 border border-slate-800 hover:text-slate-300 transition flex items-center justify-between gap-1.5';
+            btnH0.className = 'py-2 px-2.5 rounded-md bg-white text-neutral-500 border border-neutral-300 hover:text-black transition flex items-center justify-between gap-1.5';
             dotH0.className = 'w-2 h-2 rounded-full bg-slate-600 shrink-0';
             badgeH0.textContent = 'OFF';
-            badgeH0.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-slate-800 text-slate-500';
-            legendH0.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-slate-800 bg-slate-900/60 text-slate-500 line-through opacity-60 leading-none whitespace-nowrap transition hover:opacity-90';
+            badgeH0.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-neutral-100 text-neutral-600 border border-neutral-300';
+            legendH0.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-neutral-300 bg-white text-neutral-500 line-through opacity-70 leading-none whitespace-nowrap transition hover:opacity-100';
         }
 
         btnH1.setAttribute('aria-pressed', String(state.showH1));
         if (state.showH1) {
-            btnH1.className = 'py-2 px-2.5 rounded-md bg-emerald-500/20 text-emerald-200 border border-emerald-400/50 transition flex items-center justify-between gap-1.5 shadow-sm';
+            btnH1.className = 'py-2 px-2.5 rounded-md bg-emerald-500/20 text-emerald-800 border border-emerald-600 transition flex items-center justify-between gap-1.5';
             dotH1.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] shrink-0';
             badgeH1.textContent = 'ON';
-            badgeH1.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-emerald-400/25 text-emerald-200';
-            legendH1.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-emerald-500/50 bg-emerald-500/15 text-emerald-300 leading-none whitespace-nowrap transition hover:bg-emerald-500/25';
+            badgeH1.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-emerald-400/25 text-emerald-800';
+            legendH1.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-emerald-600 bg-emerald-500/15 text-emerald-700 leading-none whitespace-nowrap transition hover:bg-emerald-500/25';
         } else {
-            btnH1.className = 'py-2 px-2.5 rounded-md bg-slate-950/60 text-slate-500 border border-slate-800 hover:text-slate-300 transition flex items-center justify-between gap-1.5';
+            btnH1.className = 'py-2 px-2.5 rounded-md bg-white text-neutral-500 border border-neutral-300 hover:text-black transition flex items-center justify-between gap-1.5';
             dotH1.className = 'w-2 h-2 rounded-full bg-slate-600 shrink-0';
             badgeH1.textContent = 'OFF';
-            badgeH1.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-slate-800 text-slate-500';
-            legendH1.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-slate-800 bg-slate-900/60 text-slate-500 line-through opacity-60 leading-none whitespace-nowrap transition hover:opacity-90';
+            badgeH1.className = 'px-1.5 py-0.5 rounded text-[9px] mono font-bold uppercase bg-neutral-100 text-neutral-600 border border-neutral-300';
+            legendH1.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-md border border-neutral-300 bg-white text-neutral-500 line-through opacity-70 leading-none whitespace-nowrap transition hover:opacity-100';
         }
 
         document.getElementById('effectDeltaContainer').classList.toggle('opacity-45', !state.showH1);
@@ -1860,19 +1861,19 @@
         const plot1Badge = document.getElementById('plot1TrueMuBadge');
         if (bothOn) {
             pill.textContent = 'Showing Both (H0 & H1)';
-            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30';
+            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold bg-indigo-500/20 text-indigo-700 border border-indigo-600';
             plot1Badge.textContent = `H0: [50,50,50] | H1: [${mLow},50,${mHigh}]`;
-            plot1Badge.className = 'text-[11px] mono text-indigo-300 shrink-0';
+            plot1Badge.className = 'text-[11px] mono text-indigo-700 shrink-0';
         } else if (state.showH1) {
             pill.textContent = 'Showing H1 Only (True Effect)';
-            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold bg-emerald-500/20 text-emerald-700 border border-emerald-600';
             plot1Badge.textContent = `H1: mu = [${mLow}, 50, ${mHigh}]`;
-            plot1Badge.className = 'text-[11px] mono text-emerald-300 shrink-0';
+            plot1Badge.className = 'text-[11px] mono text-emerald-700 shrink-0';
         } else {
             pill.textContent = 'Showing H0 Only (True Null)';
-            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30';
+            pill.className = 'px-2 py-0.5 rounded text-[10px] mono font-semibold bg-sky-500/20 text-sky-700 border border-sky-600';
             plot1Badge.textContent = 'H0: mu = [50, 50, 50]';
-            plot1Badge.className = 'text-[11px] mono text-sky-300 shrink-0';
+            plot1Badge.className = 'text-[11px] mono text-sky-700 shrink-0';
         }
 
         const isFirst = pageIdx === 0;
@@ -1895,10 +1896,10 @@
             const el = document.getElementById(id);
             if (!violated) {
                 el.textContent = 'Holds';
-                el.className = 'px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium';
+                el.className = 'px-2 py-0.5 text-[11px] rounded-full bg-emerald-500/20 text-emerald-700 border border-emerald-600 font-medium';
             } else {
                 el.textContent = warnText;
-                el.className = 'px-2 py-0.5 text-[11px] rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium';
+                el.className = 'px-2 py-0.5 text-[11px] rounded-full bg-rose-500/20 text-rose-700 border border-rose-600 font-medium';
             }
         };
         setBadge('badge-normality', state.skew >= 0.5, 'Violated');
@@ -1929,10 +1930,10 @@
             if (bothOn) {
                 document.getElementById('label-stat-f').innerHTML = 'Sample <i>F</i> (H<sub>0</sub> | H<sub>1</sub>)';
                 document.getElementById('stat-f').innerHTML =
-                    `<span class="text-sky-300">${state.anovaH0.F.toFixed(2)}</span> <span class="text-slate-600">|</span> <span class="text-emerald-300">${state.anovaH1.F.toFixed(2)}</span>`;
+                    `<span class="text-sky-700">${state.anovaH0.F.toFixed(2)}</span> <span class="text-slate-600">|</span> <span class="text-emerald-700">${state.anovaH1.F.toFixed(2)}</span>`;
                 document.getElementById('label-stat-p').innerHTML = 'Sample <i>p</i> (H<sub>0</sub> | H<sub>1</sub>)';
                 document.getElementById('stat-p').innerHTML =
-                    `<span class="text-sky-300">${fmtP(state.anovaH0.p)}</span> <span class="text-slate-600">|</span> <span class="text-emerald-300">${fmtP(state.anovaH1.p)}</span>`;
+                    `<span class="text-sky-700">${fmtP(state.anovaH0.p)}</span> <span class="text-slate-600">|</span> <span class="text-emerald-700">${fmtP(state.anovaH1.p)}</span>`;
             } else if (state.showH1) {
                 document.getElementById('label-stat-f').innerHTML = 'Sample <i>F</i> (H<sub>1</sub>)';
                 document.getElementById('stat-f').textContent = state.anovaH1.F.toFixed(2);
@@ -1956,8 +1957,8 @@
                     ? `MS_W = ${noiseMult.toFixed(1)}x Ideal`
                     : `Noise Inflated ${noiseMult.toFixed(1)}x!`;
                 snrBadge.className = noiseMult <= 1.25
-                    ? 'text-[10px] mono text-emerald-300'
-                    : 'text-[10px] mono text-rose-300 font-semibold';
+                    ? 'text-[10px] mono text-emerald-700'
+                    : 'text-[10px] mono text-rose-700 font-semibold';
             }
 
             // Update Independence F-Ratio bars
@@ -2001,22 +2002,22 @@
                 const h0Status = state.anovaH0.p < 0.05 ? 'H0: Type I Err' : 'H0: Retained';
                 const h1Status = state.anovaH1.p < 0.05 ? 'H1: Detected' : 'H1: Missed';
                 decBadge.innerHTML = `${h0Status} &bull; ${h1Status}`;
-                decBadge.className = 'px-2.5 py-1 rounded text-[11px] font-semibold text-right leading-tight bg-indigo-500/20 text-indigo-200 border border-indigo-500/30';
+                decBadge.className = 'px-2.5 py-1 rounded text-[11px] font-semibold text-right leading-tight bg-indigo-500/20 text-indigo-800 border border-indigo-600';
             } else if (state.showH0) {
                 if (state.anovaH0.p < 0.05) {
                     decBadge.innerHTML = 'Type I Error! (False Positive)';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-rose-500/20 text-rose-300 border border-rose-500/30';
+                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-rose-500/20 text-rose-700 border border-rose-600';
                 } else {
                     decBadge.innerHTML = 'Correctly Retains H<sub>0</sub>';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-700 border border-emerald-600';
                 }
             } else {
                 if (state.anovaH1.p < 0.05) {
                     decBadge.innerHTML = 'True Positive! (Detects H<sub>1</sub>)';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-emerald-500/20 text-emerald-700 border border-emerald-600';
                 } else {
                     decBadge.innerHTML = 'Type II Error! (Missed Effect)';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-amber-500/20 text-amber-300 border border-amber-500/30';
+                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight bg-amber-500/20 text-amber-700 border border-amber-600';
                 }
             }
         }
@@ -2041,28 +2042,28 @@
         powerCommEl.classList.toggle('hidden', !state.showH1);
 
         if (type1Rate <= 7.0) {
-            type1El.className = 'text-base font-bold text-emerald-400 mono mt-0.5';
-            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> <span class="mono text-emerald-300">${type1Rate.toFixed(1)}%</span> stays close to the nominal <span class="mono text-slate-300">5.0%</span> level.`;
+            type1El.className = 'text-base font-bold text-emerald-700 mono mt-0.5';
+            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> <span class="mono text-emerald-700">${type1Rate.toFixed(1)}%</span> stays close to the nominal <span class="mono text-neutral-800">5.0%</span> level.`;
         } else if (type1Rate <= 15.0) {
-            type1El.className = 'text-base font-bold text-amber-400 mono mt-0.5';
-            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> Moderately inflated to <span class="mono text-amber-300">${type1Rate.toFixed(1)}%</span> (nominal <span class="mono">5.0%</span>).`;
+            type1El.className = 'text-base font-bold text-amber-700 mono mt-0.5';
+            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> Moderately inflated to <span class="mono text-amber-700">${type1Rate.toFixed(1)}%</span> (nominal <span class="mono">5.0%</span>).`;
         } else {
-            type1El.className = 'text-base font-bold text-rose-400 mono mt-0.5';
-            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> Severely inflated to <span class="mono text-rose-300">${type1Rate.toFixed(1)}%</span>! Nominal <i>p</i>-values are invalid.`;
+            type1El.className = 'text-base font-bold text-rose-700 mono mt-0.5';
+            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> Severely inflated to <span class="mono text-rose-700">${type1Rate.toFixed(1)}%</span>! Nominal <i>p</i>-values are invalid.`;
         }
 
         if (type1Rate > 10.0) {
-            powerEl.className = 'text-base font-bold text-amber-300 mono mt-0.5';
-            powerCommEl.innerHTML = `<b>Power Warning:</b> Nominal rejection (<span class="mono text-amber-300">${nominalPower.toFixed(1)}%</span>) is artificially inflated by false positives! True <b>Size-Adjusted Power</b> (at true 5% &alpha;) is only <span class="mono text-rose-300">${adjPower.toFixed(1)}%</span>.`;
+            powerEl.className = 'text-base font-bold text-amber-700 mono mt-0.5';
+            powerCommEl.innerHTML = `<b>Power Warning:</b> Nominal rejection (<span class="mono text-amber-700">${nominalPower.toFixed(1)}%</span>) is artificially inflated by false positives! True <b>Size-Adjusted Power</b> (at true 5% &alpha;) is only <span class="mono text-rose-700">${adjPower.toFixed(1)}%</span>.`;
         } else if (nominalPower >= 70.0) {
-            powerEl.className = 'text-base font-bold text-emerald-400 mono mt-0.5';
-            powerCommEl.innerHTML = `<b>Statistical Power (1&minus;&beta;):</b> Strong sensitivity (<span class="mono text-emerald-300">${nominalPower.toFixed(1)}%</span>) to detect the true <span class="mono">&Delta;&mu; = &plusmn;${state.effectDelta.toFixed(1)}</span> effect.`;
+            powerEl.className = 'text-base font-bold text-emerald-700 mono mt-0.5';
+            powerCommEl.innerHTML = `<b>Statistical Power (1&minus;&beta;):</b> Strong sensitivity (<span class="mono text-emerald-700">${nominalPower.toFixed(1)}%</span>) to detect the true <span class="mono">&Delta;&mu; = &plusmn;${state.effectDelta.toFixed(1)}</span> effect.`;
         } else if (nominalPower >= 45.0) {
-            powerEl.className = 'text-base font-bold text-amber-400 mono mt-0.5';
-            powerCommEl.innerHTML = `<b>Statistical Power (1&minus;&beta;):</b> Reduced to <span class="mono text-amber-300">${nominalPower.toFixed(1)}%</span> because inflated <span class="mono">MS<sub>Within</sub></span> partially masks the treatment signal.`;
+            powerEl.className = 'text-base font-bold text-amber-700 mono mt-0.5';
+            powerCommEl.innerHTML = `<b>Statistical Power (1&minus;&beta;):</b> Reduced to <span class="mono text-amber-700">${nominalPower.toFixed(1)}%</span> because inflated <span class="mono">MS<sub>Within</sub></span> partially masks the treatment signal.`;
         } else {
-            powerEl.className = 'text-base font-bold text-rose-400 mono mt-0.5';
-            powerCommEl.innerHTML = `<b>Severe Power Loss!</b> Power dropped to <span class="mono text-rose-300">${nominalPower.toFixed(1)}%</span> (Type II Error &beta; = <span class="mono">${(100 - nominalPower).toFixed(1)}%</span>) as extreme error variance swamps <span class="mono">MS<sub>Between</sub></span>.`;
+            powerEl.className = 'text-base font-bold text-rose-700 mono mt-0.5';
+            powerCommEl.innerHTML = `<b>Severe Power Loss!</b> Power dropped to <span class="mono text-rose-700">${nominalPower.toFixed(1)}%</span> (Type II Error &beta; = <span class="mono">${(100 - nominalPower).toFixed(1)}%</span>) as extreme error variance swamps <span class="mono">MS<sub>Between</sub></span>.`;
         }
     }
 
@@ -2158,14 +2159,14 @@
     const btnQQByGroup = document.getElementById('btnQQByGroup');
     btnQQPooled.addEventListener('click', () => {
         state.qqMode = 'pooled';
-        btnQQPooled.className = 'px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 transition';
-        btnQQByGroup.className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition';
+        btnQQPooled.className = 'px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-700 border border-sky-600 transition';
+        btnQQByGroup.className = 'px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition';
         renderDiagnosticPlot();
     });
     btnQQByGroup.addEventListener('click', () => {
         state.qqMode = 'byGroup';
-        btnQQByGroup.className = 'px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 transition';
-        btnQQPooled.className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition';
+        btnQQByGroup.className = 'px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-700 border border-sky-600 transition';
+        btnQQPooled.className = 'px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition';
         renderDiagnosticPlot();
     });
 
@@ -2173,15 +2174,15 @@
     const btnIndLag = document.getElementById('btnIndLag');
     btnIndSequence.addEventListener('click', () => {
         state.indMode = 'sequence';
-        btnIndSequence.className = 'px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 transition';
-        btnIndLag.className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition';
+        btnIndSequence.className = 'px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-700 border border-amber-600 transition';
+        btnIndLag.className = 'px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition';
         updateUI();
         renderDiagnosticPlot();
     });
     btnIndLag.addEventListener('click', () => {
         state.indMode = 'lag';
-        btnIndLag.className = 'px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 transition';
-        btnIndSequence.className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-slate-200 transition';
+        btnIndLag.className = 'px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-700 border border-amber-600 transition';
+        btnIndSequence.className = 'px-2 py-0.5 rounded-md text-neutral-700 hover:text-black transition';
         updateUI();
         renderDiagnosticPlot();
     });
