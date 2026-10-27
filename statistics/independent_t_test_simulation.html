@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Independent t-test Simulation</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
         MathJax = {
@@ -15,19 +16,11 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-        }
-
         .container-box {
-            border: 2px solid #cbd5e1;
-            border-radius: 0.5rem;
-            background-color: white;
-            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--demo-border);
+            border-radius: var(--demo-radius);
+            background-color: var(--demo-panel);
+            box-shadow: none;
             position: relative;
             overflow: hidden;
         }
@@ -76,24 +69,27 @@
         /* Toggle Switch Styles */
         .toggle-checkbox:checked {
             transform: translateX(100%);
-            border-color: #3b82f6;
+            border-color: #000000;
         }
         .toggle-checkbox:checked + .toggle-label {
-            background-color: #3b82f6;
+            background-color: #000000;
         }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
+<body class="demo-page min-h-screen p-4 md:p-8 flex flex-col items-center">
     <div class="max-w-7xl w-full">
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-extrabold text-slate-800 mb-2">Independent t-test Simulation</h1>
-            <p class="text-slate-600 max-w-4xl mx-auto">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+        </div>
+        <header class="demo-header mb-6 text-center">
+            <h1 class="text-3xl font-extrabold mb-2">Independent t-test Simulation</h1>
+            <p class="max-w-4xl mx-auto">
                 Demonstrating the sampling distribution of the difference between <strong>two independent sample means</strong> ($\bar{X}_2 - \bar{X}_1$). 
                 Compare how Standard Error is computed using Welch's vs Student's t-test under different variance and sample size conditions.
             </p>
         </header>
 
-        <div class="mb-6 flex flex-wrap justify-center gap-6 items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 w-full">
+        <div class="demo-card mb-6 flex flex-wrap justify-center gap-6 items-center p-4 w-full">
             <!-- Test Type -->
             <div class="flex items-center">
                 <span class="mr-3 text-sm font-semibold text-slate-700">Test Type:</span>
@@ -104,7 +100,7 @@
                 <span id="test-type-label" class="text-sm font-bold text-blue-600 w-24">Student's $t$</span>
             </div>
             
-            <div class="w-px h-8 bg-slate-200 hidden md:block"></div>
+            <div class="w-px h-8 bg-black hidden md:block"></div>
 
             <!-- Variances -->
             <div class="flex items-center">
@@ -116,7 +112,7 @@
                 <span id="variance-label" class="text-sm font-bold text-red-500 w-20">Unequal</span>
             </div>
 
-            <div class="w-px h-8 bg-slate-200 hidden md:block"></div>
+            <div class="w-px h-8 bg-black hidden md:block"></div>
 
             <!-- Sample Sizes -->
             <div class="flex items-center">
@@ -132,7 +128,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6 items-stretch">
             
             <!-- Left Column: TWO Population Containers -->
-            <div class="lg:col-span-4 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-4 h-full">
+            <div class="lg:col-span-4 demo-card p-5 flex flex-col gap-4 h-full">
                 
                 <!-- Population 1 -->
                 <div>
@@ -140,7 +136,7 @@
                         <h2 class="text-md font-bold text-blue-700">Pop 1: Control</h2>
                         <span id="pop1-params" class="text-[11px] font-semibold bg-blue-50 px-2 py-1 rounded text-blue-600">$\mu_1 = 50, \sigma_1 = 5, n_1 = 25$</span>
                     </div>
-                    <div id="pop1-container" class="container-box h-32 w-full relative bg-slate-50"></div>
+                    <div id="pop1-container" class="container-box h-32 w-full relative"></div>
                 </div>
 
                 <!-- Population 2 -->
@@ -149,18 +145,18 @@
                         <h2 class="text-md font-bold text-emerald-700">Pop 2: Treatment</h2>
                         <span id="pop2-params" class="text-[11px] font-semibold bg-emerald-50 px-2 py-1 rounded text-emerald-600">$\mu_2 = 60, \sigma_2 = 20, n_2 = 5$</span>
                     </div>
-                    <div id="pop2-container" class="container-box h-32 w-full relative bg-slate-50"></div>
+                    <div id="pop2-container" class="container-box h-32 w-full relative"></div>
                 </div>
                 
-                <div class="mt-auto bg-slate-50 p-3 rounded-lg border border-slate-100 text-center">
+                <div class="demo-panel mt-auto p-3 text-center">
                     <span class="text-sm font-semibold text-slate-700">True Mean Difference:</span>
                     <span class="text-lg font-bold text-red-600 ml-2">$\mu_2 - \mu_1 = +10$</span>
                 </div>
             </div>
 
             <!-- Middle Column: The Sampling Process -->
-            <div class="lg:col-span-4 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col h-full">
-                <h2 class="text-lg font-bold text-slate-700 w-full mb-4 text-center">Current Independent Samples</h2>
+            <div class="lg:col-span-4 demo-card p-5 flex flex-col h-full">
+                <h2 class="text-lg font-bold w-full mb-4 text-center">Current Independent Samples</h2>
                 
                 <div class="w-full flex-grow flex flex-col items-center justify-start space-y-4">
                     
@@ -188,7 +184,7 @@
                 </div> <!-- Closes flex-grow inner wrapper -->
                 
                 <!-- Combined Difference Output -->
-                <div class="w-full grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-200">
+                <div class="demo-divider w-full grid grid-cols-2 gap-2 mt-4 pt-4">
                     <div class="text-center">
                         <div class="text-[11px] text-slate-500 uppercase font-semibold mb-1" title="X2 - X1">Mean Diff ($\bar{X}_2 - \bar{X}_1$)</div>
                         <div id="current-diff" class="text-3xl font-extrabold text-red-600 h-10 flex items-center justify-center">--</div>
@@ -200,22 +196,22 @@
                 </div>
 
                 <div class="w-full mt-4 space-y-2">
-                    <button id="btn-draw-one" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-sm">
+                    <button id="btn-draw-one" class="demo-btn demo-btn-primary is-block" type="button">
                         Draw Independent Samples (1 Exp)
                     </button>
-                    <button id="btn-draw-all" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-lg transition shadow-sm">
+                    <button id="btn-draw-all" class="demo-btn demo-btn-primary is-block" type="button">
                         Simulate All 1000 Exp
                     </button>
-                    <button id="btn-reset" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-1 px-4 rounded-lg transition">
+                    <button id="btn-reset" class="demo-btn is-block" type="button">
                         Reset
                     </button>
                 </div>
             </div>
             
             <!-- Right Column: Sampling Distribution -->
-            <div class="lg:col-span-4 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col h-full">
+            <div class="lg:col-span-4 demo-card p-5 flex flex-col h-full">
                 <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-md font-bold text-slate-700">Distributions</h2>
+                    <h2 class="text-md font-bold">Distributions</h2>
                     <span class="text-xs font-semibold bg-red-100 px-2 py-1 rounded text-red-700" id="stats-counter">0 / 1000 Exp.</span>
                 </div>
                 
@@ -225,7 +221,7 @@
                     <div id="sampling-dist-chart" class="absolute inset-0 w-full h-full"></div>
                 </div>
                 
-                <div class="grid grid-cols-2 gap-4 mt-auto pt-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                <div class="demo-panel grid grid-cols-2 gap-4 mt-auto p-3">
                     <div>
                         <div class="text-[10px] text-slate-500 uppercase leading-tight mb-1">Mean of Mean Diffs</div>
                         <div class="text-lg font-bold text-slate-800" id="stat-mean-of-means">--</div>
@@ -234,7 +230,7 @@
                         <div class="text-[10px] text-slate-500 uppercase leading-tight mb-1" title="SD of the differences">Empirical SE</div>
                         <div class="text-lg font-bold text-slate-800" id="stat-emp-se">--</div>
                     </div>
-                    <div class="col-span-2 border-t border-slate-200 pt-2 flex justify-between items-baseline">
+                    <div class="demo-divider col-span-2 pt-2 flex justify-between items-baseline">
                         <div>
                             <div id="avg-se-label" class="text-[10px] text-slate-500 uppercase leading-tight mb-1">Avg. Student's Est. SE</div>
                             <div class="text-lg font-bold text-purple-700" id="stat-est-se">--</div>
@@ -250,8 +246,8 @@
         </div> <!-- Close Main Grid -->
             
             <!-- Explanation Panel -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 w-full mt-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-2">Standard Error in Independent Groups</h3>
+        <div class="demo-card demo-prose p-6 w-full mt-6">
+            <h3 class="text-lg font-bold mb-2">Standard Error in Independent Groups</h3>
             <p id="explanation-text-1" class="text-slate-600 text-sm leading-relaxed mb-3">
                     Student's t-test assumes equal variances. It calculates a pooled variance ($s_p^2$) which is a weighted average of the two sample variances based on their degrees of freedom ($n-1$).
                 </p>

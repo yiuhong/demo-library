@@ -7,6 +7,7 @@
     
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     
     <!-- KaTeX for rendering mathematical formulas beautifully -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -14,48 +15,49 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" 
         onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen p-4 md:p-8">
+<body class="demo-page min-h-screen p-4 md:p-8">
 
     <div class="max-w-6xl mx-auto space-y-6">
-        
+        <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+
         <!-- Header & Explanation Section -->
-        <header class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h1 class="text-3xl font-bold text-slate-900 mb-4">The Central Limit Theorem (CLT)</h1>
-            <p class="mb-4 leading-relaxed text-slate-700">
+        <header class="demo-header">
+            <h1 class="text-3xl font-bold mb-2">The Central Limit Theorem (CLT)</h1>
+            <p class="leading-relaxed">
                 The Central Limit Theorem states that if you draw repeated samples of size $n$ from <strong>any</strong> population distribution (even heavily skewed ones), the distribution of those sample means will approach a normal distribution (a bell curve) as $n$ gets larger.
             </p>
-            
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-lg mt-4">
-                <h2 class="font-bold text-blue-900 mb-2">The Standard Error (SE)</h2>
-                <p class="text-sm text-blue-900 leading-relaxed mb-3">
-                    The standard deviation of this resulting sampling distribution is called the <strong>Standard Error (SE)</strong>. It is calculated by dividing the population's standard deviation ($\sigma$) by the square root of the sample size ($n$):
-                </p>
-                <div class="text-xl text-center my-4 text-blue-950 bg-blue-100 py-3 rounded-lg w-fit mx-auto px-8">
-                    $$SE = \frac{\sigma}{\sqrt{n}}$$
-                </div>
-                <p class="text-sm text-blue-900 leading-relaxed">
-                    This mathematically proves why larger sample sizes yield tighter, more precise estimates of the population mean: as the sample size $n$ (the denominator $\sqrt{n}$) grows, the error shrinks, clustering the sample means closer to the true population mean.
-                </p>
-                
-                <div class="mt-4 pt-4 border-t border-blue-200">
-                    <p class="text-xs text-blue-800 leading-relaxed">
-                        <strong>Note on Real-World Application:</strong> This simulation uses the exact mathematical truth ($\sigma$) because we defined the population. In the real world, the true population standard deviation is rarely known, so statisticians must estimate it using the standard deviation of their single sample ($s$). In practice, the formula becomes $SE \approx \frac{s}{\sqrt{n}}$.
-                    </p>
-                </div>
-            </div>
         </header>
 
+        <div class="demo-card demo-prose p-6">
+            <h2 class="font-bold text-lg mb-2">The Standard Error (SE)</h2>
+            <p class="text-sm leading-relaxed mb-3">
+                The standard deviation of this resulting sampling distribution is called the <strong>Standard Error (SE)</strong>. It is calculated by dividing the population's standard deviation ($\sigma$) by the square root of the sample size ($n$):
+            </p>
+            <div class="demo-panel text-xl text-center my-4 py-3 w-fit mx-auto px-8">
+                $$SE = \frac{\sigma}{\sqrt{n}}$$
+            </div>
+            <p class="text-sm leading-relaxed">
+                This mathematically proves why larger sample sizes yield tighter, more precise estimates of the population mean: as the sample size $n$ (the denominator $\sqrt{n}$) grows, the error shrinks, clustering the sample means closer to the true population mean.
+            </p>
+
+            <div class="demo-divider mt-4 pt-4">
+                <p class="text-xs leading-relaxed">
+                    <strong>Note on Real-World Application:</strong> This simulation uses the exact mathematical truth ($\sigma$) because we defined the population. In the real world, the true population standard deviation is rarely known, so statisticians must estimate it using the standard deviation of their single sample ($s$). In practice, the formula becomes $SE \approx \frac{s}{\sqrt{n}}$.
+                </p>
+            </div>
+        </div>
+
         <!-- Interactive Controls Section -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h2 class="text-xl font-bold text-slate-800 mb-6">Simulation Parameters</h2>
+        <div class="demo-card p-6">
+            <h2 class="text-xl font-bold mb-6">Simulation Parameters</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
                 <!-- Distribution Selector -->
                 <div class="space-y-2">
-                    <label class="flex justify-between text-sm font-medium text-slate-700">
+                    <label class="flex justify-between text-sm font-medium">
                         <span>Population Distribution</span>
                     </label>
-                    <select id="dist-select" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 cursor-pointer outline-none transition-opacity">
+                    <select id="dist-select" class="demo-select">
                         <option value="exponential">Exponential (Skewed)</option>
                         <option value="uniform">Uniform (Flat)</option>
                         <option value="normal">Normal (Bell Curve)</option>
@@ -66,31 +68,31 @@
 
                 <!-- Sample Size Slider -->
                 <div class="space-y-2">
-                    <label class="flex justify-between text-sm font-medium text-slate-700">
+                    <label class="flex justify-between text-sm font-medium">
                         <span>Sample Size ($n$)</span>
-                        <span id="n-val" class="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">30</span>
+                        <span id="n-val" class="demo-value">30</span>
                     </label>
-                    <input type="range" id="sample-size" min="2" max="150" value="30" class="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none transition-opacity">
+                    <input type="range" id="sample-size" min="2" max="150" value="30" class="w-full cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none">
                     <p class="text-xs text-slate-500">Number of observations drawn in each single sample.</p>
                 </div>
 
                 <!-- Number of Samples Slider -->
                 <div class="space-y-2">
-                    <label class="flex justify-between text-sm font-medium text-slate-700">
+                    <label class="flex justify-between text-sm font-medium">
                         <span>Number of Samples</span>
-                        <span id="iterations-val" class="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">500</span>
+                        <span id="iterations-val" class="demo-value">500</span>
                     </label>
-                    <input type="range" id="iterations" min="50" max="2000" step="10" value="500" class="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none transition-opacity">
+                    <input type="range" id="iterations" min="50" max="2000" step="10" value="500" class="w-full cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none">
                     <p class="text-xs text-slate-500">Total times we draw a sample of size $n$ and record its mean.</p>
                 </div>
 
             </div>
             
             <div class="mt-8 flex flex-wrap gap-4">
-                <button id="run-btn" class="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors flex-1 md:flex-none text-center">
+                <button id="run-btn" class="demo-btn demo-btn-primary flex-1 md:flex-none text-center" type="button">
                     Run Simulation
                 </button>
-                <button id="reset-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors flex-1 md:flex-none text-center border border-slate-300">
+                <button id="reset-btn" class="demo-btn flex-1 md:flex-none text-center" type="button">
                     Reset
                 </button>
             </div>
@@ -100,35 +102,35 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
             <!-- Population Canvas (Left) -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+            <div class="demo-card p-6 flex flex-col">
                 <div class="mb-4">
-                    <h3 class="text-lg font-bold text-slate-800">Population Distribution</h3>
+                    <h3 class="text-lg font-bold">Population Distribution</h3>
                     <p id="pop-desc" class="text-sm text-slate-500 mb-1">A highly skewed Exponential distribution.<br> <span class="font-mono bg-slate-100 px-1 rounded">Mean ($\mu$) = 40</span> | <span class="font-mono bg-slate-100 px-1 rounded">Std Dev ($\sigma$) = 40.00</span></p>
                 </div>
                 <div class="relative w-full aspect-[4/3] flex-grow">
-                    <canvas id="pop-canvas" width="800" height="600" class="absolute inset-0 w-full h-full object-contain border border-slate-200 bg-slate-50 rounded-lg"></canvas>
+                    <canvas id="pop-canvas" width="800" height="600" class="absolute inset-0 w-full h-full object-contain border border-black bg-white" style="border-radius: 4px;"></canvas>
                 </div>
             </div>
 
             <!-- Sampling Distribution Canvas (Right) -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+            <div class="demo-card p-6 flex flex-col">
                 <div class="mb-4">
-                    <h3 class="text-lg font-bold text-slate-800">Sampling Distribution of the Mean</h3>
+                    <h3 class="text-lg font-bold">Sampling Distribution of the Mean</h3>
                     <p class="text-sm text-slate-500">Histogram of sample means with theoretical normal overlay.</p>
                 </div>
                 
                 <div class="relative w-full aspect-[4/3] mb-6 flex-grow">
-                    <canvas id="sample-canvas" width="800" height="600" class="absolute inset-0 w-full h-full object-contain border border-slate-200 bg-slate-50 rounded-lg"></canvas>
+                    <canvas id="sample-canvas" width="800" height="600" class="absolute inset-0 w-full h-full object-contain border border-black bg-white" style="border-radius: 4px;"></canvas>
                 </div>
                 
                 <!-- Statistical Results Output -->
-                <div class="w-full bg-slate-50 p-5 rounded-lg border border-slate-200 text-sm">
-                    <div class="flex justify-between items-center border-b border-slate-200 pb-3 mb-3">
-                        <span class="text-slate-600 font-medium">Theoretical Standard Error <span class="text-xs text-slate-400">($\frac{40}{\sqrt{n}}$)</span>:</span>
-                        <span id="theo-se" class="font-mono font-bold text-lg text-slate-900">--</span>
+                <div class="demo-panel w-full p-5 text-sm">
+                    <div class="flex justify-between items-center border-b border-black pb-3 mb-3">
+                        <span class="font-medium">Theoretical Standard Error <span class="text-xs text-slate-400">($\frac{40}{\sqrt{n}}$)</span>:</span>
+                        <span id="theo-se" class="font-mono font-bold text-lg">--</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-slate-600 font-medium">Empirical Standard Error <span class="text-xs text-slate-400">(Actual Std Dev of means)</span>:</span>
+                        <span class="font-medium">Empirical Standard Error <span class="text-xs text-slate-400">(Actual Std Dev of means)</span>:</span>
                         <span id="emp-se" class="font-mono font-bold text-lg text-indigo-700">--</span>
                     </div>
                 </div>

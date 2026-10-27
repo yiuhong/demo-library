@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Two-Way ANOVA Omnibus Test</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
     <style>
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
+            font-family: var(--demo-font);
         }
         .slider-container {
             display: flex;
@@ -36,9 +35,10 @@
             cursor: pointer;
         }
         .math-block {
-            background-color: #f1f5f9;
+            background-color: var(--demo-panel);
             padding: 0.75rem;
-            border-radius: 0.5rem;
+            border: 1px solid var(--demo-border);
+            border-radius: var(--demo-radius);
             font-family: monospace;
             font-size: 0.82rem;
             overflow-x: auto;
@@ -48,14 +48,16 @@
             text-align: left;
             padding: 6px 10px;
             font-size: 12px;
-            background: #1e293b;
-            color: white;
-            border-radius: 6px;
+            background: var(--demo-card);
+            color: var(--demo-text);
+            border: 1px solid var(--demo-border);
+            border-radius: var(--demo-radius);
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.15s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: none;
             z-index: 50;
+            font-family: var(--demo-font);
         }
         /* Group Colors */
         .color-g1 { background-color: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; }
@@ -65,24 +67,24 @@
         details > summary::-webkit-details-marker { display: none; }
     </style>
 </head>
-<body class="p-3 md:p-6">
+<body class="demo-page p-3 md:p-6">
 
-<div class="max-w-7xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
+<div class="max-w-7xl mx-auto mb-4">
+    <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+</div>
+
+<div class="max-w-7xl mx-auto demo-card overflow-hidden">
     <!-- Header -->
-    <div class="bg-slate-800 text-white p-5 md:p-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold mb-1">Interactive Two-Way ANOVA (2 × 2 Factorial Design)</h1>
-                <p class="text-slate-300 text-sm max-w-3xl">
-                    Two-Way ANOVA simultaneously tests three hypotheses: the main effect of <strong>Factor A (Group: 1, 2)</strong>, 
-                    the main effect of <strong>Factor B (Gender: Female, Male)</strong>, and their <strong>Interaction (Group × Gender)</strong>—whether the effect of Group depends on Gender.
-                </p>
-            </div>
-            <div class="flex flex-wrap gap-1.5 text-xs">
-                <span class="px-2.5 py-1 bg-slate-700 rounded-md border border-slate-600 font-mono">Factor A: Group (k<sub>A</sub> = 2)</span>
-                <span class="px-2.5 py-1 bg-slate-700 rounded-md border border-slate-600 font-mono">Factor B: Gender (k<sub>B</sub> = 2)</span>
-            </div>
-        </div>
+    <div class="demo-header">
+        <h1 class="text-2xl font-bold mb-1">Interactive Two-Way ANOVA (2 × 2 Factorial Design)</h1>
+        <p class="text-sm max-w-3xl">
+            Two-Way ANOVA simultaneously tests three hypotheses: the main effect of <strong>Factor A (Group: 1, 2)</strong>, 
+            the main effect of <strong>Factor B (Gender: Female, Male)</strong>, and their <strong>Interaction (Group × Gender)</strong>—whether the effect of Group depends on Gender.
+        </p>
+    </div>
+    <div class="demo-toolbar">
+        <span class="demo-chip">Factor A: Group (k<sub>A</sub> = 2)</span>
+        <span class="demo-chip">Factor B: Gender (k<sub>B</sub> = 2)</span>
     </div>
 
     <div class="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -91,10 +93,10 @@
         <div class="lg:col-span-4 space-y-5">
             
             <!-- Parameter Controls -->
-            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                <div class="flex items-center justify-between border-b pb-2 mb-3">
-                    <h2 class="text-base font-semibold text-slate-800">Design & Cell Parameters</h2>
-                    <button id="resample-btn" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold py-1.5 px-3 rounded transition-colors shadow-sm">
+            <div class="demo-panel p-4">
+                <div class="flex items-center justify-between border-b border-black pb-2 mb-3">
+                    <h2 class="text-base font-semibold">Design & Cell Parameters</h2>
+                    <button id="resample-btn" class="demo-btn demo-btn-primary" type="button">
                         Resample Noise
                     </button>
                 </div>
@@ -102,16 +104,16 @@
                 <!-- Scenario Presets -->
                 <div class="mb-4">
                     <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1.5">Quick Pattern Presets</span>
-                    <div class="grid grid-cols-2 gap-1.5 text-xs">
-                        <button data-preset="mainA" class="preset-btn bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 rounded py-1.5 px-2 font-medium transition">Only Group Effect</button>
-                        <button data-preset="mainAB" class="preset-btn bg-white hover:bg-blue-50 text-slate-700 border border-slate-300 rounded py-1.5 px-2 font-medium transition">Both Main Effects</button>
-                        <button data-preset="crossover" class="preset-btn bg-white hover:bg-purple-50 text-slate-700 border border-slate-300 rounded py-1.5 px-2 font-medium transition">Crossover Interaction</button>
-                        <button data-preset="synergy" class="preset-btn bg-white hover:bg-purple-50 text-slate-700 border border-slate-300 rounded py-1.5 px-2 font-medium transition">Synergistic Interaction</button>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button data-preset="mainA" class="preset-btn demo-chip is-block" type="button">Only Group Effect</button>
+                        <button data-preset="mainAB" class="preset-btn demo-chip is-block" type="button">Both Main Effects</button>
+                        <button data-preset="crossover" class="preset-btn demo-chip is-block" type="button">Crossover Interaction</button>
+                        <button data-preset="synergy" class="preset-btn demo-chip is-block" type="button">Synergistic Interaction</button>
                     </div>
                 </div>
                 
                 <!-- Global Cell Sample Size & Spread -->
-                <div class="mb-4 bg-slate-200/70 p-2.5 rounded border border-slate-300 space-y-1.5">
+                <div class="demo-card mb-4 p-2.5 space-y-1.5">
                     <div class="slider-container">
                         <span class="slider-label font-bold text-slate-800" title="Observations per Group × Gender cell">Cell Size (n)</span>
                         <input type="range" id="n-size" min="3" max="10" value="4" step="1">
@@ -193,8 +195,8 @@
             </div>
 
             <!-- 3x2 Sample Cell & Marginal Means Table -->
-            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                <h2 class="text-base font-semibold mb-2 border-b pb-1.5 text-slate-800">Sample Cell & Marginal Means</h2>
+            <div class="demo-panel p-4">
+                <h2 class="text-base font-semibold mb-2 border-b border-black pb-1.5">Sample Cell & Marginal Means</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-center border-collapse">
                         <thead>
@@ -231,9 +233,9 @@
             <!-- Top Plots Row: Dot Plot & Interaction Profile Plot -->
             <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
                 <!-- Horizontal Dot Plot (7 cols) -->
-                <div class="xl:col-span-7 bg-white p-4 rounded-lg border border-slate-200 shadow-sm relative">
+                <div class="xl:col-span-7 demo-card p-4 relative">
                     <div class="flex items-center justify-between mb-1">
-                        <h2 class="text-base font-semibold text-slate-800">Sample Data by Group & Gender</h2>
+                        <h2 class="text-base font-semibold">Sample Data by Group & Gender</h2>
                         <div class="flex items-center space-x-3 text-xs text-slate-600">
                             <span class="text-pink-600 font-bold">● Female</span>
                             <span class="text-indigo-600 font-bold">▲ Male</span>
@@ -247,10 +249,10 @@
                 </div>
 
                 <!-- Interaction Plot (5 cols) -->
-                <div class="xl:col-span-5 bg-white p-4 rounded-lg border border-slate-200 shadow-sm relative flex flex-col justify-between">
+                <div class="xl:col-span-5 demo-card p-4 relative flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-1">
-                            <h2 class="text-base font-semibold text-slate-800">Interaction Profile Plot</h2>
+                            <h2 class="text-base font-semibold">Interaction Profile Plot</h2>
                             <span id="parallel-badge" class="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">Checking lines...</span>
                         </div>
                         <p class="text-xs text-slate-500 mb-2">
@@ -262,10 +264,10 @@
             </div>
 
             <!-- Two-Way ANOVA Summary Table & Partitioning Equations -->
-            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+            <div class="demo-card p-4">
                 <div class="mb-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
-                        <h2 class="text-base font-semibold text-slate-800">Two-Way ANOVA Omnibus Table & Variance Partitioning</h2>
+                        <h2 class="text-base font-semibold">Two-Way ANOVA Omnibus Table & Variance Partitioning</h2>
                         <span class="text-xs font-mono bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
                             SS<sub>Total</sub> = SS<sub>Group</sub> + SS<sub>Gender</sub> + SS<sub>Interaction</sub> + SS<sub>Within</sub>
                         </span>
@@ -347,7 +349,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs md:text-sm text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-800 text-white">
+                            <tr class="bg-black text-white">
                                 <th class="py-2 px-3 rounded-tl">Source of Variation</th>
                                 <th class="py-2 px-3 text-right">SS</th>
                                 <th class="py-2 px-3 text-right">df</th>
@@ -365,19 +367,19 @@
             </div>
 
             <!-- F-Distribution Curve with Effect Selector -->
-            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm relative">
+            <div class="demo-card p-4 relative">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                     <div>
-                        <h2 class="text-base font-semibold text-slate-800">F-Distribution (Sampling Distribution under H<sub>0</sub>)</h2>
+                        <h2 class="text-base font-semibold">F-Distribution (Sampling Distribution under H<sub>0</sub>)</h2>
                         <p class="text-xs text-slate-500">
                             Select which of the three omnibus F-tests to inspect on its corresponding F(df<sub>effect</sub>, df<sub>Within</sub>) distribution:
                         </p>
                     </div>
                     <!-- Effect Selector Tabs -->
-                    <div class="inline-flex rounded-lg border border-slate-300 bg-slate-100 p-0.5 text-xs font-semibold">
-                        <button data-effect="A" class="f-tab-btn px-3 py-1.5 rounded-md bg-slate-800 text-white transition">Group (F<sub>A</sub>)</button>
-                        <button data-effect="B" class="f-tab-btn px-3 py-1.5 rounded-md text-slate-700 hover:text-slate-900 transition">Gender (F<sub>B</sub>)</button>
-                        <button data-effect="AB" class="f-tab-btn px-3 py-1.5 rounded-md text-slate-700 hover:text-slate-900 transition">Interaction (F<sub>AB</sub>)</button>
+                    <div class="demo-chip-group">
+                        <button data-effect="A" class="f-tab-btn demo-chip is-active" type="button">Group (F<sub>A</sub>)</button>
+                        <button data-effect="B" class="f-tab-btn demo-chip" type="button">Gender (F<sub>B</sub>)</button>
+                        <button data-effect="AB" class="f-tab-btn demo-chip" type="button">Interaction (F<sub>AB</sub>)</button>
                     </div>
                 </div>
                 <div id="f-dist" class="w-full h-48 relative"></div>
@@ -1199,9 +1201,9 @@
         activeFEffect = effectKey;
         document.querySelectorAll('.f-tab-btn').forEach(btn => {
             if (btn.dataset.effect === effectKey) {
-                btn.className = "f-tab-btn px-3 py-1.5 rounded-md bg-slate-800 text-white transition";
+                btn.className = "f-tab-btn demo-chip is-active";
             } else {
-                btn.className = "f-tab-btn px-3 py-1.5 rounded-md text-slate-700 hover:text-slate-900 transition";
+                btn.className = "f-tab-btn demo-chip";
             }
         });
         updateDOMTables();

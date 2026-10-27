@@ -203,7 +203,46 @@
 }
 
 .demo-page input[type="range"] {
-    accent-color: #000000;
+    accent-color: #000000 !important;
+}
+
+.demo-btn.is-block,
+.demo-chip.is-block {
+    width: 100%;
+}
+
+.demo-select {
+    width: 100%;
+    display: block;
+    background: var(--demo-card) !important;
+    color: var(--demo-text) !important;
+    border: 1px solid var(--demo-border) !important;
+    border-radius: var(--demo-radius) !important;
+    box-shadow: none !important;
+    font-family: var(--demo-font);
+    font-size: 0.875rem;
+    padding: 0.55rem 0.75rem;
+    cursor: pointer;
+    outline: none;
+}
+
+.demo-select:focus {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+.demo-value {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--demo-font);
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: #000000 !important;
+    background: #ffffff !important;
+    border: 1px solid #000000;
+    border-radius: 3em;
+    padding: 0.1em 0.7em;
+    line-height: 1.4;
 }
 
 .demo-page .demo-header :is(h1, h2, h3, p, span, strong) {
