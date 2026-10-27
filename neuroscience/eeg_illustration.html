@@ -7,6 +7,8 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/neuroscience-demo-theme.css">
+    <link rel="stylesheet" href="../assets/neuroscience-viz-theme.css">
+    <script src="../assets/neuroscience-viz-theme.js"></script>
     <!-- MathJax Configuration and Script for LaTeX rendering -->
     <script>
         window.MathJax = {
@@ -22,6 +24,18 @@
     <style>
         .code-font {
             font-family: 'JetBrains Mono', monospace;
+        }
+        /* Dura and pia are not shared roles. Mix listed tissue tokens so those
+           bands stay distinct without a second palette. */
+        :root {
+            --eeg-dura: color-mix(in srgb, var(--viz-csf) 46%, var(--viz-skull));
+            --eeg-pia: color-mix(in srgb, var(--viz-vessel) 38%, var(--viz-scalp));
+        }
+        .synapse-epsp {
+            background: color-mix(in srgb, var(--viz-erp-wave) 10%, transparent);
+            border-color: color-mix(in srgb, var(--viz-erp-wave) 40%, transparent);
+            color: var(--viz-erp-wave);
+            box-shadow: 0 4px 6px color-mix(in srgb, var(--viz-erp-wave) 5%, transparent);
         }
     </style>
 </head>
@@ -49,8 +63,8 @@
             <!-- Quick Stats -->
             <div class="flex items-center gap-4 text-xs code-font">
                 <div class="demo-pill px-3 py-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>SIGNAL LEVEL: <span id="stat-microvolts" class="text-emerald-400 font-bold">~12 µV</span></span>
+                    <span class="w-2 h-2 rounded-full animate-pulse" style="background-color: var(--viz-raw)"></span>
+                    <span>SIGNAL LEVEL: <span id="stat-microvolts" class="viz-ink-raw font-bold">~12 µV</span></span>
                 </div>
                 <div class="demo-pill px-3 py-1.5">
                     <span>SYNCHRONY: <span id="stat-sync" class="text-indigo-400 font-bold">50%</span></span>
@@ -164,7 +178,7 @@
                 <div class="space-y-2 pt-2 border-t border-slate-800">
                     <label class="text-xs text-slate-400 font-medium">Synaptic Activation State</label>
                     <div class="grid grid-cols-2 gap-2 mt-1">
-                        <button id="btn-epsp" class="py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 bg-indigo-500/10 border-indigo-500/40 text-indigo-300 shadow-md shadow-indigo-500/5">
+                        <button id="btn-epsp" class="synapse-epsp py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200">
                             Excitatory (EPSP)
                             <div class="text-[9px] font-normal opacity-75 mt-0.5">Apical Influx (-) / Soma Source (+)</div>
                         </button>
@@ -200,7 +214,7 @@
                 </h3>
                 <div class="flex flex-col gap-2">
                     <button onclick="loadTutorial('dipole')" class="tutorial-btn demo-option is-active flex flex-col items-start gap-1 p-2.5 text-left">
-                        <span class="text-xs font-semibold text-indigo-300">1. The Synaptic Dipole</span>
+                        <span class="text-xs font-semibold viz-ink-erp-wave">1. The Synaptic Dipole</span>
                         <span class="text-[10px] text-slate-400">Learn how EPSPs and IPSPs create positive/negative voltage poles along a pyramidal cell.</span>
                     </button>
                     <button onclick="loadTutorial('synchrony')" class="tutorial-btn demo-option flex flex-col items-start gap-1 p-2.5 text-left">
@@ -245,11 +259,11 @@
             <div class="demo-card p-4 flex flex-col gap-3">
                 <div class="flex items-center justify-between">
                     <h3 class="demo-kicker text-xs flex items-center gap-2">
-                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        <svg class="w-4 h-4 viz-ink-raw" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                         Amplified EEG Output
                     </h3>
                     <div class="flex items-center gap-2 text-[10px] text-slate-500">
-                        <span class="inline-block w-2 h-2 bg-emerald-500/40 rounded-full animate-pulse"></span>
+                        <span class="inline-block w-2 h-2 rounded-full animate-pulse" style="background-color: color-mix(in srgb, var(--viz-raw) 40%, transparent)"></span>
                         <span>0.5s Epoch</span>
                     </div>
                 </div>
@@ -257,7 +271,7 @@
                 <!-- Scope Canvas -->
                 <div class="demo-plot relative h-32 overflow-hidden flex items-center justify-center">
                     <canvas id="canvas-oscilloscope" class="absolute inset-0 w-full h-full"></canvas>
-                    <div class="absolute left-10 top-2 code-font text-[9px] bg-slate-900/90 border border-slate-800 px-1 py-0.5 rounded text-emerald-400/80 z-10">60Hz Notch Active</div>
+                    <div class="absolute left-10 top-2 code-font text-[9px] bg-slate-900/90 border border-slate-800 px-1 py-0.5 rounded viz-ink-raw opacity-80 z-10">60Hz Notch Active</div>
                     <div class="absolute right-2 bottom-2 code-font text-[9px] bg-slate-900/90 border border-slate-800 px-1 py-0.5 rounded text-slate-500 z-10" id="scale-indicator">10 µV / div</div>
                 </div>
 
@@ -265,7 +279,7 @@
                 <div class="demo-panel grid grid-cols-2 gap-2 text-center text-xs code-font p-2.5">
                     <div class="border-r border-slate-800">
                         <div class="text-[9px] text-slate-500">PEAK-TO-PEAK</div>
-                        <div class="text-emerald-400 font-bold" id="val-peak">12.4 µV</div>
+                        <div class="viz-ink-raw font-bold" id="val-peak">12.4 µV</div>
                     </div>
                     <div>
                         <div class="text-[9px] text-slate-500">SIGNAL NOISE RATIO</div>
@@ -355,12 +369,41 @@
             state.voltageHistory.push(0);
         }
 
+        // Series colours from assets/neuroscience-viz-theme.css.
+        // Canvas needs a resolved rgb(); labels use the same token.
+        const ink = {
+            raw: neuroViz.color('--viz-raw'),
+            scalp: neuroViz.color('--viz-scalp'),
+            skull: neuroViz.color('--viz-skull'),
+            csf: neuroViz.color('--viz-csf'),
+            brain: neuroViz.color('--viz-brain'),
+            brainFill: neuroViz.color('--viz-brain-fill'),
+            brainFold: neuroViz.color('--viz-brain-fold'),
+            dura: neuroViz.color('--eeg-dura'),
+            pia: neuroViz.color('--eeg-pia'),
+            positive: neuroViz.color('--viz-delta'),
+            negative: neuroViz.color('--viz-gamma'),
+            neuron: neuroViz.alpha(neuroViz.color('--viz-activation'), 0.85),
+            neuronBasal: neuroViz.alpha(neuroViz.color('--viz-activation'), 0.7),
+            neuronApical: neuroViz.alpha(neuroViz.color('--viz-activation'), 0.9),
+            epspField: neuroViz.withAlpha('--viz-erp-wave', 0.12),
+            // Inhibitory field, same pink as the IPSP button. No shared role for it.
+            ipspField: 'rgba(236, 72, 153, 0.12)',
+            dipole: neuroViz.color('--viz-erp-wave'),
+            gel: neuroViz.withAlpha('--viz-detector', 0.6),
+            polarityPos: neuroViz.withAlpha('--viz-delta', 0.4),
+            polarityNeg: neuroViz.withAlpha('--viz-gamma', 0.4),
+            ledOk: neuroViz.color('--viz-quality-high'),
+            ledHot: neuroViz.color('--viz-quality-low'),
+            select: neuroViz.alpha(neuroViz.color('--demo-accent-hover'), 0.8)
+        };
+
         // Biophysics Layers Properties
         const layers = {
             scalp: {
                 title: "Scalp (Skin)",
-                color: "#e2b697",
-                highlightColor: "#ffcfb0",
+                fill: ink.scalp,
+                ink: ink.scalp,
                 startY: 0.12,
                 endY: 0.16,
                 desc: "The scalp provides a medium with medium-to-low conductivity. By the time electrical potentials reach the electrode sitting on the scalp, the signal is dramatically attenuated, typically measuring between 10 to 100 microvolts (µV) peak-to-peak.",
@@ -368,8 +411,8 @@
             },
             skull: {
                 title: "Skull (Bone)",
-                color: "#e2cc97",
-                highlightColor: "#ffe5b0",
+                fill: ink.skull,
+                ink: ink.skull,
                 startY: 0.16,
                 endY: 0.28,
                 desc: "The skull acts as a highly resistive tissue layer (high impedance). It drastically attenuates (reduces the strength of) electrical fields and behaves as a low-pass spatial filter, smearing/blurring localized brain electrical signals over a larger area.",
@@ -377,8 +420,8 @@
             },
             dura: {
                 title: "Dura Mater",
-                color: "#adc4cc",
-                highlightColor: "#cae2eb",
+                fill: ink.dura,
+                ink: ink.dura,
                 startY: 0.28,
                 endY: 0.31,
                 desc: "The outermost meningeal layer. It is a tough, non-elastic, fibrous membrane wrapping tightly around the brain. Mechanically protective but highly vascularized, presenting unique electrical resistance characteristics.",
@@ -386,8 +429,8 @@
             },
             subarachnoid: {
                 title: "Subarachnoid Space (CSF)",
-                color: "#7fa6b3",
-                highlightColor: "#9ec2cf",
+                fill: ink.csf,
+                ink: ink.csf,
                 startY: 0.31,
                 endY: 0.37,
                 desc: "Contains the Cerebrospinal Fluid (CSF). CSF is a highly conductive liquid medium. While bone attenuates, CSF shunt currents laterally, causing further spreading of the electrical field lines before they reach the skull.",
@@ -395,8 +438,8 @@
             },
             pia: {
                 title: "Pia Mater",
-                color: "#b07f89",
-                highlightColor: "#cf9ea8",
+                fill: ink.pia,
+                ink: ink.pia,
                 startY: 0.37,
                 endY: 0.39,
                 desc: "A highly delicate, thin vascular envelope that closely hugs the outer contours of the cerebral cortex. It represents the ultimate boundary between neural extracellular space and fluid-filled spaces.",
@@ -404,8 +447,9 @@
             },
             cortex: {
                 title: "Cerebral Cortex (Layer V Pyramidal Cells)",
-                color: "#3f333c",
-                highlightColor: "#594955",
+                fill: ink.brainFill,
+                fillHot: ink.brainFold,
+                ink: ink.brain,
                 startY: 0.39,
                 endY: 1.0,
                 desc: "This is the gray matter containing the pyramidal cell populations. To create a measurable EEG signal, large populations of thousands of aligned pyramidal neurons must fire synchronously. Action potentials are too short (1ms) and randomly aligned to summate. Slower dendritic potentials (EPSPs/IPSPs lasting 10-100ms) summate beautifully.",
@@ -413,8 +457,7 @@
             },
             dipole: {
                 title: "The Synaptic Dipole",
-                color: "#818cf8",
-                highlightColor: "#a5b4fc",
+                ink: ink.dipole,
                 desc: "When excitatory neurotransmitters (like glutamate) are released at apical dendrites, positive sodium (Na+) ions flow inside the cell. This creates an extracellular negative sink near the dendrite and a relative positive source at the cell body (soma). This separation of charge forms a primary physical current dipole.",
                 fact: "Excitatory synapses (EPSPs) on apical dendrites create a dipole with negative charge at the top, while Inhibitory synapses (IPSPs) flip this polarity!"
             }
@@ -513,7 +556,7 @@
 
         btnEPSP.addEventListener('click', () => {
             state.synapseType = 'EPSP';
-            btnEPSP.className = "py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 bg-indigo-500/10 border-indigo-500/40 text-indigo-300 shadow-md shadow-indigo-500/5";
+            btnEPSP.className = "synapse-epsp py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200";
             btnIPSP.className = "py-2 px-3 rounded-lg text-xs font-semibold border transition-all duration-200 bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700/50";
             updateInspectorToLayer('dipole');
         });
@@ -566,7 +609,7 @@
             state.selectedLayer = layerId;
 
             inspectorTitle.textContent = data.title;
-            inspectorTitle.style.color = data.highlightColor || data.color;
+            inspectorTitle.style.color = data.ink;
             inspectorDesc.innerHTML = data.desc;
             inspectorFact.innerHTML = data.fact;
 
@@ -576,7 +619,7 @@
             }
 
             // Change icon background temporarily
-            inspectorIcon.style.color = data.color;
+            inspectorIcon.style.color = data.ink;
             inspectorIcon.className = "p-1 rounded bg-slate-800 text-indigo-400 transition-transform duration-300 scale-110";
             setTimeout(() => {
                 inspectorIcon.className = "p-1 rounded bg-indigo-500/10 text-indigo-400 transition-transform duration-300 scale-100";
@@ -748,7 +791,7 @@
 
                 // Color configuration: Highlight currently selected layer
                 const isSelected = state.selectedLayer === key;
-                ctxBio.fillStyle = isSelected ? layer.highlightColor : layer.color;
+                ctxBio.fillStyle = (isSelected && layer.fillHot) ? layer.fillHot : layer.fill;
                 ctxBio.fillRect(0, startY, w, layerHeight);
 
                 // Draw layer labels & lines
@@ -809,7 +852,7 @@
 
                 // Render field lines radiating outwards (Only when active)
                 if (Math.abs(chargeOffset) > 0.15) {
-                    ctxBio.strokeStyle = chargeOffset > 0 ? 'rgba(99, 102, 241, 0.12)' : 'rgba(236, 72, 153, 0.12)';
+                    ctxBio.strokeStyle = chargeOffset > 0 ? ink.epspField : ink.ipspField;
                     ctxBio.lineWidth = 1;
                     
                     // Draw field arcs
@@ -823,7 +866,7 @@
                 }
 
                 // Draw Pyramidal Cell Body (Triangle pointing upwards)
-                ctxBio.fillStyle = 'rgba(234, 179, 8, 0.85)';
+                ctxBio.fillStyle = ink.neuron;
                 ctxBio.beginPath();
                 ctxBio.moveTo(nx, ny); // Top tip
                 ctxBio.lineTo(nx - 7, ny + 16); // Left base
@@ -832,7 +875,7 @@
                 ctxBio.fill();
 
                 // Draw Basal Dendrites (Root branches)
-                ctxBio.strokeStyle = 'rgba(234, 179, 8, 0.7)';
+                ctxBio.strokeStyle = ink.neuronBasal;
                 ctxBio.lineWidth = 1.5;
                 ctxBio.beginPath();
                 ctxBio.moveTo(nx - 4, ny + 14);
@@ -847,7 +890,7 @@
 
                 // Draw Long Apical Dendrite (Reaching up to Layer I/II)
                 const dendriteTopY = cortexStartY + 10;
-                ctxBio.strokeStyle = 'rgba(234, 179, 8, 0.9)';
+                ctxBio.strokeStyle = ink.neuronApical;
                 ctxBio.lineWidth = 2.2;
                 ctxBio.beginPath();
                 ctxBio.moveTo(nx, ny);
@@ -871,7 +914,7 @@
                 // Determine EPSP polarity values
                 if (chargeOffset > 0) { // Top negative, Bottom positive
                     // Apical Sink (-)
-                    ctxBio.fillStyle = '#ef4444'; // Red circle for negative charge sink
+                    ctxBio.fillStyle = ink.negative; // Negative charge sink
                     ctxBio.beginPath();
                     ctxBio.arc(nx, apicalChargeY, 6, 0, Math.PI*2);
                     ctxBio.fill();
@@ -880,7 +923,7 @@
                     ctxBio.fillText('−', nx, apicalChargeY - 0.5);
 
                     // Soma Source (+)
-                    ctxBio.fillStyle = '#3b82f6'; // Blue circle for positive source
+                    ctxBio.fillStyle = ink.positive; // Positive source
                     ctxBio.beginPath();
                     ctxBio.arc(nx, somaChargeY, 6, 0, Math.PI*2);
                     ctxBio.fill();
@@ -888,7 +931,7 @@
                     ctxBio.fillText('+', nx, somaChargeY);
                 } else if (chargeOffset < -0.1) { // Flipped polarity
                     // Apical Source (+)
-                    ctxBio.fillStyle = '#3b82f6';
+                    ctxBio.fillStyle = ink.positive;
                     ctxBio.beginPath();
                     ctxBio.arc(nx, apicalChargeY, 6, 0, Math.PI*2);
                     ctxBio.fill();
@@ -896,7 +939,7 @@
                     ctxBio.fillText('+', nx, apicalChargeY);
 
                     // Soma Sink (-)
-                    ctxBio.fillStyle = '#ef4444';
+                    ctxBio.fillStyle = ink.negative;
                     ctxBio.beginPath();
                     ctxBio.arc(nx, somaChargeY, 6, 0, Math.PI*2);
                     ctxBio.fill();
@@ -921,13 +964,13 @@
             ctxBio.stroke();
 
             // Highlight gel layer beneath electrode
-            ctxBio.fillStyle = 'rgba(56, 189, 248, 0.6)';
+            ctxBio.fillStyle = ink.gel;
             ctxBio.fillRect(electrodeX - 16, electrodeY, 32, 2.5);
 
             // Animated pulsing indicator showing electrode reception
             const lastReading = state.voltageHistory[state.voltageHistory.length - 1];
             if (Math.abs(lastReading) > 3) {
-                ctxBio.strokeStyle = lastReading > 0 ? 'rgba(59, 130, 246, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+                ctxBio.strokeStyle = lastReading > 0 ? ink.polarityPos : ink.polarityNeg;
                 ctxBio.lineWidth = 3;
                 ctxBio.beginPath();
                 ctxBio.arc(electrodeX, electrodeY - 4, 18 + Math.abs(lastReading) * 0.5, Math.PI, 0);
@@ -954,7 +997,7 @@
             ctxBio.stroke();
 
             // Amplifier dynamic glowing LED
-            ctxBio.fillStyle = Math.abs(lastReading) > 10 ? '#ef4444' : '#10b981';
+            ctxBio.fillStyle = Math.abs(lastReading) > 10 ? ink.ledHot : ink.ledOk;
             ctxBio.beginPath();
             ctxBio.arc(ampX + 12, ampY + 16, 3, 0, Math.PI * 2);
             ctxBio.fill();
@@ -967,7 +1010,7 @@
             // Draw Highlight layer outline for overall visualization polish
             if (state.selectedLayer && layers[state.selectedLayer].startY !== undefined) {
                 const target = layers[state.selectedLayer];
-                ctxBio.strokeStyle = 'rgba(129, 140, 248, 0.8)';
+                ctxBio.strokeStyle = ink.select;
                 ctxBio.lineWidth = 2;
                 ctxBio.strokeRect(1, target.startY * h, w - 2, (target.endY - target.startY) * h);
             }
@@ -1044,8 +1087,8 @@
             ctxOsc.textBaseline = 'bottom';
             ctxOsc.fillText('Time →', w - 4, (h / 2) - 4);
 
-            // Render scrolling EEG waveform
-            ctxOsc.strokeStyle = '#10b981'; // Phosphor green
+            // Render scrolling EEG waveform (ongoing scalp trace)
+            ctxOsc.strokeStyle = ink.raw;
             ctxOsc.lineWidth = 1.8;
             ctxOsc.beginPath();
 
@@ -1070,7 +1113,7 @@
             if (length > 0) {
                 const x = 30 + ((length - 1) / maxHistory) * graphWidth;
                 const y = (h / 2) - (state.voltageHistory[length - 1] * 1.5);
-                ctxOsc.fillStyle = '#34d399';
+                ctxOsc.fillStyle = ink.raw;
                 ctxOsc.beginPath();
                 ctxOsc.arc(x, y, 4, 0, Math.PI * 2);
                 ctxOsc.fill();

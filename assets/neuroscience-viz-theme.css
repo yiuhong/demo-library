@@ -47,8 +47,8 @@
  *                     to a different hue.
  *   --viz-quality-*   SNR quality phrases only (low / mid / high). Not series.
  *
- * Example batch: EEG signal decomposition, the ERP simulator, and the fNIRS
- * mechanism page. neuroscience/eeg_illustration.html is not on this file yet.
+ * Wired demos: EEG signal decomposition, the ERP simulator, the fNIRS
+ * mechanism page, and the EEG biophysics illustration.
  */
 
 :root {
