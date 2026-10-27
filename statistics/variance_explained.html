@@ -6,6 +6,8 @@
     <title>Variance Explained</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
@@ -45,7 +47,7 @@
         }
 
         .dot {
-            fill: #3b82f6;
+            fill: var(--viz-sample);
             opacity: 0.6;
             stroke: white;
             stroke-width: 1px;
@@ -54,12 +56,12 @@
 
         .dot:hover {
             opacity: 1;
-            fill: #2563eb;
+            fill: color-mix(in srgb, var(--viz-sample) 72%, black);
             r: 6;
         }
 
         .regression-line {
-            stroke: #ef4444;
+            stroke: var(--viz-explained);
             stroke-width: 3px;
             stroke-linecap: round;
         }
@@ -75,7 +77,7 @@
             height: 24px;
             width: 24px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: var(--viz-sample);
             cursor: pointer;
             margin-top: -10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -124,13 +126,13 @@
             </header>
             <p class="text-lg max-w-3xl mx-auto leading-relaxed">
                 Adjust the relationship between X and Y using the slider. 
-                Notice how as the effect strengthens, the data points cluster tighter around the prediction lines, 
-                increasing the proportion of <strong class="text-blue-600 whitespace-nowrap">Variance Explained (<i>R</i>&sup2; or <i>&eta;</i>&sup2;)</strong>.
+                Notice how as the effect strengthens, the <span class="viz-ink-sample font-semibold">data points</span> cluster tighter around the <span class="viz-ink-explained font-semibold">prediction lines</span>, 
+                increasing the proportion of <strong class="viz-ink-explained whitespace-nowrap">Variance Explained (<i>R</i>&sup2; or <i>&eta;</i>&sup2;)</strong>.
                 <br/><br/>
                 Use the toggles below to directly observe the components: 
-                <strong>Mean</strong> (baseline deviation), 
-                <strong>Residuals</strong> (unexplained deviation), and 
-                <strong>Predicted Values</strong> (explained deviation).
+                <strong class="viz-ink-reference">Mean</strong> (baseline deviation), 
+                <strong class="viz-ink-residual">Residuals</strong> (unexplained deviation), and 
+                <strong class="viz-ink-explained">Predicted Values</strong> (explained deviation).
             </p>
             
             <div class="flex justify-center mt-6">
@@ -164,16 +166,16 @@
             
             <div class="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-slate-100 justify-center items-center text-sm">
                 <label class="flex items-center space-x-2 cursor-pointer group">
-                    <input type="checkbox" id="show-mean" class="rounded text-slate-600 w-4 h-4 cursor-pointer focus:ring-slate-500">
-                    <span class="text-slate-700 font-medium group-hover:text-slate-900">Show Mean Y (<span id="toggle-mean-label">Total</span>)</span>
+                    <input type="checkbox" id="show-mean" class="rounded viz-accent-reference w-4 h-4 cursor-pointer">
+                    <span class="text-slate-700 font-medium">Show Mean Y (<span id="toggle-mean-label" class="viz-ink-reference">Total</span>)</span>
                 </label>
                 <label class="flex items-center space-x-2 cursor-pointer group">
-                    <input type="checkbox" id="show-residuals" class="rounded text-red-500 w-4 h-4 cursor-pointer focus:ring-red-500">
-                    <span class="text-slate-700 font-medium group-hover:text-red-700">Show Residuals (<span id="toggle-res-label">Unexplained</span>)</span>
+                    <input type="checkbox" id="show-residuals" class="rounded viz-accent-residual w-4 h-4 cursor-pointer">
+                    <span class="text-slate-700 font-medium">Show Residuals (<span id="toggle-res-label" class="viz-ink-residual">Unexplained</span>)</span>
                 </label>
                 <label class="flex items-center space-x-2 cursor-pointer group">
-                    <input type="checkbox" id="show-predicted" class="rounded text-green-500 w-4 h-4 cursor-pointer focus:ring-green-500">
-                    <span class="text-slate-700 font-medium group-hover:text-green-700">Show Predicted (<span id="toggle-pred-label">Explained</span>)</span>
+                    <input type="checkbox" id="show-predicted" class="rounded viz-accent-explained w-4 h-4 cursor-pointer">
+                    <span class="text-slate-700 font-medium">Show Predicted (<span id="toggle-pred-label" class="viz-ink-explained">Explained</span>)</span>
                 </label>
             </div>
         </div>
@@ -199,9 +201,9 @@
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4 mb-4 mt-2">
-                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center relative overflow-hidden">
-                        <div class="text-sm text-blue-600 mb-1 font-medium"><span id="stat-r2-label">Variance Explained (<i>R</i>&sup2;)</span></div>
-                        <div id="stat-r2" class="text-3xl font-bold text-blue-700">0.49</div>
+                    <div class="viz-soft-explained p-4 rounded-xl border viz-border-explained text-center relative overflow-hidden">
+                        <div class="text-sm viz-ink-explained mb-1 font-medium"><span id="stat-r2-label">Variance Explained (<i>R</i>&sup2;)</span></div>
+                        <div id="stat-r2" class="text-3xl font-bold viz-ink-explained">0.49</div>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
                         <div id="stat-r-label" class="text-sm text-slate-500 mb-1">Correlation (<i>r</i>)</div>
@@ -219,25 +221,25 @@
                     <div class="flex justify-between items-stretch text-sm font-medium">
                         
                         <div class="text-center w-[28%] flex flex-col items-center">
-                            <div class="text-slate-600 font-bold mb-2 leading-tight h-10 flex flex-col justify-end pb-1">Total</div>
+                            <div class="viz-ink-total font-bold mb-2 leading-tight h-10 flex flex-col justify-end pb-1">Total</div>
                             
-                            <div class="w-full bg-white border border-slate-200 rounded-lg p-2 mb-2 shadow-sm h-14 flex flex-col justify-center">
-                                <div id="label-ss-total" class="text-[10px] text-slate-500 font-mono mb-1">SS<sub>Total</sub></div>
-                                <div id="val-total-ss" class="text-base font-bold text-slate-800">0</div>
+                            <div class="w-full bg-white border viz-border-total rounded-lg p-2 mb-2 shadow-sm h-14 flex flex-col justify-center">
+                                <div id="label-ss-total" class="text-[10px] viz-ink-total opacity-70 font-mono mb-1">SS<sub>Total</sub></div>
+                                <div id="val-total-ss" class="text-base font-bold viz-ink-total">0</div>
                             </div>
                             
-                            <div class="w-full bg-slate-100 border border-slate-200 rounded-lg p-1 mb-2 h-8 flex items-center justify-center">
-                                <span class="text-[11px] text-slate-500 font-mono mr-1">df:</span> <span id="val-total-df" class="font-bold text-slate-700">0</span>
+                            <div class="w-full viz-soft-total border viz-border-total rounded-lg p-1 mb-2 h-8 flex items-center justify-center">
+                                <span class="text-[11px] viz-ink-total opacity-70 font-mono mr-1">df:</span> <span id="val-total-df" class="font-bold viz-ink-total">0</span>
                             </div>
                             
-                            <div class="w-full bg-slate-200 border border-slate-300 rounded-lg p-2 h-14 flex flex-col justify-center">
-                                <div class="text-[10px] text-slate-500 font-mono mb-1">MS (Variance)</div>
-                                <div id="val-total-ms" class="text-base font-bold text-slate-600">0.0</div>
+                            <div class="w-full viz-mid-total border viz-border-total rounded-lg p-2 h-14 flex flex-col justify-center">
+                                <div class="text-[10px] viz-ink-total opacity-70 font-mono mb-1">MS (Variance)</div>
+                                <div id="val-total-ms" class="text-base font-bold viz-ink-total">0.0</div>
                             </div>
                             
                             <div class="mt-4 w-full flex-grow text-[11px] text-slate-600 bg-white rounded border border-slate-200 p-2 text-left leading-snug shadow-sm flex flex-col">
-                                <div class="font-serif font-bold text-center mb-1 text-[13px] text-slate-700">&Sigma;(y - y&#772;)&sup2;</div>
-                                <div class="mt-auto">Sum of squared vertical distances from all <span class="font-semibold text-blue-500">blue dots</span> to the <span class="font-semibold text-slate-500">grey mean line</span>.</div>
+                                <div class="font-serif font-bold text-center mb-1 text-[13px] viz-ink-total">&Sigma;(y - y&#772;)&sup2;</div>
+                                <div class="mt-auto">Sum of squared vertical distances from all <span class="font-semibold viz-ink-sample">blue dots</span> to the <span class="font-semibold viz-ink-reference">grey mean line</span>.</div>
                             </div>
                         </div>
                         
@@ -245,30 +247,30 @@
                             <div class="h-10 mb-2"></div>
                             <div class="text-slate-400 font-bold text-lg h-14 flex items-center justify-center mb-2">=</div>
                             <div class="text-slate-400 font-bold text-lg h-8 flex items-center justify-center mb-2">=</div>
-                            <div class="text-slate-400 font-bold text-2xl h-14 flex items-center justify-center text-red-400" title="Mean Squares do NOT add up">≠</div>
+                            <div class="text-slate-400 font-bold text-2xl h-14 flex items-center justify-center viz-ink-residual" title="Mean Squares do NOT add up">≠</div>
                             <div class="mt-4 w-full flex-grow"></div>
                         </div>
                         
                         <div class="text-center w-[28%] flex flex-col items-center">
-                            <div id="title-explained" class="text-green-600 font-bold mb-2 leading-tight h-10 flex flex-col justify-end pb-1">Explained<br><span class="font-normal text-xs">(Model)</span></div>
+                            <div id="title-explained" class="viz-ink-explained font-bold mb-2 leading-tight h-10 flex flex-col justify-end pb-1">Explained<br><span class="font-normal text-xs">(Model)</span></div>
                             
-                            <div class="w-full bg-white border border-green-200 rounded-lg p-2 mb-2 shadow-sm h-14 flex flex-col justify-center">
-                                <div id="label-ss-explained" class="text-[10px] text-green-600/80 font-mono mb-1">SS<sub>Model</sub></div>
-                                <div id="val-explained-ss" class="text-base font-bold text-green-700">0</div>
+                            <div class="w-full bg-white border viz-border-explained rounded-lg p-2 mb-2 shadow-sm h-14 flex flex-col justify-center">
+                                <div id="label-ss-explained" class="text-[10px] viz-ink-explained opacity-80 font-mono mb-1">SS<sub>Model</sub></div>
+                                <div id="val-explained-ss" class="text-base font-bold viz-ink-explained">0</div>
                             </div>
                             
-                            <div class="w-full bg-green-50 border border-green-200 rounded-lg p-1 mb-2 h-8 flex items-center justify-center">
-                                <span class="text-[11px] text-green-600/70 font-mono mr-1">df:</span> <span id="val-explained-df" class="font-bold text-green-700">0</span>
+                            <div class="w-full viz-soft-explained border viz-border-explained rounded-lg p-1 mb-2 h-8 flex items-center justify-center">
+                                <span class="text-[11px] viz-ink-explained opacity-70 font-mono mr-1">df:</span> <span id="val-explained-df" class="font-bold viz-ink-explained">0</span>
                             </div>
                             
-                            <div class="w-full bg-green-100 border border-green-300 rounded-lg p-2 h-14 flex flex-col justify-center">
-                                <div class="text-[10px] text-green-700/70 font-mono mb-1">MS (Variance)</div>
-                                <div id="val-explained-ms" class="text-base font-bold text-green-700">0.0</div>
+                            <div class="w-full viz-mid-explained border viz-border-explained rounded-lg p-2 h-14 flex flex-col justify-center">
+                                <div class="text-[10px] viz-ink-explained opacity-70 font-mono mb-1">MS (Variance)</div>
+                                <div id="val-explained-ms" class="text-base font-bold viz-ink-explained">0.0</div>
                             </div>
                             
-                            <div class="mt-4 w-full flex-grow text-[11px] text-green-800 bg-green-50/50 rounded border border-green-200 p-2 text-left leading-snug shadow-sm flex flex-col">
-                                <div class="font-serif font-bold text-center mb-1 text-[13px] text-green-800">&Sigma;(y&#770; - y&#772;)&sup2;</div>
-                                <div class="mt-auto">Sum of squared vertical distances from <span class="font-semibold text-green-600">green predicted dots</span> to the <span class="font-semibold text-slate-500">grey mean line</span>.</div>
+                            <div class="mt-4 w-full flex-grow text-[11px] viz-ink-explained viz-soft-explained rounded border viz-border-explained p-2 text-left leading-snug shadow-sm flex flex-col">
+                                <div class="font-serif font-bold text-center mb-1 text-[13px] viz-ink-explained">&Sigma;(y&#770; - y&#772;)&sup2;</div>
+                                <div class="mt-auto">Sum of squared vertical distances from <span class="font-semibold viz-ink-explained">green predicted dots</span> to the <span class="font-semibold viz-ink-reference">grey mean line</span>.</div>
                             </div>
                         </div>
                         
@@ -281,25 +283,25 @@
                         </div>
                         
                         <div class="text-center w-[28%] flex flex-col items-center">
-                            <div id="title-unexplained" class="text-red-500 font-bold mb-2 leading-tight h-10 flex flex-col justify-end pb-1">Unexplained<br><span class="font-normal text-xs">(Residual)</span></div>
+                            <div id="title-unexplained" class="viz-ink-residual font-bold mb-2 leading-tight h-10 flex flex-col justify-end pb-1">Unexplained<br><span class="font-normal text-xs">(Residual)</span></div>
                             
-                            <div class="w-full bg-white border border-red-200 rounded-lg p-2 mb-2 shadow-sm h-14 flex flex-col justify-center">
-                                <div id="label-ss-unexplained" class="text-[10px] text-red-500/80 font-mono mb-1">SS<sub>Error</sub></div>
-                                <div id="val-unexplained-ss" class="text-base font-bold text-red-600">0</div>
+                            <div class="w-full bg-white border viz-border-residual rounded-lg p-2 mb-2 shadow-sm h-14 flex flex-col justify-center">
+                                <div id="label-ss-unexplained" class="text-[10px] viz-ink-residual opacity-80 font-mono mb-1">SS<sub>Error</sub></div>
+                                <div id="val-unexplained-ss" class="text-base font-bold viz-ink-residual">0</div>
                             </div>
                             
-                            <div class="w-full bg-red-50 border border-red-200 rounded-lg p-1 mb-2 h-8 flex items-center justify-center">
-                                <span class="text-[11px] text-red-500/70 font-mono mr-1">df:</span> <span id="val-unexplained-df" class="font-bold text-red-600">0</span>
+                            <div class="w-full viz-soft-residual border viz-border-residual rounded-lg p-1 mb-2 h-8 flex items-center justify-center">
+                                <span class="text-[11px] viz-ink-residual opacity-70 font-mono mr-1">df:</span> <span id="val-unexplained-df" class="font-bold viz-ink-residual">0</span>
                             </div>
                             
-                            <div class="w-full bg-red-100 border border-red-300 rounded-lg p-2 h-14 flex flex-col justify-center">
-                                <div class="text-[10px] text-red-700/70 font-mono mb-1">MS (Variance)</div>
-                                <div id="val-unexplained-ms" class="text-base font-bold text-red-600">0.0</div>
+                            <div class="w-full viz-mid-residual border viz-border-residual rounded-lg p-2 h-14 flex flex-col justify-center">
+                                <div class="text-[10px] viz-ink-residual opacity-70 font-mono mb-1">MS (Variance)</div>
+                                <div id="val-unexplained-ms" class="text-base font-bold viz-ink-residual">0.0</div>
                             </div>
                             
-                            <div class="mt-4 w-full flex-grow text-[11px] text-red-800 bg-red-50/50 rounded border border-red-200 p-2 text-left leading-snug shadow-sm flex flex-col">
-                                <div class="font-serif font-bold text-center mb-1 text-[13px] text-red-800">&Sigma;(y - y&#770;)&sup2;</div>
-                                <div class="mt-auto">Sum of the squared <span class="font-semibold text-red-500">red vertical lines</span> (distance from blue dots to predictions).</div>
+                            <div class="mt-4 w-full flex-grow text-[11px] viz-ink-residual viz-soft-residual rounded border viz-border-residual p-2 text-left leading-snug shadow-sm flex flex-col">
+                                <div class="font-serif font-bold text-center mb-1 text-[13px] viz-ink-residual">&Sigma;(y - y&#770;)&sup2;</div>
+                                <div class="mt-auto">Sum of the squared <span class="font-semibold viz-ink-residual">red vertical lines</span> (distance from <span class="font-semibold viz-ink-sample">blue dots</span> to predictions).</div>
                             </div>
                         </div>
                         
@@ -307,7 +309,7 @@
                 </div>
                 
                 <div class="mt-2 text-xs text-slate-500 text-center bg-slate-50 p-3 rounded-lg border border-slate-200">
-                    <strong>Notice the math:</strong> Both Sum of Squares (SS) and Degrees of Freedom (df) add up perfectly. However, the unbiased sample Variance, or <strong>Mean Square (MS)</strong>, is calculated by dividing SS by df. Because the denominators are different for each component, <strong>Mean Squares do NOT add up</strong> (<span class="text-red-500 font-bold">Total &ne; Explained + Unexplained</span>).
+                    <strong>Notice the math:</strong> Both Sum of Squares (SS) and Degrees of Freedom (df) add up perfectly. However, the unbiased sample Variance, or <strong>Mean Square (MS)</strong>, is calculated by dividing SS by df. Because the denominators are different for each component, <strong>Mean Squares do NOT add up</strong> (<span class="viz-ink-residual font-bold">Total &ne; Explained + Unexplained</span>).
                 </div>
             </div>
         </div>
@@ -621,7 +623,7 @@
             meanLine.enter()
                 .append("line")
                 .attr("class", "mean-line")
-                .attr("stroke", "#94a3b8")
+                .attr("stroke", statsViz.color("--viz-reference"))
                 .attr("stroke-dasharray", "6,4")
                 .attr("stroke-width", 2)
                 .merge(meanLine)
@@ -640,7 +642,7 @@
             residuals.enter()
                 .append("line")
                 .attr("class", "residual")
-                .attr("stroke", "#f87171")
+                .attr("stroke", statsViz.color("--viz-residual"))
                 .attr("stroke-dasharray", "2,2")
                 .attr("stroke-width", 1.5)
                 .style("opacity", 0.7)
@@ -661,7 +663,7 @@
                 .append("circle")
                 .attr("class", "predicted")
                 .attr("r", 4)
-                .attr("fill", "#22c55e")
+                .attr("fill", statsViz.color("--viz-explained"))
                 .attr("stroke", "white")
                 .attr("stroke-width", 1)
                 .merge(predicted)
@@ -713,15 +715,13 @@
             
             const statR2Element = document.getElementById('stat-r2');
             const rSquaredPct = Math.round(r2 * 100);
-            if (rSquaredPct < 10) {
-                statR2Element.className = "text-3xl font-bold text-slate-500";
-            } else if (rSquaredPct < 40) {
-                statR2Element.className = "text-3xl font-bold text-blue-500";
-            } else if (rSquaredPct < 70) {
-                 statR2Element.className = "text-3xl font-bold text-indigo-600";
-            } else {
-                statR2Element.className = "text-3xl font-bold text-purple-600";
-            }
+            let assocToken = "--viz-assoc-mid";
+            if (rSquaredPct < 10) assocToken = "--viz-assoc-none";
+            else if (rSquaredPct < 40) assocToken = "--viz-assoc-low";
+            else if (rSquaredPct < 70) assocToken = "--viz-assoc-mid";
+            else assocToken = "--viz-assoc-high";
+            statR2Element.className = "text-3xl font-bold";
+            statR2Element.style.color = statsViz.color(assocToken);
             
             const noteEl = document.getElementById('r-relation-note');
             if(isCategorical) {

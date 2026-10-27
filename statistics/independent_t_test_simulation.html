@@ -6,6 +6,8 @@
     <title>Independent t-test Simulation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
         MathJax = {
@@ -50,7 +52,7 @@
 
         /* SVG Chart Styles */
         .bar {
-            fill: #ef4444; /* Red theme for diffs */
+            fill: var(--viz-difference);
             opacity: 0.7;
             transition: height 0.2s, y 0.2s;
         }
@@ -60,11 +62,11 @@
         .axis-label { font-size: 12px; fill: #64748b; }
         .axis-title { font-size: 13px; font-weight: 600; fill: #475569; }
 
-        @keyframes pulse-blue { 0% { transform: scale(1); box-shadow: 0 0 0px #3b82f6;} 50% { transform: scale(1.5); box-shadow: 0 0 10px #3b82f6;} 100% { transform: scale(1); } }
-        @keyframes pulse-emerald { 0% { transform: scale(1); box-shadow: 0 0 0px #10b981;} 50% { transform: scale(1.5); box-shadow: 0 0 10px #10b981;} 100% { transform: scale(1); } }
+        @keyframes pulse-group-a { 0% { transform: scale(1); box-shadow: 0 0 0px var(--viz-group-a);} 50% { transform: scale(1.5); box-shadow: 0 0 10px var(--viz-group-a);} 100% { transform: scale(1); } }
+        @keyframes pulse-group-b { 0% { transform: scale(1); box-shadow: 0 0 0px var(--viz-group-b);} 50% { transform: scale(1.5); box-shadow: 0 0 10px var(--viz-group-b);} 100% { transform: scale(1); } }
         
-        .highlight-pop1 { animation: pulse-blue 0.4s ease; z-index: 10; opacity: 1; }
-        .highlight-pop2 { animation: pulse-emerald 0.4s ease; z-index: 10; opacity: 1; }
+        .highlight-pop1 { animation: pulse-group-a 0.4s ease; z-index: 10; opacity: 1; }
+        .highlight-pop2 { animation: pulse-group-b 0.4s ease; z-index: 10; opacity: 1; }
 
         /* Toggle Switch Styles */
         .toggle-checkbox:checked {
@@ -97,7 +99,7 @@
                     <input type="checkbox" name="toggle" id="test-type-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 top-0 left-0 transition-all duration-300"/>
                     <label for="test-type-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
                 </div>
-                <span id="test-type-label" class="text-sm font-bold text-blue-600 w-24">Student's $t$</span>
+                <span id="test-type-label" class="text-sm font-bold viz-ink-group-a w-24">Student's $t$</span>
             </div>
             
             <div class="w-px h-8 bg-black hidden md:block"></div>
@@ -109,7 +111,7 @@
                     <input type="checkbox" id="variance-toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 top-0 left-0 transition-all duration-300"/>
                     <label for="variance-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
                 </div>
-                <span id="variance-label" class="text-sm font-bold text-red-500 w-20">Unequal</span>
+                <span id="variance-label" class="text-sm font-bold viz-ink-null w-20">Unequal</span>
             </div>
 
             <div class="w-px h-8 bg-black hidden md:block"></div>
@@ -121,7 +123,7 @@
                     <input type="checkbox" id="samplesize-toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 top-0 left-0 transition-all duration-300"/>
                     <label for="samplesize-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
                 </div>
-                <span id="samplesize-label" class="text-sm font-bold text-red-500 w-20">Unequal</span>
+                <span id="samplesize-label" class="text-sm font-bold viz-ink-null w-20">Unequal</span>
             </div>
         </div>
 
@@ -133,8 +135,8 @@
                 <!-- Population 1 -->
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <h2 class="text-md font-bold text-blue-700">Pop 1: Control</h2>
-                        <span id="pop1-params" class="text-[11px] font-semibold bg-blue-50 px-2 py-1 rounded text-blue-600">$\mu_1 = 50, \sigma_1 = 5, n_1 = 25$</span>
+                        <h2 class="text-md font-bold viz-ink-group-a">Pop 1: Control</h2>
+                        <span id="pop1-params" class="text-[11px] font-semibold viz-soft-group-a px-2 py-1 rounded viz-ink-group-a">$\mu_1 = 50, \sigma_1 = 5, n_1 = 25$</span>
                     </div>
                     <div id="pop1-container" class="container-box h-32 w-full relative"></div>
                 </div>
@@ -142,15 +144,15 @@
                 <!-- Population 2 -->
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <h2 class="text-md font-bold text-emerald-700">Pop 2: Treatment</h2>
-                        <span id="pop2-params" class="text-[11px] font-semibold bg-emerald-50 px-2 py-1 rounded text-emerald-600">$\mu_2 = 60, \sigma_2 = 20, n_2 = 5$</span>
+                        <h2 class="text-md font-bold viz-ink-group-b">Pop 2: Treatment</h2>
+                        <span id="pop2-params" class="text-[11px] font-semibold viz-soft-group-b px-2 py-1 rounded viz-ink-group-b">$\mu_2 = 60, \sigma_2 = 20, n_2 = 5$</span>
                     </div>
                     <div id="pop2-container" class="container-box h-32 w-full relative"></div>
                 </div>
                 
                 <div class="demo-panel mt-auto p-3 text-center">
                     <span class="text-sm font-semibold text-slate-700">True Mean Difference:</span>
-                    <span class="text-lg font-bold text-red-600 ml-2">$\mu_2 - \mu_1 = +10$</span>
+                    <span class="text-lg font-bold viz-ink-difference ml-2">$\mu_2 - \mu_1 = +10$</span>
                 </div>
             </div>
 
@@ -162,23 +164,23 @@
                     
                     <!-- Sample 1 Output -->
                     <div class="w-full flex flex-col items-center">
-                        <div id="sample1-display" class="flex flex-wrap justify-center min-h-[45px] w-full bg-blue-50/50 rounded-t-lg p-2 border border-b-0 border-blue-200">
+                        <div id="sample1-display" class="flex flex-wrap justify-center min-h-[45px] w-full viz-soft-group-a rounded-t-lg p-2 border border-b-0 viz-border-group-a">
                              <span class="text-slate-400 text-xs italic mt-2">Waiting to draw Pop 1...</span>
                         </div>
-                        <div class="w-full grid grid-cols-2 bg-blue-100 rounded-b-lg p-2 border border-blue-200 text-center text-sm">
-                            <div><span class="text-blue-700 font-semibold mr-1">$\bar{X}_1:$</span> <span id="s1-mean" class="font-bold">--</span></div>
-                            <div><span class="text-blue-700 font-semibold mr-1">$s_1:$</span> <span id="s1-sd" class="font-bold">--</span></div>
+                        <div class="w-full grid grid-cols-2 viz-mid-group-a rounded-b-lg p-2 border viz-border-group-a text-center text-sm">
+                            <div><span class="viz-ink-group-a font-semibold mr-1">$\bar{X}_1:$</span> <span id="s1-mean" class="font-bold">--</span></div>
+                            <div><span class="viz-ink-group-a font-semibold mr-1">$s_1:$</span> <span id="s1-sd" class="font-bold">--</span></div>
                         </div>
                     </div>
 
                     <!-- Sample 2 Output -->
                     <div class="w-full flex flex-col items-center">
-                        <div id="sample2-display" class="flex flex-wrap justify-center min-h-[45px] w-full bg-emerald-50/50 rounded-t-lg p-2 border border-b-0 border-emerald-200">
+                        <div id="sample2-display" class="flex flex-wrap justify-center min-h-[45px] w-full viz-soft-group-b rounded-t-lg p-2 border border-b-0 viz-border-group-b">
                             <span class="text-slate-400 text-xs italic mt-2">Waiting to draw Pop 2...</span>
                         </div>
-                        <div class="w-full grid grid-cols-2 bg-emerald-100 rounded-b-lg p-2 border border-emerald-200 text-center text-sm">
-                            <div><span class="text-emerald-700 font-semibold mr-1">$\bar{X}_2:$</span> <span id="s2-mean" class="font-bold">--</span></div>
-                            <div><span class="text-emerald-700 font-semibold mr-1">$s_2:$</span> <span id="s2-sd" class="font-bold">--</span></div>
+                        <div class="w-full grid grid-cols-2 viz-mid-group-b rounded-b-lg p-2 border viz-border-group-b text-center text-sm">
+                            <div><span class="viz-ink-group-b font-semibold mr-1">$\bar{X}_2:$</span> <span id="s2-mean" class="font-bold">--</span></div>
+                            <div><span class="viz-ink-group-b font-semibold mr-1">$s_2:$</span> <span id="s2-sd" class="font-bold">--</span></div>
                         </div>
                     </div>
                 </div> <!-- Closes flex-grow inner wrapper -->
@@ -187,11 +189,11 @@
                 <div class="demo-divider w-full grid grid-cols-2 gap-2 mt-4 pt-4">
                     <div class="text-center">
                         <div class="text-[11px] text-slate-500 uppercase font-semibold mb-1" title="X2 - X1">Mean Diff ($\bar{X}_2 - \bar{X}_1$)</div>
-                        <div id="current-diff" class="text-3xl font-extrabold text-red-600 h-10 flex items-center justify-center">--</div>
+                        <div id="current-diff" class="text-3xl font-extrabold viz-ink-difference h-10 flex items-center justify-center">--</div>
                     </div>
                     <div class="text-center">
                         <div id="se-label" class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Student's Est. SE</div>
-                        <div id="current-se" class="text-2xl font-extrabold text-purple-600 h-10 flex items-center justify-center">--</div>
+                        <div id="current-se" class="text-2xl font-extrabold viz-ink-se h-10 flex items-center justify-center">--</div>
                     </div>
                 </div>
 
@@ -212,7 +214,7 @@
             <div class="lg:col-span-4 demo-card p-5 flex flex-col h-full">
                 <div class="flex justify-between items-center mb-2">
                     <h2 class="text-md font-bold">Distributions</h2>
-                    <span class="text-xs font-semibold bg-red-100 px-2 py-1 rounded text-red-700" id="stats-counter">0 / 1000 Exp.</span>
+                    <span class="text-xs font-semibold viz-soft-difference px-2 py-1 rounded viz-ink-difference" id="stats-counter">0 / 1000 Exp.</span>
                 </div>
                 
                 <!-- Chart 1: Mean Diff -->
@@ -224,7 +226,7 @@
                 <div class="demo-panel grid grid-cols-2 gap-4 mt-auto p-3">
                     <div>
                         <div class="text-[10px] text-slate-500 uppercase leading-tight mb-1">Mean of Mean Diffs</div>
-                        <div class="text-lg font-bold text-slate-800" id="stat-mean-of-means">--</div>
+                        <div class="text-lg font-bold viz-ink-difference" id="stat-mean-of-means">--</div>
                     </div>
                     <div>
                         <div class="text-[10px] text-slate-500 uppercase leading-tight mb-1" title="SD of the differences">Empirical SE</div>
@@ -233,7 +235,7 @@
                     <div class="demo-divider col-span-2 pt-2 flex justify-between items-baseline">
                         <div>
                             <div id="avg-se-label" class="text-[10px] text-slate-500 uppercase leading-tight mb-1">Avg. Student's Est. SE</div>
-                            <div class="text-lg font-bold text-purple-700" id="stat-est-se">--</div>
+                            <div class="text-lg font-bold viz-ink-se" id="stat-est-se">--</div>
                         </div>
                         <div class="text-right">
                             <div class="text-[10px] text-slate-500 uppercase leading-tight mb-1">Theoretical SE</div>
@@ -350,12 +352,12 @@
             
             if(useWelch) {
                 toggleLabel.innerHTML = "Welch's $t$";
-                toggleLabel.className = "text-sm font-bold text-emerald-600 w-24";
+                toggleLabel.className = "text-sm font-bold viz-ink-group-b w-24";
                 document.getElementById('se-label').innerText = "Welch's Est. SE";
                 document.getElementById('avg-se-label').innerText = "Avg. Welch's Est. SE";
             } else {
                 toggleLabel.innerHTML = "Student's $t$";
-                toggleLabel.className = "text-sm font-bold text-blue-600 w-24";
+                toggleLabel.className = "text-sm font-bold viz-ink-group-a w-24";
                 document.getElementById('se-label').innerText = "Student's Est. SE";
                 document.getElementById('avg-se-label').innerText = "Avg. Student's Est. SE";
             }
@@ -385,11 +387,11 @@
             if(isUnequal) {
                 POP1_SD = 5; POP2_SD = 20;
                 document.getElementById('variance-label').innerText = "Unequal";
-                document.getElementById('variance-label').className = "text-sm font-bold text-red-500 w-20";
+                document.getElementById('variance-label').className = "text-sm font-bold viz-ink-null w-20";
             } else {
                 POP1_SD = 15; POP2_SD = 15;
                 document.getElementById('variance-label').innerText = "Equal";
-                document.getElementById('variance-label').className = "text-sm font-bold text-emerald-600 w-20";
+                document.getElementById('variance-label').className = "text-sm font-bold viz-ink-significant w-20";
             }
             applySimulationParameters();
         });
@@ -399,11 +401,11 @@
             if(isUnequal) {
                 SAMPLE_SIZE_1 = 25; SAMPLE_SIZE_2 = 5;
                 document.getElementById('samplesize-label').innerText = "Unequal";
-                document.getElementById('samplesize-label').className = "text-sm font-bold text-red-500 w-20";
+                document.getElementById('samplesize-label').className = "text-sm font-bold viz-ink-null w-20";
             } else {
                 SAMPLE_SIZE_1 = 15; SAMPLE_SIZE_2 = 15;
                 document.getElementById('samplesize-label').innerText = "Equal";
-                document.getElementById('samplesize-label').className = "text-sm font-bold text-emerald-600 w-20";
+                document.getElementById('samplesize-label').className = "text-sm font-bold viz-ink-significant w-20";
             }
             applySimulationParameters();
         });
@@ -469,14 +471,14 @@
             // Only render a subset to prevent DOM bloat, but data pool retains full POP_SIZE
             pop1.slice(0, RENDER_LIMIT).forEach(p => {
                 const el = document.createElement('div');
-                el.className = 'score-piece'; el.style.backgroundColor = '#60a5fa'; // Blue
+                el.className = 'score-piece'; el.style.backgroundColor = statsViz.color('--viz-group-a');
                 el.style.left = `${p.x}%`; el.style.top = `${p.y}%`; el.id = `p1-${p.id}`;
                 p1Cont.appendChild(el);
             });
 
             pop2.slice(0, RENDER_LIMIT).forEach(p => {
                 const el = document.createElement('div');
-                el.className = 'score-piece'; el.style.backgroundColor = '#34d399'; // Emerald
+                el.className = 'score-piece'; el.style.backgroundColor = statsViz.color('--viz-group-b');
                 el.style.left = `${p.x}%`; el.style.top = `${p.y}%`; el.id = `p2-${p.id}`;
                 p2Cont.appendChild(el);
             });
@@ -589,15 +591,15 @@
                     if (animateLast && sampleDifferences.length > 0) {
                         const lastVal = sampleDifferences[sampleDifferences.length - 1];
                         // Bug Fix: Check absolute inclusion via array method directly mapped by D3 v7
-                        if (d.includes(lastVal)) return "#f59e0b"; // Highlight Amber
+                        if (d.includes(lastVal)) return statsViz.color('--viz-highlight');
                     }
-                    return "#ef4444"; // Red
+                    return statsViz.color('--viz-difference');
                 }).on("end", function(d) {
-                     // Fade smoothly out of the amber highlight back to red
+                     // Fade the newest bin back to the difference series colour.
                      if (animateLast && sampleDifferences.length > 0) {
                          const lastVal = sampleDifferences[sampleDifferences.length - 1];
                          if (d.includes(lastVal)) {
-                             d3.select(this).transition().duration(500).style("fill", "#ef4444");
+                             d3.select(this).transition().duration(500).style("fill", statsViz.color('--viz-difference'));
                          }
                      }
                 });
@@ -623,7 +625,7 @@
                 if (vis) { vis.classList.add('highlight-pop1'); setTimeout(() => vis.classList.remove('highlight-pop1'), 400); }
                 
                 const piece = document.createElement('div');
-                piece.className = 'drawn-piece bg-blue-500 scale-0 transform transition-transform';
+                piece.className = 'drawn-piece viz-bg-group-a scale-0 transform transition-transform';
                 piece.innerText = picked.value.toFixed(0);
                 s1Disp.appendChild(piece);
                 await new Promise(r => setTimeout(r, 20));
@@ -641,7 +643,7 @@
                 if (vis) { vis.classList.add('highlight-pop2'); setTimeout(() => vis.classList.remove('highlight-pop2'), 400); }
                 
                 const piece = document.createElement('div');
-                piece.className = 'drawn-piece bg-emerald-500 scale-0 transform transition-transform';
+                piece.className = 'drawn-piece viz-bg-group-b scale-0 transform transition-transform';
                 piece.innerText = picked.value.toFixed(0);
                 s2Disp.appendChild(piece);
                 await new Promise(r => setTimeout(r, 20));
