@@ -118,7 +118,7 @@
         {
           "href": "statistics/galton_board.html",
           "title": "Galton Board",
-          "note": "Each bead on a Galton board takes a left or right bounce at every peg. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape. The board is the central limit theorem you can watch: many small independent chances, added together, approach a normal curve.",
+          "note": "Each bead on a Galton board takes a left or right bounce at every peg. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape, and the binomial distribution approximates a normal distribution.",
           "formulae": [
             "X = X₁ + … + Xₙ ~ Binomial(n, p)",
             "μ = np,  σ = √(np(1 − p))",
