@@ -1,0 +1,165 @@
+/*
+ * Shared pedagogical colour tokens for statistics teaching demos.
+ *
+ * Page chrome (background, cards, Back link, monochrome buttons) stays in
+ * assets/stats-demo-theme.css. This file is only the data-encoding palette:
+ * series, markers, partitions, and the text that names those encodings.
+ *
+ * Use the same token everywhere a role means the same thing (CSS var(), or
+ * statsViz.color('--viz-…') from assets/stats-viz-theme.js for D3 / canvas /
+ * Chart.js / Plotly). Do not add a one-off hex for a role listed here.
+ *
+ * Roles
+ *   --viz-group-a     Group A / control / primary sample series (blue)
+ *   --viz-sample      Alias of group A. Raw observations, "the data dots".
+ *   --viz-group-b     Group B / treatment / second series (teal)
+ *   --viz-group-c     Third series (amber). Text-safe.
+ *   --viz-before      Paired "before". Same blue as group A until a demo
+ *                     needs it to diverge.
+ *   --viz-after       Paired "after". Same teal as group B until it must diverge.
+ *   --viz-density     Density / theoretical curve drawn over a sample.
+ *   --viz-mean        Mean marker (central tendency). Red.
+ *   --viz-median      Median marker. Violet.
+ *   --viz-mode        Mode marker. Emerald.
+ *   --viz-explained   Explained / predicted / model / SS between. Green.
+ *   --viz-residual    Residual / unexplained / error. Rose, not the mean red.
+ *   --viz-total       Total SS partition. Neutral slate.
+ *   --viz-reference   Baseline reference line (the "grey mean line" when the
+ *                     mean is a baseline, not the featured mean marker).
+ *   --viz-difference  Mean difference / effect contrast. Same red as --viz-mean
+ *                     so the focal marked statistic stays one red; stored as
+ *                     its own token so a later demo can split them.
+ *   --viz-se          Estimated standard error. Purple, distinct from median.
+ *   --viz-highlight   Transient highlight (newest bin). Brighter amber than
+ *                     group C so it pops on a red series; not used for text.
+ *   --viz-significant Assumption met / equal / hit. Emerald, same hex as mode.
+ *   --viz-null        Assumption violated / unequal / miss. Deeper rose than
+ *                     residual so a warning label is not the residual series.
+ *   --viz-remove      Pointer affordance only (click a dot to delete). Darker
+ *                     rose so hover does not impersonate the mean marker.
+ *   --viz-assoc-*     Strength ramp for a single R² readout. Derived from
+ *                     explained + reference. Not a new hue family.
+ *
+ * Washes (--*-soft / --*-mid / --*-line) are mixes of the role colour into
+ * white, so a tint cannot drift away from its mark.
+ *
+ * Example batch: only three demos consume this file so far. Later statistics
+ * demos should adopt these tokens instead of new hexes.
+ */
+
+:root {
+    --viz-group-a: #2563eb;
+    --viz-sample: var(--viz-group-a);
+    --viz-group-b: #0f766e;
+    --viz-group-c: #b45309;
+    --viz-before: #2563eb;
+    --viz-after: #0f766e;
+    --viz-density: #1e40af;
+
+    --viz-mean: #dc2626;
+    --viz-median: #6d28d9;
+    --viz-mode: #047857;
+
+    --viz-explained: #15803d;
+    --viz-residual: #e11d48;
+    --viz-total: #334155;
+    --viz-reference: #475569;
+
+    --viz-difference: #dc2626;
+    --viz-se: #9333ea;
+    --viz-highlight: #d97706;
+
+    --viz-significant: #047857;
+    --viz-null: #be123c;
+    --viz-remove: #9f1239;
+
+    --viz-assoc-none: #475569;
+    --viz-assoc-low: #3d6b56;
+    --viz-assoc-mid: #15803d;
+    --viz-assoc-high: #14532d;
+
+    --viz-group-a-soft: color-mix(in srgb, var(--viz-group-a) 12%, #ffffff);
+    --viz-group-a-mid: color-mix(in srgb, var(--viz-group-a) 24%, #ffffff);
+    --viz-group-a-line: color-mix(in srgb, var(--viz-group-a) 42%, #ffffff);
+
+    --viz-group-b-soft: color-mix(in srgb, var(--viz-group-b) 12%, #ffffff);
+    --viz-group-b-mid: color-mix(in srgb, var(--viz-group-b) 24%, #ffffff);
+    --viz-group-b-line: color-mix(in srgb, var(--viz-group-b) 42%, #ffffff);
+
+    --viz-explained-soft: color-mix(in srgb, var(--viz-explained) 12%, #ffffff);
+    --viz-explained-mid: color-mix(in srgb, var(--viz-explained) 24%, #ffffff);
+    --viz-explained-line: color-mix(in srgb, var(--viz-explained) 42%, #ffffff);
+
+    --viz-residual-soft: color-mix(in srgb, var(--viz-residual) 12%, #ffffff);
+    --viz-residual-mid: color-mix(in srgb, var(--viz-residual) 24%, #ffffff);
+    --viz-residual-line: color-mix(in srgb, var(--viz-residual) 42%, #ffffff);
+
+    --viz-difference-soft: color-mix(in srgb, var(--viz-difference) 14%, #ffffff);
+    --viz-difference-line: color-mix(in srgb, var(--viz-difference) 42%, #ffffff);
+
+    --viz-total-soft: color-mix(in srgb, var(--viz-total) 8%, #ffffff);
+    --viz-total-mid: color-mix(in srgb, var(--viz-total) 16%, #ffffff);
+    --viz-total-line: color-mix(in srgb, var(--viz-total) 28%, #ffffff);
+
+    --viz-reference-line: color-mix(in srgb, var(--viz-reference) 35%, #ffffff);
+}
+
+.viz-ink-group-a { color: var(--viz-group-a) !important; }
+.viz-bg-group-a { background-color: var(--viz-group-a) !important; color: #ffffff !important; }
+.viz-soft-group-a { background-color: var(--viz-group-a-soft) !important; }
+.viz-mid-group-a { background-color: var(--viz-group-a-mid) !important; }
+.viz-border-group-a { border-color: var(--viz-group-a-line) !important; }
+
+.viz-ink-sample { color: var(--viz-sample) !important; }
+.viz-bg-sample { background-color: var(--viz-sample) !important; color: #ffffff !important; }
+
+.viz-ink-group-b { color: var(--viz-group-b) !important; }
+.viz-bg-group-b { background-color: var(--viz-group-b) !important; color: #ffffff !important; }
+.viz-soft-group-b { background-color: var(--viz-group-b-soft) !important; }
+.viz-mid-group-b { background-color: var(--viz-group-b-mid) !important; }
+.viz-border-group-b { border-color: var(--viz-group-b-line) !important; }
+
+.viz-ink-mean { color: var(--viz-mean) !important; }
+.viz-bg-mean { background-color: var(--viz-mean) !important; color: #ffffff !important; }
+
+.viz-ink-median { color: var(--viz-median) !important; }
+.viz-bg-median { background-color: var(--viz-median) !important; color: #ffffff !important; }
+
+.viz-ink-mode { color: var(--viz-mode) !important; }
+.viz-bg-mode { background-color: var(--viz-mode) !important; color: #ffffff !important; }
+.viz-swatch-mode {
+    background-color: var(--viz-mode) !important;
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--viz-mode) 45%, #ffffff);
+}
+
+.viz-ink-explained { color: var(--viz-explained) !important; }
+.viz-bg-explained { background-color: var(--viz-explained) !important; color: #ffffff !important; }
+.viz-soft-explained { background-color: var(--viz-explained-soft) !important; }
+.viz-mid-explained { background-color: var(--viz-explained-mid) !important; }
+.viz-border-explained { border-color: var(--viz-explained-line) !important; }
+.viz-accent-explained { accent-color: var(--viz-explained); }
+
+.viz-ink-residual { color: var(--viz-residual) !important; }
+.viz-bg-residual { background-color: var(--viz-residual) !important; color: #ffffff !important; }
+.viz-soft-residual { background-color: var(--viz-residual-soft) !important; }
+.viz-mid-residual { background-color: var(--viz-residual-mid) !important; }
+.viz-border-residual { border-color: var(--viz-residual-line) !important; }
+.viz-accent-residual { accent-color: var(--viz-residual); }
+
+.viz-ink-total { color: var(--viz-total) !important; }
+.viz-soft-total { background-color: var(--viz-total-soft) !important; }
+.viz-mid-total { background-color: var(--viz-total-mid) !important; }
+.viz-border-total { border-color: var(--viz-total-line) !important; }
+
+.viz-ink-reference { color: var(--viz-reference) !important; }
+.viz-accent-reference { accent-color: var(--viz-reference); }
+
+.viz-ink-difference { color: var(--viz-difference) !important; }
+.viz-bg-difference { background-color: var(--viz-difference) !important; color: #ffffff !important; }
+.viz-soft-difference { background-color: var(--viz-difference-soft) !important; }
+.viz-border-difference { border-color: var(--viz-difference-line) !important; }
+
+.viz-ink-se { color: var(--viz-se) !important; }
+
+.viz-ink-significant { color: var(--viz-significant) !important; }
+.viz-ink-null { color: var(--viz-null) !important; }
