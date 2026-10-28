@@ -619,7 +619,7 @@ def draw_kde() -> None:
         fancybox=False,
         loc="upper right",
     )
-    _save(fig, "06-kernel-density.png")
+    _save(fig, "07-kernel-density.png")
     print(
         f"  kde n={n} h={bandwidth:.2f} silverman={silverman:.4f} "
         f"mode={mode_x:.2f} peak_bar={peak_x:.0f} area={area:.3f} "
@@ -733,7 +733,7 @@ def draw_fences() -> None:
     ax.set_xticks([])
     ax.set_ylabel("value")
     ax.set_title("Tukey fences: a point past 1.5 IQR is an outlier")
-    _save(fig, "07-boxplot-fences.png")
+    _save(fig, "06-boxplot-fences.png")
     print("  fences ok", {key: stats[key] for key in expected})
 
 
@@ -776,8 +776,8 @@ def main() -> None:
     draw_bessel()
     draw_skew()
     draw_histogram_box()
-    draw_kde()
     draw_fences()
+    draw_kde()
     draw_qq()
 
 
