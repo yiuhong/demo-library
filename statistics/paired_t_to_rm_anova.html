@@ -206,8 +206,8 @@
         <span style="font-size:0.75rem; font-family:'JetBrains Mono'; color:var(--text-muted);">+0.98</span>
       </div>
       <div class="preset-group">
-        <button class="preset-btn active" id="preset-high" data-tip="Subjects have strong baseline differences that persist across timepoints (Parallel trajectories -> large SS_Subjects -> tiny SS_Error).">High Positive (r ≈ 0.90)</button>
-        <button class="preset-btn" id="preset-zero" data-tip="No consistent subject baseline across timepoints (Crossing trajectories -> SS_Subjects ≈ 0 -> large SS_Error).">Zero (r ≈ 0.00)</button>
+        <button class="preset-btn active" id="preset-high" data-tip="Subjects have strong baseline differences that persist across timepoints (Parallel trajectories -> large SS Subjects -> tiny Residual).">High Positive (r ≈ 0.90)</button>
+        <button class="preset-btn" id="preset-zero" data-tip="No consistent subject baseline across timepoints (Crossing trajectories -> SS Subjects ≈ 0 -> large Residual).">Zero (r ≈ 0.00)</button>
         <button class="preset-btn" id="preset-neg" data-tip="Subjects flip rank order between timepoints (Negative covariance inflates difference score variance s_D²).">Negative (r ≈ -0.40)</button>
       </div>
     </div>
@@ -235,14 +235,14 @@
           <span class="math-symbol">=</span>
           <label class="toggle-pill" data-overlay="between" data-tip="Time effect (SS time): How far each Timepoint Mean sits from the Grand Mean."><input type="checkbox" value="between" /><span class="pill-dot" style="background:var(--col-between)"></span><span>Timepoint ($\bar{X}_k - \bar{X}_G$)</span></label>
           <span class="math-symbol">+</span>
-          <label class="toggle-pill" data-overlay="within" data-tip="Within-Timepoint Spread: The total spread around a timepoint's mean. (SS_Within = SS_Subjects + SS_Error). Independent tests treat ALL this spread as random error!"><input type="checkbox" value="within" /><span class="pill-dot" style="background:var(--col-within)"></span><span>Within ($X_{ik} - \bar{X}_k$)</span></label>
+          <label class="toggle-pill" data-overlay="within" data-tip="Within-conditions: the total spread around a timepoint mean (Within-conditions = Subjects + Residual). An independent test treats all of this spread as residual."><input type="checkbox" value="within" /><span class="pill-dot" style="background:var(--col-within)"></span><span>Within-conditions ($X_{ik} - \bar{X}_k$)</span></label>
         </div>
         
         <div class="tree-level tree-indent">
-          <span style="color:var(--text-muted); font-size: 0.78rem; font-weight: 600; margin-right: 0.2rem;">↳ <i>Within</i> partitions into:</span>
+          <span style="color:var(--text-muted); font-size: 0.78rem; font-weight: 600; margin-right: 0.2rem;">↳ <i>Within-conditions</i> partitions into:</span>
           <label class="toggle-pill" data-overlay="subjects" data-tip="Subject Baseline: Distance from person's average to the Grand Mean. RM-ANOVA removes this from the error term!"><input type="checkbox" value="subjects" /><span class="pill-dot" style="background:var(--col-subjects)"></span><span>Subject ($\bar{S}_i - \bar{X}_G$)</span></label>
           <span class="math-symbol">+</span>
-          <label class="toggle-pill" data-overlay="error" data-tip="Residual Error: The true 'unexplained' variance left over AFTER removing the Subject Baseline from the Within spread."><input type="checkbox" value="error" /><span class="pill-dot" style="background:var(--col-error)"></span><span>Residual ($SS_{\text{Error}}$)</span></label>
+          <label class="toggle-pill" data-overlay="error" data-tip="Residual: the unexplained variance left after removing the subject baseline from the within-conditions spread."><input type="checkbox" value="error" /><span class="pill-dot" style="background:var(--col-error)"></span><span>Residual</span></label>
         </div>
 
         <div class="tree-level" style="margin-top: 0.2rem;">
@@ -285,10 +285,10 @@
           <div class="kpi-val" id="kpi-rm-stat" style="color:var(--col-subjects)">t = 4.25</div>
           <div class="kpi-sub" id="kpi-rm-p">p = 0.0001 ***</div>
         </div>
-        <div class="kpi-box" data-tip="Percentage of within-timepoint noise (SS_Within) explained by stable individual baseline differences (SS_Subjects).">
+        <div class="kpi-box" data-tip="Percentage of within-conditions variation explained by stable individual baseline differences (SS Subjects).">
           <div class="kpi-label">Noise Removed</div>
           <div class="kpi-val" id="kpi-noise-removed" style="color:var(--col-between)">89.4%</div>
-          <div class="kpi-sub" id="kpi-error-drop">SS<sub>Subj</sub> / SS<sub>Within</sub></div>
+          <div class="kpi-sub" id="kpi-error-drop">SS Subjects / Within-cond.</div>
         </div>
       </div>
 
@@ -349,7 +349,7 @@
           <div class="card-title" style="color:var(--col-between);">
             <span id="anova-panel-title">B. RM-ANOVA</span>
           </div>
-          <div class="card-subtitle">Carving $SS_{\text{Subjects}}$ reduces $MS_{\text{Error}}$</div>
+          <div class="card-subtitle">Carving $SS_{\text{Subjects}}$ reduces $MS_{\text{Residual}}$</div>
         </div>
       </div>
       <div class="formula-box" id="katex-anova-main"></div>
@@ -368,7 +368,7 @@
       </div>
       
       <div id="rosetta-description" style="font-size:0.79rem; color:var(--text-muted); line-height:1.45; margin-bottom: 0.25rem;">
-        <strong>Parallel paths = tiny error:</strong> High $r \implies$ large $SS_{\text{Subjects}} \implies$ uniform slopes (small $s_D^2$) $\implies$ tiny $SS_{\text{Error}}$.
+        <strong>Parallel paths = tiny Residual:</strong> High $r \implies$ large $SS_{\text{Subjects}} \implies$ uniform slopes (small $s_D^2$) $\implies$ tiny $SS_{\text{Residual}}$.
       </div>
       
       <div class="formula-box" id="katex-rosetta-identities"></div>
@@ -383,7 +383,7 @@
           <span class="mono" id="val-rosetta-2" style="color:var(--col-subjects)"></span>
         </div>
         <div class="breakdown-row" style="border-left: 3px solid var(--col-error);">
-          <span>Identity 3: $SS_{\text{Error}} = \frac{(N-1)s_D^2}{2}$</span>
+          <span>Identity 3: $SS_{\text{Residual}} = \frac{(N-1)s_D^2}{2}$</span>
           <span class="mono" id="val-rosetta-3" style="color:var(--col-error)"></span>
         </div>
         <div class="breakdown-row">
@@ -729,7 +729,7 @@
           }
           if (state.overlays.within || state.hoveredOverlay === 'within') {
             html += `<line x1="${cx - 7}" y1="${pyCondMean}" x2="${cx - 7}" y2="${pyScore}" stroke="var(--col-within)" stroke-width="2.4" />`;
-            if (isIsolated) html += `<text x="${cx - 12}" y="${(pyCondMean + pyScore) / 2 + 3}" text-anchor="end" font-size="9.5" font-weight="700" fill="var(--col-within)" font-family="JetBrains Mono">Within: ${(scoreVal - stats.condMeans[k]).toFixed(1)}</text>`;
+            if (isIsolated) html += `<text x="${cx - 12}" y="${(pyCondMean + pyScore) / 2 + 3}" text-anchor="end" font-size="9.5" font-weight="700" fill="var(--col-within)" font-family="JetBrains Mono">Within-cond.: ${(scoreVal - stats.condMeans[k]).toFixed(1)}</text>`;
           }
           if (state.overlays.subjects || state.hoveredOverlay === 'subjects') {
             if (Math.abs(pyPredicted - pyCondMean) > 2) {
@@ -825,10 +825,10 @@
     html += `<g>
         <rect x="${bar1X}" y="${yB1_Between}" width="${barW}" height="${Math.max(0, hBetween)}" fill="var(--col-between)" rx="3" />
         <rect x="${bar1X}" y="${yB1_Within}" width="${barW}" height="${Math.max(0, hWithin)}" fill="var(--col-within)" rx="3" />
-        <text x="${bar1X + barW / 2}" y="${yB1_Between + hBetween / 2 + 4}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Bet</tspan>: ${stats.ssBetween.toFixed(0)}</text>
-        ${hWithin > 28 ? `<text x="${bar1X + barW / 2}" y="${yB1_Within + hWithin / 2 - 2}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Within</tspan></text><text x="${bar1X + barW / 2}" y="${yB1_Within + hWithin / 2 + 12}" text-anchor="middle" font-size="10" font-weight="600" fill="#fff" font-family="JetBrains Mono">${stats.ssWithin.toFixed(1)} (Noise)</text>` : ''}
+        <text x="${bar1X + barW / 2}" y="${yB1_Between + hBetween / 2 + 4}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Time</tspan>: ${stats.ssBetween.toFixed(0)}</text>
+        ${hWithin > 42 ? `<text x="${bar1X + barW / 2}" y="${yB1_Within + hWithin / 2 - 10}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">Within-cond.</text><text x="${bar1X + barW / 2}" y="${yB1_Within + hWithin / 2 + 3}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#fff" font-family="JetBrains Mono">${stats.ssWithin.toFixed(1)}</text><text x="${bar1X + barW / 2}" y="${yB1_Within + hWithin / 2 + 16}" text-anchor="middle" font-size="9" font-weight="600" fill="#fff">Indep. Within</text>` : hWithin > 28 ? `<text x="${bar1X + barW / 2}" y="${yB1_Within + hWithin / 2 - 2}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">Within-cond.</text><text x="${bar1X + barW / 2}" y="${yB1_Within + hWithin / 2 + 12}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#fff" font-family="JetBrains Mono">${stats.ssWithin.toFixed(1)}</text>` : ''}
         <text x="${bar1X + barW / 2}" y="${bBottom + 18}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#334155">Independent</text>
-        <text x="${bar1X + barW / 2}" y="${bBottom + 32}" text-anchor="middle" font-size="9.5" fill="#64748b">(Unadjusted)</text>
+        <text x="${bar1X + barW / 2}" y="${bBottom + 32}" text-anchor="middle" font-size="9" fill="#64748b">(within-cond. = residual)</text>
       </g>`;
 
     const yB2_Between = bBottom - hBetween, yB2_Subjects = yB2_Between - hSubjects, yB2_Error = yB2_Subjects - hError;
@@ -840,7 +840,7 @@
         <rect x="${bar2X}" y="${yB2_Error}" width="${barW}" height="${Math.max(0, hError)}" fill="var(--col-error)" rx="3" />
         <text x="${bar2X + barW / 2}" y="${yB2_Between + hBetween / 2 + 4}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Time</tspan>: ${stats.ssBetween.toFixed(0)}</text>
         ${hSubjects > 26 ? `<text x="${bar2X + barW / 2}" y="${yB2_Subjects + hSubjects / 2 - 2}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Subjects</tspan></text><text x="${bar2X + barW / 2}" y="${yB2_Subjects + hSubjects / 2 + 11}" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--viz-subjects-line)" font-family="JetBrains Mono">-${stats.ssSubjects.toFixed(1)} (Removed!)</text>` : ''}
-        ${hError > 18 ? `<text x="${bar2X + barW / 2}" y="${yB2_Error + hError / 2 + 4}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff" font-family="JetBrains Mono">SS<tspan baseline-shift="sub" font-size="75%">Err</tspan>: ${stats.ssError.toFixed(1)}</text>` : `<text x="${bar2X + barW / 2}" y="${Math.max(14, yB2_Error - 5)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--col-error)" font-family="JetBrains Mono">SS<tspan baseline-shift="sub" font-size="75%">Error</tspan>: ${stats.ssError.toFixed(1)}</text>`}
+        ${hError > 28 ? `<text x="${bar2X + barW / 2}" y="${yB2_Error + hError / 2 - 2}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS Residual</text><text x="${bar2X + barW / 2}" y="${yB2_Error + hError / 2 + 11}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff" font-family="JetBrains Mono">${stats.ssError.toFixed(1)}</text>` : hError > 18 ? `<text x="${bar2X + barW / 2}" y="${yB2_Error + hError / 2 + 4}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff" font-family="JetBrains Mono">Residual: ${stats.ssError.toFixed(1)}</text>` : `<text x="${bar2X + barW / 2}" y="${Math.max(14, yB2_Error - 5)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--col-error)" font-family="JetBrains Mono">Residual: ${stats.ssError.toFixed(1)}</text>`}
         <text x="${bar2X + barW / 2}" y="${bBottom + 18}" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--col-subjects)">Repeated-Meas.</text>
         <text x="${bar2X + barW / 2}" y="${bBottom + 32}" text-anchor="middle" font-size="9.5" fill="#64748b">(Paired Design)</text>
       </g>`;
@@ -885,13 +885,13 @@
       rmContainer.style.borderColor = 'var(--col-error)';
       rmContainer.style.background = 'var(--col-error-bg)';
       document.getElementById('kpi-rm-stat').style.color = 'var(--col-error)';
-      noiseSubEl.innerHTML = `SS<sub>Subj</sub> / SS<sub>Within</sub><br><span style="color:var(--col-error); font-weight:700;">(Penalty: r < 0)</span>`;
+      noiseSubEl.innerHTML = `SS Subjects / Within-cond.<br><span style="color:var(--col-error); font-weight:700;">(Penalty: r &lt; 0)</span>`;
     } else {
       noiseKpiEl.style.color = 'var(--col-between)';
       rmContainer.style.borderColor = 'var(--viz-subjects-line)';
       rmContainer.style.background = 'var(--col-subjects-bg)';
       document.getElementById('kpi-rm-stat').style.color = 'var(--col-subjects)';
-      noiseSubEl.innerHTML = `SS<sub>Subj</sub> / SS<sub>Within</sub>`;
+      noiseSubEl.innerHTML = `SS Subjects / Within-cond.`;
     }
     noiseKpiEl.textContent = `${pctRemoved.toFixed(1)}%`;
 
@@ -924,7 +924,7 @@
         <td class="mono-num" style="color:#94a3b8">—</td>
       </tr>
       <tr class="row-error">
-        <td>Residual Error (SS<sub>Error</sub>)</td>
+        <td>Residual</td>
         <td class="mono-num">${stats.ssError.toFixed(2)}</td>
         <td class="mono-num">${stats.dfError}</td>
         <td class="mono-num" style="font-weight:700; color:var(--col-error)">${stats.msError.toFixed(2)}</td>
@@ -939,8 +939,8 @@
         <td class="mono-num">—</td>
         <td class="mono-num">—</td>
       </tr>
-      <tr class="row-unadj" title="Comparison if pairing were ignored">
-        <td>⚠️ If Unadjusted (Indep.)</td>
+      <tr class="row-unadj" title="Same SS as within-conditions. An independent test treats all of it as residual.">
+        <td>Indep. Within (= within-conditions)</td>
         <td class="mono-num">${stats.ssWithin.toFixed(2)}</td>
         <td class="mono-num">${stats.dfWithin}</td>
         <td class="mono-num">${stats.msWithin.toFixed(2)}</td>
@@ -975,15 +975,15 @@
     
     // F-Ratio with specific \textcolor commands to prevent bleeding and correctly color parentheses
     const latexANOVA = String.raw`\begin{aligned} 
-    SS_{\text{Total}} &= \textcolor{${statsViz.color('explained')}}{SS_{\text{Time}}} + \textcolor{${statsViz.color('within')}}{\underbrace{\textcolor{${statsViz.color('subjects')}}{SS_{\text{Subjects}}} + \textcolor{${statsViz.color('residual')}}{SS_{\text{Error}}}}_{SS_{\text{Within}} = ${stats.ssWithin.toFixed(1)}}} \\[1em] 
-    F &= \frac{\textcolor{${statsViz.color('explained')}}{MS_{\text{Time}}}}{\textcolor{${statsViz.color('residual')}}{MS_{\text{Error}}}} = \frac{\textcolor{${statsViz.color('explained')}}{SS_{\text{Time}}} / df_{\text{Time}}}{\textcolor{${statsViz.color('residual')}}{SS_{\text{Error}}} / \textcolor{${statsViz.color('residual')}}{df_{\text{Error}}}} \\[1em] 
-    &= \frac{${stats.ssBetween.toFixed(1)} / ${stats.dfBetween}}{\textcolor{#0f172a}{(}\textcolor{${statsViz.color('within')}}{SS_{\text{Within}}} \textcolor{#0f172a}{-} \textcolor{${statsViz.color('subjects')}}{SS_{\text{Subjects}}}\textcolor{#0f172a}{)} / \textcolor{${statsViz.color('residual')}}{(N-1)(k-1)}} \\[1em] 
+    SS_{\text{Total}} &= \textcolor{${statsViz.color('explained')}}{SS_{\text{Time}}} + \textcolor{${statsViz.color('within')}}{\underbrace{\textcolor{${statsViz.color('subjects')}}{SS_{\text{Subjects}}} + \textcolor{${statsViz.color('residual')}}{SS_{\text{Residual}}}}_{\text{Within-conditions} = ${stats.ssWithin.toFixed(1)}}} \\[1em] 
+    F &= \frac{\textcolor{${statsViz.color('explained')}}{MS_{\text{Time}}}}{\textcolor{${statsViz.color('residual')}}{MS_{\text{Residual}}}} = \frac{\textcolor{${statsViz.color('explained')}}{SS_{\text{Time}}} / df_{\text{Time}}}{\textcolor{${statsViz.color('residual')}}{SS_{\text{Residual}}} / \textcolor{${statsViz.color('residual')}}{df_{\text{Residual}}}} \\[1em] 
+    &= \frac{${stats.ssBetween.toFixed(1)} / ${stats.dfBetween}}{\textcolor{#0f172a}{(}\textcolor{${statsViz.color('within')}}{\text{Within-conditions}} \textcolor{#0f172a}{-} \textcolor{${statsViz.color('subjects')}}{SS_{\text{Subjects}}}\textcolor{#0f172a}{)} / \textcolor{${statsViz.color('residual')}}{(N-1)(k-1)}} \\[1em] 
     &= \frac{${stats.ssBetween.toFixed(1)} / ${stats.dfBetween}}{\textcolor{#0f172a}{(}\textcolor{${statsViz.color('within')}}{${stats.ssWithin.toFixed(1)}} \textcolor{#0f172a}{-} \mathbf{\textcolor{${statsViz.color('subjects')}}{${stats.ssSubjects.toFixed(1)}}}\textcolor{#0f172a}{)} / \textcolor{${statsViz.color('residual')}}{${stats.dfError}}} = \mathbf{${stats.fRM.toFixed(2)}} 
     \end{aligned}`;
     
     const latexRosetta = String.raw`\begin{aligned} 
     \textcolor{${statsViz.color('subjects')}}{SS_{\text{Subjects}}} &= \frac{(N-1)(s_1^2 + s_2^2 + \mathbf{\underbrace{2rs_1s_2}_{\text{Covariance}}})}{2} \\[1em] 
-    \textcolor{${statsViz.color('residual')}}{SS_{\text{Error}}} &= \frac{(N-1)(s_1^2 + s_2^2 - \mathbf{\underbrace{2rs_1s_2}_{\text{Covariance}}})}{2} = \frac{(N-1)s_D^2}{2} 
+    \textcolor{${statsViz.color('residual')}}{SS_{\text{Residual}}} &= \frac{(N-1)(s_1^2 + s_2^2 - \mathbf{\underbrace{2rs_1s_2}_{\text{Covariance}}})}{2} = \frac{(N-1)s_D^2}{2} 
     \end{aligned}`;
 
     window.katex.render(latexT, document.getElementById('katex-ttest-main'), { displayMode: true, throwOnError: false });

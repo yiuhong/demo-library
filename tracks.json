@@ -266,11 +266,11 @@
         {
           "href": "statistics/paired_t_to_rm_anova.html",
           "title": "From Paired t-Test to RM-ANOVA",
-          "note": "The difference-score standard deviation already has the pre–post correlation built into it. A more positive covariance shrinks s_D: when scores move together, people who score high at one timepoint tend to score high at the other, so individual change scores stay small — and that smaller s_D is what feeds SS_Error. The same positive covariance enlarges SS_Subjects, because subject sums of squares track how far each person's average sits from the grand mean. Together, SS_Subjects and SS_Error make up SS_Within — the within-timepoint scatter that is not caused by time, but by stable individual differences plus residual error. By partitioning out those individual differences, the paired t and repeated-measures ANOVA cut noise that an independent test would leave intact.",
+          "note": "The difference-score standard deviation already has the pre–post correlation built into it. A more positive covariance shrinks s_D: when scores move together, people who score high at one timepoint tend to score high at the other, so individual change scores stay small — and that smaller s_D is what feeds Residual. The same positive covariance enlarges SS Subjects, because subject sums of squares track how far each person's average sits from the grand mean. Together, SS Subjects and Residual make up within-conditions: the scatter around each timepoint mean. By partitioning out those individual differences, the paired t and repeated-measures ANOVA cut noise that an independent test would leave intact. An independent test treats all of within-conditions as residual.",
           "formulae": [
             "s_D² = s₁² + s₂² − 2 r s₁ s₂",
-            "SS_Within = SS_Subjects + SS_Error",
-            "SS_Error = (N − 1) s_D² / 2",
+            "Within-conditions = Subjects + Residual",
+            "SS Residual = (N − 1) s_D² / 2",
             "for k = 2, t² = F"
           ]
         },
