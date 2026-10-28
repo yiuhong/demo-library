@@ -31,6 +31,6 @@ with `K` the standard normal density. The bandwidth is Silverman’s rule, `h = 
 3. Bessel: 8000 samples of size 10 from a normal population with mean 50 and variance 100, as in the demonstration’s population spread.
 4. Density: lognormal with `μ = 0` and `σ = 0.85` on the natural-log scale (mode 0.49, median 1, mean 1.44).
 5. Histogram and box: 44 integer values, peak at 5, quartiles 5, 6, and 8, whiskers from 3 to 12, no points outside the fences.
-6. Kernel density: those same 44 values, with a Gaussian kernel at the Silverman bandwidth.
-7. Fences: 12, 16, 20, 24, 28, 30, 32, 36, 40, 44, 80. Quartiles 20, 30, 40; fences −10 and 70; the only outlier is 80.
+6. Fences: 12, 16, 20, 24, 28, 30, 32, 36, 40, 44, 80. Quartiles 20, 30, 40; fences −10 and 70; the only outlier is 80.
+7. Kernel density: those same 44 values, with a Gaussian kernel at the Silverman bandwidth.
 8. Q–Q: 40 standard normal draws (NumPy seed 24).
