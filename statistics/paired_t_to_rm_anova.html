@@ -233,7 +233,7 @@
         <div class="tree-level">
           <label class="toggle-pill" data-overlay="total" data-tip="Total Deviation: Distance from score to Grand Mean."><input type="checkbox" value="total" /><span class="pill-dot" style="background:var(--col-total)"></span><span>Total ($X_{ik} - \bar{X}_G$)</span></label>
           <span class="math-symbol">=</span>
-          <label class="toggle-pill" data-overlay="between" data-tip="Between-Timepoints Effect: How far each Timepoint Mean sits from the Grand Mean."><input type="checkbox" value="between" /><span class="pill-dot" style="background:var(--col-between)"></span><span>Timepoint ($\bar{X}_k - \bar{X}_G$)</span></label>
+          <label class="toggle-pill" data-overlay="between" data-tip="Time effect (SS time): How far each Timepoint Mean sits from the Grand Mean."><input type="checkbox" value="between" /><span class="pill-dot" style="background:var(--col-between)"></span><span>Timepoint ($\bar{X}_k - \bar{X}_G$)</span></label>
           <span class="math-symbol">+</span>
           <label class="toggle-pill" data-overlay="within" data-tip="Within-Timepoint Spread: The total spread around a timepoint's mean. (SS_Within = SS_Subjects + SS_Error). Independent tests treat ALL this spread as random error!"><input type="checkbox" value="within" /><span class="pill-dot" style="background:var(--col-within)"></span><span>Within ($X_{ik} - \bar{X}_k$)</span></label>
         </div>
@@ -387,7 +387,7 @@
           <span class="mono" id="val-rosetta-3" style="color:var(--col-error)"></span>
         </div>
         <div class="breakdown-row">
-          <span>Identity 4: $SS_{\text{Between}} = \frac{N \cdot \bar{D}^2}{2}$</span>
+          <span>Identity 4: $SS_{\text{Time}} = \frac{N \cdot \bar{D}^2}{2}$</span>
           <span class="mono" id="val-rosetta-4"></span>
         </div>
       </div>
@@ -838,7 +838,7 @@
         <rect x="${bar2X}" y="${yB2_Between}" width="${barW}" height="${Math.max(0, hBetween)}" fill="var(--col-between)" rx="3" />
         <rect x="${bar2X}" y="${yB2_Subjects}" width="${barW}" height="${Math.max(0, hSubjects)}" fill="var(--col-subjects)" fill-opacity="0.88" stroke="var(--viz-subjects)" stroke-dasharray="3,2" rx="3" />
         <rect x="${bar2X}" y="${yB2_Error}" width="${barW}" height="${Math.max(0, hError)}" fill="var(--col-error)" rx="3" />
-        <text x="${bar2X + barW / 2}" y="${yB2_Between + hBetween / 2 + 4}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Bet</tspan>: ${stats.ssBetween.toFixed(0)}</text>
+        <text x="${bar2X + barW / 2}" y="${yB2_Between + hBetween / 2 + 4}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Time</tspan>: ${stats.ssBetween.toFixed(0)}</text>
         ${hSubjects > 26 ? `<text x="${bar2X + barW / 2}" y="${yB2_Subjects + hSubjects / 2 - 2}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SS<tspan baseline-shift="sub" font-size="75%">Subjects</tspan></text><text x="${bar2X + barW / 2}" y="${yB2_Subjects + hSubjects / 2 + 11}" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--viz-subjects-line)" font-family="JetBrains Mono">-${stats.ssSubjects.toFixed(1)} (Removed!)</text>` : ''}
         ${hError > 18 ? `<text x="${bar2X + barW / 2}" y="${yB2_Error + hError / 2 + 4}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff" font-family="JetBrains Mono">SS<tspan baseline-shift="sub" font-size="75%">Err</tspan>: ${stats.ssError.toFixed(1)}</text>` : `<text x="${bar2X + barW / 2}" y="${Math.max(14, yB2_Error - 5)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--col-error)" font-family="JetBrains Mono">SS<tspan baseline-shift="sub" font-size="75%">Error</tspan>: ${stats.ssError.toFixed(1)}</text>`}
         <text x="${bar2X + barW / 2}" y="${bBottom + 18}" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--col-subjects)">Repeated-Meas.</text>
@@ -908,7 +908,7 @@
     const tbody = document.getElementById('anova-table-body');
     tbody.innerHTML = `
       <tr class="row-between">
-        <td>Between Timepoints</td>
+        <td>Time</td>
         <td class="mono-num">${stats.ssBetween.toFixed(2)}</td>
         <td class="mono-num">${stats.dfBetween}</td>
         <td class="mono-num">${stats.msBetween.toFixed(2)}</td>
@@ -975,8 +975,8 @@
     
     // F-Ratio with specific \textcolor commands to prevent bleeding and correctly color parentheses
     const latexANOVA = String.raw`\begin{aligned} 
-    SS_{\text{Total}} &= \textcolor{${statsViz.color('explained')}}{SS_{\text{Between}}} + \textcolor{${statsViz.color('within')}}{\underbrace{\textcolor{${statsViz.color('subjects')}}{SS_{\text{Subjects}}} + \textcolor{${statsViz.color('residual')}}{SS_{\text{Error}}}}_{SS_{\text{Within}} = ${stats.ssWithin.toFixed(1)}}} \\[1em] 
-    F &= \frac{\textcolor{${statsViz.color('explained')}}{MS_{\text{Between}}}}{\textcolor{${statsViz.color('residual')}}{MS_{\text{Error}}}} = \frac{\textcolor{${statsViz.color('explained')}}{SS_{\text{Between}}} / df_{\text{Between}}}{\textcolor{${statsViz.color('residual')}}{SS_{\text{Error}}} / \textcolor{${statsViz.color('residual')}}{df_{\text{Error}}}} \\[1em] 
+    SS_{\text{Total}} &= \textcolor{${statsViz.color('explained')}}{SS_{\text{Time}}} + \textcolor{${statsViz.color('within')}}{\underbrace{\textcolor{${statsViz.color('subjects')}}{SS_{\text{Subjects}}} + \textcolor{${statsViz.color('residual')}}{SS_{\text{Error}}}}_{SS_{\text{Within}} = ${stats.ssWithin.toFixed(1)}}} \\[1em] 
+    F &= \frac{\textcolor{${statsViz.color('explained')}}{MS_{\text{Time}}}}{\textcolor{${statsViz.color('residual')}}{MS_{\text{Error}}}} = \frac{\textcolor{${statsViz.color('explained')}}{SS_{\text{Time}}} / df_{\text{Time}}}{\textcolor{${statsViz.color('residual')}}{SS_{\text{Error}}} / \textcolor{${statsViz.color('residual')}}{df_{\text{Error}}}} \\[1em] 
     &= \frac{${stats.ssBetween.toFixed(1)} / ${stats.dfBetween}}{\textcolor{#0f172a}{(}\textcolor{${statsViz.color('within')}}{SS_{\text{Within}}} \textcolor{#0f172a}{-} \textcolor{${statsViz.color('subjects')}}{SS_{\text{Subjects}}}\textcolor{#0f172a}{)} / \textcolor{${statsViz.color('residual')}}{(N-1)(k-1)}} \\[1em] 
     &= \frac{${stats.ssBetween.toFixed(1)} / ${stats.dfBetween}}{\textcolor{#0f172a}{(}\textcolor{${statsViz.color('within')}}{${stats.ssWithin.toFixed(1)}} \textcolor{#0f172a}{-} \mathbf{\textcolor{${statsViz.color('subjects')}}{${stats.ssSubjects.toFixed(1)}}}\textcolor{#0f172a}{)} / \textcolor{${statsViz.color('residual')}}{${stats.dfError}}} = \mathbf{${stats.fRM.toFixed(2)}} 
     \end{aligned}`;
