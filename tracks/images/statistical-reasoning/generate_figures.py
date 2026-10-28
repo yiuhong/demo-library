@@ -37,6 +37,10 @@ HOROWITZ_SEED = 1974
 CI_Z = 1.96
 CI_HALF = CI_Z * 1.0
 
+# Galton board defaults in statistics/galton_board.html: 12 peg rows, fair coin.
+GALTON_ROWS = 12
+GALTON_P = 0.5
+
 
 def _style() -> None:
     plt.rcParams.update(
@@ -136,6 +140,17 @@ def _chi2_pdf(x: np.ndarray, df: float) -> np.ndarray:
     return _gamma_pdf(x, shape=df / 2.0, scale=2.0)
 
 
+def _binomial_pmf(n: int, p: float) -> np.ndarray:
+    """Exact binomial probabilities, multiplied forward so the terms stay finite."""
+    if not 0.0 < p < 1.0:
+        raise SystemExit(f"binomial p should sit between 0 and 1, got {p}")
+    probs = np.empty(n + 1, dtype=float)
+    probs[0] = (1.0 - p) ** n
+    for k in range(n):
+        probs[k + 1] = probs[k] * (n - k) / (k + 1) * p / (1.0 - p)
+    return probs
+
+
 def draw_normal() -> None:
     x = np.linspace(-4.2, 4.2, 600)
     y = _normal_pdf(x, 0.0, 1.0)
@@ -206,6 +221,160 @@ def draw_clt() -> None:
     _save(fig, "02-clt-sampling.png")
 
 
+def draw_galton() -> None:
+    """Peg board plus the binomial counts those bounces fill.
+
+    One path takes six right bounces, then six left bounces, so it ends in
+    bin 6. The bars are Binomial(12, 1/2). The curve is N(μ, σ²) with
+    μ = np = 6 and σ = √(np(1 − p)) = √3.
+    """
+    n = GALTON_ROWS
+    p = GALTON_P
+    mu = n * p
+    sigma = math.sqrt(n * p * (1.0 - p))
+    probs = _binomial_pmf(n, p)
+    if abs(float(probs.sum()) - 1.0) > 1e-9:
+        raise SystemExit(f"binomial probabilities sum to {probs.sum()}")
+    if int(np.argmax(probs)) != int(mu):
+        raise SystemExit(f"binomial mode should be {mu}, got {int(np.argmax(probs))}")
+    normal_peak = float(_normal_pdf(np.array([mu]), mu, sigma)[0])
+    if abs(float(probs[int(mu)]) - normal_peak) / normal_peak > 0.05:
+        raise SystemExit(
+            f"normal curve should sit near the binomial peak: "
+            f"P(X={int(mu)})={probs[int(mu)]:.4f} normal={normal_peak:.4f}"
+        )
+
+    # Six right bounces, then six left. The bin is the right-bounce count.
+    rights = [1] * (n // 2) + [0] * (n // 2)
+    if sum(rights) != int(mu):
+        raise SystemExit("highlighted path should end on the mean bin")
+    peg_x: list[float] = []
+    peg_y: list[float] = []
+    for row in range(n):
+        for col in range(row + 1):
+            peg_x.append(col - row / 2.0 + n / 2.0)
+            peg_y.append(float(n - row))
+
+    path_x: list[float] = []
+    path_y: list[float] = []
+    col = 0
+    for row, go_right in enumerate(rights):
+        path_x.append(col - row / 2.0 + n / 2.0)
+        path_y.append(float(n - row))
+        col += go_right
+    if col != int(mu):
+        raise SystemExit(f"path ended in bin {col}, expected {int(mu)}")
+    path_x.append(float(col))
+    path_y.append(0.42)
+
+    fig, (ax_board, ax_hist) = plt.subplots(
+        1,
+        2,
+        figsize=(7.8, 4.9),
+        constrained_layout=True,
+        gridspec_kw={"width_ratios": [1.05, 1.22]},
+    )
+
+    for row in range(n - 1):
+        for col_i in range(row + 1):
+            x0 = col_i - row / 2.0 + n / 2.0
+            y0 = float(n - row)
+            for step in (0, 1):
+                x1 = (col_i + step) - (row + 1) / 2.0 + n / 2.0
+                y1 = float(n - (row + 1))
+                ax_board.plot(
+                    [x0, x1],
+                    [y0, y1],
+                    color="black",
+                    linewidth=0.55,
+                    solid_capstyle="round",
+                    zorder=1,
+                )
+    ax_board.plot(path_x, path_y, color="black", linewidth=1.7, solid_capstyle="round", zorder=3)
+    ax_board.scatter(peg_x, peg_y, s=9, c="black", linewidths=0, zorder=2)
+    ax_board.scatter(
+        [path_x[0], path_x[-1]],
+        [path_y[0] + 0.62, path_y[-1]],
+        s=36,
+        facecolors="white",
+        edgecolors="black",
+        linewidths=1.15,
+        zorder=4,
+    )
+    # Drop the opening segment from the top bead onto the first peg.
+    ax_board.plot(
+        [path_x[0], path_x[0]],
+        [path_y[0] + 0.62, path_y[0]],
+        color="black",
+        linewidth=1.7,
+        solid_capstyle="round",
+        zorder=3,
+    )
+    _legend(
+        ax_board,
+        [Line2D([0], [0], color="black", linewidth=1.7, label="one bead")],
+        loc="upper left",
+    )
+    ax_board.set_xlim(-0.85, n + 0.85)
+    ax_board.set_ylim(-0.35, n + 1.55)
+    ax_board.set_xticks([0, 6, 12])
+    ax_board.set_yticks([])
+    ax_board.set_xlabel("bin  k")
+    ax_board.set_title("12 rows of pegs")
+
+    ks = np.arange(n + 1)
+    ax_hist.bar(
+        ks,
+        probs,
+        width=0.78,
+        facecolor="white",
+        edgecolor="black",
+        linewidth=1.0,
+        zorder=2,
+    )
+    xs = np.linspace(-0.2, n + 0.2, 500)
+    ax_hist.plot(xs, _normal_pdf(xs, mu, sigma), color="black", linewidth=1.7, zorder=3)
+    ax_hist.axvline(mu, color="black", linestyle="dashed", linewidth=1.15, zorder=1)
+    for xpos in (mu - sigma, mu + sigma):
+        ax_hist.axvline(xpos, color="black", linestyle=(0, (1.2, 1.2)), linewidth=1.15, zorder=1)
+    _legend(
+        ax_hist,
+        [
+            Rectangle((0, 0), 1, 1, facecolor="white", edgecolor="black", label="binomial counts"),
+            Line2D([0], [0], color="black", linewidth=1.7, label="normal curve"),
+            Line2D([0], [0], color="black", linestyle="dashed", linewidth=1.15, label="μ = 6"),
+            Line2D(
+                [0],
+                [0],
+                color="black",
+                linestyle=(0, (1.2, 1.2)),
+                linewidth=1.15,
+                label="μ ± σ",
+            ),
+        ],
+        loc="upper right",
+        title="n = 12,  p = 1/2",
+    )
+    ax_hist.set_xlim(-0.85, n + 0.85)
+    ax_hist.set_xticks([0, 2, 4, 6, 8, 10, 12])
+    ax_hist.set_ylim(0, 0.40)
+    ax_hist.set_yticks([0, 0.1, 0.2, 0.3])
+    ax_hist.set_xlabel("right bounces,  k")
+    ax_hist.set_ylabel("probability")
+    ax_hist.set_title("Those counts pile into a bell")
+
+    for text in fig.findobj(match=plt.Text):
+        lowered = text.get_text().lower()
+        if "clt" in lowered or "central limit" in lowered:
+            raise SystemExit(f"Galton figure must not say CLT: {text.get_text()!r}")
+
+    _save(fig, "03-galton-board.png")
+    print(
+        f"  galton n={n} p={p} mu={mu:.1f} sigma={sigma:.3f} "
+        f"Pmax={float(probs[int(mu)]):.4f} normal_peak={normal_peak:.4f}"
+    )
+
+
 def draw_horowitz() -> None:
     rng = np.random.default_rng(HOROWITZ_SEED)
     samples = rng.normal(HOROWITZ_MEAN, HOROWITZ_SD, size=(HOROWITZ_STUDENTS, HOROWITZ_N))
@@ -246,7 +415,7 @@ def draw_horowitz() -> None:
     ax.set_xlabel("sample mean")
     ax.set_ylabel("count")
     ax.set_title("Classroom draws: n = 10 from N(50, 15.8)")
-    _save(fig, "03-horowitz-clt.png")
+    _save(fig, "04-horowitz-clt.png")
     print(
         f"  horowitz mean_of_means={mean_of_means:.3f} emp_se={emp_se:.3f} theory_se={theory_se:.3f}"
     )
@@ -278,7 +447,7 @@ def draw_chi_square() -> None:
     ax.set_xlabel("value")
     ax.set_ylabel("density")
     ax.set_title("Chi-square: a sum of squared standard normals")
-    _save(fig, "04-chi-square.png")
+    _save(fig, "05-chi-square.png")
     print(f"  chi2 mode df3={mode3:.3f} df5={mode5:.3f} peak3={curves[1].max():.3f}")
 
 
@@ -322,7 +491,7 @@ def draw_intervals() -> None:
     ax.set_yticks([])
     ax.set_xlabel("interval  =  estimate  ±  1.96 · SE")
     ax.set_title("Nineteen of these twenty shots cover the true value")
-    _save(fig, "05-confidence-intervals.png")
+    _save(fig, "06-confidence-intervals.png")
     print(f"  ci hits={int(covers.sum())} half-width={CI_HALF:.2f}")
 
 
@@ -330,9 +499,20 @@ def main() -> None:
     _style()
     draw_normal()
     draw_clt()
+    draw_galton()
     draw_horowitz()
     draw_chi_square()
     draw_intervals()
+    # Step order is normal, CLT, Galton, Horowitz, chi-square, intervals.
+    for name in (
+        "03-horowitz-clt.png",
+        "04-chi-square.png",
+        "05-confidence-intervals.png",
+    ):
+        stale = OUT / name
+        if stale.exists():
+            stale.unlink()
+            print(f"removed {name}")
 
 
 if __name__ == "__main__":
