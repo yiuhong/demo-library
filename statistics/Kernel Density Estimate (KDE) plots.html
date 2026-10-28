@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kernel Density Estimate (KDE) plots</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- D3.js v7 -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        /* Custom scrollbar for sidebar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Range slider styling */
+        input[type="range"] {
+            accent-color: #4f46e5;
+        }
+        .axis-grid line {
+            stroke: #e2e8f0;
+            stroke-dasharray: 2,2;
+        }
+        .axis-grid path {
+            stroke-width: 0;
+        }
+        .tooltip-badge {
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col lg:h-screen lg:overflow-hidden">
+
+    <!-- Top Header Bar -->
+    <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-sm z-10">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-slate-900 leading-tight">Kernel Density Estimate (KDE) plots</h1>
+                <p class="text-xs text-slate-500">Synchronized comparison of Histograms, KDE Plots, Box Plots, Violin Plots &amp; Raincloud Plots</p>
+            </div>
+        </div>
+
+        <!-- Live Summary Statistics Pill Bar -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-4 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 text-xs">
+            <div class="flex items-center space-x-1.5">
+                <span class="text-slate-400 font-medium">N:</span>
+                <span id="stat-n" class="font-bold text-slate-800 font-mono">200</span>
+            </div>
+            <div class="h-3 w-px bg-slate-300"></div>
+            <div class="flex items-center space-x-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                <span class="text-slate-500 font-medium">Mean (μ):</span>
+                <span id="stat-mean" class="font-bold text-slate-800 font-mono">0.00</span>
+            </div>
+            <div class="h-3 w-px bg-slate-300"></div>
+            <div class="flex items-center space-x-1.5">
+                <span class="w-2 h-2 rounded-full bg-rose-600 inline-block"></span>
+                <span class="text-slate-500 font-medium">Median (Q2):</span>
+                <span id="stat-median" class="font-bold text-slate-800 font-mono">0.00</span>
+            </div>
+            <div class="h-3 w-px bg-slate-300"></div>
+            <div class="flex items-center space-x-1.5">
+                <span class="text-slate-500 font-medium">Std Dev (s):</span>
+                <span id="stat-sd" class="font-bold text-slate-800 font-mono">1.50</span>
+            </div>
+            <div class="h-3 w-px bg-slate-300"></div>
+            <div class="flex items-center space-x-1.5">
+                <span class="w-2 h-2 rounded-sm bg-indigo-500 inline-block"></span>
+                <span class="text-slate-500 font-medium">IQR (Q3-Q1):</span>
+                <span id="stat-iqr" class="font-bold text-slate-800 font-mono">2.00</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+
+        <!-- Left Column: Control Sidebar -->
+        <aside class="w-full lg:w-96 bg-white border-r border-slate-200 overflow-y-auto p-5 space-y-5 shrink-0">
+
+            <!-- Section 1: Dataset Generator Controls -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3.5">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-950 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                        1. Underlying Dataset
+                    </h2>
+                    <button id="btn-resample" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-medium text-xs rounded-lg shadow-sm transition flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Resample
+                    </button>
+                </div>
+
+                <!-- Distribution Shape -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Distribution Shape</label>
+                    <select id="ctrl-shape" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="normal">Normal (Symmetric Bell)</option>
+                        <option value="skewed">Right-Skewed (Log-Normal)</option>
+                        <option value="bimodal">Bimodal (Two Distinct Peaks)</option>
+                        <option value="uniform">Uniform (Flat Rectangular)</option>
+                    </select>
+                </div>
+
+                <!-- Sample Size (n) -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <label class="font-medium text-slate-700">Sample Size (<span class="italic font-serif">n</span>)</label>
+                        <span id="val-n" class="font-mono font-semibold text-indigo-600">250</span>
+                    </div>
+                    <input id="ctrl-n" type="range" min="20" max="1000" step="10" value="250" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Number of data points. <span class="text-slate-600 font-medium">Suggested: 200–500</span> for stable shapes, or <span class="text-slate-600 font-medium">30–50</span> to see small-sample noise.</p>
+                </div>
+
+                <!-- Primary Mean (mu) -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <label class="font-medium text-slate-700">Mean (μ)</label>
+                        <span id="val-mean" class="font-mono font-semibold text-indigo-600">0.0</span>
+                    </div>
+                    <input id="ctrl-mean" type="range" min="-5" max="5" step="0.25" value="0" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Spread / Std Dev (sigma) -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <label class="font-medium text-slate-700">Standard deviation (σ)</label>
+                        <span id="val-sd" class="font-mono font-semibold text-indigo-600">1.50</span>
+                    </div>
+                    <input id="ctrl-sd" type="range" min="0.5" max="3.5" step="0.1" value="1.5" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Controls horizontal dispersion. <span class="text-slate-600 font-medium">Suggested: 1.0–2.0</span>.</p>
+                </div>
+
+                <!-- Bimodal Separation (Active only in Bimodal mode) -->
+                <div id="bimodal-group" class="hidden pt-1 border-t border-slate-200">
+                    <div class="flex justify-between text-xs mb-1">
+                        <label class="font-medium text-indigo-900">Bimodal Peak Separation (Δμ)</label>
+                        <span id="val-sep" class="font-mono font-semibold text-indigo-600">4.5</span>
+                    </div>
+                    <input id="ctrl-sep" type="range" min="1.0" max="8.0" step="0.25" value="4.5" class="w-full h-1.5 bg-indigo-200 rounded-lg cursor-pointer">
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Distance between the two cluster centers. <span class="text-slate-600 font-medium">Suggested: 4.0–6.0</span> to clearly see two peaks.</p>
+                </div>
+
+                <!-- Inject Outliers -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <label class="font-medium text-slate-700">Outliers</label>
+                        <span id="val-outliers" class="font-mono font-semibold text-indigo-600">0</span>
+                    </div>
+                    <input id="ctrl-outliers" type="range" min="0" max="10" step="1" value="0" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Adds extreme values far from the center. <span class="text-slate-600 font-medium">Suggested: 2–5</span> to test Box Plot outlier dots.</p>
+                </div>
+            </div>
+
+            <!-- Section 2: Shared KDE & Axis Settings (Both Panels) -->
+            <div class="bg-indigo-50/60 p-4 rounded-xl border border-indigo-200 space-y-3.5">
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-950 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                        2. Shared Kernel Density Estimate (KDE) &amp; Axis
+                    </h2>
+                    <p class="text-[11px] text-slate-600 mt-0.5 leading-snug">
+                        Both the <strong>Top KDE Curve</strong> and the <strong>Bottom Violin / Raincloud</strong> use the same mathematical Kernel Density Estimate!
+                    </p>
+                </div>
+
+                <!-- KDE Bandwidth (h) -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <label class="font-medium text-slate-800">KDE Smoothing Bandwidth (<span class="italic font-serif">h</span>)</label>
+                        <span id="val-kde-bw" class="font-mono font-semibold text-indigo-600">0.60</span>
+                    </div>
+                    <input id="ctrl-kde-bw" type="range" min="0.15" max="2.5" step="0.05" value="0.60" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Width of the smoothing kernel. Small values (<span class="text-slate-600 font-medium">0.15–0.30</span>) create noisy spikes; large values (<span class="text-slate-600 font-medium">&gt;1.2</span>) flatten peaks. <span class="text-indigo-700 font-medium">Suggested: 0.50–0.80</span>.</p>
+                </div>
+
+                <!-- Kernel Function -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-800 mb-1">Kernel Smoothing Function</label>
+                    <select id="ctrl-kernel" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="gaussian">Gaussian (Smooth Bell)</option>
+                        <option value="epanechnikov">Epanechnikov (Parabolic)</option>
+                        <option value="boxcar">Boxcar / Uniform (Jagged Step)</option>
+                    </select>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Shape of the weight function placed over each point. <span class="text-indigo-700 font-medium">Suggested: Gaussian</span> for smooth curves, or <span class="text-slate-600 font-medium">Boxcar</span> to see step-like averaging.</p>
+                </div>
+
+                <!-- Optional Violin Bandwidth Override -->
+                <div class="space-y-1.5 bg-white p-2.5 rounded-lg border border-indigo-100">
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                            <input id="chk-sync-bw" type="checkbox" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <span>Lock Violin <span class="italic font-serif">h</span> to Top KDE</span>
+                        </label>
+                        <span id="val-violin-bw" class="text-xs font-mono font-semibold text-purple-600">0.60</span>
+                    </div>
+                    <input id="ctrl-violin-bw" type="range" min="0.15" max="2.5" step="0.05" value="0.60" disabled class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer disabled:opacity-40">
+                    <p class="text-[11px] text-slate-500 leading-snug">Uncheck if you want to compare a different bandwidth in the Violin / Raincloud against the top KDE curve.</p>
+                </div>
+
+                <!-- Shared Horizontal X-Axis Domain Lock -->
+                <div class="bg-white p-2.5 rounded-lg border border-indigo-100">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-700">Shared X-Axis Domain</span>
+                        <label class="flex items-center space-x-1.5 text-xs text-indigo-700 font-semibold cursor-pointer">
+                            <input id="chk-autoscale" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <span>Auto-Fit Data</span>
+                        </label>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Keep unchecked (<span class="text-slate-600 font-medium">Fixed [-10, 14]</span>) to see distributions shift/stretch relative to a fixed ruler, or check to zoom tightly around the data.</p>
+                </div>
+            </div>
+
+            <!-- Section 3: Top Panel (Histogram & Overlays) -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3.5">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-950 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                    3. Top Panel: Histogram &amp; Layers
+                </h2>
+
+                <!-- Layer Visibility Checkboxes -->
+                <div class="grid grid-cols-3 gap-2 pt-0.5">
+                    <label class="flex items-center space-x-1.5 text-xs text-slate-700 cursor-pointer select-none bg-white p-2 rounded-lg border border-slate-200">
+                        <input id="chk-hist" type="checkbox" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+                        <span>Histogram</span>
+                    </label>
+                    <label class="flex items-center space-x-1.5 text-xs text-slate-700 cursor-pointer select-none bg-white p-2 rounded-lg border border-slate-200">
+                        <input id="chk-kde" type="checkbox" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+                        <span>KDE Curve</span>
+                    </label>
+                    <label class="flex items-center space-x-1.5 text-xs text-slate-700 cursor-pointer select-none bg-white p-2 rounded-lg border border-slate-200">
+                        <input id="chk-rug" type="checkbox" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+                        <span>Rug Ticks</span>
+                    </label>
+                </div>
+
+                <!-- Y-Axis Scale Mode -->
+                <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-700">Y-Axis Scale</span>
+                        <div class="flex rounded-md bg-slate-100 p-0.5 text-xs">
+                            <button id="btn-scale-density" class="px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm font-medium transition">Density</button>
+                            <button id="btn-scale-count" class="px-2.5 py-1 rounded-md text-slate-600 font-medium transition">Count</button>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1.5 leading-snug"><span class="text-slate-600 font-medium">Density</span> scales total bar area to 1.0 (true probability density). <span class="text-slate-600 font-medium">Count</span> shows raw number of items per bin.</p>
+                </div>
+
+                <!-- Number of Bins -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <label class="font-medium text-slate-700">Histogram Bins</label>
+                        <span id="val-bins" class="font-mono font-semibold text-sky-600">24</span>
+                    </div>
+                    <input id="ctrl-bins" type="range" min="5" max="60" step="1" value="24" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Divides the X-axis into equal intervals. Too few (<span class="text-slate-600 font-medium">5–8</span>) hides shape; too many (<span class="text-slate-600 font-medium">45–60</span>) creates noisy gaps. <span class="text-sky-700 font-medium">Suggested: 20–30</span>.</p>
+                </div>
+
+                <!-- Bin Alignment / Anchor Shift -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <label class="font-medium text-slate-700">Bin Edge Shift (Anchor)</label>
+                        <span id="val-shift" class="font-mono font-semibold text-sky-600">0.00</span>
+                    </div>
+                    <input id="ctrl-shift" type="range" min="-0.5" max="0.5" step="0.05" value="0.0" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Nudges bin boundaries left/right without changing the data. Slide slowly to see how histogram bars can change height while the KDE curve stays rock-solid!</p>
+                </div>
+            </div>
+
+            <!-- Section 4: Box, Violin & Raincloud Controls -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3.5">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-950 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-purple-600"></span>
+                    4. Bottom Panel: Box, Violin &amp; Raincloud
+                </h2>
+
+                <!-- Layout Mode (Nested | Split | Raincloud) -->
+                <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs font-medium text-slate-700">Arrangement</span>
+                        <div class="flex rounded-md bg-slate-100 p-0.5 text-xs">
+                            <button id="btn-layout-nested" class="px-2 py-1 rounded-md bg-white text-slate-800 shadow-sm font-medium transition">Nested</button>
+                            <button id="btn-layout-split" class="px-2 py-1 rounded-md text-slate-600 font-medium transition">Split</button>
+                            <button id="btn-layout-raincloud" class="px-2 py-1 rounded-md text-slate-600 font-medium transition">Raincloud</button>
+                        </div>
+                    </div>
+                    <p id="layout-desc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Choose <span class="text-slate-600 font-medium">Nested</span> to place the Box Plot inside the Violin, <span class="text-slate-600 font-medium">Split</span> to separate them, or <span class="text-purple-700 font-medium">Raincloud</span> for Half-Violin ("Cloud") + Box + Jittered ("Rain").</p>
+                </div>
+
+                <!-- Whisker Definition -->
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Box Plot Whisker Rule</label>
+                    <select id="ctrl-whisker" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="tukey">Tukey (1.5 × IQR + Outlier Dots)</option>
+                        <option value="minmax">Min / Max (Full Data Range)</option>
+                        <option value="percentile">Percentiles (5th to 95th)</option>
+                    </select>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Defines how far the horizontal whiskers extend from the Q1–Q3 box. <span class="text-purple-700 font-medium">Suggested: Tukey (1.5×IQR)</span> to flag outliers as individual red dots.</p>
+                </div>
+
+                <!-- Extra Toggles: Mean Diamond & Jittered Points -->
+                <div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer select-none bg-white p-2 rounded-lg border border-slate-200">
+                            <input id="chk-mean" type="checkbox" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <span>Mean Marker (◆)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer select-none bg-white p-2 rounded-lg border border-slate-200">
+                            <input id="chk-jitter" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <span>Jittered ("Rain")</span>
+                        </label>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1.5 leading-snug">Enable <span class="text-slate-600 font-medium">Jittered ("Rain")</span> to reveal the raw data cloud (automatically enabled when switching to <span class="text-purple-700 font-medium">Raincloud</span> mode).</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Column: Synchronized Visualization Canvas -->
+        <main class="flex-1 flex flex-col p-4 sm:p-6 gap-4 overflow-y-auto lg:overflow-hidden bg-slate-50">
+
+            <!-- Interactive Pedagogical Banner -->
+            <div class="bg-white border border-slate-200 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-sm shrink-0">
+                <div class="flex items-center space-x-2 text-xs text-slate-600">
+                    <span class="px-2 py-0.5 bg-indigo-100 text-indigo-800 font-semibold rounded-md">Interactive Tip</span>
+                    <span id="pedagogical-tip">Hover over <strong>Histogram bars</strong>, <strong>KDE/Violin curves</strong>, <strong>Box Plot quartiles/whiskers</strong>, or <strong>Outlier dots</strong> to inspect exact values and formulas!</span>
+                </div>
+                <div class="flex items-center space-x-4 text-xs">
+                    <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 inline-block bg-sky-400/50 border border-sky-600 rounded-sm"></span> Histogram</span>
+                    <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-0.5 inline-block bg-indigo-600"></span> KDE Curve</span>
+                    <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 inline-block bg-purple-400/30 border border-purple-600 rounded-sm"></span> Violin / Cloud</span>
+                    <span class="flex items-center gap-1 text-slate-600"><span class="w-2.5 h-2.5 inline-block bg-sky-500 rounded-full"></span> Raindrops</span>
+                </div>
+            </div>
+
+            <!-- Visualization Stack Container -->
+            <div class="flex-1 flex flex-col gap-4 min-h-[540px]">
+
+                <!-- TOP CANVAS: Histogram & Density Plot (55% height) -->
+                <div class="flex-[11] bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-1 z-10 pointer-events-none">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800">Panel A: Histogram &amp; Kernel Density Estimate (KDE)</h3>
+                            <p class="text-xs text-slate-500" id="top-subtitle">Continuous probability density vs. discrete binning intervals</p>
+                        </div>
+                        <div id="hover-readout-top" class="opacity-0 transition-opacity bg-slate-900 text-white text-xs font-mono px-2.5 py-1 rounded-md shadow">
+                            x = 0.00
+                        </div>
+                    </div>
+                    <div id="canvas-top" class="flex-1 w-full h-full relative"></div>
+                </div>
+
+                <!-- BOTTOM CANVAS: Box Plot, Violin & Raincloud Plot (45% height) -->
+                <div class="flex-[9] bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-1 z-10 pointer-events-none">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800" id="bottom-title">Panel B: Horizontally Aligned Violin &amp; Box Plot</h3>
+                            <p class="text-xs text-slate-500" id="bottom-subtitle">Mirrored KDE shape paired with five-number summary quartiles</p>
+                        </div>
+                    </div>
+                    <div id="canvas-bottom" class="flex-1 w-full h-full relative"></div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Rich Inspection Tooltip -->
+    <div id="floating-tooltip" class="fixed pointer-events-none z-50 opacity-0 transition-opacity duration-75 bg-slate-900/95 text-white text-xs rounded-xl px-3.5 py-2.5 shadow-xl border border-slate-700 max-w-xs backdrop-blur-sm"></div>
+
+    <!-- Application Logic -->
+    <script>
+        // ==========================================
+        // 1. APPLICATION STATE & CONFIGURATION
+        // ==========================================
+        const state = {
+            // Dataset parameters
+            shape: 'normal',
+            n: 250,
+            mean: 0.0,
+            sd: 1.5,
+            bimodalSep: 4.5,
+            outliers: 0,
+            rawData: [],
+            jitterOffsets: [],
+            basePool: [],
+            outlierPool: [],
+
+            // Top Panel (Histogram & KDE)
+            showHist: true,
+            showKDE: true,
+            showRug: true,
+            yScaleMode: 'density', // 'density' or 'count'
+            bins: 24,
+            binShift: 0.0,
+            kdeBandwidth: 0.60,
+            kernelType: 'gaussian',
+
+            // Bottom Panel (Box, Violin & Raincloud)
+            layoutMode: 'nested', // 'nested', 'split', or 'raincloud'
+            syncBandwidth: true,
+            violinBandwidth: 0.60,
+            whiskerMode: 'tukey', // 'tukey', 'minmax', 'percentile'
+            showMean: true,
+            showJitter: false,
+
+            // Shared Axis & Interactivity
+            autoScaleX: false,
+            defaultDomain: [-10, 14],
+            showKernelPreview: false,
+            hoverX: null
+        };
+
+        // Summary statistics object
+        let stats = {
+            mean: 0,
+            sd: 1,
+            min: 0,
+            q1: 0,
+            median: 0,
+            q3: 0,
+            max: 0,
+            iqr: 0,
+            whiskerLow: 0,
+            whiskerHigh: 0,
+            outlierPoints: []
+        };
+
+        // Shared D3 Margins
+        const margin = { top: 20, right: 30, bottom: 32, left: 55 };
+
+        // Render context for synchronized curve tracing
+        let renderContext = {
+            xScale: null,
+            yScaleTop: null,
+            violinYScale: null,
+            violinCenterY: 0,
+            isDensity: true,
+            totalN: 250,
+            binWidth: 1
+        };
+
+        // ==========================================
+        // 2. STATISTICAL & MATH ENGINE
+        // ==========================================
+
+        const MAX_POOL_SIZE = 1000;
+        const MAX_OUTLIERS = 10;
+
+        // Standard Normal random variable via Box-Muller Transform
+        function randomNormal(mean = 0, sd = 1) {
+            let u = 0, v = 0;
+            while (u === 0) u = Math.random();
+            while (v === 0) v = Math.random();
+            const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+            return mean + z * sd;
+        }
+
+        // Generate a fixed pool of standardized random variables (only called on init or Resample button)
+        function initRandomPools() {
+            state.basePool = [];
+            for (let i = 0; i < MAX_POOL_SIZE; i++) {
+                state.basePool.push({
+                    z: randomNormal(0, 1),          // Standard normal N(0,1)
+                    u: Math.random(),               // Uniform [0,1]
+                    cluster: Math.random() < 0.5 ? -1 : 1, // Bimodal peak assignment
+                    jitter: Math.random() - 0.5     // Stable vertical jitter offset [-0.5, 0.5]
+                });
+            }
+            state.outlierPool = [];
+            for (let j = 0; j < MAX_OUTLIERS; j++) {
+                state.outlierPool.push({
+                    side: j % 2 === 0 ? 1 : -1,
+                    u: Math.random(),
+                    jitter: Math.random() - 0.5
+                });
+            }
+        }
+
+        // Deterministically transform the stored random pool using current slider parameters
+        function updateDatasetFromPools() {
+            if (state.basePool.length === 0) {
+                initRandomPools();
+            }
+
+            const combined = [];
+            const { shape, n, mean, sd, bimodalSep, outliers } = state;
+
+            for (let i = 0; i < n; i++) {
+                const pt = state.basePool[i];
+                let val = 0;
+                if (shape === 'normal') {
+                    val = mean + pt.z * sd;
+                } else if (shape === 'skewed') {
+                    const sigmaLog = Math.min(0.95, 0.25 + sd * 0.22);
+                    const rawLogNorm = Math.exp(pt.z * sigmaLog);
+                    val = mean - 2.0 + rawLogNorm * (sd * 0.85);
+                } else if (shape === 'bimodal') {
+                    const peakShift = (bimodalSep / 2) * pt.cluster;
+                    val = (mean + peakShift) + pt.z * (sd * 0.65);
+                } else if (shape === 'uniform') {
+                    const halfWidth = sd * Math.sqrt(3);
+                    val = mean + (pt.u * 2 - 1) * halfWidth;
+                }
+                combined.push({ val, jitter: pt.jitter });
+            }
+
+            // Deterministically transform injected extreme outliers
+            for (let j = 0; j < outliers; j++) {
+                const opt = state.outlierPool[j];
+                const extremeVal = mean + opt.side * (sd * 3.6 + 2.5 + opt.u * 2.5);
+                combined.push({ val: extremeVal, jitter: opt.jitter });
+            }
+
+            combined.sort((a, b) => d3.ascending(a.val, b.val));
+            state.rawData = combined.map(d => d.val);
+            state.jitterOffsets = combined.map(d => d.jitter);
+
+            computeSummaryStatistics();
+        }
+
+        // Calculate Five-Number Summary, Mean, SD, and Whisker bounds
+        function computeSummaryStatistics() {
+            const data = state.rawData;
+            const n = data.length;
+            if (n === 0) return;
+
+            stats.mean = d3.mean(data);
+            stats.sd = d3.deviation(data) || 0;
+            stats.min = data[0];
+            stats.max = data[n - 1];
+            stats.q1 = d3.quantileSorted(data, 0.25);
+            stats.median = d3.quantileSorted(data, 0.50);
+            stats.q3 = d3.quantileSorted(data, 0.75);
+            stats.iqr = stats.q3 - stats.q1;
+
+            // Calculate whiskers and outliers according to selected rule
+            if (state.whiskerMode === 'tukey') {
+                const lowFence = stats.q1 - 1.5 * stats.iqr;
+                const highFence = stats.q3 + 1.5 * stats.iqr;
+                // Find lowest and highest non-outlier points inside fences
+                const inside = data.filter(d => d >= lowFence && d <= highFence);
+                stats.whiskerLow = inside.length ? inside[0] : stats.q1;
+                stats.whiskerHigh = inside.length ? inside[inside.length - 1] : stats.q3;
+                stats.outlierPoints = data.filter(d => d < lowFence || d > highFence);
+            } else if (state.whiskerMode === 'minmax') {
+                stats.whiskerLow = stats.min;
+                stats.whiskerHigh = stats.max;
+                stats.outlierPoints = [];
+            } else if (state.whiskerMode === 'percentile') {
+                stats.whiskerLow = d3.quantileSorted(data, 0.05);
+                stats.whiskerHigh = d3.quantileSorted(data, 0.95);
+                stats.outlierPoints = data.filter(d => d < stats.whiskerLow || d > stats.whiskerHigh);
+            }
+
+            // Update Top Live Summary Bar
+            document.getElementById('stat-n').textContent = n;
+            document.getElementById('stat-mean').textContent = stats.mean.toFixed(2);
+            document.getElementById('stat-median').textContent = stats.median.toFixed(2);
+            document.getElementById('stat-sd').textContent = stats.sd.toFixed(2);
+            document.getElementById('stat-iqr').textContent = stats.iqr.toFixed(2);
+        }
+
+        // Kernel Smoothing Functions
+        function getKernelFunction(type, bandwidth) {
+            if (type === 'gaussian') {
+                return function(u) {
+                    const z = u / bandwidth;
+                    return (1 / (Math.sqrt(2 * Math.PI) * bandwidth)) * Math.exp(-0.5 * z * z);
+                };
+            } else if (type === 'epanechnikov') {
+                return function(u) {
+                    const z = u / bandwidth;
+                    return Math.abs(z) <= 1 ? (0.75 * (1 - z * z)) / bandwidth : 0;
+                };
+            } else {
+                // Boxcar / Uniform kernel
+                return function(u) {
+                    const z = u / bandwidth;
+                    return Math.abs(z) <= 1 ? 0.5 / bandwidth : 0;
+                };
+            }
+        }
+
+        // Evaluate KDE at a single x coordinate
+        function evaluateKDEAt(x, data, bandwidth, kernelType) {
+            const kernel = getKernelFunction(kernelType, bandwidth);
+            const n = data.length;
+            if (n === 0) return 0;
+            let sum = 0;
+            for (let i = 0; i < n; i++) {
+                sum += kernel(x - data[i]);
+            }
+            return sum / n;
+        }
+
+        // Compute Kernel Density Estimation across a grid of x ticks
+        function computeKDE(data, xGrid, bandwidth, kernelType) {
+            return xGrid.map(x => [x, evaluateKDEAt(x, data, bandwidth, kernelType)]);
+        }
+
+        // ==========================================
+        // 3. D3.JS VISUALIZATION SETUP & RENDERING
+        // ==========================================
+
+        const topContainer = document.getElementById('canvas-top');
+        const bottomContainer = document.getElementById('canvas-bottom');
+        const tooltipEl = document.getElementById('floating-tooltip');
+
+        const svgTop = d3.select('#canvas-top').append('svg').attr('width', '100%').attr('height', '100%');
+        const svgBottom = d3.select('#canvas-bottom').append('svg').attr('width', '100%').attr('height', '100%');
+
+        const gTop = svgTop.append('g');
+        const gBottom = svgBottom.append('g');
+
+        // Tooltip Helper Functions
+        function showTooltip(event, htmlContent) {
+            tooltipEl.innerHTML = htmlContent;
+            tooltipEl.classList.remove('opacity-0');
+            moveTooltip(event);
+        }
+
+        function moveTooltip(event) {
+            const pad = 14;
+            const rect = tooltipEl.getBoundingClientRect();
+            let left = event.clientX + pad;
+            let top = event.clientY + pad;
+
+            if (left + rect.width > window.innerWidth - 12) {
+                left = event.clientX - rect.width - pad;
+            }
+            if (top + rect.height > window.innerHeight - 12) {
+                top = event.clientY - rect.height - pad;
+            }
+            tooltipEl.style.left = `${Math.max(8, left)}px`;
+            tooltipEl.style.top = `${Math.max(8, top)}px`;
+        }
+
+        function hideTooltip() {
+            tooltipEl.classList.add('opacity-0');
+        }
+
+        // Shared X-Axis Domain Resolver
+        function getSharedXDomain() {
+            if (state.autoScaleX && state.rawData.length > 0) {
+                const pad = Math.max(1.0, stats.sd * 0.75);
+                return [stats.min - pad, stats.max + pad];
+            }
+            return state.defaultDomain;
+        }
+
+        // Main Render Function
+        function renderAll() {
+            computeSummaryStatistics();
+
+            const xDomain = getSharedXDomain();
+
+            // Render Top Panel (Histogram & KDE)
+            renderTopPanel(xDomain);
+
+            // Render Bottom Panel (Violin, Box Plot & Raincloud)
+            renderBottomPanel(xDomain);
+        }
+
+        // ------------------------------------------
+        // PANEL A: HISTOGRAM & KDE DENSITY
+        // ------------------------------------------
+        function renderTopPanel(xDomain) {
+            const rect = topContainer.getBoundingClientRect();
+            const width = Math.max(300, rect.width) - margin.left - margin.right;
+            const height = Math.max(180, rect.height) - margin.top - margin.bottom;
+
+            gTop.attr('transform', `translate(${margin.left},${margin.top})`);
+            gTop.selectAll('*').remove();
+
+            const xScale = d3.scaleLinear().domain(xDomain).range([0, width]);
+
+            // Construct shifted bin thresholds so user can see bin-edge anchor artifacts
+            const [xMin, xMax] = xDomain;
+            const binWidth = (xMax - xMin) / state.bins;
+            const shiftOffset = state.binShift * binWidth;
+
+            const thresholds = [];
+            for (let k = -1; k <= state.bins + 1; k++) {
+                thresholds.push(xMin + k * binWidth + shiftOffset);
+            }
+
+            const histogramGenerator = d3.bin()
+                .domain([xMin - binWidth, xMax + binWidth])
+                .thresholds(thresholds);
+
+            const binsData = histogramGenerator(state.rawData);
+            const totalN = state.rawData.length;
+
+            // Compute KDE curve points (180 points across domain)
+            const xGrid = d3.range(xMin, xMax, (xMax - xMin) / 180);
+            xGrid.push(xMax);
+            const kdePoints = computeKDE(state.rawData, xGrid, state.kdeBandwidth, state.kernelType);
+
+            // Determine Y-Axis Scale (Density vs Frequency Count)
+            const isDensity = state.yScaleMode === 'density';
+
+            // Convert bin counts to density or raw counts
+            const getBinYValue = (b) => {
+                const w = Math.max(1e-6, b.x1 - b.x0);
+                return isDensity ? (b.length / (totalN * w)) : b.length;
+            };
+
+            // Convert KDE density to match y-axis scale (if Count mode is active, scale KDE by N * binWidth)
+            const getKDEYValue = (d) => {
+                return isDensity ? d[1] : (d[1] * totalN * binWidth);
+            };
+
+            const maxHistY = state.showHist ? (d3.max(binsData, getBinYValue) || 0.1) : 0;
+            const maxKdeY = state.showKDE ? (d3.max(kdePoints, getKDEYValue) || 0.1) : 0;
+            const yMax = Math.max(maxHistY, maxKdeY, isDensity ? 0.15 : 5) * 1.15;
+
+            const yScale = d3.scaleLinear().domain([0, yMax]).range([height, 0]);
+
+            // Store references for synchronized curve tracing
+            renderContext.xScale = xScale;
+            renderContext.yScaleTop = yScale;
+            renderContext.isDensity = isDensity;
+            renderContext.totalN = totalN;
+            renderContext.binWidth = binWidth;
+
+            // Background Gridlines
+            gTop.append('g')
+                .attr('class', 'axis-grid')
+                .call(d3.axisLeft(yScale).ticks(5).tickSize(-width).tickFormat(''));
+
+            // Background Mouse Tracking Rect for Curve Tracing
+            gTop.append('rect')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('fill', 'transparent')
+                .style('cursor', 'crosshair')
+                .on('mousemove', (event) => {
+                    const [mx] = d3.pointer(event);
+                    const xVal = xScale.invert(mx);
+                    updateSynchronizedCrosshair(xVal, event, true);
+                })
+                .on('mouseleave', () => {
+                    clearSynchronizedCrosshair();
+                    hideTooltip();
+                });
+
+            // 1. Draw Histogram Bars (Interactive on Hover)
+            if (state.showHist) {
+                gTop.append('g')
+                    .selectAll('rect.hist-bar')
+                    .data(binsData)
+                    .join('rect')
+                    .attr('class', 'hist-bar transition-colors duration-75')
+                    .attr('x', d => Math.max(0, xScale(d.x0) + 1))
+                    .attr('y', d => yScale(getBinYValue(d)))
+                    .attr('width', d => {
+                        const x0 = Math.max(0, xScale(d.x0));
+                        const x1 = Math.min(width, xScale(d.x1));
+                        return Math.max(0, x1 - x0 - 1.5);
+                    })
+                    .attr('height', d => Math.max(0, height - yScale(getBinYValue(d))))
+                    .attr('rx', 2)
+                    .attr('fill', '#38bdf8')
+                    .attr('fill-opacity', 0.45)
+                    .attr('stroke', '#0284c7')
+                    .attr('stroke-width', 1)
+                    .style('cursor', 'pointer')
+                    .on('mouseenter', function(event, d) {
+                        d3.select(this).attr('fill', '#0284c7').attr('fill-opacity', 0.75);
+                    })
+                    .on('mousemove', function(event, d) {
+                        const [mx] = d3.pointer(event, gTop.node());
+                        const xVal = xScale.invert(mx);
+                        updateSynchronizedCrosshair(xVal, event, false);
+
+                        const count = d.length;
+                        const relFreq = totalN > 0 ? (count / totalN) : 0;
+                        const w = Math.max(1e-6, d.x1 - d.x0);
+                        const binDensity = totalN > 0 ? (count / (totalN * w)) : 0;
+                        const kdeAtX = evaluateKDEAt(xVal, state.rawData, state.kdeBandwidth, state.kernelType);
+
+                        showTooltip(event, `
+                            <div class="font-bold text-sky-400 border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between">
+                                <span>Histogram Bin</span>
+                                <span class="font-mono text-[11px] text-slate-300">[${d.x0.toFixed(2)}, ${d.x1.toFixed(2)})</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-[11px]">
+                                <span class="text-slate-400">Count (n):</span>
+                                <span class="text-right font-semibold text-white">${count} / ${totalN}</span>
+                                <span class="text-slate-400">Rel. Frequency:</span>
+                                <span class="text-right font-semibold text-emerald-400">${(relFreq * 100).toFixed(2)}% (${relFreq.toFixed(3)})</span>
+                                <span class="text-slate-400">Bin Density:</span>
+                                <span class="text-right text-sky-300">${binDensity.toFixed(4)}</span>
+                                <span class="text-slate-400">KDE at x=${xVal.toFixed(2)}:</span>
+                                <span class="text-right text-indigo-300">${kdeAtX.toFixed(4)}</span>
+                            </div>
+                            <div class="mt-1.5 pt-1 border-t border-slate-800 text-[10px] text-slate-400 font-mono">
+                                Density = Count / (N × BinWidth) = ${count} / (${totalN} × ${w.toFixed(2)})
+                            </div>
+                        `);
+                    })
+                    .on('mouseleave', function() {
+                        d3.select(this).attr('fill', '#38bdf8').attr('fill-opacity', 0.45);
+                        clearSynchronizedCrosshair();
+                        hideTooltip();
+                    });
+            }
+
+            // 2. Draw KDE Density Area & Curve
+            if (state.showKDE) {
+                const areaGen = d3.area()
+                    .x(d => xScale(d[0]))
+                    .y0(height)
+                    .y1(d => yScale(getKDEYValue(d)))
+                    .curve(d3.curveBasis);
+
+                const lineGen = d3.line()
+                    .x(d => xScale(d[0]))
+                    .y(d => yScale(getKDEYValue(d)))
+                    .curve(d3.curveBasis);
+
+                // Overall subtle KDE fill
+                gTop.append('path')
+                    .datum(kdePoints)
+                    .attr('fill', '#6366f1')
+                    .attr('fill-opacity', 0.18)
+                    .attr('pointer-events', 'none')
+                    .attr('d', areaGen);
+
+                // KDE Stroke Line
+                gTop.append('path')
+                    .datum(kdePoints)
+                    .attr('fill', 'none')
+                    .attr('stroke', '#4338ca')
+                    .attr('stroke-width', 2.5)
+                    .attr('pointer-events', 'none')
+                    .attr('d', lineGen);
+            }
+
+            // 3. Draw Rug Plot (Individual 1D ticks at bottom of Top Panel)
+            if (state.showRug) {
+                gTop.append('g')
+                    .attr('pointer-events', 'none')
+                    .selectAll('line')
+                    .data(state.rawData.filter(d => d >= xMin && d <= xMax))
+                    .join('line')
+                    .attr('x1', d => xScale(d))
+                    .attr('x2', d => xScale(d))
+                    .attr('y1', height - 8)
+                    .attr('y2', height)
+                    .attr('stroke', '#334155')
+                    .attr('stroke-width', 1)
+                    .attr('stroke-opacity', 0.45);
+            }
+
+            // 4. Visual Reference Kernel Indicator (when dragging Bandwidth slider)
+            if (state.showKernelPreview) {
+                const kernelFn = getKernelFunction(state.kernelType, state.kdeBandwidth);
+                const center = stats.mean;
+                const previewGrid = d3.range(center - state.kdeBandwidth * 2.5, center + state.kdeBandwidth * 2.5, 0.05);
+                const peakVal = kernelFn(0);
+                const previewPts = previewGrid.map(x => [x, (kernelFn(x - center) / peakVal) * (yMax * 0.35)]);
+
+                const previewLine = d3.line()
+                    .x(d => xScale(d[0]))
+                    .y(d => yScale(d[1]))
+                    .curve(d3.curveBasis);
+
+                gTop.append('path')
+                    .datum(previewPts)
+                    .attr('fill', '#f59e0b')
+                    .attr('fill-opacity', 0.25)
+                    .attr('stroke', '#d97706')
+                    .attr('stroke-width', 2)
+                    .attr('stroke-dasharray', '3,3')
+                    .attr('pointer-events', 'none')
+                    .attr('d', previewLine);
+
+                gTop.append('text')
+                    .attr('x', xScale(center))
+                    .attr('y', yScale(yMax * 0.38))
+                    .attr('text-anchor', 'middle')
+                    .attr('pointer-events', 'none')
+                    .attr('class', 'text-[11px] font-mono font-semibold fill-amber-700')
+                    .text(`Single Kernel (h = ${state.kdeBandwidth.toFixed(2)})`);
+            }
+
+            // 5. Axes
+            const xAxis = d3.axisBottom(xScale).ticks(10);
+            const yAxis = d3.axisLeft(yScale).ticks(5);
+
+            gTop.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .attr('class', 'text-slate-600')
+                .call(xAxis);
+
+            gTop.append('g')
+                .attr('class', 'text-slate-600')
+                .call(yAxis);
+
+            // Y-Axis Label
+            gTop.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -height / 2)
+                .attr('y', -40)
+                .attr('text-anchor', 'middle')
+                .attr('class', 'text-[11px] font-medium fill-slate-500')
+                .text(isDensity ? 'Probability Density' : 'Frequency Count');
+
+            // Crosshair Overlay Line & Curve Tracer Dot
+            gTop.append('line')
+                .attr('class', 'crosshair-line')
+                .attr('y1', 0).attr('y2', height)
+                .attr('stroke', '#0f172a')
+                .attr('stroke-width', 1.2)
+                .attr('stroke-dasharray', '4,4')
+                .attr('pointer-events', 'none')
+                .style('opacity', 0);
+
+            gTop.append('circle')
+                .attr('class', 'kde-tracer-top')
+                .attr('r', 4.5)
+                .attr('fill', '#4338ca')
+                .attr('stroke', '#ffffff')
+                .attr('stroke-width', 1.5)
+                .attr('pointer-events', 'none')
+                .style('opacity', 0);
+        }
+
+        // ------------------------------------------
+        // PANEL B: VIOLIN, BOX PLOT & RAINCLOUD PLOT
+        // ------------------------------------------
+        function renderBottomPanel(xDomain) {
+            const rect = bottomContainer.getBoundingClientRect();
+            const width = Math.max(300, rect.width) - margin.left - margin.right;
+            const height = Math.max(150, rect.height) - margin.top - margin.bottom;
+
+            gBottom.attr('transform', `translate(${margin.left},${margin.top})`);
+            gBottom.selectAll('*').remove();
+
+            const xScale = d3.scaleLinear().domain(xDomain).range([0, width]);
+            const [xMin, xMax] = xDomain;
+
+            // Update Panel B header title & subtitle dynamically
+            const bottomTitleEl = document.getElementById('bottom-title');
+            const bottomSubEl = document.getElementById('bottom-subtitle');
+            if (state.layoutMode === 'raincloud') {
+                bottomTitleEl.textContent = 'Panel B: Raincloud Plot (Half-Violin Cloud + Box Plot + Jittered Raindrops)';
+                bottomSubEl.textContent = 'Non-overlapping hybrid view: Upper KDE ("Cloud"), central quartiles ("Umbrella"), and raw points ("Rain")';
+            } else if (state.layoutMode === 'split') {
+                bottomTitleEl.textContent = 'Panel B: Split Violin & Box Plot';
+                bottomSubEl.textContent = 'Side-by-side comparison of mirrored KDE shape and five-number summary quartiles';
+            } else {
+                bottomTitleEl.textContent = 'Panel B: Horizontally Aligned Violin & Box Plot';
+                bottomSubEl.textContent = 'Mirrored KDE shape paired with five-number summary quartiles';
+            }
+
+            // Background vertical grid lines matching top panel
+            gBottom.append('g')
+                .attr('class', 'axis-grid')
+                .call(d3.axisBottom(xScale).ticks(10).tickSize(height).tickFormat(''));
+
+            // Background Mouse Tracking Rect for Synchronized Curve Tracing
+            gBottom.append('rect')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('fill', 'transparent')
+                .style('cursor', 'crosshair')
+                .on('mousemove', (event) => {
+                    const [mx] = d3.pointer(event);
+                    const xVal = xScale.invert(mx);
+                    updateSynchronizedCrosshair(xVal, event, true);
+                })
+                .on('mouseleave', () => {
+                    clearSynchronizedCrosshair();
+                    hideTooltip();
+                });
+
+            // Compute Violin KDE using violinBandwidth
+            const vBw = state.syncBandwidth ? state.kdeBandwidth : state.violinBandwidth;
+            const xGrid = d3.range(xMin, xMax, (xMax - xMin) / 180);
+            xGrid.push(xMax);
+            const violinKDE = computeKDE(state.rawData, xGrid, vBw, state.kernelType);
+            const maxDensity = d3.max(violinKDE, d => d[1]) || 0.1;
+
+            // Vertical Center Positions depending on Nested vs Split vs Raincloud mode
+            const mode = state.layoutMode;
+            const isNested = mode === 'nested';
+            const isRaincloud = mode === 'raincloud';
+
+            let violinCenterY, boxCenterY, rainCenterY, maxViolinHalfHeight, boxHeight;
+
+            if (isNested) {
+                violinCenterY = height * 0.50;
+                boxCenterY = height * 0.50;
+                rainCenterY = height * 0.50;
+                maxViolinHalfHeight = height * 0.42;
+                boxHeight = 28;
+            } else if (mode === 'split') {
+                violinCenterY = height * 0.34;
+                boxCenterY = height * 0.76;
+                rainCenterY = height * 0.76;
+                maxViolinHalfHeight = height * 0.28;
+                boxHeight = 26;
+            } else {
+                // Raincloud layout: Top Half-Violin ("Cloud"), Middle slim Box Plot, Bottom Jittered ("Rain")
+                violinCenterY = height * 0.43;
+                maxViolinHalfHeight = height * 0.36;
+                boxCenterY = height * 0.54;
+                boxHeight = 16;
+                rainCenterY = height * 0.79;
+            }
+
+            // Scale mapping KDE density to vertical pixel thickness
+            const violinYScale = d3.scaleLinear()
+                .domain([0, maxDensity])
+                .range([0, maxViolinHalfHeight]);
+
+            renderContext.violinYScale = violinYScale;
+            renderContext.violinCenterY = violinCenterY;
+
+            // 1. Draw Violin Area (Mirrored for Nested/Split, Upper Half-Violin "Cloud" for Raincloud)
+            const violinArea = d3.area()
+                .x(d => xScale(d[0]))
+                .y0(d => violinCenterY - violinYScale(d[1]))
+                .y1(d => isRaincloud ? violinCenterY : (violinCenterY + violinYScale(d[1])))
+                .curve(d3.curveBasis);
+
+            gBottom.append('path')
+                .datum(violinKDE)
+                .attr('fill', '#a855f7')
+                .attr('fill-opacity', isRaincloud ? 0.32 : 0.25)
+                .attr('stroke', '#7e22ce')
+                .attr('stroke-width', 2)
+                .style('cursor', 'crosshair')
+                .attr('d', violinArea)
+                .on('mousemove', (event) => {
+                    const [mx] = d3.pointer(event, gBottom.node());
+                    const xVal = xScale.invert(mx);
+                    updateSynchronizedCrosshair(xVal, event, true);
+                })
+                .on('mouseleave', () => {
+                    clearSynchronizedCrosshair();
+                    hideTooltip();
+                });
+
+            // Center / Baseline axis line for Violin or Cloud
+            gBottom.append('line')
+                .attr('x1', 0).attr('x2', width)
+                .attr('y1', violinCenterY).attr('y2', violinCenterY)
+                .attr('stroke', '#cbd5e1')
+                .attr('stroke-width', 1)
+                .attr('stroke-dasharray', '2,2')
+                .attr('pointer-events', 'none');
+
+            // 2. Draw Optional Jittered Raw Data Points ("Raindrops")
+            if (state.showJitter) {
+                const jitterAmplitude = isRaincloud
+                    ? (height * 0.24)
+                    : isNested
+                        ? (maxViolinHalfHeight * 0.55)
+                        : (boxHeight * 0.8);
+
+                // In Raincloud mode, draw a subtle rain band background guide
+                if (isRaincloud) {
+                    gBottom.append('line')
+                        .attr('x1', 0).attr('x2', width)
+                        .attr('y1', rainCenterY).attr('y2', rainCenterY)
+                        .attr('stroke', '#e2e8f0')
+                        .attr('stroke-width', 1)
+                        .attr('stroke-dasharray', '2,4')
+                        .attr('pointer-events', 'none');
+                }
+
+                gBottom.append('g')
+                    .selectAll('circle.jitter-pt')
+                    .data(state.rawData)
+                    .join('circle')
+                    .attr('class', 'jitter-pt')
+                    .attr('cx', d => xScale(d))
+                    .attr('cy', (d, i) => rainCenterY + state.jitterOffsets[i] * jitterAmplitude)
+                    .attr('r', isRaincloud ? 3.2 : 3)
+                    .attr('fill', '#0ea5e9')
+                    .attr('fill-opacity', isRaincloud ? 0.72 : 0.65)
+                    .attr('stroke', '#0369a1')
+                    .attr('stroke-width', 0.6)
+                    .style('cursor', 'pointer')
+                    .on('mousemove', (event, d) => {
+                        updateSynchronizedCrosshair(d, event, false);
+                        showTooltip(event, `
+                            <div class="font-bold text-sky-400 border-b border-slate-700 pb-1 mb-1">${isRaincloud ? 'Raindrop (Observed Data Point)' : 'Observed Data Point'}</div>
+                            <div class="font-mono text-[11px] flex justify-between gap-4">
+                                <span class="text-slate-400">Value (x):</span>
+                                <span class="font-bold text-white">${d.toFixed(3)}</span>
+                            </div>
+                        `);
+                    })
+                    .on('mouseleave', () => {
+                        clearSynchronizedCrosshair();
+                        hideTooltip();
+                    });
+            }
+
+            // 3. Draw Box Plot Components with Rich Hover Tooltips
+            const q1X = xScale(stats.q1);
+            const q3X = xScale(stats.q3);
+            const medX = xScale(stats.median);
+            const wLowX = xScale(stats.whiskerLow);
+            const wHighX = xScale(stats.whiskerHigh);
+
+            const ruleLabel = state.whiskerMode === 'tukey'
+                ? 'Tukey Fence (1.5 × IQR)'
+                : state.whiskerMode === 'minmax'
+                    ? 'Full Range (Min / Max)'
+                    : '5th to 95th Percentile';
+
+            // Whiskers Horizontal Lines (Visible + Wide Invisible Hit Target)
+            gBottom.append('line')
+                .attr('x1', wLowX).attr('x2', q1X)
+                .attr('y1', boxCenterY).attr('y2', boxCenterY)
+                .attr('stroke', '#1e293b')
+                .attr('stroke-width', 2)
+                .attr('pointer-events', 'none');
+
+            gBottom.append('line')
+                .attr('x1', wLowX).attr('x2', q1X)
+                .attr('y1', boxCenterY).attr('y2', boxCenterY)
+                .attr('stroke', 'transparent')
+                .attr('stroke-width', 14)
+                .style('cursor', 'pointer')
+                .on('mousemove', (event) => {
+                    const [mx] = d3.pointer(event, gBottom.node());
+                    updateSynchronizedCrosshair(xScale.invert(mx), event, false);
+                    showTooltip(event, `
+                        <div class="font-bold text-slate-200 border-b border-slate-700 pb-1 mb-1.5">Lower Whisker Span</div>
+                        <div class="grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-[11px]">
+                            <span class="text-slate-400">Lower Bound:</span>
+                            <span class="text-right font-semibold text-white">${stats.whiskerLow.toFixed(2)}</span>
+                            <span class="text-slate-400">Q1 (25th %):</span>
+                            <span class="text-right font-semibold text-indigo-300">${stats.q1.toFixed(2)}</span>
+                            <span class="text-slate-400">Min (Q0):</span>
+                            <span class="text-right text-slate-300">${stats.min.toFixed(2)}</span>
+                        </div>
+                        <div class="mt-1.5 pt-1 border-t border-slate-800 text-[10px] text-slate-400">Rule: ${ruleLabel}</div>
+                    `);
+                })
+                .on('mouseleave', () => { clearSynchronizedCrosshair(); hideTooltip(); });
+
+            gBottom.append('line')
+                .attr('x1', q3X).attr('x2', wHighX)
+                .attr('y1', boxCenterY).attr('y2', boxCenterY)
+                .attr('stroke', '#1e293b')
+                .attr('stroke-width', 2)
+                .attr('pointer-events', 'none');
+
+            gBottom.append('line')
+                .attr('x1', q3X).attr('x2', wHighX)
+                .attr('y1', boxCenterY).attr('y2', boxCenterY)
+                .attr('stroke', 'transparent')
+                .attr('stroke-width', 14)
+                .style('cursor', 'pointer')
+                .on('mousemove', (event) => {
+                    const [mx] = d3.pointer(event, gBottom.node());
+                    updateSynchronizedCrosshair(xScale.invert(mx), event, false);
+                    showTooltip(event, `
+                        <div class="font-bold text-slate-200 border-b border-slate-700 pb-1 mb-1.5">Upper Whisker &amp; Q4 Span</div>
+                        <div class="grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-[11px]">
+                            <span class="text-slate-400">Q3 (75th %):</span>
+                            <span class="text-right font-semibold text-indigo-300">${stats.q3.toFixed(2)}</span>
+                            <span class="text-slate-400">Upper Whisker:</span>
+                            <span class="text-right font-semibold text-white">${stats.whiskerHigh.toFixed(2)}</span>
+                            <span class="text-slate-400">Q4 (Max / 100th %):</span>
+                            <span class="text-right font-semibold text-emerald-300">${stats.max.toFixed(2)}</span>
+                        </div>
+                        <div class="mt-1.5 pt-1 border-t border-slate-800 text-[10px] text-slate-400">Rule: ${ruleLabel}</div>
+                    `);
+                })
+                .on('mouseleave', () => { clearSynchronizedCrosshair(); hideTooltip(); });
+
+            // Whisker End Caps (Lower & Upper)
+            const capHeight = boxHeight * 0.65;
+            [
+                { x: wLowX, val: stats.whiskerLow, label: 'Lower Whisker Bound', extra: `Min (Q0): ${stats.min.toFixed(2)}` },
+                { x: wHighX, val: stats.whiskerHigh, label: 'Upper Whisker Bound (Q4 Reach)', extra: `Q4 (Max / 100th %): ${stats.max.toFixed(2)}` }
+            ].forEach(cap => {
+                gBottom.append('line')
+                    .attr('x1', cap.x).attr('x2', cap.x)
+                    .attr('y1', boxCenterY - capHeight / 2)
+                    .attr('y2', boxCenterY + capHeight / 2)
+                    .attr('stroke', '#1e293b')
+                    .attr('stroke-width', 2.5)
+                    .attr('pointer-events', 'none');
+
+                gBottom.append('line')
+                    .attr('x1', cap.x).attr('x2', cap.x)
+                    .attr('y1', boxCenterY - capHeight / 2 - 4)
+                    .attr('y2', boxCenterY + capHeight / 2 + 4)
+                    .attr('stroke', 'transparent')
+                    .attr('stroke-width', 12)
+                    .style('cursor', 'pointer')
+                    .on('mousemove', (event) => {
+                        updateSynchronizedCrosshair(cap.val, event, false);
+                        showTooltip(event, `
+                            <div class="font-bold text-amber-300 border-b border-slate-700 pb-1 mb-1">${cap.label}</div>
+                            <div class="font-mono text-[11px] space-y-0.5">
+                                <div class="flex justify-between gap-4"><span class="text-slate-400">Bound Value:</span><span class="font-bold text-white">${cap.val.toFixed(2)}</span></div>
+                                <div class="text-slate-300 text-[10px]">${cap.extra}</div>
+                                <div class="text-slate-400 text-[10px] pt-1 border-t border-slate-800">${ruleLabel}</div>
+                            </div>
+                        `);
+                    })
+                    .on('mouseleave', () => { clearSynchronizedCrosshair(); hideTooltip(); });
+            });
+
+            // Interquartile Range (IQR) Box (Q1 to Q3)
+            gBottom.append('rect')
+                .attr('x', q1X)
+                .attr('y', boxCenterY - boxHeight / 2)
+                .attr('width', Math.max(2, q3X - q1X))
+                .attr('height', boxHeight)
+                .attr('rx', isRaincloud ? 3 : 4)
+                .attr('fill', '#ffffff')
+                .attr('fill-opacity', 0.94)
+                .attr('stroke', '#312e81')
+                .attr('stroke-width', 2.2)
+                .style('cursor', 'pointer')
+                .on('mouseenter', function() {
+                    d3.select(this).attr('fill', '#eef2ff');
+                })
+                .on('mousemove', (event) => {
+                    const [mx] = d3.pointer(event, gBottom.node());
+                    updateSynchronizedCrosshair(xScale.invert(mx), event, false);
+                    showTooltip(event, `
+                        <div class="font-bold text-indigo-300 border-b border-slate-700 pb-1 mb-1.5">Box Plot Five-Number Summary &amp; IQR</div>
+                        <div class="grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-[11px]">
+                            <span class="text-slate-400">Min (Q0 / 0th %):</span>
+                            <span class="text-right text-slate-300">${stats.min.toFixed(2)}</span>
+                            <span class="text-slate-400">Q1 (25th %):</span>
+                            <span class="text-right font-semibold text-indigo-300">${stats.q1.toFixed(2)}</span>
+                            <span class="text-slate-400">Median (Q2 / 50th %):</span>
+                            <span class="text-right font-semibold text-rose-400">${stats.median.toFixed(2)}</span>
+                            <span class="text-slate-400">Q3 (75th %):</span>
+                            <span class="text-right font-semibold text-indigo-300">${stats.q3.toFixed(2)}</span>
+                            <span class="text-slate-400">Max (Q4 / 100th %):</span>
+                            <span class="text-right font-semibold text-emerald-300">${stats.max.toFixed(2)}</span>
+                            <span class="text-slate-400 border-t border-slate-800 pt-1">IQR (Q3 − Q1):</span>
+                            <span class="text-right font-bold text-white border-t border-slate-800 pt-1">${stats.iqr.toFixed(2)}</span>
+                            <span class="text-slate-400">Mean (μ):</span>
+                            <span class="text-right text-amber-400">${stats.mean.toFixed(2)}</span>
+                        </div>
+                    `);
+                })
+                .on('mouseleave', function() {
+                    d3.select(this).attr('fill', '#ffffff');
+                    clearSynchronizedCrosshair();
+                    hideTooltip();
+                });
+
+            // Dedicated Hover Targets for Q1 (Left Edge of Box) and Q3 (Right Edge of Box)
+            [
+                { x: q1X, title: 'First Quartile (Q1 — 25th Percentile)', val: stats.q1, desc: '25% of observations fall below this value.' },
+                { x: q3X, title: 'Third Quartile (Q3 — 75th Percentile)', val: stats.q3, desc: '75% of observations fall below this value.' }
+            ].forEach(qEdge => {
+                gBottom.append('line')
+                    .attr('x1', qEdge.x).attr('x2', qEdge.x)
+                    .attr('y1', boxCenterY - boxHeight / 2)
+                    .attr('y2', boxCenterY + boxHeight / 2)
+                    .attr('stroke', 'transparent')
+                    .attr('stroke-width', 10)
+                    .style('cursor', 'ew-resize')
+                    .on('mousemove', (event) => {
+                        updateSynchronizedCrosshair(qEdge.val, event, false);
+                        showTooltip(event, `
+                            <div class="font-bold text-indigo-300 border-b border-slate-700 pb-1 mb-1">${qEdge.title}</div>
+                            <div class="font-mono text-[11px] space-y-1">
+                                <div class="flex justify-between gap-4"><span class="text-slate-400">Value:</span><span class="font-bold text-white">${qEdge.val.toFixed(2)}</span></div>
+                                <div class="flex justify-between gap-4"><span class="text-slate-400">IQR (Q3 − Q1):</span><span class="text-indigo-300">${stats.iqr.toFixed(2)}</span></div>
+                            </div>
+                            <div class="mt-1 pt-1 border-t border-slate-800 text-[10px] text-slate-400">${qEdge.desc}</div>
+                        `);
+                    })
+                    .on('mouseleave', () => { clearSynchronizedCrosshair(); hideTooltip(); });
+            });
+
+            // Median Line (Q2) inside Box Plot
+            gBottom.append('line')
+                .attr('x1', medX).attr('x2', medX)
+                .attr('y1', boxCenterY - boxHeight / 2)
+                .attr('y2', boxCenterY + boxHeight / 2)
+                .attr('stroke', '#e11d48')
+                .attr('stroke-width', 3.5)
+                .attr('pointer-events', 'none');
+
+            gBottom.append('line')
+                .attr('x1', medX).attr('x2', medX)
+                .attr('y1', boxCenterY - boxHeight / 2)
+                .attr('y2', boxCenterY + boxHeight / 2)
+                .attr('stroke', 'transparent')
+                .attr('stroke-width', 12)
+                .style('cursor', 'pointer')
+                .on('mousemove', (event) => {
+                    updateSynchronizedCrosshair(stats.median, event, false);
+                    showTooltip(event, `
+                        <div class="font-bold text-rose-400 border-b border-slate-700 pb-1 mb-1">Median (Q2 — 50th Percentile)</div>
+                        <div class="font-mono text-[11px] space-y-1">
+                            <div class="flex justify-between gap-4"><span class="text-slate-400">Median (Q2):</span><span class="font-bold text-white">${stats.median.toFixed(2)}</span></div>
+                            <div class="flex justify-between gap-4"><span class="text-slate-400">Mean (μ):</span><span class="text-amber-400">${stats.mean.toFixed(2)}</span></div>
+                            <div class="flex justify-between gap-4"><span class="text-slate-400">Skew Gap (μ − Q2):</span><span class="text-slate-300">${(stats.mean - stats.median).toFixed(2)}</span></div>
+                        </div>
+                    `);
+                })
+                .on('mouseleave', () => { clearSynchronizedCrosshair(); hideTooltip(); });
+
+            // 4. Optional Mean Marker (Amber Diamond)
+            if (state.showMean) {
+                const meanX = xScale(stats.mean);
+                const diamondSize = isRaincloud ? 5.5 : 6.5;
+                gBottom.append('polygon')
+                    .attr('points', `
+                        ${meanX},${boxCenterY - diamondSize}
+                        ${meanX + diamondSize},${boxCenterY}
+                        ${meanX},${boxCenterY + diamondSize}
+                        ${meanX - diamondSize},${boxCenterY}
+                    `)
+                    .attr('fill', '#f59e0b')
+                    .attr('stroke', '#78350f')
+                    .attr('stroke-width', 1.5)
+                    .style('cursor', 'pointer')
+                    .on('mousemove', (event) => {
+                        updateSynchronizedCrosshair(stats.mean, event, false);
+                        showTooltip(event, `
+                            <div class="font-bold text-amber-400 border-b border-slate-700 pb-1 mb-1">Sample Mean (μ)</div>
+                            <div class="font-mono text-[11px] space-y-1">
+                                <div class="flex justify-between gap-4"><span class="text-slate-400">Mean (μ = Σx / n):</span><span class="font-bold text-white">${stats.mean.toFixed(2)}</span></div>
+                                <div class="flex justify-between gap-4"><span class="text-slate-400">Std Dev (s):</span><span class="text-slate-200">${stats.sd.toFixed(2)}</span></div>
+                                <div class="flex justify-between gap-4"><span class="text-slate-400">Median (Q2):</span><span class="text-rose-400">${stats.median.toFixed(2)}</span></div>
+                            </div>
+                        `);
+                    })
+                    .on('mouseleave', () => { clearSynchronizedCrosshair(); hideTooltip(); });
+            }
+
+            // 5. Outlier Points beyond Whiskers with Mathematical Formula Classification
+            if (stats.outlierPoints.length > 0) {
+                gBottom.append('g')
+                    .selectAll('circle.outlier-dot')
+                    .data(stats.outlierPoints)
+                    .join('circle')
+                    .attr('class', 'outlier-dot')
+                    .attr('cx', d => xScale(d))
+                    .attr('cy', boxCenterY)
+                    .attr('r', 4.5)
+                    .attr('fill', '#f43f5e')
+                    .attr('fill-opacity', 0.85)
+                    .attr('stroke', '#881337')
+                    .attr('stroke-width', 1.2)
+                    .style('cursor', 'pointer')
+                    .on('mouseenter', function() {
+                        d3.select(this).attr('r', 6.5).attr('fill', '#e11d48');
+                    })
+                    .on('mousemove', (event, d) => {
+                        updateSynchronizedCrosshair(d, event, false);
+                        const isLow = d < stats.median;
+                        let formulaTitle = '';
+                        let formulaMath = '';
+                        let thresholdComparison = '';
+
+                        if (state.whiskerMode === 'tukey') {
+                            const lowFence = stats.q1 - 1.5 * stats.iqr;
+                            const highFence = stats.q3 + 1.5 * stats.iqr;
+                            formulaTitle = isLow ? 'Tukey Low Outlier: x < Q1 − 1.5 × IQR' : 'Tukey High Outlier: x > Q3 + 1.5 × IQR';
+                            formulaMath = isLow
+                                ? `${stats.q1.toFixed(2)} − 1.5 × ${stats.iqr.toFixed(2)} = ${lowFence.toFixed(2)}`
+                                : `${stats.q3.toFixed(2)} + 1.5 × ${stats.iqr.toFixed(2)} = ${highFence.toFixed(2)}`;
+                            thresholdComparison = isLow
+                                ? `${d.toFixed(2)} < ${lowFence.toFixed(2)}`
+                                : `${d.toFixed(2)} > ${highFence.toFixed(2)}`;
+                        } else if (state.whiskerMode === 'percentile') {
+                            formulaTitle = isLow ? 'Percentile Outlier: x < P₅ (5th %)' : 'Percentile Outlier: x > P₉₅ (95th %)';
+                            formulaMath = isLow ? `P₅ = ${stats.whiskerLow.toFixed(2)}` : `P₉₅ = ${stats.whiskerHigh.toFixed(2)}`;
+                            thresholdComparison = isLow
+                                ? `${d.toFixed(2)} < ${stats.whiskerLow.toFixed(2)}`
+                                : `${d.toFixed(2)} > ${stats.whiskerHigh.toFixed(2)}`;
+                        }
+
+                        showTooltip(event, `
+                            <div class="font-bold text-rose-400 border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between">
+                                <span>Extreme Outlier</span>
+                                <span class="font-mono text-white">x = ${d.toFixed(2)}</span>
+                            </div>
+                            <div class="text-[11px] font-mono space-y-1">
+                                <div class="text-amber-300 font-semibold">${formulaTitle}</div>
+                                <div class="text-slate-300">Fence = ${formulaMath}</div>
+                                <div class="text-emerald-400 font-semibold">Condition: ${thresholdComparison}</div>
+                            </div>
+                        `);
+                    })
+                    .on('mouseleave', function() {
+                        d3.select(this).attr('r', 4.5).attr('fill', '#f43f5e');
+                        clearSynchronizedCrosshair();
+                        hideTooltip();
+                    });
+            }
+
+            // 6. Left Y-Axis for Panel B (Mirrored Violin or Upper Half-Violin Cloud Scale)
+            const yAxisTopHalf = d3.scaleLinear()
+                .domain([0, maxDensity])
+                .range([violinCenterY, violinCenterY - maxViolinHalfHeight]);
+
+            const tickCount = isNested ? 3 : 2;
+
+            gBottom.append('g')
+                .attr('class', 'text-slate-600')
+                .call(d3.axisLeft(yAxisTopHalf).ticks(tickCount));
+
+            if (!isRaincloud) {
+                const yAxisBottomHalf = d3.scaleLinear()
+                    .domain([0, maxDensity])
+                    .range([violinCenterY, violinCenterY + maxViolinHalfHeight]);
+
+                gBottom.append('g')
+                    .attr('class', 'text-slate-600')
+                    .call(
+                        d3.axisLeft(yAxisBottomHalf)
+                            .ticks(tickCount)
+                            .tickFormat(d => d === 0 ? '' : d3.format('.2f')(d))
+                    );
+            }
+
+            // Y-Axis Title for Panel B
+            gBottom.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', isRaincloud ? -(violinCenterY - maxViolinHalfHeight / 2) : -violinCenterY)
+                .attr('y', -40)
+                .attr('text-anchor', 'middle')
+                .attr('class', 'text-[11px] font-medium fill-slate-500')
+                .text(isRaincloud ? 'Cloud Density' : 'Violin Density');
+
+            // Track labels on left side for Split and Raincloud modes
+            if (mode === 'split') {
+                gBottom.append('text')
+                    .attr('x', -8)
+                    .attr('y', boxCenterY + 4)
+                    .attr('text-anchor', 'end')
+                    .attr('class', 'text-[10px] font-semibold fill-indigo-900')
+                    .text('Box');
+            } else if (isRaincloud) {
+                gBottom.append('text')
+                    .attr('x', -8)
+                    .attr('y', boxCenterY + 3.5)
+                    .attr('text-anchor', 'end')
+                    .attr('class', 'text-[10px] font-semibold fill-indigo-900')
+                    .text('Box');
+
+                if (state.showJitter) {
+                    gBottom.append('text')
+                        .attr('x', -8)
+                        .attr('y', rainCenterY + 3.5)
+                        .attr('text-anchor', 'end')
+                        .attr('class', 'text-[10px] font-semibold fill-sky-700')
+                        .text('Rain');
+                }
+            }
+
+            // Bottom X-Axis
+            const xAxis = d3.axisBottom(xScale).ticks(10);
+            gBottom.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .attr('class', 'text-slate-600')
+                .call(xAxis);
+
+            // Crosshair Overlay Line & Violin / Cloud Curve Tracer Dots
+            gBottom.append('line')
+                .attr('class', 'crosshair-line')
+                .attr('y1', 0).attr('y2', height)
+                .attr('stroke', '#0f172a')
+                .attr('stroke-width', 1.2)
+                .attr('stroke-dasharray', '4,4')
+                .attr('pointer-events', 'none')
+                .style('opacity', 0);
+
+            gBottom.append('circle')
+                .attr('class', 'violin-tracer-upper')
+                .attr('r', 4)
+                .attr('fill', '#7e22ce')
+                .attr('stroke', '#ffffff')
+                .attr('stroke-width', 1.5)
+                .attr('pointer-events', 'none')
+                .style('opacity', 0);
+
+            gBottom.append('circle')
+                .attr('class', 'violin-tracer-lower')
+                .attr('r', 4)
+                .attr('fill', '#7e22ce')
+                .attr('stroke', '#ffffff')
+                .attr('stroke-width', 1.5)
+                .attr('pointer-events', 'none')
+                .style('opacity', 0);
+        }
+
+        // Synchronize Vertical Hover Crosshair & Curve Density Tracers Across Both Canvases
+        function updateSynchronizedCrosshair(xVal, event = null, showCurveTooltip = false) {
+            state.hoverX = xVal;
+            const { xScale, yScaleTop, violinYScale, violinCenterY, isDensity, totalN, binWidth } = renderContext;
+            if (!xScale) return;
+
+            const px = xScale(xVal);
+            const isRaincloud = state.layoutMode === 'raincloud';
+
+            // Evaluate exact probability density on both curves at xVal
+            const topDensity = evaluateKDEAt(xVal, state.rawData, state.kdeBandwidth, state.kernelType);
+            const vBw = state.syncBandwidth ? state.kdeBandwidth : state.violinBandwidth;
+            const violinDensity = evaluateKDEAt(xVal, state.rawData, vBw, state.kernelType);
+
+            const topCurveY = yScaleTop(isDensity ? topDensity : topDensity * totalN * binWidth);
+            const violinOffset = violinYScale(violinDensity);
+
+            // Update crosshair lines
+            svgTop.selectAll('.crosshair-line')
+                .attr('x1', px).attr('x2', px)
+                .style('opacity', 1);
+
+            svgBottom.selectAll('.crosshair-line')
+                .attr('x1', px).attr('x2', px)
+                .style('opacity', 1);
+
+            // Update tracer dots along the Top KDE Curve and Bottom Violin / Cloud Curve
+            svgTop.selectAll('.kde-tracer-top')
+                .attr('cx', px)
+                .attr('cy', topCurveY)
+                .style('opacity', state.showKDE ? 1 : 0);
+
+            svgBottom.selectAll('.violin-tracer-upper')
+                .attr('cx', px)
+                .attr('cy', violinCenterY - violinOffset)
+                .style('opacity', 1);
+
+            svgBottom.selectAll('.violin-tracer-lower')
+                .attr('cx', px)
+                .attr('cy', violinCenterY + violinOffset)
+                .style('opacity', isRaincloud ? 0 : 1);
+
+            // Top-right corner badge readout
+            const readout = document.getElementById('hover-readout-top');
+            readout.textContent = `x = ${xVal.toFixed(2)} | f(x) = ${topDensity.toFixed(4)}`;
+            readout.classList.remove('opacity-0');
+
+            // Show floating curve density tooltip when hovering over the curves or background
+            if (showCurveTooltip && event) {
+                showTooltip(event, `
+                    <div class="font-bold text-indigo-300 border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between gap-4">
+                        <span>KDE Curve Tracer</span>
+                        <span class="font-mono text-white">x = ${xVal.toFixed(2)}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-[11px]">
+                        <span class="text-slate-400">Top KDE f(x):</span>
+                        <span class="text-right font-semibold text-indigo-300">${topDensity.toFixed(4)}</span>
+                        <span class="text-slate-400">${isRaincloud ? 'Cloud Density:' : 'Violin Density:'}</span>
+                        <span class="text-right font-semibold text-purple-300">${isRaincloud ? violinDensity.toFixed(4) : `±${violinDensity.toFixed(4)}`}</span>
+                        <span class="text-slate-400">Bandwidth (h):</span>
+                        <span class="text-right text-slate-300">${state.kdeBandwidth.toFixed(2)}${!state.syncBandwidth ? ` / ${vBw.toFixed(2)}` : ''}</span>
+                    </div>
+                `);
+            }
+        }
+
+        function clearSynchronizedCrosshair() {
+            state.hoverX = null;
+            svgTop.selectAll('.crosshair-line, .kde-tracer-top').style('opacity', 0);
+            svgBottom.selectAll('.crosshair-line, .violin-tracer-upper, .violin-tracer-lower').style('opacity', 0);
+            document.getElementById('hover-readout-top').classList.add('opacity-0');
+        }
+
+        // ==========================================
+        // 4. UI EVENT LISTENERS & BINDINGS
+        // ==========================================
+        function bindControls() {
+            // 1. Dataset Controls
+            document.getElementById('ctrl-shape').addEventListener('change', (e) => {
+                state.shape = e.target.value;
+                const bimodalGroup = document.getElementById('bimodal-group');
+                if (state.shape === 'bimodal') {
+                    bimodalGroup.classList.remove('hidden');
+                    document.getElementById('pedagogical-tip').innerHTML =
+                        '<strong>Bimodal Mode:</strong> Notice how the Box Plot looks completely normal while the Histogram, KDE, Violin, and Raincloud clearly reveal two distinct peaks!';
+                } else if (state.shape === 'skewed') {
+                    bimodalGroup.classList.add('hidden');
+                    document.getElementById('pedagogical-tip').innerHTML =
+                        '<strong>Right-Skewed Mode:</strong> Notice how the heavy right tail pulls the Mean (◆) to the right of the Median line (Q2)!';
+                } else {
+                    bimodalGroup.classList.add('hidden');
+                    document.getElementById('pedagogical-tip').innerHTML =
+                        'Hover over the <strong>Box Plot IQR</strong>, <strong>Median</strong>, or <strong>Raincloud</strong> below to inspect exact summary statistics and density values!';
+                }
+                updateDatasetFromPools();
+                renderAll();
+            });
+
+            document.getElementById('ctrl-n').addEventListener('input', (e) => {
+                state.n = parseInt(e.target.value, 10);
+                document.getElementById('val-n').textContent = state.n;
+                updateDatasetFromPools();
+                renderAll();
+            });
+
+            document.getElementById('ctrl-mean').addEventListener('input', (e) => {
+                state.mean = parseFloat(e.target.value);
+                document.getElementById('val-mean').textContent = state.mean.toFixed(2);
+                updateDatasetFromPools();
+                renderAll();
+            });
+
+            document.getElementById('ctrl-sd').addEventListener('input', (e) => {
+                state.sd = parseFloat(e.target.value);
+                document.getElementById('val-sd').textContent = state.sd.toFixed(2);
+                updateDatasetFromPools();
+                renderAll();
+            });
+
+            document.getElementById('ctrl-sep').addEventListener('input', (e) => {
+                state.bimodalSep = parseFloat(e.target.value);
+                document.getElementById('val-sep').textContent = state.bimodalSep.toFixed(2);
+                updateDatasetFromPools();
+                renderAll();
+            });
+
+            document.getElementById('ctrl-outliers').addEventListener('input', (e) => {
+                state.outliers = parseInt(e.target.value, 10);
+                document.getElementById('val-outliers').textContent = state.outliers;
+                updateDatasetFromPools();
+                renderAll();
+            });
+
+            document.getElementById('btn-resample').addEventListener('click', () => {
+                initRandomPools();
+                updateDatasetFromPools();
+                renderAll();
+            });
+
+            // 2. Histogram & KDE Controls
+            document.getElementById('chk-hist').addEventListener('change', (e) => {
+                state.showHist = e.target.checked;
+                renderAll();
+            });
+
+            document.getElementById('chk-kde').addEventListener('change', (e) => {
+                state.showKDE = e.target.checked;
+                renderAll();
+            });
+
+            document.getElementById('chk-rug').addEventListener('change', (e) => {
+                state.showRug = e.target.checked;
+                renderAll();
+            });
+
+            // Scale Mode Toggle (Density vs Count)
+            const btnDensity = document.getElementById('btn-scale-density');
+            const btnCount = document.getElementById('btn-scale-count');
+
+            btnDensity.addEventListener('click', () => {
+                state.yScaleMode = 'density';
+                btnDensity.className = 'px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm font-medium transition';
+                btnCount.className = 'px-2.5 py-1 rounded-md text-slate-600 font-medium transition';
+                renderAll();
+            });
+
+            btnCount.addEventListener('click', () => {
+                state.yScaleMode = 'count';
+                btnCount.className = 'px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm font-medium transition';
+                btnDensity.className = 'px-2.5 py-1 rounded-md text-slate-600 font-medium transition';
+                renderAll();
+            });
+
+            document.getElementById('ctrl-bins').addEventListener('input', (e) => {
+                state.bins = parseInt(e.target.value, 10);
+                document.getElementById('val-bins').textContent = state.bins;
+                renderAll();
+            });
+
+            document.getElementById('ctrl-shift').addEventListener('input', (e) => {
+                state.binShift = parseFloat(e.target.value);
+                document.getElementById('val-shift').textContent = state.binShift.toFixed(2);
+                renderAll();
+            });
+
+            let kernelTimeout = null;
+            document.getElementById('ctrl-kde-bw').addEventListener('input', (e) => {
+                state.kdeBandwidth = parseFloat(e.target.value);
+                document.getElementById('val-kde-bw').textContent = state.kdeBandwidth.toFixed(2);
+                if (state.syncBandwidth) {
+                    state.violinBandwidth = state.kdeBandwidth;
+                    document.getElementById('ctrl-violin-bw').value = state.kdeBandwidth;
+                    document.getElementById('val-violin-bw').textContent = state.kdeBandwidth.toFixed(2);
+                }
+                state.showKernelPreview = true;
+                clearTimeout(kernelTimeout);
+                kernelTimeout = setTimeout(() => {
+                    state.showKernelPreview = false;
+                    renderAll();
+                }, 1200);
+                renderAll();
+            });
+
+            document.getElementById('ctrl-kernel').addEventListener('change', (e) => {
+                state.kernelType = e.target.value;
+                renderAll();
+            });
+
+            // 3. Box, Violin & Raincloud Arrangement Controls
+            const btnNested = document.getElementById('btn-layout-nested');
+            const btnSplit = document.getElementById('btn-layout-split');
+            const btnRaincloud = document.getElementById('btn-layout-raincloud');
+            const chkJitter = document.getElementById('chk-jitter');
+
+            function updateLayoutButtons(selectedMode) {
+                state.layoutMode = selectedMode;
+                const activeClass = 'px-2 py-1 rounded-md bg-white text-slate-800 shadow-sm font-medium transition';
+                const inactiveClass = 'px-2 py-1 rounded-md text-slate-600 font-medium transition';
+
+                btnNested.className = selectedMode === 'nested' ? activeClass : inactiveClass;
+                btnSplit.className = selectedMode === 'split' ? activeClass : inactiveClass;
+                btnRaincloud.className = selectedMode === 'raincloud' ? activeClass : inactiveClass;
+
+                if (selectedMode === 'raincloud') {
+                    // Automatically enable jittered raindrops when entering Raincloud mode
+                    state.showJitter = true;
+                    chkJitter.checked = true;
+                    document.getElementById('pedagogical-tip').innerHTML =
+                        '<strong>Raincloud Mode:</strong> Combines an upper Half-Violin (<strong>"Cloud"</strong>), a central <strong>Box Plot</strong>, and jittered raw observations (<strong>"Raindrops"</strong>) without any overlapping occlusion!';
+                }
+                renderAll();
+            }
+
+            btnNested.addEventListener('click', () => updateLayoutButtons('nested'));
+            btnSplit.addEventListener('click', () => updateLayoutButtons('split'));
+            btnRaincloud.addEventListener('click', () => updateLayoutButtons('raincloud'));
+
+            document.getElementById('chk-sync-bw').addEventListener('change', (e) => {
+                state.syncBandwidth = e.target.checked;
+                const violinSlider = document.getElementById('ctrl-violin-bw');
+                violinSlider.disabled = state.syncBandwidth;
+                if (state.syncBandwidth) {
+                    state.violinBandwidth = state.kdeBandwidth;
+                    violinSlider.value = state.kdeBandwidth;
+                    document.getElementById('val-violin-bw').textContent = state.kdeBandwidth.toFixed(2);
+                }
+                renderAll();
+            });
+
+            document.getElementById('ctrl-violin-bw').addEventListener('input', (e) => {
+                state.violinBandwidth = parseFloat(e.target.value);
+                document.getElementById('val-violin-bw').textContent = state.violinBandwidth.toFixed(2);
+                renderAll();
+            });
+
+            document.getElementById('ctrl-whisker').addEventListener('change', (e) => {
+                state.whiskerMode = e.target.value;
+                renderAll();
+            });
+
+            document.getElementById('chk-mean').addEventListener('change', (e) => {
+                state.showMean = e.target.checked;
+                renderAll();
+            });
+
+            chkJitter.addEventListener('change', (e) => {
+                state.showJitter = e.target.checked;
+                renderAll();
+            });
+
+            document.getElementById('chk-autoscale').addEventListener('change', (e) => {
+                state.autoScaleX = e.target.checked;
+                renderAll();
+            });
+
+            // Responsive Resize Handler
+            window.addEventListener('resize', () => {
+                renderAll();
+            });
+        }
+
+        // Initialize on Window Load
+        window.onload = function() {
+            bindControls();
+            initRandomPools();
+            updateDatasetFromPools();
+            renderAll();
+        };
+    </script>
+</body>
+</html>
