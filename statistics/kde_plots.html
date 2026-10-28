@@ -3,82 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kernel Density Estimate (KDE) plots</title>
-    <!-- Tailwind CSS -->
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Kernel Density Estimate (KDE)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- D3.js v7 -->
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #0f172a;
+        .kde-app {
+            box-sizing: border-box;
         }
-        /* Custom scrollbar for sidebar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        .kde-app input[type="checkbox"] {
+            accent-color: #000000;
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
+        .kde-app .demo-chip {
+            padding: 0.32em 0.7em;
+            font-size: 0.75rem;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
+        .kde-stats {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.65rem 1rem;
+            padding: 0.7rem 1.1rem;
+            border-bottom: 1px solid #000000;
+            background: var(--demo-panel);
+            font-size: 0.75rem;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        .kde-canvas {
+            background: #ffffff;
+            border: 1px solid #000000;
+            border-radius: var(--demo-radius);
+            box-shadow: none;
         }
-        /* Range slider styling */
-        input[type="range"] {
-            accent-color: #4f46e5;
+        .axis-grid {
+            color: var(--viz-reference);
         }
         .axis-grid line {
-            stroke: #e2e8f0;
+            stroke: var(--viz-reference-line);
             stroke-dasharray: 2,2;
         }
         .axis-grid path {
             stroke-width: 0;
         }
-        .tooltip-badge {
-            pointer-events: none;
-            transition: opacity 0.15s ease;
+        .kde-swatch {
+            display: inline-block;
+            width: 0.75rem;
+            height: 0.75rem;
+            flex: none;
+        }
+        .kde-swatch-hist {
+            background: color-mix(in srgb, var(--viz-group-a) 40%, #ffffff);
+            border: 1px solid var(--viz-group-a);
+        }
+        .kde-swatch-kde {
+            width: 0.9rem;
+            height: 0.14rem;
+            background: var(--viz-density);
+        }
+        .kde-swatch-violin {
+            background: color-mix(in srgb, var(--viz-density) 28%, #ffffff);
+            border: 1px solid var(--viz-density);
+        }
+        .kde-swatch-rain {
+            width: 0.62rem;
+            height: 0.62rem;
+            border-radius: 999px;
+            background: var(--viz-group-a);
+        }
+        .kde-tip-sample { color: var(--viz-group-a) !important; }
+        .kde-tip-density { color: var(--viz-density) !important; }
+        .kde-tip-mean { color: var(--viz-mean) !important; }
+        .kde-tip-median { color: var(--viz-median) !important; }
+        .kde-tip-null { color: var(--viz-null) !important; }
+        #floating-tooltip {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #000000 !important;
+            border-radius: var(--demo-radius) !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+        }
+        #floating-tooltip :is(.text-white, .text-slate-200, .text-slate-300, .text-slate-400, .text-emerald-300, .text-emerald-400, .text-amber-300, .text-indigo-300, .text-sky-300, .text-sky-400) {
+            color: #000000 !important;
+        }
+        #floating-tooltip :is(.border-slate-700, .border-slate-800) {
+            border-color: #000000 !important;
+        }
+        #hover-readout-top {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #000000 !important;
+            border-radius: 3em !important;
+            box-shadow: none !important;
+        }
+        .kde-app h2 > span.rounded-full {
+            background: #000000 !important;
+        }
+        .kde-app :is(.fill-slate-500, .fill-indigo-900, .fill-sky-700) {
+            fill: #000000 !important;
+        }
+        .kde-app :is(h2, h3, label, p, .text-slate-800, .text-slate-700, .text-slate-600, .text-slate-500, .text-indigo-950, .text-indigo-900, .text-indigo-800, .text-indigo-700, .text-indigo-600, .text-sky-700, .text-sky-600, .text-purple-700, .text-purple-600) {
+            color: #000000;
+        }
+        .kde-app aside > div {
+            background: var(--demo-panel) !important;
+            border: 1px solid #000000 !important;
+            border-radius: var(--demo-radius) !important;
+            box-shadow: none !important;
+        }
+        .kde-app aside :is(.bg-white, .border-indigo-100, .border-slate-200, .border-indigo-200) {
+            background: #ffffff;
+            border-color: #000000 !important;
+            border-radius: var(--demo-radius) !important;
+            box-shadow: none !important;
+        }
+        .kde-app select {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #000000 !important;
+            border-radius: var(--demo-radius) !important;
+            font-family: var(--demo-font);
+            box-shadow: none !important;
+        }
+        .kde-app select:focus {
+            outline: 2px solid #000000;
+            outline-offset: 1px;
+            --tw-ring-shadow: 0 0 #0000 !important;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col lg:h-screen lg:overflow-hidden">
+<body class="demo-page kde-app min-h-screen flex flex-col lg:h-screen lg:overflow-hidden p-3 md:p-4 gap-3">
 
-    <!-- Top Header Bar -->
-    <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-sm z-10">
-        <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold shadow-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
-            </div>
-            <div>
-                <h1 class="text-lg font-bold text-slate-900 leading-tight">Kernel Density Estimate (KDE) plots</h1>
-                <p class="text-xs text-slate-500">Synchronized comparison of Histograms, KDE Plots, Box Plots, Violin Plots &amp; Raincloud Plots</p>
-            </div>
-        </div>
+    <div class="shrink-0">
+        <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+    </div>
 
-        <!-- Live Summary Statistics Pill Bar -->
-        <div class="flex flex-wrap items-center gap-2 sm:gap-4 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 text-xs">
+    <div class="demo-card flex-1 min-h-0 flex flex-col overflow-hidden">
+    <header class="demo-header shrink-0">
+        <h1 class="text-xl md:text-2xl font-bold">Kernel Density Estimate (KDE)</h1>
+        <p class="text-sm leading-relaxed">A histogram cuts the same sample into bins. A kernel density estimate adds a small kernel at each point, so the pile becomes a smooth curve. That curve is also the violin, and half of it is the cloud in a raincloud plot.</p>
+    </header>
+
+        <!-- Live Summary Statistics -->
+        <div class="kde-stats shrink-0">
             <div class="flex items-center space-x-1.5">
                 <span class="text-slate-400 font-medium">N:</span>
                 <span id="stat-n" class="font-bold text-slate-800 font-mono">200</span>
             </div>
             <div class="h-3 w-px bg-slate-300"></div>
             <div class="flex items-center space-x-1.5">
-                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                <span class="w-2 h-2 rounded-full viz-bg-mean inline-block"></span>
                 <span class="text-slate-500 font-medium">Mean (μ):</span>
                 <span id="stat-mean" class="font-bold text-slate-800 font-mono">0.00</span>
             </div>
             <div class="h-3 w-px bg-slate-300"></div>
             <div class="flex items-center space-x-1.5">
-                <span class="w-2 h-2 rounded-full bg-rose-600 inline-block"></span>
+                <span class="w-2 h-2 rounded-full viz-bg-median inline-block"></span>
                 <span class="text-slate-500 font-medium">Median (Q2):</span>
                 <span id="stat-median" class="font-bold text-slate-800 font-mono">0.00</span>
             </div>
@@ -89,15 +171,14 @@
             </div>
             <div class="h-3 w-px bg-slate-300"></div>
             <div class="flex items-center space-x-1.5">
-                <span class="w-2 h-2 rounded-sm bg-indigo-500 inline-block"></span>
-                <span class="text-slate-500 font-medium">IQR (Q3-Q1):</span>
+                <span class="w-2 h-2 rounded-sm viz-bg-group-a inline-block"></span>
+                <span class="text-slate-500 font-medium">IQR (Q3 − Q1):</span>
                 <span id="stat-iqr" class="font-bold text-slate-800 font-mono">2.00</span>
             </div>
         </div>
-    </header>
 
     <!-- Main Workspace -->
-    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0">
 
         <!-- Left Column: Control Sidebar -->
         <aside class="w-full lg:w-96 bg-white border-r border-slate-200 overflow-y-auto p-5 space-y-5 shrink-0">
@@ -109,7 +190,7 @@
                         <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
                         1. Underlying Dataset
                     </h2>
-                    <button id="btn-resample" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-medium text-xs rounded-lg shadow-sm transition flex items-center gap-1">
+                    <button id="btn-resample" class="demo-btn demo-btn-primary" type="button">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
@@ -132,7 +213,7 @@
                 <div>
                     <div class="flex justify-between text-xs mb-1">
                         <label class="font-medium text-slate-700">Sample Size (<span class="italic font-serif">n</span>)</label>
-                        <span id="val-n" class="font-mono font-semibold text-indigo-600">250</span>
+                        <span id="val-n" class="demo-value">250</span>
                     </div>
                     <input id="ctrl-n" type="range" min="20" max="1000" step="10" value="250" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">Number of data points. <span class="text-slate-600 font-medium">Suggested: 200–500</span> for stable shapes, or <span class="text-slate-600 font-medium">30–50</span> to see small-sample noise.</p>
@@ -142,7 +223,7 @@
                 <div>
                     <div class="flex justify-between text-xs mb-1">
                         <label class="font-medium text-slate-700">Mean (μ)</label>
-                        <span id="val-mean" class="font-mono font-semibold text-indigo-600">0.0</span>
+                        <span id="val-mean" class="demo-value">0.0</span>
                     </div>
                     <input id="ctrl-mean" type="range" min="-5" max="5" step="0.25" value="0" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
                 </div>
@@ -151,7 +232,7 @@
                 <div>
                     <div class="flex justify-between text-xs mb-1">
                         <label class="font-medium text-slate-700">Standard deviation (σ)</label>
-                        <span id="val-sd" class="font-mono font-semibold text-indigo-600">1.50</span>
+                        <span id="val-sd" class="demo-value">1.50</span>
                     </div>
                     <input id="ctrl-sd" type="range" min="0.5" max="3.5" step="0.1" value="1.5" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">Controls horizontal dispersion. <span class="text-slate-600 font-medium">Suggested: 1.0–2.0</span>.</p>
@@ -161,7 +242,7 @@
                 <div id="bimodal-group" class="hidden pt-1 border-t border-slate-200">
                     <div class="flex justify-between text-xs mb-1">
                         <label class="font-medium text-indigo-900">Bimodal Peak Separation (Δμ)</label>
-                        <span id="val-sep" class="font-mono font-semibold text-indigo-600">4.5</span>
+                        <span id="val-sep" class="demo-value">4.5</span>
                     </div>
                     <input id="ctrl-sep" type="range" min="1.0" max="8.0" step="0.25" value="4.5" class="w-full h-1.5 bg-indigo-200 rounded-lg cursor-pointer">
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">Distance between the two cluster centers. <span class="text-slate-600 font-medium">Suggested: 4.0–6.0</span> to clearly see two peaks.</p>
@@ -171,7 +252,7 @@
                 <div>
                     <div class="flex justify-between text-xs mb-1">
                         <label class="font-medium text-slate-700">Outliers</label>
-                        <span id="val-outliers" class="font-mono font-semibold text-indigo-600">0</span>
+                        <span id="val-outliers" class="demo-value">0</span>
                     </div>
                     <input id="ctrl-outliers" type="range" min="0" max="10" step="1" value="0" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">Adds extreme values far from the center. <span class="text-slate-600 font-medium">Suggested: 2–5</span> to test Box Plot outlier dots.</p>
@@ -194,7 +275,7 @@
                 <div>
                     <div class="flex justify-between text-xs mb-1">
                         <label class="font-medium text-slate-800">KDE Smoothing Bandwidth (<span class="italic font-serif">h</span>)</label>
-                        <span id="val-kde-bw" class="font-mono font-semibold text-indigo-600">0.60</span>
+                        <span id="val-kde-bw" class="demo-value">0.60</span>
                     </div>
                     <input id="ctrl-kde-bw" type="range" min="0.15" max="2.5" step="0.05" value="0.60" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">Width of the smoothing kernel. Small values (<span class="text-slate-600 font-medium">0.15–0.30</span>) create noisy spikes; large values (<span class="text-slate-600 font-medium">&gt;1.2</span>) flatten peaks. <span class="text-indigo-700 font-medium">Suggested: 0.50–0.80</span>.</p>
@@ -218,7 +299,7 @@
                             <input id="chk-sync-bw" type="checkbox" checked class="rounded text-indigo-600 focus:ring-indigo-500">
                             <span>Lock Violin <span class="italic font-serif">h</span> to Top KDE</span>
                         </label>
-                        <span id="val-violin-bw" class="text-xs font-mono font-semibold text-purple-600">0.60</span>
+                        <span id="val-violin-bw" class="demo-value">0.60</span>
                     </div>
                     <input id="ctrl-violin-bw" type="range" min="0.15" max="2.5" step="0.05" value="0.60" disabled class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer disabled:opacity-40">
                     <p class="text-[11px] text-slate-500 leading-snug">Uncheck if you want to compare a different bandwidth in the Violin / Raincloud against the top KDE curve.</p>
@@ -264,9 +345,9 @@
                 <div class="bg-white p-2.5 rounded-lg border border-slate-200">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-medium text-slate-700">Y-Axis Scale</span>
-                        <div class="flex rounded-md bg-slate-100 p-0.5 text-xs">
-                            <button id="btn-scale-density" class="px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm font-medium transition">Density</button>
-                            <button id="btn-scale-count" class="px-2.5 py-1 rounded-md text-slate-600 font-medium transition">Count</button>
+                        <div class="demo-chip-group">
+                            <button id="btn-scale-density" class="demo-chip is-active" type="button">Density</button>
+                            <button id="btn-scale-count" class="demo-chip" type="button">Count</button>
                         </div>
                     </div>
                     <p class="text-[11px] text-slate-500 mt-1.5 leading-snug"><span class="text-slate-600 font-medium">Density</span> scales total bar area to 1.0 (true probability density). <span class="text-slate-600 font-medium">Count</span> shows raw number of items per bin.</p>
@@ -276,7 +357,7 @@
                 <div>
                     <div class="flex justify-between text-xs mb-1">
                         <label class="font-medium text-slate-700">Histogram Bins</label>
-                        <span id="val-bins" class="font-mono font-semibold text-sky-600">24</span>
+                        <span id="val-bins" class="demo-value">24</span>
                     </div>
                     <input id="ctrl-bins" type="range" min="5" max="60" step="1" value="24" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">Divides the X-axis into equal intervals. Too few (<span class="text-slate-600 font-medium">5–8</span>) hides shape; too many (<span class="text-slate-600 font-medium">45–60</span>) creates noisy gaps. <span class="text-sky-700 font-medium">Suggested: 20–30</span>.</p>
@@ -286,7 +367,7 @@
                 <div>
                     <div class="flex justify-between text-xs mb-1">
                         <label class="font-medium text-slate-700">Bin Edge Shift (Anchor)</label>
-                        <span id="val-shift" class="font-mono font-semibold text-sky-600">0.00</span>
+                        <span id="val-shift" class="demo-value">0.00</span>
                     </div>
                     <input id="ctrl-shift" type="range" min="-0.5" max="0.5" step="0.05" value="0.0" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">Nudges bin boundaries left/right without changing the data. Slide slowly to see how histogram bars can change height while the KDE curve stays rock-solid!</p>
@@ -304,10 +385,10 @@
                 <div class="bg-white p-2.5 rounded-lg border border-slate-200">
                     <div class="flex items-center justify-between gap-2">
                         <span class="text-xs font-medium text-slate-700">Arrangement</span>
-                        <div class="flex rounded-md bg-slate-100 p-0.5 text-xs">
-                            <button id="btn-layout-nested" class="px-2 py-1 rounded-md bg-white text-slate-800 shadow-sm font-medium transition">Nested</button>
-                            <button id="btn-layout-split" class="px-2 py-1 rounded-md text-slate-600 font-medium transition">Split</button>
-                            <button id="btn-layout-raincloud" class="px-2 py-1 rounded-md text-slate-600 font-medium transition">Raincloud</button>
+                        <div class="demo-chip-group">
+                            <button id="btn-layout-nested" class="demo-chip is-active" type="button">Nested</button>
+                            <button id="btn-layout-split" class="demo-chip" type="button">Split</button>
+                            <button id="btn-layout-raincloud" class="demo-chip" type="button">Raincloud</button>
                         </div>
                     </div>
                     <p id="layout-desc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Choose <span class="text-slate-600 font-medium">Nested</span> to place the Box Plot inside the Violin, <span class="text-slate-600 font-medium">Split</span> to separate them, or <span class="text-purple-700 font-medium">Raincloud</span> for Half-Violin ("Cloud") + Box + Jittered ("Rain").</p>
@@ -342,19 +423,19 @@
         </aside>
 
         <!-- Right Column: Synchronized Visualization Canvas -->
-        <main class="flex-1 flex flex-col p-4 sm:p-6 gap-4 overflow-y-auto lg:overflow-hidden bg-slate-50">
+        <main class="flex-1 flex flex-col p-4 sm:p-5 gap-4 overflow-y-auto lg:overflow-hidden min-h-0">
 
             <!-- Interactive Pedagogical Banner -->
-            <div class="bg-white border border-slate-200 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-sm shrink-0">
-                <div class="flex items-center space-x-2 text-xs text-slate-600">
-                    <span class="px-2 py-0.5 bg-indigo-100 text-indigo-800 font-semibold rounded-md">Interactive Tip</span>
+            <div class="kde-canvas px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                <div class="flex items-center space-x-2 text-xs">
+                    <span class="demo-value">Interactive tip</span>
                     <span id="pedagogical-tip">Hover over <strong>Histogram bars</strong>, <strong>KDE/Violin curves</strong>, <strong>Box Plot quartiles/whiskers</strong>, or <strong>Outlier dots</strong> to inspect exact values and formulas!</span>
                 </div>
-                <div class="flex items-center space-x-4 text-xs">
-                    <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 inline-block bg-sky-400/50 border border-sky-600 rounded-sm"></span> Histogram</span>
-                    <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-0.5 inline-block bg-indigo-600"></span> KDE Curve</span>
-                    <span class="flex items-center gap-1 text-slate-600"><span class="w-3 h-3 inline-block bg-purple-400/30 border border-purple-600 rounded-sm"></span> Violin / Cloud</span>
-                    <span class="flex items-center gap-1 text-slate-600"><span class="w-2.5 h-2.5 inline-block bg-sky-500 rounded-full"></span> Raindrops</span>
+                <div class="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs">
+                    <span class="flex items-center gap-1"><span class="kde-swatch kde-swatch-hist"></span> Histogram</span>
+                    <span class="flex items-center gap-1"><span class="kde-swatch kde-swatch-kde"></span> KDE Curve</span>
+                    <span class="flex items-center gap-1"><span class="kde-swatch kde-swatch-violin"></span> Violin / Cloud</span>
+                    <span class="flex items-center gap-1"><span class="kde-swatch kde-swatch-rain"></span> Raindrops</span>
                 </div>
             </div>
 
@@ -362,7 +443,7 @@
             <div class="flex-1 flex flex-col gap-4 min-h-[540px]">
 
                 <!-- TOP CANVAS: Histogram & Density Plot (55% height) -->
-                <div class="flex-[11] bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col relative overflow-hidden">
+                <div class="kde-canvas flex-[11] p-4 flex flex-col relative overflow-hidden min-h-[220px]">
                     <div class="flex items-center justify-between mb-1 z-10 pointer-events-none">
                         <div>
                             <h3 class="text-sm font-bold text-slate-800">Panel A: Histogram &amp; Kernel Density Estimate (KDE)</h3>
@@ -376,7 +457,7 @@
                 </div>
 
                 <!-- BOTTOM CANVAS: Box Plot, Violin & Raincloud Plot (45% height) -->
-                <div class="flex-[9] bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col relative overflow-hidden">
+                <div class="kde-canvas flex-[9] p-4 flex flex-col relative overflow-hidden min-h-[200px]">
                     <div class="flex items-center justify-between mb-1 z-10 pointer-events-none">
                         <div>
                             <h3 class="text-sm font-bold text-slate-800" id="bottom-title">Panel B: Horizontally Aligned Violin &amp; Box Plot</h3>
@@ -388,6 +469,7 @@
 
             </div>
         </main>
+    </div>
     </div>
 
     <!-- Floating Rich Inspection Tooltip -->
@@ -453,6 +535,12 @@
 
         // Shared D3 Margins
         const margin = { top: 20, right: 30, bottom: 32, left: 55 };
+
+        // Chart colours come from assets/stats-viz-theme.css. Read them at
+        // draw time so a token is the computed colour, not a stale hex.
+        function viz(token) {
+            return statsViz.color(token);
+        }
 
         // Render context for synchronized curve tracing
         let renderContext = {
@@ -786,13 +874,13 @@
                     })
                     .attr('height', d => Math.max(0, height - yScale(getBinYValue(d))))
                     .attr('rx', 2)
-                    .attr('fill', '#38bdf8')
-                    .attr('fill-opacity', 0.45)
-                    .attr('stroke', '#0284c7')
+                    .attr('fill', viz('--viz-group-a'))
+                    .attr('fill-opacity', 0.4)
+                    .attr('stroke', viz('--viz-group-a'))
                     .attr('stroke-width', 1)
                     .style('cursor', 'pointer')
                     .on('mouseenter', function(event, d) {
-                        d3.select(this).attr('fill', '#0284c7').attr('fill-opacity', 0.75);
+                        d3.select(this).attr('fill', viz('--viz-group-a')).attr('fill-opacity', 0.85);
                     })
                     .on('mousemove', function(event, d) {
                         const [mx] = d3.pointer(event, gTop.node());
@@ -806,7 +894,7 @@
                         const kdeAtX = evaluateKDEAt(xVal, state.rawData, state.kdeBandwidth, state.kernelType);
 
                         showTooltip(event, `
-                            <div class="font-bold text-sky-400 border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between">
+                            <div class="font-bold kde-tip-sample border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between">
                                 <span>Histogram Bin</span>
                                 <span class="font-mono text-[11px] text-slate-300">[${d.x0.toFixed(2)}, ${d.x1.toFixed(2)})</span>
                             </div>
@@ -816,9 +904,9 @@
                                 <span class="text-slate-400">Rel. Frequency:</span>
                                 <span class="text-right font-semibold text-emerald-400">${(relFreq * 100).toFixed(2)}% (${relFreq.toFixed(3)})</span>
                                 <span class="text-slate-400">Bin Density:</span>
-                                <span class="text-right text-sky-300">${binDensity.toFixed(4)}</span>
+                                <span class="text-right kde-tip-sample">${binDensity.toFixed(4)}</span>
                                 <span class="text-slate-400">KDE at x=${xVal.toFixed(2)}:</span>
-                                <span class="text-right text-indigo-300">${kdeAtX.toFixed(4)}</span>
+                                <span class="text-right kde-tip-density">${kdeAtX.toFixed(4)}</span>
                             </div>
                             <div class="mt-1.5 pt-1 border-t border-slate-800 text-[10px] text-slate-400 font-mono">
                                 Density = Count / (N × BinWidth) = ${count} / (${totalN} × ${w.toFixed(2)})
@@ -826,7 +914,7 @@
                         `);
                     })
                     .on('mouseleave', function() {
-                        d3.select(this).attr('fill', '#38bdf8').attr('fill-opacity', 0.45);
+                        d3.select(this).attr('fill', viz('--viz-group-a')).attr('fill-opacity', 0.4);
                         clearSynchronizedCrosshair();
                         hideTooltip();
                     });
@@ -848,8 +936,8 @@
                 // Overall subtle KDE fill
                 gTop.append('path')
                     .datum(kdePoints)
-                    .attr('fill', '#6366f1')
-                    .attr('fill-opacity', 0.18)
+                    .attr('fill', viz('--viz-density'))
+                    .attr('fill-opacity', 0.16)
                     .attr('pointer-events', 'none')
                     .attr('d', areaGen);
 
@@ -857,7 +945,7 @@
                 gTop.append('path')
                     .datum(kdePoints)
                     .attr('fill', 'none')
-                    .attr('stroke', '#4338ca')
+                    .attr('stroke', viz('--viz-density'))
                     .attr('stroke-width', 2.5)
                     .attr('pointer-events', 'none')
                     .attr('d', lineGen);
@@ -874,7 +962,7 @@
                     .attr('x2', d => xScale(d))
                     .attr('y1', height - 8)
                     .attr('y2', height)
-                    .attr('stroke', '#334155')
+                    .attr('stroke', viz('--viz-reference'))
                     .attr('stroke-width', 1)
                     .attr('stroke-opacity', 0.45);
             }
@@ -894,9 +982,9 @@
 
                 gTop.append('path')
                     .datum(previewPts)
-                    .attr('fill', '#f59e0b')
-                    .attr('fill-opacity', 0.25)
-                    .attr('stroke', '#d97706')
+                    .attr('fill', viz('--viz-highlight'))
+                    .attr('fill-opacity', 0.22)
+                    .attr('stroke', viz('--viz-highlight'))
                     .attr('stroke-width', 2)
                     .attr('stroke-dasharray', '3,3')
                     .attr('pointer-events', 'none')
@@ -907,7 +995,8 @@
                     .attr('y', yScale(yMax * 0.38))
                     .attr('text-anchor', 'middle')
                     .attr('pointer-events', 'none')
-                    .attr('class', 'text-[11px] font-mono font-semibold fill-amber-700')
+                    .attr('class', 'text-[11px] font-mono font-semibold')
+                    .attr('fill', viz('--viz-highlight'))
                     .text(`Single Kernel (h = ${state.kdeBandwidth.toFixed(2)})`);
             }
 
@@ -937,7 +1026,7 @@
             gTop.append('line')
                 .attr('class', 'crosshair-line')
                 .attr('y1', 0).attr('y2', height)
-                .attr('stroke', '#0f172a')
+                .attr('stroke', viz('--viz-total'))
                 .attr('stroke-width', 1.2)
                 .attr('stroke-dasharray', '4,4')
                 .attr('pointer-events', 'none')
@@ -946,7 +1035,7 @@
             gTop.append('circle')
                 .attr('class', 'kde-tracer-top')
                 .attr('r', 4.5)
-                .attr('fill', '#4338ca')
+                .attr('fill', viz('--viz-density'))
                 .attr('stroke', '#ffffff')
                 .attr('stroke-width', 1.5)
                 .attr('pointer-events', 'none')
@@ -1054,9 +1143,9 @@
 
             gBottom.append('path')
                 .datum(violinKDE)
-                .attr('fill', '#a855f7')
-                .attr('fill-opacity', isRaincloud ? 0.32 : 0.25)
-                .attr('stroke', '#7e22ce')
+                .attr('fill', viz('--viz-density'))
+                .attr('fill-opacity', isRaincloud ? 0.32 : 0.22)
+                .attr('stroke', viz('--viz-density'))
                 .attr('stroke-width', 2)
                 .style('cursor', 'crosshair')
                 .attr('d', violinArea)
@@ -1074,7 +1163,7 @@
             gBottom.append('line')
                 .attr('x1', 0).attr('x2', width)
                 .attr('y1', violinCenterY).attr('y2', violinCenterY)
-                .attr('stroke', '#cbd5e1')
+                .attr('stroke', viz('--viz-reference'))
                 .attr('stroke-width', 1)
                 .attr('stroke-dasharray', '2,2')
                 .attr('pointer-events', 'none');
@@ -1092,7 +1181,7 @@
                     gBottom.append('line')
                         .attr('x1', 0).attr('x2', width)
                         .attr('y1', rainCenterY).attr('y2', rainCenterY)
-                        .attr('stroke', '#e2e8f0')
+                        .attr('stroke', viz('--viz-reference'))
                         .attr('stroke-width', 1)
                         .attr('stroke-dasharray', '2,4')
                         .attr('pointer-events', 'none');
@@ -1106,15 +1195,15 @@
                     .attr('cx', d => xScale(d))
                     .attr('cy', (d, i) => rainCenterY + state.jitterOffsets[i] * jitterAmplitude)
                     .attr('r', isRaincloud ? 3.2 : 3)
-                    .attr('fill', '#0ea5e9')
+                    .attr('fill', viz('--viz-group-a'))
                     .attr('fill-opacity', isRaincloud ? 0.72 : 0.65)
-                    .attr('stroke', '#0369a1')
+                    .attr('stroke', viz('--viz-group-a'))
                     .attr('stroke-width', 0.6)
                     .style('cursor', 'pointer')
                     .on('mousemove', (event, d) => {
                         updateSynchronizedCrosshair(d, event, false);
                         showTooltip(event, `
-                            <div class="font-bold text-sky-400 border-b border-slate-700 pb-1 mb-1">${isRaincloud ? 'Raindrop (Observed Data Point)' : 'Observed Data Point'}</div>
+                            <div class="font-bold kde-tip-sample border-b border-slate-700 pb-1 mb-1">${isRaincloud ? 'Raindrop (Observed Data Point)' : 'Observed Data Point'}</div>
                             <div class="font-mono text-[11px] flex justify-between gap-4">
                                 <span class="text-slate-400">Value (x):</span>
                                 <span class="font-bold text-white">${d.toFixed(3)}</span>
@@ -1144,7 +1233,7 @@
             gBottom.append('line')
                 .attr('x1', wLowX).attr('x2', q1X)
                 .attr('y1', boxCenterY).attr('y2', boxCenterY)
-                .attr('stroke', '#1e293b')
+                .attr('stroke', viz('--viz-total'))
                 .attr('stroke-width', 2)
                 .attr('pointer-events', 'none');
 
@@ -1175,7 +1264,7 @@
             gBottom.append('line')
                 .attr('x1', q3X).attr('x2', wHighX)
                 .attr('y1', boxCenterY).attr('y2', boxCenterY)
-                .attr('stroke', '#1e293b')
+                .attr('stroke', viz('--viz-total'))
                 .attr('stroke-width', 2)
                 .attr('pointer-events', 'none');
 
@@ -1213,7 +1302,7 @@
                     .attr('x1', cap.x).attr('x2', cap.x)
                     .attr('y1', boxCenterY - capHeight / 2)
                     .attr('y2', boxCenterY + capHeight / 2)
-                    .attr('stroke', '#1e293b')
+                    .attr('stroke', viz('--viz-total'))
                     .attr('stroke-width', 2.5)
                     .attr('pointer-events', 'none');
 
@@ -1245,13 +1334,13 @@
                 .attr('width', Math.max(2, q3X - q1X))
                 .attr('height', boxHeight)
                 .attr('rx', isRaincloud ? 3 : 4)
-                .attr('fill', '#ffffff')
+                .attr('fill', 'var(--viz-group-a-soft)')
                 .attr('fill-opacity', 0.94)
-                .attr('stroke', '#312e81')
+                .attr('stroke', viz('--viz-total'))
                 .attr('stroke-width', 2.2)
                 .style('cursor', 'pointer')
                 .on('mouseenter', function() {
-                    d3.select(this).attr('fill', '#eef2ff');
+                    d3.select(this).attr('fill', 'var(--viz-group-a-mid)');
                 })
                 .on('mousemove', (event) => {
                     const [mx] = d3.pointer(event, gBottom.node());
@@ -1264,7 +1353,7 @@
                             <span class="text-slate-400">Q1 (25th %):</span>
                             <span class="text-right font-semibold text-indigo-300">${stats.q1.toFixed(2)}</span>
                             <span class="text-slate-400">Median (Q2 / 50th %):</span>
-                            <span class="text-right font-semibold text-rose-400">${stats.median.toFixed(2)}</span>
+                            <span class="text-right font-semibold kde-tip-median">${stats.median.toFixed(2)}</span>
                             <span class="text-slate-400">Q3 (75th %):</span>
                             <span class="text-right font-semibold text-indigo-300">${stats.q3.toFixed(2)}</span>
                             <span class="text-slate-400">Max (Q4 / 100th %):</span>
@@ -1272,12 +1361,12 @@
                             <span class="text-slate-400 border-t border-slate-800 pt-1">IQR (Q3 − Q1):</span>
                             <span class="text-right font-bold text-white border-t border-slate-800 pt-1">${stats.iqr.toFixed(2)}</span>
                             <span class="text-slate-400">Mean (μ):</span>
-                            <span class="text-right text-amber-400">${stats.mean.toFixed(2)}</span>
+                            <span class="text-right kde-tip-mean">${stats.mean.toFixed(2)}</span>
                         </div>
                     `);
                 })
                 .on('mouseleave', function() {
-                    d3.select(this).attr('fill', '#ffffff');
+                    d3.select(this).attr('fill', 'var(--viz-group-a-soft)');
                     clearSynchronizedCrosshair();
                     hideTooltip();
                 });
@@ -1313,7 +1402,7 @@
                 .attr('x1', medX).attr('x2', medX)
                 .attr('y1', boxCenterY - boxHeight / 2)
                 .attr('y2', boxCenterY + boxHeight / 2)
-                .attr('stroke', '#e11d48')
+                .attr('stroke', viz('--viz-median'))
                 .attr('stroke-width', 3.5)
                 .attr('pointer-events', 'none');
 
@@ -1327,10 +1416,10 @@
                 .on('mousemove', (event) => {
                     updateSynchronizedCrosshair(stats.median, event, false);
                     showTooltip(event, `
-                        <div class="font-bold text-rose-400 border-b border-slate-700 pb-1 mb-1">Median (Q2 — 50th Percentile)</div>
+                        <div class="font-bold kde-tip-median border-b border-slate-700 pb-1 mb-1">Median (Q2 — 50th Percentile)</div>
                         <div class="font-mono text-[11px] space-y-1">
                             <div class="flex justify-between gap-4"><span class="text-slate-400">Median (Q2):</span><span class="font-bold text-white">${stats.median.toFixed(2)}</span></div>
-                            <div class="flex justify-between gap-4"><span class="text-slate-400">Mean (μ):</span><span class="text-amber-400">${stats.mean.toFixed(2)}</span></div>
+                            <div class="flex justify-between gap-4"><span class="text-slate-400">Mean (μ):</span><span class="kde-tip-mean">${stats.mean.toFixed(2)}</span></div>
                             <div class="flex justify-between gap-4"><span class="text-slate-400">Skew Gap (μ − Q2):</span><span class="text-slate-300">${(stats.mean - stats.median).toFixed(2)}</span></div>
                         </div>
                     `);
@@ -1348,18 +1437,18 @@
                         ${meanX},${boxCenterY + diamondSize}
                         ${meanX - diamondSize},${boxCenterY}
                     `)
-                    .attr('fill', '#f59e0b')
-                    .attr('stroke', '#78350f')
+                    .attr('fill', viz('--viz-mean'))
+                    .attr('stroke', viz('--viz-mean'))
                     .attr('stroke-width', 1.5)
                     .style('cursor', 'pointer')
                     .on('mousemove', (event) => {
                         updateSynchronizedCrosshair(stats.mean, event, false);
                         showTooltip(event, `
-                            <div class="font-bold text-amber-400 border-b border-slate-700 pb-1 mb-1">Sample Mean (μ)</div>
+                            <div class="font-bold kde-tip-mean border-b border-slate-700 pb-1 mb-1">Sample Mean (μ)</div>
                             <div class="font-mono text-[11px] space-y-1">
                                 <div class="flex justify-between gap-4"><span class="text-slate-400">Mean (μ = Σx / n):</span><span class="font-bold text-white">${stats.mean.toFixed(2)}</span></div>
                                 <div class="flex justify-between gap-4"><span class="text-slate-400">Std Dev (s):</span><span class="text-slate-200">${stats.sd.toFixed(2)}</span></div>
-                                <div class="flex justify-between gap-4"><span class="text-slate-400">Median (Q2):</span><span class="text-rose-400">${stats.median.toFixed(2)}</span></div>
+                                <div class="flex justify-between gap-4"><span class="text-slate-400">Median (Q2):</span><span class="kde-tip-median">${stats.median.toFixed(2)}</span></div>
                             </div>
                         `);
                     })
@@ -1376,13 +1465,13 @@
                     .attr('cx', d => xScale(d))
                     .attr('cy', boxCenterY)
                     .attr('r', 4.5)
-                    .attr('fill', '#f43f5e')
-                    .attr('fill-opacity', 0.85)
-                    .attr('stroke', '#881337')
+                    .attr('fill', viz('--viz-null'))
+                    .attr('fill-opacity', 0.9)
+                    .attr('stroke', viz('--viz-null'))
                     .attr('stroke-width', 1.2)
                     .style('cursor', 'pointer')
                     .on('mouseenter', function() {
-                        d3.select(this).attr('r', 6.5).attr('fill', '#e11d48');
+                        d3.select(this).attr('r', 6.5).attr('fill', viz('--viz-null'));
                     })
                     .on('mousemove', (event, d) => {
                         updateSynchronizedCrosshair(d, event, false);
@@ -1410,7 +1499,7 @@
                         }
 
                         showTooltip(event, `
-                            <div class="font-bold text-rose-400 border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between">
+                            <div class="font-bold kde-tip-null border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between">
                                 <span>Extreme Outlier</span>
                                 <span class="font-mono text-white">x = ${d.toFixed(2)}</span>
                             </div>
@@ -1422,7 +1511,7 @@
                         `);
                     })
                     .on('mouseleave', function() {
-                        d3.select(this).attr('r', 4.5).attr('fill', '#f43f5e');
+                        d3.select(this).attr('r', 4.5).attr('fill', viz('--viz-null'));
                         clearSynchronizedCrosshair();
                         hideTooltip();
                     });
@@ -1499,7 +1588,7 @@
             gBottom.append('line')
                 .attr('class', 'crosshair-line')
                 .attr('y1', 0).attr('y2', height)
-                .attr('stroke', '#0f172a')
+                .attr('stroke', viz('--viz-total'))
                 .attr('stroke-width', 1.2)
                 .attr('stroke-dasharray', '4,4')
                 .attr('pointer-events', 'none')
@@ -1508,7 +1597,7 @@
             gBottom.append('circle')
                 .attr('class', 'violin-tracer-upper')
                 .attr('r', 4)
-                .attr('fill', '#7e22ce')
+                .attr('fill', viz('--viz-density'))
                 .attr('stroke', '#ffffff')
                 .attr('stroke-width', 1.5)
                 .attr('pointer-events', 'none')
@@ -1517,7 +1606,7 @@
             gBottom.append('circle')
                 .attr('class', 'violin-tracer-lower')
                 .attr('r', 4)
-                .attr('fill', '#7e22ce')
+                .attr('fill', viz('--viz-density'))
                 .attr('stroke', '#ffffff')
                 .attr('stroke-width', 1.5)
                 .attr('pointer-events', 'none')
@@ -1574,15 +1663,15 @@
             // Show floating curve density tooltip when hovering over the curves or background
             if (showCurveTooltip && event) {
                 showTooltip(event, `
-                    <div class="font-bold text-indigo-300 border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between gap-4">
+                    <div class="font-bold kde-tip-density border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between gap-4">
                         <span>KDE Curve Tracer</span>
                         <span class="font-mono text-white">x = ${xVal.toFixed(2)}</span>
                     </div>
                     <div class="grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-[11px]">
                         <span class="text-slate-400">Top KDE f(x):</span>
-                        <span class="text-right font-semibold text-indigo-300">${topDensity.toFixed(4)}</span>
+                        <span class="text-right font-semibold kde-tip-density">${topDensity.toFixed(4)}</span>
                         <span class="text-slate-400">${isRaincloud ? 'Cloud Density:' : 'Violin Density:'}</span>
-                        <span class="text-right font-semibold text-purple-300">${isRaincloud ? violinDensity.toFixed(4) : `±${violinDensity.toFixed(4)}`}</span>
+                        <span class="text-right font-semibold kde-tip-density">${isRaincloud ? violinDensity.toFixed(4) : `±${violinDensity.toFixed(4)}`}</span>
                         <span class="text-slate-400">Bandwidth (h):</span>
                         <span class="text-right text-slate-300">${state.kdeBandwidth.toFixed(2)}${!state.syncBandwidth ? ` / ${vBw.toFixed(2)}` : ''}</span>
                     </div>
@@ -1685,15 +1774,15 @@
 
             btnDensity.addEventListener('click', () => {
                 state.yScaleMode = 'density';
-                btnDensity.className = 'px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm font-medium transition';
-                btnCount.className = 'px-2.5 py-1 rounded-md text-slate-600 font-medium transition';
+                btnDensity.classList.add('is-active');
+                btnCount.classList.remove('is-active');
                 renderAll();
             });
 
             btnCount.addEventListener('click', () => {
                 state.yScaleMode = 'count';
-                btnCount.className = 'px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm font-medium transition';
-                btnDensity.className = 'px-2.5 py-1 rounded-md text-slate-600 font-medium transition';
+                btnCount.classList.add('is-active');
+                btnDensity.classList.remove('is-active');
                 renderAll();
             });
 
@@ -1740,12 +1829,9 @@
 
             function updateLayoutButtons(selectedMode) {
                 state.layoutMode = selectedMode;
-                const activeClass = 'px-2 py-1 rounded-md bg-white text-slate-800 shadow-sm font-medium transition';
-                const inactiveClass = 'px-2 py-1 rounded-md text-slate-600 font-medium transition';
-
-                btnNested.className = selectedMode === 'nested' ? activeClass : inactiveClass;
-                btnSplit.className = selectedMode === 'split' ? activeClass : inactiveClass;
-                btnRaincloud.className = selectedMode === 'raincloud' ? activeClass : inactiveClass;
+                btnNested.classList.toggle('is-active', selectedMode === 'nested');
+                btnSplit.classList.toggle('is-active', selectedMode === 'split');
+                btnRaincloud.classList.toggle('is-active', selectedMode === 'raincloud');
 
                 if (selectedMode === 'raincloud') {
                     // Automatically enable jittered raindrops when entering Raincloud mode

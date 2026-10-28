@@ -55,7 +55,7 @@
         {
           "href": "statistics/boxplot_histogram.html",
           "title": "Boxplot and Histogram",
-          "note": "Numbers for center, spread, and skew summarize a shape; pictures show that shape directly. A histogram shows how values pile up; a boxplot packs the center and spread of the same data into a box and whiskers. Read the pile and the box together on one sample. Reading both together also shows how far a point can sit before it looks unusual against the middle of the data.",
+          "note": "Numbers for center, spread, and skew summarize a shape; pictures show that shape directly. A histogram shows how values pile up; a boxplot packs the center and spread of the same data into a box and whiskers. Read the pile and the box together on one sample. Those bars still depend on where the bin edges fall. A smooth curve can follow the same pile without those cuts.",
           "formulae": [
             "Q₁, Q₂ (median), Q₃",
             "IQR = Q₃ − Q₁"
@@ -64,14 +64,25 @@
           "imageAlt": "Histogram and boxplot of the same 44 values. The tallest bar is at 5. Dashed lines mark the first quartile at 5, the median at 6, and the third quartile at 8. Whiskers run from 3 to 12."
         },
         {
+          "href": "statistics/kde_plots.html",
+          "title": "Kernel Density Estimate (KDE)",
+          "note": "A histogram’s bars move when the bin edges move, even though the numbers have not. A kernel density estimate sets a small kernel on each point and adds those kernels, so the same pile becomes a smooth curve. The bandwidth h is how wide each kernel is: a narrow kernel keeps the spikes, and a wide one flattens them. The kernel’s shape — Gaussian, Epanechnikov, or boxcar — is how the weights fall away from each point. That same curve is the violin, and a half of it is the cloud in a raincloud plot. The box beside them is still the five-number summary, which is what makes an extreme point look unusual.",
+          "formulae": [
+            "f̂(x) = (1/(n h)) Σ K((x − xᵢ) / h)",
+            "h = bandwidth"
+          ],
+          "image": "tracks/images/describing-data/06-kernel-density.png",
+          "imageAlt": "Histogram and Gaussian kernel density of the same 44 values as the boxplot figure. Bars are one unit wide and the tallest is at 5. The smooth curve peaks near 5.4. The bandwidth is h = 0.95."
+        },
+        {
           "href": "statistics/boxplot_outliers.html",
           "title": "Boxplot and Outliers",
-          "note": "Once you can see the middle of the data in a boxplot, the next question is which points sit so far out that they count as unusual. The whiskers mark how far a point can sit from the quartiles before it counts as an outlier; the fence is a multiple of the spread inside the box. Add extreme points and watch which ones fall outside the fences. Outliers are one kind of mismatch with a simple shape; another is whether the whole set of numbers matches a reference distribution.",
+          "note": "A density curve and a box show where the middle of the data sits. The next question is which points sit so far out that they count as unusual. The whiskers mark how far a point can sit from the quartiles before it counts as an outlier; the fence is a multiple of the spread inside the box. Add extreme points and watch which ones fall outside the fences. Outliers are one kind of mismatch with a simple shape; another is whether the whole set of numbers matches a reference distribution.",
           "formulae": [
             "lower fence = Q₁ − 1.5 × IQR",
             "upper fence = Q₃ + 1.5 × IQR"
           ],
-          "image": "tracks/images/describing-data/06-boxplot-fences.png",
+          "image": "tracks/images/describing-data/07-boxplot-fences.png",
           "imageAlt": "Vertical boxplot for one sample. The box runs from the first quartile at 20 to the third quartile at 40, with the median at 30. Dashed Tukey fences sit at −10 and 70. The upper whisker stops at 44, inside the fence, and a point at 80 is marked as an outlier."
         },
         {
@@ -81,7 +92,7 @@
           "formulae": [
             "plot (theoretical quantile, sample quantile) for each order statistic"
           ],
-          "image": "tracks/images/describing-data/07-qq-plot.png",
+          "image": "tracks/images/describing-data/08-qq-plot.png",
           "imageAlt": "Q–Q plot of one sample of 40 standard normal draws. Ordered sample quantiles are plotted against normal theoretical quantiles and lie close to a straight reference line."
         }
       ]
