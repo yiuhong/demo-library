@@ -541,6 +541,92 @@ def _draw_horizontal_box(ax: plt.Axes, stats: dict) -> None:
     ax.set_ylim(-1.05, 1.05)
 
 
+def _gaussian_kde(values: np.ndarray, grid: np.ndarray, bandwidth: float) -> np.ndarray:
+    """Gaussian kernel density, f̂(x) = (1/(n h)) Σ K((x − xᵢ)/h)."""
+    sample = np.asarray(values, dtype=float)
+    scale = bandwidth * math.sqrt(2 * math.pi)
+    z = (grid[None, :] - sample[:, None]) / bandwidth
+    return np.exp(-0.5 * z * z).sum(axis=0) / (len(sample) * scale)
+
+
+def draw_kde() -> None:
+    """Same 44 values as the histogram card, with a Gaussian kernel on top.
+
+    Bandwidth is Silverman's rule, rounded to two decimals:
+    h = 0.9 * min(s, IQR/1.34) * n^(−1/5), with s the sample standard deviation.
+    """
+    sample = np.asarray(HIST_SAMPLE, dtype=float)
+    n = len(sample)
+    stats = quartiles(sample)
+    sd = float(sample.std(ddof=1))
+    silverman = 0.9 * min(sd, stats["iqr"] / 1.34) * n ** (-0.2)
+    bandwidth = round(silverman, 2)
+    if not 0.4 <= bandwidth <= 1.6:
+        raise SystemExit(f"KDE bandwidth {bandwidth} is outside the teaching range")
+
+    values, counts = np.unique(sample, return_counts=True)
+    bin_width = 1.0
+    density = counts / (n * bin_width)
+    peak_x = float(values[int(np.argmax(counts))])
+    if peak_x != 5:
+        raise SystemExit(f"expected the histogram peak at 5, got {peak_x}")
+
+    grid = np.linspace(1.5, 14.2, 700)
+    curve = _gaussian_kde(sample, grid, bandwidth)
+    # A Gaussian kernel integrates to 1, so the estimate should too.
+    area = float(np.sum((curve[:-1] + curve[1:]) * 0.5 * np.diff(grid)))
+    if abs(area - 1) > 0.04:
+        raise SystemExit(f"KDE area {area} is not near 1")
+    mode_x = float(grid[int(np.argmax(curve))])
+    if not 4.2 <= mode_x <= 6.2:
+        raise SystemExit(f"KDE mode {mode_x} does not sit on the histogram peak")
+    # The right tail of the bars is lower than the peak; the curve should agree.
+    tail = float(curve[np.argmin(np.abs(grid - 12))])
+    if tail >= float(curve.max()) * 0.45:
+        raise SystemExit("KDE tail is not lower than the peak")
+
+    fig, ax = plt.subplots(figsize=(7.6, 4.9))
+    fig.subplots_adjust(left=0.12, right=0.98, top=0.90, bottom=0.14)
+    ax.bar(
+        values,
+        density,
+        width=0.86,
+        align="center",
+        facecolor="white",
+        edgecolor="black",
+        linewidth=1.0,
+        zorder=2,
+        label="histogram, width 1",
+    )
+    ax.plot(
+        grid,
+        curve,
+        color="black",
+        linewidth=1.7,
+        zorder=3,
+        label=f"Gaussian KDE,  h = {bandwidth:.2f}",
+    )
+
+    y_top = max(float(density.max()), float(curve.max()))
+    ax.set_xlim(1.5, 14.6)
+    ax.set_ylim(0, y_top * 1.32)
+    ax.set_xlabel("value")
+    ax.set_ylabel("density")
+    ax.set_title("Same sample: the pile, drawn without bin edges")
+    ax.legend(
+        frameon=True,
+        edgecolor="black",
+        fancybox=False,
+        loc="upper right",
+    )
+    _save(fig, "06-kernel-density.png")
+    print(
+        f"  kde n={n} h={bandwidth:.2f} silverman={silverman:.4f} "
+        f"mode={mode_x:.2f} peak_bar={peak_x:.0f} area={area:.3f} "
+        f"max_density={float(curve.max()):.3f}"
+    )
+
+
 def draw_fences() -> None:
     stats = quartiles(FENCE_SAMPLE)
     expected = {
@@ -647,7 +733,7 @@ def draw_fences() -> None:
     ax.set_xticks([])
     ax.set_ylabel("value")
     ax.set_title("Tukey fences: a point past 1.5 IQR is an outlier")
-    _save(fig, "06-boxplot-fences.png")
+    _save(fig, "07-boxplot-fences.png")
     print("  fences ok", {key: stats[key] for key in expected})
 
 
@@ -679,7 +765,7 @@ def draw_qq() -> None:
     ax.set_xlabel(r"theoretical normal quantile,  $\Phi^{-1}((i-0.5)/n)$")
     ax.set_ylabel("sample quantile (ordered value)")
     ax.set_title(f"One nearly normal sample (n = {QQ_N})")
-    _save(fig, "07-qq-plot.png")
+    _save(fig, "08-qq-plot.png")
     print(f"  qq seed={seed} max|residual|={float(residual.max()):.3f}")
 
 
@@ -690,6 +776,7 @@ def main() -> None:
     draw_bessel()
     draw_skew()
     draw_histogram_box()
+    draw_kde()
     draw_fences()
     draw_qq()
 
