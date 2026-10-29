@@ -1,0 +1,32 @@
+cff-version: "1.2.0"
+message: "If you use the Teaching Materials Library, please cite it using the metadata from preferred-citation in this file. Teaching text, explanations, and figures are CC BY 4.0. Source code is MIT (see LICENSE-CODE). The Hyperspace template by HTML5 UP remains CC BY 3.0."
+type: software
+title: "Teaching Materials Library"
+abstract: "Interactive open educational resources for instructors and students. The demos teach statistics, neuroscience, and cognitive and personality psychology. Teaching content is CC BY 4.0. Source code is MIT."
+authors:
+  - family-names: Ko
+    given-names: "Yiu Hong"
+    orcid: "https://orcid.org/0000-0003-4436-0166"
+    email: yiuhong.ko@gmail.com
+    website: "https://yiuhong.github.io/"
+version: "0.1.2"
+date-released: "2026-10-29"
+url: "https://yiuhong.github.io/demo-library/"
+repository-code: "https://github.com/yiuhong/demo-library"
+license: CC-BY-4.0
+keywords:
+  - "open educational resources"
+  - statistics
+  - neuroscience
+  - psychology
+  - teaching
+preferred-citation:
+  type: website
+  title: "Teaching Materials Library"
+  authors:
+    - family-names: Ko
+      given-names: "Yiu Hong"
+      orcid: "https://orcid.org/0000-0003-4436-0166"
+  year: 2026
+  version: "0.1.2"
+  url: "https://yiuhong.github.io/demo-library/"

@@ -5,6 +5,15 @@ All notable changes to the Teaching Materials Library are documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-10-29
+
+### Added
+
+- `CITATION.cff` (Citation File Format 1.2.0) for this teaching library, linked from the cite page and the README as the machine-readable citation
+- Dual-license table: teaching content is CC BY 4.0, source code is MIT (`LICENSE-CODE`), and the Hyperspace template by HTML5 UP remains CC BY 3.0
+- Short licenses page (`license.html`), linked from the library footer, the cite page, and the demo strip
+- Accessibility note on the cite page: the library aims for keyboard use and readable contrast, and accessibility issues go to GitHub Issues
+
 ## [0.1.1] - 2026-10-29
 
 ### Added

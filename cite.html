@@ -135,6 +135,42 @@
             outline-offset: 3px;
         }
 
+        .cite-license-wrap {
+            overflow-x: auto;
+            margin: 0 0 1.35em 0;
+        }
+
+        table.cite-license {
+            width: 100%;
+            margin: 0;
+            border-collapse: collapse;
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        table.cite-license caption {
+            caption-side: top;
+            text-align: left;
+            font-weight: bold;
+            margin: 0 0 0.55em 0;
+            color: #000000 !important;
+        }
+
+        table.cite-license th,
+        table.cite-license td {
+            border: 1px solid #000000 !important;
+            padding: 0.65em 0.75em;
+            text-align: left;
+            vertical-align: top;
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        table.cite-license a {
+            color: #000000 !important;
+            white-space: nowrap;
+        }
+
         #footer .menu {
             line-height: 1.65;
         }
@@ -166,15 +202,15 @@
             <div class="inner">
                 <p><a class="cite-back" href="index.html">← Teaching Materials Library</a></p>
                 <h1>Cite & reuse</h1>
-                <p>Bookmark this page. It is the citation, the license, and what you may do with the Teaching Materials Library. This is <em>Teaching materials library</em> by <a rel="author" href="https://yiuhong.github.io/">Yiu Hong Ko</a> (<a href="https://orcid.org/0000-0003-4436-0166" aria-label="ORCID iD 0000-0003-4436-0166">ORCID 0000-0003-4436-0166</a>), version <span data-site-field="version">0.1.1</span>, last updated <time datetime="2026-10-29" data-site-field="updatedDisplay" data-site-datetime="updated">29 October 2026</time>.</p>
-                <p class="cite-toc"><a href="#cite">Cite</a> · <a href="#license">License</a> · <a href="#reuse">Reuse</a> · <a href="#credit">Credit line</a> · <a href="#report">Report a mistake</a> · <a href="#about">About</a> · <a href="#contribute">Contribute</a></p>
+                <p>Bookmark this page. It is the citation, the license, and what you may do with the Teaching Materials Library. This is <em>Teaching materials library</em> by <a rel="author" href="https://yiuhong.github.io/">Yiu Hong Ko</a> (<a href="https://orcid.org/0000-0003-4436-0166" aria-label="ORCID iD 0000-0003-4436-0166">ORCID 0000-0003-4436-0166</a>), version <span data-site-field="version">0.1.2</span>, last updated <time datetime="2026-10-29" data-site-field="updatedDisplay" data-site-datetime="updated">29 October 2026</time>.</p>
+                <p class="cite-toc"><a href="#cite">Cite</a> · <a href="#citation-cff">Machine-readable citation</a> · <a href="#license">License</a> · <a href="#reuse">Reuse</a> · <a href="#credit">Credit line</a> · <a href="#accessibility">Accessibility</a> · <a href="#report">Report a mistake</a> · <a href="#about">About</a> · <a href="#contribute">Contribute</a></p>
 
                 <h2 id="cite">Cite</h2>
                 <p>Cite the library as a whole when a syllabus, paper, or slide deck refers to the collection. The version identifies this release.</p>
 
                 <h3>APA 7</h3>
                 <div class="cite-block">
-                    <p id="cite-apa">Ko, Y. H. (2026). <em>Teaching materials library</em> (Version 0.1.1). https://yiuhong.github.io/demo-library/</p>
+                    <p id="cite-apa">Ko, Y. H. (2026). <em>Teaching materials library</em> (Version 0.1.2). https://yiuhong.github.io/demo-library/</p>
                     <button type="button" class="cite-copy" data-copy="cite-apa" data-copy-mode="inline">Copy APA</button>
                 </div>
                 <p>The title is in APA sentence case.</p>
@@ -185,23 +221,52 @@
   author  = {Ko, Yiu Hong},
   title   = {{Teaching Materials Library}},
   year    = {2026},
-  version = {0.1.1},
+  version = {0.1.2},
   url     = {https://yiuhong.github.io/demo-library/},
-  note    = {Version 0.1.1, last updated 29 October 2026}
+  note    = {Version 0.1.2, last updated 29 October 2026}
 }</pre>
                     <button type="button" class="cite-copy" data-copy="cite-bibtex" data-copy-mode="pre">Copy BibTeX</button>
                 </div>
 
+                <h3 id="citation-cff">Machine-readable citation</h3>
+                <p><a href="CITATION.cff">CITATION.cff</a> is a machine-readable citation for this release (Citation File Format 1.2.0). It names the teaching library, Yiu Hong Ko and the ORCID iD, version <span data-site-field="version">0.1.2</span>, the release date 29 October 2026, and <a href="https://yiuhong.github.io/demo-library/">https://yiuhong.github.io/demo-library/</a>. The file records the work as CC BY 4.0 and notes that source code is MIT.</p>
+
                 <h3 id="one-demo">Citing one demo</h3>
                 <p>Keep the library citation above when you mean the whole collection. For a single demo, name that demo, then the library, the version, and the URL of the demo page. Titles come from the catalog.</p>
                 <div class="cite-block">
-                    <p id="cite-demo" data-demo-href="statistics/central_limit_theorem.html">Central Limit Theorem (CLT). Teaching Materials Library (Version 0.1.1). https://yiuhong.github.io/demo-library/statistics/central_limit_theorem.html</p>
+                    <p id="cite-demo" data-demo-href="statistics/central_limit_theorem.html">Central Limit Theorem (CLT). Teaching Materials Library (Version 0.1.2). https://yiuhong.github.io/demo-library/statistics/central_limit_theorem.html</p>
                     <button type="button" class="cite-copy" data-copy="cite-demo" data-copy-mode="inline">Copy demo citation</button>
                 </div>
                 <p>This example is the <a href="statistics/central_limit_theorem.html">Central Limit Theorem (CLT)</a> demo. On a demo page, <strong>Cite this demo</strong> in the license strip copies the same pattern for that page.</p>
 
                 <h2 id="license">License</h2>
-                <p>Teaching text, explanations, and figures are <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Source code is <a href="LICENSE-CODE">MIT</a>. The split is stated in <a href="LICENSE">LICENSE</a> and <a href="LICENSE-CODE">LICENSE-CODE</a>. Where a page mixes both, use the license that matches the part you are reusing.</p>
+                <p>A page can mix these parts. Use the license that matches the part you are reusing. The same table is on <a href="license.html">license.html</a>.</p>
+                <div class="cite-license-wrap">
+                    <table class="cite-license">
+                        <caption>Licenses for this library</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Part</th>
+                                <th scope="col">License</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">Content</th>
+                                <td>Teaching text, explanations, and figures are <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. The legal text is in <a href="LICENSE">LICENSE</a>.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Source code</th>
+                                <td>HTML, CSS, JavaScript, and Python that run the site and the demos are <a href="LICENSE-CODE">MIT</a>. The MIT text is in <a href="LICENSE-CODE">LICENSE-CODE</a>.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Hyperspace template</th>
+                                <td>These pages use the Hyperspace template by <a href="https://html5up.net">HTML5 UP</a>. That template remains <a href="https://html5up.net/license">CC BY 3.0</a>. The design credit stays in the footer.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p>Scripts loaded from other projects keep the license those projects already use. This library does not relicense them.</p>
 
                 <h2 id="reuse">Reuse</h2>
                 <h3>What you may do</h3>
@@ -231,6 +296,9 @@
                 </div>
                 <p>Copy this onto a slide or a syllabus. If you changed the material, start with "Adapted from" instead of "From". For code, keep the MIT notice in <a href="LICENSE-CODE">LICENSE-CODE</a> with the code.</p>
 
+                <h2 id="accessibility">Accessibility</h2>
+                <p>The library aims for usable keyboard access and readable contrast. That is a goal for these pages, not a finished audit, and this site does not state a conformance level. If a control cannot be reached from the keyboard, or text is hard to read, report it on <a href="https://github.com/yiuhong/demo-library/issues">GitHub Issues</a> and name the page.</p>
+
                 <h2 id="report">Report a mistake</h2>
                 <p>Report a bug or a teaching error on <a href="https://github.com/yiuhong/demo-library/issues">GitHub Issues</a>. Name the demo page and what you expected to see. Source: <a href="https://github.com/yiuhong/demo-library">View source on GitHub</a>.</p>
 
@@ -254,11 +322,12 @@
                 <li><a rel="author" href="https://yiuhong.github.io/">Yiu Hong Ko</a> · <a href="https://yiuhong.github.io/">Personal site</a> · <a href="mailto:yiuhong.ko@gmail.com">yiuhong.ko@gmail.com</a> · <a href="https://orcid.org/0000-0003-4436-0166" aria-label="ORCID iD 0000-0003-4436-0166">ORCID</a></li>
                 <li>Content <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Code <a href="LICENSE-CODE">MIT</a></li>
                 <li><a href="cite.html">Cite & reuse</a></li>
+                <li><a href="license.html">Licenses</a></li>
                 <li><a href="CHANGELOG.md">Changelog</a></li>
                 <li><a href="CONTRIBUTING.md">Contribute</a></li>
                 <li><a href="https://github.com/yiuhong/demo-library/issues">Spotted a mistake?</a></li>
                 <li><a href="https://github.com/yiuhong/demo-library">View source on GitHub</a></li>
-                <li>Version <span data-site-field="version">0.1.1</span> · Updated <time datetime="2026-10-29" data-site-field="updatedDisplay" data-site-datetime="updated">29 October 2026</time></li>
+                <li>Version <span data-site-field="version">0.1.2</span> · Updated <time datetime="2026-10-29" data-site-field="updatedDisplay" data-site-datetime="updated">29 October 2026</time></li>
                 <li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
             </ul>
         </div>

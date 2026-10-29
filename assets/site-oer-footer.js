@@ -102,6 +102,7 @@
     code.appendChild(mit);
     addNode(code);
 
+    addLink(rootUrl("license.html"), "Licenses");
     addLink(rootUrl("cite.html"), "Cite & reuse");
     addLink(meta.issues, "Spotted a mistake?");
     addLink(meta.repo, "View source");

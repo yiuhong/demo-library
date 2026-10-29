@@ -6,15 +6,17 @@ A collection of interactive demonstrations and teaching materials designed for e
 
 ## Cite, license, and contact
 
-Teaching text, explanations, and figures are [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source code is [MIT](LICENSE-CODE). [LICENSE](LICENSE) states the split: prose and figures in a page are CC BY 4.0, and the code in that page is MIT.
+Teaching text, explanations, and figures are [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source code is [MIT](LICENSE-CODE). [LICENSE](LICENSE) states the split: prose and figures in a page are CC BY 4.0, and the code in that page is MIT. The Hyperspace template by HTML5 UP remains [CC BY 3.0](https://html5up.net/license). The same three-way split is on [license.html](license.html).
 
 Cite and reuse the library (APA 7, BibTeX, license, and a credit line): [cite.html](https://yiuhong.github.io/demo-library/cite.html).
+
+A machine-readable citation is [`CITATION.cff`](CITATION.cff) (Citation File Format 1.2.0). It matches the preferred citation on the cite page: this teaching library, Yiu Hong Ko, the ORCID iD, this version, and the library URL. The file records the work as CC BY 4.0 and notes that source code is MIT.
 
 Yiu Hong Ko · [ORCID 0000-0003-4436-0166](https://orcid.org/0000-0003-4436-0166) · [yiuhong.ko@gmail.com](mailto:yiuhong.ko@gmail.com) · [yiuhong.github.io](https://yiuhong.github.io/)
 
 Mistakes, bugs, and ideas: [GitHub Issues](https://github.com/yiuhong/demo-library/issues). Notes for contributors: [CONTRIBUTING.md](CONTRIBUTING.md). What changed: [CHANGELOG.md](CHANGELOG.md).
 
-Version and last-updated date live in [`assets/site-meta.js`](assets/site-meta.js). The current release is **0.1.1** (29 October 2026). Version 0.1.0 was the first versioned release. Bump `version` and `updated` there when the library changes in a way a syllabus should record, and add a changelog entry. The footer and cite page read that file. `index.html` and `cite.html` repeat the same version and date for visitors without JavaScript; update that fallback when you bump `site-meta.js`.
+Version and last-updated date live in [`assets/site-meta.js`](assets/site-meta.js). The current release is **0.1.2** (29 October 2026). Version 0.1.0 was the first versioned release. Bump `version` and `updated` there when the library changes in a way a syllabus should record, set the same version and `date-released` in [`CITATION.cff`](CITATION.cff), and add a changelog entry. The footer and cite page read that file. `index.html`, `cite.html`, and `license.html` repeat the same version and date for visitors without JavaScript; update that fallback when you bump `site-meta.js`.
 
 ## 📂 Repository Structure
 
@@ -27,6 +29,8 @@ Demo pages live in subject folders. The library page does not hard-code the cata
 * [`demos.json`](demos.json) — catalog inventory for Cards and List
 * [`tracks.json`](tracks.json) — Guided Tracks playlists only (order, notes, formulae, images)
 * [`scripts/check_catalog.py`](scripts/check_catalog.py) — checks catalog and track paths, required titles, and site chrome
+* [`CITATION.cff`](CITATION.cff) — machine-readable citation (Citation File Format 1.2.0)
+* [`license.html`](license.html) — which license covers content, code, and the Hyperspace template
 
 `demos.json` is the list of demos: titles, blurbs, links, search keywords, tags, and category order. `tracks.json` is playlists. Teaching notes stay in `tracks.json`; do not copy them into `demos.json`.
 
@@ -146,4 +150,4 @@ python3 scripts/check_catalog.py
 
 The command exits 0 when those titles and paths are in place, and when the license files and site chrome are in place. Otherwise it prints each problem and exits with an error. GitHub Actions runs the same check on pull requests and on pushes to `main`.
 
-The chrome check requires `LICENSE` (CC BY 4.0 for content, with the MIT split stated) and `LICENSE-CODE` (MIT for code). Every demo in `demos.json` must include `assets/site-meta.js`, `assets/site-oer-footer.js`, and `assets/site-oer-footer.css`. `index.html` and `cite.html` must show the same version and date as `assets/site-meta.js`, and no public page may say "All rights reserved". It also checks the cite page sections, the ORCID link, the per-demo example title against `demos.json`, and that `CHANGELOG.md` names the current version.
+The chrome check requires `LICENSE` (CC BY 4.0 for content, with the MIT split stated) and `LICENSE-CODE` (MIT for code). Every demo in `demos.json` must include `assets/site-meta.js`, `assets/site-oer-footer.js`, and `assets/site-oer-footer.css`. `index.html`, `cite.html`, and `license.html` must show the same version and date as `assets/site-meta.js`, and no public page may say "All rights reserved". It also checks the cite page sections, the ORCID link, the per-demo example title against `demos.json`, `CITATION.cff` against the current version, the dual-license wording, the accessibility note, and that `CHANGELOG.md` names the current version.
