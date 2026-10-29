@@ -568,6 +568,33 @@
         #footer .menu {
             line-height: 1.65;
         }
+
+        p.library-about {
+            max-width: 42rem;
+        }
+
+        p.library-preferred-cite {
+            max-width: 42rem;
+            margin: 0 0 1.5em 0;
+            padding: 0.85em 1em;
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #000000 !important;
+            border-radius: 4px;
+            overflow-wrap: anywhere;
+        }
+
+        p.library-preferred-cite em,
+        p.library-preferred-cite a {
+            color: #000000 !important;
+        }
+
+        a.library-full-cite {
+            display: inline-block;
+            margin-left: 0.65em;
+            font-weight: bold;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body class="is-preload">
@@ -600,7 +627,8 @@
             <div class="inner">
                 <div id="catalog-intro">
                     <h1>Teaching Materials Library</h1>
-                    <p>A collection of interactive demonstrations and teaching materials designed for exploring concepts in psychology, neuroscience, and statistics.</p>
+                    <p id="library-about" class="library-about">Interactive open educational resources for instructors and students. The teaching demos cover statistics, neuroscience, and cognitive and personality psychology.</p>
+                    <p id="library-preferred-cite" class="library-preferred-cite"><span id="library-apa" data-site-apa>Ko, Y. H. (2026). <em>Teaching materials library</em> (Version 0.1.1). https://yiuhong.github.io/demo-library/</span> <a class="library-full-cite" href="cite.html">Full cite →</a></p>
                     <label class="library-label" for="searchInput">Search for a keyword</label>
                     <div class="search-container">
                         <input type="text" id="searchInput" placeholder="Search for a demo or topic...">
@@ -677,12 +705,14 @@
     <footer id="footer" class="wrapper style1-alt">
         <div class="inner">
             <ul class="menu">
-                <li><a rel="author" href="https://yiuhong.github.io/">Yiu Hong Ko</a> · <a href="mailto:yiuhong.ko@gmail.com">yiuhong.ko@gmail.com</a></li>
+                <li><a rel="author" href="https://yiuhong.github.io/">Yiu Hong Ko</a> · <a href="https://yiuhong.github.io/">Personal site</a> · <a href="mailto:yiuhong.ko@gmail.com">yiuhong.ko@gmail.com</a> · <a href="https://orcid.org/0000-0003-4436-0166" aria-label="ORCID iD 0000-0003-4436-0166">ORCID</a></li>
                 <li>Content <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Code <a href="LICENSE-CODE">MIT</a></li>
-                <li><a href="cite.html">How to cite</a></li>
+                <li><a href="cite.html">Cite & reuse</a></li>
+                <li><a href="CHANGELOG.md">Changelog</a></li>
+                <li><a href="CONTRIBUTING.md">Contribute</a></li>
                 <li><a href="https://github.com/yiuhong/demo-library/issues">Spotted a mistake?</a></li>
                 <li><a href="https://github.com/yiuhong/demo-library">View source on GitHub</a></li>
-                <li>Version <span data-site-field="version">0.1.0</span> · Updated <time datetime="2026-10-29" data-site-field="updatedDisplay" data-site-datetime="updated">29 October 2026</time></li>
+                <li>Version <span data-site-field="version">0.1.1</span> · Updated <time datetime="2026-10-29" data-site-field="updatedDisplay" data-site-datetime="updated">29 October 2026</time></li>
                 <li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
             </ul>
         </div>

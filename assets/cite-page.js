@@ -22,6 +22,45 @@
     var credit = document.getElementById("cite-credit");
     if (credit) credit.textContent = meta.credit;
 
+    function findDemoTitle(data, href) {
+        var categories = data && data.categories;
+        if (!categories) return "";
+        for (var i = 0; i < categories.length; i++) {
+            var subs = categories[i] && categories[i].subcategories;
+            if (!subs) continue;
+            for (var j = 0; j < subs.length; j++) {
+                var demos = subs[j] && subs[j].demos;
+                if (!demos) continue;
+                for (var k = 0; k < demos.length; k++) {
+                    var demo = demos[k];
+                    if (demo && demo.href === href && demo.title) {
+                        return String(demo.title).trim();
+                    }
+                }
+            }
+        }
+        return "";
+    }
+
+    var demoNode = document.getElementById("cite-demo");
+    var demoHref = demoNode && demoNode.getAttribute("data-demo-href");
+    if (demoNode && demoHref && typeof meta.demoCitation === "function") {
+        fetch(new URL("demos.json", window.location.href)).then(function (response) {
+            if (!response.ok) throw new Error("catalog");
+            return response.json();
+        }).then(function (data) {
+            var title = findDemoTitle(data, demoHref);
+            if (!title) return;
+            demoNode.textContent = meta.demoCitation(title, demoHref);
+            var frame = document.getElementById("cite-iframe");
+            if (!frame) return;
+            var pageUrl = meta.url + String(demoHref).replace(/^\/+/, "");
+            var safeTitle = title.replace(/"/g, "");
+            frame.textContent = '<iframe src="' + pageUrl + '" title="' + safeTitle
+                + '" width="100%" height="720" style="border:0"></iframe>';
+        }).catch(function () {});
+    }
+
     function textFor(id, mode) {
         var node = document.getElementById(id);
         if (!node) return "";

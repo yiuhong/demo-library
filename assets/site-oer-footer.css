@@ -29,6 +29,56 @@
     font-size: 12px;
     font-weight: normal;
     line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.site-oer-strip button.site-oer-textbtn {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    display: inline !important;
+    box-sizing: border-box !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: normal !important;
+    letter-spacing: 0 !important;
+    line-height: 1.45 !important;
+    text-transform: none !important;
+    text-decoration: underline !important;
+    text-underline-offset: 0.15em !important;
+    cursor: pointer !important;
+    vertical-align: baseline !important;
+}
+
+.site-oer-strip button.site-oer-textbtn:hover,
+.site-oer-strip button.site-oer-textbtn:focus-visible {
+    text-decoration-thickness: 2px !important;
+}
+
+.site-oer-strip button.site-oer-textbtn:focus {
+    outline: none !important;
+}
+
+.site-oer-strip button.site-oer-textbtn:focus-visible {
+    outline: 2px solid #ffffff !important;
+    outline-offset: 2px !important;
+}
+
+.site-oer-strip p.site-oer-demo-cite {
+    display: none;
+    margin: 0.45rem 0 0 !important;
+}
+
+.site-oer-strip p.site-oer-demo-cite.is-open {
+    display: block;
 }
 
 .site-oer-strip a {
@@ -68,6 +118,17 @@ html.site-oer-fit .site-oer-strip {
     bottom: 0;
     z-index: 80;
     margin: 0;
+}
+
+/* A locked demo cannot scroll the page, so keep the link row one line tall. */
+html.site-oer-fit .site-oer-strip > p:first-child {
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+html.site-oer-fit .site-oer-strip > p:first-child::-webkit-scrollbar {
+    display: none;
 }
 
 @media print {

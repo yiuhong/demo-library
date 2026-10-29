@@ -25,6 +25,15 @@
         }
     });
 
+    document.querySelectorAll("[data-site-apa]").forEach(function (node) {
+        node.textContent = "";
+        node.appendChild(document.createTextNode(meta.authorApa + " (" + meta.year + "). "));
+        var title = document.createElement("em");
+        title.textContent = meta.titleApa;
+        node.appendChild(title);
+        node.appendChild(document.createTextNode(" (Version " + meta.version + "). " + meta.url));
+    });
+
     var libraryFooter = document.getElementById("footer");
     if (libraryFooter && libraryFooter.classList.contains("wrapper")) return;
 
@@ -50,13 +59,15 @@
         line.appendChild(sep);
     }
 
-    function addLink(href, text, rel) {
+    function addLink(href, text, rel, ariaLabel) {
         addSep();
         var link = document.createElement("a");
         link.href = href;
         link.textContent = text;
         if (rel) link.rel = rel;
+        if (ariaLabel) link.setAttribute("aria-label", ariaLabel);
         line.appendChild(link);
+        return link;
     }
 
     function addNode(node) {
@@ -70,6 +81,9 @@
     }
 
     addLink(meta.personalSite, meta.author, "author");
+    if (meta.orcid) {
+        addLink(meta.orcid, "ORCID", null, "ORCID iD " + (meta.orcidId || meta.orcid));
+    }
 
     var content = document.createElement("span");
     content.appendChild(document.createTextNode("Content "));
@@ -88,13 +102,19 @@
     code.appendChild(mit);
     addNode(code);
 
-    addLink(rootUrl("cite.html"), "How to cite");
+    addLink(rootUrl("cite.html"), "Cite & reuse");
     addLink(meta.issues, "Spotted a mistake?");
     addLink(meta.repo, "View source");
     addText("v" + meta.version);
     addText(meta.updatedShort);
 
     strip.appendChild(line);
+
+    var detail = document.createElement("p");
+    detail.id = "site-oer-demo-cite";
+    detail.className = "site-oer-demo-cite";
+    detail.hidden = true;
+    strip.appendChild(detail);
     document.body.appendChild(strip);
 
     var padBase = null;
@@ -126,6 +146,131 @@
         document.body.style.paddingBottom = (padBase + height) + "px";
     }
 
+    function currentDemoHref() {
+        var page = new URL(window.location.href);
+        page.hash = "";
+        page.search = "";
+        var path = page.pathname;
+        var base = new URL(root).pathname;
+        if (base !== "/" && path.indexOf(base) === 0) {
+            path = path.slice(base.length);
+        }
+        path = path.replace(/^\/+/, "");
+        try {
+            path = decodeURIComponent(path);
+        } catch (error) {
+            return "";
+        }
+        return path;
+    }
+
+    function findDemoTitle(data, href) {
+        var categories = data && data.categories;
+        if (!categories || !categories.length) return "";
+        for (var i = 0; i < categories.length; i++) {
+            var subs = categories[i] && categories[i].subcategories;
+            if (!subs) continue;
+            for (var j = 0; j < subs.length; j++) {
+                var demos = subs[j] && subs[j].demos;
+                if (!demos) continue;
+                for (var k = 0; k < demos.length; k++) {
+                    var demo = demos[k];
+                    if (!demo || demo.href !== href) continue;
+                    var title = demo.title == null ? "" : String(demo.title).trim();
+                    if (title) return title;
+                }
+            }
+        }
+        return "";
+    }
+
+    function flash(button, label) {
+        button.textContent = "Copied";
+        window.setTimeout(function () {
+            button.textContent = label;
+        }, 1600);
+    }
+
+    function copyText(text, button, node) {
+        function fallback() {
+            if (!node) return;
+            var range = document.createRange();
+            range.selectNodeContents(node);
+            var selection = window.getSelection();
+            if (!selection) return;
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        if (!text || !navigator.clipboard || !navigator.clipboard.writeText) {
+            fallback();
+            return;
+        }
+        navigator.clipboard.writeText(text).then(function () {
+            flash(button, "Copy");
+        }).catch(function () {
+            fallback();
+        });
+    }
+
+    function insertDemoCite(citation) {
+        var sep = document.createElement("span");
+        sep.className = "site-oer-sep";
+        sep.setAttribute("aria-hidden", "true");
+        sep.textContent = "·";
+
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "site-oer-textbtn";
+        button.textContent = "Cite this demo";
+        button.setAttribute("aria-expanded", "false");
+        button.setAttribute("aria-controls", "site-oer-demo-cite");
+
+        var text = document.createElement("span");
+        text.id = "site-oer-demo-cite-text";
+        text.textContent = citation;
+
+        var copy = document.createElement("button");
+        copy.type = "button";
+        copy.className = "site-oer-textbtn";
+        copy.textContent = "Copy";
+        copy.addEventListener("click", function () {
+            copyText(citation, copy, text);
+        });
+
+        detail.textContent = "";
+        detail.appendChild(text);
+        detail.appendChild(document.createTextNode(" "));
+        detail.appendChild(copy);
+
+        button.addEventListener("click", function () {
+            var willOpen = detail.hidden;
+            detail.hidden = !willOpen;
+            detail.classList.toggle("is-open", willOpen);
+            button.setAttribute("aria-expanded", willOpen ? "true" : "false");
+            layout();
+        });
+
+        line.insertBefore(button, content);
+        line.insertBefore(sep, content);
+        layout();
+    }
+
+    function loadDemoCitation() {
+        if (typeof meta.demoCitation !== "function") return;
+        var href = currentDemoHref();
+        if (!href || href === "index.html" || href === "cite.html" || href === "tracks.html") return;
+        var catalog = new URL("demos.json", root);
+        fetch(catalog.href).then(function (response) {
+            if (!response.ok) throw new Error("catalog");
+            return response.json();
+        }).then(function (data) {
+            var title = findDemoTitle(data, href);
+            if (!title) return;
+            insertDemoCite(meta.demoCitation(title, href));
+        }).catch(function () {});
+    }
+
     layout();
     window.addEventListener("resize", layout);
+    loadDemoCitation();
 })();

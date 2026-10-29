@@ -8,6 +8,8 @@ Reads ``demos.json`` and ``tracks.json`` at the repo root:
 * each track step image, when set, is a file in the repo
 * LICENSE states CC BY 4.0 for content and MIT for code, and LICENSE-CODE is the MIT text
 * index.html, cite.html, and each demo carry the site chrome, and no HTML page says "All rights reserved"
+* the cite page has cite, license, reuse, credit, and report sections, an ORCID link, and a per-demo example whose title matches demos.json
+* CHANGELOG.md and CONTRIBUTING.md are present, and the changelog names the current version
 
 Prints one line per problem and exits 1 when something is wrong. Exits 0 when
 every checked title and path is in place. GitHub Actions runs this on pull
@@ -28,6 +30,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DEMOS_PATH = ROOT / "demos.json"
 TRACKS_PATH = ROOT / "tracks.json"
+ORCID_URL = "https://orcid.org/0000-0003-4436-0166"
+ORCID_LABEL = "ORCID iD 0000-0003-4436-0166"
+DEMO_CITE_HREF = "statistics/central_limit_theorem.html"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -41,12 +46,13 @@ def main(argv: list[str] | None = None) -> int:
     demos, error = load_json(DEMOS_PATH)
     demo_count = 0
     demo_hrefs: list[str] = []
+    catalog = None if error else demos
     if error:
         problems.append(error)
     else:
         demo_count = check_demos(demos, problems, demo_hrefs)
 
-    check_site_chrome(problems, demo_hrefs)
+    check_site_chrome(problems, demo_hrefs, catalog)
 
     tracks, error = load_json(TRACKS_PATH)
     step_count = 0
@@ -239,8 +245,9 @@ def is_repo_relative(raw: str) -> bool:
     return True
 
 
-def check_site_chrome(problems: list[str], demo_hrefs: list[str]) -> None:
-    meta = read_text(ROOT / "assets" / "site-meta.js")
+def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: object | None) -> None:
+    meta_path = ROOT / "assets" / "site-meta.js"
+    meta = read_text(meta_path)
     if meta is None:
         problems.append("assets/site-meta.js: file not found")
         version = updated = updated_display = None
@@ -248,10 +255,23 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str]) -> None:
         version = js_string(meta, "version")
         updated = js_string(meta, "updated")
         updated_display = js_string(meta, "updatedDisplay")
+        orcid = js_string(meta, "orcid")
         if not version or not updated or not updated_display:
             problems.append(
                 "assets/site-meta.js: version, updated, and updatedDisplay are required"
             )
+        if orcid != ORCID_URL:
+            problems.append("assets/site-meta.js: ORCID URL is missing or unexpected")
+        if "meta.demoCitation = function" not in meta:
+            problems.append("assets/site-meta.js: demoCitation helper is missing")
+
+    footer_js = read_text(ROOT / "assets" / "site-oer-footer.js")
+    if footer_js is None:
+        problems.append("assets/site-oer-footer.js: file not found")
+    else:
+        for needle in ("meta.orcid", "Cite this demo", "demoCitation", "Cite & reuse", "ORCID iD"):
+            if needle not in footer_js:
+                problems.append(f"assets/site-oer-footer.js: missing {needle}")
 
     for name in ("index.html", "cite.html"):
         text = read_text(ROOT / name)
@@ -262,12 +282,17 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str]) -> None:
             "assets/site-meta.js",
             "assets/site-oer-footer.js",
             "CC BY 4.0",
-            "How to cite",
+            "Cite & reuse",
             "Spotted a mistake?",
             "https://github.com/yiuhong/demo-library/issues",
             "https://github.com/yiuhong/demo-library",
             "mailto:yiuhong.ko@gmail.com",
             "https://yiuhong.github.io/",
+            "Personal site",
+            ORCID_URL,
+            ORCID_LABEL,
+            "CHANGELOG.md",
+            "CONTRIBUTING.md",
         ]
         if version:
             required.append(version)
@@ -276,10 +301,77 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str]) -> None:
         if updated_display:
             required.append(updated_display)
         if name == "cite.html":
-            required.extend(("BibTeX", "ko2026teachingmaterials", "LICENSE-CODE"))
+            required.extend(
+                (
+                    "BibTeX",
+                    "ko2026teachingmaterials",
+                    "LICENSE-CODE",
+                    'id="cite"',
+                    'id="license"',
+                    'id="reuse"',
+                    'id="credit"',
+                    'id="report"',
+                    'id="about"',
+                    'id="contribute"',
+                    "What you may do",
+                    "What is not OK",
+                    "iframe",
+                    "Copy APA",
+                    "Copy BibTeX",
+                    "Copy credit line",
+                    DEMO_CITE_HREF,
+                    f"https://yiuhong.github.io/demo-library/{DEMO_CITE_HREF}",
+                )
+            )
+        if name == "index.html":
+            required.extend(('id="library-about"', 'id="library-preferred-cite"', "Full cite", "data-site-apa"))
+            about = element_text(text, "library-about")
+            if about is None:
+                problems.append("index.html: library about blurb is missing")
+            else:
+                lowered = about.lower()
+                for phrase in (
+                    "instructors",
+                    "students",
+                    "statistics",
+                    "neuroscience",
+                    "cognitive",
+                    "personality",
+                ):
+                    if phrase not in lowered:
+                        problems.append(f"index.html: about blurb is missing {phrase}")
         for needle in required:
             if needle not in text:
                 problems.append(f"{name}: missing {needle}")
+
+    if catalog is not None:
+        cite_text = read_text(ROOT / "cite.html")
+        title = demo_title(catalog, DEMO_CITE_HREF)
+        if cite_text is None:
+            pass
+        elif title is None:
+            problems.append(f"cite.html: example {DEMO_CITE_HREF} is not in demos.json")
+        elif title not in cite_text:
+            problems.append(
+                f"cite.html: per-demo example title {title!r} does not match demos.json"
+            )
+
+    changelog = read_text(ROOT / "CHANGELOG.md")
+    if changelog is None:
+        problems.append("CHANGELOG.md: file not found")
+    else:
+        if "Keep a Changelog" not in changelog:
+            problems.append("CHANGELOG.md: expected Keep a Changelog style")
+        if "## [0.1.0]" not in changelog:
+            problems.append("CHANGELOG.md: missing 0.1.0")
+        if version and f"## [{version}]" not in changelog:
+            problems.append(f"CHANGELOG.md: missing version {version}")
+
+    contributing = read_text(ROOT / "CONTRIBUTING.md")
+    if contributing is None:
+        problems.append("CONTRIBUTING.md: file not found")
+    elif "https://github.com/yiuhong/demo-library/issues" not in contributing:
+        problems.append("CONTRIBUTING.md: missing the Issues link")
 
     for href in demo_hrefs:
         text = read_text(ROOT / href)
@@ -316,6 +408,41 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str]) -> None:
         problems.append("LICENSE-CODE: file not found")
     elif "MIT License" not in code_text or "Permission is hereby granted" not in code_text:
         problems.append("LICENSE-CODE: expected the MIT License")
+
+
+def demo_title(data: object, href: str) -> str | None:
+    if not isinstance(data, dict):
+        return None
+    categories = data.get("categories")
+    if not isinstance(categories, list):
+        return None
+    for category in categories:
+        if not isinstance(category, dict):
+            continue
+        subcategories = category.get("subcategories")
+        if not isinstance(subcategories, list):
+            continue
+        for subcategory in subcategories:
+            if not isinstance(subcategory, dict):
+                continue
+            demos = subcategory.get("demos")
+            if not isinstance(demos, list):
+                continue
+            for demo in demos:
+                if isinstance(demo, dict) and demo.get("href") == href:
+                    return label(demo.get("title"))
+    return None
+
+
+def element_text(html: str, element_id: str) -> str | None:
+    match = re.search(
+        rf'id="{re.escape(element_id)}"[^>]*>(.*?)</p>',
+        html,
+        re.S | re.I,
+    )
+    if not match:
+        return None
+    return re.sub(r"<[^>]+>", " ", match.group(1))
 
 
 def read_text(path: Path) -> str | None:
