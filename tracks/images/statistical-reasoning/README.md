@@ -16,6 +16,10 @@ The central-limit figure uses an exponential population with mean 1 and standard
 
 The Horowitz figure follows `statistics/horowitz_1974_simulation_CLT.html`: 96 sample means, each of size 10, from a normal population with mean 50 and standard deviation 15.8. The overlay is `N(50, 5²)`, because `15.8 / √10 ≈ 5`. NumPy seed 1974. In that draw the mean of the means is about 50.2 and the standard deviation of the means is about 4.9.
 
+## Bernoulli trials and the binomial count
+
+`statistics/binomial_bernoulli.html` opens at `n = 10` coins and `p = 1/2`. Each coin is a Bernoulli trial. The count of heads is Binomial(10, 1/2), with `μ = np = 5` and `σ = √(np(1 − p)) = √2.5 ≈ 1.58`. The left panel is one sequence: five heads, then five tails, so that count is 5. The bars are those exact probabilities. The curve is the normal density with that mean and standard deviation. A dashed line marks `μ` and dotted lines mark `μ ± σ`.
+
 ## Galton board
 
 `statistics/galton_board.html` sends each bead through `n` rows of pegs. The bin is the count of right bounces. The demonstration opens at `n = 12` and `p = 1/2`, so that count is Binomial(12, 1/2), with `μ = np = 6` and `σ = √(np(1 − p)) = √3 ≈ 1.73`. The bars are those exact probabilities. The curve is the normal density with that mean and standard deviation. The highlighted path is six right bounces, then six left bounces, and it ends in bin 6.
