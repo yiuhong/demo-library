@@ -23,7 +23,7 @@
         issues: "https://github.com/yiuhong/demo-library/issues",
         changelog: "CHANGELOG.md",
         contributing: "CONTRIBUTING.md",
-        version: "0.1.1",
+        version: "0.1.2",
         updated: "2026-10-29",
         updatedDisplay: "29 October 2026",
         updatedShort: "29 Oct 2026",

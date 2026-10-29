@@ -7,8 +7,9 @@ Reads ``demos.json`` and ``tracks.json`` at the repo root:
 * each track step has a non-empty title and href, and that href is a file in the repo
 * each track step image, when set, is a file in the repo
 * LICENSE states CC BY 4.0 for content and MIT for code, and LICENSE-CODE is the MIT text
-* index.html, cite.html, and each demo carry the site chrome, and no HTML page says "All rights reserved"
-* the cite page has cite, license, reuse, credit, and report sections, an ORCID link, and a per-demo example whose title matches demos.json
+* index.html, cite.html, license.html, and each demo carry the site chrome, and no HTML page says "All rights reserved"
+* the cite page has cite, license, reuse, credit, accessibility, and report sections, an ORCID link, and a per-demo example whose title matches demos.json
+* CITATION.cff matches the current version, and the cite page links the machine-readable citation
 * CHANGELOG.md and CONTRIBUTING.md are present, and the changelog names the current version
 
 Prints one line per problem and exits 1 when something is wrong. Exits 0 when
@@ -269,11 +270,18 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
     if footer_js is None:
         problems.append("assets/site-oer-footer.js: file not found")
     else:
-        for needle in ("meta.orcid", "Cite this demo", "demoCitation", "Cite & reuse", "ORCID iD"):
+        for needle in (
+            "meta.orcid",
+            "Cite this demo",
+            "demoCitation",
+            "Cite & reuse",
+            "ORCID iD",
+            "license.html",
+        ):
             if needle not in footer_js:
                 problems.append(f"assets/site-oer-footer.js: missing {needle}")
 
-    for name in ("index.html", "cite.html"):
+    for name in ("index.html", "cite.html", "license.html"):
         text = read_text(ROOT / name)
         if text is None:
             problems.append(f"{name}: file not found")
@@ -293,6 +301,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             ORCID_LABEL,
             "CHANGELOG.md",
             "CONTRIBUTING.md",
+            "license.html",
         ]
         if version:
             required.append(version)
@@ -321,8 +330,24 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                     "Copy credit line",
                     DEMO_CITE_HREF,
                     f"https://yiuhong.github.io/demo-library/{DEMO_CITE_HREF}",
+                    "CITATION.cff",
+                    "Machine-readable citation",
+                    'id="citation-cff"',
+                    'id="accessibility"',
+                    "keyboard",
+                    "contrast",
+                    "CC BY 3.0",
+                    "HTML5 UP",
+                    "Hyperspace",
                 )
             )
+            lowered = text.lower()
+            if "wcag" in lowered or "conforms to" in lowered:
+                problems.append(f"{name}: do not claim a conformance standard")
+        if name == "license.html":
+            for needle in ("CC BY 3.0", "HTML5 UP", "Hyperspace", "LICENSE-CODE", "cite.html"):
+                if needle not in text:
+                    problems.append(f"{name}: missing {needle}")
         if name == "index.html":
             required.extend(('id="library-about"', 'id="library-preferred-cite"', "Full cite", "data-site-apa"))
             about = element_text(text, "library-about")
@@ -355,6 +380,14 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             problems.append(
                 f"cite.html: per-demo example title {title!r} does not match demos.json"
             )
+
+    check_citation_file(problems, version, updated)
+
+    readme = read_text(ROOT / "README.md")
+    if readme is None:
+        problems.append("README.md: file not found")
+    elif "CITATION.cff" not in readme or "machine-readable citation" not in readme.lower():
+        problems.append("README.md: missing the machine-readable citation link")
 
     changelog = read_text(ROOT / "CHANGELOG.md")
     if changelog is None:
@@ -408,6 +441,57 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         problems.append("LICENSE-CODE: file not found")
     elif "MIT License" not in code_text or "Permission is hereby granted" not in code_text:
         problems.append("LICENSE-CODE: expected the MIT License")
+
+
+def check_citation_file(problems: list[str], version: str | None, updated: str | None) -> None:
+    text = read_text(ROOT / "CITATION.cff")
+    if text is None:
+        problems.append("CITATION.cff: file not found")
+        return
+    top = cff_top_level(text)
+    expected = {
+        "cff-version": "1.2.0",
+        "title": "Teaching Materials Library",
+        "license": "CC-BY-4.0",
+        "url": "https://yiuhong.github.io/demo-library/",
+        "repository-code": "https://github.com/yiuhong/demo-library",
+    }
+    if version:
+        expected["version"] = version
+    if updated:
+        expected["date-released"] = updated
+    for key, value in expected.items():
+        got = top.get(key)
+        if got != value:
+            problems.append(f"CITATION.cff: {key} is {got!r}, expected {value!r}")
+    if "family-names: Ko" not in text or "Yiu Hong" not in text:
+        problems.append("CITATION.cff: author Yiu Hong Ko is missing")
+    if ORCID_URL not in text:
+        problems.append("CITATION.cff: ORCID URL is missing")
+    if not re.search(r"\bMIT\b", text):
+        problems.append("CITATION.cff: note the MIT code license in the message or abstract")
+    if "preferred-citation:" not in text or not re.search(r"(?m)^  type:\s*website\s*$", text):
+        problems.append("CITATION.cff: preferred-citation should be the website citation")
+    if version and text.count(f'version: "{version}"') < 2:
+        problems.append(f"CITATION.cff: version {version} must be on the work and the preferred citation")
+
+
+def cff_top_level(text: str) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for line in text.splitlines():
+        if not line or line[0].isspace() or line[0] in "#-":
+            continue
+        key, sep, raw = line.partition(":")
+        if not sep:
+            continue
+        key = key.strip()
+        if not key or " " in key:
+            continue
+        value = raw.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        values[key] = value
+    return values
 
 
 def demo_title(data: object, href: str) -> str | None:
