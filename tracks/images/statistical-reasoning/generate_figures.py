@@ -349,7 +349,7 @@ def draw_binomial() -> None:
     ax_hist.set_yticks([0, 0.1, 0.2, 0.3])
     ax_hist.set_xlabel("number of heads,  k")
     ax_hist.set_ylabel("probability")
-    ax_hist.set_title("That count is binomial")
+    ax_hist.set_title("Follows a binomial distribution")
 
     _save(fig, "03-binomial-bernoulli.png")
     print(
