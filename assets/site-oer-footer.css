@@ -1,0 +1,77 @@
+/*
+ * Compact license strip for interactive demos.
+ * The library index and cite.html use the Hyperspace footer instead.
+ * Locked full-viewport demos pin the strip; other demos keep it in flow
+ * so it sits after the page, including any pedagogy navigation.
+ */
+
+.site-oer-strip {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: 100%;
+    margin: 1.25rem 0 0;
+    padding: 0.55rem 0.9rem;
+    background: #111111;
+    color: #f5f5f5;
+    border-top: 1px solid #000000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 1.45;
+    text-align: center;
+    letter-spacing: 0;
+}
+
+.site-oer-strip p {
+    margin: 0;
+    color: #f5f5f5;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 1.45;
+}
+
+.site-oer-strip a {
+    color: #ffffff;
+    font-weight: normal;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.site-oer-strip a:hover,
+.site-oer-strip a:focus-visible {
+    text-decoration-thickness: 2px;
+}
+
+.site-oer-strip a:focus {
+    outline: none;
+}
+
+.site-oer-strip a:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.site-oer-sep {
+    margin: 0 0.35em;
+    color: #bbbbbb;
+}
+
+html.site-oer-fit body {
+    box-sizing: border-box;
+}
+
+html.site-oer-fit .site-oer-strip {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 80;
+    margin: 0;
+}
+
+@media print {
+    html.site-oer-fit .site-oer-strip {
+        position: static;
+    }
+}
