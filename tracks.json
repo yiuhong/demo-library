@@ -137,7 +137,7 @@
             "μ = np,  σ = √(np(1 − p))"
           ],
           "image": "tracks/images/statistical-reasoning/03-binomial-bernoulli.png",
-          "imageAlt": "The binomial demonstration at n = 10 and p = 0.50 after 500 trials. The last trial is drawn as four heads and six tails. Blue bars are P(X = k) for k = 0 through 10 and peak at 5. Amber bars are the observed relative frequencies, also tallest at 5. A dark blue curve is the normal approximation. The open calculation is for k = 4."
+          "imageAlt": "Left: ten coins, five heads then five tails, so this sequence has 5 heads. Right: binomial probabilities for n = 10 and p = 1/2. The bars peak at k = 5. A normal curve sits on them, with a dashed line at μ = 5 and dotted lines at μ ± σ."
         },
         {
           "href": "statistics/galton_board.html",

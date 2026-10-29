@@ -1,6 +1,6 @@
 # Statistical-reasoning figures
 
-Most of these PNGs are drawn by `generate_figures.py` with Matplotlib. They are black-on-white diagrams. Regenerate them from the repo root with `python3 tracks/images/statistical-reasoning/generate_figures.py` (NumPy and Matplotlib). `03-binomial-bernoulli.png` is a screenshot of the running demo, so that script does not redraw it.
+These PNGs are drawn by `generate_figures.py` with Matplotlib. They are black-on-white diagrams. Regenerate them from the repo root with `python3 tracks/images/statistical-reasoning/generate_figures.py` (NumPy and Matplotlib).
 
 ## Normal curve
 
@@ -18,7 +18,7 @@ The Horowitz figure follows `statistics/horowitz_1974_simulation_CLT.html`: 96 s
 
 ## Bernoulli trials and the binomial count
 
-`statistics/binomial_bernoulli.html` opens at `n = 10` coins and `p = 1/2`. Each coin is a Bernoulli trial. The count of heads is Binomial(10, 1/2), with `μ = np = 5` and `σ = √(np(1 − p)) = √2.5 ≈ 1.58`. The preview is that page after 500 trials. Blue bars are `P(X = k)`. Amber bars are the observed relative frequencies. The dark blue curve is the normal approximation with that mean and variance.
+`statistics/binomial_bernoulli.html` opens at `n = 10` coins and `p = 1/2`. Each coin is a Bernoulli trial. The count of heads is Binomial(10, 1/2), with `μ = np = 5` and `σ = √(np(1 − p)) = √2.5 ≈ 1.58`. The left panel is one sequence: five heads, then five tails, so that count is 5. The bars are those exact probabilities. The curve is the normal density with that mean and standard deviation. A dashed line marks `μ` and dotted lines mark `μ ± σ`.
 
 ## Galton board
 

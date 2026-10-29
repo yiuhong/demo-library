@@ -41,6 +41,10 @@ CI_HALF = CI_Z * 1.0
 GALTON_ROWS = 12
 GALTON_P = 0.5
 
+# Coin-flip defaults in statistics/binomial_bernoulli.html: 10 coins, fair coin.
+BINOMIAL_N = 10
+BINOMIAL_P = 0.5
+
 
 def _style() -> None:
     plt.rcParams.update(
@@ -219,6 +223,139 @@ def draw_clt() -> None:
     ax.set_ylabel("density")
     ax.set_title("Means from a skewed population settle toward a normal curve")
     _save(fig, "02-clt-sampling.png")
+
+
+def draw_binomial() -> None:
+    """Ten fair tosses, then the binomial probabilities of the head count.
+
+    The sequence is five heads followed by five tails, so k = 5. The bars are
+    Binomial(10, 1/2). The curve is N(μ, σ²) with μ = np = 5 and
+    σ = √(np(1 − p)) = √2.5.
+    """
+    n = BINOMIAL_N
+    p = BINOMIAL_P
+    mu = n * p
+    sigma = math.sqrt(n * p * (1.0 - p))
+    probs = _binomial_pmf(n, p)
+    if abs(float(probs.sum()) - 1.0) > 1e-9:
+        raise SystemExit(f"binomial probabilities sum to {probs.sum()}")
+    if int(np.argmax(probs)) != int(mu):
+        raise SystemExit(f"binomial mode should be {mu}, got {int(np.argmax(probs))}")
+    if abs(sigma - math.sqrt(2.5)) > 1e-9:
+        raise SystemExit(f"sigma should be √2.5, got {sigma}")
+    normal_peak = float(_normal_pdf(np.array([mu]), mu, sigma)[0])
+    if abs(float(probs[int(mu)]) - normal_peak) / normal_peak > 0.05:
+        raise SystemExit(
+            f"normal curve should sit near the binomial peak: "
+            f"P(X={int(mu)})={probs[int(mu)]:.4f} normal={normal_peak:.4f}"
+        )
+
+    # Five heads, then five tails. The count of heads is the mean.
+    faces = ["H"] * (n // 2) + ["T"] * (n // 2)
+    if faces.count("H") != int(mu):
+        raise SystemExit("highlighted sequence should contain μ heads")
+
+    fig, (ax_coins, ax_hist) = plt.subplots(
+        1,
+        2,
+        figsize=(7.8, 4.9),
+        constrained_layout=True,
+        gridspec_kw={"width_ratios": [1.05, 1.22]},
+    )
+
+    coin_y = 0.42
+    ax_coins.scatter(
+        np.arange(n),
+        np.full(n, coin_y),
+        s=430,
+        facecolors="white",
+        edgecolors="black",
+        linewidths=1.15,
+        zorder=3,
+    )
+    for i, face in enumerate(faces):
+        ax_coins.text(
+            i,
+            coin_y,
+            face,
+            ha="center",
+            va="center",
+            fontsize=11,
+            color="black",
+            zorder=4,
+        )
+    bracket_y = -0.22
+    ax_coins.plot([0, n - 1], [bracket_y, bracket_y], color="black", linewidth=1.05, zorder=2)
+    ax_coins.plot([0, 0], [bracket_y - 0.16, bracket_y + 0.16], color="black", linewidth=1.05, zorder=2)
+    ax_coins.plot(
+        [n - 1, n - 1],
+        [bracket_y - 0.16, bracket_y + 0.16],
+        color="black",
+        linewidth=1.05,
+        zorder=2,
+    )
+    ax_coins.text(
+        (n - 1) / 2.0,
+        -0.78,
+        "X = 5 heads",
+        ha="center",
+        va="center",
+        fontsize=12,
+        color="black",
+    )
+    ax_coins.set_xlim(-0.85, n - 1 + 0.85)
+    ax_coins.set_ylim(-1.55, 1.55)
+    ax_coins.set_xticks([])
+    ax_coins.set_yticks([])
+    ax_coins.set_xlabel("five heads, then five tails")
+    ax_coins.set_title("10 independent tosses")
+
+    ks = np.arange(n + 1)
+    ax_hist.bar(
+        ks,
+        probs,
+        width=0.78,
+        facecolor="white",
+        edgecolor="black",
+        linewidth=1.0,
+        zorder=2,
+    )
+    xs = np.linspace(-0.35, n + 0.35, 500)
+    ax_hist.plot(xs, _normal_pdf(xs, mu, sigma), color="black", linewidth=1.7, zorder=3)
+    ax_hist.axvline(mu, color="black", linestyle="dashed", linewidth=1.15, zorder=1)
+    for xpos in (mu - sigma, mu + sigma):
+        ax_hist.axvline(xpos, color="black", linestyle=(0, (1.2, 1.2)), linewidth=1.15, zorder=1)
+    _legend(
+        ax_hist,
+        [
+            Rectangle((0, 0), 1, 1, facecolor="white", edgecolor="black", label="P(X = k)"),
+            Line2D([0], [0], color="black", linewidth=1.7, label="normal curve"),
+            Line2D([0], [0], color="black", linestyle="dashed", linewidth=1.15, label="μ = 5"),
+            Line2D(
+                [0],
+                [0],
+                color="black",
+                linestyle=(0, (1.2, 1.2)),
+                linewidth=1.15,
+                label="μ ± σ",
+            ),
+        ],
+        loc="upper right",
+        title="n = 10,  p = 1/2",
+    )
+    ax_hist.set_xlim(-0.7, n + 0.7)
+    ax_hist.set_xticks([0, 2, 4, 6, 8, 10])
+    ax_hist.set_ylim(0, 0.40)
+    ax_hist.set_yticks([0, 0.1, 0.2, 0.3])
+    ax_hist.set_xlabel("number of heads,  k")
+    ax_hist.set_ylabel("probability")
+    ax_hist.set_title("That count is binomial")
+
+    _save(fig, "03-binomial-bernoulli.png")
+    print(
+        f"  binomial n={n} p={p} mu={mu:.1f} sigma={sigma:.3f} "
+        f"Pmax={float(probs[int(mu)]):.4f} normal_peak={normal_peak:.4f}"
+    )
 
 
 def draw_galton() -> None:
@@ -499,12 +636,12 @@ def main() -> None:
     _style()
     draw_normal()
     draw_clt()
+    draw_binomial()
     draw_galton()
     draw_horowitz()
     draw_chi_square()
     draw_intervals()
     # Step order is normal, CLT, binomial, Galton, Horowitz, chi-square, intervals.
-    # 03-binomial-bernoulli.png is a screenshot of the demo, not drawn here.
     for name in (
         "03-horowitz-clt.png",
         "03-galton-board.png",
