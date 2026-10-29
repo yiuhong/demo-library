@@ -129,7 +129,7 @@
         {
           "href": "statistics/binomial_bernoulli.html",
           "title": "Binomial Distribution & Bernoulli Process",
-          "note": "A coin toss is a Bernoulli trial: two outcomes, the same chance of heads every time, and no memory of the tosses before it. Count the heads in n tosses: that count follows a binomial distribution, the sum of those Bernoulli trials. The bars are the exact probabilities. Run many trials and the observed frequencies settle onto the bars. The next step writes the same count as left and right bounces on a Galton board.",
+          "note": "A coin toss is a Bernoulli trial: two outcomes, the same chance of heads every time, and no memory of the tosses before it. Count the heads in n tosses and that count is binomial, the sum of those trials. The bars are the exact probabilities. Run many trials and the observed frequencies settle onto the bars. The next step writes the same count as left and right bounces on a Galton board.",
           "formulae": [
             "Xᵢ ~ Bernoulli(p),  P(Xᵢ = 1) = p",
             "X = X₁ + … + Xₙ ~ Binomial(n, p)",
@@ -142,7 +142,7 @@
         {
           "href": "statistics/galton_board.html",
           "title": "Galton Board",
-          "note": "Each bead on a Galton board takes a left or right bounce at every peg, the same Bernoulli trial as a coin toss. The bin it reaches is the count of right bounces. That count follows a binomial distribution, a sum of independent Bernoulli trials. With more rows, those counts pile up into a bell shape, and the binomial distribution approximates a normal distribution.",
+          "note": "Each bead on a Galton board takes a left or right bounce at every peg, the same Bernoulli trial as a coin toss. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape, and the binomial distribution approximates a normal distribution.",
           "formulae": [
             "X = X₁ + … + Xₙ ~ Binomial(n, p)",
             "μ = np,  σ = √(np(1 − p))",

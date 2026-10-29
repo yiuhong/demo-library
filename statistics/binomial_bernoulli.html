@@ -429,7 +429,7 @@
 
     <header class="demo-header">
       <h1>Binomial Distribution &amp; Bernoulli Process</h1>
-      <p>Each coin is a Bernoulli trial. The number of heads in \(n\) tosses follows a binomial distribution. Flip once, or run many trials, and watch the observed frequencies settle onto the probability mass function.</p>
+      <p>Each coin is a Bernoulli trial. The number of heads in \(n\) tosses is binomial. Flip once, or run many trials, and watch the observed frequencies settle onto the probability mass function.</p>
     </header>
 
     <div class="dashboard" id="demo-dashboard">
@@ -569,7 +569,7 @@
           <li><strong>Independence.</strong> Earlier tosses say nothing about the next one (\(P(X_i = 1 \mid X_1, \dots, X_{i-1}) = p\)).</li>
         </ul>
         <p style="margin-bottom: 0;">
-          <strong>Connection to the binomial distribution.</strong> The number of heads across \(n\) trials is the sum of those indicators, and that sum follows a binomial distribution:
+          <strong>Connection to the binomial distribution.</strong> The number of heads across \(n\) trials is the sum of those indicators, and that sum is binomial:
           $$X = \sum_{i=1}^{n} X_i \sim \text{Binomial}(n, p)$$
           Each rightward bounce on the Galton board is this same trial. The bin is this same count.
         </p>
