@@ -14,6 +14,7 @@ Demo pages live in subject folders. The library page does not hard-code the cata
 * `📁 /personality_psychology`
 * [`demos.json`](demos.json) — catalog inventory for Cards and List
 * [`tracks.json`](tracks.json) — Guided Tracks playlists only (order, notes, formulae, images)
+* [`scripts/check_catalog.py`](scripts/check_catalog.py) — checks catalog and track paths and required titles
 
 `demos.json` is the list of demos: titles, blurbs, links, search keywords, tags, and category order. `tracks.json` is playlists. Teaching notes stay in `tracks.json`; do not copy them into `demos.json`.
 
@@ -96,11 +97,11 @@ Optional fields on a step, rendered when present:
 
 An image path has to stay relative: no URL scheme and no `..`. Steps that omit these fields render as before.
 
-A step is still listed if its `href` has no matching card yet, so a playlist can name a demo before that page exists.
+A step is still listed if its `href` has no matching card yet, so a playlist can name a demo before that card is in `demos.json`. The HTML file named by the `href` still has to be in the repo.
 
 ### How to add a demo to a track
 
-1. Add the demo in `demos.json` if it should appear in Cards and List. A playlist can still name an `href` before that page exists.
+1. Add the demo in `demos.json` if it should appear in Cards and List. A playlist can still name an `href` before that card exists. The HTML file named by the `href` has to be in the repo.
 2. Open `tracks.json` and insert a step object in that track's `steps` array, at the point in the teaching order where it belongs:
 
 ```json
@@ -112,3 +113,15 @@ A step is still listed if its `href` has no matching card yet, so a playlist can
 ```
 
 To reorder, move the step object. You do not need to edit the library page to change a playlist.
+
+### Check catalog and track links
+
+[`scripts/check_catalog.py`](scripts/check_catalog.py) checks `demos.json` and `tracks.json`. Every demo and every track step needs a non-empty `title`. Every demo `href` and every step `href` needs to be a file in the repo, as a path from the site root (for example `statistics/central_limit_theorem.html`). When a step sets `image`, that path needs to be a file in the repo too.
+
+Run it from any directory:
+
+```bash
+python3 scripts/check_catalog.py
+```
+
+The command exits 0 when those titles and paths are in place. Otherwise it prints each problem and exits with an error. GitHub Actions runs the same check on pull requests and on pushes to `main`.
