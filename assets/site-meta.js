@@ -5,6 +5,7 @@
  * syllabus should record. cite.html, the library footer, and the demo
  * strip read this file. index.html and cite.html repeat the same
  * version and date as a no-JS fallback; update those when you bump this.
+ * Record the change in CHANGELOG.md.
  */
 (function (global) {
     var meta = {
@@ -14,11 +15,15 @@
         authorApa: "Ko, Y. H.",
         authorBibtex: "Ko, Yiu Hong",
         email: "yiuhong.ko@gmail.com",
+        orcid: "https://orcid.org/0000-0003-4436-0166",
+        orcidId: "0000-0003-4436-0166",
         personalSite: "https://yiuhong.github.io/",
         url: "https://yiuhong.github.io/demo-library/",
         repo: "https://github.com/yiuhong/demo-library",
         issues: "https://github.com/yiuhong/demo-library/issues",
-        version: "0.1.0",
+        changelog: "CHANGELOG.md",
+        contributing: "CONTRIBUTING.md",
+        version: "0.1.1",
         updated: "2026-10-29",
         updatedDisplay: "29 October 2026",
         updatedShort: "29 Oct 2026",
@@ -45,6 +50,12 @@
 
     meta.credit = "From " + meta.title + " by " + meta.author + " (" + meta.url
         + "). Content licensed under " + meta.contentLicense + ".";
+
+    // Short per-demo line: catalog title, library name, version, demo URL.
+    meta.demoCitation = function (title, href) {
+        var path = String(href || "").replace(/^\/+/, "");
+        return title + ". " + meta.title + " (Version " + meta.version + "). " + meta.url + path;
+    };
 
     global.DEMO_LIBRARY = meta;
 })(typeof window !== "undefined" ? window : globalThis);
