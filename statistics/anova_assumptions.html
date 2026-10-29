@@ -81,6 +81,20 @@
             opacity: 0.4;
             pointer-events: none;
         }
+        /* Preset chips are inline-flex, so an <i> or <sub> in the label
+           becomes its own flex item and the parentheses wrap off the word.
+           One span keeps the brackets in the same inline flow. */
+        .preset-btn.demo-chip > span {
+            display: block;
+            flex: 1 1 auto;
+            min-width: 0;
+            white-space: normal;
+            text-align: center;
+            line-height: 1.35;
+        }
+        .preset-keep {
+            white-space: nowrap;
+        }
         canvas {
             width: 100%;
             height: 100%;
@@ -282,10 +296,10 @@
                         Equal Variances
                     </button>
                     <button type="button" data-preset="homo-balanced" class="preset-btn demo-chip is-block text-left">
-                        Unequal SD (Balanced <i>n</i>)
+                        <span>Unequal SD <span class="preset-keep">(balanced n)</span></span>
                     </button>
-                    <button type="button" data-preset="homo-toxic" class="preset-btn demo-chip is-block text-left col-span-2">
-                        Toxic Combo: High SD in Smallest Group (<i>n<sub>C</sub></i>=8)
+                    <button type="button" data-preset="homo-unbalanced" class="preset-btn demo-chip is-block text-left col-span-2">
+                        <span>Unequal SD + unbalanced n <span class="preset-keep">(n<sub>C</sub> = 8)</span></span>
                     </button>
                 </div>
             </div>
@@ -373,10 +387,10 @@
                     <div id="label-stat-p" class="text-[11px] text-neutral-700">Sample <i>p</i>-value</div>
                     <div id="stat-p" class="text-sm sm:text-base font-bold text-black mono mt-0.5">0.658</div>
                 </div>
-                <div id="card-type1" class="p-2.5 rounded bg-white border viz-border-null transition-opacity duration-150">
+                <div id="card-type1" class="p-2.5 rounded bg-white border border-black transition-opacity duration-150">
                     <div class="text-[11px] text-neutral-800 font-medium">Type I Error (&alpha;)</div>
-                    <div id="stat-type1" class="text-base font-bold viz-ink-null mono mt-0.5">5.0%</div>
-                    <div id="sub-type1" class="text-[10px] text-neutral-700 mono">False Pos. (H<sub>0</sub>)</div>
+                    <div id="stat-type1" class="text-base font-bold text-black mono mt-0.5">5.0%</div>
+                    <div id="sub-type1" class="text-[10px] text-neutral-700 mono">Rate under H<sub>0</sub></div>
                 </div>
                 <div id="card-power" class="p-2.5 rounded bg-white border viz-border-significant transition-opacity duration-150">
                     <div class="text-[11px] text-neutral-800 font-medium">Power (1 &minus; &beta;)</div>
@@ -2011,28 +2025,35 @@
                 if (mswBaseEl) mswBaseEl.textContent = `rho=0 Baseline: ${baseMSW.toFixed(1)}`;
             }
 
+            // Badge colour is this draw's decision, not the long-run Type I rate.
+            // Rose means the null sample was rejected (a false positive). Green means
+            // every hypothesis currently on screen was called correctly.
             const decBadge = document.getElementById('sampleDecisionBadge');
+            const badgeBase = 'px-2.5 py-1 rounded font-semibold text-right leading-tight border';
+            const badgeOk = badgeBase + ' viz-soft-significant viz-ink-significant viz-border-significant';
+            const badgeType1 = badgeBase + ' viz-soft-null viz-ink-null viz-border-null';
+            const badgeMiss = badgeBase + ' viz-soft-beta viz-ink-beta viz-border-beta';
+            const h0FalsePositive = state.anovaH0.p < 0.05;
+            const h1Detected = state.anovaH1.p < 0.05;
             if (bothOn) {
-                const h0Status = state.anovaH0.p < 0.05 ? 'H0: Type I Err' : 'H0: Retained';
-                const h1Status = state.anovaH1.p < 0.05 ? 'H1: Detected' : 'H1: Missed';
+                const h0Status = h0FalsePositive ? 'H0: Type I error' : 'H0: Retains';
+                const h1Status = h1Detected ? 'H1: Detected' : 'H1: Missed';
                 decBadge.innerHTML = `${h0Status} &bull; ${h1Status}`;
-                decBadge.className = 'px-2.5 py-1 rounded text-[11px] font-semibold text-right leading-tight bg-white text-black border border-black';
+                decBadge.className = (h0FalsePositive ? badgeType1 : (h1Detected ? badgeOk : badgeMiss)) + ' text-[11px]';
             } else if (state.showH0) {
-                if (state.anovaH0.p < 0.05) {
-                    decBadge.innerHTML = 'Type I Error! (False Positive)';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight viz-soft-null viz-ink-null border viz-border-null';
+                if (h0FalsePositive) {
+                    decBadge.innerHTML = 'Type I Error (False Positive)';
+                    decBadge.className = badgeType1 + ' text-xs';
                 } else {
                     decBadge.innerHTML = 'Correctly Retains H<sub>0</sub>';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight viz-soft-significant viz-ink-significant border viz-border-significant';
+                    decBadge.className = badgeOk + ' text-xs';
                 }
+            } else if (h1Detected) {
+                decBadge.innerHTML = 'True Positive (Detects H<sub>1</sub>)';
+                decBadge.className = badgeOk + ' text-xs';
             } else {
-                if (state.anovaH1.p < 0.05) {
-                    decBadge.innerHTML = 'True Positive! (Detects H<sub>1</sub>)';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight viz-soft-significant viz-ink-significant border viz-border-significant';
-                } else {
-                    decBadge.innerHTML = 'Type II Error! (Missed Effect)';
-                    decBadge.className = 'px-2.5 py-1 rounded text-xs font-semibold text-right leading-tight viz-soft-beta viz-ink-beta border viz-border-beta';
-                }
+                decBadge.innerHTML = 'Type II Error (Missed Effect)';
+                decBadge.className = badgeMiss + ' text-xs';
             }
         }
 
@@ -2045,6 +2066,7 @@
         const commEl = document.getElementById('stat-commentary');
         const powerCommEl = document.getElementById('power-commentary');
 
+        const subType1 = document.getElementById('sub-type1');
         const { type1Rate, nominalPower, adjPower } = state.mcSim;
         type1El.textContent = `${type1Rate.toFixed(1)}%`;
         powerEl.textContent = `${nominalPower.toFixed(1)}%`;
@@ -2055,13 +2077,25 @@
         commEl.classList.toggle('hidden', !state.showH0);
         powerCommEl.classList.toggle('hidden', !state.showH1);
 
-        type1El.className = 'text-base font-bold viz-ink-null mono mt-0.5';
-        if (type1Rate <= 7.0) {
-            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> <span class="mono viz-ink-null">${type1Rate.toFixed(1)}%</span> stays close to the nominal <span class="mono text-neutral-800">5.0%</span> level.`;
+        // Rose marks a clearly inflated long-run false-positive rate. A nominal
+        // ~5% rate, including the slight creep with unequal SD and equal n, is
+        // not itself a false positive. 10% is the same gate as the power warning.
+        const type1Inflated = type1Rate > 10.0;
+        type1El.className = type1Inflated
+            ? 'text-base font-bold viz-ink-null mono mt-0.5'
+            : 'text-base font-bold text-black mono mt-0.5';
+        cardType1.classList.toggle('viz-border-null', type1Inflated);
+        cardType1.classList.toggle('border-black', !type1Inflated);
+        if (subType1) {
+            subType1.innerHTML = type1Inflated ? 'Inflated under H<sub>0</sub>' : 'Rate under H<sub>0</sub>';
+        }
+        const rateInk = type1Inflated ? 'mono viz-ink-null' : 'mono text-black';
+        if (type1Rate <= 10.0) {
+            commEl.innerHTML = `<b>Type I rate (&alpha;):</b> <span class="${rateInk}">${type1Rate.toFixed(1)}%</span> stays close to the nominal <span class="mono text-neutral-800">5.0%</span> level.`;
         } else if (type1Rate <= 15.0) {
-            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> Moderately inflated to <span class="mono viz-ink-null">${type1Rate.toFixed(1)}%</span> (nominal <span class="mono">5.0%</span>).`;
+            commEl.innerHTML = `<b>Type I rate (&alpha;):</b> Moderately inflated to <span class="${rateInk}">${type1Rate.toFixed(1)}%</span> (nominal <span class="mono">5.0%</span>).`;
         } else {
-            commEl.innerHTML = `<b>Type I Error (&alpha;):</b> Severely inflated to <span class="mono viz-ink-null">${type1Rate.toFixed(1)}%</span>! Nominal <i>p</i>-values are invalid.`;
+            commEl.innerHTML = `<b>Type I rate (&alpha;):</b> Severely inflated to <span class="${rateInk}">${type1Rate.toFixed(1)}%</span>. Nominal <i>p</i>-values are invalid.`;
         }
 
         powerEl.className = 'text-base font-bold viz-ink-significant mono mt-0.5';
@@ -2218,7 +2252,7 @@
                 state.unbalanced = false;
                 document.getElementById('slider-varRatio').value = 3.6;
                 document.getElementById('toggle-unbalanced').checked = false;
-            } else if (p === 'homo-toxic') {
+            } else if (p === 'homo-unbalanced') {
                 state.varRatio = 4.6;
                 state.unbalanced = true;
                 document.getElementById('slider-varRatio').value = 4.6;
