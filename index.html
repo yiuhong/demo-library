@@ -564,6 +564,10 @@
                 justify-content: flex-start;
             }
         }
+
+        #footer .menu {
+            line-height: 1.65;
+        }
     </style>
 </head>
 <body class="is-preload">
@@ -669,12 +673,17 @@
 
     </div>
 
-    <!-- Footer -->
+    <!-- Footer. Version text is the no-JS fallback; bump assets/site-meta.js. -->
     <footer id="footer" class="wrapper style1-alt">
         <div class="inner">
             <ul class="menu">
-                <li>&copy; Yiu Hong Ko 2026. All rights reserved.</li>
-                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li><a rel="author" href="https://yiuhong.github.io/">Yiu Hong Ko</a> · <a href="mailto:yiuhong.ko@gmail.com">yiuhong.ko@gmail.com</a></li>
+                <li>Content <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Code <a href="LICENSE-CODE">MIT</a></li>
+                <li><a href="cite.html">How to cite</a></li>
+                <li><a href="https://github.com/yiuhong/demo-library/issues">Spotted a mistake?</a></li>
+                <li><a href="https://github.com/yiuhong/demo-library">View source on GitHub</a></li>
+                <li>Version <span data-site-field="version">0.1.0</span> · Updated <time datetime="2026-10-29" data-site-field="updatedDisplay" data-site-datetime="updated">29 October 2026</time></li>
+                <li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
             </ul>
         </div>
     </footer>
@@ -687,6 +696,8 @@
     <script src="https://yiuhong.github.io/assets/js/breakpoints.min.js"></script>
     <script src="https://yiuhong.github.io/assets/js/util.js"></script>
     <script src="https://yiuhong.github.io/assets/js/main.js"></script>
+    <script src="assets/site-meta.js"></script>
+    <script src="assets/site-oer-footer.js"></script>
 
     <script>
         (function () {

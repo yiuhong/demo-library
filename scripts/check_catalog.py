@@ -6,6 +6,8 @@ Reads ``demos.json`` and ``tracks.json`` at the repo root:
 * each demo has a non-empty title and href, and that href is a file in the repo
 * each track step has a non-empty title and href, and that href is a file in the repo
 * each track step image, when set, is a file in the repo
+* LICENSE states CC BY 4.0 for content and MIT for code, and LICENSE-CODE is the MIT text
+* index.html, cite.html, and each demo carry the site chrome, and no HTML page says "All rights reserved"
 
 Prints one line per problem and exits 1 when something is wrong. Exits 0 when
 every checked title and path is in place. GitHub Actions runs this on pull
@@ -19,6 +21,7 @@ Run from any directory:
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -37,10 +40,13 @@ def main(argv: list[str] | None = None) -> int:
 
     demos, error = load_json(DEMOS_PATH)
     demo_count = 0
+    demo_hrefs: list[str] = []
     if error:
         problems.append(error)
     else:
-        demo_count = check_demos(demos, problems)
+        demo_count = check_demos(demos, problems, demo_hrefs)
+
+    check_site_chrome(problems, demo_hrefs)
 
     tracks, error = load_json(TRACKS_PATH)
     step_count = 0
@@ -61,7 +67,8 @@ def main(argv: list[str] | None = None) -> int:
         "Catalog link check passed: "
         f"{_count(demo_count, 'demo')}, "
         f"{_count(step_count, 'step')}, "
-        f"{_count(image_count, 'image')}."
+        f"{_count(image_count, 'image')}. "
+        "Site chrome checked."
     )
     return 0
 
@@ -79,7 +86,7 @@ def load_json(path: Path) -> tuple[object | None, str | None]:
         return None, f"{path.name}: invalid JSON ({exc})"
 
 
-def check_demos(data: object, problems: list[str]) -> int:
+def check_demos(data: object, problems: list[str], hrefs: list[str]) -> int:
     if not isinstance(data, dict) or not isinstance(data.get("categories"), list):
         problems.append("demos.json: expected an object with a categories array")
         return 0
@@ -130,6 +137,8 @@ def check_demos(data: object, problems: list[str]) -> int:
                 reason = file_problem(href)
                 if reason:
                     problems.append(f"{place}: {demo_name}: href {href!r} {reason}")
+                else:
+                    hrefs.append(href)
     return count
 
 
@@ -228,6 +237,99 @@ def is_repo_relative(raw: str) -> bool:
     if path.is_absolute() or any(part == ".." for part in path.parts):
         return False
     return True
+
+
+def check_site_chrome(problems: list[str], demo_hrefs: list[str]) -> None:
+    meta = read_text(ROOT / "assets" / "site-meta.js")
+    if meta is None:
+        problems.append("assets/site-meta.js: file not found")
+        version = updated = updated_display = None
+    else:
+        version = js_string(meta, "version")
+        updated = js_string(meta, "updated")
+        updated_display = js_string(meta, "updatedDisplay")
+        if not version or not updated or not updated_display:
+            problems.append(
+                "assets/site-meta.js: version, updated, and updatedDisplay are required"
+            )
+
+    for name in ("index.html", "cite.html"):
+        text = read_text(ROOT / name)
+        if text is None:
+            problems.append(f"{name}: file not found")
+            continue
+        required = [
+            "assets/site-meta.js",
+            "assets/site-oer-footer.js",
+            "CC BY 4.0",
+            "How to cite",
+            "Spotted a mistake?",
+            "https://github.com/yiuhong/demo-library/issues",
+            "https://github.com/yiuhong/demo-library",
+            "mailto:yiuhong.ko@gmail.com",
+            "https://yiuhong.github.io/",
+        ]
+        if version:
+            required.append(version)
+        if updated:
+            required.append(updated)
+        if updated_display:
+            required.append(updated_display)
+        if name == "cite.html":
+            required.extend(("BibTeX", "ko2026teachingmaterials", "LICENSE-CODE"))
+        for needle in required:
+            if needle not in text:
+                problems.append(f"{name}: missing {needle}")
+
+    for href in demo_hrefs:
+        text = read_text(ROOT / href)
+        if text is None:
+            continue
+        for needle in (
+            "assets/site-meta.js",
+            "assets/site-oer-footer.js",
+            "assets/site-oer-footer.css",
+        ):
+            if needle not in text:
+                problems.append(f"{href}: missing {needle}")
+
+    for path in sorted(ROOT.rglob("*.html")):
+        text = read_text(path)
+        if text is None:
+            continue
+        if "all rights reserved" in text.lower():
+            problems.append(
+                f'{path.relative_to(ROOT)}: still says "All rights reserved"'
+            )
+
+    license_text = read_text(ROOT / "LICENSE")
+    if license_text is None:
+        problems.append("LICENSE: file not found")
+    else:
+        if "Creative Commons Attribution 4.0 International Public License" not in license_text:
+            problems.append("LICENSE: missing the CC BY 4.0 legal text")
+        if "CC BY 4.0" not in license_text or "MIT" not in license_text:
+            problems.append("LICENSE: state the CC BY 4.0 content and MIT code split")
+
+    code_text = read_text(ROOT / "LICENSE-CODE")
+    if code_text is None:
+        problems.append("LICENSE-CODE: file not found")
+    elif "MIT License" not in code_text or "Permission is hereby granted" not in code_text:
+        problems.append("LICENSE-CODE: expected the MIT License")
+
+
+def read_text(path: Path) -> str | None:
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+
+
+def js_string(source: str, field: str) -> str | None:
+    match = re.search(rf"\b{re.escape(field)}:\s*\"([^\"]*)\"", source)
+    if not match:
+        return None
+    return match.group(1)
 
 
 def label(value: object) -> str | None:
