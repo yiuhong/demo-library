@@ -196,6 +196,15 @@
               ]
             },
             {
+              "href": "statistics/binomial_bernoulli.html",
+              "title": "Binomial Distribution & Bernoulli Process",
+              "description": "A coin-flip simulation of Bernoulli trials and the binomial count of heads.",
+              "keywords": "Binomial Distribution Bernoulli Process coin flip PMF probability mass function heads",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
               "href": "statistics/galton_board.html",
               "title": "Galton Board",
               "description": "How a binomial distribution approximates a normal distribution.",

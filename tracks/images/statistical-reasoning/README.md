@@ -1,6 +1,6 @@
 # Statistical-reasoning figures
 
-These PNGs are drawn by `generate_figures.py` with Matplotlib. They are black-on-white diagrams. Regenerate them from the repo root with `python3 tracks/images/statistical-reasoning/generate_figures.py` (NumPy and Matplotlib).
+Most of these PNGs are drawn by `generate_figures.py` with Matplotlib. They are black-on-white diagrams. Regenerate them from the repo root with `python3 tracks/images/statistical-reasoning/generate_figures.py` (NumPy and Matplotlib). `03-binomial-bernoulli.png` is a screenshot of the running demo, so that script does not redraw it.
 
 ## Normal curve
 
@@ -15,6 +15,10 @@ The figure is the standard normal, `μ = 0` and `σ = 1`.
 The central-limit figure uses an exponential population with mean 1 and standard deviation 1. The mean of `n` draws then follows a gamma distribution with shape `n` and scale `1/n`. The curves are `n = 2`, `n = 8`, and `n = 32`. The standard error is `σ / √n`, the formula in `statistics/central_limit_theorem.html`.
 
 The Horowitz figure follows `statistics/horowitz_1974_simulation_CLT.html`: 96 sample means, each of size 10, from a normal population with mean 50 and standard deviation 15.8. The overlay is `N(50, 5²)`, because `15.8 / √10 ≈ 5`. NumPy seed 1974. In that draw the mean of the means is about 50.2 and the standard deviation of the means is about 4.9.
+
+## Bernoulli trials and the binomial count
+
+`statistics/binomial_bernoulli.html` opens at `n = 10` coins and `p = 1/2`. Each coin is a Bernoulli trial. The count of heads is Binomial(10, 1/2), with `μ = np = 5` and `σ = √(np(1 − p)) = √2.5 ≈ 1.58`. The preview is that page after 500 trials. Blue bars are `P(X = k)`. Amber bars are the observed relative frequencies. The dark blue curve is the normal approximation with that mean and variance.
 
 ## Galton board
 

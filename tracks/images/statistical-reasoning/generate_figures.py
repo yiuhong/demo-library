@@ -368,7 +368,7 @@ def draw_galton() -> None:
         if "clt" in lowered or "central limit" in lowered:
             raise SystemExit(f"Galton figure must not say CLT: {text.get_text()!r}")
 
-    _save(fig, "03-galton-board.png")
+    _save(fig, "04-galton-board.png")
     print(
         f"  galton n={n} p={p} mu={mu:.1f} sigma={sigma:.3f} "
         f"Pmax={float(probs[int(mu)]):.4f} normal_peak={normal_peak:.4f}"
@@ -415,7 +415,7 @@ def draw_horowitz() -> None:
     ax.set_xlabel("sample mean")
     ax.set_ylabel("count")
     ax.set_title("Classroom draws: n = 10 from N(50, 15.8)")
-    _save(fig, "04-horowitz-clt.png")
+    _save(fig, "05-horowitz-clt.png")
     print(
         f"  horowitz mean_of_means={mean_of_means:.3f} emp_se={emp_se:.3f} theory_se={theory_se:.3f}"
     )
@@ -447,7 +447,7 @@ def draw_chi_square() -> None:
     ax.set_xlabel("value")
     ax.set_ylabel("density")
     ax.set_title("Chi-square: a sum of squared standard normals")
-    _save(fig, "05-chi-square.png")
+    _save(fig, "06-chi-square.png")
     print(f"  chi2 mode df3={mode3:.3f} df5={mode5:.3f} peak3={curves[1].max():.3f}")
 
 
@@ -491,7 +491,7 @@ def draw_intervals() -> None:
     ax.set_yticks([])
     ax.set_xlabel("interval  =  estimate  ±  1.96 · SE")
     ax.set_title("Nineteen of these twenty shots cover the true value")
-    _save(fig, "06-confidence-intervals.png")
+    _save(fig, "07-confidence-intervals.png")
     print(f"  ci hits={int(covers.sum())} half-width={CI_HALF:.2f}")
 
 
@@ -503,11 +503,16 @@ def main() -> None:
     draw_horowitz()
     draw_chi_square()
     draw_intervals()
-    # Step order is normal, CLT, Galton, Horowitz, chi-square, intervals.
+    # Step order is normal, CLT, binomial, Galton, Horowitz, chi-square, intervals.
+    # 03-binomial-bernoulli.png is a screenshot of the demo, not drawn here.
     for name in (
         "03-horowitz-clt.png",
+        "03-galton-board.png",
         "04-chi-square.png",
+        "04-horowitz-clt.png",
         "05-confidence-intervals.png",
+        "05-chi-square.png",
+        "06-confidence-intervals.png",
     ):
         stale = OUT / name
         if stale.exists():

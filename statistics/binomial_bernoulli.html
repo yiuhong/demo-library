@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+  <title>Binomial Distribution &amp; Bernoulli Process</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css" />
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css" />
+  <script src="../assets/stats-viz-theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css" />
+  <style>
+    body.demo-page {
+      line-height: 1.5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .demo-back {
+      margin-bottom: 16px;
+    }
+
+    .demo-header {
+      margin-bottom: 20px;
+    }
+
+    .demo-header h1 {
+      font-size: 1.7rem;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .dashboard > * {
+      min-width: 0;
+    }
+
+    @media (max-width: 960px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0 0 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-group {
+      margin-bottom: 18px;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .presets {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-row .demo-btn {
+      width: 100%;
+    }
+
+    .span-2 {
+      grid-column: span 2;
+    }
+
+    .math-box,
+    .formula-fit {
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+    }
+
+    .math-box {
+      padding: 12px;
+      margin-bottom: 12px;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    .math-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .katex-display {
+      margin: 0.45em 0 !important;
+      max-width: 100%;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .stat-item {
+      padding: 10px;
+    }
+
+    .stat-item .label {
+      font-size: 0.76rem;
+    }
+
+    .stat-item .val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+    }
+
+    .stat-item .sub {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--viz-group-c);
+    }
+
+    .coin-arena {
+      min-height: 135px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .coin-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .coin {
+      width: 46px;
+      height: 46px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .coin.flipping {
+      animation: toss 0.6s ease-in-out;
+    }
+
+    @keyframes toss {
+      0% { transform: translateY(0) rotateX(0deg); }
+      50% { transform: translateY(-42px) rotateX(540deg) scale(1.1); }
+      100% { transform: translateY(0) rotateX(1080deg); }
+    }
+
+    .coin-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.05rem;
+      user-select: none;
+    }
+
+    .coin-heads {
+      background: var(--viz-highlight);
+      color: #ffffff;
+      border: 2px solid var(--viz-group-c);
+    }
+
+    .coin-tails {
+      background: var(--viz-reference);
+      color: #ffffff;
+      border: 2px solid var(--viz-total);
+      transform: rotateX(180deg);
+    }
+
+    .coin-index {
+      font-size: 0.7rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .outcome-banner {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      background: var(--viz-group-c-soft);
+      color: var(--viz-group-c);
+      border: 1px solid var(--viz-group-c-line);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      font-size: 0.82rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .legend-item,
+    .toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle-label {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      flex: 0 0 auto;
+    }
+
+    .swatch-theory {
+      background: var(--viz-group-a-mid);
+      border: 2px solid var(--viz-group-a);
+    }
+
+    .swatch-emp {
+      background: var(--viz-group-c);
+    }
+
+    .swatch-normal {
+      width: 18px;
+      height: 3px;
+      background: var(--viz-density);
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 340px;
+      position: relative;
+    }
+
+    svg.chart-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .bar-group {
+      cursor: pointer;
+    }
+
+    .bar-group:hover .theory-bar,
+    .bar-group.is-selected .theory-bar {
+      fill: var(--viz-group-a-line);
+    }
+
+    .hover-eval {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: var(--viz-group-a-soft);
+      border: 1px solid var(--viz-group-a-line);
+      font-size: 0.88rem;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .hover-observed {
+      font-size: 0.82rem;
+      color: var(--viz-group-c);
+      font-weight: 700;
+    }
+
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 960px) {
+      .notes-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .note-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 8px;
+      border-radius: 2px;
+      margin-bottom: 8px;
+    }
+
+    .badge-blue {
+      background: var(--viz-group-a-soft);
+      color: var(--viz-group-a);
+      border: 1px solid var(--viz-group-a-line);
+    }
+
+    .badge-amber {
+      background: var(--viz-group-c-soft);
+      color: var(--viz-group-c);
+      border: 1px solid var(--viz-group-c-line);
+    }
+
+    .note-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0 0 10px;
+    }
+
+    .note-card p {
+      font-size: 0.88rem;
+      margin: 0 0 10px;
+    }
+
+    .note-list {
+      list-style: none;
+      margin: 10px 0 12px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .note-list li {
+      font-size: 0.86rem;
+      padding: 8px 12px;
+      border-left: 3px solid var(--viz-group-a);
+      background: var(--demo-panel);
+    }
+
+    .live-comb-box {
+      background: var(--viz-group-c-soft);
+      border: 1px solid var(--viz-group-c-line);
+      color: var(--viz-group-c);
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 0.86rem;
+      text-align: center;
+      overflow-x: auto;
+    }
+
+    .demo-page input[type="checkbox"] {
+      accent-color: #000000;
+    }
+  </style>
+</head>
+<body class="demo-page">
+  <div class="container">
+    <a class="demo-back" href="../index.html">← Teaching Materials Library</a>
+
+    <header class="demo-header">
+      <h1>Binomial Distribution &amp; Bernoulli Process</h1>
+      <p>Each coin is a Bernoulli trial. The number of heads in \(n\) tosses is binomial. Flip once, or run many trials, and watch the observed frequencies settle onto the probability mass function.</p>
+    </header>
+
+    <div class="dashboard" id="demo-dashboard">
+      <div class="left-panel">
+        <div class="demo-card panel">
+          <h2 class="card-title">Distribution parameters</h2>
+
+          <div class="control-group">
+            <div class="control-header">
+              <span>Number of coins per trial (\(n\))</span>
+              <span class="demo-value" id="val-n">10</span>
+            </div>
+            <input type="range" id="slider-n" min="1" max="30" step="1" value="10" aria-label="Number of coins per trial" />
+            <div class="presets">
+              <button class="demo-chip" type="button" data-n="5">\(n = 5\)</button>
+              <button class="demo-chip" type="button" data-n="10">\(n = 10\)</button>
+              <button class="demo-chip" type="button" data-n="20">\(n = 20\)</button>
+              <button class="demo-chip" type="button" data-n="30">\(n = 30\)</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-header">
+              <span>Probability of heads (\(p\))</span>
+              <span class="demo-value" id="val-p">0.50</span>
+            </div>
+            <input type="range" id="slider-p" min="0.05" max="0.95" step="0.01" value="0.50" aria-label="Probability of heads" />
+            <div class="presets">
+              <button class="demo-chip" type="button" data-p="0.15">Rare (\(p = 0.15\))</button>
+              <button class="demo-chip" type="button" data-p="0.50">Fair coin (\(p = 0.50\))</button>
+              <button class="demo-chip" type="button" data-p="0.80">Biased heads (\(p = 0.80\))</button>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="demo-btn demo-btn-primary span-2" type="button" id="btn-flip-once">Flip once</button>
+            <button class="demo-btn" type="button" id="btn-run-50">+50 trials</button>
+            <button class="demo-btn" type="button" id="btn-run-500">+500 trials</button>
+            <button class="demo-btn span-2" type="button" id="btn-reset">Reset counts</button>
+          </div>
+        </div>
+
+        <div class="demo-card panel">
+          <h2 class="card-title">Mathematical formulation</h2>
+
+          <div class="math-label">Probability mass function</div>
+          <div class="math-box demo-panel" id="math-pmf-general"></div>
+
+          <div class="math-label">Current parameter model</div>
+          <div class="math-box demo-panel" id="math-pmf-current"></div>
+
+          <div class="stats-grid">
+            <div class="stat-item demo-panel">
+              <div class="label">Expected value \(\mu = np\)</div>
+              <div class="val viz-ink-mean" id="stat-mean">5.00</div>
+              <div class="sub" id="stat-emp-mean">Sample mean: —</div>
+            </div>
+            <div class="stat-item demo-panel">
+              <div class="label">Std. deviation \(\sigma = \sqrt{np(1-p)}\)</div>
+              <div class="val viz-ink-se" id="stat-sd">1.58</div>
+              <div class="sub" id="stat-emp-sd">Sample SD: —</div>
+            </div>
+            <div class="stat-item demo-panel">
+              <div class="label">Variance \(\sigma^2 = np(1-p)\)</div>
+              <div class="val" id="stat-var">2.50</div>
+            </div>
+            <div class="stat-item demo-panel">
+              <div class="label">Skewness \(\gamma_1 = \frac{1-2p}{\sigma}\)</div>
+              <div class="val" id="stat-skew">0.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="demo-card panel" id="coin-card">
+          <h2 class="card-title">
+            <span>Current flip</span>
+            <span style="font-size: 0.82rem; font-weight: 500;">
+              Trials: <strong id="total-trials">0</strong>
+            </span>
+          </h2>
+
+          <div class="coin-arena demo-panel" id="coin-arena"></div>
+
+          <div class="outcome-banner demo-panel">
+            <span id="last-trial-text">Click <strong>Flip once</strong> to toss <span id="inline-n">10</span> coins.</span>
+            <span class="badge" id="last-k-badge">k = — heads</span>
+          </div>
+        </div>
+
+        <div class="demo-card panel" id="chart-card">
+          <div class="chart-header">
+            <h2 class="card-title" style="margin-bottom: 0;">Theoretical PMF and observed frequency</h2>
+            <div class="legend">
+              <div class="legend-item">
+                <span class="swatch swatch-theory"></span>
+                <span>Theoretical \(P(X = k)\)</span>
+              </div>
+              <div class="legend-item">
+                <span class="swatch swatch-emp"></span>
+                <span>Observed frequency</span>
+              </div>
+              <label class="toggle-label">
+                <input type="checkbox" id="chk-normal" checked />
+                <span class="swatch swatch-normal"></span>
+                <span>Normal approx. \(\mathcal{N}(np,\ np(1-p))\)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <svg class="chart-svg" id="pmf-svg" viewBox="0 0 760 320" preserveAspectRatio="none" role="img" aria-label="Binomial probabilities and observed relative frequencies"></svg>
+          </div>
+
+          <div class="hover-eval" id="hover-eval-box">
+            <span>Hover or click a bar \(k\) to see the binomial calculation for that count.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes-grid">
+      <div class="demo-card panel note-card">
+        <span class="note-badge badge-blue">Theoretical foundation</span>
+        <h3>Note on the Bernoulli process</h3>
+        <p>
+          A <strong>Bernoulli process</strong> is a sequence of independent and identically distributed binary random variables \(X_1, X_2, \dots, X_n\). Each coin toss is a <em>Bernoulli trial</em> with \(X_i \sim \text{Bernoulli}(p)\):
+        </p>
+        <div class="math-box demo-panel">
+          $$P(X_i = 1) = p \quad \text{(success / heads)}, \qquad P(X_i = 0) = 1 - p = q \quad \text{(failure / tails)}$$
+        </div>
+        <p>Three conditions have to hold:</p>
+        <ul class="note-list">
+          <li><strong>Binary outcomes.</strong> Every trial \(i\) is one of two mutually exclusive outcomes (\(X_i \in \{0, 1\}\)).</li>
+          <li><strong>Constant probability.</strong> The chance of heads \(p\) is the same on every trial.</li>
+          <li><strong>Independence.</strong> Earlier tosses say nothing about the next one (\(P(X_i = 1 \mid X_1, \dots, X_{i-1}) = p\)).</li>
+        </ul>
+        <p style="margin-bottom: 0;">
+          <strong>Connection to the binomial distribution.</strong> The number of heads across \(n\) trials is the sum of those indicators, and that sum is binomial:
+          $$X = \sum_{i=1}^{n} X_i \sim \text{Binomial}(n, p)$$
+          Each rightward bounce on the Galton board is this same trial. The bin is this same count.
+        </p>
+      </div>
+
+      <div class="demo-card panel note-card">
+        <span class="note-badge badge-amber">Combinatorics</span>
+        <h3>Note on the combination</h3>
+        <p>
+          Any one sequence with exactly \(k\) heads and \(n - k\) tails has probability \(p^k(1-p)^{n-k}\). Those \(k\) heads can sit in any of the \(n\) positions.
+        </p>
+        <p>
+          The <strong>binomial coefficient</strong> (“\(n\) choose \(k\)”) counts the sequences with \(k\) heads. Order within the heads does not matter:
+        </p>
+        <div class="math-box demo-panel">
+          $$\binom{n}{k} = {}_nC_k = C(n, k) = \frac{n!}{k!\,(n - k)!}$$
+        </div>
+        <ul class="note-list">
+          <li><strong>Factorial.</strong> \(n! = n \times (n-1) \times \cdots \times 1\), and \(0! = 1\).</li>
+          <li><strong>Symmetry.</strong> \(\binom{n}{k} = \binom{n}{n-k}\). Choosing the heads is the same as choosing the tails.</li>
+          <li><strong>Boundaries.</strong> \(\binom{n}{0} = \binom{n}{n} = 1\). The probabilities add to 1: \(\sum_{k=0}^{n} \binom{n}{k} p^k (1-p)^{n-k} = 1\).</li>
+        </ul>
+        <div class="live-comb-box" id="live-comb-eval"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      n: 10,
+      p: 0.50,
+      counts: [],
+      totalTrials: 0,
+      lastK: null,
+      hoveredK: 5,
+      showNormal: true,
+      isFlipping: false
+    };
+
+    const sliderN = document.getElementById('slider-n');
+    const sliderP = document.getElementById('slider-p');
+    const valN = document.getElementById('val-n');
+    const valP = document.getElementById('val-p');
+    const inlineN = document.getElementById('inline-n');
+    const coinArena = document.getElementById('coin-arena');
+    const totalTrialsEl = document.getElementById('total-trials');
+    const lastTrialText = document.getElementById('last-trial-text');
+    const lastKBadge = document.getElementById('last-k-badge');
+    const pmfSvg = document.getElementById('pmf-svg');
+    const hoverEvalBox = document.getElementById('hover-eval-box');
+    const chkNormal = document.getElementById('chk-normal');
+    const liveCombEval = document.getElementById('live-comb-eval');
+
+    function binomialCoefficient(n, k) {
+      if (k < 0 || k > n) return 0;
+      if (k === 0 || k === n) return 1;
+      if (k > n / 2) k = n - k;
+      let res = 1;
+      for (let i = 1; i <= k; i++) {
+        res = (res * (n - i + 1)) / i;
+      }
+      return Math.round(res);
+    }
+
+    function binomialPMF(n, p, k) {
+      if (p === 0) return k === 0 ? 1 : 0;
+      if (p === 1) return k === n ? 1 : 0;
+      return binomialCoefficient(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+    }
+
+    function normalPDF(x, mean, sd) {
+      if (sd <= 0) return 0;
+      const z = (x - mean) / sd;
+      return (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * z * z);
+    }
+
+    function renderKaTeX(element, texString, displayMode = false) {
+      if (!element) return;
+      if (window.katex) {
+        katex.render(texString, element, {
+          throwOnError: false,
+          displayMode: displayMode
+        });
+      } else {
+        element.textContent = texString;
+      }
+    }
+
+    function renderAllStaticMath(rootEl = document.body) {
+      if (window.renderMathInElement) {
+        renderMathInElement(rootEl, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    function initCounts() {
+      state.counts = new Array(state.n + 1).fill(0);
+      state.totalTrials = 0;
+      state.lastK = null;
+      state.hoveredK = Math.round(state.n * state.p);
+      totalTrialsEl.textContent = '0';
+      lastTrialText.innerHTML = 'Click <strong>Flip once</strong> to toss ' + state.n + ' coins.';
+      lastKBadge.textContent = 'k = — heads';
+    }
+
+    function buildCoinsDOM() {
+      coinArena.innerHTML = '';
+      for (let i = 0; i < state.n; i++) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'coin-wrapper';
+
+        const coin = document.createElement('div');
+        coin.className = 'coin';
+        coin.id = 'coin-' + i;
+
+        const heads = document.createElement('div');
+        heads.className = 'coin-face coin-heads';
+        heads.textContent = 'H';
+
+        const tails = document.createElement('div');
+        tails.className = 'coin-face coin-tails';
+        tails.textContent = 'T';
+
+        coin.appendChild(heads);
+        coin.appendChild(tails);
+
+        const idx = document.createElement('span');
+        idx.className = 'coin-index';
+        idx.textContent = '#' + (i + 1);
+
+        wrapper.appendChild(coin);
+        wrapper.appendChild(idx);
+        coinArena.appendChild(wrapper);
+      }
+    }
+
+    function updateMathAndStats() {
+      const n = state.n;
+      const p = state.p;
+      const q = 1 - p;
+      const mean = n * p;
+      const variance = n * p * q;
+      const sd = Math.sqrt(variance);
+      const skew = sd > 0 ? (1 - 2 * p) / sd : 0;
+
+      renderKaTeX(
+        document.getElementById('math-pmf-general'),
+        'P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}',
+        true
+      );
+
+      renderKaTeX(
+        document.getElementById('math-pmf-current'),
+        'P(X = k) = \\binom{' + n + '}{k} (' + p.toFixed(2) + ')^k (' + q.toFixed(2) + ')^{' + n + '-k}',
+        true
+      );
+
+      document.getElementById('stat-mean').textContent = mean.toFixed(2);
+      document.getElementById('stat-sd').textContent = sd.toFixed(2);
+      document.getElementById('stat-var').textContent = variance.toFixed(2);
+      document.getElementById('stat-skew').textContent = (skew >= 0 ? '+' : '') + skew.toFixed(2);
+
+      if (state.totalTrials > 0) {
+        let sum = 0;
+        for (let k = 0; k <= n; k++) {
+          sum += k * state.counts[k];
+        }
+        const empMean = sum / state.totalTrials;
+
+        let sqDiffSum = 0;
+        for (let k = 0; k <= n; k++) {
+          sqDiffSum += state.counts[k] * Math.pow(k - empMean, 2);
+        }
+        const empSd = Math.sqrt(sqDiffSum / state.totalTrials);
+
+        document.getElementById('stat-emp-mean').textContent = 'Sample mean: ' + empMean.toFixed(2);
+        document.getElementById('stat-emp-sd').textContent = 'Sample SD: ' + empSd.toFixed(2);
+      } else {
+        document.getElementById('stat-emp-mean').textContent = 'Sample mean: —';
+        document.getElementById('stat-emp-sd').textContent = 'Sample SD: —';
+      }
+
+      updateHoverBox(state.hoveredK);
+    }
+
+    function updateHoverBox(k) {
+      if (k === null || k < 0 || k > state.n) return;
+      const n = state.n;
+      const p = state.p;
+      const coeff = binomialCoefficient(n, k);
+      const prob = binomialPMF(n, p, k);
+      const empFreq = state.totalTrials > 0 ? state.counts[k] / state.totalTrials : 0;
+      const term = Math.pow(p, k) * Math.pow(1 - p, n - k);
+
+      const tex = 'P(X = ' + k + ') = \\binom{' + n + '}{' + k + '} (' + p.toFixed(2) + ')^{' + k + '} (' + (1 - p).toFixed(2) + ')^{' + (n - k) + '} = ' + coeff.toLocaleString() + ' \\times ' + term.toExponential(2) + ' \\approx \\mathbf{' + (prob * 100).toFixed(2) + '\\%}';
+
+      hoverEvalBox.innerHTML = '<div id="hover-katex"></div><div class="hover-observed">Observed: ' + state.counts[k] + ' / ' + state.totalTrials + ' (' + (empFreq * 100).toFixed(2) + '%)</div>';
+      renderKaTeX(document.getElementById('hover-katex'), tex, false);
+
+      if (liveCombEval) {
+        const combTex = '\\text{Selected bar } (n=' + n + ',\\; k=' + k + '): \\quad \\binom{' + n + '}{' + k + '} = \\frac{' + n + '!}{' + k + '!\\,(' + n + '-' + k + ')!} = \\mathbf{' + coeff.toLocaleString() + '} \\text{ sequences}';
+        renderKaTeX(liveCombEval, combTex, false);
+      }
+    }
+
+    function renderChart() {
+      const n = state.n;
+      const p = state.p;
+      const counts = state.counts;
+      const totalTrials = state.totalTrials;
+      const showNormal = state.showNormal;
+      const width = 760;
+      const height = 320;
+      const pad = { top: 20, right: 25, bottom: 42, left: 50 };
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+
+      const theoryFill = statsViz.rgba('group-a', 0.22);
+      const theoryStroke = statsViz.color('group-a');
+      const empiricalFill = statsViz.color('group-c');
+      const normalStroke = statsViz.color('density');
+      const gridStroke = statsViz.rgba('reference', 0.45);
+      const axisStroke = statsViz.color('reference');
+      const labelFill = '#000000';
+      const lastFill = statsViz.color('highlight');
+
+      const pmfValues = [];
+      const empValues = [];
+      let maxProb = 0.05;
+
+      for (let k = 0; k <= n; k++) {
+        const pk = binomialPMF(n, p, k);
+        const ek = totalTrials > 0 ? counts[k] / totalTrials : 0;
+        pmfValues.push(pk);
+        empValues.push(ek);
+        if (pk > maxProb) maxProb = pk;
+        if (ek > maxProb) maxProb = ek;
+      }
+
+      const yMax = Math.min(1.0, maxProb * 1.18);
+      const stepW = plotW / (n + 1);
+      const barW = Math.max(6, Math.min(36, stepW * 0.72));
+
+      let svgContent = '';
+
+      const numTicks = 5;
+      for (let i = 0; i <= numTicks; i++) {
+        const val = (yMax / numTicks) * i;
+        const y = pad.top + plotH - (val / yMax) * plotH;
+        svgContent += '<line x1="' + pad.left + '" y1="' + y + '" x2="' + (width - pad.right) + '" y2="' + y + '" stroke="' + gridStroke + '" stroke-dasharray="3,3" />';
+        svgContent += '<text x="' + (pad.left - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="11" fill="' + labelFill + '">' + (val * 100).toFixed(0) + '%</text>';
+      }
+
+      svgContent += '<line x1="' + pad.left + '" y1="' + (pad.top + plotH) + '" x2="' + (width - pad.right) + '" y2="' + (pad.top + plotH) + '" stroke="' + axisStroke + '" stroke-width="1.5" />';
+
+      for (let k = 0; k <= n; k++) {
+        const cx = pad.left + (k + 0.5) * stepW;
+        const thH = (pmfValues[k] / yMax) * plotH;
+        const thY = pad.top + plotH - thH;
+        const empH = (empValues[k] / yMax) * plotH;
+        const empY = pad.top + plotH - empH;
+        const isLast = state.lastK === k;
+        const isHovered = state.hoveredK === k;
+        const label = (n <= 20 || k % 2 === 0)
+          ? '<text x="' + cx + '" y="' + (pad.top + plotH + 18) + '" text-anchor="middle" font-size="11" font-weight="' + (isLast ? '700' : '500') + '" fill="' + (isLast ? lastFill : labelFill) + '">' + k + '</text>'
+          : '';
+        const empBar = (totalTrials > 0 && empH > 0)
+          ? '<rect x="' + (cx - barW * 0.28) + '" y="' + empY + '" width="' + (barW * 0.56) + '" height="' + Math.max(0, empH) + '" fill="' + empiricalFill + '" rx="2" />'
+          : '';
+
+        svgContent += '<g class="bar-group' + (isHovered ? ' is-selected' : '') + '" data-k="' + k + '">'
+          + '<rect x="' + (cx - stepW / 2) + '" y="' + pad.top + '" width="' + stepW + '" height="' + plotH + '" fill="transparent" />'
+          + '<rect class="theory-bar" x="' + (cx - barW / 2) + '" y="' + thY + '" width="' + barW + '" height="' + Math.max(0, thH) + '" fill="' + theoryFill + '" stroke="' + theoryStroke + '" stroke-width="' + (isLast ? '2.5' : '1.5') + '" rx="2" />'
+          + empBar
+          + label
+          + '</g>';
+      }
+
+      svgContent += '<text x="' + (pad.left + plotW / 2) + '" y="' + (height - 4) + '" text-anchor="middle" font-size="12" font-weight="700" fill="' + labelFill + '">Number of heads (k)</text>';
+
+      if (showNormal && n >= 2) {
+        const mean = n * p;
+        const sd = Math.sqrt(n * p * (1 - p));
+        let pathD = '';
+        const samples = 120;
+        for (let i = 0; i <= samples; i++) {
+          const kVal = (i / samples) * n;
+          const density = normalPDF(kVal, mean, sd);
+          const x = pad.left + (kVal + 0.5) * stepW;
+          const y = pad.top + plotH - Math.min(yMax, density) / yMax * plotH;
+          pathD += (i === 0 ? 'M ' + x + ' ' + y : ' L ' + x + ' ' + y);
+        }
+        svgContent += '<path d="' + pathD + '" fill="none" stroke="' + normalStroke + '" stroke-width="2.5" stroke-linecap="round" />';
+      }
+
+      pmfSvg.innerHTML = svgContent;
+
+      pmfSvg.querySelectorAll('.bar-group').forEach(function (group) {
+        function selectBar() {
+          const k = parseInt(group.getAttribute('data-k'), 10);
+          state.hoveredK = k;
+          pmfSvg.querySelectorAll('.bar-group').forEach(function (other) {
+            other.classList.remove('is-selected');
+          });
+          group.classList.add('is-selected');
+          updateHoverBox(k);
+        }
+        group.addEventListener('mouseenter', selectBar);
+        group.addEventListener('click', selectBar);
+      });
+    }
+
+    function flipOnceAnimated() {
+      if (state.isFlipping) return;
+      state.isFlipping = true;
+
+      let headsCount = 0;
+
+      for (let i = 0; i < state.n; i++) {
+        const isHeads = Math.random() < state.p;
+        if (isHeads) headsCount++;
+
+        const coinEl = document.getElementById('coin-' + i);
+        if (coinEl) {
+          coinEl.classList.remove('flipping');
+          void coinEl.offsetWidth;
+          coinEl.classList.add('flipping');
+          coinEl.style.transform = isHeads ? 'rotateX(0deg)' : 'rotateX(180deg)';
+        }
+      }
+
+      setTimeout(function () {
+        state.counts[headsCount]++;
+        state.totalTrials++;
+        state.lastK = headsCount;
+        state.hoveredK = headsCount;
+        state.isFlipping = false;
+
+        totalTrialsEl.textContent = state.totalTrials.toLocaleString();
+        lastTrialText.innerHTML = 'Last trial: <strong>' + headsCount + ' heads</strong> and <strong>' + (state.n - headsCount) + ' tails</strong>';
+        lastKBadge.textContent = 'k = ' + headsCount + ' heads';
+
+        updateMathAndStats();
+        renderChart();
+      }, 600);
+    }
+
+    function runBatch(batchSize) {
+      let lastOutcome = 0;
+      for (let t = 0; t < batchSize; t++) {
+        let heads = 0;
+        for (let i = 0; i < state.n; i++) {
+          if (Math.random() < state.p) heads++;
+        }
+        state.counts[heads]++;
+        lastOutcome = heads;
+      }
+
+      state.totalTrials += batchSize;
+      state.lastK = lastOutcome;
+      state.hoveredK = lastOutcome;
+
+      for (let i = 0; i < state.n; i++) {
+        const coinEl = document.getElementById('coin-' + i);
+        if (coinEl) {
+          coinEl.style.transform = i < lastOutcome ? 'rotateX(0deg)' : 'rotateX(180deg)';
+        }
+      }
+
+      totalTrialsEl.textContent = state.totalTrials.toLocaleString();
+      lastTrialText.innerHTML = 'Added <strong>' + batchSize + ' trials</strong>. The last one had ' + lastOutcome + ' heads.';
+      lastKBadge.textContent = 'k = ' + lastOutcome + ' heads';
+
+      updateMathAndStats();
+      renderChart();
+    }
+
+    sliderN.addEventListener('input', function (e) {
+      state.n = parseInt(e.target.value, 10);
+      valN.textContent = state.n;
+      inlineN.textContent = state.n;
+      initCounts();
+      buildCoinsDOM();
+      updateMathAndStats();
+      renderChart();
+    });
+
+    sliderP.addEventListener('input', function (e) {
+      state.p = parseFloat(e.target.value);
+      valP.textContent = state.p.toFixed(2);
+      initCounts();
+      updateMathAndStats();
+      renderChart();
+    });
+
+    document.querySelectorAll('.demo-chip[data-n]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        sliderN.value = btn.getAttribute('data-n');
+        sliderN.dispatchEvent(new Event('input'));
+      });
+    });
+
+    document.querySelectorAll('.demo-chip[data-p]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        sliderP.value = btn.getAttribute('data-p');
+        sliderP.dispatchEvent(new Event('input'));
+      });
+    });
+
+    document.getElementById('btn-flip-once').addEventListener('click', flipOnceAnimated);
+    document.getElementById('btn-run-50').addEventListener('click', function () { runBatch(50); });
+    document.getElementById('btn-run-500').addEventListener('click', function () { runBatch(500); });
+    document.getElementById('btn-reset').addEventListener('click', function () {
+      initCounts();
+      buildCoinsDOM();
+      updateMathAndStats();
+      renderChart();
+    });
+
+    chkNormal.addEventListener('change', function (e) {
+      state.showNormal = e.target.checked;
+      renderChart();
+    });
+
+    window.addEventListener('DOMContentLoaded', function () {
+      initCounts();
+      buildCoinsDOM();
+      renderAllStaticMath();
+      updateMathAndStats();
+      renderChart();
+    });
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

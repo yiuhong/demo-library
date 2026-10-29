@@ -127,15 +127,28 @@
           "imageAlt": "Sampling distributions of the mean for an exponential population with mean 1. The n = 2 curve is low and right-skewed, n = 8 is taller, and n = 32 is a tall narrow curve on the dashed line at μ = 1."
         },
         {
+          "href": "statistics/binomial_bernoulli.html",
+          "title": "Binomial Distribution & Bernoulli Process",
+          "note": "A coin toss is a Bernoulli trial: two outcomes, the same chance of heads every time, and no memory of the tosses before it. Count the heads in n tosses and that count is binomial, the sum of those trials. The bars are the exact probabilities. Run many trials and the observed frequencies settle onto the bars. The next step writes the same count as left and right bounces on a Galton board.",
+          "formulae": [
+            "Xᵢ ~ Bernoulli(p),  P(Xᵢ = 1) = p",
+            "X = X₁ + … + Xₙ ~ Binomial(n, p)",
+            "P(X = k) = C(n, k) · pᵏ · (1 − p)ⁿ⁻ᵏ",
+            "μ = np,  σ = √(np(1 − p))"
+          ],
+          "image": "tracks/images/statistical-reasoning/03-binomial-bernoulli.png",
+          "imageAlt": "The binomial demonstration at n = 10 and p = 0.50 after 500 trials. The last trial is drawn as four heads and six tails. Blue bars are P(X = k) for k = 0 through 10 and peak at 5. Amber bars are the observed relative frequencies, also tallest at 5. A dark blue curve is the normal approximation. The open calculation is for k = 4."
+        },
+        {
           "href": "statistics/galton_board.html",
           "title": "Galton Board",
-          "note": "Each bead on a Galton board takes a left or right bounce at every peg. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape, and the binomial distribution approximates a normal distribution.",
+          "note": "Each bead on a Galton board takes a left or right bounce at every peg, the same Bernoulli trial as a coin toss. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape, and the binomial distribution approximates a normal distribution.",
           "formulae": [
             "X = X₁ + … + Xₙ ~ Binomial(n, p)",
             "μ = np,  σ = √(np(1 − p))",
             "P(X = k) ≈ (1 / (σ√(2π))) exp(−(k − μ)² / (2σ²))"
           ],
-          "image": "tracks/images/statistical-reasoning/03-galton-board.png",
+          "image": "tracks/images/statistical-reasoning/04-galton-board.png",
           "imageAlt": "Left: a board of 12 rows of pegs. One bead takes six right bounces, then six left bounces, and ends in bin 6. Ticks mark bins 0, 6, and 12. Right: binomial probabilities for n = 12 and p = 1/2. The bars peak at k = 6. A normal curve sits on them, with a dashed line at μ = 6 and dotted lines at μ ± σ."
         },
         {
@@ -145,7 +158,7 @@
           "formulae": [
             "X̄ₙ → N(μ, σ²/n) as n grows"
           ],
-          "image": "tracks/images/statistical-reasoning/04-horowitz-clt.png",
+          "image": "tracks/images/statistical-reasoning/05-horowitz-clt.png",
           "imageAlt": "Histogram of 96 sample means. Each mean is from 10 draws of a normal population with mean 50 and standard deviation 15.8. A normal curve centered at 50 with standard deviation 5 lies over the bars."
         },
         {
@@ -156,7 +169,7 @@
             "χ²_ν = Z₁² + … + Z_ν²",
             "Zᵢ ~ N(0, 1), independent"
           ],
-          "image": "tracks/images/statistical-reasoning/05-chi-square.png",
+          "image": "tracks/images/statistical-reasoning/06-chi-square.png",
           "imageAlt": "Chi-square densities for 1, 3, and 5 degrees of freedom. The 1-df curve spikes at zero and runs off the top of the axes. The 3-df curve peaks near 1. The 5-df curve peaks near 3 and sits lower and further right."
         },
         {
@@ -167,7 +180,7 @@
             "CI = X̄ ± z* · (σ / √n)",
             "coverage ≈ 1 − α over repeated samples"
           ],
-          "image": "tracks/images/statistical-reasoning/06-confidence-intervals.png",
+          "image": "tracks/images/statistical-reasoning/07-confidence-intervals.png",
           "imageAlt": "Twenty horizontal intervals of equal width aimed at a dashed line, the true value. Nineteen solid intervals cross that line. The top interval is dotted, lies entirely to the right, and is labeled miss."
         }
       ]
