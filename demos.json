@@ -1,0 +1,401 @@
+{
+  "categories": [
+    {
+      "id": "cognitive",
+      "title": "Cognitive Psychology",
+      "domId": "cognitive-category",
+      "panel": "style2",
+      "subcategories": [
+        {
+          "title": "Mental Chronometry",
+          "demos": [
+            {
+              "href": "cognitive_psychology/noematachograph.html",
+              "title": "Noematachograph",
+              "description": "Donders' noematachograph for measuring mental chronometry.",
+              "keywords": "Noematachograph",
+              "tags": [
+                "Explorer"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "neuroscience",
+      "title": "Neuroscience",
+      "domId": "neuro-category",
+      "panel": "style2",
+      "subcategories": [
+        {
+          "title": "Electroencephalography (EEG)",
+          "demos": [
+            {
+              "href": "neuroscience/eeg_illustration.html",
+              "title": "EEG Illustration",
+              "description": "An illustration of electroencephalography (EEG).",
+              "keywords": "EEG Illustration",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "neuroscience/EEG_signal_decomposition.html",
+              "title": "EEG Signal Decomposition",
+              "description": "Interactive decomposition of an EEG signal.",
+              "keywords": "EEG Signal Decomposition",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "neuroscience/erp_demo.html",
+              "title": "Event-related potential (ERP)",
+              "description": "A simulator and explorer for event-related potentials (ERP).",
+              "keywords": "Event-related potential (ERP)",
+              "tags": [
+                "Simulation"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Functional Near-Infrared Spectroscopy (fNIRS)",
+          "demos": [
+            {
+              "href": "neuroscience/fnirs_mechanism.html",
+              "title": "fNIRS Mechanism",
+              "description": "A simulator of the functional near-infrared spectroscopy (fNIRS) mechanism.",
+              "keywords": "fNIRS Mechanism",
+              "tags": [
+                "Explorer"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "statistics",
+      "title": "Statistics",
+      "domId": "stats-category",
+      "panel": "style3",
+      "subcategories": [
+        {
+          "title": "Descriptive Statistics",
+          "demos": [
+            {
+              "href": "statistics/mean_mode_median_dot_plot.html",
+              "title": "Mean, Median, and Mode",
+              "description": "Mean, median, and mode on a dot plot.",
+              "keywords": "Mean, Median, and Mode on a Dot Plot",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/bessels_correction_simulation.html",
+              "title": "Bessel's Correction",
+              "description": "A simulation of Bessel's correction (n − 1).",
+              "keywords": "Bessel's correction",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
+              "href": "statistics/moments_as_averages.html",
+              "title": "Moments",
+              "description": "Moments treated as averages.",
+              "keywords": "Moments",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/additivity_of_variance.html",
+              "title": "Additivity of Variance & SS",
+              "description": "How correlation enters the variance and sum of squares of a sum or a difference.",
+              "keywords": "Additivity of Variance sum of squares SS sum vs difference",
+              "tags": [
+                "Explorer"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Data Visualization",
+          "demos": [
+            {
+              "href": "statistics/boxplot_outliers.html",
+              "title": "Boxplot and Outliers",
+              "description": "How a boxplot shows outliers.",
+              "keywords": "Boxplot and Outliers",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/boxplot_histogram.html",
+              "title": "Boxplot and Histogram",
+              "description": "A boxplot compared with a histogram.",
+              "keywords": "Boxplot and Histogram",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/kde_plots.html",
+              "title": "Kernel Density Estimate (KDE)",
+              "description": "A smooth density beside a histogram, also drawn as a violin or a raincloud.",
+              "keywords": "Kernel Density Estimate KDE histogram bandwidth kernel violin raincloud density",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/q_q_plot.html",
+              "title": "Q-Q Plot",
+              "description": "A Q-Q plot for examining normality.",
+              "keywords": "Q-Q Plot",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/skewed_distribution.html",
+              "title": "Skewed Distribution",
+              "description": "A skewed distribution compared with a normal distribution.",
+              "keywords": "Skewed Distribution",
+              "tags": [
+                "Explorer"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Distributions & sampling",
+          "group": "Inferential Statistics",
+          "demos": [
+            {
+              "href": "statistics/building_normal_distribution.html",
+              "title": "Building the Normal Distribution",
+              "description": "How a normal distribution is built.",
+              "keywords": "Building Normal Distribution",
+              "tags": [
+                "Walkthrough"
+              ]
+            },
+            {
+              "href": "statistics/central_limit_theorem.html",
+              "title": "Central Limit Theorem (CLT)",
+              "description": "A simulation of the central limit theorem (CLT).",
+              "keywords": "Central Limit Theorem (CLT)",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
+              "href": "statistics/galton_board.html",
+              "title": "Galton Board",
+              "description": "How a binomial distribution approximates a normal distribution.",
+              "keywords": "Galton Board binomial normal",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
+              "href": "statistics/horowitz_1974_simulation_CLT.html",
+              "title": "Horowitz (1974) CLT Simulation",
+              "description": "Horowitz (1974) simulation of the central limit theorem.",
+              "keywords": "Horowitz (1974) Simulation of CLT",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
+              "href": "statistics/chi_square_distribution.html",
+              "title": "Chi-Square Distribution",
+              "description": "A simulation of the chi-square distribution as the sum of squared standard normals.",
+              "keywords": "Chi-Square Distribution Chi Square χ2 χ²",
+              "tags": [
+                "Simulation"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "t-tests & related",
+          "group": "Inferential Statistics",
+          "demos": [
+            {
+              "href": "statistics/z_distribution_vs_t_distribution.html",
+              "title": "z-Distribution vs t-Distribution",
+              "description": "How the z-distribution compares with the t-distribution.",
+              "keywords": "Z-Distribution vs t-Distribution",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
+              "href": "statistics/paired_t_test_simulation.html",
+              "title": "Paired Sample t-Test",
+              "description": "A simulation of the paired-samples t-test and mean differences.",
+              "keywords": "Paired Sample t-Test",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
+              "href": "statistics/independent_t_test_simulation.html",
+              "title": "Independent Samples t-Test",
+              "description": "A simulation of the independent-samples t-test.",
+              "keywords": "Independent Samples t-Test",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
+              "href": "statistics/target_analogy_confidence_intervals.html",
+              "title": "Target Analogy of Confidence Intervals",
+              "description": "A target analogy of confidence intervals.",
+              "keywords": "Target Analogy of Confidence Intervals",
+              "tags": [
+                "Explorer"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "ANOVA",
+          "group": "Inferential Statistics",
+          "demos": [
+            {
+              "href": "statistics/t_test_to_anova.html",
+              "title": "From t-Test to ANOVA",
+              "description": "How the t-test relates to ANOVA by partitioning variation.",
+              "keywords": "From t-Test to ANOVA",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/paired_t_to_rm_anova.html",
+              "title": "From Paired t-Test to RM-ANOVA",
+              "description": "How pre–post correlation partitions within-conditions into SS Subjects and Residual, linking the paired t to repeated-measures ANOVA.",
+              "keywords": "Paired t-Test Repeated-Measures ANOVA difference score within-conditions SS Subjects Residual correlation",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/partitioning_sum_of_squares_anova.html",
+              "title": "Partitioning Sum of Squares",
+              "description": "Partitioning the sum of squares in ANOVA.",
+              "keywords": "Partitioning Sum of Squares in ANOVA",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/two_way_anova.html",
+              "title": "Two-Way ANOVA",
+              "description": "Interactive 2 × 2 factorial ANOVA: main effects and interaction.",
+              "keywords": "Two-Way ANOVA factorial interaction omnibus Group Gender",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
+              "href": "statistics/anova_assumptions.html",
+              "title": "ANOVA Assumptions",
+              "description": "Explore how violating normality, homogeneity of variance, and independence distorts ANOVA under a true null.",
+              "keywords": "ANOVA Assumptions Violations Normality Homoscedasticity Homogeneity Independence residuals",
+              "tags": [
+                "Simulation"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Power, correlation & explained variance",
+          "group": "Inferential Statistics",
+          "demos": [
+            {
+              "href": "statistics/statistical_power.html",
+              "title": "Statistical Power",
+              "description": "Sampling distributions of the sample mean under the null and the alternative.",
+              "keywords": "Statistical Power",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/power_curve.html",
+              "title": "Power Curve",
+              "description": "A power curve for statistical power.",
+              "keywords": "Power Curve",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/covariance_and_correlation.html",
+              "title": "Covariance and Correlation",
+              "description": "Covariance and correlation side by side.",
+              "keywords": "Covariance and Correlation",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/variance_explained.html",
+              "title": "Variance Explained",
+              "description": "How much of the variation is explained.",
+              "keywords": "Variance Explained",
+              "tags": [
+                "Explorer"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "personality",
+      "title": "Personality Psychology",
+      "domId": "personality-category",
+      "panel": "style1",
+      "subcategories": [
+        {
+          "title": "Psychoanalysis",
+          "demos": [
+            {
+              "href": "personality_psychology/nlp_psychotherapy.html",
+              "title": "NLP in Psychotherapy",
+              "description": "Natural language processing for psychotherapy transcript analysis.",
+              "keywords": "Natural Language Processing (NLP) in Psychotherapy",
+              "tags": [
+                "Explorer"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Personality Traits",
+          "demos": [
+            {
+              "href": "personality_psychology/lexical_approach.html",
+              "title": "Lexical Approach",
+              "description": "The lexical hypothesis for uncovering personality traits.",
+              "keywords": "Lexical Approach",
+              "tags": [
+                "Walkthrough"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
