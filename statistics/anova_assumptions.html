@@ -1569,6 +1569,24 @@
         }
     }
 
+    // Canvas fillText has no subscript markup, so "F_crit" would show a literal underscore.
+    // ctx.font is serialized as "600 10.5px ...", so the px size has to be read
+    // from that token. parseFloat(ctx.font) would see the weight, 600.
+    function fillFWithCrit(ctx, x, y, rest) {
+        const mainFont = ctx.font;
+        const sizeMatch = /([\d.]+)px/.exec(mainFont);
+        const mainSize = sizeMatch ? parseFloat(sizeMatch[1]) : 10.5;
+        const subSize = Math.round(mainSize * 0.72 * 10) / 10;
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText('F', x, y);
+        const fWidth = ctx.measureText('F').width;
+        ctx.font = mainFont.replace(/([\d.]+)px/, `${subSize}px`);
+        ctx.fillText('crit', x + fWidth, y + mainSize * 0.32);
+        const subWidth = ctx.measureText('crit').width;
+        ctx.font = mainFont;
+        ctx.fillText(rest, x + fWidth + subWidth, y);
+    }
+
     // 3. Render Monte Carlo F-Distribution & Power Simulation (Plot 3)
     // Toggles strictly control showing vs. hiding of H0 and H1 distributions
     function renderMonteCarloPlot() {
@@ -1786,7 +1804,7 @@
         let lineY = pad.top + 13;
 
         ctx.fillStyle = '#000000';
-        ctx.fillText(`F_crit = ${fCrit.toFixed(2)} (nominal alpha = 5%)`, textX, lineY);
+        fillFWithCrit(ctx, textX, lineY, ` = ${fCrit.toFixed(2)} (nominal alpha = 5%)`);
 
         if (state.showH0) {
             lineY += 14;
@@ -2036,9 +2054,10 @@
             const h0FalsePositive = state.anovaH0.p < 0.05;
             const h1Detected = state.anovaH1.p < 0.05;
             if (bothOn) {
-                const h0Status = h0FalsePositive ? 'H0: Type I error' : 'H0: Retains';
-                const h1Status = h1Detected ? 'H1: Detected' : 'H1: Missed';
-                decBadge.innerHTML = `${h0Status} &bull; ${h1Status}`;
+                const h0Status = h0FalsePositive ? 'Type I error' : 'Retains';
+                const h1Status = h1Detected ? 'Detected' : 'Missed';
+                decBadge.innerHTML =
+                    `H<sub>0</sub>: ${h0Status}<br>H<sub>1</sub>: ${h1Status}`;
                 decBadge.className = (h0FalsePositive ? badgeType1 : (h1Detected ? badgeOk : badgeMiss)) + ' text-[11px]';
             } else if (state.showH0) {
                 if (h0FalsePositive) {
