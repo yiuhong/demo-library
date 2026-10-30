@@ -163,6 +163,19 @@
     .mono-num { font-family: 'JetBrains Mono', monospace; }
     
     .rosetta-card { background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #cbd5e1; }
+    /* Chart SVGs are width:100%. Keep this note's mark at the same 28px used by the other unavailable panels. */
+    .right-viz { container-type: inline-size; container-name: rightviz; }
+    #diff-scores-unavailable svg { width: 28px; height: 28px; }
+    @container rightviz (max-width: 500px) {
+      #diff-scores-unavailable { font-size: 0.68rem !important; line-height: 1.3 !important; padding: 0.4rem 0.35rem !important; }
+      #diff-scores-unavailable svg { margin-bottom: 0.25rem !important; }
+      #diff-scores-unavailable strong { font-size: 0.82rem !important; }
+    }
+    @media (max-width: 520px) {
+      #diff-scores-unavailable { padding: 0.28rem 0.25rem !important; font-size: 0.62rem !important; line-height: 1.25 !important; }
+      #diff-scores-unavailable svg { width: 18px; height: 18px; margin-bottom: 0.2rem !important; }
+      #diff-scores-unavailable strong { font-size: 0.72rem !important; }
+    }
     #pedagogical-tooltip { position: fixed; pointer-events: none; z-index: 9999; background: #0f172a; color: #f8fafc; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.76rem; max-width: 280px; line-height: 1.4; box-shadow: var(--shadow-md); opacity: 0; transition: opacity 0.12s ease; }
   </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
@@ -300,8 +313,16 @@
             <div class="card-subtitle">Observe variance carving out as correlation adjusts</div>
           </div>
         </div>
-        <div class="svg-container">
+        <div class="svg-container right-viz">
           <svg id="right-viz-svg" viewBox="0 0 580 365" aria-label="Difference Scores and Variance Partitioning"></svg>
+          <div id="diff-scores-unavailable" style="display: none; position: absolute; left: 2.76%; top: 9.86%; width: 43.79%; height: 88.22%; box-sizing: border-box; padding: 0.65rem 0.5rem; text-align: center; color: var(--text-muted); font-size: 0.82rem; line-height: 1.4; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; pointer-events: none; z-index: 2;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.4rem; color: #94a3b8; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <strong style="color:var(--text-main); font-size: 0.95rem;">Not Applicable</strong>
+            <div style="margin-top: 0.5rem;">
+              A difference score ($D_i$) compares exactly two timepoints.<br><br>
+              In a 3-timepoint design, the RM-ANOVA conducts an omnibus test across all three simultaneously. Switch to <strong>Mode A</strong> to view the difference scores.
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -776,44 +797,49 @@
   function renderRightPanel(stats) {
     let html = '';
     const dLeft = 48, dRight = 235, dTop = 38, dBottom = 325, dCenterX = (dLeft + dRight) / 2;
-    
-    // Dynamic boundary scaling to prevent visual overflow
-    const dScores = stats.diffs;
-    const actMin = Math.min(...dScores, stats.dBar - stats.sD);
-    const actMax = Math.max(...dScores, stats.dBar + stats.sD);
-    const dMin = Math.floor(Math.min(-6, actMin - 2) / 4) * 4;
-    const dMax = Math.ceil(Math.max(14, actMax + 2) / 4) * 4;
-    const step = Math.max(4, Math.ceil((dMax - dMin) / 5));
 
-    const dToY = (val) => dBottom - ((val - dMin) / (dMax - dMin)) * (dBottom - dTop);
+    if (state.mode === 'anova') {
+      html += `<text x="${dCenterX}" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">Sub-Plot 1: Diff Scores (D<tspan baseline-shift="sub" font-size="75%">i</tspan>)</text>
+               <rect x="16" y="36" width="254" height="322" rx="6" fill="#f8fafc" stroke="#e2e8f0" />`;
+    } else {
+      // Dynamic boundary scaling to prevent visual overflow
+      const dScores = stats.diffs;
+      const actMin = Math.min(...dScores, stats.dBar - stats.sD);
+      const actMax = Math.max(...dScores, stats.dBar + stats.sD);
+      const dMin = Math.floor(Math.min(-6, actMin - 2) / 4) * 4;
+      const dMax = Math.ceil(Math.max(14, actMax + 2) / 4) * 4;
+      const step = Math.max(4, Math.ceil((dMax - dMin) / 5));
 
-    html += `<text x="${dCenterX}" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">Sub-Plot 1: Diff Scores (D<tspan baseline-shift="sub" font-size="75%">i</tspan>)</text>
-             <text x="${dCenterX}" y="31" text-anchor="middle" font-size="10" fill="#64748b" font-family="JetBrains Mono">D<tspan baseline-shift="sub" font-size="75%">i</tspan> = X<tspan baseline-shift="sub" font-size="75%">i2</tspan> - X<tspan baseline-shift="sub" font-size="75%">i1</tspan>  (s<tspan baseline-shift="sub" font-size="75%">D</tspan> = ${stats.sD.toFixed(2)})</text>
-             <rect x="${dLeft}" y="${dTop}" width="${dRight - dLeft}" height="${dBottom - dTop}" rx="6" fill="#f8fafc" stroke="#e2e8f0" />`;
+      const dToY = (val) => dBottom - ((val - dMin) / (dMax - dMin)) * (dBottom - dTop);
 
-    for (let d = dMin; d <= dMax; d += step) {
-      const py = dToY(d);
-      html += `<line x1="${dLeft}" y1="${py}" x2="${dRight}" y2="${py}" stroke="${d === 0 ? '#94a3b8' : '#e2e8f0'}" stroke-dasharray="${d === 0 ? '3,2' : 'none'}" />
-               <text x="${dLeft - 6}" y="${py + 3.5}" text-anchor="end" font-size="10" fill="#64748b" font-family="JetBrains Mono">${d >= 0 ? '+' + d : d}</text>`;
+      html += `<text x="${dCenterX}" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">Sub-Plot 1: Diff Scores (D<tspan baseline-shift="sub" font-size="75%">i</tspan>)</text>
+               <text x="${dCenterX}" y="31" text-anchor="middle" font-size="10" fill="#64748b" font-family="JetBrains Mono">D<tspan baseline-shift="sub" font-size="75%">i</tspan> = X<tspan baseline-shift="sub" font-size="75%">i2</tspan> - X<tspan baseline-shift="sub" font-size="75%">i1</tspan>  (s<tspan baseline-shift="sub" font-size="75%">D</tspan> = ${stats.sD.toFixed(2)})</text>
+               <rect x="${dLeft}" y="${dTop}" width="${dRight - dLeft}" height="${dBottom - dTop}" rx="6" fill="#f8fafc" stroke="#e2e8f0" />`;
+
+      for (let d = dMin; d <= dMax; d += step) {
+        const py = dToY(d);
+        html += `<line x1="${dLeft}" y1="${py}" x2="${dRight}" y2="${py}" stroke="${d === 0 ? '#94a3b8' : '#e2e8f0'}" stroke-dasharray="${d === 0 ? '3,2' : 'none'}" />
+                 <text x="${dLeft - 6}" y="${py + 3.5}" text-anchor="end" font-size="10" fill="#64748b" font-family="JetBrains Mono">${d >= 0 ? '+' + d : d}</text>`;
+      }
+
+      const pyDBar = dToY(stats.dBar), pyTopSD = dToY(Math.min(dMax, stats.dBar + stats.sD)), pyBotSD = dToY(Math.max(dMin, stats.dBar - stats.sD));
+      html += `<rect x="${dLeft + 12}" y="${pyTopSD}" width="${dRight - dLeft - 24}" height="${Math.max(2, pyBotSD - pyTopSD)}" fill="var(--col-diff)" fill-opacity="0.1" rx="4" />
+               <line x1="${dLeft + 6}" y1="${pyDBar}" x2="${dRight - 6}" y2="${pyDBar}" stroke="var(--col-diff)" stroke-width="2.5" />
+               <text x="${dRight - 8}" y="${pyDBar - 6}" text-anchor="end" font-size="10" font-weight="700" fill="var(--col-diff)" font-family="JetBrains Mono">D̄ = +${stats.dBar.toFixed(2)}</text>`;
+
+      const isIsolated = state.selectedSubject !== 'all', selSubj = isIsolated ? parseInt(state.selectedSubject, 10) : -1;
+      for (let i = 0; i < N; i++) {
+        const di = stats.diffs[i], pyD = dToY(Math.max(dMin, Math.min(dMax, di))), dx = dLeft + 34 + i * 24, emph = !isIsolated || selSubj === i, op = emph ? 1.0 : 0.25;
+        html += `<g opacity="${op}">
+          <line x1="${dx}" y1="${pyDBar}" x2="${dx}" y2="${pyD}" stroke="var(--col-error)" stroke-width="2" stroke-dasharray="2,2" />
+          <circle cx="${dx}" cy="${pyD}" r="5.5" fill="${SUBJECT_COLORS[i]}" stroke="#fff" stroke-width="1.5" />
+          <text x="${dx}" y="${pyD + (di >= stats.dBar ? -8 : 14)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${SUBJECT_COLORS[i]}">${SUBJECT_LABELS[i]}</text>
+        </g>`;
+      }
+
+      html += `<text x="${dCenterX}" y="${dBottom + 20}" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--col-error)">Spread around D̄ = s<tspan baseline-shift="sub" font-size="75%">D</tspan><tspan baseline-shift="super" font-size="75%">2</tspan> = ${stats.sD2.toFixed(2)}</text>
+               <text x="${dCenterX}" y="${dBottom + 34}" text-anchor="middle" font-size="10" fill="#64748b">(High r → tight cluster → large t!)</text>`;
     }
-
-    const pyDBar = dToY(stats.dBar), pyTopSD = dToY(Math.min(dMax, stats.dBar + stats.sD)), pyBotSD = dToY(Math.max(dMin, stats.dBar - stats.sD));
-    html += `<rect x="${dLeft + 12}" y="${pyTopSD}" width="${dRight - dLeft - 24}" height="${Math.max(2, pyBotSD - pyTopSD)}" fill="var(--col-diff)" fill-opacity="0.1" rx="4" />
-             <line x1="${dLeft + 6}" y1="${pyDBar}" x2="${dRight - 6}" y2="${pyDBar}" stroke="var(--col-diff)" stroke-width="2.5" />
-             <text x="${dRight - 8}" y="${pyDBar - 6}" text-anchor="end" font-size="10" font-weight="700" fill="var(--col-diff)" font-family="JetBrains Mono">D̄ = +${stats.dBar.toFixed(2)}</text>`;
-
-    const isIsolated = state.selectedSubject !== 'all', selSubj = isIsolated ? parseInt(state.selectedSubject, 10) : -1;
-    for (let i = 0; i < N; i++) {
-      const di = stats.diffs[i], pyD = dToY(Math.max(dMin, Math.min(dMax, di))), dx = dLeft + 34 + i * 24, emph = !isIsolated || selSubj === i, op = emph ? 1.0 : 0.25;
-      html += `<g opacity="${op}">
-        <line x1="${dx}" y1="${pyDBar}" x2="${dx}" y2="${pyD}" stroke="var(--col-error)" stroke-width="2" stroke-dasharray="2,2" />
-        <circle cx="${dx}" cy="${pyD}" r="5.5" fill="${SUBJECT_COLORS[i]}" stroke="#fff" stroke-width="1.5" />
-        <text x="${dx}" y="${pyD + (di >= stats.dBar ? -8 : 14)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${SUBJECT_COLORS[i]}">${SUBJECT_LABELS[i]}</text>
-      </g>`;
-    }
-
-    html += `<text x="${dCenterX}" y="${dBottom + 20}" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--col-error)">Spread around D̄ = s<tspan baseline-shift="sub" font-size="75%">D</tspan><tspan baseline-shift="super" font-size="75%">2</tspan> = ${stats.sD2.toFixed(2)}</text>
-             <text x="${dCenterX}" y="${dBottom + 34}" text-anchor="middle" font-size="10" fill="#64748b">(High r → tight cluster → large t!)</text>`;
 
     const bLeft = 285, bRight = 565, bTop = 38, bBottom = 325, bCenterX = (bLeft + bRight) / 2, barHeightMax = bBottom - bTop;
     html += `<text x="${bCenterX}" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">Sub-Plot 2: SS Variance Partitioning (k=${stats.activeK})</text>
@@ -864,6 +890,7 @@
       document.getElementById('ttest-subtitle-inactive').style.display = 'none';
       document.getElementById('ttest-active-view').style.display = 'block';
       document.getElementById('ttest-inactive-view').style.display = 'none';
+      document.getElementById('diff-scores-unavailable').style.display = 'none';
       document.getElementById('card-math-ttest').style.opacity = '1';
     } else {
       document.getElementById('kpi-rm-label').textContent = 'RM-ANOVA (k=3)';
@@ -873,6 +900,7 @@
       document.getElementById('ttest-subtitle-inactive').style.display = 'inline';
       document.getElementById('ttest-active-view').style.display = 'none';
       document.getElementById('ttest-inactive-view').style.display = 'flex';
+      document.getElementById('diff-scores-unavailable').style.display = 'flex';
       document.getElementById('card-math-ttest').style.opacity = '0.85';
     }
 
