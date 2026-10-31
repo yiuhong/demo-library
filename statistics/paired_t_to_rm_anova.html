@@ -142,14 +142,28 @@
     .kpi-val { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-top: 0.1rem; }
     .kpi-sub { font-size: 0.7rem; color: var(--text-light); font-family: 'JetBrains Mono', monospace; }
 
-    /* Bottom Grid */
-    .bottom-grid { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 1.25rem; transition: grid-template-columns 0.3s ease; }
-    @media (max-width: 1280px) { .bottom-grid { grid-template-columns: 1fr; } }
-    
-    .formula-box { background: var(--bg-subtle); border-radius: 8px; padding: 0.75rem 0.9rem; border: 1px solid var(--border); overflow-x: auto; min-height: 50px; }
-    .math-breakdown { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.82rem; }
-    .breakdown-row { display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.55rem; border-radius: 6px; background: var(--bg-card); border: 1px solid var(--border); }
-    .breakdown-row .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+    /* Bottom Grid
+       Default grid items use min-width: auto, so each track floors at the
+       card's min-content. In Mode A the KaTeX identities are wider than a
+       third of the content column and card C spills past the grid. minmax(0, …)
+       lets the tracks share the column; formulas scale inside the card and
+       scroll only if a value is still wider than the box. */
+    .bottom-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.25rem; transition: grid-template-columns 0.3s ease; }
+    @media (max-width: 1280px) { .bottom-grid { grid-template-columns: minmax(0, 1fr); } }
+    .bottom-grid > .card { min-width: 0; max-width: 100%; }
+
+    .formula-box { background: var(--bg-subtle); border-radius: 8px; padding: 0.75rem 0.9rem; border: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; min-height: 50px; min-width: 0; max-width: 100%; container-type: inline-size; container-name: formulabox; }
+    /* Scale display math to the box. 1.21em is KaTeX's own size; the cap
+       keeps the single-column layout from enlarging formulas. */
+    .formula-box .katex { font-size: clamp(0.78em, 3.85cqi, 1.21em); }
+    .formula-box .katex-display { margin: 0.35em 0; }
+    .math-breakdown { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.82rem; min-width: 0; max-width: 100%; }
+    .breakdown-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.25rem 0.75rem; padding: 0.35rem 0.55rem; border-radius: 6px; background: var(--bg-card); border: 1px solid var(--border); min-width: 0; max-width: 100%; }
+    .breakdown-row > span { min-width: 0; max-width: 100%; }
+    .breakdown-row .mono { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+    .anova-scroll { min-width: 0; max-width: 100%; overflow-x: auto; }
+    .anova-table th:not(:first-child),
+    .anova-table td:not(:first-child) { white-space: nowrap; }
 
     /* ANOVA Table */
     .anova-table { width: 100%; border-collapse: collapse; font-size: 0.77rem; margin-top: 0.25rem; }
@@ -375,10 +389,12 @@
         </div>
       </div>
       <div class="formula-box" id="katex-anova-main"></div>
-      <table class="anova-table" aria-label="ANOVA Summary">
-        <thead><tr><th>Source</th><th>$SS$</th><th>$df$</th><th>$MS$</th><th>$F$</th><th>$p$-val</th></tr></thead>
-        <tbody id="anova-table-body"></tbody>
-      </table>
+      <div class="anova-scroll">
+        <table class="anova-table" aria-label="ANOVA Summary">
+          <thead><tr><th>Source</th><th>$SS$</th><th>$df$</th><th>$MS$</th><th>$F$</th><th>$p$-val</th></tr></thead>
+          <tbody id="anova-table-body"></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="card rosetta-card" id="card-math-rosetta">
