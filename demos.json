@@ -298,6 +298,15 @@
               ]
             },
             {
+              "href": "statistics/repeated_measures_anova.html",
+              "title": "Repeated-Measures ANOVA (k = 3)",
+              "description": "An omnibus repeated-measures ANOVA across three timepoints. Within-conditions splits into SS<sub>Subjects</sub> and residual. Pairwise difference scores stay on the paired-t page.",
+              "keywords": "Repeated-measures ANOVA k=3 omnibus three timepoints within-conditions SS Subjects Residual",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
               "href": "statistics/partitioning_sum_of_squares_anova.html",
               "title": "Partitioning Sum of Squares",
               "description": "Partitioning the sum of squares in ANOVA.",

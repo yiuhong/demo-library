@@ -288,6 +288,18 @@
           ]
         },
         {
+          "href": "statistics/repeated_measures_anova.html",
+          "title": "Repeated-Measures ANOVA (k = 3)",
+          "note": "The paired t is the two-timepoint case: one difference score, and t² = F. With three timepoints, that single difference no longer covers the design, so the repeated-measures ANOVA tests all three means together. Within-conditions still splits into SS Subjects and Residual, and the F ratio uses that residual as its error term. The pairwise difference-score story stays on the paired-t page.",
+          "formulae": [
+            "F = MS_Time / MS_Residual",
+            "df_Residual = (N − 1)(k − 1)",
+            "Within-conditions = Subjects + Residual"
+          ],
+          "image": "tracks/images/anova/05-rm-anova.png",
+          "imageAlt": "The repeated-measures ANOVA page at its opening state. Six subject lines cross three timepoints, with S1 isolated and the timepoint means near 10, 14, and 18. The average cross-timepoint correlation reads +0.90. The repeated-measures F(2, 10) is 47.44, beside an unadjusted independent F(2, 15) of 4.74. A note in the partition panel says pairwise difference scores stay on the paired-t page."
+        },
+        {
           "href": "statistics/partitioning_sum_of_squares_anova.html",
           "title": "Partitioning Sum of Squares",
           "note": "To compare several means, it helps to say where the variation in the data comes from. Partitioning the sum of squares splits total variation into a part between groups and a part left inside groups; the F ratio compares those two parts. The same split extends when two factors label the groups at once.",

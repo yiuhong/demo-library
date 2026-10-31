@@ -24,6 +24,10 @@ The parallel panel is the opening cell means in `statistics/two_way_anova.html`:
 
 The crossing panel keeps the same scale and swaps the pattern: female 38 and 56, male 56 and 38.
 
+## Repeated-measures ANOVA (k = 3)
+
+`05-rm-anova.png` is a screenshot of `statistics/repeated_measures_anova.html` in its opening state (cross-timepoint correlation +0.90, subject S₁ isolated). It is not drawn by `generate_figures.py`.
+
 ## Residuals and spread
 
 The right-hand groups are 12 scores each, drawn with NumPy seed 19, population means 20, 32, and 44, and a common population standard deviation of 4. In this draw the sample means are about 20.2, 32.2, and 41.6, and the sample standard deviations are about 3.0, 3.9, and 3.0.

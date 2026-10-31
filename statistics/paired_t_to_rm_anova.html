@@ -177,6 +177,7 @@
       #diff-scores-unavailable strong { font-size: 0.72rem !important; }
     }
     #pedagogical-tooltip { position: fixed; pointer-events: none; z-index: 9999; background: #0f172a; color: #f8fafc; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.76rem; max-width: 280px; line-height: 1.4; box-shadow: var(--shadow-md); opacity: 0; transition: opacity 0.12s ease; }
+    #mode-b-standalone a { color: inherit; font-weight: 700; }
   </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
@@ -310,7 +311,7 @@
         <div class="card-header">
           <div>
             <div class="card-title">2. Difference Score ($D_i$) &amp; $SS$ Partitioning</div>
-            <div class="card-subtitle">Observe variance carving out as correlation adjusts</div>
+            <div class="card-subtitle">Observe variance carving out as correlation adjusts<span id="mode-b-standalone" hidden>. <a href="repeated_measures_anova.html">Open this k = 3 view on its own page</a></span></div>
           </div>
         </div>
         <div class="svg-container right-viz">
@@ -892,6 +893,7 @@
       document.getElementById('ttest-inactive-view').style.display = 'none';
       document.getElementById('diff-scores-unavailable').style.display = 'none';
       document.getElementById('card-math-ttest').style.opacity = '1';
+      document.getElementById('mode-b-standalone').hidden = true;
     } else {
       document.getElementById('kpi-rm-label').textContent = 'RM-ANOVA (k=3)';
       document.getElementById('kpi-rm-stat').textContent = `F( ${stats.dfBetween}, ${stats.dfError} ) = ${stats.fRM.toFixed(2)}`;
@@ -902,6 +904,7 @@
       document.getElementById('ttest-inactive-view').style.display = 'flex';
       document.getElementById('diff-scores-unavailable').style.display = 'flex';
       document.getElementById('card-math-ttest').style.opacity = '0.85';
+      document.getElementById('mode-b-standalone').hidden = false;
     }
 
     const pctRemoved = (stats.ssSubjects / Math.max(1e-9, stats.ssWithin)) * 100;
