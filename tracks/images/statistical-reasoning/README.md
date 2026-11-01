@@ -2,6 +2,14 @@
 
 These PNGs are drawn by `generate_figures.py` with Matplotlib. They are black-on-white diagrams. Regenerate them from the repo root with `python3 tracks/images/statistical-reasoning/generate_figures.py` (NumPy and Matplotlib).
 
+## Screenshots of the live demos
+
+These three PNGs are screenshots of the light statistics chrome. `generate_figures.py` does not draw them.
+
+- `00-conceptual-hierarchy.png` — `statistics/stats_conceptual_hierarchy.html`, opened on the random-walk mode.
+- `01b-distributions-map.png` — `statistics/probability_distributions_map.html`, with the normal distribution selected.
+- `03b-poisson-point-process.png` — `statistics/poisson_point_process.html`, raindrops preset.
+
 ## Normal curve
 
 The density is the final formula in `statistics/building_normal_distribution.html`:

@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+  <title>Poisson Distribution &amp; Poisson Point Process</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css" />
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css" />
+  <script src="../assets/stats-viz-theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <link rel="stylesheet" href="../assets/site-oer-footer.css" />
+  <style>
+    * { box-sizing: border-box; }
+
+    body.demo-page { line-height: 1.5; margin: 0; padding: 20px; }
+
+    .container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+
+    .demo-header h1 { font-size: 1.55rem; }
+    .preset-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .preset-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; }
+
+    .demo-page .preset-btn.active,
+    .demo-page .btn.primary {
+      background: #000 !important;
+      color: #fff !important;
+      border-color: #000 !important;
+    }
+
+    .top-grid, .main-vis-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; }
+    .panel { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #000;
+      padding-bottom: 10px;
+      gap: 12px;
+    }
+    .panel-title { font-size: 0.95rem; font-weight: 700; margin: 0; }
+    .panel-subtitle { font-size: 0.8rem; margin-top: 2px; }
+    .sliders-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .slider-card { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+    .slider-top { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; font-weight: 700; gap: 8px; }
+    .slider-desc { font-size: 0.75rem; }
+    input[type="range"] { width: 100%; cursor: pointer; }
+    .actions-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .formula-display {
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 4px;
+      padding: 8px 12px;
+      text-align: center;
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: auto;
+    }
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .metric-box { padding: 8px; text-align: center; }
+    .metric-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; }
+    .metric-value { font-size: 1rem; font-weight: 700; color: #000; }
+    .highlight-emerald { color: var(--viz-group-b) !important; }
+    .highlight-amber { color: var(--viz-highlight) !important; }
+    .highlight-blue { color: var(--viz-group-a) !important; }
+    .canvas-wrapper { background: #fff; border: 1px solid #000; border-radius: 4px; overflow: hidden; }
+    canvas { display: block; width: 100%; background: #fff; }
+    .legend-row { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.76rem; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; border: 1px solid #000; }
+    .swatch-arrival { background: var(--viz-group-b); }
+    .swatch-path { background: var(--viz-group-a); }
+    .swatch-gap { background: var(--viz-group-c); }
+    .swatch-target { background: var(--viz-highlight); }
+    .swatch-empirical { background: color-mix(in srgb, var(--viz-group-b) 45%, #fff); }
+    .swatch-binom { background: var(--viz-se); border-radius: 50%; }
+    .bernoulli-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+    }
+    .bernoulli-slider-wrap { flex: 1; min-width: 240px; }
+    .bernoulli-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+    .b-badge { padding: 6px 10px; font-size: 0.78rem; }
+    .tone-path { color: var(--viz-group-a); }
+    .tone-binom { color: var(--viz-se); }
+    .tone-arrival { color: var(--viz-group-b); }
+    .tone-collision { color: var(--viz-null); }
+    .checkbox-label { display: inline-flex; align-items: center; gap: 7px; font-size: 0.82rem; cursor: pointer; font-weight: 700; }
+    #live-counter-badge { color: var(--viz-group-b) !important; }
+
+    @media (max-width: 1080px) {
+      .top-grid, .main-vis-grid, .sliders-grid { grid-template-columns: 1fr; }
+    }
+
+  </style>
+</head>
+<body class="demo-page">
+  <div class="container">
+    <a class="demo-back" href="../index.html">← Project Viz</a>
+    <header class="demo-header">
+      <h1>Poisson Distribution &amp; Poisson Point Process</h1>
+      <p>Connecting continuous-time random arrivals $N(t) \sim \text{Poisson}(\lambda t)$ with Bernoulli sub-interval discretization</p>
+    </header>
+    <div class="preset-bar">
+
+      <span class="preset-label">Physical Scenarios:</span>
+      <button class="preset-btn demo-chip active" id="preset-rain">🌧️ Raindrops on Tile ($\lambda = 6.0$)</button>
+      <button class="preset-btn demo-chip" id="preset-traffic">🚗 Highway Cars ($\lambda = 4.0$)</button>
+      <button class="preset-btn demo-chip" id="preset-meteors">🌠 Shooting Stars ($\lambda = 2.0$)</button>
+        </div>
+
+    <!-- TOP CONTROLS & MATHEMATICAL FORMULATION -->
+    <div class="top-grid">
+      <!-- Left: Parameter Controls -->
+      <div class="panel demo-card">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Process Parameters &amp; Simulation Controls</div>
+            <div class="panel-subtitle">Adjust the arrival intensity $\lambda$, observation window $t$, and target count $k$</div>
+          </div>
+        </div>
+
+        <div class="sliders-grid">
+          <div class="slider-card demo-panel">
+            <div class="slider-top">
+              <span>Rate Intensity ($\lambda$)</span>
+              <span class="slider-val demo-value" id="val-rate">6.0 /s</span>
+            </div>
+            <div class="slider-desc">Average arrivals per unit time</div>
+            <input type="range" id="slider-rate" min="0.5" max="15.0" step="0.5" value="6.0" />
+          </div>
+
+          <div class="slider-card demo-panel">
+            <div class="slider-top">
+              <span>Time Window ($t$)</span>
+              <span class="slider-val demo-value" id="val-window">1.00 s</span>
+            </div>
+            <div class="slider-desc">Duration of observation interval $[0, t]$</div>
+            <input type="range" id="slider-window" min="0.5" max="3.0" step="0.25" value="1.0" />
+          </div>
+
+          <div class="slider-card demo-panel">
+            <div class="slider-top">
+              <span>Target Count ($k$)</span>
+              <span class="slider-val demo-value" id="val-k">k = 6</span>
+            </div>
+            <div class="slider-desc">Highlight $P(N(t) = k)$ on PMF</div>
+            <input type="range" id="slider-k" min="0" max="30" step="1" value="6" />
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <div class="btn-group">
+            <button class="btn demo-btn primary" id="btn-play-one">▶ Watch 1 Window</button>
+            <button class="btn demo-btn" id="btn-auto-loop">🔁 Auto-Loop Windows: OFF</button>
+            <button class="btn amber" id="btn-fast-100">+100 Windows</button>
+            <button class="btn amber" id="btn-fast-1000">🚀 +1,000 Windows</button>
+          </div>
+          <button class="btn danger" id="btn-reset">↺ Clear History</button>
+        </div>
+      </div>
+
+      <!-- Right: Live Formula & Moments -->
+      <div class="panel demo-card">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Exact Poisson Probability Mass Function</div>
+            <div class="panel-subtitle">Expected count in window: $\mu = \lambda t$</div>
+          </div>
+        </div>
+
+        <div class="formula-display" id="formula-pmf"></div>
+
+        <div class="metrics-row">
+          <div class="metric-box demo-panel">
+            <div class="metric-label">Mean $\mu = \lambda t$</div>
+            <div class="metric-value highlight-blue" id="stat-mean">6.00</div>
+          </div>
+          <div class="metric-box demo-panel">
+            <div class="metric-label">Exact $P(N(t)=k)$</div>
+            <div class="metric-value highlight-amber" id="stat-pk">0.1606</div>
+          </div>
+          <div class="metric-box demo-panel">
+            <div class="metric-label">Simulated Windows</div>
+            <div class="metric-value" id="stat-trials">0</div>
+          </div>
+          <div class="metric-box demo-panel">
+            <div class="metric-label">Sample Mean $\bar{k}$</div>
+            <div class="metric-value highlight-emerald" id="stat-emp-mean">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN DUAL VISUALIZATION: PANEL 1 (3-ZONE POINT PROCESS) & PANEL 2 (PMF + HISTOGRAM) -->
+    <div class="main-vis-grid">
+      <!-- Panel 1: 3-Zone Continuous-Time Point Process Stage -->
+      <div class="panel demo-card">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Panel 1: Continuous-Time Poisson Point Process</div>
+            <div class="panel-subtitle">Zone 1: Physical Stage • Zone 2: Step Path $N(\tau)$ • Zone 3: 1D Arrival Timeline</div>
+          </div>
+          <div style="font-family: monospace; font-size: 0.85rem; color: var(--accent-emerald); white-space: nowrap;" id="live-counter-badge" class="demo-value">
+            N(τ) = 0 arrivals
+          </div>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="sim-canvas" width="700" height="420"></canvas>
+        </div>
+
+        <div class="legend-row">
+          <div class="legend-item">
+            <span class="swatch swatch-arrival"></span>
+            <span>Triggered Arrival ($\tau_i \le \tau$)</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch swatch-path"></span>
+            <span>Counting Process Step Path $N(\tau)$</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch swatch-gap"></span>
+            <span>Exponential Inter-Arrival Gaps $\Delta \tau_i \sim \text{Exp}(\lambda)$</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Theoretical PMF vs Empirical Histogram -->
+      <div class="panel demo-card">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Panel 2: Theoretical PMF vs. Empirical Counts</div>
+            <div class="panel-subtitle">Click any bar to set target $k$ • Watch empirical frequencies converge to $\text{Poisson}(\lambda t)$</div>
+          </div>
+          <label class="checkbox-label">
+            <input type="checkbox" id="chk-show-binomial" checked />
+            <span>Overlay $\text{Binomial}(n, p)$</span>
+          </label>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="pmf-canvas" width="560" height="420"></canvas>
+        </div>
+
+        <div class="legend-row">
+          <div class="legend-item">
+            <span class="swatch swatch-path"></span>
+            <span>Theoretical $\text{Poisson}(\mu)$</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch swatch-target"></span>
+            <span>Selected Target $k$</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch swatch-empirical"></span>
+            <span>Empirical Relative Frequency</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch swatch-binom"></span>
+            <span>$\text{Binomial}(n, \mu/n)$ Approximation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 3: BERNOULLI SUB-INTERVAL DISCRETIZER -->
+    <div class="panel demo-card">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Panel 3: Law of Rare Events — Bernoulli Sub-Interval Discretizer</div>
+          <div class="panel-subtitle">
+            Chop the continuous timeline $[0, t]$ into $n$ micro-bins of width $\Delta t = t/n$. As $n \to \infty$, collisions vanish and $\text{Binomial}(n, \mu/n) \to \text{Poisson}(\mu)$.
+          </div>
+        </div>
+      </div>
+
+      <div class="bernoulli-controls demo-panel">
+        <div class="bernoulli-slider-wrap">
+          <div class="slider-top">
+            <span>Number of Sub-Intervals ($n$ bins)</span>
+            <span class="slider-val demo-value" id="val-bins">n = 20</span>
+          </div>
+          <input type="range" id="slider-bins" min="5" max="120" step="1" value="20" />
+        </div>
+
+        <div class="bernoulli-badges">
+          <div class="b-badge demo-panel">Bin Width $\Delta t =$ <strong id="badge-dt" class="tone-path">0.050s</strong></div>
+          <div class="b-badge demo-panel">$p = \min(1, \mu/n) =$ <strong id="badge-p" class="tone-binom">0.300</strong></div>
+          <div class="b-badge demo-panel">Occupied Bins ($1$s): <strong id="badge-occupied" class="tone-arrival">0</strong></div>
+          <div class="b-badge demo-panel">Multi-Hit Collisions ($\ge 2$ in $1$ bin): <strong id="badge-collisions" class="tone-collision">0</strong></div>
+        </div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <canvas id="bernoulli-canvas" width="1280" height="145"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. APPLICATION STATE
+    // =========================================================================
+    const state = {
+      scenario: 'rain',      // 'rain' | 'traffic' | 'meteors'
+      rate: 6.0,             // lambda (arrivals per unit time)
+      timeWindow: 1.0,       // t (duration of observation window)
+      targetK: 6,            // highlighted k in PMF
+      subIntervals: 20,      // n for Bernoulli discretization
+      showBinomial: true,    // show Binomial(n, mu/n) dots on PMF
+
+      // Current window playback state
+      arrivals: [],          // [{ time, xRatio, yRatio, lane, dx, dy, triggered }]
+      scanTime: 1.0,         // current scanner position in [0, timeWindow]
+      isPlaying: false,
+      autoLoop: false,
+      autoLoopTimer: null,
+      lastFrameTime: 0,
+
+      // Visual animations in Zone 1
+      activeEffects: [],     // spawned visual effects for arrivals
+
+      // Empirical Monte Carlo history
+      empiricalCounts: {},   // { k: count }
+      totalTrials: 0,
+      sumCounts: 0
+    };
+
+    const scenarioTitles = {
+      rain: "PHYSICAL STAGE: Raindrops hitting a 2D patio tile",
+      traffic: "PHYSICAL STAGE: Free-flowing cars crossing a roadside speed sensor line",
+      meteors: "PHYSICAL STAGE: Shooting stars streaking across a patch of night sky"
+    };
+
+    // Fixed background stars for the 'meteors' night-sky stage (~25 stars)
+    const NIGHT_SKY_STARS = [
+      { rx: 0.04, ry: 0.18, r: 1.2, a: 0.45 },
+      { rx: 0.09, ry: 0.62, r: 1.0, a: 0.30 },
+      { rx: 0.13, ry: 0.35, r: 1.5, a: 0.55 },
+      { rx: 0.17, ry: 0.80, r: 1.1, a: 0.35 },
+      { rx: 0.22, ry: 0.15, r: 0.9, a: 0.40 },
+      { rx: 0.26, ry: 0.52, r: 1.4, a: 0.50 },
+      { rx: 0.31, ry: 0.28, r: 1.1, a: 0.25 },
+      { rx: 0.35, ry: 0.74, r: 1.3, a: 0.45 },
+      { rx: 0.39, ry: 0.42, r: 1.0, a: 0.35 },
+      { rx: 0.44, ry: 0.19, r: 1.6, a: 0.60 },
+      { rx: 0.48, ry: 0.67, r: 1.0, a: 0.30 },
+      { rx: 0.52, ry: 0.31, r: 1.2, a: 0.40 },
+      { rx: 0.57, ry: 0.84, r: 1.1, a: 0.35 },
+      { rx: 0.61, ry: 0.14, r: 1.3, a: 0.50 },
+      { rx: 0.65, ry: 0.49, r: 0.9, a: 0.28 },
+      { rx: 0.69, ry: 0.72, r: 1.5, a: 0.55 },
+      { rx: 0.73, ry: 0.25, r: 1.1, a: 0.40 },
+      { rx: 0.77, ry: 0.58, r: 1.2, a: 0.32 },
+      { rx: 0.81, ry: 0.16, r: 1.0, a: 0.45 },
+      { rx: 0.84, ry: 0.78, r: 1.4, a: 0.50 },
+      { rx: 0.88, ry: 0.39, r: 1.1, a: 0.35 },
+      { rx: 0.91, ry: 0.64, r: 1.3, a: 0.42 },
+      { rx: 0.94, ry: 0.22, r: 1.0, a: 0.30 },
+      { rx: 0.96, ry: 0.85, r: 1.2, a: 0.48 },
+      { rx: 0.50, ry: 0.12, r: 1.1, a: 0.38 }
+    ];
+
+    // =========================================================================
+    // 2. MATHEMATICAL & CANVAS HELPERS
+    // =========================================================================
+    function lnGamma(z) {
+      const c = [
+        76.18009172947146, -86.50532032941677, 24.01409824083091,
+        -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5
+      ];
+      let x = z, y = z;
+      let tmp = x + 5.5;
+      tmp -= (x + 0.5) * Math.log(tmp);
+      let ser = 1.000000000190015;
+      for (let j = 0; j < 6; j++) ser += c[j] / ++y;
+      return -tmp + Math.log(2.5066282746310005 * ser / x);
+    }
+
+    function poissonPMF(k, mu) {
+      if (k < 0) return 0;
+      if (mu <= 0) return k === 0 ? 1 : 0;
+      return Math.exp(k * Math.log(mu) - mu - lnGamma(k + 1));
+    }
+
+    function binomialPMF(k, n, p) {
+      if (k < 0 || k > n) return 0;
+      if (p <= 0) return k === 0 ? 1 : 0;
+      if (p >= 1) return k === n ? 1 : 0;
+      const lnComb = lnGamma(n + 1) - lnGamma(k + 1) - lnGamma(n - k + 1);
+      return Math.exp(lnComb + k * Math.log(p) + (n - k) * Math.log(1 - p));
+    }
+
+    function getMaxK(mu, targetK) {
+      return Math.max(14, Math.ceil(mu + 4.2 * Math.sqrt(mu)), targetK + 2);
+    }
+
+    // Cross-browser rounded rectangle path helper (safe for very small dimensions)
+    function traceRoundedRect(ctx, x, y, w, h, radii) {
+      if (w <= 0 || h <= 0) return;
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(x, y, w, h, radii);
+        return;
+      }
+      const r = Array.isArray(radii) ? radii[0] : (radii || 0);
+      const cr = Math.min(r, w / 2, h / 2);
+      ctx.moveTo(x + cr, y);
+      ctx.lineTo(x + w - cr, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + cr);
+      ctx.lineTo(x + w, y + h - cr);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - cr, y + h);
+      ctx.lineTo(x + cr, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - cr);
+      ctx.lineTo(x, y + cr);
+      ctx.quadraticCurveTo(x, y, x + cr, y);
+      ctx.closePath();
+    }
+
+    // Render all static inline LaTeX ($...$ and $$...$$) in the document
+    function renderAllStaticMath() {
+      if (typeof window.renderMathInElement === 'function') {
+        window.renderMathInElement(document.body, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    // Generate exact Poisson Point Process arrival times in [0, timeWindow] using Exp(lambda) inter-arrival times
+    function generateWindowArrivals(rate, timeWindow) {
+      const list = [];
+      let t = 0;
+      while (true) {
+        const u = Math.min(1 - 1e-12, Math.random());
+        const dt = -Math.log(1 - u) / rate;
+        t += dt;
+        if (t > timeWindow) break;
+        list.push({
+          time: t,
+          xRatio: 0.06 + 0.88 * Math.random(),
+          yRatio: 0.16 + 0.72 * Math.random(),
+          lane: Math.random() < 0.5 ? 0 : 1, // 0 = top lane, 1 = bottom lane
+          dx: 38 + 26 * Math.random(),       // diagonal meteor streak X
+          dy: 22 + 18 * Math.random(),       // diagonal meteor streak Y
+          triggered: false
+        });
+      }
+      return list;
+    }
+
+    function recordEmpiricalCount(k) {
+      state.empiricalCounts[k] = (state.empiricalCounts[k] || 0) + 1;
+      state.totalTrials += 1;
+      state.sumCounts += k;
+    }
+
+    function clearPendingLoopTimer() {
+      if (state.autoLoopTimer !== null) {
+        clearTimeout(state.autoLoopTimer);
+        state.autoLoopTimer = null;
+      }
+    }
+
+    // =========================================================================
+    // 3. SIMULATION & ANIMATION ENGINE
+    // =========================================================================
+    function startSingleWindowPlayback() {
+      clearPendingLoopTimer();
+      state.arrivals = generateWindowArrivals(state.rate, state.timeWindow);
+      state.scanTime = 0;
+      state.activeEffects = [];
+      state.isPlaying = true;
+      state.lastFrameTime = performance.now();
+    }
+
+    function spawnEffectForArrival(arr) {
+      state.activeEffects.push({
+        time: arr.time,
+        xRatio: arr.xRatio,
+        yRatio: arr.yRatio,
+        lane: arr.lane,
+        dx: arr.dx,
+        dy: arr.dy,
+        age: 0,
+        duration: 0.75
+      });
+    }
+
+    function runFastBatch(numTrials) {
+      clearPendingLoopTimer();
+      for (let i = 0; i < numTrials; i++) {
+        const arrs = generateWindowArrivals(state.rate, state.timeWindow);
+        recordEmpiricalCount(arrs.length);
+        if (i === numTrials - 1) {
+          // Display the final window completed
+          arrs.forEach(a => { a.triggered = true; });
+          state.arrivals = arrs;
+          state.scanTime = state.timeWindow;
+          state.activeEffects = arrs.slice(-8).map(a => ({
+            time: a.time,
+            xRatio: a.xRatio,
+            yRatio: a.yRatio,
+            lane: a.lane,
+            dx: a.dx,
+            dy: a.dy,
+            age: 0.25,
+            duration: 0.75
+          }));
+        }
+      }
+      state.isPlaying = false;
+      updateUI();
+    }
+
+    function resetForParameterChange() {
+      clearPendingLoopTimer();
+      state.isPlaying = false;
+      state.empiricalCounts = {};
+      state.totalTrials = 0;
+      state.sumCounts = 0;
+      state.activeEffects = [];
+
+      // Generate a fresh static snapshot window that matches the new parameters
+      const arrs = generateWindowArrivals(state.rate, state.timeWindow);
+      arrs.forEach(a => { a.triggered = true; });
+      state.arrivals = arrs;
+      state.scanTime = state.timeWindow;
+      recordEmpiricalCount(arrs.length);
+    }
+
+    function animationLoop(now) {
+      const dtReal = Math.min(0.05, (now - state.lastFrameTime) / 1000 || 0.016);
+      state.lastFrameTime = now;
+
+      let needsRedraw = false;
+
+      if (state.isPlaying) {
+        // Advance scanTime so a window takes ~1.6 seconds visually
+        const speed = Math.max(0.3, state.timeWindow / 1.6);
+        state.scanTime += dtReal * speed;
+
+        state.arrivals.forEach(arr => {
+          if (!arr.triggered && arr.time <= state.scanTime) {
+            arr.triggered = true;
+            spawnEffectForArrival(arr);
+          }
+        });
+
+        if (state.scanTime >= state.timeWindow) {
+          state.scanTime = state.timeWindow;
+          state.isPlaying = false;
+          recordEmpiricalCount(state.arrivals.length);
+          updateFormulaAndMetrics();
+          renderPMFCanvas();
+          renderBernoulliCanvas();
+
+          if (state.autoLoop) {
+            clearPendingLoopTimer();
+            state.autoLoopTimer = setTimeout(() => {
+              state.autoLoopTimer = null;
+              if (state.autoLoop) startSingleWindowPlayback();
+            }, 320);
+          }
+        }
+        needsRedraw = true;
+      }
+
+      if (state.activeEffects.length > 0) {
+        state.activeEffects.forEach(eff => {
+          eff.age += dtReal;
+        });
+        state.activeEffects = state.activeEffects.filter(eff => eff.age < eff.duration);
+        needsRedraw = true;
+      }
+
+      if (needsRedraw) {
+        renderSimulationCanvas();
+        renderBernoulliCanvas();
+        const currentCount = state.arrivals.filter(a => a.time <= state.scanTime).length;
+        document.getElementById('live-counter-badge').textContent =
+          `N(τ) = ${currentCount} arrival${currentCount === 1 ? '' : 's'}`;
+      }
+
+      requestAnimationFrame(animationLoop);
+    }
+
+    // =========================================================================
+    // 4. PANEL 1: 3-ZONE POINT PROCESS CANVAS RENDERER (#sim-canvas)
+    // =========================================================================
+    function renderSimulationCanvas() {
+      const canvas = document.getElementById('sim-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      ctx.clearRect(0, 0, W, H);
+
+      const padX = 52;
+      const timelineW = W - padX - 28;
+      const clampedScanRatio = Math.min(1, Math.max(0, state.scanTime / state.timeWindow));
+
+      // 3 Horizontal Zones:
+      // Zone 1: Physical Stage (y: 14 .. 134)
+      // Zone 2: Counting Process Step Path N(tau) (y: 154 .. 308)
+      // Zone 3: 1D Timeline Scanner (y: 330 .. 398)
+      const z1 = { x: padX, y: 14, w: timelineW, h: 120 };
+      const z2 = { x: padX, y: 154, w: timelineW, h: 154 };
+      const z3 = { x: padX, y: 330, w: timelineW, h: 68 };
+
+      // -----------------------------------------------------------------------
+      // ZONE 1: PHYSICAL STAGE
+      // -----------------------------------------------------------------------
+      ctx.save();
+      ctx.beginPath();
+      traceRoundedRect(ctx, z1.x, z1.y, z1.w, z1.h, 8);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.clip();
+
+      // Background by scenario
+      if (state.scenario === 'rain') {
+        // Subtle 2D patio tile grid
+        ctx.strokeStyle = statsViz.rgba('--viz-group-a', 0.22);
+        ctx.lineWidth = 1;
+        for (let gx = z1.x; gx <= z1.x + z1.w; gx += 28) {
+          ctx.beginPath();
+          ctx.moveTo(gx, z1.y);
+          ctx.lineTo(gx, z1.y + z1.h);
+          ctx.stroke();
+        }
+        for (let gy = z1.y; gy <= z1.y + z1.h; gy += 24) {
+          ctx.beginPath();
+          ctx.moveTo(z1.x, gy);
+          ctx.lineTo(z1.x + z1.w, gy);
+          ctx.stroke();
+        }
+      } else if (state.scenario === 'traffic') {
+        // Two-lane horizontal asphalt road across Zone 1
+        const roadTop = z1.y + 28;
+        const roadH = z1.h - 38;
+        const roadMidY = roadTop + roadH / 2;
+
+        // Asphalt surface
+        ctx.fillStyle = '#e8e8e8';
+        ctx.fillRect(z1.x, roadTop, z1.w, roadH);
+
+        // Top & bottom road shoulder lines
+        ctx.strokeStyle = statsViz.color('--viz-reference');
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(z1.x, roadTop);
+        ctx.lineTo(z1.x + z1.w, roadTop);
+        ctx.moveTo(z1.x, roadTop + roadH);
+        ctx.lineTo(z1.x + z1.w, roadTop + roadH);
+        ctx.stroke();
+
+        // Dashed center lane divider
+        ctx.save();
+        ctx.strokeStyle = statsViz.rgba('--viz-highlight', 0.95);
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([12, 10]);
+        ctx.beginPath();
+        ctx.moveTo(z1.x, roadMidY);
+        ctx.lineTo(z1.x + z1.w, roadMidY);
+        ctx.stroke();
+        ctx.restore();
+
+        // Vertical dashed emerald "SENSOR LINE" at the active scanner position
+        const scanX = padX + clampedScanRatio * timelineW;
+        ctx.save();
+        ctx.strokeStyle = statsViz.color('--viz-group-b');
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(scanX, roadTop - 4);
+        ctx.lineTo(scanX, roadTop + roadH + 4);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.fillStyle = statsViz.color('--viz-group-b');
+        ctx.font = 'bold 9.5px sans-serif';
+        ctx.fillText('SENSOR LINE', Math.min(z1.x + z1.w - 72, Math.max(z1.x + 6, scanX - 32)), roadTop + roadH - 5);
+      } else if (state.scenario === 'meteors') {
+        // Dark night-sky background with ~25 subtle, fixed background stars
+        NIGHT_SKY_STARS.forEach(st => {
+          const sx = z1.x + st.rx * z1.w;
+          const sy = z1.y + 18 + st.ry * (z1.h - 22);
+          ctx.beginPath();
+          ctx.arc(sx, sy, st.r, 0, Math.PI * 2);
+          ctx.fillStyle = statsViz.rgba('--viz-reference', st.a);
+          ctx.fill();
+        });
+      }
+
+      // Draw persistent faint markers for already-triggered arrivals in Zone 1
+      state.arrivals.forEach(arr => {
+        if (arr.time <= state.scanTime && arr.time <= state.timeWindow) {
+          const cx = padX + (arr.time / state.timeWindow) * timelineW;
+          const cy = z1.y + 24 + arr.yRatio * (z1.h - 32);
+          if (state.scenario === 'rain') {
+            ctx.beginPath();
+            ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = statsViz.rgba('--viz-group-a', 0.85);
+            ctx.fill();
+          } else if (state.scenario === 'traffic') {
+            const roadTop = z1.y + 28;
+            const roadH = z1.h - 38;
+            const laneY = arr.lane === 0 ? roadTop + roadH * 0.26 : roadTop + roadH * 0.74;
+            ctx.beginPath();
+            ctx.arc(cx, laneY, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = statsViz.rgba('--viz-group-b', 0.85);
+            ctx.fill();
+          }
+        }
+      });
+
+      // Draw active animated effects in Zone 1
+      state.activeEffects.forEach(eff => {
+        const progress = Math.min(1, eff.age / eff.duration);
+        const alpha = Math.max(0, 1 - progress);
+        const cx = padX + (eff.time / state.timeWindow) * timelineW;
+        const cy = z1.y + 24 + eff.yRatio * (z1.h - 32);
+
+        if (state.scenario === 'rain') {
+          // Expanding concentric water ripples
+          const r1 = 3 + progress * 24;
+          const r2 = 1 + progress * 14;
+          ctx.strokeStyle = statsViz.rgba('--viz-group-a', alpha * 0.9);
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r1, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.strokeStyle = statsViz.rgba('--viz-density', alpha * 0.55);
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r2, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (state.scenario === 'traffic') {
+          // Radar/camera pulse ring at exact detection coordinate cx
+          const roadTop = z1.y + 28;
+          const roadH = z1.h - 38;
+          const laneY = eff.lane === 0 ? roadTop + roadH * 0.26 : roadTop + roadH * 0.74;
+
+          const pulseR = 4 + progress * 20;
+          ctx.strokeStyle = statsViz.rgba('--viz-group-b', alpha * 0.85);
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.arc(cx, laneY, pulseR, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Sleek top-down car silhouette moving forward a short distance from cx
+          const carX = cx + progress * 34;
+          const carW = 22;
+          const carH = 11;
+
+          ctx.save();
+          ctx.globalAlpha = alpha;
+
+          // Headlight forward glow
+          const gradGlow = ctx.createLinearGradient(carX + carW / 2, laneY, carX + carW / 2 + 16, laneY);
+          gradGlow.addColorStop(0, statsViz.rgba('--viz-highlight', 0.65));
+          gradGlow.addColorStop(1, statsViz.rgba('--viz-highlight', 0));
+          ctx.fillStyle = gradGlow;
+          ctx.beginPath();
+          ctx.moveTo(carX + carW / 2, laneY - 4);
+          ctx.lineTo(carX + carW / 2 + 16, laneY - 8);
+          ctx.lineTo(carX + carW / 2 + 16, laneY + 8);
+          ctx.lineTo(carX + carW / 2, laneY + 4);
+          ctx.closePath();
+          ctx.fill();
+
+          // Car rounded body
+          ctx.fillStyle = eff.lane === 0 ? statsViz.color('--viz-group-a') : statsViz.color('--viz-group-c');
+          ctx.beginPath();
+          traceRoundedRect(ctx, carX - carW / 2, laneY - carH / 2, carW, carH, 3.5);
+          ctx.fill();
+
+          // Windshield highlight
+          ctx.fillStyle = '#000000';
+          ctx.beginPath();
+          traceRoundedRect(ctx, carX - 2, laneY - carH / 2 + 2, 7, carH - 4, 1.5);
+          ctx.fill();
+
+          ctx.restore();
+        } else if (state.scenario === 'meteors') {
+          // Bright diagonal shooting star streaking from (cx, cy) across (dx, dy)
+          const headX = cx + eff.dx * progress;
+          const headY = cy + eff.dy * progress;
+          const tailLenFactor = Math.min(progress, 0.45);
+          const tailX = headX - eff.dx * tailLenFactor;
+          const tailY = headY - eff.dy * tailLenFactor;
+
+          ctx.save();
+          const grad = ctx.createLinearGradient(headX, headY, tailX, tailY);
+          grad.addColorStop(0, statsViz.rgba('--viz-mean', alpha));
+          grad.addColorStop(0.3, statsViz.rgba('--viz-highlight', alpha * 0.85));
+          grad.addColorStop(1, statsViz.rgba('--viz-highlight', 0));
+
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 2.4;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(tailX, tailY);
+          ctx.lineTo(headX, headY);
+          ctx.stroke();
+
+          // Glowing meteor head
+          ctx.beginPath();
+          ctx.arc(headX, headY, 2.6, 0, Math.PI * 2);
+          ctx.fillStyle = statsViz.rgba('--viz-highlight', alpha);
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(headX, headY, 1.4, 0, Math.PI * 2);
+          ctx.fillStyle = statsViz.rgba('--viz-mean', alpha);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      // Stage Title Header inside Zone 1
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(z1.x + 6, z1.y + 5, 430, 18);
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(z1.x + 6, z1.y + 5, 430, 18);
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 10.5px sans-serif';
+      ctx.fillText(scenarioTitles[state.scenario], z1.x + 10, z1.y + 17);
+      ctx.restore();
+
+      // -----------------------------------------------------------------------
+      // ZONE 2: COUNTING PROCESS STEP PATH N(tau)
+      // -----------------------------------------------------------------------
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 10.5px sans-serif';
+      ctx.fillText('COUNTING PROCESS STEP PATH N(τ)', z2.x, z2.y - 4);
+
+      // Axes for Zone 2
+      const maxKAxis = Math.max(8, state.arrivals.length + 2, Math.ceil(state.rate * state.timeWindow * 1.4));
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(z2.x, z2.y);
+      ctx.lineTo(z2.x, z2.y + z2.h);
+      ctx.lineTo(z2.x + z2.w, z2.y + z2.h);
+      ctx.stroke();
+
+      // Horizontal grid lines for counts
+      const yStepTick = Math.max(1, Math.ceil(maxKAxis / 5));
+      ctx.fillStyle = '#000000';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'right';
+      for (let kVal = 0; kVal <= maxKAxis; kVal += yStepTick) {
+        const yPos = z2.y + z2.h - (kVal / maxKAxis) * (z2.h - 12);
+        ctx.strokeStyle = statsViz.rgba('--viz-reference', 0.35);
+        ctx.beginPath();
+        ctx.moveTo(z2.x, yPos);
+        ctx.lineTo(z2.x + z2.w, yPos);
+        ctx.stroke();
+        ctx.fillText(kVal, z2.x - 6, yPos + 3);
+      }
+      ctx.textAlign = 'left';
+
+      // Draw staircase step path N(tau) up to state.scanTime
+      const visibleArrivals = state.arrivals.filter(a => a.time <= state.scanTime && a.time <= state.timeWindow);
+      ctx.strokeStyle = statsViz.color('--viz-group-a');
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+
+      let curX = z2.x;
+      let curCount = 0;
+      let curY = z2.y + z2.h;
+      ctx.moveTo(curX, curY);
+
+      visibleArrivals.forEach(arr => {
+        const nextX = padX + (arr.time / state.timeWindow) * timelineW;
+        // Horizontal segment at current count
+        ctx.lineTo(nextX, curY);
+        // Vertical jump +1
+        curCount += 1;
+        curY = z2.y + z2.h - (curCount / maxKAxis) * (z2.h - 12);
+        ctx.lineTo(nextX, curY);
+      });
+
+      const scanX = padX + clampedScanRatio * timelineW;
+      ctx.lineTo(scanX, curY);
+      ctx.stroke();
+
+      // Draw jump dots on step function
+      curCount = 0;
+      visibleArrivals.forEach(arr => {
+        curCount += 1;
+        const jx = padX + (arr.time / state.timeWindow) * timelineW;
+        const jy = z2.y + z2.h - (curCount / maxKAxis) * (z2.h - 12);
+        ctx.beginPath();
+        ctx.arc(jx, jy, 3.2, 0, Math.PI * 2);
+        ctx.fillStyle = statsViz.color('--viz-group-b');
+        ctx.fill();
+      });
+
+      // -----------------------------------------------------------------------
+      // ZONE 3: 1D TIMELINE SCANNER & INTER-ARRIVAL GAPS
+      // -----------------------------------------------------------------------
+      const axisY = z3.y + 32;
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 10.5px sans-serif';
+      ctx.fillText('1D ARRIVAL TIMELINE & EXPONENTIAL WAITING TIMES Δτᵢ', z3.x, z3.y + 4);
+
+      // Base timeline track
+      ctx.strokeStyle = statsViz.color('--viz-reference');
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(z3.x, axisY);
+      ctx.lineTo(z3.x + z3.w, axisY);
+      ctx.stroke();
+
+      // Active scanned portion
+      ctx.strokeStyle = statsViz.color('--viz-group-a');
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(z3.x, axisY);
+      ctx.lineTo(scanX, axisY);
+      ctx.stroke();
+
+      // Vertical scanner cursor spanning Zone 2 and Zone 3
+      ctx.save();
+      ctx.strokeStyle = statsViz.rgba('--viz-mean', 0.9);
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(scanX, z2.y);
+      ctx.lineTo(scanX, axisY + 12);
+      ctx.stroke();
+      ctx.restore();
+
+      // Arrival ticks & inter-arrival brackets
+      let prevX = z3.x;
+      visibleArrivals.forEach((arr, idx) => {
+        const ax = padX + (arr.time / state.timeWindow) * timelineW;
+
+        // Dashed connector from Zone 2 jump to Zone 3 tick
+        ctx.save();
+        ctx.strokeStyle = statsViz.rgba('--viz-group-b', 0.45);
+        ctx.setLineDash([2, 3]);
+        ctx.beginPath();
+        ctx.moveTo(ax, z2.y + z2.h);
+        ctx.lineTo(ax, axisY);
+        ctx.stroke();
+        ctx.restore();
+
+        // Arrival pin on timeline
+        ctx.beginPath();
+        ctx.arc(ax, axisY, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = statsViz.color('--viz-group-b');
+        ctx.fill();
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Show Δτ label if gap is wide enough
+        if (ax - prevX > 42 && idx < 6) {
+          const dtVal = idx === 0 ? arr.time : (arr.time - visibleArrivals[idx - 1].time);
+          ctx.fillStyle = statsViz.color('--viz-group-c');
+          ctx.font = '9.5px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(`Δτ=${dtVal.toFixed(2)}s`, (prevX + ax) / 2, axisY - 9);
+        }
+        prevX = ax;
+      });
+
+      // Timeline ticks (0 to timeWindow)
+      ctx.fillStyle = '#000000';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'center';
+      const numTicks = 5;
+      for (let i = 0; i <= numTicks; i++) {
+        const tx = z3.x + (i / numTicks) * z3.w;
+        const tVal = (i / numTicks) * state.timeWindow;
+        ctx.beginPath();
+        ctx.moveTo(tx, axisY + 4);
+        ctx.lineTo(tx, axisY + 9);
+        ctx.strokeStyle = statsViz.color('--viz-reference');
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillText(`${tVal.toFixed(2)}s`, tx, axisY + 21);
+      }
+      ctx.textAlign = 'left';
+    }
+
+    // =========================================================================
+    // 5. PANEL 2: THEORETICAL PMF & EMPIRICAL HISTOGRAM (#pmf-canvas)
+    // =========================================================================
+    function renderPMFCanvas() {
+      const canvas = document.getElementById('pmf-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      ctx.clearRect(0, 0, W, H);
+
+      const mu = state.rate * state.timeWindow;
+      const maxK = getMaxK(mu, state.targetK);
+
+      // Keep #slider-k max synchronized with the plotted range so every bar is selectable
+      const sliderK = document.getElementById('slider-k');
+      const dynamicSliderMax = Math.max(30, maxK);
+      if (parseInt(sliderK.max, 10) !== dynamicSliderMax) {
+        sliderK.max = dynamicSliderMax;
+      }
+
+      const padL = 48, padR = 18, padT = 24, padB = 38;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      // Compute probabilities
+      const probs = [];
+      const binomProbs = [];
+      const empProbs = [];
+      const n = state.subIntervals;
+      const pBin = Math.min(1, mu / n);
+
+      for (let k = 0; k <= maxK; k++) {
+        probs.push(poissonPMF(k, mu));
+        binomProbs.push(binomialPMF(k, n, pBin));
+        empProbs.push(state.totalTrials > 0 ? (state.empiricalCounts[k] || 0) / state.totalTrials : 0);
+      }
+
+      const maxY = Math.max(...probs, ...empProbs, ...binomProbs, 0.12) * 1.15;
+
+      // Axes & horizontal gridlines
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1;
+      const yTicks = 4;
+      ctx.fillStyle = '#000000';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'right';
+
+      for (let i = 0; i <= yTicks; i++) {
+        const val = (i / yTicks) * maxY;
+        const y = padT + plotH - (val / maxY) * plotH;
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(W - padR, y);
+        ctx.strokeStyle = i === 0 ? '#000000' : statsViz.rgba('--viz-reference', 0.35);
+        ctx.stroke();
+        ctx.fillText(val.toFixed(2), padL - 6, y + 3);
+      }
+
+      const stepW = plotW / (maxK + 1);
+      const barW = Math.min(22, Math.max(4, stepW * 0.62));
+      const labelStep = maxK <= 18 ? 1 : maxK <= 36 ? 2 : 5;
+
+      // Draw bars for each k
+      for (let k = 0; k <= maxK; k++) {
+        const cx = padL + (k + 0.5) * stepW;
+
+        // 1. Theoretical Poisson bar
+        const hTheo = Math.max(0, (probs[k] / maxY) * plotH);
+        const yTheo = padT + plotH - hTheo;
+        ctx.fillStyle = k === state.targetK ? statsViz.color('--viz-highlight') : statsViz.rgba('--viz-group-a', 0.82);
+        if (hTheo > 0) {
+          ctx.beginPath();
+          traceRoundedRect(ctx, cx - barW / 2, yTheo, barW, hTheo, [3, 3, 0, 0]);
+          ctx.fill();
+        }
+
+        // 2. Empirical frequency overlay bar (if trials > 0)
+        if (state.totalTrials > 0 && empProbs[k] > 0) {
+          const hEmp = Math.max(0, (empProbs[k] / maxY) * plotH);
+          const yEmp = padT + plotH - hEmp;
+          ctx.fillStyle = statsViz.rgba('--viz-group-b', 0.45);
+          ctx.strokeStyle = statsViz.color('--viz-group-b');
+          ctx.lineWidth = 1.4;
+          ctx.fillRect(cx - barW * 0.36, yEmp, barW * 0.72, hEmp);
+          ctx.strokeRect(cx - barW * 0.36, yEmp, barW * 0.72, hEmp);
+        }
+
+        // X-axis label
+        if (k % labelStep === 0 || k === state.targetK) {
+          ctx.fillStyle = k === state.targetK ? statsViz.color('--viz-highlight') : '#000000';
+          ctx.font = k === state.targetK ? 'bold 10.5px monospace' : '10px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(k, cx, H - 14);
+        }
+      }
+
+      // 3. Binomial(n, p) overlay curve & dots
+      if (state.showBinomial) {
+        ctx.strokeStyle = statsViz.rgba('--viz-se', 0.9);
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        for (let k = 0; k <= maxK; k++) {
+          const cx = padL + (k + 0.5) * stepW;
+          const cy = padT + plotH - (binomProbs[k] / maxY) * plotH;
+          if (k === 0) ctx.moveTo(cx, cy);
+          else ctx.lineTo(cx, cy);
+        }
+        ctx.stroke();
+
+        for (let k = 0; k <= maxK; k++) {
+          const cx = padL + (k + 0.5) * stepW;
+          const cy = padT + plotH - (binomProbs[k] / maxY) * plotH;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+          ctx.fillStyle = statsViz.color('--viz-se');
+          ctx.fill();
+        }
+      }
+
+      // Mean vertical marker line
+      const meanX = padL + (mu + 0.5) * stepW;
+      if (meanX >= padL && meanX <= W - padR) {
+        ctx.save();
+        ctx.strokeStyle = statsViz.color('--viz-mean');
+        ctx.lineWidth = 1.3;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(meanX, padT);
+        ctx.lineTo(meanX, padT + plotH);
+        ctx.stroke();
+        ctx.fillStyle = statsViz.color('--viz-mean');
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`μ = ${mu.toFixed(1)}`, meanX, padT - 6);
+        ctx.restore();
+      }
+      ctx.textAlign = 'left';
+    }
+
+    // Allow clicking on PMF bars to select targetK across the entire plotted range
+    document.getElementById('pmf-canvas').addEventListener('click', (e) => {
+      const canvas = e.currentTarget;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const mx = (e.clientX - rect.left) * scaleX;
+
+      const mu = state.rate * state.timeWindow;
+      const maxK = getMaxK(mu, state.targetK);
+      const padL = 48, padR = 18;
+      const plotW = canvas.width - padL - padR;
+      const stepW = plotW / (maxK + 1);
+
+      const clickedK = Math.floor((mx - padL) / stepW);
+      if (clickedK >= 0 && clickedK <= maxK) {
+        state.targetK = clickedK;
+        const sliderK = document.getElementById('slider-k');
+        sliderK.max = Math.max(30, maxK);
+        sliderK.value = clickedK;
+        updateUI();
+      }
+    });
+
+    // =========================================================================
+    // 6. PANEL 3: BERNOULLI SUB-INTERVAL DISCRETIZER (#bernoulli-canvas)
+    // =========================================================================
+    function renderBernoulliCanvas() {
+      const canvas = document.getElementById('bernoulli-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      ctx.clearRect(0, 0, W, H);
+
+      const n = state.subIntervals;
+      const dt = state.timeWindow / n;
+      const mu = state.rate * state.timeWindow;
+      const p = Math.min(1, mu / n);
+
+      const padX = 36;
+      const gridW = W - padX * 2;
+      const cellW = gridW / n;
+      const gridY = 38;
+      const cellH = 54;
+
+      // Count arrivals per bin up to current scanTime
+      const binCounts = new Array(n).fill(0);
+      state.arrivals.forEach(arr => {
+        if (arr.time <= state.scanTime && arr.time <= state.timeWindow) {
+          const idx = Math.min(n - 1, Math.max(0, Math.floor((arr.time / state.timeWindow) * n)));
+          binCounts[idx] += 1;
+        }
+      });
+
+      let occupiedBins = 0;
+      let collisionBins = 0;
+
+      for (let i = 0; i < n; i++) {
+        const bx = padX + i * cellW;
+        const count = binCounts[i];
+        if (count >= 1) occupiedBins++;
+        if (count >= 2) collisionBins++;
+
+        // Cell background color:
+        // 0 arrivals = dark slate, 1 arrival = emerald Bernoulli '1', >=2 arrivals = rose collision
+        if (count === 0) {
+          ctx.fillStyle = '#ffffff';
+          ctx.strokeStyle = '#000000';
+        } else if (count === 1) {
+          ctx.fillStyle = statsViz.rgba('--viz-group-b', 0.28);
+          ctx.strokeStyle = statsViz.color('--viz-group-b');
+        } else {
+          ctx.fillStyle = statsViz.rgba('--viz-null', 0.28);
+          ctx.strokeStyle = statsViz.color('--viz-null');
+        }
+
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        traceRoundedRect(ctx, bx + 1, gridY, Math.max(2, cellW - 2), cellH, 3);
+        ctx.fill();
+        ctx.stroke();
+
+        // Draw binary digit (0, 1, or count!) if cell is wide enough
+        if (cellW >= 14) {
+          ctx.fillStyle = count === 0 ? statsViz.color('--viz-reference') : count === 1 ? statsViz.color('--viz-group-b') : statsViz.color('--viz-null');
+          ctx.font = 'bold 11px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(count >= 2 ? `${count}!` : `${count}`, bx + cellW / 2, gridY + cellH / 2 + 4);
+        }
+
+        // Draw exact arrival dots along bottom of each bin
+        if (count > 0) {
+          for (let c = 0; c < count; c++) {
+            const dotY = gridY + cellH - 8 - c * 6;
+            ctx.beginPath();
+            ctx.arc(bx + cellW / 2, Math.max(gridY + 6, dotY), 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = count === 1 ? statsViz.color('--viz-group-b') : statsViz.color('--viz-null');
+            ctx.fill();
+          }
+        }
+      }
+
+      // Labels & Legend inside Bernoulli canvas
+      ctx.fillStyle = '#000000';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(
+        `Each bin represents a Bernoulli trial with success probability p = min(1, λ·Δt) = ${p.toFixed(3)}. Green = 1 arrival (valid Bernoulli 1); Red = ≥2 arrivals in same bin (collision error).`,
+        padX,
+        22
+      );
+
+      ctx.fillStyle = '#000000';
+      ctx.font = '10px monospace';
+      ctx.fillText('t = 0.00s', padX, gridY + cellH + 18);
+      ctx.textAlign = 'right';
+      ctx.fillText(`t = ${state.timeWindow.toFixed(2)}s (${n} sub-intervals)`, padX + gridW, gridY + cellH + 18);
+      ctx.textAlign = 'left';
+
+      // Update badges
+      document.getElementById('val-bins').textContent = `n = ${n}`;
+      document.getElementById('badge-dt').textContent = `${dt.toFixed(3)}s`;
+      document.getElementById('badge-p').textContent = p.toFixed(3);
+      document.getElementById('badge-occupied').textContent = `${occupiedBins} / ${n}`;
+      document.getElementById('badge-collisions').textContent = `${collisionBins}`;
+    }
+
+    // =========================================================================
+    // 7. FORMULA & UI SYNCHRONIZATION
+    // =========================================================================
+    function updateFormulaAndMetrics() {
+      const mu = state.rate * state.timeWindow;
+      const k = state.targetK;
+      const pk = poissonPMF(k, mu);
+
+      // Update slider labels
+      document.getElementById('val-rate').textContent = `${state.rate.toFixed(1)} /s`;
+      document.getElementById('val-window').textContent = `${state.timeWindow.toFixed(2)} s`;
+      document.getElementById('val-k').textContent = `k = ${k}`;
+
+      // Update metric boxes
+      document.getElementById('stat-mean').textContent = mu.toFixed(2);
+      document.getElementById('stat-pk').textContent = pk.toFixed(4);
+      document.getElementById('stat-trials').textContent = state.totalTrials.toLocaleString();
+      document.getElementById('stat-emp-mean').textContent =
+        state.totalTrials > 0 ? (state.sumCounts / state.totalTrials).toFixed(2) : '—';
+
+      // Render KaTeX formula
+      const latex = `P\\bigl(N(t) = ${k}\\bigr) = \\frac{(\\lambda t)^{${k}} e^{-\\lambda t}}{${k}!} = \\frac{(${mu.toFixed(2)})^{${k}} e^{-${mu.toFixed(2)}}}{${k}!} = \\mathbf{${pk.toFixed(4)}}`;
+      const formulaEl = document.getElementById('formula-pmf');
+      if (window.katex) {
+        window.katex.render(latex, formulaEl, { displayMode: true, throwOnError: false });
+      } else {
+        formulaEl.textContent = `P(N(t) = ${k}) = (${mu.toFixed(2)}^${k} * exp(-${mu.toFixed(2)})) / ${k}! = ${pk.toFixed(4)}`;
+      }
+    }
+
+    function updateUI() {
+      updateFormulaAndMetrics();
+      renderSimulationCanvas();
+      renderPMFCanvas();
+      renderBernoulliCanvas();
+      const currentCount = state.arrivals.filter(a => a.time <= state.scanTime && a.time <= state.timeWindow).length;
+      document.getElementById('live-counter-badge').textContent =
+        `N(τ) = ${currentCount} arrival${currentCount === 1 ? '' : 's'}`;
+    }
+
+    // =========================================================================
+    // 8. EVENT LISTENERS & SCENARIO PRESETS
+    // =========================================================================
+    function applyScenarioPreset(scenario, rate, timeWindow, targetK, activeBtnId) {
+      state.scenario = scenario;
+      state.rate = rate;
+      state.timeWindow = timeWindow;
+      state.targetK = targetK;
+
+      document.getElementById('slider-rate').value = rate;
+      document.getElementById('slider-window').value = timeWindow;
+      document.getElementById('slider-k').value = targetK;
+
+      document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(activeBtnId).classList.add('active');
+
+      // Clear empirical history for new parameter regime and run 1 animated window
+      state.empiricalCounts = {};
+      state.totalTrials = 0;
+      state.sumCounts = 0;
+      startSingleWindowPlayback();
+      updateUI();
+    }
+
+    document.getElementById('preset-rain').addEventListener('click', () => {
+      applyScenarioPreset('rain', 6.0, 1.0, 6, 'preset-rain');
+    });
+
+    document.getElementById('preset-traffic').addEventListener('click', () => {
+      applyScenarioPreset('traffic', 4.0, 1.0, 4, 'preset-traffic');
+    });
+
+    document.getElementById('preset-meteors').addEventListener('click', () => {
+      applyScenarioPreset('meteors', 2.0, 1.0, 2, 'preset-meteors');
+    });
+
+    // Sliders
+    document.getElementById('slider-rate').addEventListener('input', (e) => {
+      state.rate = parseFloat(e.target.value);
+      resetForParameterChange();
+      updateUI();
+    });
+
+    document.getElementById('slider-window').addEventListener('input', (e) => {
+      state.timeWindow = parseFloat(e.target.value);
+      resetForParameterChange();
+      updateUI();
+    });
+
+    document.getElementById('slider-k').addEventListener('input', (e) => {
+      state.targetK = parseInt(e.target.value, 10);
+      updateUI();
+    });
+
+    document.getElementById('slider-bins').addEventListener('input', (e) => {
+      state.subIntervals = parseInt(e.target.value, 10);
+      renderPMFCanvas();
+      renderBernoulliCanvas();
+    });
+
+    document.getElementById('chk-show-binomial').addEventListener('change', (e) => {
+      state.showBinomial = e.target.checked;
+      renderPMFCanvas();
+    });
+
+    // Simulation Action Buttons
+    document.getElementById('btn-play-one').addEventListener('click', () => {
+      startSingleWindowPlayback();
+    });
+
+    document.getElementById('btn-auto-loop').addEventListener('click', (e) => {
+      state.autoLoop = !state.autoLoop;
+      e.currentTarget.textContent = state.autoLoop ? '🔁 Auto-Loop Windows: ON' : '🔁 Auto-Loop Windows: OFF';
+      e.currentTarget.classList.toggle('primary', state.autoLoop);
+      if (state.autoLoop && !state.isPlaying) {
+        startSingleWindowPlayback();
+      } else if (!state.autoLoop) {
+        clearPendingLoopTimer();
+      }
+    });
+
+    document.getElementById('btn-fast-100').addEventListener('click', () => {
+      runFastBatch(100);
+    });
+
+    document.getElementById('btn-fast-1000').addEventListener('click', () => {
+      runFastBatch(1000);
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      state.autoLoop = false;
+      clearPendingLoopTimer();
+      const loopBtn = document.getElementById('btn-auto-loop');
+      loopBtn.textContent = '🔁 Auto-Loop Windows: OFF';
+      loopBtn.classList.remove('primary');
+
+      state.isPlaying = false;
+      state.arrivals = [];
+      state.activeEffects = [];
+      state.empiricalCounts = {};
+      state.totalTrials = 0;
+      state.sumCounts = 0;
+      state.scanTime = state.timeWindow;
+      updateUI();
+    });
+
+    // Initialize on load (ensuring deferred KaTeX & auto-render scripts have executed)
+    window.addEventListener('load', () => {
+      renderAllStaticMath();
+      startSingleWindowPlayback();
+      updateUI();
+      requestAnimationFrame(animationLoop);
+    });
+  </script>
+
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

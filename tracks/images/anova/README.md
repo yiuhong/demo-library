@@ -10,13 +10,11 @@ For any two groups, the squared Student’s t equals the ANOVA F. On this two-gr
 
 ## Sums of squares
 
-The bar uses the opening scores in `statistics/partitioning_sum_of_squares_anova.html`:
+`02-sum-of-squares.png` is a screenshot of the light chrome on `statistics/partitioning_sum_of_squares_anova.html` (between-subjects, one factor, symmetric view). `generate_figures.py` still checks the one-way identity `SS_between + SS_within = SS_total` for the older three-group scores, and it does not write this PNG.
 
-- group A: 70, 80, 90
-- group B: 50, 60, 70
-- group C: 90, 100, 110
+## Mixed ANOVA
 
-`SS_between = 2400`, `SS_within = 600`, and `SS_total = 3000`. With `df_between = 2` and `df_within = 6`, `MS_between = 1200`, `MS_within = 100`, and `F = 12`.
+`03b-mixed-anova.png` is a screenshot of `statistics/mixed_anova_2x2.html` on Lens 2, the full 2×2 mixed split. It is not drawn by `generate_figures.py`.
 
 ## Two-way cell means
 

@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+<title>2×2 Mixed ANOVA Interactive Laboratory</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css" />
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css" />
+  <script src="../assets/stats-viz-theme.js"></script>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css" />
+<style>
+  :root {
+    --bg-app: #f6f6f6;
+    --bg-panel: #ffffff;
+    --bg-card: #ffffff;
+    --bg-hover: #f6f6f6;
+    --border: #000000;
+    --text-main: #000000;
+    --text-muted: #000000;
+    --blue: var(--viz-group-a);
+    --blue-dim: var(--viz-group-a-soft);
+    --orange: var(--viz-group-b);
+    --orange-dim: var(--viz-group-b-soft);
+    --purple: var(--viz-median);
+    --green: var(--viz-explained);
+    --yellow: var(--viz-highlight);
+    --red: var(--viz-mean);
+    --grey-line: var(--viz-reference);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+  }
+
+  body {
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+  }
+
+  /* MATH TYPOGRAPHY HELPERS */
+  .math {
+    font-family: "Cambria Math", "Times New Roman", Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+  }
+  .math sub, .math sup, sub, sup {
+    font-size: 0.76em;
+    font-style: normal;
+    line-height: 0;
+  }
+  .overline {
+    text-decoration: overline;
+  }
+
+  /* HEADER BAR */
+  header {
+    height: 52px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    flex-shrink: 0;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-badge {
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    color: #0b0f19;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.4px;
+  }
+
+  .brand-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+
+  .brand-sub {
+    color: var(--text-muted);
+    font-size: 11px;
+    margin-left: 4px;
+  }
+
+  .lens-switcher {
+    display: flex;
+    background: var(--bg-app);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    gap: 4px;
+  }
+
+  .lens-btn {
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .lens-btn:hover {
+    color: var(--text-main);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .lens-btn.active {
+    background: var(--bg-card);
+    color: var(--text-main);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+  }
+
+  .lens-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* 3-COLUMN GRID */
+  .workspace {
+    display: grid;
+    grid-template-columns: 25% 45% 30%;
+    height: calc(100vh - 52px);
+    width: 100%;
+  }
+
+  .panel {
+    height: 100%;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .panel-left {
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+  }
+
+  .panel-center {
+    background: var(--bg-app);
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+
+  .panel-right {
+    background: var(--bg-panel);
+  }
+
+  .section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+  }
+
+  /* SLIDERS */
+  .slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .slider-val {
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 11px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.3);
+  }
+
+  .slider-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 1px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 5px;
+    background: #e5e5e5;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-main);
+    border: 2px solid var(--blue);
+    cursor: grab;
+    transition: transform 0.1s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.15);
+  }
+
+  .slider-group.orange input[type="range"]::-webkit-slider-thumb { border-color: var(--orange); }
+  .slider-group.purple input[type="range"]::-webkit-slider-thumb { border-color: var(--purple); }
+  .slider-group.green input[type="range"]::-webkit-slider-thumb { border-color: var(--green); }
+  .slider-group.yellow input[type="range"]::-webkit-slider-thumb { border-color: var(--yellow); }
+
+  /* PRESETS */
+  .preset-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+
+  .preset-btn {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .preset-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--blue);
+  }
+
+  .preset-btn.active {
+    background: rgba(56, 189, 248, 0.14);
+    border-color: var(--blue);
+  }
+
+  .preset-btn span.sub {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* CENTER CANVAS & OVERLAYS */
+  .canvas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 4px;
+  }
+
+  .legend-bar {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .swatch {
+    width: 12px;
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  .canvas-wrap {
+    flex: 1;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  svg#traj-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .callout-banner {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    right: 185px;
+    background: #ffffff;
+    border: 1px solid var(--purple);
+    border-left: 4px solid var(--purple);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--text-main);
+    pointer-events: none;
+    transition: opacity 0.25s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+  }
+
+  .controls-bar {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .checkbox-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 11.5px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+  }
+
+  .checkbox-pill:hover {
+    border-color: var(--green);
+  }
+
+  .checkbox-pill input {
+    accent-color: var(--green);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+  }
+
+  .se-selector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-panel);
+    padding: 3px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .se-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .se-btn.active {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+  }
+
+  /* RIGHT PANEL: BUCKETS, ANOVA TABLE, DELTA BOX */
+  .bucket-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .bucket-title {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .stacked-bar {
+    height: 22px;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+    position: relative;
+    border: 1px solid var(--border);
+  }
+
+  .bar-seg {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #0b0f19;
+    transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  /* Knife Divider Line */
+  .knife-divider {
+    width: 3px;
+    height: 100%;
+    background: #ffffff;
+    box-shadow: 0 0 8px #ffffff;
+    z-index: 5;
+    transition: transform 0.35s ease, opacity 0.35s ease;
+    transform-origin: top;
+  }
+
+  .knife-divider.hidden-knife {
+    transform: scaleY(0);
+    opacity: 0;
+    width: 0;
+  }
+
+  /* ANOVA TABLE */
+  table.anova-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+
+  table.anova-table th {
+    text-align: right;
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 4px 5px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+  }
+
+  table.anova-table th:first-child {
+    text-align: left;
+  }
+
+  table.anova-table td {
+    text-align: right;
+    padding: 5px 5px;
+    border-bottom: 1px solid rgba(44, 58, 87, 0.45);
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 10.5px;
+  }
+
+  table.anova-table td:first-child {
+    text-align: left;
+    font-family: inherit;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  table.anova-table tr.bucket-sep td {
+    background: #f6f6f6;
+    color: var(--text-muted);
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 6px;
+  }
+
+  table.anova-table tr.interactive-row {
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+
+  table.anova-table tr.interactive-row:hover,
+  table.anova-table tr.interactive-row.active-hover {
+    background: rgba(56, 189, 248, 0.15);
+  }
+
+  .ss-ms-badge {
+    font-size: 9px;
+    background: rgba(52, 211, 153, 0.16);
+    color: var(--green);
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    padding: 0px 4px;
+    border-radius: 3px;
+    font-family: inherit;
+    font-weight: 700;
+  }
+
+  .sig-badge {
+    display: inline-block;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 9.5px;
+    font-weight: 700;
+  }
+
+  .sig-yes {
+    background: rgba(52, 211, 153, 0.2);
+    color: var(--green);
+  }
+
+  .sig-no {
+    background: rgba(148, 163, 184, 0.12);
+    color: var(--text-muted);
+  }
+
+  /* DUAL F-GAUGES */
+  .gauges-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+
+  .gauge-box {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .gauge-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .gauge-track {
+    height: 6px;
+    background: #e5e5e5;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .gauge-fill {
+    height: 100%;
+    transition: width 0.2s ease;
+  }
+
+  .gauge-crit {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--red);
+    z-index: 2;
+  }
+
+  /* AHA EQUIVALENCE WIDGET */
+  .aha-card {
+    background: #ffffff;
+    border: 1px solid var(--purple);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .aha-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+
+  .aha-col {
+    background: #f6f6f6;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .aha-col-title {
+    font-size: 10.5px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 9.5px;
+  }
+
+  .num-chip {
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .num-chip.blue { color: var(--blue); border: 1px solid rgba(56,189,248,0.3); }
+  .num-chip.orange { color: var(--orange); border: 1px solid rgba(251,146,60,0.3); }
+
+  .match-banner {
+    background: rgba(192, 132, 252, 0.13);
+    border: 1px solid rgba(192, 132, 252, 0.4);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 10px;
+    color: var(--text-main);
+    text-align: center;
+    font-weight: 700;
+  }
+
+  .draggable-node {
+    cursor: ns-resize;
+    transition: r 0.15s;
+  }
+  .draggable-node:hover {
+    r: 9px;
+  }
+
+    body.demo-page {
+      background: #f6f6f6 !important;
+      color: #000 !important;
+      font-family: Arial, Helvetica, sans-serif !important;
+      height: auto !important;
+      overflow: auto !important;
+      font-size: 12px;
+    }
+    body.demo-page * { box-shadow: none !important; }
+    .page-shell { padding: 16px; max-width: 1600px; margin: 0 auto; }
+    .workspace {
+      height: auto !important;
+      min-height: 820px;
+      border: 1px solid #000;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .panel { height: auto !important; overflow: visible !important; }
+    .canvas-wrap { min-height: 480px; background: #fff !important; border-radius: 4px !important; }
+    .section-card, .lens-switcher, .preset-btn, .se-selector { border-radius: 4px !important; }
+    .lens-switcher { margin: 12px 0; background: #f6f6f6 !important; border: 1px solid #000 !important; flex-wrap: wrap; }
+    body.demo-page .lens-btn,
+    body.demo-page .preset-btn,
+    body.demo-page .se-btn {
+      background: #fff !important;
+      color: #000 !important;
+      border: 1px solid #000 !important;
+      border-radius: 3em !important;
+      font-family: Arial, Helvetica, sans-serif !important;
+      font-weight: 700 !important;
+    }
+    body.demo-page .lens-btn.active,
+    body.demo-page .preset-btn.active,
+    body.demo-page .se-btn.active {
+      background: #000 !important;
+      color: #fff !important;
+    }
+    .slider-val {
+      background: #fff !important;
+      color: #000 !important;
+      border: 1px solid #000;
+      border-radius: 3em !important;
+      font-family: Arial, Helvetica, sans-serif !important;
+      font-weight: 700;
+    }
+    input[type="range"] { accent-color: #000; background: transparent !important; }
+    .stacked-bar { background: #fff !important; border: 1px solid #000 !important; border-radius: 4px !important; }
+    .bar-seg { color: #fff !important; }
+    .knife-divider { background: #000 !important; width: 2px !important; }
+    .demo-header { margin-bottom: 0; }
+    .demo-header h1 { font-size: 1.35rem; }
+
+</style>
+</head>
+<body class="demo-page">
+<div class="page-shell">
+<a class="demo-back" href="../index.html">← Project Viz</a>
+<header class="demo-header">
+  <h1>2×2 Mixed ANOVA</h1>
+  <p>Orthogonal variance and trajectory explorer. <span class="math">N</span> = 10 subjects: <span class="math">n</span><sub>A</sub> = 5, <span class="math">n</span><sub>B</sub> = 5.</p>
+</header>
+<div class="lens-switcher" id="lens-switcher">
+    <button class="lens-btn" id="lens-1" onclick="setLens(1)">
+      <span class="lens-dot" style="background: var(--grey-line);"></span>
+      Lens 1: One-Way RM-ANOVA (Ignore Groups)
+    </button>
+    <button class="lens-btn active" id="lens-2" onclick="setLens(2)">
+      <span class="lens-dot" style="background: var(--blue);"></span>
+      Lens 2: Full 2×2 Mixed ANOVA (Split Errors!)
+    </button>
+    <button class="lens-btn" id="lens-3" onclick="setLens(3)">
+      <span class="lens-dot" style="background: var(--purple);"></span>
+      Lens 3: Secret Identity (2 Simple <span class="math">t</span>-Tests: Midpoints vs. Δ)
+    </button>
+  </div>
+
+<!-- MAIN 3-COLUMN WORKSPACE -->
+<div class="workspace">
+
+  <!-- 3. LEFT PANEL: ORTHOGONAL PARAMETER CONTROLS -->
+  <div class="panel panel-left">
+
+    <!-- A. SIGNAL SLIDERS -->
+    <div class="section-card">
+      <div class="section-header">
+        <span>A. Orthogonal Signal Sliders (<span class="math">df</span> = 1 each)</span>
+        <span style="color:var(--green); font-size:10px;"><span class="math">SS</span> = <span class="math">MS</span></span>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span style="color:var(--blue);">1. Group Main Effect (Vertical Sep.)</span>
+          <span class="slider-val" id="val-group">+6.0</span>
+        </div>
+        <div class="slider-sub">Pushes Group B up &amp; Group A down (changes <span class="math">SS</span><sub>Group</sub> only)</div>
+        <input type="range" id="sl-group" min="-20" max="20" step="0.5" value="6">
+      </div>
+
+      <div class="slider-group green">
+        <div class="slider-label">
+          <span style="color:var(--green);">2. Time Main Effect (Shared Tilt)</span>
+          <span class="slider-val" id="val-time">+8.0</span>
+        </div>
+        <div class="slider-sub">Tilts both groups Pre → Post together (changes <span class="math">SS</span><sub>Time</sub> only)</div>
+        <input type="range" id="sl-time" min="-20" max="20" step="0.5" value="8">
+      </div>
+
+      <div class="slider-group purple">
+        <div class="slider-label">
+          <span style="color:var(--purple);">3. Group × Time Interaction (Scissors)</span>
+          <span class="slider-val" id="val-int">+10.0</span>
+        </div>
+        <div class="slider-sub">Rotates slopes in opposite directions (changes <span class="math">SS</span><sub>Int</sub> only)</div>
+        <input type="range" id="sl-int" min="-20" max="20" step="0.5" value="10">
+      </div>
+    </div>
+
+    <!-- B. NOISE SLIDERS -->
+    <div class="section-card">
+      <div class="section-header">
+        <span>B. Orthogonal Noise Sources (<span class="math">df</span> = 8 each)</span>
+        <span style="color:var(--yellow); font-size:10px;">Isolated Buckets</span>
+      </div>
+
+      <div class="slider-group orange">
+        <div class="slider-label">
+          <span style="color:var(--orange);">1. Between-Subject Baseline Spread (<span class="math">σ</span><sub>B</sub>)</span>
+          <span class="slider-val" id="val-bnoise">9.0</span>
+        </div>
+        <div class="slider-sub">Spreads Midpoints vertically. <span class="math">F</span><sub>Group</sub> drops; <span class="math">F</span><sub>Time</sub>, <span class="math">F</span><sub>Int</sub> stay <b>frozen</b>!</div>
+        <input type="range" id="sl-bnoise" min="0.5" max="22" step="0.5" value="9.0">
+      </div>
+
+      <div class="slider-group yellow">
+        <div class="slider-label">
+          <span style="color:var(--yellow);">2. Within-Subject Slope Jitter (<span class="math">σ</span><sub>W</sub>)</span>
+          <span class="slider-val" id="val-wnoise">2.5</span>
+        </div>
+        <div class="slider-sub">Rotates individual slopes around Midpoint. <span class="math">F</span><sub>Group</sub> stays <b>frozen</b>!</div>
+        <input type="range" id="sl-wnoise" min="0.5" max="15" step="0.5" value="2.5">
+      </div>
+    </div>
+
+    <!-- C. 4 ONE-CLICK PRESETS -->
+    <div class="section-card" style="flex:1; justify-content:space-between;">
+      <div class="section-header">
+        <span>C. Pedagogical Scenario Presets</span>
+        <span style="font-size:9.5px; color:var(--blue);">Click to Sculpt</span>
+      </div>
+
+      <div class="preset-grid">
+        <button class="preset-btn active" id="pre-1" onclick="applyPreset(1)">
+          <span>1. Baseline Noise Trap</span>
+          <span class="sub">Huge <span class="math">σ</span><sub>B</sub> hides <span class="math">p</span> &lt; .01 interaction</span>
+        </button>
+        <button class="preset-btn" id="pre-2" onclick="applyPreset(2)">
+          <span>2. Pure Crossover ("X")</span>
+          <span class="sub"><span class="math">SS</span><sub>Group</sub>=0, <span class="math">SS</span><sub>Time</sub>=0, huge Int</span>
+        </button>
+        <button class="preset-btn" id="pre-3" onclick="applyPreset(3)">
+          <span>3. Parallel Improvements</span>
+          <span class="sub">Sig. Group + Time, <span class="math">F</span><sub>Int</sub> = 0</span>
+        </button>
+        <button class="preset-btn" id="pre-4" onclick="applyPreset(4)">
+          <span>4. Classic Clinical Trial</span>
+          <span class="sub">Equal Pre, Group B shoots up Post</span>
+        </button>
+      </div>
+
+      <div style="background:#ffffff; border:1px dashed var(--border); border-radius:6px; padding:6px 8px; font-size:10.5px; color:var(--text-muted); line-height:1.35;">
+        <b style="color:var(--text-main);">Direct Sculpting Tip:</b> Drag any of the <b>4 large cell mean nodes</b> (<span class="math"><span class="overline">Y</span></span><sub>A,Pre</sub>, <span class="math"><span class="overline">Y</span></span><sub>A,Post</sub>, <span class="math"><span class="overline">Y</span></span><sub>B,Pre</sub>, <span class="math"><span class="overline">Y</span></span><sub>B,Post</sub>) directly up or down on the canvas, and watch the 3 orthogonal Signal Sliders automatically decompose your gesture!
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 2. CENTER PANEL: 2x2 TRAJECTORY CANVAS -->
+  <div class="panel panel-center">
+    <div class="canvas-header">
+      <div class="legend-bar">
+        <div class="legend-item">
+          <span class="swatch" style="background:var(--blue);"></span>
+          <span style="color:var(--blue);">Group A: Control (<span class="math">n</span> = 5)</span>
+        </div>
+        <div class="legend-item">
+          <span class="swatch" style="background:var(--orange);"></span>
+          <span style="color:var(--orange);">Group B: Treatment (<span class="math">n</span> = 5)</span>
+        </div>
+        <div class="legend-item">
+          <span style="width:8px; height:8px; border-radius:50%; border:2px solid var(--text-main); display:inline-block;"></span>
+          <span style="color:var(--text-muted);">Subject Midpoint (<span class="math"><span class="overline">Y</span><sub>ij•</sub></span>)</span>
+        </div>
+      </div>
+      <div style="font-size:11px; color:var(--text-muted);">
+        Hover table rows on the right to inspect geometry →
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <div class="callout-banner" id="canvas-callout">
+        <b>Preset 1 — Baseline Noise Trap:</b> Notice how massive Between-Subject baseline variation creates overlapping Between-Subject SE bars, yet because every Treatment subject slopes steeper than Control, the Within-Subjects Interaction test is highly significant!
+      </div>
+      <svg id="traj-svg" viewBox="0 0 720 470" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <!-- INTERACTIVE CANVAS OVERLAYS -->
+    <div class="controls-bar">
+      <label class="checkbox-pill">
+        <input type="checkbox" id="chk-center" onchange="toggleCenterBaseline()">
+        <span>Center Subject Baselines (Remove Between-Subject Noise)</span>
+      </label>
+
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:11px; font-weight:700; color:var(--text-muted);">Error Bar Paradox:</span>
+        <div class="se-selector">
+          <button class="se-btn" id="se-off" onclick="setSEMode('off')">Off</button>
+          <button class="se-btn active" id="se-between" onclick="setSEMode('between')">Between-Subject SE</button>
+          <button class="se-btn" id="se-within" onclick="setSEMode('within')">Within-Subject SE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 & 5. RIGHT PANEL: VARIANCE LAKES, ANOVA TABLE & DELTA EQUIVALENCE -->
+  <div class="panel panel-right">
+
+    <!-- VISUAL 1: TWO ISOLATED VARIANCE LAKES -->
+    <div class="section-card">
+      <div class="section-header">
+        <span>Two Isolated Variance Lakes (<span class="math">df</span><sub>Total</sub> = 19)</span>
+        <span id="knife-status" style="color:var(--purple); font-size:10px;">🔪 Mixed ANOVA Knife Active</span>
+      </div>
+
+      <!-- Bucket 1 -->
+      <div class="bucket-container">
+        <div class="bucket-title">
+          <span id="b1-label">Bucket 1: Between-Subjects (<span class="math">df</span> = 9) — Midpoints <span class="math"><span class="overline">Y</span><sub>ij•</sub></span></span>
+          <span id="b1-total">SS = 0.0</span>
+        </div>
+        <div class="stacked-bar">
+          <div class="bar-seg" id="bar-group" style="background:var(--blue); width:30%;">Group</div>
+          <div class="knife-divider" id="knife-1"></div>
+          <div class="bar-seg" id="bar-err-b" style="background:var(--viz-total); color:#ffffff; width:70%;">Error(Between)</div>
+        </div>
+      </div>
+
+      <!-- Bucket 2 -->
+      <div class="bucket-container">
+        <div class="bucket-title">
+          <span id="b2-label">Bucket 2: Within-Subjects (<span class="math">df</span> = 10) — Slopes Δ<sub><span class="math">ij</span></sub></span>
+          <span id="b2-total">SS = 0.0</span>
+        </div>
+        <div class="stacked-bar">
+          <div class="bar-seg" id="bar-time" style="background:var(--green); width:35%;">Time</div>
+          <div class="bar-seg" id="bar-int" style="background:var(--purple); width:35%;">G×T</div>
+          <div class="knife-divider" id="knife-2"></div>
+          <div class="bar-seg" id="bar-err-w" style="background:var(--viz-reference); color:#ffffff; width:30%;">Error(Within)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISUAL 2: HOVER-LINKED ANOVA TABLE + F-GAUGES -->
+    <div class="section-card">
+      <div class="section-header">
+        <span>Hover-Linked 2×2 ANOVA Table</span>
+        <span style="font-size:9.5px; color:var(--text-muted);"><span class="math">F</span><sub>crit(1,8)</sub> = 5.32</span>
+      </div>
+
+      <table class="anova-table">
+        <thead>
+          <tr>
+            <th>Source of Variation</th>
+            <th>SS</th>
+            <th>df</th>
+            <th>MS</th>
+            <th>F</th>
+            <th>p</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="bucket-sep"><td colspan="6">Bucket 1: Between-Subjects (Tested on Subject Midpoints)</td></tr>
+          <tr class="interactive-row" data-hover="group" onmouseenter="setHoverRow('group')" onmouseleave="setHoverRow(null)">
+            <td><span style="color:var(--blue);">●</span> Group (A vs B) <span class="ss-ms-badge">SS=MS</span></td>
+            <td id="t-ss-g">0.00</td>
+            <td>1</td>
+            <td id="t-ms-g">0.00</td>
+            <td id="t-f-g" style="font-weight:700; color:var(--blue);">0.00</td>
+            <td id="t-p-g">.000</td>
+          </tr>
+          <tr class="interactive-row" data-hover="errB" onmouseenter="setHoverRow('errB')" onmouseleave="setHoverRow(null)">
+            <td><span style="color:var(--viz-reference);">●</span> Error (Between)</td>
+            <td id="t-ss-eb">0.00</td>
+            <td id="t-df-eb">8</td>
+            <td id="t-ms-eb">0.00</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+
+          <tr class="bucket-sep"><td colspan="6">Bucket 2: Within-Subjects (Tested on Pre → Post Slopes)</td></tr>
+          <tr class="interactive-row" data-hover="time" onmouseenter="setHoverRow('time')" onmouseleave="setHoverRow(null)">
+            <td><span style="color:var(--green);">●</span> Time (Pre vs Post) <span class="ss-ms-badge">SS=MS</span></td>
+            <td id="t-ss-t">0.00</td>
+            <td>1</td>
+            <td id="t-ms-t">0.00</td>
+            <td id="t-f-t" style="font-weight:700; color:var(--green);">0.00</td>
+            <td id="t-p-t">.000</td>
+          </tr>
+          <tr class="interactive-row" data-hover="int" onmouseenter="setHoverRow('int')" onmouseleave="setHoverRow(null)">
+            <td><span style="color:var(--purple);">●</span> Group × Time <span class="ss-ms-badge">SS=MS</span></td>
+            <td id="t-ss-i">0.00</td>
+            <td>1</td>
+            <td id="t-ms-i">0.00</td>
+            <td id="t-f-i" style="font-weight:700; color:var(--purple);">0.00</td>
+            <td id="t-p-i">.000</td>
+          </tr>
+          <tr class="interactive-row" data-hover="errW" onmouseenter="setHoverRow('errW')" onmouseleave="setHoverRow(null)">
+            <td><span style="color:var(--viz-total);">●</span> Error (Within)</td>
+            <td id="t-ss-ew">0.00</td>
+            <td id="t-df-ew">8</td>
+            <td id="t-ms-ew">0.00</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Live F-Gauges -->
+      <div class="gauges-row">
+        <div class="gauge-box">
+          <div class="gauge-top"><span style="color:var(--blue);"><span class="math">F</span><sub>Group</sub></span><span id="g-val-g">0.0</span></div>
+          <div class="gauge-track">
+            <div class="gauge-crit" style="left:21%;"></div>
+            <div class="gauge-fill" id="g-fill-g" style="background:var(--blue); width:10%;"></div>
+          </div>
+        </div>
+        <div class="gauge-box">
+          <div class="gauge-top"><span style="color:var(--green);"><span class="math">F</span><sub>Time</sub></span><span id="g-val-t">0.0</span></div>
+          <div class="gauge-track">
+            <div class="gauge-crit" style="left:21%;"></div>
+            <div class="gauge-fill" id="g-fill-t" style="background:var(--green); width:10%;"></div>
+          </div>
+        </div>
+        <div class="gauge-box">
+          <div class="gauge-top"><span style="color:var(--purple);"><span class="math">F</span><sub>Int</sub></span><span id="g-val-i">0.0</span></div>
+          <div class="gauge-track">
+            <div class="gauge-crit" style="left:21%;"></div>
+            <div class="gauge-fill" id="g-fill-i" style="background:var(--purple); width:10%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BONUS AHA! WIDGET: CHANGE SCORE EQUIVALENCE BOX -->
+    <div class="aha-card" id="aha-widget">
+      <div class="section-header" style="color:var(--purple);">
+        <span>💡 Secret Identity: Why Interaction is a Within-Subjects Test!</span>
+        <span><span class="math">t</span><sup>2</sup> ≡ <span class="math">F</span></span>
+      </div>
+
+      <div class="aha-grid">
+        <!-- Midpoints t-test -->
+        <div class="aha-col">
+          <div class="aha-col-title">
+            <span style="color:var(--blue);">1. Subject Averages <span class="math"><span class="overline">Y</span><sub>ij•</sub></span></span>
+            <span style="font-size:9.5px; color:var(--text-muted);">Between Test</span>
+          </div>
+          <div class="chip-row" id="chips-avg-a"></div>
+          <div class="chip-row" id="chips-avg-b"></div>
+          <div style="font-size:10px; color:var(--text-muted); display:flex; justify-content:space-between;">
+            <span id="avg-means"><span class="math"><span class="overline">Y</span></span><sub>B</sub> − <span class="math"><span class="overline">Y</span></span><sub>A</sub> = 0.0</span>
+            <span id="avg-t"><span class="math">t</span>(8) = 0.0000</span>
+          </div>
+          <div class="match-banner" id="match-group">
+            t² = 0.0000 ≡ F_Group = 0.0000
+          </div>
+        </div>
+
+        <!-- Slopes / Delta t-test -->
+        <div class="aha-col">
+          <div class="aha-col-title">
+            <span style="color:var(--purple);">2. Change Scores Δ<sub><span class="math">i</span></sub> = Post − Pre</span>
+            <span style="font-size:9.5px; color:var(--text-muted);">Within Test</span>
+          </div>
+          <div class="chip-row" id="chips-del-a"></div>
+          <div class="chip-row" id="chips-del-b"></div>
+          <div style="font-size:10px; color:var(--text-muted); display:flex; justify-content:space-between;">
+            <span id="del-means"><span class="overline">Δ</span><sub>B</sub> − <span class="overline">Δ</span><sub>A</sub> = 0.0</span>
+            <span id="del-t"><span class="math">t</span>(8) = 0.0000</span>
+          </div>
+          <div class="match-banner" id="match-int">
+            t² = 0.0000 ≡ F_Int = 0.0000
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ============================================================================
+  // ORTHOGONAL DATA MODEL
+  // ============================================================================
+  // Standardized orthogonal basis vectors (each length 5, sum = 0, sum of squares = 4 => SD = 1)
+  // This guarantees zero correlation between signal and noise and exact variance partitioning!
+  const uA = [-1.264911064, -0.632455532, 0.0, 0.632455532, 1.264911064];
+  const uB = [-1.264911064, -0.632455532, 0.0, 0.632455532, 1.264911064];
+  // Permuted order for Within-Subject slope jitter so slope noise is visually natural
+  const vA = [0.632455532, -1.264911064, 1.264911064, -0.632455532, 0.0];
+  const vB = [-0.632455532, 1.264911064, -1.264911064, 0.0, 0.632455532];
+
+  // Deterministic horizontal jitter offsets (in pixels) for individual data points
+  // Keeps Group A & Group B subjects visually separated at Pre, Midpoint, Post, and Right Track
+  const jitterPreA  = [-16, -9, -13, -6, -18];
+  const jitterPostA = [-14, -18, -7, -12, -9];
+  const jitterMidA  = [-15, -10, -12, -7, -16];
+
+  const jitterPreB  = [6, 15, 9, 18, 12];
+  const jitterPostB = [16, 8, 14, 7, 18];
+  const jitterMidB  = [8, 14, 10, 16, 12];
+
+  const state = {
+    grandMean: 50.0,
+    groupEff: 4.0,     // B_mid - A_mid
+    timeEff: 6.0,      // Overall Post - Pre
+    intEff: 10.0,      // (B_post - B_pre) - (A_post - A_pre)
+    sigmaB: 11.0,      // Between-subject midpoint SD
+    sigmaW: 2.2,       // Within-subject half-slope SD
+    lens: 2,           // 1: RM-ANOVA, 2: Mixed ANOVA, 3: Secret Identity
+    centerBaseline: false,
+    centerAnimProgress: 0, // 0 = raw, 1 = centered
+    seMode: 'between', // 'off', 'between', 'within'
+    hoverRow: null,    // 'group', 'errB', 'time', 'int', 'errW'
+    draggingNode: null // 'A_Pre', 'A_Post', 'B_Pre', 'B_Post'
+  };
+
+  let animFrameId = null;
+
+  // Compute exact 4 cell means from GrandMean + 3 orthogonal contrasts
+  function getCellMeans() {
+    const gm = state.grandMean;
+    const g = state.groupEff;
+    const t = state.timeEff;
+    const x = state.intEff;
+
+    const mA_mid = gm - g / 2;
+    const mB_mid = gm + g / 2;
+    const dA = t - x / 2;
+    const dB = t + x / 2;
+
+    return {
+      A_Pre:  mA_mid - dA / 2,
+      A_Post: mA_mid + dA / 2,
+      B_Pre:  mB_mid - dB / 2,
+      B_Post: mB_mid + dB / 2,
+      A_Mid:  mA_mid,
+      B_Mid:  mB_mid,
+      dA:     dA,
+      dB:     dB
+    };
+  }
+
+  // Generate the 10 subjects' Pre, Post, Midpoint, Delta scores, and horizontal jitter offsets
+  function getSubjectsData(customCenterProgress = state.centerAnimProgress) {
+    const cm = getCellMeans();
+    const subjects = [];
+
+    const effectiveCenter = (state.hoverRow === 'errW') ? 1.0 : customCenterProgress;
+    const bScale = 1.0 - effectiveCenter;
+
+    for (let i = 0; i < 5; i++) {
+      const bOffA = state.sigmaB * uA[i] * bScale;
+      const wOffA = state.sigmaW * vA[i];
+      const preA  = cm.A_Pre  + bOffA - wOffA;
+      const postA = cm.A_Post + bOffA + wOffA;
+      subjects.push({
+        id: `A${i+1}`, group: 'A', idx: i,
+        pre: preA, post: postA,
+        mid: (preA + postA) / 2,
+        rawMid: cm.A_Mid + state.sigmaB * uA[i],
+        delta: postA - preA,
+        jPre: jitterPreA[i],
+        jPost: jitterPostA[i],
+        jMid: jitterMidA[i]
+      });
+    }
+
+    for (let i = 0; i < 5; i++) {
+      const bOffB = state.sigmaB * uB[i] * bScale;
+      const wOffB = state.sigmaW * vB[i];
+      const preB  = cm.B_Pre  + bOffB - wOffB;
+      const postB = cm.B_Post + bOffB + wOffB;
+      subjects.push({
+        id: `B${i+1}`, group: 'B', idx: i,
+        pre: preB, post: postB,
+        mid: (preB + postB) / 2,
+        rawMid: cm.B_Mid + state.sigmaB * uB[i],
+        delta: postB - preB,
+        jPre: jitterPreB[i],
+        jPost: jitterPostB[i],
+        jMid: jitterMidB[i]
+      });
+    }
+
+    return { cm, subjects };
+  }
+
+  // Compute exact 2x2 Mixed ANOVA & t-test statistics (always from uncentered raw data)
+  function computeStats() {
+    const ssGroup = 5.0 * Math.pow(state.groupEff, 2);
+    const ssTime  = 5.0 * Math.pow(state.timeEff, 2);
+    const ssInt   = 1.25 * Math.pow(state.intEff, 2);
+
+    const ssErrB  = 16.0 * Math.pow(state.sigmaB, 2);
+    const ssErrW  = 16.0 * Math.pow(state.sigmaW, 2);
+
+    const dfErrB = 8;
+    const dfErrW = 8;
+
+    const msGroup = ssGroup / 1;
+    const msErrB  = ssErrB / dfErrB;
+    const fGroup  = msErrB > 0 ? msGroup / msErrB : 0;
+
+    const msTime  = ssTime / 1;
+    const msInt   = ssInt / 1;
+    const msErrW  = ssErrW / dfErrW;
+    const fTime   = msErrW > 0 ? msTime / msErrW : 0;
+    const fInt    = msErrW > 0 ? msInt / msErrW : 0;
+
+    const pGroup = fDistPValue(fGroup, 1, 8);
+    const pTime  = fDistPValue(fTime, 1, 8);
+    const pInt   = fDistPValue(fInt, 1, 8);
+
+    const ssSubjectsRM = ssGroup + ssErrB;
+    const ssErrRM      = ssInt + ssErrW;
+    const msErrRM      = ssErrRM / 9;
+    const fTimeRM      = msErrRM > 0 ? msTime / msErrRM : 0;
+    const pTimeRM      = fDistPValue(fTimeRM, 1, 9);
+
+    const seDiffMid = state.sigmaB * Math.sqrt(2 / 5);
+    const tGroup    = seDiffMid > 0 ? state.groupEff / seDiffMid : 0;
+
+    const seDiffDelta = 2 * state.sigmaW * Math.sqrt(2 / 5);
+    const tInt        = seDiffDelta > 0 ? state.intEff / seDiffDelta : 0;
+
+    const seBetweenBar = Math.sqrt((Math.pow(state.sigmaB, 2) + Math.pow(state.sigmaW, 2)) / 5);
+    const seWithinBar  = state.sigmaW / Math.sqrt(5);
+
+    return {
+      ssGroup, ssErrB, ssTime, ssInt, ssErrW,
+      msGroup, msErrB, msTime, msInt, msErrW,
+      fGroup, fTime, fInt,
+      pGroup, pTime, pInt,
+      ssSubjectsRM, ssErrRM, msErrRM, fTimeRM, pTimeRM,
+      tGroup, tInt,
+      seBetweenBar, seWithinBar
+    };
+  }
+
+  function fDistPValue(F, df1, df2) {
+    if (F <= 0) return 1.0;
+    const t = Math.sqrt(F);
+    const x = df2 / (df2 + t * t);
+    return regIncompleteBeta(x, df2 / 2.0, 0.5);
+  }
+
+  function regIncompleteBeta(x, a, b) {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    const lnBeta = lgamma(a) + lgamma(b) - lgamma(a + b);
+    const front = Math.exp(Math.log(x) * a + Math.log(1 - x) * b - lnBeta) / a;
+    let f = 1, c = 1, d = 0;
+    for (let m = 0; m <= 60; m++) {
+      let num;
+      if (m === 0) {
+        num = 1;
+      } else if (m % 2 === 0) {
+        const k = m / 2;
+        num = (k * (b - k) * x) / ((a + 2 * k - 1) * (a + 2 * k));
+      } else {
+        const k = (m - 1) / 2;
+        num = -((a + k) * (a + b + k) * x) / ((a + 2 * k) * (a + 2 * k + 1));
+      }
+      d = 1 + num * d;
+      if (Math.abs(d) < 1e-30) d = 1e-30;
+      d = 1 / d;
+      c = 1 + num / c;
+      if (Math.abs(c) < 1e-30) c = 1e-30;
+      const cd = c * d;
+      f *= cd;
+      if (Math.abs(1 - cd) < 1e-10) break;
+    }
+    return Math.min(1, Math.max(0, front * (f - 1)));
+  }
+
+  function lgamma(z) {
+    const p = [
+      676.5203681218851, -1259.1392167224028, 771.32342877765313,
+      -176.61502916214059, 12.507343278686905, -0.13857109526572012,
+      9.9843695780195716e-6, 1.5056327351493116e-7
+    ];
+    let x = 0.99999999999980993;
+    for (let i = 0; i < p.length; i++) x += p[i] / (z + i);
+    const t = z + p.length - 0.5;
+    return 0.5 * Math.log(2 * Math.PI) + (z - 0.5) * Math.log(t) - t + Math.log(x);
+  }
+
+  function formatP(p) {
+    if (p < 0.001) return '< .001';
+    return p.toFixed(3).replace(/^0/, '');
+  }
+
+  // ============================================================================
+  // LABEL COLLISION DODGING SOLVER
+  // ============================================================================
+  // Dynamically pushes overlapping vertical labels apart while clamping inside canvas bounds
+  function dodgeVerticalPair(y1, y2, minGap = 20, minY = 52, maxY = 415) {
+    const diff = Math.abs(y1 - y2);
+    if (diff >= minGap) {
+      return [
+        Math.max(minY, Math.min(maxY, y1)),
+        Math.max(minY, Math.min(maxY, y2))
+      ];
+    }
+    const mid = (y1 + y2) / 2;
+    const half = minGap / 2;
+    let ny1, ny2;
+    if (y1 <= y2) {
+      ny1 = mid - half;
+      ny2 = mid + half;
+    } else {
+      ny1 = mid + half;
+      ny2 = mid - half;
+    }
+    // Clamp within canvas bounds
+    if (Math.min(ny1, ny2) < minY) {
+      const shift = minY - Math.min(ny1, ny2);
+      ny1 += shift;
+      ny2 += shift;
+    }
+    if (Math.max(ny1, ny2) > maxY) {
+      const shift = Math.max(ny1, ny2) - maxY;
+      ny1 -= shift;
+      ny2 -= shift;
+    }
+    return [ny1, ny2];
+  }
+
+  // ============================================================================
+  // SVG CANVAS RENDERER
+  // ============================================================================
+  const svg = document.getElementById('traj-svg');
+  const coord = {
+    xPre: 120,
+    xMid: 295,
+    xPost: 470,
+    xRightAxis: 615,
+    yTop: 42,
+    yBottom: 425,
+    yMinVal: 10,
+    yMaxVal: 90
+  };
+
+  function valToY(v) {
+    const ratio = (v - coord.yMinVal) / (coord.yMaxVal - coord.yMinVal);
+    return coord.yBottom - ratio * (coord.yBottom - coord.yTop);
+  }
+
+  function yToVal(y) {
+    const ratio = (coord.yBottom - y) / (coord.yBottom - coord.yTop);
+    return coord.yMinVal + ratio * (coord.yMaxVal - coord.yMinVal);
+  }
+
+  function renderCanvas() {
+    const { cm, subjects } = getSubjectsData();
+    const st = computeStats();
+    const isLens1 = state.lens === 1;
+    const isLens3 = state.lens === 3;
+
+    let html = '';
+
+    // 1. Background Grid & Axes
+    for (let v = 10; v <= 90; v += 10) {
+      const y = valToY(v);
+      html += `<line x1="65" y1="${y}" x2="${coord.xPost + 35}" y2="${y}" stroke="#000000" stroke-width="1" />`;
+      html += `<text x="55" y="${y + 4}" fill="${statsViz.color('--viz-reference')}" font-size="10" text-anchor="end" font-family="monospace">${v}</text>`;
+    }
+
+    // Pre, Midpoint, Post Vertical Guides
+    html += `
+      <line x1="${coord.xPre}" y1="${coord.yTop}" x2="${coord.xPre}" y2="${coord.yBottom}" stroke="${statsViz.color('--viz-total')}" stroke-width="2" />
+      <line x1="${coord.xMid}" y1="${coord.yTop}" x2="${coord.xMid}" y2="${coord.yBottom}" stroke="${statsViz.color('--viz-total')}" stroke-width="1.5" stroke-dasharray="4,4" />
+      <line x1="${coord.xPost}" y1="${coord.yTop}" x2="${coord.xPost}" y2="${coord.yBottom}" stroke="${statsViz.color('--viz-total')}" stroke-width="2" />
+
+      <text x="${coord.xPre}" y="${coord.yBottom + 24}" fill="#000000" font-size="13" font-weight="700" text-anchor="middle">PRE (Time 1)</text>
+      <text x="${coord.xMid}" y="${coord.yBottom + 22}" fill="#000000" font-size="11" font-weight="600" text-anchor="middle">Midpoint (Y&#772;ᵢⱼ•)</text>
+      <text x="${coord.xPost}" y="${coord.yBottom + 24}" fill="#000000" font-size="13" font-weight="700" text-anchor="middle">POST (Time 2)</text>
+    `;
+
+    // Right-Margin Track: The "Between-Subjects" Collapse
+    html += `
+      <rect x="${coord.xRightAxis - 48}" y="${coord.yTop - 10}" width="118" height="${coord.yBottom - coord.yTop + 20}" rx="8" fill="#ffffff" stroke="${isLens3 ? statsViz.color('--viz-median') : '#000000'}" stroke-width="${isLens3 ? 2 : 1}" />
+      <line x1="${coord.xRightAxis}" y1="${coord.yTop}" x2="${coord.xRightAxis}" y2="${coord.yBottom}" stroke="${statsViz.color('--viz-reference')}" stroke-width="2" />
+      <text x="${coord.xRightAxis + 10}" y="${coord.yTop - 16}" fill="#000000" font-size="11" font-weight="700" text-anchor="middle">Subject Averages (Y&#772;ᵢⱼ•)</text>
+      <text x="${coord.xRightAxis + 10}" y="${coord.yBottom + 24}" fill="#000000" font-size="10" font-weight="600" text-anchor="middle">Between-Subjects 1D Track</text>
+    `;
+
+    // 2. HOVER GEOMETRY OVERLAYS (when hovering table rows)
+    const grandPre  = (cm.A_Pre + cm.B_Pre) / 2;
+    const grandPost = (cm.A_Post + cm.B_Post) / 2;
+    const grandMid  = state.grandMean;
+
+    if (state.hoverRow === 'int') {
+      const shiftA = grandMid - cm.A_Mid;
+      const shiftB = grandMid - cm.B_Mid;
+      const yAPreC  = valToY(cm.A_Pre + shiftA);
+      const yAPostC = valToY(cm.A_Post + shiftA);
+      const yBPreC  = valToY(cm.B_Pre + shiftB);
+      const yBPostC = valToY(cm.B_Post + shiftB);
+
+      html += `
+        <polygon points="${coord.xPre},${yAPreC} ${coord.xMid},${valToY(grandMid)} ${coord.xPre},${yBPreC}" fill="statsViz.rgba('--viz-median', 0.28)" stroke="${statsViz.color('--viz-median')}" stroke-width="1.5" />
+        <polygon points="${coord.xPost},${yAPostC} ${coord.xMid},${valToY(grandMid)} ${coord.xPost},${yBPostC}" fill="statsViz.rgba('--viz-median', 0.28)" stroke="${statsViz.color('--viz-median')}" stroke-width="1.5" />
+        <text x="${coord.xMid}" y="${Math.max(105, valToY(grandMid) - 18)}" fill="${statsViz.color('--viz-median')}" font-size="12" font-weight="700" text-anchor="middle">Group × Time Wedge (Δ_B − Δ_A = ${state.intEff.toFixed(1)})</text>
+      `;
+    }
+
+    if (state.hoverRow === 'time') {
+      const yGPre  = valToY(grandPre);
+      const yGPost = valToY(grandPost);
+      html += `
+        <line x1="${coord.xPre}" y1="${yGPre}" x2="${coord.xPost}" y2="${yGPre}" stroke="${statsViz.color('--viz-explained')}" stroke-width="1.5" stroke-dasharray="4,4" />
+        <line x1="${coord.xPre}" y1="${yGPre}" x2="${coord.xPost}" y2="${yGPost}" stroke="${statsViz.color('--viz-explained')}" stroke-width="4" />
+        <line x1="${coord.xPost + 14}" y1="${yGPre}" x2="${coord.xPost + 14}" y2="${yGPost}" stroke="${statsViz.color('--viz-explained')}" stroke-width="3" />
+        <text x="${coord.xMid}" y="${Math.max(105, Math.min(yGPre, yGPost) - 12)}" fill="${statsViz.color('--viz-explained')}" font-size="12" font-weight="700" text-anchor="middle">Overall Time Tilt (Δ_Grand = ${state.timeEff >= 0 ? '+' : ''}${state.timeEff.toFixed(1)})</text>
+      `;
+    }
+
+    if (state.hoverRow === 'group') {
+      const yAMid = valToY(cm.A_Mid);
+      const yBMid = valToY(cm.B_Mid);
+      html += `
+        <rect x="${coord.xMid - 28}" y="${Math.min(yAMid, yBMid)}" width="56" height="${Math.abs(yBMid - yAMid)}" fill="statsViz.rgba('--viz-group-a', 0.18)" stroke="${statsViz.color('--viz-group-a')}" stroke-width="2" />
+        <line x1="${coord.xMid}" y1="${yAMid}" x2="${coord.xRightAxis}" y2="${yAMid}" stroke="${statsViz.color('--viz-group-a')}" stroke-width="2" stroke-dasharray="3,3" />
+        <line x1="${coord.xMid}" y1="${yBMid}" x2="${coord.xRightAxis}" y2="${yBMid}" stroke="${statsViz.color('--viz-group-b')}" stroke-width="2" stroke-dasharray="3,3" />
+        <text x="${coord.xMid}" y="${Math.max(105, Math.min(yAMid, yBMid) - 10)}" fill="${statsViz.color('--viz-group-a')}" font-size="12" font-weight="700" text-anchor="middle">Group Main Effect (${state.groupEff.toFixed(1)})</text>
+      `;
+    }
+
+    // 3. INDIVIDUAL JITTERED SPAGHETTI LINES, MIDPOINT DOTS & RIGHT-MARGIN PROJECTIONS
+    subjects.forEach((s) => {
+      const xPreJ  = coord.xPre + s.jPre;
+      const xPostJ = coord.xPost + s.jPost;
+      const xMidJ  = coord.xMid + s.jMid;
+
+      const yPre  = valToY(s.pre);
+      const yPost = valToY(s.post);
+      const yMid  = valToY(s.mid);
+      const groupMidVal = s.group === 'A' ? cm.A_Mid : cm.B_Mid;
+      const yGroupMid = valToY(groupMidVal);
+
+      const col = isLens1 ? statsViz.color('--viz-reference') : (s.group === 'A' ? statsViz.color('--viz-group-a') : statsViz.color('--viz-group-b'));
+      const lineOpacity = (state.hoverRow === 'group' || state.hoverRow === 'time' || state.hoverRow === 'int') ? 0.22 : 0.55;
+
+      // Individual Pre -> Post trajectory line (connecting jittered endpoints)
+      html += `<line x1="${xPreJ}" y1="${yPre}" x2="${xPostJ}" y2="${yPost}" stroke="${col}" stroke-width="1.6" stroke-opacity="${lineOpacity}" />`;
+
+      // Jittered Pre & Post dots
+      html += `<circle cx="${xPreJ}" cy="${yPre}" r="3.8" fill="${col}" fill-opacity="${lineOpacity + 0.25}" stroke="#000000" stroke-width="0.8" />`;
+      html += `<circle cx="${xPostJ}" cy="${yPost}" r="3.8" fill="${col}" fill-opacity="${lineOpacity + 0.25}" stroke="#000000" stroke-width="0.8" />`;
+
+      // Hover Error(Within): show vertical deviation at jittered Post position
+      if (state.hoverRow === 'errW') {
+        const gPostCentered = s.group === 'A' ? valToY(cm.A_Post) : valToY(cm.B_Post);
+        html += `<line x1="${xPostJ}" y1="${yPost}" x2="${xPostJ}" y2="${gPostCentered}" stroke="${statsViz.color('--viz-highlight')}" stroke-width="2.5" />`;
+      }
+
+      // Hover Error(Between): vertical brackets from each subject's jittered midpoint dot to their group's midpoint
+      if (state.hoverRow === 'errB') {
+        html += `
+          <line x1="${xMidJ}" y1="${yMid}" x2="${xMidJ}" y2="${yGroupMid}" stroke="${col}" stroke-width="2.2" />
+          <circle cx="${xMidJ}" cy="${yMid}" r="4.2" fill="${col}" />
+        `;
+      }
+
+      // Subject Midpoint Hollow Dot (jittered around X = Midpoint)
+      html += `<circle cx="${xMidJ}" cy="${yMid}" r="4.5" fill="#000000" stroke="${col}" stroke-width="2" />`;
+
+      // Horizontal dashed projection line from Midpoint to Right-Margin Track (also jittered horizontally)
+      const dashOp = (state.hoverRow === 'errB' || isLens3) ? 0.65 : 0.25;
+      const xTrackDot = coord.xRightAxis + (s.group === 'A' ? -14 : 14) + (s.idx - 2) * 3.5;
+      html += `
+        <line x1="${xMidJ + 5}" y1="${yMid}" x2="${xTrackDot}" y2="${yMid}" stroke="${col}" stroke-width="1" stroke-dasharray="3,3" stroke-opacity="${dashOp}" />
+        <circle cx="${xTrackDot}" cy="${yMid}" r="4.5" fill="${col}" stroke="#000000" stroke-width="1" />
+      `;
+    });
+
+    // Right-Margin Group Mean markers + Dodging Labels
+    const yAMid = valToY(cm.A_Mid);
+    const yBMid = valToY(cm.B_Mid);
+    if (!isLens1) {
+      const [yLblMidA, yLblMidB] = dodgeVerticalPair(yAMid, yBMid, 18, coord.yTop + 8, coord.yBottom - 8);
+      html += `
+        <line x1="${coord.xRightAxis - 24}" y1="${yAMid}" x2="${coord.xRightAxis - 2}" y2="${yAMid}" stroke="${statsViz.color('--viz-group-a')}" stroke-width="3.5" />
+        <line x1="${coord.xRightAxis + 2}" y1="${yBMid}" x2="${coord.xRightAxis + 24}" y2="${yBMid}" stroke="${statsViz.color('--viz-group-b')}" stroke-width="3.5" />
+
+        <!-- Leader lines for Right-Track group mean labels -->
+        <line x1="${coord.xRightAxis + 24}" y1="${yAMid}" x2="${coord.xRightAxis + 31}" y2="${yLblMidA}" stroke="${statsViz.color('--viz-group-a')}" stroke-width="1.2" stroke-opacity="0.7" />
+        <line x1="${coord.xRightAxis + 24}" y1="${yBMid}" x2="${coord.xRightAxis + 31}" y2="${yLblMidB}" stroke="${statsViz.color('--viz-group-b')}" stroke-width="1.2" stroke-opacity="0.7" />
+
+        <rect x="${coord.xRightAxis + 31}" y="${yLblMidA - 8}" width="34" height="15" rx="3" fill="#ffffff" stroke="${statsViz.color('--viz-group-a')}" stroke-width="0.8" />
+        <text x="${coord.xRightAxis + 48}" y="${yLblMidA + 3}" fill="${statsViz.color('--viz-group-a')}" font-size="9.5" font-weight="700" text-anchor="middle" font-family="monospace">${cm.A_Mid.toFixed(1)}</text>
+
+        <rect x="${coord.xRightAxis + 31}" y="${yLblMidB - 8}" width="34" height="15" rx="3" fill="#ffffff" stroke="${statsViz.color('--viz-group-b')}" stroke-width="0.8" />
+        <text x="${coord.xRightAxis + 48}" y="${yLblMidB + 3}" fill="${statsViz.color('--viz-group-b')}" font-size="9.5" font-weight="700" text-anchor="middle" font-family="monospace">${cm.B_Mid.toFixed(1)}</text>
+      `;
+    } else {
+      const yGMid = valToY(grandMid);
+      html += `<line x1="${coord.xRightAxis - 20}" y1="${yGMid}" x2="${coord.xRightAxis + 20}" y2="${yGMid}" stroke="${statsViz.color('--viz-reference')}" stroke-width="3.5" />`;
+    }
+
+    // 4. ERROR BARS AT PRE & POST (PARADOX TOGGLE)
+    if (state.seMode !== 'off') {
+      const seVal = state.seMode === 'between' ? st.seBetweenBar : st.seWithinBar;
+      const seColor = state.seMode === 'between' ? statsViz.color('--viz-mean') : statsViz.color('--viz-explained');
+      const seLabel = state.seMode === 'between' ? '±1 SE (Between-Subj)' : '±1 SE (Within-Subj)';
+
+      if (isLens1) {
+        drawSEBar(coord.xPre, grandPre, seVal, statsViz.color('--viz-reference'));
+        drawSEBar(coord.xPost, grandPost, seVal, statsViz.color('--viz-reference'));
+      } else {
+        drawSEBar(coord.xPre - 5, cm.A_Pre, seVal, statsViz.color('--viz-group-a'));
+        drawSEBar(coord.xPost - 5, cm.A_Post, seVal, statsViz.color('--viz-group-a'));
+        drawSEBar(coord.xPre + 5, cm.B_Pre, seVal, statsViz.color('--viz-group-b'));
+        drawSEBar(coord.xPost + 5, cm.B_Post, seVal, statsViz.color('--viz-group-b'));
+      }
+
+      html += `<text x="${coord.xPost - 5}" y="${coord.yTop + 12}" fill="${seColor}" font-size="10.5" font-weight="700" text-anchor="end">${seLabel}: ±${seVal.toFixed(2)}</text>`;
+    }
+
+    function drawSEBar(x, meanVal, se, color) {
+      const yTopBar = valToY(meanVal + se);
+      const yBotBar = valToY(meanVal - se);
+      html += `
+        <line x1="${x}" y1="${yTopBar}" x2="${x}" y2="${yBotBar}" stroke="${color}" stroke-width="2.5" />
+        <line x1="${x - 6}" y1="${yTopBar}" x2="${x + 6}" y2="${yTopBar}" stroke="${color}" stroke-width="2.5" />
+        <line x1="${x - 6}" y1="${yBotBar}" x2="${x + 6}" y2="${yBotBar}" stroke="${color}" stroke-width="2.5" />
+      `;
+    }
+
+    // 5. THICK GROUP MEAN LINES, DRAGGABLE NODES & COLLISION-DODGING LABELS
+    const yAPre  = valToY(cm.A_Pre);
+    const yAPost = valToY(cm.A_Post);
+    const yBPre  = valToY(cm.B_Pre);
+    const yBPost = valToY(cm.B_Post);
+
+    if (isLens1) {
+      const yGPre  = valToY(grandPre);
+      const yGPost = valToY(grandPost);
+      html += `
+        <line x1="${coord.xPre}" y1="${yGPre}" x2="${coord.xPost}" y2="${yGPost}" stroke="${statsViz.color('--viz-density')}" stroke-width="4.5" />
+        <circle cx="${coord.xPre}" cy="${yGPre}" r="6.5" fill="${statsViz.color('--viz-density')}" stroke="#000000" stroke-width="2" />
+        <circle cx="${coord.xPost}" cy="${yGPost}" r="6.5" fill="${statsViz.color('--viz-density')}" stroke="#000000" stroke-width="2" />
+        <text x="${coord.xPre - 16}" y="${yGPre + 4}" fill="${statsViz.color('--viz-density')}" font-size="11" font-weight="700" text-anchor="end">${grandPre.toFixed(1)}</text>
+        <text x="${coord.xPost + 16}" y="${yGPost + 4}" fill="${statsViz.color('--viz-density')}" font-size="11" font-weight="700" text-anchor="start">${grandPost.toFixed(1)}</text>
+      `;
+    } else {
+      // Compute dodged Y positions for Pre labels and Post labels so they smoothly repel each other when close
+      const [yLblAPre, yLblBPre]   = dodgeVerticalPair(yAPre, yBPre, 22, coord.yTop + 10, coord.yBottom - 10);
+      const [yLblAPost, yLblBPost] = dodgeVerticalPair(yAPost, yBPost, 22, coord.yTop + 10, coord.yBottom - 10);
+
+      html += `
+        <!-- Group A & B Thick Mean Lines -->
+        <line x1="${coord.xPre}" y1="${yAPre}" x2="${coord.xPost}" y2="${yAPost}" stroke="${statsViz.color('--viz-group-a')}" stroke-width="4" />
+        <line x1="${coord.xPre}" y1="${yBPre}" x2="${coord.xPost}" y2="${yBPost}" stroke="${statsViz.color('--viz-group-b')}" stroke-width="4" />
+
+        <!-- Group Midpoint Diamonds -->
+        <polygon points="${coord.xMid},${yAMid-6} ${coord.xMid+6},${yAMid} ${coord.xMid},${yAMid+6} ${coord.xMid-6},${yAMid}" fill="${statsViz.color('--viz-group-a')}" stroke="#000000" stroke-width="1.5" />
+        <polygon points="${coord.xMid},${yBMid-6} ${coord.xMid+6},${yBMid} ${coord.xMid},${yBMid+6} ${coord.xMid-6},${yBMid}" fill="${statsViz.color('--viz-group-b')}" stroke="#000000" stroke-width="1.5" />
+
+        <!-- Leader connectors from nodes to dodged label pills -->
+        <line x1="${coord.xPre - 8}" y1="${yAPre}" x2="${coord.xPre - 22}" y2="${yLblAPre}" stroke="${statsViz.color('--viz-group-a')}" stroke-width="1.3" stroke-opacity="0.8" />
+        <line x1="${coord.xPre - 8}" y1="${yBPre}" x2="${coord.xPre - 22}" y2="${yLblBPre}" stroke="${statsViz.color('--viz-group-b')}" stroke-width="1.3" stroke-opacity="0.8" />
+        <line x1="${coord.xPost + 8}" y1="${yAPost}" x2="${coord.xPost + 22}" y2="${yLblAPost}" stroke="${statsViz.color('--viz-group-a')}" stroke-width="1.3" stroke-opacity="0.8" />
+        <line x1="${coord.xPost + 8}" y1="${yBPost}" x2="${coord.xPost + 22}" y2="${yLblBPost}" stroke="${statsViz.color('--viz-group-b')}" stroke-width="1.3" stroke-opacity="0.8" />
+
+        <!-- Dodging Pre Label Pills -->
+        <g transform="translate(${coord.xPre - 24}, ${yLblAPre})">
+          <rect x="-46" y="-9" width="46" height="18" rx="4" fill="#ffffff" stroke="${statsViz.color('--viz-group-a')}" stroke-width="1.2" />
+          <text x="-23" y="4" fill="${statsViz.color('--viz-group-a')}" font-size="10" font-weight="700" text-anchor="middle" font-family="monospace">A:${cm.A_Pre.toFixed(1)}</text>
+        </g>
+        <g transform="translate(${coord.xPre - 24}, ${yLblBPre})">
+          <rect x="-46" y="-9" width="46" height="18" rx="4" fill="#ffffff" stroke="${statsViz.color('--viz-group-b')}" stroke-width="1.2" />
+          <text x="-23" y="4" fill="${statsViz.color('--viz-group-b')}" font-size="10" font-weight="700" text-anchor="middle" font-family="monospace">B:${cm.B_Pre.toFixed(1)}</text>
+        </g>
+
+        <!-- Dodging Post Label Pills -->
+        <g transform="translate(${coord.xPost + 24}, ${yLblAPost})">
+          <rect x="0" y="-9" width="46" height="18" rx="4" fill="#ffffff" stroke="${statsViz.color('--viz-group-a')}" stroke-width="1.2" />
+          <text x="23" y="4" fill="${statsViz.color('--viz-group-a')}" font-size="10" font-weight="700" text-anchor="middle" font-family="monospace">A:${cm.A_Post.toFixed(1)}</text>
+        </g>
+        <g transform="translate(${coord.xPost + 24}, ${yLblBPost})">
+          <rect x="0" y="-9" width="46" height="18" rx="4" fill="#ffffff" stroke="${statsViz.color('--viz-group-b')}" stroke-width="1.2" />
+          <text x="23" y="4" fill="${statsViz.color('--viz-group-b')}" font-size="10" font-weight="700" text-anchor="middle" font-family="monospace">B:${cm.B_Post.toFixed(1)}</text>
+        </g>
+
+        <!-- 4 Draggable Cell Mean Nodes (drawn on top) -->
+        <circle class="draggable-node" data-node="A_Pre" cx="${coord.xPre}" cy="${yAPre}" r="7.5" fill="${statsViz.color('--viz-group-a')}" stroke="#000000" stroke-width="2.5" />
+        <circle class="draggable-node" data-node="A_Post" cx="${coord.xPost}" cy="${yAPost}" r="7.5" fill="${statsViz.color('--viz-group-a')}" stroke="#000000" stroke-width="2.5" />
+        <circle class="draggable-node" data-node="B_Pre" cx="${coord.xPre}" cy="${yBPre}" r="7.5" fill="${statsViz.color('--viz-group-b')}" stroke="#000000" stroke-width="2.5" />
+        <circle class="draggable-node" data-node="B_Post" cx="${coord.xPost}" cy="${yBPost}" r="7.5" fill="${statsViz.color('--viz-group-b')}" stroke="#000000" stroke-width="2.5" />
+      `;
+    }
+
+    // Lens 3 Overlay Badge on Canvas
+    if (isLens3) {
+      html += `
+        <g transform="translate(155, 382)">
+          <rect x="0" y="0" width="280" height="32" rx="6" fill="rgba(192,132,252,0.18)" stroke="${statsViz.color('--viz-median')}" stroke-width="1.5" />
+          <text x="140" y="20" fill="#000000" font-size="11" font-weight="700" text-anchor="middle">
+            Secret Identity: Slopes Δᵢ = Post − Pre  |  Midpoints Y&#772;ᵢ•
+          </text>
+        </g>
+      `;
+    }
+
+    svg.innerHTML = html;
+  }
+
+  // ============================================================================
+  // RIGHT PANEL & UI UPDATER
+  // ============================================================================
+  function updateRightPanel() {
+    const st = computeStats();
+    const { subjects } = getSubjectsData(0);
+    const isLens1 = state.lens === 1;
+
+    // 1. Update Slider Labels
+    document.getElementById('val-group').textContent  = (state.groupEff >= 0 ? '+' : '') + state.groupEff.toFixed(1);
+    document.getElementById('val-time').textContent   = (state.timeEff >= 0 ? '+' : '') + state.timeEff.toFixed(1);
+    document.getElementById('val-int').textContent    = (state.intEff >= 0 ? '+' : '') + state.intEff.toFixed(1);
+    document.getElementById('val-bnoise').textContent = state.sigmaB.toFixed(1);
+    document.getElementById('val-wnoise').textContent = state.sigmaW.toFixed(1);
+
+    document.getElementById('sl-group').value  = state.groupEff;
+    document.getElementById('sl-time').value   = state.timeEff;
+    document.getElementById('sl-int').value    = state.intEff;
+    document.getElementById('sl-bnoise').value = state.sigmaB;
+    document.getElementById('sl-wnoise').value = state.sigmaW;
+
+    // 2. Update Two Variance Lakes & Knife Animation
+    const b1Tot = st.ssGroup + st.ssErrB;
+    const b2Tot = st.ssTime + st.ssInt + st.ssErrW;
+
+    document.getElementById('b1-total').textContent = `SS = ${b1Tot.toFixed(1)}`;
+    document.getElementById('b2-total').textContent = `SS = ${b2Tot.toFixed(1)}`;
+
+    const knife1 = document.getElementById('knife-1');
+    const knife2 = document.getElementById('knife-2');
+    const barGroup = document.getElementById('bar-group');
+    const barErrB  = document.getElementById('bar-err-b');
+    const barTime  = document.getElementById('bar-time');
+    const barInt   = document.getElementById('bar-int');
+    const barErrW  = document.getElementById('bar-err-w');
+
+    if (isLens1) {
+      knife1.classList.add('hidden-knife');
+      knife2.classList.add('hidden-knife');
+      document.getElementById('knife-status').textContent = 'Lens 1: Unsplit RM-ANOVA Pools';
+      document.getElementById('knife-status').style.color = '#000000';
+
+      barGroup.style.width = '0%';
+      barErrB.style.width  = '100%';
+      barErrB.textContent  = `SS_Subjects (df=9): ${b1Tot.toFixed(0)}`;
+
+      const wTime = b2Tot > 0 ? (st.ssTime / b2Tot) * 100 : 50;
+      barTime.style.width = `${wTime}%`;
+      barInt.style.width  = '0%';
+      barErrW.style.width = `${100 - wTime}%`;
+      barErrW.textContent = `SS_Error_RM (df=9): ${(st.ssInt + st.ssErrW).toFixed(0)}`;
+    } else {
+      knife1.classList.remove('hidden-knife');
+      knife2.classList.remove('hidden-knife');
+      document.getElementById('knife-status').textContent = '🔪 Mixed ANOVA Knife Slicing Active';
+      document.getElementById('knife-status').style.color = 'var(--purple)';
+
+      const wG = b1Tot > 0 ? Math.max(4, (st.ssGroup / b1Tot) * 100) : 50;
+      barGroup.style.width = `${wG}%`;
+      barGroup.textContent = wG > 14 ? `Group (${st.ssGroup.toFixed(0)})` : '';
+      barErrB.style.width  = `${100 - wG}%`;
+      barErrB.textContent  = `Err_Bet (${st.ssErrB.toFixed(0)})`;
+
+      const wT = b2Tot > 0 ? (st.ssTime / b2Tot) * 100 : 33;
+      const wI = b2Tot > 0 ? (st.ssInt / b2Tot) * 100 : 33;
+      const wEW = Math.max(0, 100 - wT - wI);
+
+      barTime.style.width = `${wT}%`;
+      barTime.textContent = wT > 12 ? `Time (${st.ssTime.toFixed(0)})` : '';
+      barInt.style.width  = `${wI}%`;
+      barInt.textContent  = wI > 12 ? `G×T (${st.ssInt.toFixed(0)})` : '';
+      barErrW.style.width = `${wEW}%`;
+      barErrW.textContent = wEW > 15 ? `Err_W (${st.ssErrW.toFixed(0)})` : '';
+    }
+
+    // 3. Update Hover-Linked ANOVA Table
+    document.getElementById('t-ss-g').textContent  = st.ssGroup.toFixed(2);
+    document.getElementById('t-ms-g').textContent  = st.msGroup.toFixed(2);
+    document.getElementById('t-f-g').textContent   = st.fGroup.toFixed(2);
+    document.getElementById('t-p-g').innerHTML     = `<span class="sig-badge ${st.pGroup < 0.05 ? 'sig-yes' : 'sig-no'}">${formatP(st.pGroup)}</span>`;
+
+    document.getElementById('t-ss-eb').textContent = st.ssErrB.toFixed(2);
+    document.getElementById('t-ms-eb').textContent = st.msErrB.toFixed(2);
+
+    document.getElementById('t-ss-t').textContent  = st.ssTime.toFixed(2);
+    document.getElementById('t-ms-t').textContent  = st.msTime.toFixed(2);
+    document.getElementById('t-f-t').textContent   = st.fTime.toFixed(2);
+    document.getElementById('t-p-t').innerHTML     = `<span class="sig-badge ${st.pTime < 0.05 ? 'sig-yes' : 'sig-no'}">${formatP(st.pTime)}</span>`;
+
+    document.getElementById('t-ss-i').textContent  = st.ssInt.toFixed(2);
+    document.getElementById('t-ms-i').textContent  = st.msInt.toFixed(2);
+    document.getElementById('t-f-i').textContent   = st.fInt.toFixed(2);
+    document.getElementById('t-p-i').innerHTML     = `<span class="sig-badge ${st.pInt < 0.05 ? 'sig-yes' : 'sig-no'}">${formatP(st.pInt)}</span>`;
+
+    document.getElementById('t-ss-ew').textContent = st.ssErrW.toFixed(2);
+    document.getElementById('t-ms-ew').textContent = st.msErrW.toFixed(2);
+
+    // 4. Update F-Gauges
+    const fMax = 25.0;
+    document.getElementById('g-val-g').textContent = st.fGroup.toFixed(2);
+    document.getElementById('g-val-t').textContent = st.fTime.toFixed(2);
+    document.getElementById('g-val-i').textContent = st.fInt.toFixed(2);
+
+    document.getElementById('g-fill-g').style.width = `${Math.min(100, (st.fGroup / fMax) * 100)}%`;
+    document.getElementById('g-fill-t').style.width = `${Math.min(100, (st.fTime / fMax) * 100)}%`;
+    document.getElementById('g-fill-i').style.width = `${Math.min(100, (st.fInt / fMax) * 100)}%`;
+
+    // 5. Update Bonus Aha! Equivalence Box
+    const subA = subjects.filter(s => s.group === 'A');
+    const subB = subjects.filter(s => s.group === 'B');
+
+    document.getElementById('chips-avg-a').innerHTML = `<span style="color:var(--blue);font-weight:700;">A:</span>` +
+      subA.map(s => `<span class="num-chip blue">${s.rawMid.toFixed(1)}</span>`).join('');
+    document.getElementById('chips-avg-b').innerHTML = `<span style="color:var(--orange);font-weight:700;">B:</span>` +
+      subB.map(s => `<span class="num-chip orange">${s.rawMid.toFixed(1)}</span>`).join('');
+
+    document.getElementById('chips-del-a').innerHTML = `<span style="color:var(--blue);font-weight:700;">A:</span>` +
+      subA.map(s => `<span class="num-chip blue">${(s.delta >= 0 ? '+' : '') + s.delta.toFixed(1)}</span>`).join('');
+    document.getElementById('chips-del-b').innerHTML = `<span style="color:var(--orange);font-weight:700;">B:</span>` +
+      subB.map(s => `<span class="num-chip orange">${(s.delta >= 0 ? '+' : '') + s.delta.toFixed(1)}</span>`).join('');
+
+    document.getElementById('avg-means').innerHTML = `<span class="math"><span class="overline">Y</span></span><sub>B</sub> − <span class="math"><span class="overline">Y</span></span><sub>A</sub> = ${state.groupEff.toFixed(2)}`;
+    document.getElementById('avg-t').innerHTML     = `<span class="math">t</span>(8) = ${st.tGroup.toFixed(4)}`;
+    document.getElementById('match-group').textContent = `t² = ${Math.pow(st.tGroup, 2).toFixed(4)}  ≡  F_Group = ${st.fGroup.toFixed(4)}`;
+
+    document.getElementById('del-means').innerHTML = `<span class="overline">Δ</span><sub>B</sub> − <span class="overline">Δ</span><sub>A</sub> = ${state.intEff.toFixed(2)}`;
+    document.getElementById('del-t').innerHTML     = `<span class="math">t</span>(8) = ${st.tInt.toFixed(4)}`;
+    document.getElementById('match-int').textContent   = `t² = ${Math.pow(st.tInt, 2).toFixed(4)}  ≡  F_Int = ${st.fInt.toFixed(4)}`;
+  }
+
+  function updateAll() {
+    renderCanvas();
+    updateRightPanel();
+  }
+
+  // ============================================================================
+  // INTERACTIONS: SLIDERS, LENSES, PRESETS, OVERLAYS & DRAGGING
+  // ============================================================================
+  ['sl-group', 'sl-time', 'sl-int', 'sl-bnoise', 'sl-wnoise'].forEach(id => {
+    document.getElementById(id).addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (id === 'sl-group')  state.groupEff = val;
+      if (id === 'sl-time')   state.timeEff  = val;
+      if (id === 'sl-int')    state.intEff   = val;
+      if (id === 'sl-bnoise') state.sigmaB   = val;
+      if (id === 'sl-wnoise') state.sigmaW   = val;
+      clearActivePresets();
+      updateAll();
+    });
+  });
+
+  function setLens(lensNum) {
+    state.lens = lensNum;
+    [1, 2, 3].forEach(n => {
+      document.getElementById(`lens-${n}`).classList.toggle('active', n === lensNum);
+    });
+    const ahaCard = document.getElementById('aha-widget');
+    ahaCard.style.boxShadow = lensNum === 3 ? '0 0 16px rgba(192,132,252,0.45)' : 'none';
+    updateAll();
+  }
+
+  function setSEMode(mode) {
+    state.seMode = mode;
+    ['off', 'between', 'within'].forEach(m => {
+      document.getElementById(`se-${m}`).classList.toggle('active', m === mode);
+    });
+    renderCanvas();
+  }
+
+  function setHoverRow(rowKey) {
+    state.hoverRow = rowKey;
+    renderCanvas();
+  }
+
+  function toggleCenterBaseline() {
+    state.centerBaseline = document.getElementById('chk-center').checked;
+    const target = state.centerBaseline ? 1.0 : 0.0;
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+
+    function step() {
+      const diff = target - state.centerAnimProgress;
+      if (Math.abs(diff) < 0.02) {
+        state.centerAnimProgress = target;
+        renderCanvas();
+        return;
+      }
+      state.centerAnimProgress += diff * 0.18;
+      renderCanvas();
+      animFrameId = requestAnimationFrame(step);
+    }
+    step();
+  }
+
+  function clearActivePresets() {
+    [1, 2, 3, 4].forEach(n => document.getElementById(`pre-${n}`).classList.remove('active'));
+  }
+
+  function applyPreset(num) {
+    clearActivePresets();
+    document.getElementById(`pre-${num}`).classList.add('active');
+    const callout = document.getElementById('canvas-callout');
+
+    if (num === 1) {
+      state.grandMean = 50;
+      state.groupEff  = 4.0;
+      state.timeEff   = 6.0;
+      state.intEff    = 9.0;
+      state.sigmaB    = 13.5;
+      state.sigmaW    = 1.8;
+      setSEMode('between');
+      callout.innerHTML = `<b>Preset 1 — Baseline Noise Trap:</b> Huge Between-Subject baseline spread (<span class="math">σ</span><sub>B</sub> = 13.5) produces massive overlapping Between-Subject SE bars. Switch to <b>Within-Subject SE</b> below to see why the Interaction is highly significant (<span class="math">p</span> &lt; .01)!`;
+    } else if (num === 2) {
+      state.grandMean = 50;
+      state.groupEff  = 0.0;
+      state.timeEff   = 0.0;
+      state.intEff    = 20.0;
+      state.sigmaB    = 5.0;
+      state.sigmaW    = 2.0;
+      callout.innerHTML = `<b>Preset 2 — Pure Crossover ("X" Shape):</b> Group A drops by 10 while Group B rises by 10. Their midpoints are equal (<span class="math">SS</span><sub>Group</sub> = 0) and average Pre equals average Post (<span class="math">SS</span><sub>Time</sub> = 0), while <span class="math">SS</span><sub>Interaction</sub> captures 100% of the signal!`;
+    } else if (num === 3) {
+      state.grandMean = 50;
+      state.groupEff  = 14.0;
+      state.timeEff   = 12.0;
+      state.intEff    = 0.0;
+      state.sigmaB    = 5.5;
+      state.sigmaW    = 2.0;
+      callout.innerHTML = `<b>Preset 3 — Parallel Improvements:</b> Both Group and Time main effects are strongly significant, yet because both groups improve at the exact same slope (<span class="overline">Δ</span><sub>A</sub> = <span class="overline">Δ</span><sub>B</sub> = +12), the Group × Time interaction is exactly zero (<span class="math">F</span><sub>Int</sub> = 0)!`;
+    } else if (num === 4) {
+      state.grandMean = 51;
+      state.groupEff  = 12.0;
+      state.timeEff   = 12.0;
+      state.intEff    = 20.0;
+      state.sigmaB    = 6.0;
+      state.sigmaW    = 2.5;
+      callout.innerHTML = `<b>Preset 4 — Classic Clinical Trial:</b> Groups start nearly equal at Pre, and only Treatment shoots up at Post. Notice why a 2×2 trial with divergence at Post naturally produces <b>both</b> main effects AND a significant Group × Time interaction!`;
+    }
+
+    updateAll();
+  }
+
+  // Direct Canvas Dragging of the 4 Cell Mean Nodes
+  svg.addEventListener('mousedown', (e) => {
+    const target = e.target.closest('.draggable-node');
+    if (!target) return;
+    state.draggingNode = target.getAttribute('data-node');
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!state.draggingNode) return;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const newVal = Math.max(15, Math.min(85, yToVal(svgP.y)));
+
+    const cm = getCellMeans();
+    cm[state.draggingNode] = newVal;
+
+    const mA_mid = (cm.A_Pre + cm.A_Post) / 2;
+    const mB_mid = (cm.B_Pre + cm.B_Post) / 2;
+    const dA = cm.A_Post - cm.A_Pre;
+    const dB = cm.B_Post - cm.B_Pre;
+
+    state.grandMean = (mA_mid + mB_mid) / 2;
+    state.groupEff  = Math.max(-20, Math.min(20, Math.round((mB_mid - mA_mid) * 2) / 2));
+    state.timeEff   = Math.max(-20, Math.min(20, Math.round(((dA + dB) / 2) * 2) / 2));
+    state.intEff    = Math.max(-20, Math.min(20, Math.round((dB - dA) * 2) / 2));
+
+    clearActivePresets();
+    updateAll();
+  });
+
+  window.addEventListener('mouseup', () => {
+    state.draggingNode = null;
+  });
+
+  // Initialize with Preset 1 (Baseline Noise Trap)
+  applyPreset(1);
+</script>
+  </div>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+
+</html>

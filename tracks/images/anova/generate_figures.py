@@ -225,7 +225,8 @@ def draw_partition() -> None:
     ax.set_yticks([])
     ax.set_xlabel("sum of squares")
     ax.set_title("Total variation splits into between and within")
-    _save(fig, "02-sum-of-squares.png")
+    # 02-sum-of-squares.png is a screenshot of the live 1/2/3-way demo, not this bar.
+    plt.close(fig)
     print("  ss", {k: stats[k] for k in ("ss_between", "ss_within", "ss_total", "F")})
 
 
