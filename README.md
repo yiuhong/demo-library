@@ -1,6 +1,6 @@
 # Project Viz
 
-A visualization demo library for teaching. 
+A visualization demo library for teaching. Interactive demonstrations for exploring concepts in psychology, neuroscience, and statistics.
 
 **🌟 [View Project Viz](https://yiuhong.github.io/demo-library/)**
 
