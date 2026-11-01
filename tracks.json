@@ -104,6 +104,19 @@
       "status": "draft",
       "steps": [
         {
+          "href": "statistics/stats_conceptual_hierarchy.html",
+          "title": "The 5-Level Conceptual Hierarchy of Statistics",
+          "note": "A statistical claim is built in levels. A parameter is a fixed rule of the process. The process produces one outcome. A random variable turns that outcome into a number. The distribution is the pattern of those numbers. Inference uses the sample to say something about the parameter you cannot see. The next step builds one such distribution, the normal curve, from a center and a spread.",
+          "formulae": [
+            "parameter θ fixes the process",
+            "X : Ω → ℝ",
+            "μ = E[X],  σ² = Var(X)",
+            "X̄ ± 1.96 · (s / √M)"
+          ],
+          "image": "tracks/images/statistical-reasoning/00-conceptual-hierarchy.png",
+          "imageAlt": "Light page with a black header. Level 0 sets a 50-step random walk with up-step probability 0.50, mean 0 and variance 50. Level 1 is an empty position plot with a red dashed mean line at 0. Level 3 draws the theoretical bell curve. Level 4 shows sample size 0."
+        },
+        {
           "href": "statistics/building_normal_distribution.html",
           "title": "Building the Normal Distribution",
           "note": "Many descriptions of data end by asking whether the shape looks like a familiar smooth curve. The normal distribution is one such curve, fixed by a center and a spread. Putting the curve together shows what the model is made of, and sets up the question of what happens to summaries — such as the mean — when you draw many samples.",
@@ -114,6 +127,18 @@
           ],
           "image": "tracks/images/statistical-reasoning/01-normal-density.png",
           "imageAlt": "Standard normal density. A dashed line marks the center at μ = 0. Dotted lines mark one standard deviation on either side, at −1 and 1."
+        },
+        {
+          "href": "statistics/probability_distributions_map.html",
+          "title": "Probability Distributions Map",
+          "note": "The normal curve is one model among many. This map places sixteen common distributions in five neighborhoods and draws three kinds of link: a special case that fixes a parameter, a transformation or a sum, and a limit. Binomial(n, p) with n = 1 is Bernoulli(p). As n grows and np settles on λ, the binomial count approaches Poisson(λ). As n grows, the binomial count also approaches a normal curve, the shape the previous step built. The next step asks what happens to the mean when you draw many samples.",
+          "formulae": [
+            "Binomial(1, p) = Bernoulli(p)",
+            "Binomial(n, p) → Poisson(λ) as n → ∞ and np → λ",
+            "Binomial(n, p) → Normal as n → ∞ (de Moivre–Laplace)"
+          ],
+          "image": "tracks/images/statistical-reasoning/01b-distributions-map.png",
+          "imageAlt": "Neighborhood map of sixteen distributions on a light page. Coin-flip, arrivals, boundaries, the natural world, and the toolbelt are tinted regions linked by arrows. The normal distribution is selected, and the side panel shows a bell curve with mean 0 and standard deviation 1."
         },
         {
           "href": "statistics/central_limit_theorem.html",
@@ -129,7 +154,7 @@
         {
           "href": "statistics/binomial_bernoulli.html",
           "title": "Binomial Distribution & Bernoulli Process",
-          "note": "A coin toss is a Bernoulli trial: two outcomes, the same chance of heads every time, and no memory of the tosses before it. Count the heads in n tosses and that count is binomial, the sum of those trials. The bars are the exact probabilities. Run many trials and the observed frequencies settle onto the bars. The next step writes the same count as left and right bounces on a Galton board.",
+          "note": "A coin toss is a Bernoulli trial: two outcomes, the same chance of heads every time, and no memory of the tosses before it. Count the heads in n tosses and that count is binomial, the sum of those trials. The bars are the exact probabilities. Run many trials and the observed frequencies settle onto the bars. The next step counts arrivals in a stretch of time instead of successes in a fixed number of trials.",
           "formulae": [
             "Xᵢ ~ Bernoulli(p),  P(Xᵢ = 1) = p",
             "X = X₁ + … + Xₙ ~ Binomial(n, p)",
@@ -138,6 +163,19 @@
           ],
           "image": "tracks/images/statistical-reasoning/03-binomial-bernoulli.png",
           "imageAlt": "Left: ten coins, five heads then five tails, so this sequence has 5 heads. Right: binomial probabilities for n = 10 and p = 1/2. The bars peak at k = 5. A normal curve sits on them, with a dashed line at μ = 5 and dotted lines at μ ± σ."
+        },
+        {
+          "href": "statistics/poisson_point_process.html",
+          "title": "Poisson Distribution & Poisson Point Process",
+          "note": "A coin toss fixes the number of trials and counts the successes. A Poisson process fixes a stretch of time and counts arrivals that have no memory of one another. The waiting time between arrivals is exponential with the same rate, and the count in an interval of length t is Poisson(λt). Chop that interval into many short bins and each bin is nearly a Bernoulli trial. As the bins get finer, the binomial count approaches the Poisson count. The next step writes a binomial count as left and right bounces on a Galton board.",
+          "formulae": [
+            "N(t) ~ Poisson(λt)",
+            "P(N(t) = k) = e^{−λt} (λt)^k / k!",
+            "μ = λt",
+            "Binomial(n, μ/n) → Poisson(μ) as n → ∞"
+          ],
+          "image": "tracks/images/statistical-reasoning/03b-poisson-point-process.png",
+          "imageAlt": "Raindrops preset at rate 6 per second over a one-second window. The stage, the counting-process step path, and the arrival timeline sit beside the Poisson bars. A red dashed line marks μ = 6, the bar at k = 6 is highlighted, and a binomial curve lies over the bars."
         },
         {
           "href": "statistics/galton_board.html",
@@ -289,26 +327,40 @@
         },
         {
           "href": "statistics/partitioning_sum_of_squares_anova.html",
-          "title": "Partitioning Sum of Squares",
-          "note": "To compare several means, it helps to say where the variation in the data comes from. Partitioning the sum of squares splits total variation into a part between groups and a part left inside groups; the F ratio compares those two parts. The same split extends when two factors label the groups at once.",
+          "title": "Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA",
+          "note": "To compare several means, it helps to say where the variation in the data comes from. With one factor the total splits into a part between groups and a part left inside groups. With two or three factors, and with between-subjects, within-subjects, or mixed designs, that total breaks into more bricks: each main effect, each interaction, and an error term that matches the stratum. The same bricks can be read as a flat linear model, grouped by error stratum, or introduced condition by condition. The next step is the 2×2 between-subjects case, two main effects, their interaction, and one error.",
           "formulae": [
-            "SS_total = SS_between + SS_within",
-            "MS = SS / df",
-            "F = MS_between / MS_within"
+            "SS_total = sum of the atomic bricks",
+            "between-subjects: one error term tests every effect",
+            "within-subjects: each repeated factor has its own error stratum",
+            "F = MS_effect / MS_error for the matching stratum"
           ],
           "image": "tracks/images/anova/02-sum-of-squares.png",
-          "imageAlt": "One horizontal bar split into a hatched between-groups part of 2400 and an open within-groups part of 600. The total is 3000 and F = 12."
+          "imageAlt": "Between-subjects, one factor, symmetric view. Design controls sit above a notation guide. The brick bar splits a green SS for factor A from a larger rose error of subjects within A."
         },
         {
           "href": "statistics/two_way_anova.html",
           "title": "Two-Way ANOVA",
-          "note": "Sometimes each observation belongs to a combination of two factors, not one. Two-way ANOVA labels variation with both factors at once: each factor has its own main effect, and the interaction is the pattern that appears only in the combination. The usual reading of any of these F tests also depends on a few conditions on the residuals.",
+          "note": "Sometimes each observation belongs to a combination of two factors, not one. Two-way ANOVA labels variation with both factors at once: each factor has its own main effect, and the interaction is the pattern that appears only in the combination. The next step is the mixed case, where one factor separates people and the other measures the same people twice. The usual reading of these F tests still depends on conditions on the residuals.",
           "formulae": [
             "SS_total = SS_A + SS_B + SS_AB + SS_error",
             "F_A = MS_A / MS_error, and likewise for B and AB"
           ],
           "image": "tracks/images/anova/03-two-way.png",
           "imageAlt": "Two panels of 2×2 cell means. On the left the female line runs from 38 to 48 and the male line from 46 to 56, parallel. On the right the lines cross: female runs from 38 to 56 and male from 56 to 38."
+        },
+        {
+          "href": "statistics/mixed_anova_2x2.html",
+          "title": "2×2 Mixed ANOVA",
+          "note": "A 2×2 mixed design has one factor that separates people into groups and one factor that measures the same people twice. The group effect is tested against differences between people. The time effect and the group-by-time interaction are tested against how people vary in their change. The same picture can be read as two simple comparisons: the midpoints, and the pre-to-post changes. The usual reading of these F tests still depends on conditions on the residuals.",
+          "formulae": [
+            "SS_between = SS_group + SS_error(between)",
+            "SS_within = SS_time + SS_group×time + SS_error(within)",
+            "F_group = MS_group / MS_error(between)",
+            "F_time = MS_time / MS_error(within)"
+          ],
+          "image": "tracks/images/anova/03b-mixed-anova.png",
+          "imageAlt": "Lens 2 of a 2×2 mixed ANOVA on a light page. Group A and Group B trajectories run from pre to post, with subject averages on a between-subjects track. Variance lakes and the ANOVA table split between-subjects error from within-subjects error."
         },
         {
           "href": "statistics/anova_assumptions.html",

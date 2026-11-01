@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+  <title>The 5-Level Conceptual Hierarchy of Statistics</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css" />
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css" />
+  <script src="../assets/stats-viz-theme.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css" />
+  <style>
+
+    body.demo-page {
+      background: #f6f6f6 !important;
+      color: #000 !important;
+      font-family: Arial, Helvetica, sans-serif !important;
+    }
+    body.demo-page * { font-family: Arial, Helvetica, sans-serif; }
+    .hidden { display: none !important; }
+    body.demo-page [class*="shadow"] { box-shadow: none !important; }
+    body.demo-page [class*="bg-gradient"] { background-image: none !important; }
+    body.demo-page [class*="rounded-2xl"],
+    body.demo-page [class*="rounded-xl"],
+    body.demo-page [class*="rounded-lg"] { border-radius: 4px !important; }
+    body.demo-page [class*="bg-slate"],
+    body.demo-page [class*="bg-indigo-500"],
+    body.demo-page [class*="bg-indigo-600"] {
+      background-color: #ffffff !important;
+      border-color: #000 !important;
+    }
+    body.demo-page [class*="border-slate"],
+    body.demo-page [class*="border-indigo"],
+    body.demo-page [class*="border-cyan"],
+    body.demo-page [class*="border-emerald"],
+    body.demo-page [class*="border-amber"],
+    body.demo-page [class*="border-rose"],
+    body.demo-page [class*="border-violet"] { border-color: #000 !important; }
+    body.demo-page [class*="text-slate"],
+    body.demo-page [class*="text-white"] { color: #000 !important; }
+    body.demo-page [class*="text-indigo"] { color: var(--viz-median) !important; }
+    body.demo-page [class*="text-cyan"] { color: var(--viz-group-a) !important; }
+    body.demo-page [class*="text-emerald"] { color: var(--viz-group-b) !important; }
+    body.demo-page [class*="text-amber"] { color: var(--viz-group-c) !important; }
+    body.demo-page [class*="text-violet"] { color: var(--viz-median) !important; }
+    body.demo-page [class*="text-rose"] { color: var(--viz-null) !important; }
+    body.demo-page .demo-header,
+    body.demo-page .demo-header [class*="text-"] {
+      background: #000 !important;
+      color: #fff !important;
+      border-color: #000 !important;
+    }
+    body.demo-page .demo-header .level-mark {
+      background: #fff !important;
+      color: #000 !important;
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+    .demo-toolbar-row {
+      max-width: 1600px;
+      margin: 12px auto 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    body.demo-page .demo-header { padding: 1.05rem 1.25rem; border-radius: 4px; border: 1px solid #000; }
+    body.demo-page section.demo-card {
+      background: #fff !important;
+      border: 1px solid #000 !important;
+      border-radius: 4px !important;
+      box-shadow: none !important;
+    }
+    body.demo-page button {
+      background: #fff !important;
+      color: #000 !important;
+      border: 1px solid #000 !important;
+      border-radius: 3em !important;
+      box-shadow: none !important;
+      font-weight: 700 !important;
+    }
+    body.demo-page button[class*="bg-indigo"],
+    body.demo-page button[class*="bg-amber"] {
+      background: #000 !important;
+      color: #fff !important;
+    }
+    #distributionChart, .demo-page canvas { background: #fff; }
+    input[type="range"] { accent-color: #000; }
+    @keyframes rvFlash {
+      0% { outline: 3px solid var(--viz-group-b); }
+      100% { outline: 3px solid transparent; }
+    }
+    .rv-pulse { animation: rvFlash 0.55s ease; }
+    #ciTrueMuMarker { background: var(--viz-median) !important; }
+    #ciIntervalBar { background: var(--viz-null) !important; border: 1px solid var(--viz-null) !important; }
+    #ciSampleMeanDot { background: var(--viz-mean) !important; }
+    .demo-top { max-width: 1600px; margin: 0 auto; padding: 16px 16px 0; }
+
+  </style>
+</head>
+<body class="demo-page min-h-screen pb-12">
+  <div class="demo-top">
+    <a class="demo-back" href="../index.html">← Project Viz</a>
+  </div>
+
+  <!-- Top Header & Mode Switcher -->
+  <header class="demo-header max-w-[1600px] mx-auto mt-4">
+    <div class="flex items-center gap-3">
+      <span class="level-mark">0→4</span>
+      <div>
+        <h1>The 5-Level Conceptual Hierarchy of Statistics</h1>
+        <p>Interactive pipeline from Ground-Truth Parameters → Stochastic Process → Random Variable → Distribution → Inference</p>
+      </div>
+    </div>
+  </header>
+  <div class="demo-toolbar-row">
+        
+        <!-- Mode Segmented Control -->
+        <div class="inline-flex rounded-xl bg-slate-900 p-1 border border-slate-800">
+          <button id="modeWalkBtn" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-indigo-600 text-white shadow-sm">
+            Mode A: 1D Random Walk (CLT)
+          </button>
+          <button id="modeCoinBtn" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-slate-200">
+            Mode B: Bernoulli Trials (Binomial)
+          </button>
+        </div>
+
+        <div class="h-6 w-[1px] bg-slate-800 hidden sm:block"></div>
+
+        <!-- Execution Control Bar -->
+        <div class="flex flex-wrap items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl p-1.5">
+          <button id="step1Btn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            Step 1x
+          </button>
+
+          <button id="batch100Btn" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-mono-num">
+            +100
+          </button>
+
+          <button id="batch1000Btn" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-mono-num">
+            +1,000
+          </button>
+
+          <button id="autoPlayBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1.5 min-w-[88px] justify-center">
+            <span id="autoPlayIcon">▶</span>
+            <span id="autoPlayText">Auto-Play</span>
+          </button>
+
+          <!-- Speed Control -->
+          <div class="flex items-center gap-2 px-2.5 py-1 bg-slate-950/70 rounded-lg border border-slate-800/80">
+            <label for="speedSlider" class="text-[11px] text-slate-400 font-medium">Speed</label>
+            <input id="speedSlider" type="range" min="1" max="20" step="1" value="6" class="w-20" />
+            <span id="speedReadout" class="text-xs font-mono-num text-indigo-300 w-7 text-right">6x</span>
+          </div>
+
+          <button id="resetBtn" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/25 transition">
+            Reset
+          </button>
+        </div>
+
+  </div>
+
+  <!-- Main 5-Level Dashboard Grid -->
+  <main class="max-w-[1600px] mx-auto px-4 lg:px-8 pt-6 space-y-6">
+
+    <!-- TOP ROW: Level 0 (Parameters) -> Level 1 (Process) -> Level 2 (Random Variable) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+      <!-- LEVEL 0: PARAMETERS (INDIGO ACCENT) -->
+      <section class="demo-card lg:col-span-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xl">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-indigo-400"></div>
+        
+        <div>
+          <!-- Level Badge & Header -->
+          <div class="flex items-center justify-between mb-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+              Level 0 • Parameters
+            </span>
+            <span class="text-xs font-mono-num text-indigo-400/80">Ground Truth $\theta$</span>
+          </div>
+          <h2 class="text-base font-bold text-white">Structural Rules of Nature</h2>
+          <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+            Level 0 fixes the unobservable population constants that govern the stochastic mechanism before any data is generated.
+          </p>
+
+          <!-- Interactive Parameter Sliders -->
+          <div class="mt-5 space-y-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+            <!-- N Slider -->
+            <div>
+              <div class="flex justify-between items-center text-xs mb-1.5">
+                <label for="paramNSlider" class="font-medium text-slate-300 flex items-center gap-1.5">
+                  <span id="paramNLabel">Horizon Steps</span>
+                  <span id="mathN" class="text-indigo-400"></span>
+                </label>
+                <span id="paramNValue" class="font-mono-num font-bold text-sm text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">50</span>
+              </div>
+              <input id="paramNSlider" type="range" min="10" max="200" step="2" value="50" class="w-full" />
+              <div class="flex justify-between text-[10px] font-mono-num text-slate-500 mt-1">
+                <span id="paramNMin">10</span>
+                <span id="paramNMid">100</span>
+                <span id="paramNMax">200</span>
+              </div>
+            </div>
+
+            <!-- p Slider -->
+            <div>
+              <div class="flex justify-between items-center text-xs mb-1.5">
+                <label for="paramPSlider" class="font-medium text-slate-300 flex items-center gap-1.5">
+                  <span id="paramPLabel">Up-Step Prob</span>
+                  <span id="mathP" class="text-indigo-400"></span>
+                </label>
+                <span id="paramPValue" class="font-mono-num font-bold text-sm text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">0.50</span>
+              </div>
+              <input id="paramPSlider" type="range" min="0.10" max="0.90" step="0.05" value="0.50" class="w-full" />
+              <div class="flex justify-between text-[10px] font-mono-num text-slate-500 mt-1">
+                <span>0.10</span>
+                <span>0.50 (Symmetric)</span>
+                <span>0.90</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exact Theoretical Population Formulas -->
+        <div class="mt-5 pt-4 border-t border-slate-800/80 space-y-2.5">
+          <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+            <span>Exact Population Laws</span>
+            <span id="modeFormulaTag" class="text-indigo-400 font-mono-num">Random Walk</span>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2 bg-slate-950/80 p-3 rounded-xl border border-slate-800/90 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Mean $\mu = \mathbb{E}[X]$:</span>
+              <span id="formulaMu" class="text-indigo-200 font-mono-num"></span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Variance $\sigma^2 = \text{Var}(X)$:</span>
+              <span id="formulaVar" class="text-indigo-200 font-mono-num"></span>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-800/60">
+              <span class="text-slate-400">True Values $(\mu, \sigma^2, \sigma)$:</span>
+              <span id="trueParamsReadout" class="font-mono-num font-semibold text-indigo-300">0.00, 50.00, 7.07</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LEVEL 1: THE STOCHASTIC PROCESS (CYAN ACCENT) -->
+      <section class="demo-card lg:col-span-6 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xl">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-sky-400"></div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                Level 1 • The Process
+              </span>
+              <span class="text-xs font-mono-num text-cyan-400/80">Realization $\omega \in \Omega$</span>
+            </div>
+            <h2 class="text-base font-bold text-white mt-1">Stochastic Data-Generating Engine</h2>
+          </div>
+
+          <!-- Live Process Status Pill -->
+          <div class="flex items-center gap-2 self-start sm:self-center bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+            <span id="processStatusDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+            <span id="processStatusText" class="font-mono-num text-slate-300">Ready (t = 0)</span>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+          Level 1 physically unfolds a single random outcome $\omega$ step-by-step in time; faint ghost trails preserve the last 10 realizations.
+        </p>
+
+        <!-- High-DPI Canvas Container -->
+        <div class="relative flex-1 min-h-[260px] sm:min-h-[290px] w-full bg-slate-950 rounded-xl border border-slate-800/90 overflow-hidden">
+          <canvas id="processCanvas" class="w-full h-full block"></canvas>
+          
+          <!-- Overlay Legend on Canvas -->
+          <div id="canvasLegendWalk" class="absolute top-2.5 right-3 flex items-center gap-3 bg-slate-900/85 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-slate-800 text-[11px] text-slate-300 pointer-events-none">
+            <span class="flex items-center gap-1.5">
+              <span class="w-3 h-0.5 bg-cyan-400 inline-block"></span> Active $\omega$
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-3 h-0.5 bg-slate-500/60 inline-block"></span> Last 10 Runs
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-3 h-0.5 border-b border-dashed border-indigo-400 inline-block"></span> $\mu$
+            </span>
+          </div>
+
+          <div id="canvasLegendCoin" class="hidden absolute top-2.5 right-3 flex items-center gap-3 bg-slate-900/85 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-slate-800 text-[11px] text-slate-300 pointer-events-none">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span> Heads ($1$)
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-sm bg-rose-500/70 inline-block"></span> Tails ($0$)
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- LEVEL 2: THE RANDOM VARIABLE (EMERALD ACCENT) -->
+      <section id="level2Card" class="demo-card lg:col-span-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xl transition-colors">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400"></div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              Level 2 • Random Variable
+            </span>
+            <span class="text-xs font-mono-num text-emerald-400/80">$X : \Omega \to \mathbb{R}$</span>
+          </div>
+          <h2 class="text-base font-bold text-white">Quantitative Measurement</h2>
+          <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+            Level 2 maps a complex physical trajectory $\omega$ into a single scalar summary $X(\omega) = x_i$ that can be tallied.
+          </p>
+
+          <!-- Mapping Function Formula Box -->
+          <div class="mt-4 bg-slate-950/70 border border-slate-800/90 rounded-xl p-3">
+            <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">
+              Measurement Rule
+            </div>
+            <div id="rvMappingFormula" class="text-xs text-emerald-300 py-1 overflow-x-auto"></div>
+          </div>
+
+          <!-- Prominent Digital Readout -->
+          <div class="mt-4 bg-gradient-to-b from-slate-950 to-slate-900 border border-emerald-500/30 rounded-2xl p-4 text-center shadow-inner">
+            <div class="text-[11px] font-mono-num uppercase tracking-widest text-emerald-400/90">
+              Latest Observed Value $x_M = X(\omega_M)$
+            </div>
+            <div id="rvDigitalValue" class="text-4xl sm:text-5xl font-mono-num font-bold text-emerald-400 tracking-tight my-2">
+              —
+            </div>
+            <div id="rvDecompositionText" class="text-xs font-mono-num text-slate-400 bg-slate-950/90 py-1.5 px-3 rounded-lg border border-slate-800 inline-block">
+              Awaiting first trial...
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Realizations Stream (Mini Tape) -->
+        <div class="mt-4 pt-3 border-t border-slate-800/80">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 mb-2">
+            <span class="font-semibold uppercase tracking-wider">Recent Realizations $\{x_i\}$</span>
+            <span id="rvSupportLabel" class="font-mono-num text-emerald-400">Support: [-50, 50]</span>
+          </div>
+          <div id="recentRealizationsList" class="flex items-center gap-1.5 overflow-x-auto py-1 min-h-[32px]">
+            <span class="text-xs text-slate-600 font-mono-num italic">No observations recorded yet</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- BOTTOM ROW: Level 3 (Distribution) -> Level 4 (Statistics & Inference) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+      <!-- LEVEL 3: THE DISTRIBUTION (AMBER / VIOLET ACCENTS) -->
+      <section class="demo-card lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xl">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-orange-400 to-violet-500"></div>
+
+        <div>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                  Level 3 • The Distribution
+                </span>
+                <span class="text-xs font-mono-num text-violet-300/90">Empirical Histogram vs. Theoretical Law $P(X = x)$</span>
+              </div>
+              <h2 class="text-base font-bold text-white mt-1">Aggregating Outcomes into a Probability Law</h2>
+            </div>
+
+            <!-- Custom Chart Legend -->
+            <div class="flex items-center gap-3 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs self-start sm:self-center">
+              <span class="flex items-center gap-1.5 text-amber-300 font-medium">
+                <span class="w-3 h-3 rounded-sm bg-amber-500/60 border border-amber-400 inline-block"></span>
+                Empirical $\hat{p}(x) = \text{count}/M$
+              </span>
+              <span class="flex items-center gap-1.5 text-violet-300 font-medium">
+                <span class="w-3 h-0.5 bg-violet-400 inline-block"></span>
+                Theoretical $P(X=x)$
+              </span>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+            Level 3 stacks individual $x_i$ measurements into an empirical relative frequency distribution (amber bars) that converges toward the theoretical probability law (violet curve) as $M \to \infty$.
+          </p>
+        </div>
+
+        <!-- Chart.js Canvas Wrapper -->
+        <div class="relative w-full h-[320px] sm:h-[360px] bg-slate-950/90 rounded-xl border border-slate-800/90 p-3">
+          <canvas id="distributionChart"></canvas>
+        </div>
+
+        <!-- Mathematical Commensurability Note -->
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 bg-slate-950/60 px-3.5 py-2 rounded-xl border border-slate-800/70">
+          <span id="commensurabilityNote">
+            <strong>Commensurable Scaling:</strong> Gaussian density $f(x)$ is multiplied by support spacing $\Delta x = 2$ so curve height matches discrete parity mass $P(X_N = x)$.
+          </span>
+          <span id="totalSupportPointsBadge" class="font-mono-num text-amber-300 font-semibold">
+            Support States: 51
+          </span>
+        </div>
+      </section>
+
+      <!-- LEVEL 4: STATISTICS & INFERENCE (ROSE ACCENT) -->
+      <section class="demo-card lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-xl">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-pink-500"></div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-rose-500/15 text-rose-300 border border-rose-500/30">
+              Level 4 • Statistics & Inference
+            </span>
+            <span class="text-xs font-mono-num text-rose-400/80">Estimators $\hat{\theta}_M \xrightarrow{p} \theta$</span>
+          </div>
+          <h2 class="text-base font-bold text-white">Sample Estimators & Law of Large Numbers</h2>
+          <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+            Level 4 summarizes the empirical distribution into sample statistics $(\bar{X}, s^2)$ to infer and recover the hidden Level 0 parameters $(\mu, \sigma^2)$.
+          </p>
+
+          <!-- Top Summary Banner: Total Realizations M & Mean Error -->
+          <div class="mt-4 grid grid-cols-2 gap-3">
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Sample Size $M$</div>
+                <div class="text-xs text-slate-500">Total Realizations</div>
+              </div>
+              <div id="statMValue" class="text-2xl font-mono-num font-bold text-white">0</div>
+            </div>
+
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Mean Error</div>
+                <div class="text-xs text-slate-500">$|\bar{X} - \mu|$</div>
+              </div>
+              <div id="statMeanError" class="text-2xl font-mono-num font-bold text-rose-400">—</div>
+            </div>
+          </div>
+
+          <!-- Precision Comparison Table -->
+          <div class="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-slate-950/70">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-800 bg-slate-900/90 text-[11px] uppercase tracking-wider text-slate-400">
+                  <th class="py-2.5 px-3 font-semibold">Quantity</th>
+                  <th class="py-2.5 px-3 font-semibold text-indigo-300">Level 0 True Parameter</th>
+                  <th class="py-2.5 px-3 font-semibold text-rose-300">Level 4 Sample Statistic</th>
+                  <th class="py-2.5 px-3 font-semibold text-right">Discrepancy</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/70 font-mono-num">
+                <!-- Expected Value vs Sample Mean -->
+                <tr class="hover:bg-slate-900/40 transition">
+                  <td class="py-2.5 px-3 font-sans font-medium text-slate-200">
+                    Center <span class="text-slate-400 text-[11px] block">$\mathbb{E}[X]$ vs. $\bar{X}$</span>
+                  </td>
+                  <td id="tableTrueMean" class="py-2.5 px-3 text-indigo-300 font-semibold">0.000</td>
+                  <td id="tableSampleMean" class="py-2.5 px-3 text-rose-300 font-semibold">—</td>
+                  <td id="tableDiffMean" class="py-2.5 px-3 text-right text-slate-400">—</td>
+                </tr>
+
+                <!-- Population Variance vs Sample Variance (Bessel Corrected) -->
+                <tr class="hover:bg-slate-900/40 transition">
+                  <td class="py-2.5 px-3 font-sans font-medium text-slate-200">
+                    Variance <span class="text-slate-400 text-[11px] block">$\sigma^2$ vs. $s^2_{M-1}$</span>
+                  </td>
+                  <td id="tableTrueVar" class="py-2.5 px-3 text-indigo-300 font-semibold">50.000</td>
+                  <td id="tableSampleVar" class="py-2.5 px-3 text-rose-300 font-semibold">—</td>
+                  <td id="tableDiffVar" class="py-2.5 px-3 text-right text-slate-400">—</td>
+                </tr>
+
+                <!-- Standard Deviation -->
+                <tr class="hover:bg-slate-900/40 transition">
+                  <td class="py-2.5 px-3 font-sans font-medium text-slate-200">
+                    Spread (SD) <span class="text-slate-400 text-[11px] block">$\sigma$ vs. $s$</span>
+                  </td>
+                  <td id="tableTrueSD" class="py-2.5 px-3 text-indigo-300 font-semibold">7.071</td>
+                  <td id="tableSampleSD" class="py-2.5 px-3 text-rose-300 font-semibold">—</td>
+                  <td id="tableDiffSD" class="py-2.5 px-3 text-right text-slate-400">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 95% Empirical Confidence Interval Dashboard -->
+        <div class="mt-4 bg-slate-950/90 border border-slate-800 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+              <span>95% Confidence Interval for $\mu$:</span>
+              <span class="text-[11px] font-mono-num text-slate-400">$\bar{X} \pm 1.96 \cdot (s / \sqrt{M})$</span>
+            </span>
+            <span id="ciCaptureBadge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
+              Need M ≥ 2
+            </span>
+          </div>
+
+          <div id="ciNumericReadout" class="text-sm font-mono-num font-bold text-rose-300 my-1">
+            [ — , — ]
+          </div>
+
+          <!-- Visual CI Gauge Bar -->
+          <div class="relative h-7 bg-slate-900 rounded-lg border border-slate-800 mt-2 overflow-hidden flex items-center">
+            <!-- True Mu Marker Line -->
+            <div id="ciTrueMuMarker" class="absolute top-0 bottom-0 w-0.5 bg-indigo-400 z-20" style="left: 50%;" title="True Population Mean μ"></div>
+            <!-- CI Interval Bar -->
+            <div id="ciIntervalBar" class="absolute h-2.5 bg-rose-500/40 border border-rose-400 rounded-full z-10 transition-all duration-150 hidden" style="left: 45%; width: 10%;"></div>
+            <!-- Sample Mean Dot -->
+            <div id="ciSampleMeanDot" class="absolute w-2.5 h-2.5 rounded-full bg-rose-400 -ml-1.5 z-20 transition-all duration-150 hidden" style="left: 50%;"></div>
+          </div>
+          <div class="flex justify-between text-[10px] font-mono-num text-slate-500 mt-1">
+            <span id="ciScaleMin">-50</span>
+            <span class="text-indigo-400">▲ True $\mu$ Centered</span>
+            <span id="ciScaleMax">+50</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Application Script -->
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 1. APPLICATION STATE
+      // =========================================================================
+      const state = {
+        mode: 'walk', // 'walk' | 'coin'
+        N: 50,
+        p: 0.50,
+        speed: 6,     // 1 to 20
+
+        // Theoretical properties derived from Level 0
+        support: [],  // Array of valid discrete outcomes
+        supportIndexMap: new Map(),
+        theoreticalPMF: [],
+        mu: 0,
+        variance: 50,
+        sigma: Math.sqrt(50),
+
+        // Empirical sample history (Level 2 -> Level 4)
+        M: 0,
+        counts: [],        // Parallel to support[]
+        sumX: 0,           // Running sum for sample mean
+        sumSqDiff: 0,      // Welford's algorithm M2 for numerical stability
+        lastX: null,
+        lastRawDetail: '',
+        recentX: [],       // Last 12 observed values
+
+        // Level 1 Canvas trajectories & animation state
+        ghostWalks: [],    // Last 10 completed random walk arrays
+        activeWalk: null,  // Current walk array [0, x1, x2, ...]
+        activeCoins: null, // Current coin array [0, 1, 1, ...]
+        currentStep: 0,
+        isAnimatingStep: false,
+        autoPlay: false,
+        rafId: null,
+        lastFrameTime: 0
+      };
+
+      // =========================================================================
+      // 2. DOM REFERENCES
+      // =========================================================================
+      const dom = {
+        modeWalkBtn: document.getElementById('modeWalkBtn'),
+        modeCoinBtn: document.getElementById('modeCoinBtn'),
+        step1Btn: document.getElementById('step1Btn'),
+        batch100Btn: document.getElementById('batch100Btn'),
+        batch1000Btn: document.getElementById('batch1000Btn'),
+        autoPlayBtn: document.getElementById('autoPlayBtn'),
+        autoPlayIcon: document.getElementById('autoPlayIcon'),
+        autoPlayText: document.getElementById('autoPlayText'),
+        speedSlider: document.getElementById('speedSlider'),
+        speedReadout: document.getElementById('speedReadout'),
+        resetBtn: document.getElementById('resetBtn'),
+
+        paramNSlider: document.getElementById('paramNSlider'),
+        paramPSlider: document.getElementById('paramPSlider'),
+        paramNLabel: document.getElementById('paramNLabel'),
+        paramPLabel: document.getElementById('paramPLabel'),
+        paramNValue: document.getElementById('paramNValue'),
+        paramPValue: document.getElementById('paramPValue'),
+        paramNMin: document.getElementById('paramNMin'),
+        paramNMid: document.getElementById('paramNMid'),
+        paramNMax: document.getElementById('paramNMax'),
+        modeFormulaTag: document.getElementById('modeFormulaTag'),
+        formulaMu: document.getElementById('formulaMu'),
+        formulaVar: document.getElementById('formulaVar'),
+        trueParamsReadout: document.getElementById('trueParamsReadout'),
+
+        processCanvas: document.getElementById('processCanvas'),
+        processStatusDot: document.getElementById('processStatusDot'),
+        processStatusText: document.getElementById('processStatusText'),
+        canvasLegendWalk: document.getElementById('canvasLegendWalk'),
+        canvasLegendCoin: document.getElementById('canvasLegendCoin'),
+
+        level2Card: document.getElementById('level2Card'),
+        rvMappingFormula: document.getElementById('rvMappingFormula'),
+        rvDigitalValue: document.getElementById('rvDigitalValue'),
+        rvDecompositionText: document.getElementById('rvDecompositionText'),
+        rvSupportLabel: document.getElementById('rvSupportLabel'),
+        recentRealizationsList: document.getElementById('recentRealizationsList'),
+
+        distributionChartCanvas: document.getElementById('distributionChart'),
+        commensurabilityNote: document.getElementById('commensurabilityNote'),
+        totalSupportPointsBadge: document.getElementById('totalSupportPointsBadge'),
+
+        statMValue: document.getElementById('statMValue'),
+        statMeanError: document.getElementById('statMeanError'),
+        tableTrueMean: document.getElementById('tableTrueMean'),
+        tableSampleMean: document.getElementById('tableSampleMean'),
+        tableDiffMean: document.getElementById('tableDiffMean'),
+        tableTrueVar: document.getElementById('tableTrueVar'),
+        tableSampleVar: document.getElementById('tableSampleVar'),
+        tableDiffVar: document.getElementById('tableDiffVar'),
+        tableTrueSD: document.getElementById('tableTrueSD'),
+        tableSampleSD: document.getElementById('tableSampleSD'),
+        tableDiffSD: document.getElementById('tableDiffSD'),
+
+        ciCaptureBadge: document.getElementById('ciCaptureBadge'),
+        ciNumericReadout: document.getElementById('ciNumericReadout'),
+        ciTrueMuMarker: document.getElementById('ciTrueMuMarker'),
+        ciIntervalBar: document.getElementById('ciIntervalBar'),
+        ciSampleMeanDot: document.getElementById('ciSampleMeanDot'),
+        ciScaleMin: document.getElementById('ciScaleMin'),
+        ciScaleMax: document.getElementById('ciScaleMax')
+      };
+
+      // =========================================================================
+      // 3. KATEX HELPER & STATIC MATH INITIALIZATION
+      // =========================================================================
+      function renderMath(element, latexStr, displayMode = false) {
+        if (window.katex && element) {
+          katex.render(latexStr, element, {
+            throwOnError: false,
+            displayMode: displayMode
+          });
+        } else if (element) {
+          element.textContent = latexStr;
+        }
+      }
+
+      function renderInlineLaTeXInText() {
+        // Replace $...$ segments in static text nodes with KaTeX spans
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        const textNodes = [];
+        let node;
+        while ((node = walker.nextNode())) {
+          if (node.parentElement && ['SCRIPT', 'STYLE', 'TEXTAREA'].includes(node.parentElement.tagName)) continue;
+          if (node.nodeValue && node.nodeValue.includes('$')) {
+            textNodes.push(node);
+          }
+        }
+        textNodes.forEach((textNode) => {
+          const parts = textNode.nodeValue.split(/(\$[^\$]+\$)/g);
+          if (parts.length > 1) {
+            const frag = document.createDocumentFragment();
+            parts.forEach((part) => {
+              if (part.startsWith('$') && part.endsWith('$') && part.length > 2) {
+                const span = document.createElement('span');
+                const tex = part.slice(1, -1);
+                renderMath(span, tex, false);
+                frag.appendChild(span);
+              } else {
+                frag.appendChild(document.createTextNode(part));
+              }
+            });
+            textNode.parentNode.replaceChild(frag, textNode);
+          }
+        });
+      }
+
+      // =========================================================================
+      // 4. MATHEMATICAL PROBABILITY ENGINE
+      // =========================================================================
+      // Log-combinations ln(nCr) for numerical stability up to N=200
+      const logFactCache = [0, 0];
+      function logFactorial(n) {
+        for (let i = logFactCache.length; i <= n; i++) {
+          logFactCache[i] = logFactCache[i - 1] + Math.log(i);
+        }
+        return logFactCache[n];
+      }
+
+      function binomialPMF(n, k, p) {
+        if (k < 0 || k > n) return 0;
+        if (p === 0) return k === 0 ? 1 : 0;
+        if (p === 1) return k === n ? 1 : 0;
+        const logComb = logFactorial(n) - logFactorial(k) - logFactorial(n - k);
+        const logProb = logComb + k * Math.log(p) + (n - k) * Math.log(1 - p);
+        return Math.exp(logProb);
+      }
+
+      function recomputeTheoreticalModel() {
+        const { mode, N, p } = state;
+        state.support = [];
+        state.supportIndexMap.clear();
+        state.theoreticalPMF = [];
+
+        if (mode === 'walk') {
+          // Mode A: 1D Random Walk X_N = 2K - N, support {-N, -N+2, ..., N}, step width dx = 2
+          state.mu = N * (2 * p - 1);
+          state.variance = 4 * N * p * (1 - p);
+          state.sigma = Math.sqrt(state.variance);
+
+          for (let k = 0; k <= N; k++) {
+            const x = 2 * k - N;
+            state.support.push(x);
+            state.supportIndexMap.set(x, k);
+            // Gaussian approximation scaled by step spacing dx = 2:
+            // P(X_N = x) ≈ (2 / (sigma * sqrt(2*pi))) * exp(-(x - mu)^2 / (2*sigma^2))
+            const coeff = 2 / (state.sigma * Math.sqrt(2 * Math.PI));
+            const z = (x - state.mu) / state.sigma;
+            const prob = coeff * Math.exp(-0.5 * z * z);
+            state.theoreticalPMF.push(prob);
+          }
+        } else {
+          // Mode B: Bernoulli Trials X ~ Binomial(N, p), support {0, 1, ..., N}, step width dx = 1
+          state.mu = N * p;
+          state.variance = N * p * (1 - p);
+          state.sigma = Math.sqrt(state.variance);
+
+          for (let k = 0; k <= N; k++) {
+            state.support.push(k);
+            state.supportIndexMap.set(k, k);
+            state.theoreticalPMF.push(binomialPMF(N, k, p));
+          }
+        }
+
+        state.counts = new Array(state.support.length).fill(0);
+      }
+
+      // =========================================================================
+      // 5. CHART.JS INITIALIZATION & ZERO-FLICKER UPDATES (LEVEL 3)
+      // =========================================================================
+      let distChart = null;
+
+      function initDistributionChart() {
+        const ctx = dom.distributionChartCanvas.getContext('2d');
+        distChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: state.support,
+            datasets: [
+              {
+                type: 'line',
+                label: 'Theoretical Probability Law P(X = x)',
+                data: state.theoreticalPMF,
+                borderColor: statsViz.color('--viz-median'),
+                backgroundColor: statsViz.rgba('--viz-median', 0.12),
+                borderWidth: 2.5,
+                pointRadius: 2,
+                pointHoverRadius: 4,
+                pointBackgroundColor: statsViz.color('--viz-median'),
+                tension: 0.32,
+                fill: true,
+                order: 1
+              },
+              {
+                type: 'bar',
+                label: 'Empirical Relative Frequency (count / M)',
+                data: new Array(state.support.length).fill(0),
+                backgroundColor: statsViz.rgba('--viz-group-c', 0.72),
+                borderColor: statsViz.color('--viz-group-c'),
+                borderWidth: 1,
+                borderRadius: 3,
+                barPercentage: 0.92,
+                categoryPercentage: 0.92,
+                order: 2
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            interaction: {
+              mode: 'index',
+              intersect: false
+            },
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                backgroundColor: '#ffffff',
+                titleColor: '#000000',
+                bodyColor: '#000000',
+                borderColor: '#000000',
+                borderWidth: 1,
+                padding: 10,
+                callbacks: {
+                  title: (items) => {
+                    const xVal = items[0].label;
+                    return state.mode === 'walk'
+                      ? `Final Position X_N = ${xVal}`
+                      : `Total Heads X = ${xVal}`;
+                  },
+                  label: (item) => {
+                    const val = Number(item.raw).toFixed(4);
+                    if (item.datasetIndex === 0) {
+                      return ` Theoretical P(X = x): ${val}`;
+                    } else {
+                      const idx = item.dataIndex;
+                      const cnt = state.counts[idx] || 0;
+                      return ` Empirical Freq: ${val} (${cnt} / ${state.M})`;
+                    }
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Support of Random Variable X',
+                  color: '#000000',
+                  font: { size: 11, weight: '600' }
+                },
+                ticks: {
+                  color: '#000000',
+                  font: { family: 'Arial, Helvetica, sans-serif', size: 10 },
+                  maxRotation: 0,
+                  autoSkip: true,
+                  maxTicksLimit: 21
+                },
+                grid: {
+                  color: statsViz.rgba('--viz-reference', 0.28)
+                }
+              },
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Probability / Relative Frequency',
+                  color: '#000000',
+                  font: { size: 11, weight: '600' }
+                },
+                ticks: {
+                  color: '#000000',
+                  font: { family: 'Arial, Helvetica, sans-serif', size: 10 },
+                  callback: (v) => Number(v).toFixed(2)
+                },
+                grid: {
+                  color: statsViz.rgba('--viz-reference', 0.28)
+                }
+              }
+            }
+          }
+        });
+      }
+
+      function syncDistributionChart() {
+        if (!distChart) return;
+        distChart.data.labels = state.support;
+        distChart.data.datasets[0].data = state.theoreticalPMF;
+
+        const empiricalFreqs = state.M > 0
+          ? state.counts.map((c) => c / state.M)
+          : new Array(state.support.length).fill(0);
+
+        distChart.data.datasets[1].data = empiricalFreqs;
+        distChart.options.scales.x.title.text = state.mode === 'walk'
+          ? `Final Position X_N ∈ [-${state.N}, +${state.N}] (Step Spacing Δx = 2)`
+          : `Total Heads X ∈ [0, ${state.N}] (Step Spacing Δx = 1)`;
+
+        distChart.update('none');
+      }
+
+      // =========================================================================
+      // 6. LEVEL 1 HIGH-DPI CANVAS ENGINE (RANDOM WALK & BERNOULLI GRID)
+      // =========================================================================
+      function resizeAndRenderProcessCanvas() {
+        const canvas = dom.processCanvas;
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+
+        if (canvas.width !== Math.floor(rect.width * dpr) || canvas.height !== Math.floor(rect.height * dpr)) {
+          canvas.width = Math.floor(rect.width * dpr);
+          canvas.height = Math.floor(rect.height * dpr);
+        }
+
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        const W = rect.width;
+        const H = rect.height;
+
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.mode === 'walk') {
+          drawRandomWalkCanvas(ctx, W, H);
+        } else {
+          drawCoinGridCanvas(ctx, W, H);
+        }
+
+        ctx.restore();
+      }
+
+      function drawRandomWalkCanvas(ctx, W, H) {
+        const padLeft = 46;
+        const padRight = 24;
+        const padTop = 24;
+        const padBottom = 32;
+        const plotW = Math.max(10, W - padLeft - padRight);
+        const plotH = Math.max(10, H - padTop - padBottom);
+
+        const N = state.N;
+        const xToPx = (t) => padLeft + (t / N) * plotW;
+        const yToPx = (pos) => padTop + ((N - pos) / (2 * N)) * plotH;
+
+        // Subtle grid lines
+        ctx.strokeStyle = statsViz.rgba('--viz-reference', 0.45);
+        ctx.lineWidth = 1;
+        const yTicks = [-N, -Math.round(N / 2), 0, Math.round(N / 2), N];
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#000000';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+
+        yTicks.forEach((val) => {
+          const py = yToPx(val);
+          ctx.beginPath();
+          ctx.moveTo(padLeft, py);
+          ctx.lineTo(W - padRight, py);
+          ctx.stroke();
+          ctx.fillText(val > 0 ? `+${val}` : `${val}`, padLeft - 8, py);
+        });
+
+        // X-axis step ticks
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        const xTickCount = 5;
+        for (let i = 0; i <= xTickCount; i++) {
+          const tVal = Math.round((i / xTickCount) * N);
+          const px = xToPx(tVal);
+          ctx.beginPath();
+          ctx.moveTo(px, padTop);
+          ctx.lineTo(px, H - padBottom);
+          ctx.stroke();
+          ctx.fillText(`t=${tVal}`, px, H - padBottom + 8);
+        }
+
+        // Dashed Reference Line Y = 0
+        const yZero = yToPx(0);
+        ctx.save();
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = statsViz.color('--viz-reference');
+        ctx.beginPath();
+        ctx.moveTo(padLeft, yZero);
+        ctx.lineTo(W - padRight, yZero);
+        ctx.stroke();
+        ctx.restore();
+
+        // Dashed Theoretical Mean Line Y = mu
+        const yMu = yToPx(state.mu);
+        ctx.save();
+        ctx.setLineDash([6, 4]);
+        ctx.strokeStyle = statsViz.color('--viz-mean');
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(padLeft, yMu);
+        ctx.lineTo(W - padRight, yMu);
+        ctx.stroke();
+        ctx.fillStyle = statsViz.color('--viz-mean');
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(`μ = ${state.mu.toFixed(1)}`, padLeft + 6, yMu - 4);
+        ctx.restore();
+
+        // Ghost Paths (last 10 realizations)
+        ctx.strokeStyle = statsViz.rgba('--viz-reference', 0.45);
+        ctx.lineWidth = 1.25;
+        state.ghostWalks.forEach((walk) => {
+          ctx.beginPath();
+          for (let t = 0; t < walk.length; t++) {
+            const px = xToPx(t);
+            const py = yToPx(walk[t]);
+            if (t === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+        });
+
+        // Active Trajectory
+        if (state.activeWalk && state.currentStep > 0) {
+          const maxT = Math.min(state.currentStep, state.activeWalk.length - 1);
+          ctx.strokeStyle = statsViz.color('--viz-group-a');
+          ctx.lineWidth = 2.4;
+          ctx.beginPath();
+          for (let t = 0; t <= maxT; t++) {
+            const px = xToPx(t);
+            const py = yToPx(state.activeWalk[t]);
+            if (t === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+
+          // Glowing head particle
+          const headX = xToPx(maxT);
+          const headY = yToPx(state.activeWalk[maxT]);
+
+          ctx.save();
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = statsViz.color('--viz-group-a');
+          ctx.beginPath();
+          ctx.arc(headX, headY, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // Live coordinate badge near particle
+          ctx.font = 'bold 11px "JetBrains Mono", monospace';
+          ctx.fillStyle = '#000000';
+          ctx.textAlign = headX > W - 90 ? 'right' : 'left';
+          const offsetX = headX > W - 90 ? -10 : 10;
+          const posVal = state.activeWalk[maxT];
+          ctx.fillText(`X_${maxT} = ${posVal > 0 ? '+' + posVal : posVal}`, headX + offsetX, headY - 8);
+        }
+      }
+
+      function drawCoinGridCanvas(ctx, W, H) {
+        const padX = 20;
+        const padTop = 36;
+        const padBottom = 48;
+        const availW = Math.max(20, W - padX * 2);
+        const availH = Math.max(20, H - padTop - padBottom);
+
+        const N = state.N;
+        // Compute optimal grid rows & cols
+        const aspect = availW / availH;
+        let cols = Math.ceil(Math.sqrt(N * aspect));
+        cols = Math.max(5, Math.min(N, cols));
+        const rows = Math.ceil(N / cols);
+
+        const cellGap = 5;
+        const cellW = Math.floor((availW - (cols - 1) * cellGap) / cols);
+        const cellH = Math.floor((availH - (rows - 1) * cellGap) / rows);
+        const size = Math.max(12, Math.min(cellW, cellH, 38));
+
+        const totalGridW = cols * size + (cols - 1) * cellGap;
+        const totalGridH = rows * size + (rows - 1) * cellGap;
+        const startX = Math.floor((W - totalGridW) / 2);
+        const startY = padTop + Math.floor((availH - totalGridH) / 2);
+
+        let headsCount = 0;
+        let tailsCount = 0;
+        const revealed = state.activeCoins ? state.currentStep : 0;
+
+        ctx.font = `${Math.max(9, Math.floor(size * 0.42))}px "JetBrains Mono", monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        for (let i = 0; i < N; i++) {
+          const r = Math.floor(i / cols);
+          const c = i % cols;
+          const x = startX + c * (size + cellGap);
+          const y = startY + r * (size + cellGap);
+
+          if (state.activeCoins && i < revealed) {
+            const isHeads = state.activeCoins[i] === 1;
+            if (isHeads) headsCount++;
+            else tailsCount++;
+
+            ctx.fillStyle = isHeads ? statsViz.rgba('--viz-group-b', 0.28) : statsViz.rgba('--viz-null', 0.22);
+            ctx.strokeStyle = isHeads ? statsViz.color('--viz-group-b') : statsViz.color('--viz-null');
+            ctx.lineWidth = i === revealed - 1 ? 2 : 1.2;
+
+            ctx.beginPath();
+            ctx.roundRect(x, y, size, size, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = isHeads ? statsViz.color('--viz-group-b') : statsViz.color('--viz-null');
+            ctx.fillText(isHeads ? '1' : '0', x + size / 2, y + size / 2);
+          } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(x, y, size, size, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = statsViz.color('--viz-reference');
+            ctx.fillText('·', x + size / 2, y + size / 2);
+          }
+        }
+
+        // Bottom Live Running Tally Bar
+        const barY = H - 30;
+        const barW = Math.min(availW, 460);
+        const barX = (W - barW) / 2;
+        const barH = 12;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#000000';
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW, barH, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        if (revealed > 0) {
+          const headsRatio = headsCount / N;
+          const tailsRatio = tailsCount / N;
+          const hWidth = barW * headsRatio;
+          const tWidth = barW * tailsRatio;
+
+          if (hWidth > 0) {
+            ctx.fillStyle = statsViz.color('--viz-group-b');
+            ctx.beginPath();
+            ctx.roundRect(barX, barY, hWidth, barH, 6);
+            ctx.fill();
+          }
+          if (tWidth > 0) {
+            ctx.fillStyle = statsViz.color('--viz-null');
+            ctx.beginPath();
+            ctx.roundRect(barX + hWidth, barY, tWidth, barH, 6);
+            ctx.fill();
+          }
+        }
+
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#000000';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+          `Running Tally (${revealed}/${N}): Heads (1) = ${headsCount}  |  Tails (0) = ${tailsCount}`,
+          W / 2,
+          barY - 10
+        );
+      }
+
+      // =========================================================================
+      // 7. STOCHASTIC SIMULATION ENGINE & RECORDING
+      // =========================================================================
+      function generateSingleRealizationData() {
+        const { mode, N, p } = state;
+        if (mode === 'walk') {
+          const walk = new Array(N + 1);
+          walk[0] = 0;
+          let upSteps = 0;
+          for (let t = 1; t <= N; t++) {
+            const step = Math.random() < p ? 1 : -1;
+            if (step === 1) upSteps++;
+            walk[t] = walk[t - 1] + step;
+          }
+          const finalX = walk[N];
+          const downSteps = N - upSteps;
+          return {
+            x: finalX,
+            walk,
+            detail: `${upSteps} Up (+1), ${downSteps} Down (-1) → 2(${upSteps}) - ${N} = ${finalX}`
+          };
+        } else {
+          const coins = new Array(N);
+          let heads = 0;
+          for (let i = 0; i < N; i++) {
+            const flip = Math.random() < p ? 1 : 0;
+            coins[i] = flip;
+            heads += flip;
+          }
+          const tails = N - heads;
+          return {
+            x: heads,
+            coins,
+            detail: `${heads} Heads (1), ${tails} Tails (0) → Σ B_i = ${heads}`
+          };
+        }
+      }
+
+      function recordCompletedRealization(result, triggerPulse = true) {
+        const x = result.x;
+        const idx = state.supportIndexMap.get(x);
+        if (idx !== undefined) {
+          state.counts[idx]++;
+        }
+
+        // Welford's online algorithm for mean and unbiased variance
+        state.M += 1;
+        const delta = x - state.sumX / (state.M > 1 ? state.M - 1 : 1);
+        const prevMean = state.M > 1 ? state.sumX / (state.M - 1) : 0;
+        state.sumX += x;
+        const newMean = state.sumX / state.M;
+        if (state.M > 1) {
+          state.sumSqDiff += (x - prevMean) * (x - newMean);
+        }
+
+        state.lastX = x;
+        state.lastRawDetail = result.detail;
+        state.recentX.unshift(x);
+        if (state.recentX.length > 10) state.recentX.pop();
+
+        if (state.mode === 'walk' && result.walk) {
+          state.ghostWalks.push(result.walk);
+          if (state.ghostWalks.length > 10) state.ghostWalks.shift();
+        }
+
+        if (triggerPulse) {
+          dom.level2Card.classList.remove('rv-pulse');
+          void dom.level2Card.offsetWidth; // Force reflow
+          dom.level2Card.classList.add('rv-pulse');
+        }
+      }
+
+      // =========================================================================
+      // 8. ANIMATION LOOP & BATCH EXECUTION
+      // =========================================================================
+      function startSingleAnimatedTrial() {
+        if (state.isAnimatingStep) return;
+
+        const realization = generateSingleRealizationData();
+        state.isAnimatingStep = true;
+        state.currentStep = 0;
+
+        if (state.mode === 'walk') {
+          state.activeWalk = realization.walk;
+        } else {
+          state.activeCoins = realization.coins;
+        }
+
+        dom.processStatusDot.className = 'w-2 h-2 rounded-full bg-cyan-400 animate-ping';
+        state.lastFrameTime = performance.now();
+
+        function stepFrame(now) {
+          if (!state.isAnimatingStep) return;
+
+          // Determine how many steps to advance per frame based on speed (1x to 20x)
+          const speed = state.speed;
+          const intervalMs = Math.max(4, 140 - speed * 6.5);
+          const elapsed = now - state.lastFrameTime;
+
+          if (elapsed >= intervalMs) {
+            state.lastFrameTime = now;
+            const stepsPerTick = speed >= 16
+              ? Math.max(2, Math.ceil(state.N / 4))
+              : speed >= 10
+              ? Math.max(1, Math.ceil(state.N / 15))
+              : 1;
+
+            state.currentStep = Math.min(state.N, state.currentStep + stepsPerTick);
+            dom.processStatusText.textContent = `Running (t = ${state.currentStep} / ${state.N})`;
+            resizeAndRenderProcessCanvas();
+
+            if (state.currentStep >= state.N) {
+              // Trial finished
+              state.isAnimatingStep = false;
+              dom.processStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+              dom.processStatusText.textContent = `Completed (t = ${state.N})`;
+
+              recordCompletedRealization(realization, true);
+              resizeAndRenderProcessCanvas();
+              updateLevel2And4UI();
+              syncDistributionChart();
+
+              if (state.autoPlay) {
+                state.rafId = requestAnimationFrame(() => startSingleAnimatedTrial());
+              }
+              return;
+            }
+          }
+
+          state.rafId = requestAnimationFrame(stepFrame);
+        }
+
+        state.rafId = requestAnimationFrame(stepFrame);
+      }
+
+      function runBatchSimulation(batchCount) {
+        cancelActiveAnimation();
+
+        let lastRealization = null;
+        for (let i = 0; i < batchCount; i++) {
+          lastRealization = generateSingleRealizationData();
+          recordCompletedRealization(lastRealization, false);
+        }
+
+        if (lastRealization) {
+          state.currentStep = state.N;
+          if (state.mode === 'walk') {
+            state.activeWalk = lastRealization.walk;
+          } else {
+            state.activeCoins = lastRealization.coins;
+          }
+          dom.level2Card.classList.remove('rv-pulse');
+          void dom.level2Card.offsetWidth;
+          dom.level2Card.classList.add('rv-pulse');
+        }
+
+        dom.processStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        dom.processStatusText.textContent = `Batch +${batchCount.toLocaleString()} Complete`;
+
+        resizeAndRenderProcessCanvas();
+        updateLevel2And4UI();
+        syncDistributionChart();
+      }
+
+      function cancelActiveAnimation() {
+        if (state.rafId) {
+          cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+        }
+        state.isAnimatingStep = false;
+      }
+
+      function setAutoPlay(enabled) {
+        state.autoPlay = enabled;
+        if (enabled) {
+          dom.autoPlayIcon.textContent = '⏸';
+          dom.autoPlayText.textContent = 'Pause';
+          dom.autoPlayBtn.className =
+            'px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition flex items-center gap-1.5 min-w-[88px] justify-center';
+          if (!state.isAnimatingStep) {
+            startSingleAnimatedTrial();
+          }
+        } else {
+          dom.autoPlayIcon.textContent = '▶';
+          dom.autoPlayText.textContent = 'Auto-Play';
+          dom.autoPlayBtn.className =
+            'px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1.5 min-w-[88px] justify-center';
+          cancelActiveAnimation();
+        }
+      }
+
+      // =========================================================================
+      // 9. UI UPDATERS FOR LEVELS 0, 2, 3, AND 4
+      // =========================================================================
+      function updateLevel0UI() {
+        const { mode, N, p, mu, variance, sigma } = state;
+
+        dom.paramNValue.textContent = N;
+        dom.paramPValue.textContent = p.toFixed(2);
+
+        if (mode === 'walk') {
+          dom.paramNLabel.textContent = 'Steps Horizon';
+          dom.paramPLabel.textContent = 'Up-Step Prob';
+          dom.modeFormulaTag.textContent = '1D Random Walk';
+          renderMath(dom.formulaMu, `\\mu = N(2p - 1) = ${mu.toFixed(2)}`);
+          renderMath(dom.formulaVar, `\\sigma^2 = 4Np(1-p) = ${variance.toFixed(2)}`);
+          renderMath(
+            dom.rvMappingFormula,
+            `X_N(\\omega) = \\sum_{t=1}^{N} S_t = 2K - N \\in \\{-${N}, \\dots, +${N}\\}`
+          );
+          dom.rvSupportLabel.textContent = `Support: [-${N}, +${N}] (Δx=2)`;
+          dom.commensurabilityNote.innerHTML =
+            `<strong>Commensurable Scaling:</strong> Gaussian density $f(x)$ is multiplied by support step spacing $\\Delta x = 2$ so curve height matches discrete parity mass $P(X_N = x)$.`;
+          dom.canvasLegendWalk.classList.remove('hidden');
+          dom.canvasLegendCoin.classList.add('hidden');
+          dom.ciScaleMin.textContent = `-${N}`;
+          dom.ciScaleMax.textContent = `+${N}`;
+        } else {
+          dom.paramNLabel.textContent = 'Number of Flips';
+          dom.paramPLabel.textContent = 'Heads Prob';
+          dom.modeFormulaTag.textContent = 'Binomial(N, p)';
+          renderMath(dom.formulaMu, `\\mu = Np = ${mu.toFixed(2)}`);
+          renderMath(dom.formulaVar, `\\sigma^2 = Np(1-p) = ${variance.toFixed(2)}`);
+          renderMath(
+            dom.rvMappingFormula,
+            `X(\\omega) = \\sum_{i=1}^{N} B_i \\sim \\text{Binomial}(${N}, ${p.toFixed(2)})`
+          );
+          dom.rvSupportLabel.textContent = `Support: [0, ${N}] (Δx=1)`;
+          dom.commensurabilityNote.innerHTML =
+            `<strong>Commensurable Scaling:</strong> Exact Binomial PMF $P(X=k) = \\binom{N}{k}p^k(1-p)^{N-k}$ evaluated via log-factorials at unit spacing $\\Delta x = 1$.`;
+          dom.canvasLegendWalk.classList.add('hidden');
+          dom.canvasLegendCoin.classList.remove('hidden');
+          dom.ciScaleMin.textContent = `0`;
+          dom.ciScaleMax.textContent = `${N}`;
+        }
+
+        renderInlineLaTeXInText();
+
+        dom.trueParamsReadout.textContent = `${mu.toFixed(2)}, ${variance.toFixed(2)}, ${sigma.toFixed(2)}`;
+        dom.totalSupportPointsBadge.textContent = `Support States: ${state.support.length}`;
+
+        // Update Level 4 True Parameter column immediately
+        dom.tableTrueMean.textContent = mu.toFixed(3);
+        dom.tableTrueVar.textContent = variance.toFixed(3);
+        dom.tableTrueSD.textContent = sigma.toFixed(3);
+      }
+
+      function updateLevel2And4UI() {
+        const { M, sumX, sumSqDiff, mu, variance, sigma, lastX, lastRawDetail, recentX, mode, N } = state;
+
+        // Level 2 Readouts
+        if (M === 0 || lastX === null) {
+          dom.rvDigitalValue.textContent = '—';
+          dom.rvDecompositionText.textContent = 'Awaiting first trial...';
+          dom.recentRealizationsList.innerHTML =
+            '<span class="text-xs text-slate-600 font-mono-num italic">No observations recorded yet</span>';
+        } else {
+          dom.rvDigitalValue.textContent = mode === 'walk' && lastX > 0 ? `+${lastX}` : `${lastX}`;
+          dom.rvDecompositionText.textContent = lastRawDetail;
+
+          dom.recentRealizationsList.innerHTML = recentX
+            .map((val, idx) => {
+              const formatted = mode === 'walk' && val > 0 ? `+${val}` : `${val}`;
+              const style =
+                idx === 0
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-bold'
+                  : 'bg-slate-950 text-slate-400 border-slate-800';
+              return `<span class="px-2 py-0.5 rounded text-xs font-mono-num border ${style} shrink-0">${formatted}</span>`;
+            })
+            .join('');
+        }
+
+        // Level 4 Statistics & Inference Table
+        dom.statMValue.textContent = M.toLocaleString();
+
+        if (M === 0) {
+          dom.statMeanError.textContent = '—';
+          dom.tableSampleMean.textContent = '—';
+          dom.tableDiffMean.textContent = '—';
+          dom.tableSampleVar.textContent = '—';
+          dom.tableDiffVar.textContent = '—';
+          dom.tableSampleSD.textContent = '—';
+          dom.tableDiffSD.textContent = '—';
+
+          dom.ciCaptureBadge.textContent = 'Need M ≥ 2';
+          dom.ciCaptureBadge.className =
+            'px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-400 border border-slate-700';
+          dom.ciNumericReadout.textContent = '[ — , — ]';
+          dom.ciIntervalBar.classList.add('hidden');
+          dom.ciSampleMeanDot.classList.add('hidden');
+          return;
+        }
+
+        const sampleMean = sumX / M;
+        const meanErr = Math.abs(sampleMean - mu);
+        const diffMean = sampleMean - mu;
+
+        dom.statMeanError.textContent = meanErr.toFixed(3);
+        dom.tableSampleMean.textContent = sampleMean.toFixed(3);
+        dom.tableDiffMean.textContent = (diffMean >= 0 ? '+' : '') + diffMean.toFixed(3);
+
+        if (M < 2) {
+          dom.tableSampleVar.textContent = '— (M=1)';
+          dom.tableDiffVar.textContent = '—';
+          dom.tableSampleSD.textContent = '— (M=1)';
+          dom.tableDiffSD.textContent = '—';
+
+          dom.ciCaptureBadge.textContent = 'Need M ≥ 2';
+          dom.ciNumericReadout.textContent = '[ — , — ]';
+          dom.ciIntervalBar.classList.add('hidden');
+          dom.ciSampleMeanDot.classList.add('hidden');
+        } else {
+          // Unbiased Sample Variance with Bessel's Correction (M - 1)
+          const sampleVar = sumSqDiff / (M - 1);
+          const sampleSD = Math.sqrt(sampleVar);
+          const diffVar = sampleVar - variance;
+          const diffSD = sampleSD - sigma;
+
+          dom.tableSampleVar.textContent = sampleVar.toFixed(3);
+          dom.tableDiffVar.textContent = (diffVar >= 0 ? '+' : '') + diffVar.toFixed(3);
+          dom.tableSampleSD.textContent = sampleSD.toFixed(3);
+          dom.tableDiffSD.textContent = (diffSD >= 0 ? '+' : '') + diffSD.toFixed(3);
+
+          // 95% Empirical Confidence Interval: X_bar ± 1.96 * (s / sqrt(M))
+          const stdError = sampleSD / Math.sqrt(M);
+          const margin = 1.96 * stdError;
+          const ciLow = sampleMean - margin;
+          const ciHigh = sampleMean + margin;
+          const captured = mu >= ciLow && mu <= ciHigh;
+
+          dom.ciNumericReadout.textContent = `[ ${ciLow.toFixed(3)} , ${ciHigh.toFixed(3)} ]  (±${margin.toFixed(3)})`;
+
+          if (captured) {
+            dom.ciCaptureBadge.textContent = '✓ Captures True μ';
+            dom.ciCaptureBadge.className =
+              'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+          } else {
+            dom.ciCaptureBadge.textContent = '✗ Misses True μ';
+            dom.ciCaptureBadge.className =
+              'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40';
+          }
+
+          // Update visual CI gauge relative to domain
+          const minDomain = mode === 'walk' ? -N : 0;
+          const maxDomain = N;
+          const span = maxDomain - minDomain || 1;
+
+          const toPct = (v) => Math.max(0, Math.min(100, ((v - minDomain) / span) * 100));
+          const muPct = toPct(mu);
+          const lowPct = toPct(ciLow);
+          const highPct = toPct(ciHigh);
+          const meanPct = toPct(sampleMean);
+
+          dom.ciTrueMuMarker.style.left = `${muPct}%`;
+          dom.ciIntervalBar.style.left = `${lowPct}%`;
+          dom.ciIntervalBar.style.width = `${Math.max(1.5, highPct - lowPct)}%`;
+          dom.ciSampleMeanDot.style.left = `${meanPct}%`;
+
+          dom.ciIntervalBar.classList.remove('hidden');
+          dom.ciSampleMeanDot.classList.remove('hidden');
+        }
+      }
+
+      // =========================================================================
+      // 10. RESET & PARAMETER RECALIBRATION
+      // =========================================================================
+      function resetSimulationHistory() {
+        setAutoPlay(false);
+        cancelActiveAnimation();
+
+        state.M = 0;
+        state.sumX = 0;
+        state.sumSqDiff = 0;
+        state.lastX = null;
+        state.lastRawDetail = '';
+        state.recentX = [];
+        state.ghostWalks = [];
+        state.activeWalk = null;
+        state.activeCoins = null;
+        state.currentStep = 0;
+
+        recomputeTheoreticalModel();
+        updateLevel0UI();
+        updateLevel2And4UI();
+        syncDistributionChart();
+
+        dom.processStatusDot.className = 'w-2 h-2 rounded-full bg-slate-500';
+        dom.processStatusText.textContent = 'Ready (t = 0)';
+        resizeAndRenderProcessCanvas();
+      }
+
+      function switchSimulationMode(newMode) {
+        if (state.mode === newMode) return;
+        state.mode = newMode;
+
+        if (newMode === 'walk') {
+          dom.modeWalkBtn.className =
+            'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-indigo-600 text-white shadow-sm';
+          dom.modeCoinBtn.className =
+            'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-slate-200';
+
+          dom.paramNSlider.min = '10';
+          dom.paramNSlider.max = '200';
+          dom.paramNSlider.step = '2';
+          dom.paramNSlider.value = '50';
+          state.N = 50;
+          dom.paramNMin.textContent = '10';
+          dom.paramNMid.textContent = '100';
+          dom.paramNMax.textContent = '200';
+        } else {
+          dom.modeCoinBtn.className =
+            'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-indigo-600 text-white shadow-sm';
+          dom.modeWalkBtn.className =
+            'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-slate-200';
+
+          dom.paramNSlider.min = '5';
+          dom.paramNSlider.max = '100';
+          dom.paramNSlider.step = '1';
+          dom.paramNSlider.value = '30';
+          state.N = 30;
+          dom.paramNMin.textContent = '5';
+          dom.paramNMid.textContent = '50';
+          dom.paramNMax.textContent = '100';
+        }
+
+        resetSimulationHistory();
+      }
+
+      // =========================================================================
+      // 11. EVENT LISTENERS & INITIALIZATION
+      // =========================================================================
+      dom.modeWalkBtn.addEventListener('click', () => switchSimulationMode('walk'));
+      dom.modeCoinBtn.addEventListener('click', () => switchSimulationMode('coin'));
+
+      dom.paramNSlider.addEventListener('input', (e) => {
+        state.N = parseInt(e.target.value, 10);
+        resetSimulationHistory();
+      });
+
+      dom.paramPSlider.addEventListener('input', (e) => {
+        state.p = parseFloat(e.target.value);
+        resetSimulationHistory();
+      });
+
+      dom.speedSlider.addEventListener('input', (e) => {
+        state.speed = parseInt(e.target.value, 10);
+        dom.speedReadout.textContent = `${state.speed}x`;
+      });
+
+      dom.step1Btn.addEventListener('click', () => {
+        setAutoPlay(false);
+        startSingleAnimatedTrial();
+      });
+
+      dom.batch100Btn.addEventListener('click', () => {
+        setAutoPlay(false);
+        runBatchSimulation(100);
+      });
+
+      dom.batch1000Btn.addEventListener('click', () => {
+        setAutoPlay(false);
+        runBatchSimulation(1000);
+      });
+
+      dom.autoPlayBtn.addEventListener('click', () => {
+        setAutoPlay(!state.autoPlay);
+      });
+
+      dom.resetBtn.addEventListener('click', () => {
+        resetSimulationHistory();
+      });
+
+      window.addEventListener('resize', () => {
+        resizeAndRenderProcessCanvas();
+      });
+
+      // Boot sequence
+      window.addEventListener('DOMContentLoaded', () => {
+        renderMath(document.getElementById('mathN'), '(N)');
+        renderMath(document.getElementById('mathP'), '(p)');
+        renderInlineLaTeXInText();
+
+        recomputeTheoreticalModel();
+        initDistributionChart();
+        updateLevel0UI();
+        updateLevel2And4UI();
+        syncDistributionChart();
+        resizeAndRenderProcessCanvas();
+      });
+    })();
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+
+</html>

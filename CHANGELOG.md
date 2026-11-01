@@ -5,6 +5,17 @@ All notable changes to Project Viz are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-11-01
+
+### Added
+
+- The 5-Level Conceptual Hierarchy of Statistics, a Probability Distributions Map, and a Poisson Distribution & Poisson Point Process, under Statistics → Distributions & sampling, with Statistical reasoning track steps
+- 2×2 Mixed ANOVA, under Statistics → ANOVA, with an ANOVA track step after Two-Way ANOVA
+
+### Changed
+
+- Partitioning Sum of Squares now covers 1-way, 2-way, and 3-way between-subjects, within-subjects, and mixed designs
+
 ## [0.1.3] - 2026-10-29
 
 ### Added

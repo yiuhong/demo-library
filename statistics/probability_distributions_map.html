@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+  <title>Interactive Probability Distributions Map</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css" />
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css" />
+  <script src="../assets/stats-viz-theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <link rel="stylesheet" href="../assets/site-oer-footer.css" />
+  <style>
+    :root {
+      --c-coin: var(--viz-group-a);
+      --c-time: var(--viz-group-b);
+      --c-nature: var(--viz-median);
+      --c-tools: var(--viz-group-c);
+      --c-bounds: var(--viz-level-f);
+      --edge-special: var(--viz-highlight);
+      --edge-transform: var(--viz-se);
+      --edge-limit: var(--viz-density);
+    }
+
+    * { box-sizing: border-box; }
+
+    body.demo-page {
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .page-shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .demo-header { margin: 16px 0; }
+    .demo-header h1 { font-size: 1.55rem; }
+
+    .controls-bar { margin-bottom: 14px; }
+
+    .workspace {
+      display: flex;
+      min-height: 720px;
+      height: calc(100vh - 210px);
+      border: 1px solid #000;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .map-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #f6f6f6;
+      cursor: grab;
+      min-width: 0;
+    }
+
+    .map-container:active { cursor: grabbing; }
+
+    #network-svg { width: 100%; height: 100%; display: block; }
+
+    .map-overlay-bottom {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 4px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.75rem;
+    }
+
+    .legend-title {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.68rem;
+    }
+
+    .edge-legend-items { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+    .edge-legend-item { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+    .edge-legend-item.disabled { opacity: 0.35; }
+
+    .line-sample { width: 24px; height: 3px; background: var(--edge-special); }
+    .line-sample.solid-transform { background: var(--edge-transform); }
+    .line-sample.dashed {
+      height: 0;
+      border-top: 3px dashed var(--edge-limit);
+      background: transparent;
+    }
+
+    .zoom-controls {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .icon-btn { width: 36px; height: 36px; padding: 0; }
+
+    .neighborhood-hull {
+      fill-opacity: 0.1;
+      stroke-opacity: 0.85;
+      stroke-width: 1.5;
+      stroke-dasharray: 6 4;
+    }
+
+    .neighborhood-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: Arial, Helvetica, sans-serif;
+      pointer-events: none;
+    }
+
+    .edge-path { fill: none; stroke-width: 2px; cursor: pointer; }
+    .edge-hit { fill: none; stroke: transparent; stroke-width: 14px; cursor: pointer; }
+    .edge-group:hover .edge-path,
+    .edge-group.highlighted .edge-path { stroke-width: 3.2px; }
+
+    .edge-label-bg { fill: #ffffff; stroke: #000000; stroke-width: 1px; }
+    .edge-label-text {
+      fill: #000000;
+      font-size: 10px;
+      font-family: Arial, Helvetica, sans-serif;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .node-group { cursor: pointer; }
+    .node-rect { fill: #ffffff; stroke-width: 2.2px; }
+    .node-group:hover .node-rect,
+    .node-group.selected .node-rect { stroke-width: 3.4px; }
+    .node-title {
+      fill: #000000;
+      font-size: 12.5px;
+      font-weight: 700;
+      font-family: Arial, Helvetica, sans-serif;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+    .node-subtitle {
+      fill: var(--viz-reference);
+      font-size: 10px;
+      font-family: Arial, Helvetica, sans-serif;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+    .node-badge {
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      fill: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      pointer-events: none;
+    }
+
+    .dimmed { opacity: 0.16 !important; }
+
+    .inspector-panel {
+      width: 420px;
+      background: #fff;
+      border-left: 1px solid #000;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .inspector-header { padding: 16px 18px 12px; border-bottom: 1px solid #000; }
+    .neighborhood-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 10px;
+      border: 1px solid #000;
+      border-radius: 3em;
+      margin-bottom: 8px;
+      background: #fff;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .dist-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .dist-title-row h2 { font-size: 1.3rem; margin: 0; }
+    .dist-type-badge {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border: 1px solid #000;
+      border-radius: 4px;
+      font-weight: 700;
+      background: #fff;
+    }
+    .inspector-section { padding: 14px 18px; border-bottom: 1px solid #000; }
+    .section-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .intuition-text { font-size: 0.88rem; line-height: 1.5; margin: 0 0 10px; }
+    .example-box {
+      background: var(--viz-group-a-soft);
+      border-left: 3px solid var(--viz-group-a);
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+    .formula-box {
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 4px;
+      padding: 12px;
+      text-align: center;
+      margin-bottom: 10px;
+      overflow-x: auto;
+    }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card {
+      background: #f6f6f6;
+      border: 1px solid #000;
+      border-radius: 4px;
+      padding: 8px;
+      text-align: center;
+    }
+    .stat-card .stat-name { font-size: 0.68rem; text-transform: uppercase; margin-bottom: 4px; font-weight: 700; }
+    .stat-card .stat-val { font-size: 0.82rem; font-weight: 700; }
+    .plot-box {
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 12px;
+    }
+    #dist-plot-svg { width: 100%; height: 170px; display: block; }
+    .sliders-container { display: flex; flex-direction: column; gap: 10px; }
+    .slider-header { display: flex; justify-content: space-between; font-size: 0.8rem; align-items: center; }
+    .param-val { color: #000; }
+    input[type="range"] { width: 100%; cursor: pointer; }
+    .connections-list { display: flex; flex-direction: column; gap: 8px; }
+    .connection-item {
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 4px;
+      padding: 9px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .connection-item:hover { background: #f6f6f6; }
+    .conn-header { display: flex; align-items: center; justify-content: space-between; font-weight: 700; gap: 8px; }
+    .conn-label { color: var(--viz-density); font-size: 0.75rem; }
+    .conn-badge { font-size: 0.68rem; padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; text-transform: uppercase; font-weight: 700; }
+    .conn-badge.special { color: var(--viz-highlight); background: color-mix(in srgb, var(--viz-highlight) 14%, #fff); }
+    .conn-badge.transform { color: var(--viz-se); background: var(--viz-se-soft); }
+    .conn-badge.limit { color: var(--viz-density); background: var(--viz-density-soft); }
+    .conn-desc { font-size: 0.76rem; line-height: 1.35; margin-top: 4px; }
+    #map-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: #fff;
+      border: 1px solid #000;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      max-width: 260px;
+      z-index: 30;
+      opacity: 0;
+    }
+    .tip-desc { color: var(--viz-reference); }
+
+    @media (max-width: 960px) {
+      .workspace { flex-direction: column; height: auto; }
+      .map-container { min-height: 520px; }
+      .inspector-panel { width: 100%; border-left: none; border-top: 1px solid #000; }
+    }
+
+  </style>
+</head>
+<body class="demo-page">
+  <div class="page-shell">
+    <a class="demo-back" href="../index.html">← Project Viz</a>
+    <header class="demo-header">
+      <h1>Probability Distributions Map</h1>
+      <p>Interactive Leemis-style relationship network across the 5 problem-solving neighborhoods</p>
+    </header>
+    <div class="controls-bar demo-chip-group" id="neighborhood-filters">
+      <button class="demo-chip is-active" type="button" data-filter="all">All 16 Distributions</button>
+      <button class="demo-chip" type="button" data-filter="coin"><span class="dot" style="background:var(--c-coin)"></span>1. Coin Flip (Counts)</button>
+      <button class="demo-chip" type="button" data-filter="time"><span class="dot" style="background:var(--c-time)"></span>2. Arrivals &amp; Time</button>
+      <button class="demo-chip" type="button" data-filter="nature"><span class="dot" style="background:var(--c-nature)"></span>3. Natural World</button>
+      <button class="demo-chip" type="button" data-filter="tools"><span class="dot" style="background:var(--c-tools)"></span>4. Statistician's Toolbelt</button>
+      <button class="demo-chip" type="button" data-filter="bounds"><span class="dot" style="background:var(--c-bounds)"></span>5. Boundaries &amp; Extremes</button>
+    </div>
+    <div class="workspace">
+      <div class="map-container" id="map-container">
+        <div class="zoom-controls">
+          <button class="demo-btn icon-btn" id="btn-zoom-in" type="button" title="Zoom In">+</button>
+          <button class="demo-btn icon-btn" id="btn-zoom-out" type="button" title="Zoom Out">−</button>
+          <button class="demo-btn icon-btn" id="btn-reset" type="button" title="Reset View">⟲</button>
+        </div>
+        <svg id="network-svg" viewBox="0 0 1150 780" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <marker id="arrow-special" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706" />
+            </marker>
+            <marker id="arrow-transform" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#9333ea" />
+            </marker>
+            <marker id="arrow-limit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#1e40af" />
+            </marker>
+          </defs>
+          <g id="viewport-group">
+            <g id="hulls-layer"></g>
+            <g id="edges-layer"></g>
+            <g id="nodes-layer"></g>
+          </g>
+        </svg>
+        <div class="map-overlay-bottom">
+          <div class="legend-title">Arrow Types (Click to Toggle)</div>
+          <div class="edge-legend-items">
+            <div class="edge-legend-item" data-edgetype="special">
+              <span class="line-sample solid-special"></span>
+              <span>Special Case (fix parameter)</span>
+            </div>
+            <div class="edge-legend-item" data-edgetype="transform">
+              <span class="line-sample solid-transform"></span>
+              <span>Transformation / Sum ($g(X)$)</span>
+            </div>
+            <div class="edge-legend-item" data-edgetype="limit">
+              <span class="line-sample dashed"></span>
+              <span>Limit / Approximation ($\to \infty$)</span>
+            </div>
+          </div>
+        </div>
+        <div id="map-tooltip"></div>
+      </div>
+    <aside class="inspector-panel">
+
+      <div class="inspector-header">
+        <div class="neighborhood-tag" id="insp-neighborhood-tag">
+          <span class="dot" id="insp-dot"></span>
+          <span id="insp-neighborhood-name">Neighborhood</span>
+        </div>
+        <div class="dist-title-row">
+          <h2 id="insp-title">Normal (Gaussian)</h2>
+          <span class="dist-type-badge" id="insp-type">Continuous</span>
+        </div>
+      </div>
+
+      <!-- Interactive Live PDF/PMF Explorer -->
+      <div class="inspector-section">
+        <div class="section-label" id="plot-section-label">Live Density / Mass Explorer</div>
+        <div class="plot-box">
+          <svg id="dist-plot-svg" viewBox="0 0 360 170"></svg>
+        </div>
+        <div class="sliders-container" id="insp-sliders"></div>
+      </div>
+
+      <!-- Real-World Intuition -->
+      <div class="inspector-section">
+        <div class="section-label">Why It Exists &amp; Intuition</div>
+        <p class="intuition-text" id="insp-intuition"></p>
+        <div class="example-box" id="insp-example"></div>
+      </div>
+
+      <!-- Mathematical Definition -->
+      <div class="inspector-section">
+        <div class="section-label">Mathematical Formulation (PMF / PDF)</div>
+        <div class="formula-box" id="insp-formula"></div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-name">Support</div>
+            <div class="stat-val" id="insp-support"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-name">Mean $E[X]$</div>
+            <div class="stat-val" id="insp-mean"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-name">Variance $\text{Var}(X)$</div>
+            <div class="stat-val" id="insp-var"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leemis Map Connections -->
+      <div class="inspector-section" style="border-bottom: none;">
+        <div class="section-label">How It Connects on the Map</div>
+        <div class="connections-list" id="insp-connections"></div>
+      </div>
+    </aside>
+  </div>
+
+    </div>
+<script>
+
+    // =========================================================================
+    // 1. NEIGHBORHOODS & DISTRIBUTIONS DATA
+    // =========================================================================
+    const NEIGHBORHOODS = {
+      coin: {
+        id: 'coin',
+        name: '1. The "Coin Flip" Neighborhood',
+        short: 'Coin Flip (Discrete Counts)',
+        color: '#3b82f6', // painted from --viz-group-a below
+        box: { x: 40, y: 35, w: 480, h: 325 }
+      },
+      time: {
+        id: 'time',
+        name: '2. The "Arrivals & Time" Neighborhood',
+        short: 'Arrivals & Time',
+        color: '#10b981',
+        box: { x: 40, y: 390, w: 480, h: 355 }
+      },
+      bounds: {
+        id: 'bounds',
+        name: '5. The "Boundaries & Extremes" Neighborhood',
+        short: 'Boundaries & Extremes',
+        color: '#ec4899',
+        box: { x: 560, y: 35, w: 550, h: 195 }
+      },
+      nature: {
+        id: 'nature',
+        name: '3. The "Natural World" Neighborhood',
+        short: 'Natural World (Continuous)',
+        color: '#8b5cf6',
+        box: { x: 560, y: 260, w: 550, h: 215 }
+      },
+      tools: {
+        id: 'tools',
+        name: '4. The "Statistician\'s Toolbelt" Neighborhood',
+        short: 'Statistician\'s Toolbelt (Inference)',
+        color: '#f59e0b',
+        box: { x: 560, y: 505, w: 550, h: 240 }
+      }
+    };
+
+
+    NEIGHBORHOODS.coin.color = statsViz.color('--viz-group-a');
+    NEIGHBORHOODS.time.color = statsViz.color('--viz-group-b');
+    NEIGHBORHOODS.bounds.color = statsViz.color('--viz-level-f');
+    NEIGHBORHOODS.nature.color = statsViz.color('--viz-median');
+    NEIGHBORHOODS.tools.color = statsViz.color('--viz-group-c');
+
+    function edgeStroke(type) {
+      if (type === 'special') return statsViz.color('--viz-highlight');
+      if (type === 'transform') return statsViz.color('--viz-se');
+      return statsViz.color('--viz-density');
+    }
+    const AXIS_INK = statsViz.color('--viz-reference');
+
+    const DISTRIBUTIONS = [
+      // --- 1. COIN FLIP NEIGHBORHOOD ---
+      {
+        id: 'bernoulli',
+        name: 'Bernoulli',
+        notation: 'Bernoulli(p)',
+        neighborhood: 'coin',
+        type: 'Discrete',
+        x: 150, y: 120,
+        intuition: 'The atomic building block of discrete probability. Models a single trial with only two possible outcomes: Success (1) or Failure (0).',
+        example: 'Flipping a single coin once (Heads = 1, Tails = 0), or checking if a single manufactured chip passes inspection.',
+        latex: 'P(X=x) = p^x (1-p)^{1-x}, \\quad x \\in \\{0,1\\}',
+        support: '\\{0, 1\\}',
+        mean: 'p',
+        variance: 'p(1-p)',
+        params: [
+          { key: 'p', label: 'Success Probability (p)', min: 0.05, max: 0.95, step: 0.05, val: 0.6 }
+        ]
+      },
+      {
+        id: 'binomial',
+        name: 'Binomial',
+        notation: 'Binomial(n, p)',
+        neighborhood: 'coin',
+        type: 'Discrete',
+        x: 390, y: 120,
+        intuition: 'Adds up n independent Bernoulli trials. Models the total number of successes out of n fixed attempts when every attempt has the same probability p.',
+        example: 'Counting how many heads you get in 15 coin flips, or how many patients respond to a treatment out of 20.',
+        latex: 'P(X=k) = \\binom{n}{k} p^k (1-p)^{n-k}',
+        support: '\\{0, 1, \\dots, n\\}',
+        mean: 'np',
+        variance: 'np(1-p)',
+        params: [
+          { key: 'n', label: 'Number of Trials (n)', min: 1, max: 30, step: 1, val: 12 },
+          { key: 'p', label: 'Success Probability (p)', min: 0.05, max: 0.95, step: 0.05, val: 0.4 }
+        ]
+      },
+      {
+        id: 'geometric',
+        name: 'Geometric',
+        notation: 'Geometric(p)',
+        neighborhood: 'coin',
+        type: 'Discrete',
+        x: 150, y: 275,
+        intuition: 'Counts how many trials you must perform until you see your very first success. It is the discrete counterpart to the memoryless Exponential distribution.',
+        example: 'How many times you have to roll a die until you finally roll a 6.',
+        latex: 'P(X=k) = (1-p)^{k-1} p, \\quad k \\in \\{1, 2, \\dots\\}',
+        support: '\\{1, 2, 3, \\dots\\}',
+        mean: '\\frac{1}{p}',
+        variance: '\\frac{1-p}{p^2}',
+        params: [
+          { key: 'p', label: 'Success Probability (p)', min: 0.1, max: 0.9, step: 0.05, val: 0.35 }
+        ]
+      },
+      {
+        id: 'hypergeometric',
+        name: 'Hypergeometric',
+        notation: 'Hypergeom(N, K, n)',
+        neighborhood: 'coin',
+        type: 'Discrete',
+        x: 390, y: 275,
+        intuition: 'Sampling WITHOUT replacement. Unlike the Binomial where odds stay constant, every draw changes the remaining deck—unless the total population N is huge.',
+        example: 'Drawing 5 cards from a 52-card deck without replacement and counting how many Aces you get.',
+        latex: 'P(X=k) = \\frac{\\binom{K}{k}\\binom{N-K}{n-k}}{\\binom{N}{n}}',
+        support: 'k \\in [\\max(0, n+K-N), \\min(n, K)]',
+        mean: 'n\\frac{K}{N}',
+        variance: 'n\\frac{K}{N}\\frac{N-K}{N}\\frac{N-n}{N-1}',
+        params: [
+          { key: 'N', label: 'Population Size (N)', min: 20, max: 100, step: 5, val: 50 },
+          { key: 'K', label: 'Total Successes in Pop (K)', min: 5, max: 40, step: 1, val: 20 },
+          { key: 'n', label: 'Draws (n)', min: 1, max: 20, step: 1, val: 10 }
+        ]
+      },
+
+      // --- 2. ARRIVALS & TIME NEIGHBORHOOD ---
+      {
+        id: 'poisson',
+        name: 'Poisson',
+        notation: 'Poisson(λ)',
+        neighborhood: 'time',
+        type: 'Discrete',
+        x: 390, y: 470,
+        intuition: 'Models the count of independent events occurring within a fixed window of time or space when events happen at a constant average rate λ.',
+        example: 'Number of emails arriving in your inbox in one hour, or radioactive decay particles detected per minute.',
+        latex: 'P(X=k) = \\frac{\\lambda^k e^{-\\lambda}}{k!}, \\quad k \\in \\{0,1,2,\\dots\\}',
+        support: '\\{0, 1, 2, \\dots\\}',
+        mean: '\\lambda',
+        variance: '\\lambda',
+        params: [
+          { key: 'lambda', label: 'Average Rate (λ)', min: 0.5, max: 18, step: 0.5, val: 4.5 }
+        ]
+      },
+      {
+        id: 'exponential',
+        name: 'Exponential',
+        notation: 'Exponential(λ)',
+        neighborhood: 'time',
+        type: 'Continuous',
+        x: 150, y: 470,
+        intuition: 'Models the continuous waiting time between Poisson events. Famous for being "memoryless": waiting 10 minutes already does not make the bus arrive any sooner.',
+        example: 'Minutes you have to wait until the next customer walks into a coffee shop.',
+        latex: 'f(x) = \\lambda e^{-\\lambda x}, \\quad x \\ge 0',
+        support: '[0, \\infty)',
+        mean: '\\frac{1}{\\lambda}',
+        variance: '\\frac{1}{\\lambda^2}',
+        params: [
+          { key: 'lambda', label: 'Rate Parameter (λ)', min: 0.2, max: 3.0, step: 0.1, val: 1.0 }
+        ]
+      },
+      {
+        id: 'gamma',
+        name: 'Gamma',
+        notation: 'Gamma(k, λ)',
+        neighborhood: 'time',
+        type: 'Continuous',
+        x: 390, y: 650,
+        intuition: 'Models the total waiting time until k independent Poisson events occur. When k=1, it reduces directly to the Exponential distribution.',
+        example: 'How long a server system takes to experience k total hardware requests, or aggregate insurance claims.',
+        latex: 'f(x) = \\frac{\\lambda^k x^{k-1} e^{-\\lambda x}}{\\Gamma(k)}, \\quad x > 0',
+        support: '(0, \\infty)',
+        mean: '\\frac{k}{\\lambda}',
+        variance: '\\frac{k}{\\lambda^2}',
+        params: [
+          { key: 'k', label: 'Shape / Events (k)', min: 0.5, max: 10, step: 0.5, val: 3.0 },
+          { key: 'lambda', label: 'Rate (λ)', min: 0.5, max: 3.0, step: 0.25, val: 1.0 }
+        ]
+      },
+      {
+        id: 'weibull',
+        name: 'Weibull',
+        notation: 'Weibull(λ, k)',
+        neighborhood: 'time',
+        type: 'Continuous',
+        x: 150, y: 650,
+        intuition: 'Generalizes the Exponential to allow failure rates that increase or decrease with age. Essential in reliability engineering for modeling wear-and-tear.',
+        example: 'Time until a mechanical bearing wears out (k > 1 means older parts break faster; k < 1 means infant mortality).',
+        latex: 'f(x) = \\frac{k}{\\lambda}\\left(\\frac{x}{\\lambda}\\right)^{k-1} e^{-(x/\\lambda)^k}, \\quad x \\ge 0',
+        support: '[0, \\infty)',
+        mean: '\\lambda \\Gamma(1 + 1/k)',
+        variance: '\\lambda^2[\\Gamma(1+2/k) - \\Gamma(1+1/k)^2]',
+        params: [
+          { key: 'k', label: 'Shape / Aging (k)', min: 0.5, max: 5.0, step: 0.25, val: 2.0 },
+          { key: 'scale', label: 'Scale (λ)', min: 0.5, max: 3.0, step: 0.25, val: 1.5 }
+        ]
+      },
+
+      // --- 3. NATURAL WORLD NEIGHBORHOOD ---
+      {
+        id: 'normal',
+        name: 'Normal (Gaussian)',
+        notation: 'Normal(μ, σ²)',
+        neighborhood: 'nature',
+        type: 'Continuous',
+        x: 720, y: 370,
+        intuition: 'The centerpiece of the Leemis map. Thanks to the Central Limit Theorem, almost any sum or average of independent random variables converges toward the bell curve.',
+        example: 'Human height, blood pressure, measurement errors, and standardized test scores.',
+        latex: 'f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} \\exp\\left(-\\frac{(x-\\mu)^2}{2\\sigma^2}\\right)',
+        support: '(-\\infty, \\infty)',
+        mean: '\\mu',
+        variance: '\\sigma^2',
+        params: [
+          { key: 'mu', label: 'Mean (μ)', min: -3, max: 3, step: 0.25, val: 0 },
+          { key: 'sigma', label: 'Std Dev (σ)', min: 0.4, max: 2.5, step: 0.1, val: 1.0 }
+        ]
+      },
+      {
+        id: 'lognormal',
+        name: 'Lognormal',
+        notation: 'Lognormal(μ, σ²)',
+        neighborhood: 'nature',
+        type: 'Continuous',
+        x: 980, y: 370,
+        intuition: 'While adding random effects yields a Normal distribution, MULTIPLYING random effects yields a Lognormal distribution. If X is Normal, exp(X) is Lognormal.',
+        example: 'Stock prices, income distributions, and biological growth rates (cannot drop below zero, long right tail).',
+        latex: 'f(x) = \\frac{1}{x\\sigma\\sqrt{2\\pi}} \\exp\\left(-\\frac{(\\ln x - \\mu)^2}{2\\sigma^2}\\right)',
+        support: '(0, \\infty)',
+        mean: 'e^{\\mu + \\sigma^2/2}',
+        variance: '(e^{\\sigma^2}-1)e^{2\\mu+\\sigma^2}',
+        params: [
+          { key: 'mu', label: 'Log-Mean (μ)', min: -1.0, max: 1.0, step: 0.1, val: 0.0 },
+          { key: 'sigma', label: 'Log-Std Dev (σ)', min: 0.2, max: 1.2, step: 0.1, val: 0.6 }
+        ]
+      },
+
+      // --- 4. STATISTICIAN'S TOOLBELT NEIGHBORHOOD ---
+      {
+        id: 'chisq',
+        name: 'Chi-Square (χ²)',
+        notation: 'χ²(ν)',
+        neighborhood: 'tools',
+        type: 'Continuous',
+        x: 680, y: 630,
+        intuition: 'Obtained by squaring a Standard Normal variable (Z²) and summing ν of them. Because variances are sums of squared deviations, χ² governs sample variance and categorical goodness-of-fit.',
+        example: 'Testing whether clinical trial outcomes depend on treatment group in a contingency table.',
+        latex: 'f(x) = \\frac{x^{\\nu/2-1} e^{-x/2}}{2^{\\nu/2}\\Gamma(\\nu/2)}, \\quad x > 0',
+        support: '[0, \\infty)',
+        mean: '\\nu',
+        variance: '2\\nu',
+        params: [
+          { key: 'df', label: 'Degrees of Freedom (ν)', min: 1, max: 16, step: 1, val: 4 }
+        ]
+      },
+      {
+        id: 'student_t',
+        name: "Student's t",
+        notation: 't(ν)',
+        neighborhood: 'tools',
+        type: 'Continuous',
+        x: 860, y: 565,
+        intuition: 'Built by dividing a Standard Normal Z by a scaled Chi-Square variable. Accounts for the extra uncertainty of estimating the population standard deviation from a small sample.',
+        example: 'Confidence intervals and t-tests for means when sample size n < 30 and true σ is unknown.',
+        latex: 'f(t) = \\frac{\\Gamma(\\frac{\\nu+1}{2})}{\\sqrt{\\nu\\pi}\\,\\Gamma(\\frac{\\nu}{2})} \\left(1+\\frac{t^2}{\\nu}\\right)^{-\\frac{\\nu+1}{2}}',
+        support: '(-\\infty, \\infty)',
+        mean: '0 \\; (\\nu > 1)',
+        variance: '\\frac{\\nu}{\\nu-2} \\; (\\nu > 2)',
+        params: [
+          { key: 'df', label: 'Degrees of Freedom (ν)', min: 1, max: 30, step: 1, val: 3 }
+        ]
+      },
+      {
+        id: 'f_dist',
+        name: 'F-Distribution',
+        notation: 'F(ν₁, ν₂)',
+        neighborhood: 'tools',
+        type: 'Continuous',
+        x: 1000, y: 665,
+        intuition: 'Formed by taking the ratio of two independent Chi-Square variables divided by their degrees of freedom. Used to compare two variances.',
+        example: 'ANOVA (Analysis of Variance) comparing between-group variance to within-group variance.',
+        latex: 'F = \\frac{U_1 / \\nu_1}{U_2 / \\nu_2}, \\quad U_i \\sim \\chi^2(\\nu_i)',
+        support: '[0, \\infty)',
+        mean: '\\frac{\\nu_2}{\\nu_2 - 2} \\; (\\nu_2 > 2)',
+        variance: '\\frac{2\\nu_2^2(\\nu_1+\\nu_2-2)}{\\nu_1(\\nu_2-2)^2(\\nu_2-4)}',
+        params: [
+          { key: 'df1', label: 'Numerator DF (ν₁)', min: 1, max: 20, step: 1, val: 5 },
+          { key: 'df2', label: 'Denominator DF (ν₂)', min: 3, max: 30, step: 1, val: 12 }
+        ]
+      },
+
+      // --- 5. BOUNDARIES & EXTREMES NEIGHBORHOOD ---
+      {
+        id: 'uniform',
+        name: 'Uniform',
+        notation: 'Uniform(0, 1)',
+        neighborhood: 'bounds',
+        type: 'Continuous',
+        x: 650, y: 135,
+        intuition: 'Complete indifference within a bounded interval [a, b]. On the Leemis chart, Uniform(0,1) is the universal random number generator from which other distributions are simulated via inverse transform.',
+        example: 'Random number generators in software, or rounding errors within a known precision.',
+        latex: 'f(x) = \\frac{1}{b-a}, \\quad a \\le x \\le b',
+        support: '[a, b]',
+        mean: '\\frac{a+b}{2}',
+        variance: '\\frac{(b-a)^2}{12}',
+        params: [
+          { key: 'a', label: 'Lower Bound (a)', min: 0, max: 3, step: 0.5, val: 0 },
+          { key: 'b', label: 'Upper Bound (b)', min: 4, max: 10, step: 0.5, val: 6 }
+        ]
+      },
+      {
+        id: 'beta',
+        name: 'Beta',
+        notation: 'Beta(α, β)',
+        neighborhood: 'bounds',
+        type: 'Continuous',
+        x: 840, y: 135,
+        intuition: 'The master distribution of percentages and proportions, strictly confined to [0, 1]. Can morph into a flat line, U-shape, bell, or skewed curve depending on α and β.',
+        example: 'Modeling uncertainty about a conversion rate or a baseball player’s true batting average (Bayesian prior).',
+        latex: 'f(x) = \\frac{x^{\\alpha-1}(1-x)^{\\beta-1}}{B(\\alpha, \\beta)}, \\quad x \\in [0,1]',
+        support: '[0, 1]',
+        mean: '\\frac{\\alpha}{\\alpha+\\beta}',
+        variance: '\\frac{\\alpha\\beta}{(\\alpha+\\beta)^2(\\alpha+\\beta+1)}',
+        params: [
+          { key: 'alpha', label: 'Shape α (Successes)', min: 0.5, max: 8, step: 0.5, val: 2.5 },
+          { key: 'beta', label: 'Shape β (Failures)', min: 0.5, max: 8, step: 0.5, val: 5.0 }
+        ]
+      },
+      {
+        id: 'pareto',
+        name: 'Pareto',
+        notation: 'Pareto(xₘ, α)',
+        neighborhood: 'bounds',
+        type: 'Continuous',
+        x: 1015, y: 135,
+        intuition: 'Power-law distribution with a strict lower minimum xₘ and a heavy right tail. Models the "80/20 rule" where extreme outliers dominate the total.',
+        example: 'Wealth distribution, city population sizes, or the 1% of code modules causing 99% of software crashes.',
+        latex: 'f(x) = \\frac{\\alpha x_m^\\alpha}{x^{\\alpha+1}}, \\quad x \\ge x_m',
+        support: '[x_m, \\infty)',
+        mean: '\\frac{\\alpha x_m}{\\alpha - 1} \\; (\\alpha > 1)',
+        variance: '\\frac{x_m^2 \\alpha}{(\\alpha-1)^2(\\alpha-2)} \\; (\\alpha > 2)',
+        params: [
+          { key: 'xm', label: 'Minimum Scale (xₘ)', min: 0.5, max: 3.0, step: 0.25, val: 1.0 },
+          { key: 'alpha', label: 'Tail Index (α)', min: 1.1, max: 5.0, step: 0.2, val: 2.2 }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 2. LEEMIS MAP EDGES (MATHEMATICAL RELATIONSHIPS)
+    // =========================================================================
+    // Types: 'special' (fixing a parameter), 'transform' (algebraic / sum), 'limit' (asymptotic)
+    const EDGES = [
+      // Coin Flip Internal
+      {
+        from: 'bernoulli', to: 'binomial', type: 'transform',
+        label: 'Σ Xᵢ (n trials)',
+        desc: 'Sum of n independent Bernoulli(p) trials yields a Binomial(n, p) distribution.',
+        curve: -25
+      },
+      {
+        from: 'binomial', to: 'bernoulli', type: 'special',
+        label: 'n = 1',
+        desc: 'A Binomial(n, p) distribution with just n = 1 trial is a Bernoulli(p) distribution.',
+        curve: -25
+      },
+      {
+        from: 'bernoulli', to: 'geometric', type: 'transform',
+        label: 'Trials until 1st 1',
+        desc: 'Counting independent Bernoulli(p) trials until the first success gives Geometric(p).',
+        curve: 0
+      },
+      {
+        from: 'hypergeometric', to: 'binomial', type: 'limit',
+        label: 'N → ∞, K/N → p',
+        desc: 'As population size N grows large relative to sample n, drawing without replacement converges to Binomial.',
+        curve: 0
+      },
+
+      // Coin Flip <-> Arrivals & Time
+      {
+        from: 'binomial', to: 'poisson', type: 'limit',
+        label: 'n → ∞, np → λ',
+        desc: 'Law of Rare Events: When n is large and p is small such that np = λ, Binomial converges to Poisson(λ).',
+        curve: 20
+      },
+      {
+        from: 'geometric', to: 'exponential', type: 'limit',
+        label: 'p → 0 (Δt → 0)',
+        desc: 'Continuous-time limit of Geometric waiting steps becomes the memoryless Exponential waiting time.',
+        curve: 0
+      },
+
+      // Arrivals & Time Internal
+      {
+        from: 'poisson', to: 'exponential', type: 'transform',
+        label: 'Inter-arrival time',
+        desc: 'If counts in time t follow Poisson(λt), the waiting time between consecutive arrivals is Exponential(λ).',
+        curve: 0
+      },
+      {
+        from: 'exponential', to: 'gamma', type: 'transform',
+        label: 'Σ Xᵢ (k events)',
+        desc: 'Sum of k independent Exponential(λ) waiting times follows a Gamma(k, λ) distribution.',
+        curve: 22
+      },
+      {
+        from: 'gamma', to: 'exponential', type: 'special',
+        label: 'k = 1',
+        desc: 'Setting shape parameter k = 1 in Gamma(k, λ) recovers Exponential(λ).',
+        curve: 22
+      },
+      {
+        from: 'exponential', to: 'weibull', type: 'transform',
+        label: 'X^(1/k)',
+        desc: 'Raising an Exponential random variable to a power stretches or compresses time into a Weibull distribution.',
+        curve: -22
+      },
+      {
+        from: 'weibull', to: 'exponential', type: 'special',
+        label: 'k = 1',
+        desc: 'A Weibull distribution with shape k = 1 (constant hazard rate) is an Exponential distribution.',
+        curve: -22
+      },
+
+      // Bridges to Normal (Central Limit Theorem)
+      {
+        from: 'binomial', to: 'normal', type: 'limit',
+        label: 'n → ∞ (CLT)',
+        desc: 'De Moivre–Laplace Theorem: Standardized Binomial(n, p) converges to Normal(0,1) as n → ∞.',
+        curve: -15
+      },
+      {
+        from: 'poisson', to: 'normal', type: 'limit',
+        label: 'λ → ∞ (CLT)',
+        desc: 'For large rate λ, Poisson(λ) is well approximated by Normal(λ, λ).',
+        curve: -10
+      },
+      {
+        from: 'gamma', to: 'normal', type: 'limit',
+        label: 'k → ∞ (CLT)',
+        desc: 'Since Gamma(k, λ) is a sum of k Exponentials, by the Central Limit Theorem it approaches Normal as k → ∞.',
+        curve: 15
+      },
+
+      // Natural World Internal
+      {
+        from: 'normal', to: 'lognormal', type: 'transform',
+        label: 'Y = e^X',
+        desc: 'Exponentiating a Normal(μ, σ²) variable produces a Lognormal(μ, σ²) variable (ln Y is Normal).',
+        curve: -20
+      },
+
+      // Statistician's Toolbelt Connections
+      {
+        from: 'normal', to: 'chisq', type: 'transform',
+        label: 'Σ Zᵢ²',
+        desc: 'Summing the squares of ν independent Standard Normal variables yields Chi-Square(ν).',
+        curve: 0
+      },
+      {
+        from: 'gamma', to: 'chisq', type: 'special',
+        label: 'k = ν/2, λ = 1/2',
+        desc: 'Chi-Square(ν) is an exact special case of the Gamma distribution with shape ν/2 and rate 1/2.',
+        curve: 0
+      },
+      {
+        from: 'chisq', to: 'normal', type: 'limit',
+        label: 'ν → ∞',
+        desc: 'As degrees of freedom ν → ∞, Chi-Square(ν) becomes symmetric and approaches Normal(ν, 2ν).',
+        curve: 28
+      },
+      {
+        from: 'normal', to: 'student_t', type: 'transform',
+        label: 'Z / √(χ²/ν)',
+        desc: 'Dividing Standard Normal Z by an independent scaled Chi-Square variable forms Student’s t(ν).',
+        curve: -15
+      },
+      {
+        from: 'chisq', to: 'student_t', type: 'transform',
+        label: 'Z / √(V/ν)',
+        desc: 'Provides the denominator sample variance estimate inside Student’s t-statistic.',
+        curve: 0
+      },
+      {
+        from: 'student_t', to: 'normal', type: 'limit',
+        label: 'ν → ∞',
+        desc: 'As sample size / degrees of freedom ν → ∞, the fat tails thin out and Student’s t converges to Standard Normal.',
+        curve: -25
+      },
+      {
+        from: 'chisq', to: 'f_dist', type: 'transform',
+        label: '(U₁/ν₁) / (U₂/ν₂)',
+        desc: 'The ratio of two independent Chi-Square variables divided by their degrees of freedom follows F(ν₁, ν₂).',
+        curve: 0
+      },
+      {
+        from: 'student_t', to: 'f_dist', type: 'transform',
+        label: 'T² ~ F(1, ν)',
+        desc: 'Squaring a Student’s t(ν) variable produces an F(1, ν) random variable.',
+        curve: 0
+      },
+
+      // Boundaries & Extremes Connections
+      {
+        from: 'uniform', to: 'exponential', type: 'transform',
+        label: '-ln(U) / λ',
+        desc: 'Inverse Transform Method: Taking -ln(U)/λ of a Uniform(0,1) variable generates an Exponential(λ) variable.',
+        curve: -30
+      },
+      {
+        from: 'beta', to: 'uniform', type: 'special',
+        label: 'α = 1, β = 1',
+        desc: 'A Beta(1, 1) distribution is completely flat on [0, 1], which is Uniform(0, 1).',
+        curve: 0
+      },
+      {
+        from: 'gamma', to: 'beta', type: 'transform',
+        label: 'X / (X + Y)',
+        desc: 'If X ~ Gamma(α, λ) and Y ~ Gamma(β, λ), the proportion X/(X+Y) follows Beta(α, β).',
+        curve: -35
+      },
+      {
+        from: 'exponential', to: 'pareto', type: 'transform',
+        label: 'xₘ e^X',
+        desc: 'If X ~ Exponential(α), then Y = xₘ exp(X) follows a heavy-tailed Pareto(xₘ, α) distribution.',
+        curve: -45
+      },
+      {
+        from: 'f_dist', to: 'beta', type: 'transform',
+        label: 'ν₁F / (ν₁F + ν₂)',
+        desc: 'Transforming an F(ν₁, ν₂) ratio onto [0, 1] produces a Beta(ν₁/2, ν₂/2) distribution.',
+        curve: -25
+      }
+    ];
+
+    // =========================================================================
+    // 3. STATE & INITIALIZATION
+    // =========================================================================
+    let selectedDistId = 'normal';
+    let activeNeighborhoodFilter = 'all';
+    let enabledEdgeTypes = new Set(['special', 'transform', 'limit']);
+
+    // Pan & Zoom State
+    let panX = 0, panY = 0, scale = 1;
+    let isPanning = false, startX = 0, startY = 0;
+
+    const svg = document.getElementById('network-svg');
+    const viewportGroup = document.getElementById('viewport-group');
+    const hullsLayer = document.getElementById('hulls-layer');
+    const edgesLayer = document.getElementById('edges-layer');
+    const nodesLayer = document.getElementById('nodes-layer');
+    const tooltip = document.getElementById('map-tooltip');
+
+    const distMap = Object.fromEntries(DISTRIBUTIONS.map(d => [d.id, d]));
+
+    // =========================================================================
+    // 4. RENDER NETWORK MAP (SVG)
+    // =========================================================================
+    function renderMap() {
+      hullsLayer.innerHTML = '';
+      edgesLayer.innerHTML = '';
+      nodesLayer.innerHTML = '';
+
+      // 1. Render Neighborhood Hulls
+      Object.values(NEIGHBORHOODS).forEach(nb => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('data-nb', nb.id);
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', nb.box.x);
+        rect.setAttribute('y', nb.box.y);
+        rect.setAttribute('width', nb.box.w);
+        rect.setAttribute('height', nb.box.h);
+        rect.setAttribute('fill', nb.color);
+        rect.setAttribute('stroke', nb.color);
+        rect.setAttribute('class', 'neighborhood-hull');
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', nb.box.x + 16);
+        label.setAttribute('y', nb.box.y + 24);
+        label.setAttribute('fill', nb.color);
+        label.setAttribute('class', 'neighborhood-label');
+        label.textContent = nb.name;
+
+        g.appendChild(rect);
+        g.appendChild(label);
+        hullsLayer.appendChild(g);
+      });
+
+      // 2. Render Directed Edges
+      EDGES.forEach((edge, idx) => {
+        const src = distMap[edge.from];
+        const tgt = distMap[edge.to];
+        if (!src || !tgt) return;
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'edge-group');
+        g.setAttribute('data-from', edge.from);
+        g.setAttribute('data-to', edge.to);
+        g.setAttribute('data-type', edge.type);
+
+        // Compute geometry between box boundaries
+        const geom = computeEdgeGeometry(src, tgt, edge.curve || 0);
+
+        const strokeColor = edgeStroke(edge.type);
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', geom.d);
+        path.setAttribute('class', 'edge-path');
+        path.setAttribute('stroke', strokeColor);
+        path.setAttribute('marker-end', `url(#arrow-${edge.type})`);
+        if (edge.type === 'limit') {
+          path.setAttribute('stroke-dasharray', '6 4');
+        }
+
+        const hitPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        hitPath.setAttribute('d', geom.d);
+        hitPath.setAttribute('class', 'edge-hit');
+
+        // Edge label badge at midpoint
+        const labelWidth = Math.max(54, edge.label.length * 6.2 + 12);
+        const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        labelBg.setAttribute('x', geom.mx - labelWidth / 2);
+        labelBg.setAttribute('y', geom.my - 9);
+        labelBg.setAttribute('width', labelWidth);
+        labelBg.setAttribute('height', 18);
+        labelBg.setAttribute('class', 'edge-label-bg');
+
+        const labelText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        labelText.setAttribute('x', geom.mx);
+        labelText.setAttribute('y', geom.my);
+        labelText.setAttribute('class', 'edge-label-text');
+        labelText.textContent = edge.label;
+
+        g.appendChild(path);
+        g.appendChild(hitPath);
+        g.appendChild(labelBg);
+        g.appendChild(labelText);
+
+        // Tooltip events
+        g.addEventListener('mouseenter', (e) => {
+          showTooltip(e, `<strong>${src.name} → ${tgt.name}</strong><br><span class="tip-desc">${edge.desc}</span>`);
+        });
+        g.addEventListener('mousemove', moveTooltip);
+        g.addEventListener('mouseleave', hideTooltip);
+        g.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectDistribution(tgt.id);
+        });
+
+        edgesLayer.appendChild(g);
+      });
+
+      // 3. Render Distribution Nodes
+      const nodeW = 148, nodeH = 54;
+      DISTRIBUTIONS.forEach(dist => {
+        const nb = NEIGHBORHOODS[dist.neighborhood];
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'node-group');
+        g.setAttribute('data-id', dist.id);
+        g.setAttribute('data-nb', dist.neighborhood);
+        g.setAttribute('transform', `translate(${dist.x - nodeW/2}, ${dist.y - nodeH/2})`);
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('width', nodeW);
+        rect.setAttribute('height', nodeH);
+        rect.setAttribute('stroke', nb.color);
+        rect.setAttribute('class', 'node-rect');
+
+        // Small discrete/continuous pill in top-right corner
+        const badgeBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        badgeBg.setAttribute('x', nodeW - 38);
+        badgeBg.setAttribute('y', 5);
+        badgeBg.setAttribute('width', 32);
+        badgeBg.setAttribute('height', 13);
+        badgeBg.setAttribute('rx', 4);
+        badgeBg.setAttribute('fill', nb.color);
+
+        const badgeTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        badgeTxt.setAttribute('x', nodeW - 22);
+        badgeTxt.setAttribute('y', 14);
+        badgeTxt.setAttribute('text-anchor', 'middle');
+        badgeTxt.setAttribute('class', 'node-badge');
+        badgeTxt.textContent = dist.type === 'Discrete' ? 'DISC' : 'CONT';
+
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        title.setAttribute('x', nodeW / 2 - 6);
+        title.setAttribute('y', 24);
+        title.setAttribute('class', 'node-title');
+        title.textContent = dist.name;
+
+        const subtitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        subtitle.setAttribute('x', nodeW / 2);
+        subtitle.setAttribute('y', 41);
+        subtitle.setAttribute('class', 'node-subtitle');
+        subtitle.textContent = dist.notation;
+
+        g.appendChild(rect);
+        g.appendChild(badgeBg);
+        g.appendChild(badgeTxt);
+        g.appendChild(title);
+        g.appendChild(subtitle);
+
+        g.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectDistribution(dist.id);
+        });
+
+        nodesLayer.appendChild(g);
+      });
+
+      updateMapHighlighting();
+    }
+
+    // Helper: Calculate quadratic Bezier path between rectangular node borders
+    function computeEdgeGeometry(src, tgt, curveOffset) {
+      const dx = tgt.x - src.x;
+      const dy = tgt.y - src.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      const ux = dx / dist;
+      const uy = dy / dist;
+
+      // Normal vector for curve offset
+      const nx = -uy;
+      const ny = ux;
+
+      // Approximate intersection with 148x54 box
+      const padSrc = getBoxIntersectionDistance(ux, uy, 76, 30);
+      const padTgt = getBoxIntersectionDistance(-ux, -uy, 80, 33);
+
+      const x1 = src.x + ux * padSrc + nx * (curveOffset * 0.25);
+      const y1 = src.y + uy * padSrc + ny * (curveOffset * 0.25);
+      const x2 = tgt.x - ux * padTgt + nx * (curveOffset * 0.25);
+      const y2 = tgt.y - uy * padTgt + ny * (curveOffset * 0.25);
+
+      const cx = (x1 + x2) / 2 + nx * curveOffset;
+      const cy = (y1 + y2) / 2 + ny * curveOffset;
+
+      // Midpoint on quadratic Bezier at t = 0.5
+      const mx = 0.25 * x1 + 0.5 * cx + 0.25 * x2;
+      const my = 0.25 * y1 + 0.5 * cy + 0.25 * y2;
+
+      return {
+        d: `M ${x1.toFixed(1)} ${y1.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`,
+        mx,
+        my
+      };
+    }
+
+    function getBoxIntersectionDistance(ux, uy, halfW, halfH) {
+      const tx = Math.abs(ux) > 1e-5 ? halfW / Math.abs(ux) : Infinity;
+      const ty = Math.abs(uy) > 1e-5 ? halfH / Math.abs(uy) : Infinity;
+      return Math.min(tx, ty);
+    }
+
+    // =========================================================================
+    // 5. HIGHLIGHTING & FILTERING LOGIC
+    // =========================================================================
+    function updateMapHighlighting() {
+      const connectedNodes = new Set([selectedDistId]);
+
+      // Determine visible edges
+      document.querySelectorAll('.edge-group').forEach(edgeEl => {
+        const from = edgeEl.getAttribute('data-from');
+        const to = edgeEl.getAttribute('data-to');
+        const type = edgeEl.getAttribute('data-type');
+
+        const typeEnabled = enabledEdgeTypes.has(type);
+        edgeEl.style.display = typeEnabled ? 'block' : 'none';
+
+        const isConnectedToSelected = (from === selectedDistId || to === selectedDistId);
+        if (isConnectedToSelected && typeEnabled) {
+          connectedNodes.add(from);
+          connectedNodes.add(to);
+        }
+
+        const fromNb = distMap[from].neighborhood;
+        const toNb = distMap[to].neighborhood;
+        const matchesNbFilter = activeNeighborhoodFilter === 'all' ||
+                                fromNb === activeNeighborhoodFilter ||
+                                toNb === activeNeighborhoodFilter;
+
+        edgeEl.classList.toggle('highlighted', isConnectedToSelected);
+        edgeEl.classList.toggle('dimmed', !matchesNbFilter || (selectedDistId && !isConnectedToSelected));
+      });
+
+      // Highlight nodes
+      document.querySelectorAll('.node-group').forEach(nodeEl => {
+        const id = nodeEl.getAttribute('data-id');
+        const nb = nodeEl.getAttribute('data-nb');
+        nodeEl.classList.toggle('selected', id === selectedDistId);
+
+        const matchesNb = activeNeighborhoodFilter === 'all' || nb === activeNeighborhoodFilter;
+        const isRel = !selectedDistId || connectedNodes.has(id);
+
+        nodeEl.classList.toggle('dimmed', !matchesNb || !isRel);
+      });
+
+      // Hulls
+      document.querySelectorAll('#hulls-layer > g').forEach(hullEl => {
+        const nb = hullEl.getAttribute('data-nb');
+        const matchesNb = activeNeighborhoodFilter === 'all' || nb === activeNeighborhoodFilter;
+        hullEl.classList.toggle('dimmed', !matchesNb);
+      });
+    }
+
+    // =========================================================================
+    // 6. INSPECTOR PANEL & INTERACTIVE PLOTTER
+    // =========================================================================
+    function selectDistribution(id) {
+      selectedDistId = id;
+      updateMapHighlighting();
+
+      if (!id) return;
+      const dist = distMap[id];
+      const nb = NEIGHBORHOODS[dist.neighborhood];
+
+      // Header
+      document.getElementById('insp-dot').style.background = nb.color;
+      document.getElementById('insp-neighborhood-name').textContent = nb.short;
+      document.getElementById('insp-title').textContent = dist.name;
+      document.getElementById('insp-type').textContent = dist.type;
+
+      // Intuition & Example
+      document.getElementById('insp-intuition').textContent = dist.intuition;
+      document.getElementById('insp-example').innerHTML = `<strong>Real-World Example:</strong> ${dist.example}`;
+
+      // Math Formula & Moments via KaTeX
+      renderMath(document.getElementById('insp-formula'), dist.latex, true);
+      renderMath(document.getElementById('insp-support'), dist.support, false);
+      renderMath(document.getElementById('insp-mean'), dist.mean, false);
+      renderMath(document.getElementById('insp-var'), dist.variance, false);
+
+      // Build Sliders
+      const slidersContainer = document.getElementById('insp-sliders');
+      slidersContainer.innerHTML = '';
+      const currentParams = {};
+
+      dist.params.forEach(p => {
+        currentParams[p.key] = p.val;
+        const row = document.createElement('div');
+        row.className = 'slider-row';
+        row.innerHTML = `
+          <div class="slider-header">
+            <span>${p.label}</span>
+            <span class="param-val demo-value" id="val-${p.key}">${p.val}</span>
+          </div>
+          <input type="range" min="${p.min}" max="${p.max}" step="${p.step}" value="${p.val}" data-key="${p.key}">
+        `;
+        const input = row.querySelector('input');
+        input.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          currentParams[p.key] = val;
+          document.getElementById(`val-${p.key}`).textContent = val;
+          drawDistributionPlot(dist, currentParams);
+        });
+        slidersContainer.appendChild(row);
+      });
+
+      drawDistributionPlot(dist, currentParams);
+
+      // Populate Connections List
+      const connList = document.getElementById('insp-connections');
+      connList.innerHTML = '';
+      const relatedEdges = EDGES.filter(e => e.from === id || e.to === id);
+
+      relatedEdges.forEach(e => {
+        const isOutgoing = e.from === id;
+        const otherDist = distMap[isOutgoing ? e.to : e.from];
+        const dirArrow = isOutgoing ? `→ ${otherDist.name}` : `← from ${otherDist.name}`;
+        const badgeLabel = e.type === 'special' ? 'Special Case'
+                         : e.type === 'transform' ? 'Transform / Sum'
+                         : 'Limit';
+
+        const item = document.createElement('div');
+        item.className = 'connection-item';
+        item.innerHTML = `
+          <div class="conn-header">
+            <span>${dirArrow} <code class="conn-label">(${e.label})</code></span>
+            <span class="conn-badge ${e.type}">${badgeLabel}</span>
+          </div>
+          <div class="conn-desc">${e.desc}</div>
+        `;
+        item.addEventListener('click', () => selectDistribution(otherDist.id));
+        connList.appendChild(item);
+      });
+    }
+
+    function renderMath(el, latexStr, displayMode) {
+      if (window.katex) {
+        katex.render(latexStr, el, { displayMode, throwOnError: false });
+      } else {
+        el.textContent = latexStr;
+      }
+    }
+
+    // =========================================================================
+    // 7. MATHEMATICAL PDF / PMF EVALUATOR & SVG PLOTTER
+    // =========================================================================
+    function lnGamma(z) {
+      // Lanczos approximation for ln(Gamma(z))
+      const c = [
+        76.18009172947146, -86.50532032941677, 24.01409824083091,
+        -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5
+      ];
+      let x = z, y = z;
+      let tmp = x + 5.5;
+      tmp -= (x + 0.5) * Math.log(tmp);
+      let ser = 1.000000000190015;
+      for (let j = 0; j < 6; j++) ser += c[j] / ++y;
+      return -tmp + Math.log(2.5066282746310005 * ser / x);
+    }
+
+    function lnChoose(n, k) {
+      if (k < 0 || k > n) return -Infinity;
+      return lnGamma(n + 1) - lnGamma(k + 1) - lnGamma(n - k + 1);
+    }
+
+    function drawDistributionPlot(dist, p) {
+      const plotSvg = document.getElementById('dist-plot-svg');
+      plotSvg.innerHTML = '';
+      const W = 360, H = 170;
+      const padL = 36, padR = 14, padT = 14, padB = 26;
+      const innerW = W - padL - padR;
+      const innerH = H - padT - padB;
+
+      const color = NEIGHBORHOODS[dist.neighborhood].color;
+
+      // Baseline axes
+      const axisG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      axisG.innerHTML = `
+        <line x1="${padL}" y1="${padT + innerH}" x2="${W - padR}" y2="${padT + innerH}" stroke="${AXIS_INK}" stroke-width="1"/>
+        <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + innerH}" stroke="${AXIS_INK}" stroke-width="1"/>
+      `;
+      plotSvg.appendChild(axisG);
+
+      if (dist.type === 'Discrete') {
+        let points = [];
+        if (dist.id === 'bernoulli') {
+          points = [{ x: 0, y: 1 - p.p }, { x: 1, y: p.p }];
+        } else if (dist.id === 'binomial') {
+          for (let k = 0; k <= p.n; k++) {
+            const prob = Math.exp(lnChoose(p.n, k) + k * Math.log(p.p) + (p.n - k) * Math.log(1 - p.p));
+            points.push({ x: k, y: prob });
+          }
+        } else if (dist.id === 'geometric') {
+          const maxK = Math.min(30, Math.ceil(6 / p.p));
+          for (let k = 1; k <= maxK; k++) {
+            points.push({ x: k, y: Math.pow(1 - p.p, k - 1) * p.p });
+          }
+        } else if (dist.id === 'hypergeometric') {
+          const N = p.N, K = Math.min(p.K, N), n = Math.min(p.n, N);
+          for (let k = 0; k <= n; k++) {
+            if (k <= K && (n - k) <= (N - K)) {
+              const prob = Math.exp(lnChoose(K, k) + lnChoose(N - K, n - k) - lnChoose(N, n));
+              points.push({ x: k, y: prob });
+            } else {
+              points.push({ x: k, y: 0 });
+            }
+          }
+        } else if (dist.id === 'poisson') {
+          const maxK = Math.max(12, Math.ceil(p.lambda + 4 * Math.sqrt(p.lambda)));
+          for (let k = 0; k <= maxK; k++) {
+            const prob = Math.exp(k * Math.log(p.lambda) - p.lambda - lnGamma(k + 1));
+            points.push({ x: k, y: prob });
+          }
+        }
+
+        const maxY = Math.max(...points.map(pt => pt.y), 0.1) * 1.12;
+        const barStep = innerW / Math.max(points.length, 1);
+        const barW = Math.min(22, Math.max(4, barStep * 0.65));
+
+        points.forEach((pt, idx) => {
+          const cx = padL + (idx + 0.5) * barStep;
+          const barH = (pt.y / maxY) * innerH;
+          const yTop = padT + innerH - barH;
+
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', cx - barW / 2);
+          rect.setAttribute('y', yTop);
+          rect.setAttribute('width', barW);
+          rect.setAttribute('height', Math.max(0, barH));
+          rect.setAttribute('fill', color);
+          rect.setAttribute('rx', 2);
+          plotSvg.appendChild(rect);
+
+          if (points.length <= 12 || idx % Math.ceil(points.length / 8) === 0) {
+            const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            lbl.setAttribute('x', cx);
+            lbl.setAttribute('y', H - 8);
+            lbl.setAttribute('fill', AXIS_INK);
+            lbl.setAttribute('font-size', '9.5px');
+            lbl.setAttribute('text-anchor', 'middle');
+            lbl.textContent = pt.x;
+            plotSvg.appendChild(lbl);
+          }
+        });
+
+        addYMaxLabel(plotSvg, padL, padT, maxY);
+
+      } else {
+        // Continuous PDF curve
+        let xMin = 0, xMax = 10;
+        let evalPdf = (x) => 0;
+
+        if (dist.id === 'normal') {
+          xMin = -5; xMax = 5;
+          evalPdf = (x) => (1 / (p.sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - p.mu) / p.sigma, 2));
+        } else if (dist.id === 'lognormal') {
+          xMin = 0.01; xMax = 6;
+          evalPdf = (x) => (1 / (x * p.sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((Math.log(x) - p.mu) / p.sigma, 2));
+        } else if (dist.id === 'exponential') {
+          xMin = 0; xMax = 6;
+          evalPdf = (x) => p.lambda * Math.exp(-p.lambda * x);
+        } else if (dist.id === 'gamma') {
+          xMin = 0.02; xMax = 12;
+          evalPdf = (x) => Math.exp(p.k * Math.log(p.lambda) + (p.k - 1) * Math.log(x) - p.lambda * x - lnGamma(p.k));
+        } else if (dist.id === 'weibull') {
+          xMin = 0.02; xMax = 5;
+          evalPdf = (x) => (p.k / p.scale) * Math.pow(x / p.scale, p.k - 1) * Math.exp(-Math.pow(x / p.scale, p.k));
+        } else if (dist.id === 'chisq') {
+          xMin = 0.05; xMax = 24;
+          const k = p.df / 2;
+          evalPdf = (x) => Math.exp((k - 1) * Math.log(x) - x / 2 - k * Math.log(2) - lnGamma(k));
+        } else if (dist.id === 'student_t') {
+          xMin = -5; xMax = 5;
+          const v = p.df;
+          const c = Math.exp(lnGamma((v + 1) / 2) - lnGamma(v / 2)) / Math.sqrt(v * Math.PI);
+          evalPdf = (x) => c * Math.pow(1 + (x * x) / v, -(v + 1) / 2);
+        } else if (dist.id === 'f_dist') {
+          xMin = 0.02; xMax = 5;
+          const d1 = p.df1, d2 = p.df2;
+          const lnB = lnGamma(d1 / 2) + lnGamma(d2 / 2) - lnGamma((d1 + d2) / 2);
+          evalPdf = (x) => {
+            const num = 0.5 * d1 * Math.log(d1) + 0.5 * d2 * Math.log(d2) + (0.5 * d1 - 1) * Math.log(x);
+            const den = 0.5 * (d1 + d2) * Math.log(d1 * x + d2) + lnB;
+            return Math.exp(num - den);
+          };
+        } else if (dist.id === 'uniform') {
+          xMin = -0.5; xMax = 10.5;
+          const a = Math.min(p.a, p.b - 0.5), b = Math.max(p.b, a + 0.5);
+          evalPdf = (x) => (x >= a && x <= b) ? 1 / (b - a) : 0;
+        } else if (dist.id === 'beta') {
+          xMin = 0.01; xMax = 0.99;
+          const lnB = lnGamma(p.alpha) + lnGamma(p.beta) - lnGamma(p.alpha + p.beta);
+          evalPdf = (x) => Math.exp((p.alpha - 1) * Math.log(x) + (p.beta - 1) * Math.log(1 - x) - lnB);
+        } else if (dist.id === 'pareto') {
+          xMin = 0; xMax = 6;
+          evalPdf = (x) => (x >= p.xm) ? (p.alpha * Math.pow(p.xm, p.alpha)) / Math.pow(x, p.alpha + 1) : 0;
+        }
+
+        const N = 120;
+        const pts = [];
+        for (let i = 0; i <= N; i++) {
+          const x = xMin + (i / N) * (xMax - xMin);
+          let y = evalPdf(x);
+          if (!isFinite(y) || y < 0) y = 0;
+          if (y > 8) y = 8; // clamp vertical asymptotes
+          pts.push({ x, y });
+        }
+
+        const maxY = Math.max(...pts.map(pt => pt.y), 0.1) * 1.12;
+
+        const svgCoords = pts.map(pt => {
+          const sx = padL + ((pt.x - xMin) / (xMax - xMin)) * innerW;
+          const sy = padT + innerH - (pt.y / maxY) * innerH;
+          return `${sx.toFixed(1)},${sy.toFixed(1)}`;
+        });
+
+        const areaD = `M ${padL},${padT + innerH} L ` + svgCoords.join(' L ') + ` L ${padL + innerW},${padT + innerH} Z`;
+        const lineD = `M ` + svgCoords.join(' L ');
+
+        const areaPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        areaPath.setAttribute('d', areaD);
+        areaPath.setAttribute('fill', color);
+        areaPath.setAttribute('fill-opacity', '0.22');
+
+        const linePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        linePath.setAttribute('d', lineD);
+        linePath.setAttribute('fill', 'none');
+        linePath.setAttribute('stroke', color);
+        linePath.setAttribute('stroke-width', '2.4');
+
+        plotSvg.appendChild(areaPath);
+        plotSvg.appendChild(linePath);
+
+        // X-axis ticks
+        [xMin, (xMin + xMax) / 2, xMax].forEach((val, i) => {
+          const tx = padL + (i / 2) * innerW;
+          const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          lbl.setAttribute('x', tx);
+          lbl.setAttribute('y', H - 8);
+          lbl.setAttribute('fill', AXIS_INK);
+          lbl.setAttribute('font-size', '9.5px');
+          lbl.setAttribute('text-anchor', 'middle');
+          lbl.textContent = val.toFixed(1);
+          plotSvg.appendChild(lbl);
+        });
+
+        addYMaxLabel(plotSvg, padL, padT, maxY);
+      }
+    }
+
+    function addYMaxLabel(svgEl, padL, padT, maxY) {
+      const yLbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      yLbl.setAttribute('x', padL - 5);
+      yLbl.setAttribute('y', padT + 8);
+      yLbl.setAttribute('fill', AXIS_INK);
+      yLbl.setAttribute('font-size', '9px');
+      yLbl.setAttribute('text-anchor', 'end');
+      yLbl.textContent = maxY.toFixed(2);
+      svgEl.appendChild(yLbl);
+    }
+
+    // =========================================================================
+    // 8. UI CONTROLS: FILTER PILLS, ZOOM/PAN & TOOLTIPS
+    // =========================================================================
+    document.querySelectorAll('#neighborhood-filters .demo-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#neighborhood-filters .demo-chip').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        activeNeighborhoodFilter = btn.getAttribute('data-filter');
+
+        // If filtering to a neighborhood, auto-select its first distribution
+        if (activeNeighborhoodFilter !== 'all') {
+          const firstInNb = DISTRIBUTIONS.find(d => d.neighborhood === activeNeighborhoodFilter);
+          if (firstInNb) selectDistribution(firstInNb.id);
+        } else {
+          updateMapHighlighting();
+        }
+      });
+    });
+
+    document.querySelectorAll('.edge-legend-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const type = item.getAttribute('data-edgetype');
+        if (enabledEdgeTypes.has(type)) {
+          enabledEdgeTypes.delete(type);
+          item.classList.add('disabled');
+        } else {
+          enabledEdgeTypes.add(type);
+          item.classList.remove('disabled');
+        }
+        updateMapHighlighting();
+      });
+    });
+
+    // Click background to show all nodes clearly while keeping inspector open
+    document.getElementById('map-container').addEventListener('click', () => {
+      selectedDistId = null;
+      updateMapHighlighting();
+    });
+
+    // Pan & Zoom handlers
+    const mapContainer = document.getElementById('map-container');
+    function applyTransform() {
+      viewportGroup.setAttribute('transform', `translate(${panX}, ${panY}) scale(${scale})`);
+    }
+
+    mapContainer.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.node-group') || e.target.closest('.edge-group') || e.target.closest('.icon-btn')) return;
+      isPanning = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isPanning) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      applyTransform();
+    });
+
+    window.addEventListener('mouseup', () => { isPanning = false; });
+
+    mapContainer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.1 : 0.9;
+      scale = Math.min(2.4, Math.max(0.55, scale * factor));
+      applyTransform();
+    }, { passive: false });
+
+    document.getElementById('btn-zoom-in').addEventListener('click', (e) => {
+      e.stopPropagation();
+      scale = Math.min(2.4, scale * 1.18);
+      applyTransform();
+    });
+
+    document.getElementById('btn-zoom-out').addEventListener('click', (e) => {
+      e.stopPropagation();
+      scale = Math.max(0.55, scale / 1.18);
+      applyTransform();
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', (e) => {
+      e.stopPropagation();
+      panX = 0; panY = 0; scale = 1;
+      selectedDistId = null;
+      applyTransform();
+      updateMapHighlighting();
+    });
+
+    function showTooltip(e, html) {
+      tooltip.innerHTML = html;
+      tooltip.style.opacity = '1';
+      moveTooltip(e);
+    }
+
+    function moveTooltip(e) {
+      const rect = mapContainer.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - rect.left + 14) + 'px';
+      tooltip.style.top = (e.clientY - rect.top + 14) + 'px';
+    }
+
+    function hideTooltip() {
+      tooltip.style.opacity = '0';
+    }
+
+    // Boot up
+    function paintArrowMarkers() {
+      const fills = { special: edgeStroke('special'), transform: edgeStroke('transform'), limit: edgeStroke('limit') };
+      Object.keys(fills).forEach((type) => {
+        const path = document.querySelector('#arrow-' + type + ' path');
+        if (path) path.setAttribute('fill', fills[type]);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      paintArrowMarkers();
+      renderMap();
+      // Wait briefly for KaTeX script if deferred
+      setTimeout(() => selectDistribution('normal'), 60);
+    });
+  </script>
+
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

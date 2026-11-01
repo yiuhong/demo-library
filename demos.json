@@ -178,12 +178,30 @@
           "group": "Inferential Statistics",
           "demos": [
             {
+              "href": "statistics/stats_conceptual_hierarchy.html",
+              "title": "The 5-Level Conceptual Hierarchy of Statistics",
+              "description": "From population parameters to a process, a random variable, a distribution, and inference.",
+              "keywords": "conceptual hierarchy parameters stochastic process random variable distribution inference random walk Bernoulli binomial central limit theorem",
+              "tags": [
+                "Walkthrough"
+              ]
+            },
+            {
               "href": "statistics/building_normal_distribution.html",
               "title": "Building the Normal Distribution",
               "description": "How a normal distribution is built.",
               "keywords": "Building Normal Distribution",
               "tags": [
                 "Walkthrough"
+              ]
+            },
+            {
+              "href": "statistics/probability_distributions_map.html",
+              "title": "Probability Distributions Map",
+              "description": "A neighborhood map of common distributions and the special cases, transformations, and limits that connect them.",
+              "keywords": "probability distributions map Bernoulli binomial Poisson normal exponential gamma beta chi-square Student t F Leemis relationships",
+              "tags": [
+                "Explorer"
               ]
             },
             {
@@ -200,6 +218,15 @@
               "title": "Binomial Distribution & Bernoulli Process",
               "description": "A coin-flip simulation of Bernoulli trials and the binomial count of heads.",
               "keywords": "Binomial Distribution Bernoulli Process coin flip PMF probability mass function heads",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
+              "href": "statistics/poisson_point_process.html",
+              "title": "Poisson Distribution & Poisson Point Process",
+              "description": "A simulation of Poisson arrivals in time and the Poisson count in a window.",
+              "keywords": "Poisson distribution Poisson point process arrivals rate lambda exponential waiting time binomial rare events",
               "tags": [
                 "Simulation"
               ]
@@ -299,9 +326,9 @@
             },
             {
               "href": "statistics/partitioning_sum_of_squares_anova.html",
-              "title": "Partitioning Sum of Squares",
-              "description": "Partitioning the sum of squares in ANOVA.",
-              "keywords": "Partitioning Sum of Squares in ANOVA",
+              "title": "Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA",
+              "description": "How total sum of squares splits in between-subjects, within-subjects, and mixed designs with one, two, or three factors.",
+              "keywords": "Partitioning Sum of Squares ANOVA one-way two-way three-way between-subjects within-subjects mixed error strata",
               "tags": [
                 "Explorer"
               ]
@@ -313,6 +340,15 @@
               "keywords": "Two-Way ANOVA factorial interaction omnibus Group Gender",
               "tags": [
                 "Simulation"
+              ]
+            },
+            {
+              "href": "statistics/mixed_anova_2x2.html",
+              "title": "2×2 Mixed ANOVA",
+              "description": "A 2×2 mixed design: one between-subjects factor, one within-subjects factor, and the split of error.",
+              "keywords": "Mixed ANOVA 2x2 between-subjects within-subjects Group Time interaction split error repeated measures",
+              "tags": [
+                "Explorer"
               ]
             },
             {
