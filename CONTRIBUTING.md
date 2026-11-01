@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for helping the Teaching Materials Library.
+Thank you for helping Project Viz.
 
 ## Bugs
 

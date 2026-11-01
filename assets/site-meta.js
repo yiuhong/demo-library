@@ -1,5 +1,5 @@
 /*
- * Site-wide facts for the Teaching Materials Library.
+ * Site-wide facts for Project Viz.
  *
  * Bump version and updated here when the library changes in a way a
  * syllabus should record. cite.html, the library footer, and the demo
@@ -9,8 +9,8 @@
  */
 (function (global) {
     var meta = {
-        title: "Teaching Materials Library",
-        titleApa: "Teaching materials library",
+        title: "Project Viz",
+        titleApa: "Project Viz",
         author: "Yiu Hong Ko",
         authorApa: "Ko, Y. H.",
         authorBibtex: "Ko, Yiu Hong",

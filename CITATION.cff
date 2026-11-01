@@ -1,8 +1,8 @@
 cff-version: "1.2.0"
-message: "If you use the Teaching Materials Library, please cite it using the metadata from preferred-citation in this file. Teaching text, explanations, and figures are CC BY 4.0. Source code is MIT (see LICENSE-CODE). The Hyperspace template by HTML5 UP remains CC BY 3.0."
+message: "If you use Project Viz, please cite it using the metadata from preferred-citation in this file. Teaching text, explanations, and figures are CC BY 4.0. Source code is MIT (see LICENSE-CODE). The Hyperspace template by HTML5 UP remains CC BY 3.0."
 type: software
-title: "Teaching Materials Library"
-abstract: "Interactive open educational resources for instructors and students. The demos teach statistics, neuroscience, and cognitive and personality psychology. Teaching content is CC BY 4.0. Source code is MIT."
+title: "Project Viz"
+abstract: "A visualization demo library for teaching. Teaching content is CC BY 4.0. Source code is MIT."
 authors:
   - family-names: Ko
     given-names: "Yiu Hong"
@@ -22,7 +22,7 @@ keywords:
   - teaching
 preferred-citation:
   type: website
-  title: "Teaching Materials Library"
+  title: "Project Viz"
   authors:
     - family-names: Ko
       given-names: "Yiu Hong"

@@ -353,18 +353,8 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             about = element_text(text, "library-about")
             if about is None:
                 problems.append("index.html: library about blurb is missing")
-            else:
-                lowered = about.lower()
-                for phrase in (
-                    "instructors",
-                    "students",
-                    "statistics",
-                    "neuroscience",
-                    "cognitive",
-                    "personality",
-                ):
-                    if phrase not in lowered:
-                        problems.append(f"index.html: about blurb is missing {phrase}")
+            elif "A visualization demo library for teaching." not in about:
+                problems.append("index.html: about blurb is not the Project Viz tagline")
         for needle in required:
             if needle not in text:
                 problems.append(f"{name}: missing {needle}")
@@ -451,7 +441,7 @@ def check_citation_file(problems: list[str], version: str | None, updated: str |
     top = cff_top_level(text)
     expected = {
         "cff-version": "1.2.0",
-        "title": "Teaching Materials Library",
+        "title": "Project Viz",
         "license": "CC-BY-4.0",
         "url": "https://yiuhong.github.io/demo-library/",
         "repository-code": "https://github.com/yiuhong/demo-library",

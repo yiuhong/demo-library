@@ -1,8 +1,8 @@
-# Teaching Materials Library
+# Project Viz
 
-A collection of interactive demonstrations and teaching materials designed for exploring concepts in psychology, neuroscience, and statistics. 
+A visualization demo library for teaching. 
 
-**🌟 [View the Live Library Here](https://yiuhong.github.io/demo-library/)**
+**🌟 [View Project Viz](https://yiuhong.github.io/demo-library/)**
 
 ## Cite, license, and contact
 
