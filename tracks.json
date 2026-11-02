@@ -1,9 +1,9 @@
 {
   "tracks": [
     {
-      "id": "describing-data",
-      "title": "Describing data",
-      "summary": "This path is for describing a set of numbers, from averages of center, spread, and shape to pictures of that shape. By the end you can say where they sit, how wide and skewed they are, whether they look unusual, and why a matching set of summaries can still hide a different graph.",
+      "id": "center-and-spread",
+      "title": "Center and spread",
+      "summary": "This path is for where a set of numbers sits and how wide they are. By the end you can read the mean, the median, and the mode, treat higher moments as averages of spread and skew, and see why a sample variance divides by n − 1.",
       "status": "draft",
       "steps": [
         {
@@ -33,14 +33,22 @@
         {
           "href": "statistics/bessels_correction_simulation.html",
           "title": "Bessel's Correction",
-          "note": "When we use the data to estimate how spread out they are, the usual average of squared deviations is a little too small, because the sample mean was taken from those same values. Dividing by n − 1 instead of n corrects for that. Run many samples and see which divisor lands nearer the true variance on average. With a fairer number for spread, you can ask whether the shape is pulled one way rather than balanced — that imbalance is skew.",
+          "note": "When we use the data to estimate how spread out they are, the usual average of squared deviations is a little too small, because the sample mean was taken from those same values. Dividing by n − 1 instead of n corrects for that. Run many samples and see which divisor lands nearer the true variance on average.",
           "formulae": [
             "s² = Σ (xᵢ − x̄)² / (n − 1)",
             "s = √(s²)"
           ],
           "image": "tracks/images/describing-data/03-bessels-correction.png",
           "imageAlt": "Two bars for the average variance estimate from 8000 samples of size 10, drawn from a population whose variance is 100. Dividing by n averages about 90.2, below the true-variance line. Dividing by n − 1 averages about 100.2, on that line."
-        },
+        }
+      ]
+    },
+    {
+      "id": "shape-and-pictures",
+      "title": "Shape and pictures",
+      "summary": "This path is for the shape of a set of numbers, in a number and in a picture. By the end you can see skew pull the averages apart, read a histogram beside a boxplot, mark an outlier with a fence, and follow the same pile as a smooth density.",
+      "status": "draft",
+      "steps": [
         {
           "href": "statistics/skewed_distribution.html",
           "title": "Skewed Distribution",
@@ -77,14 +85,22 @@
         {
           "href": "statistics/kde_plots.html",
           "title": "Kernel Density Estimate (KDE)",
-          "note": "A histogram’s bars move when the bin edges move, even though the numbers have not. A kernel density estimate sets a small kernel on each point and adds those kernels, so the same pile becomes a smooth curve. The bandwidth h is how wide each kernel is: a narrow kernel keeps the spikes, and a wide one flattens them. The kernel’s shape — Gaussian, Epanechnikov, or boxcar — is how the weights fall away from each point. That same curve is the violin, and a half of it is the cloud in a raincloud plot. The box beside them is still the five-number summary, which is what makes an extreme point look unusual. Outliers are one kind of mismatch with a simple shape; another is whether the whole set of numbers matches a reference distribution.",
+          "note": "A histogram’s bars move when the bin edges move, even though the numbers have not. A kernel density estimate sets a small kernel on each point and adds those kernels, so the same pile becomes a smooth curve. The bandwidth h is how wide each kernel is: a narrow kernel keeps the spikes, and a wide one flattens them. The kernel’s shape — Gaussian, Epanechnikov, or boxcar — is how the weights fall away from each point. That same curve is the violin, and a half of it is the cloud in a raincloud plot. The box beside them is still the five-number summary, which is what makes an extreme point look unusual.",
           "formulae": [
             "f̂(x) = (1/(n h)) Σ K((x − xᵢ) / h)",
             "h = bandwidth"
           ],
           "image": "tracks/images/describing-data/07-kernel-density.png",
           "imageAlt": "Histogram and Gaussian kernel density of the same 44 values as the boxplot figure. Bars are one unit wide and the tallest is at 5. The smooth curve peaks near 5.4. The bandwidth is h = 0.95."
-        },
+        }
+      ]
+    },
+    {
+      "id": "same-summaries-different-graphs",
+      "title": "Same summaries, different graphs",
+      "summary": "This path is for when the numbers match and the picture does not. By the end you can use a Q–Q plot to compare a sample with a reference curve, and see why the same means, spreads, and correlation can still hide a different graph.",
+      "status": "draft",
+      "steps": [
         {
           "href": "statistics/q_q_plot.html",
           "title": "Q–Q Plot",
@@ -108,9 +124,9 @@
       ]
     },
     {
-      "id": "statistical-reasoning",
-      "title": "Statistical reasoning",
-      "summary": "This path is for how a curve for observations becomes a claim about a sample, once sample summaries settle. By the end you can read a confidence interval as long-run coverage, not a chance for one interval.",
+      "id": "from-process-to-distribution",
+      "title": "From process to distribution",
+      "summary": "This path is for how a statistical claim is built, from a process to a curve. By the end you can name the levels from a parameter to inference, see what fixes a normal curve, and place that curve among the distributions it connects to.",
       "status": "draft",
       "steps": [
         {
@@ -129,7 +145,7 @@
         {
           "href": "statistics/building_normal_distribution.html",
           "title": "Building the Normal Distribution",
-          "note": "Many descriptions of data end by asking whether the shape looks like a familiar smooth curve. The normal distribution is one such curve, fixed by a center and a spread. Putting the curve together shows what the model is made of, and sets up the question of what happens to summaries — such as the mean — when you draw many samples.",
+          "note": "Many descriptions of data end by asking whether the shape looks like a familiar smooth curve. The normal distribution is one such curve, fixed by a center and a spread. Putting the curve together shows what the model is made of. The next step places that curve among the other distributions it connects to.",
           "formulae": [
             "f(x) = (1 / (σ√(2π))) exp(−(x − μ)² / (2σ²))",
             "μ = center",
@@ -141,7 +157,7 @@
         {
           "href": "statistics/probability_distributions_map.html",
           "title": "Probability Distributions Map",
-          "note": "The normal curve is one model among many. This map places sixteen common distributions in five neighborhoods and draws three kinds of link: a special case that fixes a parameter, a transformation or a sum, and a limit. Binomial(n, p) with n = 1 is Bernoulli(p). As n grows and np settles on λ, the binomial count approaches Poisson(λ). As n grows, the binomial count also approaches a normal curve, the shape the previous step built. The next step asks what happens to the mean when you draw many samples.",
+          "note": "The normal curve is one model among many. This map places sixteen common distributions in five neighborhoods and draws three kinds of link: a special case that fixes a parameter, a transformation or a sum, and a limit. Binomial(n, p) with n = 1 is Bernoulli(p). As n grows and np settles on λ, the binomial count approaches Poisson(λ). As n grows, the binomial count also approaches a normal curve, the shape the previous step built.",
           "formulae": [
             "Binomial(1, p) = Bernoulli(p)",
             "Binomial(n, p) → Poisson(λ) as n → ∞ and np → λ",
@@ -149,18 +165,15 @@
           ],
           "image": "tracks/images/statistical-reasoning/01b-distributions-map.png",
           "imageAlt": "Sixteen distributions in five neighborhoods: coin flip, arrivals, boundaries, the natural world, and the toolbelt. Solid arrows are special cases, dashed arrows are limits, and dotted arrows are transforms. Normal is shaded, and the side panel is its density with mean 0 and standard deviation 1."
-        },
-        {
-          "href": "statistics/central_limit_theorem.html",
-          "title": "Central Limit Theorem (CLT)",
-          "note": "A single sample mean is one summary of one set of numbers. If you imagine drawing many samples of the same size, those means themselves form a distribution. As each sample gets larger, that distribution of means settles toward a normal curve, whatever shape the raw observations had. The central limit theorem is that statement about means — and classroom simulations make the settling visible.",
-          "formulae": [
-            "X̄ ≈ N(μ, σ²/n) for large n",
-            "SE = σ / √n"
-          ],
-          "image": "tracks/images/statistical-reasoning/02-clt-sampling.png",
-          "imageAlt": "Sampling distributions of the mean for an exponential population with mean 1. The n = 2 curve is low and right-skewed, n = 8 is taller, and n = 32 is a tall narrow curve on the dashed line at μ = 1."
-        },
+        }
+      ]
+    },
+    {
+      "id": "counts-arrivals-and-the-board",
+      "title": "Counts, arrivals, and the board",
+      "summary": "This path is for counts of coin tosses and of arrivals, and the board that piles those counts into a bell. By the end you can read a binomial count, a Poisson count, and the same kind of sum as bins on a Galton board.",
+      "status": "draft",
+      "steps": [
         {
           "href": "statistics/binomial_bernoulli.html",
           "title": "Binomial Distribution & Bernoulli Process",
@@ -198,6 +211,25 @@
           ],
           "image": "tracks/images/statistical-reasoning/04-galton-board.png",
           "imageAlt": "Left: a board of 12 rows of pegs. One bead takes six right bounces, then six left bounces, and ends in bin 6. Ticks mark bins 0, 6, and 12. Right: binomial probabilities for n = 12 and p = 1/2. The bars peak at k = 6. A normal curve sits on them, with a dashed line at μ = 6 and dotted lines at μ ± σ."
+        }
+      ]
+    },
+    {
+      "id": "sampling-distributions-and-intervals",
+      "title": "Sampling distributions and intervals",
+      "summary": "This path is for what repeated samples do to a summary. By the end you can see sample means settle toward a normal curve, a chi-square as a sum of squared standard normals, and a confidence interval as long-run coverage, not a chance for one interval.",
+      "status": "draft",
+      "steps": [
+        {
+          "href": "statistics/central_limit_theorem.html",
+          "title": "Central Limit Theorem (CLT)",
+          "note": "A single sample mean is one summary of one set of numbers. If you imagine drawing many samples of the same size, those means themselves form a distribution. As each sample gets larger, that distribution of means settles toward a normal curve, whatever shape the raw observations had. The central limit theorem is that statement about means — and classroom simulations make the settling visible.",
+          "formulae": [
+            "X̄ ≈ N(μ, σ²/n) for large n",
+            "SE = σ / √n"
+          ],
+          "image": "tracks/images/statistical-reasoning/02-clt-sampling.png",
+          "imageAlt": "Sampling distributions of the mean for an exponential population with mean 1. The n = 2 curve is low and right-skewed, n = 8 is taller, and n = 32 is a tall narrow curve on the dashed line at μ = 1."
         },
         {
           "href": "statistics/horowitz_1974_simulation_CLT.html",
@@ -223,7 +255,7 @@
         {
           "href": "statistics/target_analogy_confidence_intervals.html",
           "title": "Target Analogy of Confidence Intervals",
-          "note": "A confidence interval is a range computed from a sample. In the target analogy the unknown value stays fixed and each interval is a shot, so the stated percentage describes the procedure over many samples — not the chance that this one interval covers that value. That closes the path from a curve for observations to a claim stated as coverage.",
+          "note": "A confidence interval is a range computed from a sample. In the target analogy the unknown value stays fixed and each interval is a shot, so the stated percentage describes the procedure over many samples — not the chance that this one interval covers that value.",
           "formulae": [
             "CI = X̄ ± z* · (σ / √n)",
             "coverage ≈ 1 − α over repeated samples"

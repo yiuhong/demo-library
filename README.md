@@ -48,7 +48,7 @@ The library page fetches [`demos.json`](demos.json) and builds the List view. Sh
       "panel": "style3",
       "subcategories": [
         {
-          "title": "Describing data",
+          "title": "Center and spread",
           "demos": [
             {
               "href": "statistics/example_demo.html",
@@ -73,7 +73,7 @@ Each category has:
 * `domId` — optional element id. Current anchors: `cognitive-category`, `neuro-category`, `stats-category`, `personality-category`.
 * `subcategories` — ordered groups
 
-Each subcategory has `title`, `demos`, and an optional `group`. Subcategories with the same `group` render under one topic heading. Omit `group` for a normal subcategory. Statistics topics are flat headings with the same names as the Guided Tracks: Describing data, Statistical reasoning, t-test, Statistical power, ANOVA, and Association.
+Each subcategory has `title`, `demos`, and an optional `group`. Subcategories with the same `group` render under one topic heading. Omit `group` for a normal subcategory. Statistics topics are flat headings with the same names as the Guided Tracks: Center and spread, Shape and pictures, Same summaries, different graphs, From process to distribution, Counts, arrivals, and the board, Sampling distributions and intervals, t-test, Statistical power, ANOVA, and Association.
 
 Each demo has:
 

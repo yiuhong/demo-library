@@ -9,13 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Limitations of summary statistics, under Statistics → Describing data, with a Describing data track step after the Q–Q plot (Datasaurus Dozen and Anscombe’s quartet)
+- Limitations of summary statistics, under Statistics → Same summaries, different graphs, with a track step after the Q–Q plot (Datasaurus Dozen and Anscombe’s quartet)
 
 ### Changed
 
 - Formal citations use the full title *Project Viz: A visualization demo library for teaching* (APA, BibTeX, CITATION.cff, the homepage preferred cite, per-demo cites, and the credit line).
 - The catalog view is List. The Cards toggle is gone, and a remembered Cards choice opens List.
-- Statistics headings match Guided Track titles: Describing data, Statistical reasoning, t-test, Statistical power, ANOVA, and Association.
+- Statistics headings match Guided Track titles. Describing data is split into Center and spread, Shape and pictures, and Same summaries, different graphs. Statistical reasoning is split into From process to distribution, Counts, arrivals, and the board, and Sampling distributions and intervals. t-test, Statistical power, ANOVA, and Association are unchanged.
 
 ## [0.1.4] - 2026-11-01
 
