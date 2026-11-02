@@ -91,22 +91,46 @@
             fill: var(--demo-text);
         }
 
-        /* Live mean / variance formulae. Serif only on the equation, so the chrome stays Arial. */
+        /* Live mean / variance formulae. Serif only on the equation, so the chrome stays Arial.
+           Plugged-in rows are a fixed number of lines: extra digits scroll inside the row
+           instead of changing the panel size and pushing the rest of the board. */
         #live-formulae {
-            overflow-x: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 0;
+            overflow: hidden;
         }
-        .live-formula + .live-formula {
-            margin-top: 0.8rem;
-            padding-top: 0.8rem;
-            border-top: 1px solid #e2e8f0;
+        #live-formulae > h3,
+        #live-formulae > p {
+            margin: 0;
+        }
+        .live-formula {
+            container-type: inline-size;
+            container-name: formula;
+            min-width: 0;
+            max-width: 100%;
+            overflow: hidden;
+            margin: 0;
+            padding: 0.45rem 0.65rem 0.4rem;
+            background: var(--demo-card);
+            border: 1px solid var(--demo-border);
+            border-radius: var(--demo-radius);
+        }
+        .live-formula > [id^="plug-"] {
+            display: block;
+            min-width: 0;
+            max-width: 100%;
         }
         .math-eq {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             align-items: center;
             justify-content: center;
             gap: 0.3rem 0.45rem;
             margin: 0.2rem 0 0.15rem;
+            min-width: 0;
+            max-width: 100%;
             font-family: Georgia, "Times New Roman", Times, serif;
             font-size: 0.95rem;
             line-height: 1.2;
@@ -140,8 +164,70 @@
             padding-bottom: 0.14rem;
         }
         .math-den { padding-top: 0.1rem; }
+        /* One line. A longer plugged-in sum scrolls sideways; the fraction bar stays put. */
+        .live-formula [id^="plug-"] .math-num {
+            display: flex;
+            align-items: flex-end;
+            box-sizing: border-box;
+            height: calc(1.45em + 0.16rem);
+            min-width: 0;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        .math-num-text {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            text-align: center;
+            white-space: nowrap;
+            line-height: 1.45;
+            font-variant-numeric: tabular-nums;
+        }
+        .math-num-text::-webkit-scrollbar {
+            display: none;
+            height: 0;
+            width: 0;
+        }
+        /* Narrow sidebar: the mean sum no longer fits on one line. Keep two lines
+           reserved so the whole sum stays visible and dragging cannot change the height. */
+        @container formula (max-width: 250px) {
+            #plug-mean-x .math-num,
+            #plug-mean-y .math-num {
+                height: calc(2 * 1.45em + 0.16rem);
+            }
+            #plug-mean-x .math-num-text,
+            #plug-mean-y .math-num-text {
+                white-space: normal;
+                max-height: calc(2 * 1.45em);
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+        }
+        .live-formula [id^="plug-"] .math-eq {
+            width: 100%;
+            overflow: hidden;
+        }
+        .live-formula [id^="plug-"] .math-frac {
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: 100%;
+        }
+        .live-formula [id^="plug-"] .math-den {
+            white-space: nowrap;
+        }
         .math-result {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            gap: 0.4rem;
+            box-sizing: border-box;
+            height: 1.35em;
             margin: 0.15rem 0 0;
+            overflow: hidden;
+            min-width: 0;
+            max-width: 100%;
             text-align: center;
             font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             font-weight: 700;
@@ -149,14 +235,43 @@
             font-variant-numeric: tabular-nums;
             line-height: 1.35;
             color: #000;
+            white-space: nowrap;
+        }
+        .math-result-work {
+            min-width: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            text-align: right;
+        }
+        .math-result-work::-webkit-scrollbar {
+            display: none;
+            height: 0;
+        }
+        .math-result-value {
+            flex: 0 0 auto;
+            text-align: left;
         }
         .math-terms {
+            box-sizing: border-box;
+            height: 2.8em;
             margin: 0.25rem 0 0.05rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+            scrollbar-width: none;
+            min-width: 0;
+            max-width: 100%;
             text-align: center;
             font-family: Georgia, "Times New Roman", Times, serif;
             font-size: 0.82rem;
+            font-variant-numeric: tabular-nums;
             line-height: 1.4;
             color: #000;
+        }
+        .math-terms::-webkit-scrollbar {
+            display: none;
+            height: 0;
+            width: 0;
         }
 
         /* s_x s_y standardisation. The two tracks share a marker position:
@@ -711,6 +826,20 @@
             return 6;
         }
 
+        // Work stays on the left of a one-line row; the evaluated value stays fully visible.
+        function buildFormulaResult(dividend, divisor, target) {
+            const result = document.createElement("div");
+            result.className = "math-result";
+            const work = document.createElement("span");
+            work.className = "math-result-work";
+            work.textContent = "= " + dividend + " / " + divisor;
+            const value = document.createElement("span");
+            value.className = "math-result-value";
+            value.textContent = "= " + target;
+            result.append(work, value);
+            return result;
+        }
+
         function fillMeanFormula(host, values, n, mean) {
             const target = formatMean(mean);
             const dp = chooseTermDp(values, n, target, 1);
@@ -728,16 +857,17 @@
             frac.className = "math-frac";
             const num = document.createElement("span");
             num.className = "math-num";
-            num.textContent = numerator;
+            const numText = document.createElement("span");
+            numText.className = "math-num-text";
+            numText.textContent = numerator;
+            num.append(numText);
             const den = document.createElement("span");
             den.className = "math-den";
             den.textContent = String(n);
             frac.append(num, den);
             eq.append(equals, frac);
 
-            const result = document.createElement("div");
-            result.className = "math-result";
-            result.textContent = "= " + dividend + " / " + n + " = " + target;
+            const result = buildFormulaResult(dividend, n, target);
 
             host.append(eq, result);
             host.dataset.result = target;
@@ -795,24 +925,25 @@
             frac.className = "math-frac";
             const num = document.createElement("span");
             num.className = "math-num";
-            num.append(document.createTextNode("Σ ("));
-            num.append(mathIndexed(variable));
-            num.append(document.createTextNode(" − "));
-            num.append(mathBar(variable));
+            const numText = document.createElement("span");
+            numText.className = "math-num-text";
+            numText.append(document.createTextNode("Σ ("));
+            numText.append(mathIndexed(variable));
+            numText.append(document.createTextNode(" − "));
+            numText.append(mathBar(variable));
             const sup = document.createElement("sup");
             sup.textContent = "2";
-            num.append(document.createTextNode(")"));
-            num.append(sup);
-            num.append(document.createTextNode(" = " + dividend));
+            numText.append(document.createTextNode(")"));
+            numText.append(sup);
+            numText.append(document.createTextNode(" = " + dividend));
+            num.append(numText);
             const den = document.createElement("span");
             den.className = "math-den";
             den.textContent = String(nMinus1);
             frac.append(num, den);
             eq.append(equals, frac);
 
-            const result = document.createElement("div");
-            result.className = "math-result";
-            result.textContent = "= " + dividend + " / " + nMinus1 + " = " + target;
+            const result = buildFormulaResult(dividend, nMinus1, target);
 
             host.append(terms, eq, result);
             host.dataset.result = target;
