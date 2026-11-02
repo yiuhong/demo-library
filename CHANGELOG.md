@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Limitations of summary statistics, under Statistics → Describing data, with a Describing data track step after the Q–Q plot (Datasaurus Dozen and Anscombe’s quartet)
+
 ### Changed
 
 - The catalog view is List. The Cards toggle is gone, and a remembered Cards choice opens List.

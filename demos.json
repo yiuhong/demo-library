@@ -156,6 +156,15 @@
               "tags": [
                 "Explorer"
               ]
+            },
+            {
+              "href": "statistics/limitations_of_summary_statistics.html",
+              "title": "Limitations of summary statistics",
+              "description": "The same means, variances, and correlation can hide different graphs: the Datasaurus Dozen and Anscombe's quartet.",
+              "keywords": "Datasaurus Dozen Anscombe quartet same summary statistics different graphs Matejka Fitzmaurice mean variance correlation",
+              "tags": [
+                "Explorer"
+              ]
             }
           ]
         },

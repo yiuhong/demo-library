@@ -769,6 +769,105 @@ def draw_qq() -> None:
     print(f"  qq seed={seed} max|residual|={float(residual.max()):.3f}")
 
 
+# Anscombe (1973), the same 11-point sets as the summary-statistics demo.
+ANSCOMBE = [
+    (
+        "I  line",
+        [
+            (10, 8.04), (8, 6.95), (13, 7.58), (9, 8.81), (11, 8.33),
+            (14, 9.96), (6, 7.24), (4, 4.26), (12, 10.84), (7, 4.82), (5, 5.68),
+        ],
+    ),
+    (
+        "II  curve",
+        [
+            (10, 9.14), (8, 8.14), (13, 8.74), (9, 8.77), (11, 9.26),
+            (14, 8.10), (6, 6.13), (4, 3.10), (12, 9.13), (7, 7.26), (5, 4.74),
+        ],
+    ),
+    (
+        "III  outlier",
+        [
+            (10, 7.46), (8, 6.77), (13, 12.74), (9, 7.11), (11, 7.81),
+            (14, 8.84), (6, 6.08), (4, 5.39), (12, 8.15), (7, 6.42), (5, 5.73),
+        ],
+    ),
+    (
+        "IV  leverage",
+        [
+            (8, 6.58), (8, 5.76), (8, 7.71), (8, 8.84), (8, 8.47),
+            (8, 7.04), (8, 5.25), (19, 12.50), (8, 5.56), (8, 7.91), (8, 6.89),
+        ],
+    ),
+]
+
+
+def _anscombe_stats(points: list[tuple[float, float]]) -> dict[str, float]:
+    xy = np.asarray(points, dtype=float)
+    n = len(xy)
+    mean = xy.mean(axis=0)
+    dev = xy - mean
+    ss = (dev ** 2).sum(axis=0)
+    sd = np.sqrt(ss / (n - 1))
+    corr = float((dev[:, 0] * dev[:, 1]).sum() / ((n - 1) * sd[0] * sd[1]))
+    return {
+        "mean_x": float(mean[0]),
+        "mean_y": float(mean[1]),
+        "sd_x": float(sd[0]),
+        "sd_y": float(sd[1]),
+        "r": corr,
+    }
+
+
+def draw_same_stats() -> None:
+    """Anscombe's quartet: four graphs, one set of summaries."""
+    targets = {"mean_x": 9.0, "mean_y": 7.50, "sd_x": 3.3166, "sd_y": 2.0316, "r": 0.8164}
+    tolerance = {"mean_x": 0.02, "mean_y": 0.02, "sd_x": 0.02, "sd_y": 0.02, "r": 0.02}
+    for title, points in ANSCOMBE:
+        stats = _anscombe_stats(points)
+        for key, target in targets.items():
+            if abs(stats[key] - target) > tolerance[key]:
+                raise SystemExit(f"{title} {key}={stats[key]:.4f} is not {target}")
+
+    fig, axes = plt.subplots(2, 2, figsize=(7.5, 7.8), constrained_layout=True)
+    line_x = np.array([3.0, 19.0])
+    for ax, (title, points) in zip(axes.ravel(), ANSCOMBE):
+        xs = np.array([p[0] for p in points], dtype=float)
+        ys = np.array([p[1] for p in points], dtype=float)
+        ax.plot(
+            line_x,
+            3.0 + 0.5 * line_x,
+            color="black",
+            linestyle="dashed",
+            linewidth=1.05,
+            zorder=1,
+        )
+        ax.scatter(
+            xs,
+            ys,
+            s=42,
+            facecolors="white",
+            edgecolors="black",
+            linewidths=1.05,
+            zorder=2,
+        )
+        ax.set_xlim(2, 20)
+        ax.set_ylim(2, 14)
+        ax.set_xticks([4, 8, 12, 16, 20])
+        ax.set_yticks([4, 8, 12])
+        ax.set_title(title)
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+    fig.suptitle(
+        "Same means, variances, and correlation\n"
+        r"$\bar{x}=9.00$,  $\bar{y}=7.50$,  $s_x=3.32$,  $s_y=2.03$,  $r=0.82$"
+        "\n"
+        r"dashed line:  $y = 3 + 0.5x$"
+    )
+    _save(fig, "09-same-stats-different-graphs.png")
+    print("  anscombe quartet summaries match to 2 d.p.")
+
+
 def main() -> None:
     _style()
     draw_mean_median_mode()
@@ -779,6 +878,7 @@ def main() -> None:
     draw_fences()
     draw_kde()
     draw_qq()
+    draw_same_stats()
 
 
 if __name__ == "__main__":
