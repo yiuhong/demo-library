@@ -22,6 +22,20 @@
             font-weight: bold;
         }
 
+        /* Names the search field for assistive tech without a visible caption. */
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            clip-path: inset(50%) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+
         .search-container {
             margin: 0 0 1.35em 0;
             display: flex;
@@ -36,13 +50,30 @@
             color: #000000 !important;
         }
 
-        #searchInput::placeholder,
-        #searchInput::-webkit-input-placeholder,
-        #searchInput::-moz-placeholder,
-        #searchInput:-ms-input-placeholder,
+        /* Split so one unsupported prefix cannot drop the whole rule. */
+        #searchInput::placeholder {
+            color: rgba(0, 0, 0, 0.45) !important;
+            opacity: 1 !important;
+        }
+
+        #searchInput::-webkit-input-placeholder {
+            color: rgba(0, 0, 0, 0.45) !important;
+            opacity: 1 !important;
+        }
+
+        #searchInput::-moz-placeholder {
+            color: rgba(0, 0, 0, 0.45) !important;
+            opacity: 1 !important;
+        }
+
+        #searchInput:-ms-input-placeholder {
+            color: rgba(0, 0, 0, 0.45) !important;
+            opacity: 1 !important;
+        }
+
         #searchInput::-ms-input-placeholder {
             color: rgba(0, 0, 0, 0.45) !important;
-            opacity: 1;
+            opacity: 1 !important;
         }
 
         #searchInput:focus {
@@ -630,9 +661,9 @@
                     <h1>Project Viz</h1>
                     <p id="library-about" class="library-about">A visualization demo library for teaching. Interactive demonstrations for exploring concepts in psychology, neuroscience, and statistics.</p>
                     <p id="library-preferred-cite" class="library-preferred-cite"><span id="library-apa" data-site-apa>Ko, Y. H. (2026). <em>Project Viz</em> (Version 0.1.4). https://yiuhong.github.io/demo-library/</span> <a class="library-full-cite" href="cite.html">Full cite →</a></p>
-                    <label class="library-label" for="searchInput">Search for a keyword</label>
+                    <label class="visually-hidden" for="searchInput">Search for a keyword</label>
                     <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Search for a demo or topic...">
+                        <input type="text" id="searchInput" placeholder="Search for a keyword">
                     </div>
                 </div>
 
