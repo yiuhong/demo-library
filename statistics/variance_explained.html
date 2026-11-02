@@ -347,6 +347,15 @@
         let baseData = [];
         let data = [];
 
+        // Three ANOVA groups. baseX is only a fixed drawing position.
+        // Jitter is added later for display and is never the reported x.
+        const CATEGORICAL_GROUPS = [
+            { id: 1, label: "Group 1", baseX: 20 },
+            { id: 2, label: "Group 2", baseX: 50 },
+            { id: 3, label: "Group 3", baseX: 80 }
+        ];
+        const X_DOMAIN = [0, 100];
+
         function initializeBaseData(n) {
             baseData = [];
             let temp = [];
@@ -439,20 +448,15 @@
                     const residualStdDev = Math.sqrt(unexplainedVariance);
 
                     const dShift = (r < 0 ? -1 : 1) * Math.sqrt(1.5 * explainedVariance);
-
-                    const groups = [
-                        { id: 1, baseX: 20, mean: meanY - dShift },
-                        { id: 2, baseX: 50, mean: meanY },
-                        { id: 3, baseX: 80, mean: meanY + dShift }
-                    ];
-
-                    const group = groups[d.groupIdx];
+                    const meansByIndex = [meanY - dShift, meanY, meanY + dShift];
+                    const group = CATEGORICAL_GROUPS[d.groupIdx];
                     return {
                         id: d.id,
                         groupId: group.id,
+                        xLabel: group.label,
                         baseX: group.baseX,
                         x: group.baseX + d.xJitter,
-                        y: group.mean + residualStdDev * d.z2_cat
+                        y: meansByIndex[d.groupIdx] + residualStdDev * d.z2_cat
                     };
                 } else {
                     const x_std = d.z1;
@@ -520,15 +524,42 @@
             .append("g")
             .attr("transform", `translate(${scatterMargin.left},${scatterMargin.top})`);
 
-        const xScale = d3.scaleLinear().domain([0, 100]).range([0, scatterWidth]);
+        const xScale = d3.scaleLinear().domain(X_DOMAIN).range([0, scatterWidth]);
         const yScale = d3.scaleLinear().domain([0, 100]).range([scatterHeight, 0]);
 
-        scatterSvg.append("g")
-            .attr("transform", `translate(0,${scatterHeight})`)
-            .call(d3.axisBottom(xScale).ticks(5))
-            .call(g => g.select(".domain").attr("stroke", "#cbd5e1"))
-            .call(g => g.selectAll(".tick line").attr("stroke", "#e2e8f0"))
-            .call(g => g.selectAll(".tick text").attr("fill", "#64748b"));
+        const xAxisG = scatterSvg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0,${scatterHeight})`);
+
+        let xAxisMode = null;
+
+        function applyAxisStyle(g) {
+            g.select(".domain").attr("stroke", "#cbd5e1");
+            g.selectAll(".tick line").attr("stroke", "#e2e8f0");
+            g.selectAll(".tick text").attr("fill", "#64748b");
+        }
+
+        function updateXAxis() {
+            const mode = isCategorical ? "categorical" : "continuous";
+            if (xAxisMode === mode) return;
+            xAxisMode = mode;
+            // Domain stays locked. Categorical ticks are the three groups,
+            // not a fit to jittered point positions.
+            xScale.domain(X_DOMAIN);
+            const axis = d3.axisBottom(xScale);
+            if (isCategorical) {
+                axis.tickValues(CATEGORICAL_GROUPS.map(g => g.baseX))
+                    .tickFormat(value => {
+                        const group = CATEGORICAL_GROUPS.find(g => g.baseX === value);
+                        return group ? group.label : "";
+                    });
+            } else {
+                axis.ticks(5);
+            }
+            xAxisG.call(axis).call(applyAxisStyle);
+        }
+
+        updateXAxis();
 
         scatterSvg.append("g")
             .call(d3.axisLeft(yScale).ticks(5))
@@ -571,6 +602,7 @@
         const dotGroup = dataGroup.append("g");
 
         function updateScatterplot(data) {
+            updateXAxis();
             const dots = dotGroup.selectAll(".dot").data(data, d => d.id);
 
             dots.enter()
@@ -582,7 +614,8 @@
                 .on("mouseover", function(event, d) {
                     d3.select(this).attr("r", 7).style("stroke-width", 2);
                     tooltip.transition().duration(200).style("opacity", .9);
-                    tooltip.html(`X: ${d.x.toFixed(1)}<br/>Y: ${d.y.toFixed(1)}`)
+                    const xText = d.xLabel != null ? d.xLabel : d.x.toFixed(1);
+                    tooltip.html(`X: ${xText}<br/>Y: ${d.y.toFixed(1)}`)
                         .style("left", (event.pageX + 10) + "px")
                         .style("top", (event.pageY - 28) + "px");
                 })
@@ -872,6 +905,7 @@
             titleUnexplained.innerHTML = "Unexplained<br><span class='font-normal text-xs'>(Residual)</span>";
             labelSSUnexplained.innerHTML = "SS<sub>Error</sub>";
             toggleResLabel.innerHTML = "Unexplained";
+            tooltip.interrupt().style("opacity", 0);
             
             renderAll();
         });
@@ -906,6 +940,7 @@
             titleUnexplained.innerHTML = "Within Groups<br><span class='font-normal text-xs'>(Residual)</span>";
             labelSSUnexplained.innerHTML = "SS<sub>Within</sub>";
             toggleResLabel.innerHTML = "Within";
+            tooltip.interrupt().style("opacity", 0);
             
             renderAll();
         });
