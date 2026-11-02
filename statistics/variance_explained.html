@@ -111,6 +111,8 @@
             transition: opacity 0.2s;
             z-index: 10;
         }
+
+        .viz-accent-total { accent-color: var(--viz-total); }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
@@ -135,6 +137,9 @@
                 <strong class="viz-ink-reference">Mean</strong> (baseline deviation), 
                 <strong class="viz-ink-residual">Residuals</strong> (unexplained deviation), and 
                 <strong class="viz-ink-explained">Predicted Values</strong> (explained deviation).
+                Distance toggles draw the vertical gaps that are squared into
+                <strong class="viz-ink-total">SS Total</strong> (each point to the mean) and
+                <strong class="viz-ink-explained">SS Model</strong> or <strong class="viz-ink-explained">SS Between</strong> (each prediction to the mean).
             </p>
             
             <div class="flex justify-center mt-6">
@@ -166,19 +171,36 @@
                 </div>
             </div>
             
-            <div class="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-slate-100 justify-center items-center text-sm">
-                <label class="flex items-center space-x-2 cursor-pointer group">
-                    <input type="checkbox" id="show-mean" class="rounded viz-accent-reference w-4 h-4 cursor-pointer">
-                    <span class="text-slate-700 font-medium">Show Mean Y (<span id="toggle-mean-label" class="viz-ink-reference">Total</span>)</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer group">
-                    <input type="checkbox" id="show-residuals" class="rounded viz-accent-residual w-4 h-4 cursor-pointer">
-                    <span class="text-slate-700 font-medium">Show Residuals (<span id="toggle-res-label" class="viz-ink-residual">Unexplained</span>)</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer group">
-                    <input type="checkbox" id="show-predicted" class="rounded viz-accent-explained w-4 h-4 cursor-pointer">
-                    <span class="text-slate-700 font-medium">Show Predicted (<span id="toggle-pred-label" class="viz-ink-explained">Explained</span>)</span>
-                </label>
+            <div class="mt-8 pt-6 border-t border-slate-100 space-y-3">
+                <div class="flex flex-wrap gap-x-5 gap-y-3 justify-center items-center text-sm">
+                    <label class="flex items-center space-x-2 cursor-pointer max-w-full">
+                        <input type="checkbox" id="show-mean" class="rounded viz-accent-reference w-4 h-4 cursor-pointer shrink-0">
+                        <span class="text-slate-700 font-medium">Show Mean Y (<span id="toggle-mean-label" class="viz-ink-reference">Total</span>)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer max-w-full">
+                        <input type="checkbox" id="show-residuals" class="rounded viz-accent-residual w-4 h-4 cursor-pointer shrink-0">
+                        <span class="text-slate-700 font-medium">Show Residuals (<span id="toggle-res-label" class="viz-ink-residual">Unexplained</span>)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer max-w-full">
+                        <input type="checkbox" id="show-predicted" class="rounded viz-accent-explained w-4 h-4 cursor-pointer shrink-0">
+                        <span class="text-slate-700 font-medium">Show Predicted (<span id="toggle-pred-label" class="viz-ink-explained">Explained</span>)</span>
+                    </label>
+                </div>
+                <div class="flex flex-wrap gap-x-5 gap-y-3 justify-center items-center text-sm">
+                    <label class="flex items-center space-x-2 cursor-pointer max-w-full">
+                        <input type="checkbox" id="show-ss-total" class="rounded viz-accent-total w-4 h-4 cursor-pointer shrink-0">
+                        <span class="text-slate-700 font-medium">Show <span class="viz-ink-total">SS Total</span> distances</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer max-w-full">
+                        <input type="checkbox" id="show-ss-explained" class="rounded viz-accent-explained w-4 h-4 cursor-pointer shrink-0">
+                        <span class="text-slate-700 font-medium">Show <span id="toggle-ss-explained-label" class="viz-ink-explained">SS Model</span> distances</span>
+                    </label>
+                </div>
+                <p class="text-xs text-slate-500 text-center max-w-xl mx-auto leading-relaxed">
+                    <span class="viz-ink-total font-semibold">SS Total</span> distances are the vertical gaps from each point to the mean.
+                    <span id="distance-hint-model"><span class="viz-ink-explained font-semibold">SS Model</span> distances are the vertical gaps from each predicted value to the mean.</span>
+                    Residuals stay the unexplained gap from each point to its prediction.
+                </p>
             </div>
         </div>
 
@@ -541,6 +563,8 @@
             .attr("height", scatterHeight);
 
         const meanLineGroup = dataGroup.append("g");
+        const ssTotalGroup = dataGroup.append("g").style("pointer-events", "none");
+        const ssModelGroup = dataGroup.append("g").style("pointer-events", "none");
         const residualGroup = dataGroup.append("g");
         const lineGroup = dataGroup.append("g");
         const predictedGroup = dataGroup.append("g");
@@ -619,6 +643,16 @@
             document.getElementById('val-unexplained-ms').innerText = msUnexplained.toFixed(1);
 
             const showMean = document.getElementById('show-mean').checked;
+            const showRes = document.getElementById('show-residuals').checked;
+            const showPred = document.getElementById('show-predicted').checked;
+            const showSsTotal = document.getElementById('show-ss-total').checked;
+            const showSsModel = document.getElementById('show-ss-explained').checked;
+            // Keep the three vertical marks from painting on top of each other:
+            // residuals stay on the point, total steps left, model/between steps right.
+            const distanceOffset = 4;
+            const totalDx = (showSsModel || showRes) ? -distanceOffset : 0;
+            const modelDx = (showSsTotal || showRes) ? distanceOffset : 0;
+
             const meanLine = meanLineGroup.selectAll(".mean-line")
                 .data(showMean ? [model.grandMean] : []);
             
@@ -637,7 +671,45 @@
                 
             meanLine.exit().remove();
 
-            const showRes = document.getElementById('show-residuals').checked;
+            const ssTotalLines = ssTotalGroup.selectAll(".ss-total-dist")
+                .data(showSsTotal ? data : [], d => d.id);
+
+            ssTotalLines.enter()
+                .append("line")
+                .attr("class", "ss-total-dist")
+                .attr("stroke", statsViz.color("--viz-total"))
+                .attr("stroke-width", 1.75)
+                .attr("stroke-linecap", "round")
+                .style("opacity", 0.8)
+                .merge(ssTotalLines)
+                .transition().duration(200)
+                .attr("x1", d => xScale(d.x) + totalDx)
+                .attr("y1", d => yScale(d.y))
+                .attr("x2", d => xScale(d.x) + totalDx)
+                .attr("y2", d => yScale(model.grandMean));
+
+            ssTotalLines.exit().remove();
+
+            const ssModel = ssModelGroup.selectAll(".ss-model-dist")
+                .data(showSsModel ? data : [], d => d.id);
+
+            ssModel.enter()
+                .append("line")
+                .attr("class", "ss-model-dist")
+                .attr("stroke", statsViz.color("--viz-explained"))
+                .attr("stroke-width", 2.25)
+                .attr("stroke-linecap", "butt")
+                .attr("stroke-dasharray", "5,3")
+                .style("opacity", 0.95)
+                .merge(ssModel)
+                .transition().duration(200)
+                .attr("x1", d => xScale(d.x) + modelDx)
+                .attr("y1", d => yScale(getY(d)))
+                .attr("x2", d => xScale(d.x) + modelDx)
+                .attr("y2", d => yScale(model.grandMean));
+
+            ssModel.exit().remove();
+
             const residuals = residualGroup.selectAll(".residual")
                 .data(showRes ? data : [], d => d.id);
                 
@@ -657,7 +729,6 @@
                 
             residuals.exit().remove();
 
-            const showPred = document.getElementById('show-predicted').checked;
             const predicted = predictedGroup.selectAll(".predicted")
                 .data(showPred ? data : [], d => d.id);
                 
@@ -768,6 +839,8 @@
         
         const togglePredLabel = document.getElementById('toggle-pred-label');
         const toggleResLabel = document.getElementById('toggle-res-label');
+        const toggleSsExplainedLabel = document.getElementById('toggle-ss-explained-label');
+        const distanceHintModel = document.getElementById('distance-hint-model');
 
         btnContinuous.addEventListener('click', () => {
             if (!isCategorical) return;
@@ -793,6 +866,8 @@
             titleExplained.innerHTML = "Explained<br><span class='font-normal text-xs'>(Model)</span>";
             labelSSExplained.innerHTML = "SS<sub>Model</sub>";
             togglePredLabel.innerHTML = "Explained";
+            toggleSsExplainedLabel.textContent = "SS Model";
+            distanceHintModel.innerHTML = `<span class="viz-ink-explained font-semibold">SS Model</span> distances are the vertical gaps from each predicted value to the mean.`;
             
             titleUnexplained.innerHTML = "Unexplained<br><span class='font-normal text-xs'>(Residual)</span>";
             labelSSUnexplained.innerHTML = "SS<sub>Error</sub>";
@@ -825,6 +900,8 @@
             titleExplained.innerHTML = "Between Groups<br><span class='font-normal text-xs'>(Explained)</span>";
             labelSSExplained.innerHTML = "SS<sub>Between</sub>";
             togglePredLabel.innerHTML = "Between";
+            toggleSsExplainedLabel.textContent = "SS Between";
+            distanceHintModel.innerHTML = `<span class="viz-ink-explained font-semibold">SS Between</span> distances are the vertical gaps from each group mean to the grand mean.`;
             
             titleUnexplained.innerHTML = "Within Groups<br><span class='font-normal text-xs'>(Residual)</span>";
             labelSSUnexplained.innerHTML = "SS<sub>Within</sub>";
@@ -836,6 +913,8 @@
         document.getElementById('show-mean').addEventListener('change', () => updateScatterplot(data));
         document.getElementById('show-residuals').addEventListener('change', () => updateScatterplot(data));
         document.getElementById('show-predicted').addEventListener('change', () => updateScatterplot(data));
+        document.getElementById('show-ss-total').addEventListener('change', () => updateScatterplot(data));
+        document.getElementById('show-ss-explained').addEventListener('change', () => updateScatterplot(data));
 
         window.onload = () => {
             initializeBaseData(nPoints);
