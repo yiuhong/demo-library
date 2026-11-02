@@ -1346,13 +1346,11 @@
                 var title = typeof raw.title === 'string' ? raw.title.trim() : '';
                 if (!id || !title) return null;
                 var summary = typeof raw.summary === 'string' ? raw.summary.trim() : '';
-                var status = typeof raw.status === 'string' ? raw.status.trim().toLowerCase() : '';
                 var steps = Array.isArray(raw.steps) ? raw.steps.map(normalizeStep).filter(Boolean) : [];
                 return {
                     id: id,
                     title: title,
                     summary: summary,
-                    status: status === 'ready' ? 'ready' : 'draft',
                     steps: steps
                 };
             }
@@ -1405,10 +1403,6 @@
                 render({ moveFocus: true });
             }
 
-            function draftBadge() {
-                return el('span', 'demo-tag is-draft', 'Draft');
-            }
-
             function renderHub(requestedId, moveFocus) {
                 var hub = el('section', 'tracks-hub');
                 var heading = el('h2', 'tracks-hub-heading', 'All tracks');
@@ -1438,7 +1432,6 @@
                     if (track.summary) card.appendChild(el('p', 'demo-card-desc', track.summary));
                     var tags = el('span', 'demo-card-tags');
                     tags.appendChild(el('span', 'demo-tag', stepCountLabel(track.steps.length)));
-                    if (track.status === 'draft') tags.appendChild(draftBadge());
                     card.appendChild(tags);
                     card.addEventListener('click', function (event) {
                         followInPage(card, event);
@@ -1494,7 +1487,6 @@
                 heading.tabIndex = -1;
                 titleRow.appendChild(heading);
                 titleRow.appendChild(el('span', 'demo-tag', stepCountLabel(track.steps.length)));
-                if (track.status === 'draft') titleRow.appendChild(draftBadge());
                 section.appendChild(titleRow);
                 section.setAttribute('aria-labelledby', heading.id);
 

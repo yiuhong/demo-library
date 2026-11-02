@@ -4,7 +4,6 @@
       "id": "center-and-spread",
       "title": "Center and spread",
       "summary": "This path is for where a set of numbers sits and how wide they are. By the end you can read the mean, the median, and the mode, treat higher moments as averages of spread and skew, and see why a sample variance divides by n − 1.",
-      "status": "draft",
       "steps": [
         {
           "href": "statistics/mean_mode_median_dot_plot.html",
@@ -47,7 +46,6 @@
       "id": "shape-and-pictures",
       "title": "Shape and pictures",
       "summary": "This path is for the shape of a set of numbers, in a number and in a picture. By the end you can see skew pull the averages apart, read a histogram beside a boxplot, mark an outlier with a fence, and follow the same pile as a smooth density.",
-      "status": "draft",
       "steps": [
         {
           "href": "statistics/skewed_distribution.html",
@@ -99,7 +97,6 @@
       "id": "same-summaries-different-graphs",
       "title": "Same summaries, different graphs",
       "summary": "This path is for when the numbers match and the picture does not. By the end you can use a Q–Q plot to compare a sample with a reference curve, and see why the same means, spreads, and correlation can still hide a different graph.",
-      "status": "draft",
       "steps": [
         {
           "href": "statistics/q_q_plot.html",
@@ -127,7 +124,6 @@
       "id": "from-process-to-distribution",
       "title": "From process to distribution",
       "summary": "This path is for how a statistical claim is built, from a process to a curve. By the end you can name the levels from a parameter to inference, see what fixes a normal curve, and place that curve among the distributions it connects to.",
-      "status": "draft",
       "steps": [
         {
           "href": "statistics/stats_conceptual_hierarchy.html",
@@ -172,7 +168,6 @@
       "id": "counts-arrivals-and-the-board",
       "title": "Counts, arrivals, and the board",
       "summary": "This path is for counts of coin tosses and of arrivals, and the board that piles those counts into a bell. By the end you can read a binomial count, a Poisson count, and the same kind of sum as bins on a Galton board.",
-      "status": "draft",
       "steps": [
         {
           "href": "statistics/binomial_bernoulli.html",
@@ -218,7 +213,6 @@
       "id": "sampling-distributions-and-intervals",
       "title": "Sampling distributions and intervals",
       "summary": "This path is for what repeated samples do to a summary. By the end you can see sample means settle toward a normal curve, a chi-square as a sum of squared standard normals, and a confidence interval as long-run coverage, not a chance for one interval.",
-      "status": "draft",
       "steps": [
         {
           "href": "statistics/central_limit_theorem.html",
@@ -269,7 +263,6 @@
       "id": "t-test",
       "title": "t-test",
       "summary": "This path is for comparing two means when the spread is estimated, so the reference curve has heavier tails. By the end you can say whether the scores come from two groups or the same people.",
-      "status": "draft",
       "steps": [
         {
           "href": "statistics/z_distribution_vs_t_distribution.html",
@@ -313,7 +306,6 @@
       "id": "statistical-power",
       "title": "Statistical power",
       "summary": "This path is for the chance of detecting a real effect, from the definition to how that chance grows. By the end you can say what power is and what a larger effect or sample does to it.",
-      "status": "draft",
       "steps": [
         {
           "href": "statistics/statistical_power.html",
@@ -343,7 +335,6 @@
       "id": "anova",
       "title": "ANOVA",
       "summary": "This path is for comparing means, from separate groups to the same people and a split of variation. By the end you can say where the variation comes from and what the usual reading assumes.",
-      "status": "draft",
       "steps": [
         {
           "href": "statistics/t_test_to_anova.html",
@@ -422,7 +413,6 @@
       "id": "association",
       "title": "Association",
       "summary": "This path is for how two variables move together, from shared movement to a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference.",
-      "status": "draft",
       "steps": [
         {
           "href": "statistics/covariance_and_correlation.html",
