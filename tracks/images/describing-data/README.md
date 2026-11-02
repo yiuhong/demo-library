@@ -16,6 +16,10 @@ The boxplot figures follow `statistics/boxplot_outliers.html`. Sort the values, 
 
 The Q–Q figure uses the same plotting position as `statistics/q_q_plot.html`: the normal quantile at `(i − 0.5) / n` for each ordered value, with the reference line `y = x`.
 
+## Same summaries
+
+The closing figure is Anscombe’s quartet. Sample standard deviations use the divisor `n − 1`, as in `statistics/limitations_of_summary_statistics.html`. Rounded to two decimals, every panel has `x̄ = 9.00`, `ȳ = 7.50`, `sₓ = 3.32`, `sᵧ = 2.03`, and `r = 0.82`. The dashed line is the shared regression `y = 3 + 0.5x`.
+
 ## Kernel density
 
 The KDE figure uses the same 44 integers as the histogram. The curve is a Gaussian kernel density estimate,
@@ -34,3 +38,4 @@ with `K` the standard normal density. The bandwidth is Silverman’s rule, `h = 
 6. Fences: 12, 16, 20, 24, 28, 30, 32, 36, 40, 44, 80. Quartiles 20, 30, 40; fences −10 and 70; the only outlier is 80.
 7. Kernel density: those same 44 values, with a Gaussian kernel at the Silverman bandwidth.
 8. Q–Q: 40 standard normal draws (NumPy seed 24).
+9. Same summaries: Anscombe’s quartet (Anscombe, 1973), the same 11-point sets as `statistics/limitations_of_summary_statistics.html`. Each panel has mean x = 9.00, mean y = 7.50, sample standard deviations 3.32 and 2.03 (divisor n − 1), and correlation 0.82, to two decimals. The dashed line is y = 3 + 0.5x.

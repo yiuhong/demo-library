@@ -3,7 +3,7 @@
     {
       "id": "describing-data",
       "title": "Describing data",
-      "summary": "This path is for describing a set of numbers, from averages of center, spread, and shape to pictures of that shape. By the end you can say where they sit, how wide and skewed they are, and whether they look unusual.",
+      "summary": "This path is for describing a set of numbers, from averages of center, spread, and shape to pictures of that shape. By the end you can say where they sit, how wide and skewed they are, whether they look unusual, and why a matching set of summaries can still hide a different graph.",
       "status": "draft",
       "steps": [
         {
@@ -88,12 +88,22 @@
         {
           "href": "statistics/q_q_plot.html",
           "title": "Q–Q Plot",
-          "note": "A few extreme points are one way a set of numbers can look unusual; another is that the overall shape does not match a familiar reference curve. A Q–Q plot lines the sample’s quantiles up against a reference distribution, often the normal. Compare the sample quantiles to the reference line. A curve away from the straight line means the sample’s shape and the reference shape differ — a last check on whether the description you built fits a familiar model.",
+          "note": "A few extreme points are one way a set of numbers can look unusual; another is that the overall shape does not match a familiar reference curve. A Q–Q plot lines the sample’s quantiles up against a reference distribution, often the normal. Compare the sample quantiles to the reference line. A curve away from the straight line means the sample’s shape and the reference shape differ. That check still describes one sample. The next question is whether another picture could carry the same means, the same spread, and the same correlation.",
           "formulae": [
             "plot (theoretical quantile, sample quantile) for each order statistic"
           ],
           "image": "tracks/images/describing-data/08-qq-plot.png",
           "imageAlt": "Q–Q plot of one sample of 40 standard normal draws. Ordered sample quantiles are plotted against normal theoretical quantiles and lie close to a straight reference line."
+        },
+        {
+          "href": "statistics/limitations_of_summary_statistics.html",
+          "title": "Limitations of summary statistics",
+          "note": "A Q–Q plot can show that a sample’s shape and a reference shape differ. Summaries of center, spread, and correlation can still agree while the pictures do not. Anscombe’s quartet and the Datasaurus dozen keep the means, the standard deviations, and r fixed, and the graph changes from a line to a curve, a stack, a star, or a dinosaur. Switch shapes and those summaries stay put. Drag a point and they move. Re-lock them and the strange picture can return with the same numbers. When the averages match, the graph is still part of the description.",
+          "formulae": [
+            "same x̄, sₓ, ȳ, sᵧ, and r across shapes"
+          ],
+          "image": "tracks/images/describing-data/09-same-stats-different-graphs.png",
+          "imageAlt": "Four scatter plots of Anscombe’s quartet. Panel I is a noisy line, II a curve, III a line with one high point, and IV a vertical stack with one point far to the right. The same dashed regression line is drawn on each panel. Every panel has mean x 9.00, mean y 7.50, standard deviations 3.32 and 2.03, and correlation 0.82."
         }
       ]
     },

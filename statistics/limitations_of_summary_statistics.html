@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+  <title>Limitations of summary statistics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css" />
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css" />
+  <script src="../assets/stats-viz-theme.js"></script>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css" />
+  <style>
+    .app-shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1rem 1rem 2.5rem;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card-body {
+      padding: 1rem 1.1rem 1.15rem;
+    }
+
+    .card-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .stats-heading {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.45rem;
+    }
+
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    .stats-table th,
+    .stats-table td {
+      padding: 0.4rem 0.35rem;
+      text-align: left;
+      border-bottom: 1px solid #000000;
+    }
+
+    .stats-table th {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .stats-table td.num {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .stats-table td.target {
+      font-weight: 600;
+      opacity: 0.72;
+    }
+
+    .badge-match,
+    .badge-drifted {
+      display: inline-block;
+      flex-shrink: 0;
+      padding: 0.1rem 0.55rem;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1.35;
+      white-space: nowrap;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+    }
+
+    .action-row .demo-chip {
+      flex: 1 1 0;
+    }
+
+    .shape-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+    }
+
+    .shape-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      width: 100%;
+      margin: 0;
+      padding: 0.4rem 0.5rem;
+      border: 1px solid #000000;
+      border-radius: var(--demo-radius);
+      background: #ffffff;
+      color: #000000;
+      font-family: var(--demo-font);
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .shape-btn:hover,
+    .shape-btn.active-shape {
+      background: #000000;
+      color: #ffffff;
+    }
+
+    .color-dot {
+      width: 0.7rem;
+      height: 0.7rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 1px #000000;
+    }
+
+    .shape-btn.active-shape .color-dot,
+    .shape-btn:hover .color-dot {
+      box-shadow: 0 0 0 1px #ffffff;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      padding: 0.35rem 0;
+      font-size: 0.9rem;
+    }
+
+    .control-row label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .control-row input {
+      accent-color: #000000;
+    }
+
+    .demo-chip.active,
+    .demo-chip.primary {
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+
+    .canvas-wrap {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    canvas#mainCanvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      background: #ffffff;
+      border: 1px solid #000000;
+      cursor: grab;
+    }
+
+    canvas#mainCanvas:active {
+      cursor: grabbing;
+    }
+
+    .helper-caption {
+      max-width: 660px;
+      margin: 0.75rem auto 0;
+      color: #000000;
+      font-size: 0.86rem;
+      text-align: center;
+    }
+
+    .poster-grid {
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+      margin-top: 0;
+      padding: 1rem;
+      background: var(--demo-panel);
+      border: 1px solid #000000;
+      border-radius: var(--demo-radius);
+    }
+
+    .poster-grid.anscombe-grid-layout {
+      grid-template-columns: repeat(2, 1fr);
+      max-width: 920px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    @media (max-width: 780px) {
+      .poster-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .poster-grid,
+      .poster-grid.anscombe-grid-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .poster-text-cell {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0.75rem 0.55rem;
+      font-size: 0.95rem;
+    }
+
+    .poster-text-cell h3 {
+      margin: 0 0 0.75rem;
+      font-size: 1.02rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .poster-text-cell .stat-block {
+      margin-bottom: 0.6rem;
+      line-height: 1.45;
+    }
+
+    .poster-credit {
+      margin-top: auto;
+      font-size: 0.8rem;
+    }
+
+    .mini-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.35rem;
+      border-radius: var(--demo-radius);
+      cursor: pointer;
+    }
+
+    .mini-card:hover {
+      background: #ffffff;
+    }
+
+    .mini-card canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      background: #ffffff;
+      border: 1px solid #000000;
+    }
+
+    .mini-label {
+      margin-top: 0.25rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .ref-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      margin: 0 0 0.45rem;
+      padding-left: 1.4rem;
+      text-indent: -1.4rem;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body class="demo-page">
+  <div class="app-shell">
+    <div class="demo-topbar">
+      <a class="demo-back" href="../index.html">← Project Viz</a>
+      <button id="fullscreen-btn" class="demo-btn demo-btn-primary" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+        <span class="hidden sm:inline">Fullscreen</span>
+      </button>
+    </div>
+
+    <section class="demo-card mb-4">
+      <div class="demo-header">
+        <h1>Limitations of summary statistics</h1>
+        <p>The Datasaurus Dozen (Matejka &amp; Fitzmaurice, 2017) and Anscombe's Quartet (Anscombe, 1973): the same means, variances, and correlation, drawn as different graphs.</p>
+      </div>
+      <div class="demo-toolbar">
+        <div class="demo-chip-group" role="group" aria-label="Dataset collection">
+          <button id="btnSuiteDatasaurus" class="demo-chip active" type="button">Datasaurus Dozen (13)</button>
+          <button id="btnSuiteAnscombe" class="demo-chip" type="button">Anscombe's Quartet (4)</button>
+        </div>
+        <div class="demo-chip-group" role="group" aria-label="View mode">
+          <button id="btnViewExplorer" class="demo-chip active" type="button">Interactive Explorer</button>
+          <button id="btnViewPoster" class="demo-chip" type="button">All-Graphs Grid</button>
+        </div>
+        <button id="btnAutoPlay" class="demo-chip" type="button">Start Auto-Morph Tour</button>
+      </div>
+    </section>
+
+    <div class="workspace" id="explorerWorkspace">
+      <div class="sidebar">
+        <div class="demo-card">
+          <div class="card-body">
+            <h2 class="card-title stats-heading">
+              <span id="statsHeaderTitle">Summary Statistics (n = 142)</span>
+              <span id="momentBadge" class="badge-match viz-ink-significant viz-soft-significant">Exact Match (2 d.p.)</span>
+            </h2>
+            <table class="stats-table">
+              <thead>
+                <tr>
+                  <th>Statistic</th>
+                  <th style="text-align:right;">Current</th>
+                  <th style="text-align:right;">Target</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mean, x-axis</td>
+                  <td class="num" id="valMeanX">54.26</td>
+                  <td class="num target" id="targetMeanX">54.26</td>
+                </tr>
+                <tr>
+                  <td>Mean, y-axis</td>
+                  <td class="num" id="valMeanY">47.83</td>
+                  <td class="num target" id="targetMeanY">47.83</td>
+                </tr>
+                <tr>
+                  <td>SD, x-axis</td>
+                  <td class="num" id="valSdX">16.76</td>
+                  <td class="num target" id="targetSdX">16.76</td>
+                </tr>
+                <tr>
+                  <td>SD, y-axis</td>
+                  <td class="num" id="valSdY">26.93</td>
+                  <td class="num target" id="targetSdY">26.93</td>
+                </tr>
+                <tr>
+                  <td>Correlation (r)</td>
+                  <td class="num" id="valCorr">-0.06</td>
+                  <td class="num target" id="targetCorr">-0.06</td>
+                </tr>
+                <tr>
+                  <td>OLS Regression</td>
+                  <td class="num" id="valOls">-0.10x + 53.45</td>
+                  <td class="num" id="targetOls">-0.10x + 53.45</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="action-row">
+              <button id="btnRelock" class="demo-chip" type="button">Re-Lock Summary Stats</button>
+              <button id="btnResetShape" class="demo-chip" type="button">Reset Shape</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <div class="card-body">
+            <h2 class="card-title" id="selectorCardTitle">Select Dataset Pattern (13 Shapes)</h2>
+            <div class="shape-grid" id="shapeButtonsContainer"></div>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <div class="card-body">
+            <h2 class="card-title">Visual Overlays</h2>
+            <div class="control-row">
+              <label><input type="checkbox" id="chkOls" checked /> <span class="viz-ink-explained">Show OLS Regression Line</span></label>
+            </div>
+            <div class="control-row">
+              <label><input type="checkbox" id="chkCrosshair" checked /> <span class="viz-ink-mean">Show Mean Centroid (x&#772;, y&#772;)</span></label>
+            </div>
+            <div class="control-row">
+              <label><input type="checkbox" id="chkMarginals" checked /> Show Marginal Histograms</label>
+            </div>
+            <div class="control-row">
+              <label><input type="checkbox" id="chkEllipse" /> <span class="viz-ink-reference">Show 1-SD Covariance Ellipse</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="card-body">
+          <div class="canvas-wrap">
+            <canvas id="mainCanvas" width="680" height="680"></canvas>
+          </div>
+          <p class="helper-caption">
+            <strong>Interactive tip:</strong> Switch between the <strong>Datasaurus Dozen</strong> and <strong>Anscombe's Quartet</strong> above. <strong>Drag a point</strong> to see the summaries move, then choose <em>Re-Lock Summary Stats</em> to project that geometry back onto the target moments.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="poster-grid" id="posterWorkspace"></div>
+
+    <section class="demo-card mt-4">
+      <div class="card-body">
+        <h2 class="card-title">References</h2>
+        <ul class="ref-list">
+          <li>
+            Anscombe, F. J. (1973). Graphs in statistical analysis. <em>The American Statistician</em>, <em>27</em>(1), 17–21. https://doi.org/10.1080/00031305.1973.10478966
+          </li>
+          <li>
+            Matejka, J., &amp; Fitzmaurice, G. (2017, May). Same stats, different graphs: generating datasets with varied appearance and identical statistics through simulated annealing. In <em>Proceedings of the 2017 CHI conference on human factors in computing systems</em> (pp. 1290-1294).
+          </li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <script>
+
+    (function() {
+      "use strict";
+
+      // =========================================================================
+      // 1. AUTHENTIC DATASAURUS (DINO) 142 COORDINATES (Matejka & Fitzmaurice, 2017)
+      // =========================================================================
+      const AUTHENTIC_DINO_COORDS = [
+        55.38,97.18, 51.54,96.03, 46.15,94.49, 42.82,91.41, 40.77,88.33, 38.72,84.87, 35.64,79.87,
+        33.08,77.56, 28.97,74.49, 26.15,71.41, 23.08,66.41, 22.31,61.80, 22.31,57.18, 23.33,52.95,
+        25.90,51.03, 29.49,51.03, 32.82,51.03, 35.38,51.41, 40.26,51.41, 44.10,52.95, 46.67,54.10,
+        50.00,55.26, 53.08,55.64, 56.67,56.03, 59.23,57.95, 61.28,62.18, 61.54,66.41, 61.79,69.10,
+        57.44,55.26, 54.87,49.87, 52.56,46.03, 48.21,38.33, 49.49,42.18, 51.03,44.10, 45.38,36.41,
+        42.82,32.56, 38.72,31.41, 35.13,30.26, 32.56,32.18, 30.00,36.80, 33.59,41.41, 36.67,45.64,
+        38.21,49.10, 29.74,36.03, 29.74,32.18, 30.00,29.10, 32.05,26.80, 35.90,25.26, 41.03,25.26,
+        44.10,25.64, 47.18,28.72, 49.49,31.41, 51.54,34.87, 53.59,37.56, 55.13,40.64, 56.67,42.18,
+        59.23,44.49, 62.31,46.03, 64.87,46.80, 67.95,47.95, 70.51,50.64, 71.54,56.80, 71.54,60.64,
+        69.49,64.49, 46.92,30.26, 48.21,23.72, 50.00,19.87, 53.08,16.03, 55.38,13.72, 59.74,14.49,
+        61.28,14.87, 62.56,16.03, 39.49,64.49, 40.51,69.87, 37.18,68.33, 35.90,64.10, 39.74,72.95,
+        42.31,75.26, 44.87,74.87, 46.92,71.80, 46.92,67.95, 44.36,66.03, 41.28,67.18, 49.23,84.10,
+        46.67,83.33, 45.64,80.64, 49.23,78.72, 51.03,80.26, 51.28,82.56, 54.62,85.26, 56.92,82.95,
+        59.23,80.26, 60.77,77.95, 63.08,74.87, 65.13,72.18, 67.18,69.49, 68.46,66.03, 70.26,63.33,
+        72.05,60.26, 74.10,57.56, 76.41,54.87, 78.72,51.80, 81.03,49.10, 83.33,46.03, 85.64,43.33,
+        87.95,40.26, 90.26,37.56, 92.82,34.49, 95.38,31.80, 98.21,29.10, 56.92,16.41, 53.85,19.10,
+        51.28,22.56, 49.23,26.03, 52.82,11.41, 50.00,9.49, 46.92,8.33, 43.33,8.33, 40.51,9.10,
+        43.85,5.64, 47.44,5.64, 51.03,5.64, 54.62,5.64, 58.21,5.64, 61.79,6.03, 65.38,6.03,
+        68.72,6.03, 71.79,6.03, 62.56,11.03, 65.64,10.26, 68.72,10.26, 72.05,10.26, 59.49,95.64,
+        63.33,93.72, 66.92,90.64, 70.00,86.80, 72.82,82.56, 75.13,77.56, 76.92,72.56, 78.21,67.18,
+        79.23,61.80, 80.51,56.80
+      ];
+
+      // =========================================================================
+      // 2. AUTHENTIC ANSCOMBE'S QUARTET (Anscombe, 1973)
+      // =========================================================================
+      const ANSCOMBE_RAW = [
+        {
+          id: "anscombe_1",
+          name: "Dataset I (Linear + Noise)",
+          points: [
+            {x: 10.0, y: 8.04}, {x: 8.0, y: 6.95}, {x: 13.0, y: 7.58}, {x: 9.0, y: 8.81},
+            {x: 11.0, y: 8.33}, {x: 14.0, y: 9.96}, {x: 6.0, y: 7.24}, {x: 4.0, y: 4.26},
+            {x: 12.0, y: 10.84}, {x: 7.0, y: 4.82}, {x: 5.0, y: 5.68}
+          ]
+        },
+        {
+          id: "anscombe_2",
+          name: "Dataset II (Quadratic Curve)",
+          points: [
+            {x: 10.0, y: 9.14}, {x: 8.0, y: 8.14}, {x: 13.0, y: 8.74}, {x: 9.0, y: 8.77},
+            {x: 11.0, y: 9.26}, {x: 14.0, y: 8.10}, {x: 6.0, y: 6.13}, {x: 4.0, y: 3.10},
+            {x: 12.0, y: 9.13}, {x: 7.0, y: 7.26}, {x: 5.0, y: 4.74}
+          ]
+        },
+        {
+          id: "anscombe_3",
+          name: "Dataset III (Linear + Outlier)",
+          points: [
+            {x: 10.0, y: 7.46}, {x: 8.0, y: 6.77}, {x: 13.0, y: 12.74}, {x: 9.0, y: 7.11},
+            {x: 11.0, y: 7.81}, {x: 14.0, y: 8.84}, {x: 6.0, y: 6.08}, {x: 4.0, y: 5.39},
+            {x: 12.0, y: 8.15}, {x: 7.0, y: 6.42}, {x: 5.0, y: 5.73}
+          ]
+        },
+        {
+          id: "anscombe_4",
+          name: "Dataset IV (High-Leverage Point)",
+          points: [
+            {x: 8.0, y: 6.58}, {x: 8.0, y: 5.76}, {x: 8.0, y: 7.71}, {x: 8.0, y: 8.84},
+            {x: 8.0, y: 8.47}, {x: 8.0, y: 7.04}, {x: 8.0, y: 5.25}, {x: 19.0, y: 12.50},
+            {x: 8.0, y: 5.56}, {x: 8.0, y: 7.91}, {x: 8.0, y: 6.89}
+          ]
+        }
+      ];
+
+      // Target definitions for both suites
+      const SUITE_CONFIGS = {
+        datasaurus: {
+          key: "datasaurus",
+          title: "Datasaurus Dozen",
+          n: 142,
+          meanX: 54.26,
+          meanY: 47.83,
+          sdX: 16.76,
+          sdY: 26.93,
+          r: -0.06,
+          domainX: [0, 100],
+          domainY: [0, 100],
+          padX: 2.0,
+          padY: 2.0,
+          tickStepX: 20,
+          tickStepY: 20
+        },
+        anscombe: {
+          key: "anscombe",
+          title: "Anscombe's Quartet",
+          n: 11,
+          meanX: 9.00,
+          meanY: 7.50,
+          sdX: 3.3166,
+          sdY: 2.0316,
+          r: 0.8164,
+          domainX: [0, 20],
+          domainY: [0, 14],
+          padX: 0.5,
+          padY: 0.5,
+          tickStepX: 4,
+          tickStepY: 2
+        }
+      };
+
+      // Deterministic PRNG (Mulberry32)
+      function createRng(seed) {
+        let t = seed >>> 0;
+        return function() {
+          t += 0x6D2B79F5;
+          let x = Math.imul(t ^ (t >>> 15), 1 | t);
+          x ^= x + Math.imul(x ^ (x >>> 7), 61 | x);
+          return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      // Single pass of Cholesky / Gram-Schmidt affine moment-matching transformation
+      function projectOntoMomentManifold(rawPoints, targetSpec) {
+        const n = rawPoints.length;
+        let mx = 0, my = 0;
+        for (let i = 0; i < n; i++) {
+          mx += rawPoints[i].x;
+          my += rawPoints[i].y;
+        }
+        mx /= n;
+        my /= n;
+
+        const u1 = new Float64Array(n);
+        const u2 = new Float64Array(n);
+        let ss1 = 0;
+        for (let i = 0; i < n; i++) {
+          u1[i] = rawPoints[i].x - mx;
+          u2[i] = rawPoints[i].y - my;
+          ss1 += u1[i] * u1[i];
+        }
+
+        const sd1 = Math.sqrt(ss1 / (n - 1)) || 1;
+        for (let i = 0; i < n; i++) {
+          u1[i] /= sd1;
+        }
+
+        // Orthogonalize u2 against u1
+        let dot = 0;
+        for (let i = 0; i < n; i++) {
+          dot += u1[i] * u2[i];
+        }
+        const proj = dot / (n - 1);
+        let ss2 = 0;
+        for (let i = 0; i < n; i++) {
+          u2[i] = u2[i] - proj * u1[i];
+          ss2 += u2[i] * u2[i];
+        }
+        const sd2 = Math.sqrt(ss2 / (n - 1)) || 1;
+        for (let i = 0; i < n; i++) {
+          u2[i] /= sd2;
+        }
+
+        // Inject target moments
+        const r = targetSpec.r;
+        const rComp = Math.sqrt(Math.max(0, 1 - r * r));
+        const out = [];
+        for (let i = 0; i < n; i++) {
+          const x = targetSpec.meanX + targetSpec.sdX * u1[i];
+          const y = targetSpec.meanY + targetSpec.sdY * (r * u1[i] + rComp * u2[i]);
+          out.push({ x: x, y: y });
+        }
+        return out;
+      }
+
+      // Bounded alternating-projection moment matching:
+      // Guarantees exact target summary statistics while keeping all points strictly inside axis bounds.
+      function enforceExactSummaryStats(rawPoints, targetSpec) {
+        const minX = targetSpec.domainX[0] + (targetSpec.padX || 1.5);
+        const maxX = targetSpec.domainX[1] - (targetSpec.padX || 1.5);
+        const minY = targetSpec.domainY[0] + (targetSpec.padY || 1.5);
+        const maxY = targetSpec.domainY[1] - (targetSpec.padY || 1.5);
+
+        let pts = projectOntoMomentManifold(rawPoints, targetSpec);
+
+        for (let iter = 0; iter < 60; iter++) {
+          let anyOutOfBounds = false;
+          for (let i = 0; i < pts.length; i++) {
+            if (pts[i].x < minX || pts[i].x > maxX || pts[i].y < minY || pts[i].y > maxY) {
+              anyOutOfBounds = true;
+              pts[i].x = Math.max(minX, Math.min(maxX, pts[i].x));
+              pts[i].y = Math.max(minY, Math.min(maxY, pts[i].y));
+            }
+          }
+          if (!anyOutOfBounds) {
+            break;
+          }
+          pts = projectOntoMomentManifold(pts, targetSpec);
+        }
+
+        // Final hard clamp safeguard to ensure no coordinate ever exceeds the plot domain
+        for (let i = 0; i < pts.length; i++) {
+          pts[i].x = Math.max(targetSpec.domainX[0] + 0.5, Math.min(targetSpec.domainX[1] - 0.5, pts[i].x));
+          pts[i].y = Math.max(targetSpec.domainY[0] + 0.5, Math.min(targetSpec.domainY[1] - 0.5, pts[i].y));
+        }
+        return pts;
+      }
+
+      // Compute live sample statistics
+      function computeStats(pts) {
+        const n = pts.length;
+        let mx = 0, my = 0;
+        for (let i = 0; i < n; i++) {
+          mx += pts[i].x;
+          my += pts[i].y;
+        }
+        mx /= n;
+        my /= n;
+        let vx = 0, vy = 0, cov = 0;
+        for (let i = 0; i < n; i++) {
+          const dx = pts[i].x - mx;
+          const dy = pts[i].y - my;
+          vx += dx * dx;
+          vy += dy * dy;
+          cov += dx * dy;
+        }
+        const sx = Math.sqrt(vx / (n - 1));
+        const sy = Math.sqrt(vy / (n - 1));
+        const r = cov / ((n - 1) * sx * sy);
+        const slope = r * (sy / sx);
+        const intercept = my - slope * mx;
+        return { meanX: mx, meanY: my, sdX: sx, sdY: sy, r: r, slope: slope, intercept: intercept };
+      }
+
+      function samplePolyline(waypoints, count, jitterX, jitterY, rng) {
+        const segLengths = [];
+        let totalLen = 0;
+        for (let i = 0; i < waypoints.length - 1; i++) {
+          const dx = waypoints[i + 1][0] - waypoints[i][0];
+          const dy = waypoints[i + 1][1] - waypoints[i][1];
+          const d = Math.hypot(dx, dy);
+          segLengths.push(d);
+          totalLen += d;
+        }
+        const pts = [];
+        for (let k = 0; k < count; k++) {
+          let targetD = (k / count) * totalLen;
+          let segIdx = 0;
+          while (segIdx < segLengths.length - 1 && targetD > segLengths[segIdx]) {
+            targetD -= segLengths[segIdx];
+            segIdx++;
+          }
+          const t = segLengths[segIdx] > 0 ? targetD / segLengths[segIdx] : 0;
+          const x = waypoints[segIdx][0] + t * (waypoints[segIdx + 1][0] - waypoints[segIdx][0]);
+          const y = waypoints[segIdx][1] + t * (waypoints[segIdx + 1][1] - waypoints[segIdx][1]);
+          pts.push({
+            x: x + (rng() - 0.5) * jitterX,
+            y: y + (rng() - 0.5) * jitterY
+          });
+        }
+        return pts;
+      }
+
+      // Generate the 13 Datasaurus Dozen datasets
+      const DATASAURUS_DEFS = [
+        {
+          id: "away",
+          name: "1. Away (Ring Scatter)",
+          build: function(n, rng) {
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+              const angle = (i / n) * Math.PI * 2 + rng() * 0.25;
+              const rad = 18 + rng() * 22;
+              pts.push({
+                x: 54 + Math.cos(angle) * rad * 0.75 + (rng() - 0.5) * 6,
+                y: 48 + Math.sin(angle) * rad * 1.35 + (rng() - 0.5) * 8
+              });
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "bullseye",
+          name: "2. Bullseye",
+          build: function(n, rng) {
+            const pts = [];
+            const nInner = Math.floor(n * 0.42);
+            const nOuter = n - nInner;
+            for (let i = 0; i < nInner; i++) {
+              const a = (i / nInner) * Math.PI * 2 + (rng() - 0.5) * 0.18;
+              const r = 16 + (rng() - 0.5) * 2.2;
+              pts.push({ x: 54 + Math.cos(a) * r, y: 48 + Math.sin(a) * r * 1.15 });
+            }
+            for (let i = 0; i < nOuter; i++) {
+              const a = (i / nOuter) * Math.PI * 2 + (rng() - 0.5) * 0.14;
+              const r = 34 + (rng() - 0.5) * 2.4;
+              pts.push({ x: 54 + Math.cos(a) * r, y: 48 + Math.sin(a) * r * 1.15 });
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "circle",
+          name: "3. Circle",
+          build: function(n, rng) {
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+              const a = (i / n) * Math.PI * 2 + (rng() - 0.5) * 0.08;
+              const topBump = (Math.abs(a - Math.PI / 2) < 0.16 && i % 3 === 0) ? 4.5 : 0;
+              pts.push({
+                x: 54 + Math.cos(a) * 26 + (rng() - 0.5) * 0.8,
+                y: 48 + Math.sin(a) * 32 + topBump + (rng() - 0.5) * 0.8
+              });
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "dino",
+          name: "4. Datasaurus (Dino)",
+          build: function() {
+            const pts = [];
+            for (let i = 0; i < AUTHENTIC_DINO_COORDS.length; i += 2) {
+              pts.push({
+                x: AUTHENTIC_DINO_COORDS[i],
+                y: AUTHENTIC_DINO_COORDS[i + 1]
+              });
+            }
+            // The stored coordinates are the published silhouette rounded to
+            // two decimals, so the sample moments sit just off the shared
+            // targets. The same projection used for the other twelve shapes
+            // puts this dinosaur on those targets without replacing the coordinates.
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "dots",
+          name: "5. Dots (3x3 Grid)",
+          build: function(n, rng) {
+            const xs = [26, 54, 82];
+            const ys = [12, 50, 88];
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+              const cx = xs[i % 3];
+              const cy = ys[Math.floor(i / 3) % 3];
+              const extraY = (cx === 54 && cy === 88 && i % 9 === 1) ? rng() * 6 : 0;
+              pts.push({
+                x: cx + (rng() - 0.5) * 1.4,
+                y: cy + extraY + (rng() - 0.5) * 1.6
+              });
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "h_lines",
+          name: "6. Horizontal Lines",
+          build: function(n, rng) {
+            const ys = [10, 30, 50, 70, 90];
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+              const row = i % 5;
+              const span = row === 2 ? 32 : (row === 1 || row === 3 ? 28 : 20);
+              pts.push({
+                x: 54 + (rng() - 0.5) * 2 * span,
+                y: ys[row] + (rng() - 0.5) * 0.4
+              });
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "high_lines",
+          name: "7. High Lines (Two Bands)",
+          build: function(n, rng) {
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+              const top = i < n / 2;
+              const x = 54 + (rng() - 0.5) * 52;
+              const y = top
+                ? 74 + (rng() - 0.5) * 18 + (x - 54) * 0.04
+                : 23 + (rng() - 0.5) * 16 - (x - 54) * 0.04;
+              pts.push({ x: x, y: y });
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "slant_down",
+          name: "8. Slant Down",
+          build: function(n, rng) {
+            const offsets = [-32, -16, 0, 16, 32];
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+              const band = offsets[i % 5];
+              const t = (rng() - 0.5) * 38;
+              pts.push({
+                x: 54 + t + band * 0.48 + (rng() - 0.5) * 2.0,
+                y: 48 - t * 1.05 + band * 0.82 + (rng() - 0.5) * 2.0
+              });
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "slant_up",
+          name: "9. Slant Up",
+          build: function(n, rng) {
+            const offsets = [-32, -16, 0, 16, 32];
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+              const band = offsets[i % 5];
+              const t = (rng() - 0.5) * 38;
+              pts.push({
+                x: 54 + t + band * 0.48 + (rng() - 0.5) * 1.8,
+                y: 48 + t * 1.05 - band * 0.82 + (rng() - 0.5) * 1.8
+              });
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "star",
+          name: "10. Star",
+          build: function(n, rng) {
+            const verts = [];
+            const R_out = 36, R_in = 14;
+            for (let k = 0; k < 10; k++) {
+              const r = k % 2 === 0 ? R_out : R_in;
+              const angle = Math.PI / 2 + (k * Math.PI) / 5;
+              verts.push([
+                54 + Math.cos(angle) * r * 0.85,
+                50 + Math.sin(angle) * r * 1.08
+              ]);
+            }
+            verts.push(verts[0]);
+            const pts = samplePolyline(verts, n, 1.4, 1.8, rng);
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "v_lines",
+          name: "11. Vertical Lines",
+          build: function(n, rng) {
+            const xs = [30, 50, 70, 90];
+            const weights = [32, 48, 46, 16];
+            const pts = [];
+            for (let c = 0; c < xs.length; c++) {
+              for (let k = 0; k < weights[c]; k++) {
+                const span = c === 3 ? 22 : (c === 0 ? 45 : 64);
+                pts.push({
+                  x: xs[c] + (rng() - 0.5) * 0.4,
+                  y: 48 + (rng() - 0.5) * span * 1.25
+                });
+              }
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "wide_lines",
+          name: "12. Wide Lines",
+          build: function(n, rng) {
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+              const side = i < n / 2 ? -1 : 1;
+              const y = 10 + rng() * 82;
+              const curve = Math.sin((y / 100) * Math.PI) * 3.5 * side;
+              pts.push({
+                x: 54 + side * 18 + curve + (rng() - 0.5) * 7.5,
+                y: y
+              });
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        },
+        {
+          id: "x_shape",
+          name: "13. X-Shape",
+          build: function(n, rng) {
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+              const diag = i < n / 2 ? 1 : -1;
+              const t = (rng() - 0.5) * 48;
+              pts.push({
+                x: 54 + t * 0.65 + (rng() - 0.5) * 2.2,
+                y: 48 + diag * t * 1.25 + (rng() - 0.5) * 2.8
+              });
+            }
+            return enforceExactSummaryStats(pts, SUITE_CONFIGS.datasaurus);
+          }
+        }
+      ];
+
+      // Build both collections
+      const SUITES = {
+        datasaurus: DATASAURUS_DEFS.map(function(def, idx) {
+          const rng = createRng(1001 + idx * 97);
+          return {
+            id: def.id,
+            name: def.name,
+            color: statsViz.series(idx),
+            points: def.build(142, rng)
+          };
+        }),
+        anscombe: ANSCOMBE_RAW.map(function(item, idx) {
+          return {
+            id: item.id,
+            name: item.name,
+            color: statsViz.series(idx),
+            points: item.points.map(function(p) { return { x: p.x, y: p.y }; })
+          };
+        })
+      };
+
+      // Application State
+      let activeSuiteKey = "datasaurus"; // "datasaurus" or "anscombe"
+      let currentIdx = 3; // Default to Datasaurus (Dino)
+      let livePoints = SUITES.datasaurus[currentIdx].points.map(function(p) { return { x: p.x, y: p.y }; });
+      let animStartPoints = null;
+      let animTargetPoints = null;
+      let animStartTime = 0;
+      const ANIM_DURATION = 520;
+      let animFrameId = null;
+      let autoPlayTimer = null;
+      let draggingPointIdx = -1;
+
+      // DOM References
+      const mainCanvas = document.getElementById("mainCanvas");
+      const ctx = mainCanvas.getContext("2d");
+      const shapeButtonsContainer = document.getElementById("shapeButtonsContainer");
+      const posterWorkspace = document.getElementById("posterWorkspace");
+      const explorerWorkspace = document.getElementById("explorerWorkspace");
+
+      function getActiveDatasets() {
+        return SUITES[activeSuiteKey];
+      }
+
+      function getActiveConfig() {
+        return SUITE_CONFIGS[activeSuiteKey];
+      }
+
+      // Populate shape selector buttons for the active suite
+      function renderShapeSelectorButtons() {
+        const datasets = getActiveDatasets();
+        shapeButtonsContainer.innerHTML = "";
+        document.getElementById("selectorCardTitle").textContent =
+          activeSuiteKey === "datasaurus"
+            ? "Select Dataset Pattern (13 Shapes)"
+            : "Select Anscombe Dataset (4 Panels)";
+
+        datasets.forEach(function(ds, idx) {
+          const btn = document.createElement("button");
+          btn.className = "shape-btn" + (idx === currentIdx ? " active-shape" : "");
+          btn.innerHTML = '<span class="color-dot" style="background:' + ds.color + '"></span><span>' + ds.name + '</span>';
+          btn.addEventListener("click", function() {
+            selectDataset(idx, true);
+          });
+          shapeButtonsContainer.appendChild(btn);
+        });
+      }
+
+      function updateActiveShapeButton() {
+        const buttons = shapeButtonsContainer.querySelectorAll(".shape-btn");
+        buttons.forEach(function(b, i) {
+          b.classList.toggle("active-shape", i === currentIdx);
+        });
+      }
+
+      // Switch between Datasaurus Dozen and Anscombe's Quartet
+      function switchSuite(suiteKey) {
+        if (autoPlayTimer) {
+          stopAutoPlay();
+        }
+        activeSuiteKey = suiteKey;
+        currentIdx = suiteKey === "datasaurus" ? 3 : 0; // Dino for Datasaurus, Dataset I for Anscombe
+
+        document.getElementById("btnSuiteDatasaurus").classList.toggle("active", suiteKey === "datasaurus");
+        document.getElementById("btnSuiteAnscombe").classList.toggle("active", suiteKey === "anscombe");
+
+        const cfg = getActiveConfig();
+        document.getElementById("statsHeaderTitle").textContent = "Summary Statistics (n = " + cfg.n + ")";
+        document.getElementById("targetMeanX").textContent = cfg.meanX.toFixed(2);
+        document.getElementById("targetMeanY").textContent = cfg.meanY.toFixed(2);
+        document.getElementById("targetSdX").textContent = cfg.sdX.toFixed(2);
+        document.getElementById("targetSdY").textContent = cfg.sdY.toFixed(2);
+        document.getElementById("targetCorr").textContent = cfg.r.toFixed(2);
+
+        const targetSlope = cfg.r * (cfg.sdY / cfg.sdX);
+        const targetIntercept = cfg.meanY - targetSlope * cfg.meanX;
+        const sign = targetIntercept >= 0 ? "+ " : "- ";
+        document.getElementById("targetOls").textContent =
+          targetSlope.toFixed(2) + "x " + sign + Math.abs(targetIntercept).toFixed(2);
+
+        livePoints = getActiveDatasets()[currentIdx].points.map(function(p) { return { x: p.x, y: p.y }; });
+        renderShapeSelectorButtons();
+        buildPosterGrid();
+        renderMainCanvas();
+        updateStatsPanel();
+      }
+
+      function selectDataset(idx, animate) {
+        const datasets = getActiveDatasets();
+        currentIdx = idx;
+        updateActiveShapeButton();
+        const target = datasets[idx].points;
+
+        if (!animate || livePoints.length !== target.length) {
+          livePoints = target.map(function(p) { return { x: p.x, y: p.y }; });
+          renderMainCanvas();
+          updateStatsPanel();
+          return;
+        }
+
+        animStartPoints = livePoints.map(function(p) { return { x: p.x, y: p.y }; });
+        animTargetPoints = target;
+        animStartTime = performance.now();
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        animFrameId = requestAnimationFrame(stepMorphAnimation);
+      }
+
+      function stepMorphAnimation(now) {
+        const cfg = getActiveConfig();
+        const minX = cfg.domainX[0];
+        const maxX = cfg.domainX[1];
+        const minY = cfg.domainY[0];
+        const maxY = cfg.domainY[1];
+
+        const elapsed = now - animStartTime;
+        const tRaw = Math.min(1, elapsed / ANIM_DURATION);
+        const ease = tRaw < 0.5 ? 4 * tRaw * tRaw * tRaw : 1 - Math.pow(-2 * tRaw + 2, 3) / 2;
+        for (let i = 0; i < livePoints.length; i++) {
+          const ix = animStartPoints[i].x + (animTargetPoints[i].x - animStartPoints[i].x) * ease;
+          const iy = animStartPoints[i].y + (animTargetPoints[i].y - animStartPoints[i].y) * ease;
+          livePoints[i].x = Math.max(minX, Math.min(maxX, ix));
+          livePoints[i].y = Math.max(minY, Math.min(maxY, iy));
+        }
+        renderMainCanvas();
+        updateStatsPanel();
+        if (tRaw < 1) {
+          animFrameId = requestAnimationFrame(stepMorphAnimation);
+        }
+      }
+
+      function updateStatsPanel() {
+        const cfg = getActiveConfig();
+        const st = computeStats(livePoints);
+        document.getElementById("valMeanX").textContent = st.meanX.toFixed(2);
+        document.getElementById("valMeanY").textContent = st.meanY.toFixed(2);
+        document.getElementById("valSdX").textContent = st.sdX.toFixed(2);
+        document.getElementById("valSdY").textContent = st.sdY.toFixed(2);
+        document.getElementById("valCorr").textContent = st.r.toFixed(2);
+        const sign = st.intercept >= 0 ? "+ " : "- ";
+        document.getElementById("valOls").textContent =
+          st.slope.toFixed(2) + "x " + sign + Math.abs(st.intercept).toFixed(2);
+
+        const isMatch =
+          Math.abs(st.meanX - cfg.meanX) < 0.02 &&
+          Math.abs(st.meanY - cfg.meanY) < 0.02 &&
+          Math.abs(st.sdX - cfg.sdX) < 0.02 &&
+          Math.abs(st.sdY - cfg.sdY) < 0.02 &&
+          Math.abs(st.r - cfg.r) < 0.02;
+
+        const badge = document.getElementById("momentBadge");
+        if (isMatch) {
+          badge.className = "badge-match viz-ink-significant viz-soft-significant";
+          badge.textContent = "Exact Match (2 d.p.)";
+        } else {
+          badge.className = "badge-drifted viz-ink-group-c viz-soft-group-c";
+          badge.textContent = "Modified by Drag";
+        }
+      }
+
+      // Coordinate mapping for Main Canvas using active suite's domain
+      const PAD = { left: 64, right: 86, top: 86, bottom: 64 };
+      function dataToPx(x, y, width, height, cfg) {
+        const plotW = width - PAD.left - PAD.right;
+        const plotH = height - PAD.top - PAD.bottom;
+        const xMin = cfg.domainX[0], xMax = cfg.domainX[1];
+        const yMin = cfg.domainY[0], yMax = cfg.domainY[1];
+        return {
+          px: PAD.left + ((x - xMin) / (xMax - xMin)) * plotW,
+          py: PAD.top + ((yMax - y) / (yMax - yMin)) * plotH
+        };
+      }
+
+      function pxToData(px, py, width, height, cfg) {
+        const plotW = width - PAD.left - PAD.right;
+        const plotH = height - PAD.top - PAD.bottom;
+        const xMin = cfg.domainX[0], xMax = cfg.domainX[1];
+        const yMin = cfg.domainY[0], yMax = cfg.domainY[1];
+        const x = xMin + ((px - PAD.left) / plotW) * (xMax - xMin);
+        const y = yMax - ((py - PAD.top) / plotH) * (yMax - yMin);
+        return {
+          x: Math.max(xMin, Math.min(xMax, x)),
+          y: Math.max(yMin, Math.min(yMax, y))
+        };
+      }
+
+      // Render Main Interactive Canvas
+      function renderMainCanvas() {
+        const W = mainCanvas.width;
+        const H = mainCanvas.height;
+        const plotW = W - PAD.left - PAD.right;
+        const plotH = H - PAD.top - PAD.bottom;
+        const cfg = getActiveConfig();
+        const datasets = getActiveDatasets();
+        const ds = datasets[currentIdx];
+        const color = ds.color;
+        const st = computeStats(livePoints);
+
+        const xMin = cfg.domainX[0], xMax = cfg.domainX[1];
+        const yMin = cfg.domainY[0], yMax = cfg.domainY[1];
+
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = "#f6f6f6";
+        ctx.fillRect(0, 0, W, H);
+
+        // Plot interior background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(PAD.left, PAD.top, plotW, plotH);
+
+        // Gridlines
+        ctx.strokeStyle = "#e6e6e6";
+        ctx.lineWidth = 1;
+        for (let vx = xMin; vx <= xMax; vx += cfg.tickStepX) {
+          const p = dataToPx(vx, yMin, W, H, cfg);
+          ctx.beginPath();
+          ctx.moveTo(p.px, PAD.top);
+          ctx.lineTo(p.px, PAD.top + plotH);
+          ctx.stroke();
+        }
+        for (let vy = yMin; vy <= yMax; vy += cfg.tickStepY) {
+          const p = dataToPx(xMin, vy, W, H, cfg);
+          ctx.beginPath();
+          ctx.moveTo(PAD.left, p.py);
+          ctx.lineTo(PAD.left + plotW, p.py);
+          ctx.stroke();
+        }
+
+        // Marginal Histograms
+        if (document.getElementById("chkMarginals").checked) {
+          const bins = activeSuiteKey === "datasaurus" ? 20 : 10;
+          const histX = new Array(bins).fill(0);
+          const histY = new Array(bins).fill(0);
+          for (let i = 0; i < livePoints.length; i++) {
+            const normX = (livePoints[i].x - xMin) / (xMax - xMin);
+            const normY = (livePoints[i].y - yMin) / (yMax - yMin);
+            const bx = Math.min(bins - 1, Math.max(0, Math.floor(normX * bins)));
+            const by = Math.min(bins - 1, Math.max(0, Math.floor(normY * bins)));
+            histX[bx]++;
+            histY[by]++;
+          }
+          const minCap = activeSuiteKey === "datasaurus" ? 25 : 5;
+          const maxBin = Math.max(minCap, ...histX, ...histY);
+          ctx.fillStyle = color + "55";
+
+          const bwX = plotW / bins;
+          for (let b = 0; b < bins; b++) {
+            const barH = (histX[b] / maxBin) * 56;
+            const bx = PAD.left + b * bwX;
+            const by = PAD.top - 8 - barH;
+            ctx.fillRect(bx + 1, by, bwX - 2, barH);
+          }
+
+          const bwY = plotH / bins;
+          for (let b = 0; b < bins; b++) {
+            const barW = (histY[b] / maxBin) * 56;
+            const bx = PAD.left + plotW + 8;
+            const by = PAD.top + plotH - (b + 1) * bwY;
+            ctx.fillRect(bx, by + 1, barW, bwY - 2);
+          }
+        }
+
+        // 1-SD Covariance Ellipse (clipped to plot box)
+        if (document.getElementById("chkEllipse").checked) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(PAD.left, PAD.top, plotW, plotH);
+          ctx.clip();
+          ctx.strokeStyle = statsViz.color("--viz-reference");
+          ctx.setLineDash([5, 5]);
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          const steps = 72;
+          const rComp = Math.sqrt(Math.max(0, 1 - st.r * st.r));
+          for (let k = 0; k <= steps; k++) {
+            const theta = (k / steps) * Math.PI * 2;
+            const u1 = Math.cos(theta);
+            const u2 = Math.sin(theta);
+            const ex = st.meanX + st.sdX * u1;
+            const ey = st.meanY + st.sdY * (st.r * u1 + rComp * u2);
+            const pt = dataToPx(ex, ey, W, H, cfg);
+            if (k === 0) ctx.moveTo(pt.px, pt.py);
+            else ctx.lineTo(pt.px, pt.py);
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Mean Centroid Crosshair
+        if (document.getElementById("chkCrosshair").checked) {
+          const cPt = dataToPx(st.meanX, st.meanY, W, H, cfg);
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(PAD.left, PAD.top, plotW, plotH);
+          ctx.clip();
+          ctx.strokeStyle = statsViz.color("--viz-mean");
+          ctx.setLineDash([4, 4]);
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(cPt.px, PAD.top);
+          ctx.lineTo(cPt.px, PAD.top + plotH);
+          ctx.moveTo(PAD.left, cPt.py);
+          ctx.lineTo(PAD.left + plotW, cPt.py);
+          ctx.stroke();
+
+          ctx.fillStyle = statsViz.color("--viz-mean");
+          ctx.beginPath();
+          ctx.arc(cPt.px, cPt.py, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // OLS Linear Regression Line (clipped to plot box)
+        if (document.getElementById("chkOls").checked) {
+          const yAtMin = st.slope * xMin + st.intercept;
+          const yAtMax = st.slope * xMax + st.intercept;
+          const p0 = dataToPx(xMin, yAtMin, W, H, cfg);
+          const p1 = dataToPx(xMax, yAtMax, W, H, cfg);
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(PAD.left, PAD.top, plotW, plotH);
+          ctx.clip();
+          ctx.strokeStyle = statsViz.color("--viz-explained");
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.moveTo(p0.px, p0.py);
+          ctx.lineTo(p1.px, p1.py);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Draw Scatter Points (clipped to plot box so circles never bleed outside axes)
+        const baseRadius = activeSuiteKey === "datasaurus" ? 5.2 : 6.8;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(PAD.left, PAD.top, plotW, plotH);
+        ctx.clip();
+        ctx.fillStyle = color + "aa";
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.4;
+        for (let i = 0; i < livePoints.length; i++) {
+          const cx = Math.max(xMin, Math.min(xMax, livePoints[i].x));
+          const cy = Math.max(yMin, Math.min(yMax, livePoints[i].y));
+          const pt = dataToPx(cx, cy, W, H, cfg);
+          ctx.beginPath();
+          ctx.arc(pt.px, pt.py, i === draggingPointIdx ? baseRadius + 2.5 : baseRadius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Axes L-Frame and Ticks (drawn over clipped interior)
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(PAD.left, PAD.top);
+        ctx.lineTo(PAD.left, PAD.top + plotH);
+        ctx.lineTo(PAD.left + plotW, PAD.top + plotH);
+        ctx.stroke();
+
+        ctx.fillStyle = "#000000";
+        ctx.font = "13px Arial, Helvetica, sans-serif";
+        for (let vx = xMin; vx <= xMax; vx += cfg.tickStepX) {
+          const p = dataToPx(vx, yMin, W, H, cfg);
+          ctx.beginPath();
+          ctx.moveTo(p.px, PAD.top + plotH);
+          ctx.lineTo(p.px, PAD.top + plotH + 6);
+          ctx.stroke();
+          ctx.textAlign = "center";
+          ctx.textBaseline = "top";
+          ctx.fillText(String(vx), p.px, PAD.top + plotH + 10);
+        }
+
+        for (let vy = yMin; vy <= yMax; vy += cfg.tickStepY) {
+          const p = dataToPx(xMin, vy, W, H, cfg);
+          ctx.beginPath();
+          ctx.moveTo(PAD.left - 6, p.py);
+          ctx.lineTo(PAD.left, p.py);
+          ctx.stroke();
+          ctx.textAlign = "right";
+          ctx.textBaseline = "middle";
+          ctx.fillText(String(vy), PAD.left - 10, p.py);
+        }
+
+        // Dataset Title inside plot header
+        ctx.fillStyle = "#000000";
+        ctx.font = "bold 15px Arial, Helvetica, sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(cfg.title + " — " + ds.name, PAD.left, PAD.top - 66);
+      }
+
+      // Pointer Dragging Interaction
+      function getCanvasMousePos(evt) {
+        const rect = mainCanvas.getBoundingClientRect();
+        const scaleX = mainCanvas.width / rect.width;
+        const scaleY = mainCanvas.height / rect.height;
+        const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+        const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+        return {
+          x: (clientX - rect.left) * scaleX,
+          y: (clientY - rect.top) * scaleY
+        };
+      }
+
+      mainCanvas.addEventListener("mousedown", function(evt) {
+        const cfg = getActiveConfig();
+        const pos = getCanvasMousePos(evt);
+        let bestIdx = -1;
+        let bestDist = 18;
+        for (let i = 0; i < livePoints.length; i++) {
+          const pt = dataToPx(livePoints[i].x, livePoints[i].y, mainCanvas.width, mainCanvas.height, cfg);
+          const d = Math.hypot(pt.px - pos.x, pt.py - pos.y);
+          if (d < bestDist) {
+            bestDist = d;
+            bestIdx = i;
+          }
+        }
+        draggingPointIdx = bestIdx;
+      });
+
+      window.addEventListener("mousemove", function(evt) {
+        if (draggingPointIdx < 0) return;
+        const cfg = getActiveConfig();
+        const pos = getCanvasMousePos(evt);
+        const dataCoord = pxToData(pos.x, pos.y, mainCanvas.width, mainCanvas.height, cfg);
+        livePoints[draggingPointIdx].x = dataCoord.x;
+        livePoints[draggingPointIdx].y = dataCoord.y;
+        renderMainCanvas();
+        updateStatsPanel();
+      });
+
+      window.addEventListener("mouseup", function() {
+        if (draggingPointIdx >= 0) {
+          draggingPointIdx = -1;
+          renderMainCanvas();
+        }
+      });
+
+      // Build Reference Small Multiples Grid for either Datasaurus Dozen or Anscombe's Quartet
+      function buildPosterGrid() {
+        const cfg = getActiveConfig();
+        const datasets = getActiveDatasets();
+        posterWorkspace.innerHTML = "";
+        posterWorkspace.classList.toggle("anscombe-grid-layout", activeSuiteKey === "anscombe");
+
+        if (activeSuiteKey === "datasaurus") {
+          const textCell = document.createElement("div");
+          textCell.className = "poster-text-cell";
+          textCell.innerHTML =
+            "<h3>All of the following 13 graphs have the same summary statistics:</h3>" +
+            "<div class='stat-block'>Mean, x-axis = 54.26<br/>Mean, y-axis = 47.83</div>" +
+            "<div class='stat-block'>Standard deviation, x-axis = 16.76<br/>Standard deviation, y-axis = 26.93</div>" +
+            "<div class='stat-block'>Correlation = -0.06</div>" +
+            "<p class='poster-credit'>Matejka &amp; Fitzmaurice (2017). Click any graph to inspect in the Explorer.</p>";
+          posterWorkspace.appendChild(textCell);
+        }
+
+        datasets.forEach(function(ds, idx) {
+          const cell = document.createElement("div");
+          cell.className = "mini-card";
+          const cnv = document.createElement("canvas");
+          cnv.width = 340;
+          cnv.height = 340;
+          cell.appendChild(cnv);
+
+          const lbl = document.createElement("div");
+          lbl.className = "mini-label";
+          lbl.textContent = ds.name;
+          cell.appendChild(lbl);
+
+          cell.addEventListener("click", function() {
+            switchView("explorer");
+            selectDataset(idx, false);
+          });
+
+          posterWorkspace.appendChild(cell);
+
+          const gridIndex = idx + 1;
+          const showNumbers = activeSuiteKey === "anscombe" ? true : (gridIndex === 1 || gridIndex % 3 === 0);
+          drawMiniPlot(cnv, ds, cfg, showNumbers);
+        });
+      }
+
+      function drawMiniPlot(cnv, ds, cfg, showNumbers) {
+        const c = cnv.getContext("2d");
+        const W = cnv.width;
+        const H = cnv.height;
+        const padL = 44, padR = 18, padT = 18, padB = 36;
+        const pW = W - padL - padR;
+        const pH = H - padT - padB;
+        const xMin = cfg.domainX[0], xMax = cfg.domainX[1];
+        const yMin = cfg.domainY[0], yMax = cfg.domainY[1];
+
+        c.clearRect(0, 0, W, H);
+
+        // If Anscombe, draw the shared OLS line y = 3 + 0.5x
+        if (cfg.key === "anscombe") {
+          const st = computeStats(ds.points);
+          const y0 = st.slope * xMin + st.intercept;
+          const y1 = st.slope * xMax + st.intercept;
+          const px0 = padL;
+          const py0 = padT + ((yMax - y0) / (yMax - yMin)) * pH;
+          const px1 = padL + pW;
+          const py1 = padT + ((yMax - y1) / (yMax - yMin)) * pH;
+          c.save();
+          c.beginPath();
+          c.rect(padL, padT, pW, pH);
+          c.clip();
+          c.strokeStyle = statsViz.color("--viz-explained");
+          c.lineWidth = 1.6;
+          c.setLineDash([4, 4]);
+          c.beginPath();
+          c.moveTo(px0, py0);
+          c.lineTo(px1, py1);
+          c.stroke();
+          c.restore();
+        }
+
+        // Points (clipped to mini plot interior)
+        const ptRadius = cfg.key === "datasaurus" ? 4.2 : 5.6;
+        c.save();
+        c.beginPath();
+        c.rect(padL, padT, pW, pH);
+        c.clip();
+        c.fillStyle = ds.color + "aa";
+        c.strokeStyle = ds.color;
+        c.lineWidth = 1;
+        for (let i = 0; i < ds.points.length; i++) {
+          const cx = Math.max(xMin, Math.min(xMax, ds.points[i].x));
+          const cy = Math.max(yMin, Math.min(yMax, ds.points[i].y));
+          const px = padL + ((cx - xMin) / (xMax - xMin)) * pW;
+          const py = padT + ((yMax - cy) / (yMax - yMin)) * pH;
+          c.beginPath();
+          c.arc(px, py, ptRadius, 0, Math.PI * 2);
+          c.fill();
+          c.stroke();
+        }
+        c.restore();
+
+        // Axes L-shape
+        c.strokeStyle = "#000000";
+        c.lineWidth = 1.4;
+        c.beginPath();
+        c.moveTo(padL, padT);
+        c.lineTo(padL, padT + pH);
+        c.lineTo(padL + pW, padT + pH);
+        c.stroke();
+
+        // Ticks
+        c.fillStyle = "#000000";
+        c.font = "12px Arial, Helvetica, sans-serif";
+        for (let vx = xMin; vx <= xMax; vx += cfg.tickStepX) {
+          const tx = padL + ((vx - xMin) / (xMax - xMin)) * pW;
+          c.beginPath();
+          c.moveTo(tx, padT + pH);
+          c.lineTo(tx, padT + pH + 5);
+          c.stroke();
+          if (showNumbers) {
+            c.textAlign = "center";
+            c.textBaseline = "top";
+            c.fillText(String(vx), tx, padT + pH + 7);
+          }
+        }
+
+        for (let vy = yMin; vy <= yMax; vy += cfg.tickStepY) {
+          const ty = padT + ((yMax - vy) / (yMax - yMin)) * pH;
+          c.beginPath();
+          c.moveTo(padL - 5, ty);
+          c.lineTo(padL, ty);
+          c.stroke();
+          if (showNumbers) {
+            c.textAlign = "right";
+            c.textBaseline = "middle";
+            c.fillText(String(vy), padL - 8, ty);
+          }
+        }
+      }
+
+      // View Switching & Toolbar Controls
+      function switchView(mode) {
+        const isExplorer = mode === "explorer";
+        explorerWorkspace.style.display = isExplorer ? "grid" : "none";
+        posterWorkspace.style.display = isExplorer ? "none" : "grid";
+        document.getElementById("btnViewExplorer").classList.toggle("active", isExplorer);
+        document.getElementById("btnViewPoster").classList.toggle("active", !isExplorer);
+      }
+
+      function stopAutoPlay() {
+        if (autoPlayTimer) {
+          clearInterval(autoPlayTimer);
+          autoPlayTimer = null;
+        }
+        const btn = document.getElementById("btnAutoPlay");
+        btn.textContent = "Start Auto-Morph Tour";
+        btn.classList.remove("primary");
+      }
+
+      document.getElementById("btnSuiteDatasaurus").addEventListener("click", function() {
+        switchSuite("datasaurus");
+      });
+
+      document.getElementById("btnSuiteAnscombe").addEventListener("click", function() {
+        switchSuite("anscombe");
+      });
+
+      document.getElementById("btnViewExplorer").addEventListener("click", function() {
+        switchView("explorer");
+      });
+
+      document.getElementById("btnViewPoster").addEventListener("click", function() {
+        switchView("poster");
+      });
+
+      document.getElementById("btnAutoPlay").addEventListener("click", function() {
+        const btn = document.getElementById("btnAutoPlay");
+        if (autoPlayTimer) {
+          stopAutoPlay();
+        } else {
+          switchView("explorer");
+          btn.textContent = "Stop Auto-Morph Tour";
+          btn.classList.add("primary");
+          const datasets = getActiveDatasets();
+          selectDataset((currentIdx + 1) % datasets.length, true);
+          autoPlayTimer = setInterval(function() {
+            const list = getActiveDatasets();
+            selectDataset((currentIdx + 1) % list.length, true);
+          }, 1500);
+        }
+      });
+
+      document.getElementById("btnRelock").addEventListener("click", function() {
+        const cfg = getActiveConfig();
+        const relocked = enforceExactSummaryStats(livePoints, cfg);
+        animStartPoints = livePoints.map(function(p) { return { x: p.x, y: p.y }; });
+        animTargetPoints = relocked;
+        animStartTime = performance.now();
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        animFrameId = requestAnimationFrame(stepMorphAnimation);
+      });
+
+      document.getElementById("btnResetShape").addEventListener("click", function() {
+        selectDataset(currentIdx, true);
+      });
+
+      ["chkOls", "chkCrosshair", "chkMarginals", "chkEllipse"].forEach(function(id) {
+        document.getElementById(id).addEventListener("change", renderMainCanvas);
+      });
+
+      // Initialize App
+      renderShapeSelectorButtons();
+      buildPosterGrid();
+      renderMainCanvas();
+      updateStatsPanel();
+    })();
+  
+  </script>
+  <script>
+    (function () {
+      var fsBtn = document.getElementById("fullscreen-btn");
+      var fsText = fsBtn.querySelector("span");
+      fsBtn.addEventListener("click", function () {
+        var elem = document.documentElement;
+        if (!document.fullscreenElement) {
+          if (elem.requestFullscreen) elem.requestFullscreen();
+        } else if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      });
+      document.addEventListener("fullscreenchange", function () {
+        fsText.textContent = document.fullscreenElement ? "Exit Fullscreen" : "Fullscreen";
+      });
+    })();
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>
