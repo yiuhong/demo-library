@@ -110,7 +110,6 @@ Share a track from the library view: `index.html?view=tracks&track=the-id` (or `
 * `id` — slug used in shareable links (`index.html?view=tracks&track=the-id` or `#track-the-id`)
 * `title`
 * `summary` — short overview of the path
-* `status` — optional, `draft` or `ready`. Omitted means draft. Draft tracks show a draft badge.
 * `steps` — ordered list. Each step has `href` (path from the site root, the same kind of path as a demo card, such as `statistics/central_limit_theorem.html`), `title` (short label; it can match the card title), and an optional `note`.
 
 Optional fields on a step, rendered when present:
