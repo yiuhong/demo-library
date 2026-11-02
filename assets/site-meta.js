@@ -9,8 +9,10 @@
  */
 (function (global) {
     var meta = {
-        title: "Project Viz",
-        titleApa: "Project Viz",
+        // Formal citation title, in APA sentence case. Nav labels and page
+        // headings stay the short wordmark "Project Viz".
+        title: "Project Viz: A visualization demo library for teaching",
+        titleApa: "Project Viz: A visualization demo library for teaching",
         author: "Yiu Hong Ko",
         authorApa: "Ko, Y. H.",
         authorBibtex: "Ko, Yiu Hong",

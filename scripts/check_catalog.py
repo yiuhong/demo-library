@@ -34,6 +34,7 @@ TRACKS_PATH = ROOT / "tracks.json"
 ORCID_URL = "https://orcid.org/0000-0003-4436-0166"
 ORCID_LABEL = "ORCID iD 0000-0003-4436-0166"
 DEMO_CITE_HREF = "statistics/central_limit_theorem.html"
+CITATION_TITLE = "Project Viz: A visualization demo library for teaching"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -265,6 +266,10 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             problems.append("assets/site-meta.js: ORCID URL is missing or unexpected")
         if "meta.demoCitation = function" not in meta:
             problems.append("assets/site-meta.js: demoCitation helper is missing")
+        if js_string(meta, "title") != CITATION_TITLE or js_string(meta, "titleApa") != CITATION_TITLE:
+            problems.append(
+                "assets/site-meta.js: title and titleApa must be the formal citation title"
+            )
 
     footer_js = read_text(ROOT / "assets" / "site-oer-footer.js")
     if footer_js is None:
@@ -348,6 +353,8 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             for needle in ("CC BY 3.0", "HTML5 UP", "Hyperspace", "LICENSE-CODE", "cite.html"):
                 if needle not in text:
                     problems.append(f"{name}: missing {needle}")
+        if name in ("index.html", "cite.html"):
+            required.append(CITATION_TITLE)
         if name == "index.html":
             required.extend(('id="library-about"', 'id="library-preferred-cite"', "Full cite", "data-site-apa"))
             about = element_text(text, "library-about")
@@ -441,7 +448,7 @@ def check_citation_file(problems: list[str], version: str | None, updated: str |
     top = cff_top_level(text)
     expected = {
         "cff-version": "1.2.0",
-        "title": "Project Viz",
+        "title": CITATION_TITLE,
         "license": "CC-BY-4.0",
         "url": "https://yiuhong.github.io/demo-library/",
         "repository-code": "https://github.com/yiuhong/demo-library",
@@ -464,6 +471,10 @@ def check_citation_file(problems: list[str], version: str | None, updated: str |
         problems.append("CITATION.cff: preferred-citation should be the website citation")
     if version and text.count(f'version: "{version}"') < 2:
         problems.append(f"CITATION.cff: version {version} must be on the work and the preferred citation")
+    if text.count(f'title: "{CITATION_TITLE}"') < 2:
+        problems.append(
+            "CITATION.cff: citation title must be on the work and the preferred citation"
+        )
 
 
 def cff_top_level(text: str) -> dict[str, str]:
