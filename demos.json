@@ -83,13 +83,22 @@
       "panel": "style3",
       "subcategories": [
         {
-          "title": "Descriptive Statistics",
+          "title": "Describing data",
           "demos": [
             {
               "href": "statistics/mean_mode_median_dot_plot.html",
               "title": "Mean, Median, and Mode",
               "description": "Mean, median, and mode on a dot plot.",
               "keywords": "Mean, Median, and Mode on a Dot Plot",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/moments_as_averages.html",
+              "title": "Moments",
+              "description": "Moments treated as averages.",
+              "keywords": "Moments",
               "tags": [
                 "Explorer"
               ]
@@ -104,33 +113,10 @@
               ]
             },
             {
-              "href": "statistics/moments_as_averages.html",
-              "title": "Moments",
-              "description": "Moments treated as averages.",
-              "keywords": "Moments",
-              "tags": [
-                "Explorer"
-              ]
-            },
-            {
-              "href": "statistics/additivity_of_variance.html",
-              "title": "Additivity of Variance & SS",
-              "description": "How correlation enters the variance and sum of squares of a sum or a difference.",
-              "keywords": "Additivity of Variance sum of squares SS sum vs difference",
-              "tags": [
-                "Explorer"
-              ]
-            }
-          ]
-        },
-        {
-          "title": "Data Visualization",
-          "demos": [
-            {
-              "href": "statistics/boxplot_outliers.html",
-              "title": "Boxplot and Outliers",
-              "description": "How a boxplot shows outliers.",
-              "keywords": "Boxplot and Outliers",
+              "href": "statistics/skewed_distribution.html",
+              "title": "Skewed Distribution",
+              "description": "A skewed distribution compared with a normal distribution.",
+              "keywords": "Skewed Distribution",
               "tags": [
                 "Explorer"
               ]
@@ -140,6 +126,15 @@
               "title": "Boxplot and Histogram",
               "description": "A boxplot compared with a histogram.",
               "keywords": "Boxplot and Histogram",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/boxplot_outliers.html",
+              "title": "Boxplot and Outliers",
+              "description": "How a boxplot shows outliers.",
+              "keywords": "Boxplot and Outliers",
               "tags": [
                 "Explorer"
               ]
@@ -161,21 +156,11 @@
               "tags": [
                 "Explorer"
               ]
-            },
-            {
-              "href": "statistics/skewed_distribution.html",
-              "title": "Skewed Distribution",
-              "description": "A skewed distribution compared with a normal distribution.",
-              "keywords": "Skewed Distribution",
-              "tags": [
-                "Explorer"
-              ]
             }
           ]
         },
         {
-          "title": "Distributions & sampling",
-          "group": "Inferential Statistics",
+          "title": "Statistical reasoning",
           "demos": [
             {
               "href": "statistics/stats_conceptual_hierarchy.html",
@@ -257,27 +242,26 @@
               "tags": [
                 "Simulation"
               ]
+            },
+            {
+              "href": "statistics/target_analogy_confidence_intervals.html",
+              "title": "Target Analogy of Confidence Intervals",
+              "description": "A target analogy of confidence intervals.",
+              "keywords": "Target Analogy of Confidence Intervals",
+              "tags": [
+                "Explorer"
+              ]
             }
           ]
         },
         {
-          "title": "t-tests & related",
-          "group": "Inferential Statistics",
+          "title": "t-test",
           "demos": [
             {
               "href": "statistics/z_distribution_vs_t_distribution.html",
               "title": "z-Distribution vs t-Distribution",
               "description": "How the z-distribution compares with the t-distribution.",
               "keywords": "Z-Distribution vs t-Distribution",
-              "tags": [
-                "Simulation"
-              ]
-            },
-            {
-              "href": "statistics/paired_t_test_simulation.html",
-              "title": "Paired Sample t-Test",
-              "description": "A simulation of the paired-samples t-test and mean differences.",
-              "keywords": "Paired Sample t-Test",
               "tags": [
                 "Simulation"
               ]
@@ -292,10 +276,33 @@
               ]
             },
             {
-              "href": "statistics/target_analogy_confidence_intervals.html",
-              "title": "Target Analogy of Confidence Intervals",
-              "description": "A target analogy of confidence intervals.",
-              "keywords": "Target Analogy of Confidence Intervals",
+              "href": "statistics/paired_t_test_simulation.html",
+              "title": "Paired Sample t-Test",
+              "description": "A simulation of the paired-samples t-test and mean differences.",
+              "keywords": "Paired Sample t-Test",
+              "tags": [
+                "Simulation"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Statistical power",
+          "demos": [
+            {
+              "href": "statistics/statistical_power.html",
+              "title": "Statistical Power",
+              "description": "Sampling distributions of the sample mean under the null and the alternative.",
+              "keywords": "Statistical Power",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/power_curve.html",
+              "title": "Power Curve",
+              "description": "A power curve for statistical power.",
+              "keywords": "Power Curve",
               "tags": [
                 "Explorer"
               ]
@@ -304,7 +311,6 @@
         },
         {
           "title": "ANOVA",
-          "group": "Inferential Statistics",
           "demos": [
             {
               "href": "statistics/t_test_to_anova.html",
@@ -363,27 +369,8 @@
           ]
         },
         {
-          "title": "Power, correlation & explained variance",
-          "group": "Inferential Statistics",
+          "title": "Association",
           "demos": [
-            {
-              "href": "statistics/statistical_power.html",
-              "title": "Statistical Power",
-              "description": "Sampling distributions of the sample mean under the null and the alternative.",
-              "keywords": "Statistical Power",
-              "tags": [
-                "Explorer"
-              ]
-            },
-            {
-              "href": "statistics/power_curve.html",
-              "title": "Power Curve",
-              "description": "A power curve for statistical power.",
-              "keywords": "Power Curve",
-              "tags": [
-                "Explorer"
-              ]
-            },
             {
               "href": "statistics/covariance_and_correlation.html",
               "title": "Covariance and Correlation",
@@ -398,6 +385,15 @@
               "title": "Variance Explained",
               "description": "How much of the variation is explained.",
               "keywords": "Variance Explained",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
+              "href": "statistics/additivity_of_variance.html",
+              "title": "Additivity of Variance & SS",
+              "description": "How correlation enters the variance and sum of squares of a sum or a difference.",
+              "keywords": "Additivity of Variance sum of squares SS sum vs difference",
               "tags": [
                 "Explorer"
               ]

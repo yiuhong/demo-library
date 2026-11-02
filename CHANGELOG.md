@@ -5,6 +5,13 @@ All notable changes to Project Viz are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The catalog view is List. The Cards toggle is gone, and a remembered Cards choice opens List.
+- Statistics headings match Guided Track titles: Describing data, Statistical reasoning, t-test, Statistical power, ANOVA, and Association.
+
 ## [0.1.4] - 2026-11-01
 
 ### Added
