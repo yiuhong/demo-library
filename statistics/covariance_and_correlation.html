@@ -74,6 +74,154 @@
         .area-rect {
             transition: opacity 0.3s ease;
         }
+
+        /* Hover callout. pointer-events stay off so grab/drag still hits the point. */
+        .point-tip {
+            pointer-events: none;
+        }
+        .point-tip-bg {
+            fill: var(--demo-card);
+            stroke: var(--demo-border);
+            stroke-width: 1;
+        }
+        .point-tip-text {
+            font-family: var(--demo-font);
+            font-size: 12px;
+            font-weight: 700;
+            fill: var(--demo-text);
+        }
+
+        /* Live mean / variance formulae. Serif only on the equation, so the chrome stays Arial. */
+        #live-formulae {
+            overflow-x: auto;
+        }
+        .live-formula + .live-formula {
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .math-eq {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem 0.45rem;
+            margin: 0.2rem 0 0.15rem;
+            font-family: Georgia, "Times New Roman", Times, serif;
+            font-size: 0.95rem;
+            line-height: 1.2;
+            color: #000;
+        }
+        .math-italic { font-style: italic; }
+        .math-eq sub,
+        .math-eq sup {
+            font-size: 0.7em;
+            line-height: 0;
+        }
+        .math-frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: stretch;
+            line-height: 1.3;
+            max-width: 100%;
+        }
+        .math-frac-inline { min-width: 1.5rem; }
+        .math-eq .math-frac:not(.math-frac-inline) {
+            flex: 1 1 10rem;
+            min-width: 0;
+        }
+        .math-num,
+        .math-den {
+            text-align: center;
+            padding: 0.02rem 0.3rem;
+        }
+        .math-num {
+            border-bottom: 1.5px solid #000;
+            padding-bottom: 0.14rem;
+        }
+        .math-den { padding-top: 0.1rem; }
+        .math-result {
+            margin: 0.15rem 0 0;
+            text-align: center;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-weight: 700;
+            font-size: 0.86rem;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.35;
+            color: #000;
+        }
+        .math-terms {
+            margin: 0.25rem 0 0.05rem;
+            text-align: center;
+            font-family: Georgia, "Times New Roman", Times, serif;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            color: #000;
+        }
+
+        /* s_x s_y standardisation. The two tracks share a marker position:
+           dividing by the product only relabels the ends as −1 and +1. */
+        .std-math {
+            font-family: Georgia, "Times New Roman", Times, serif;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            text-align: center;
+            color: #000;
+        }
+        .std-math sub { font-size: 0.7em; }
+        .std-eval {
+            margin-top: 0.2rem;
+            text-align: center;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-weight: 700;
+            font-size: 0.8rem;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.4;
+        }
+        .std-scale-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-top: 0.65rem;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+        .std-track {
+            position: relative;
+            height: 12px;
+            margin: 0.28rem 0 0.15rem;
+            border: 1px solid #000;
+            background: #fff;
+        }
+        .std-fill {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+        }
+        .std-zero {
+            position: absolute;
+            left: 50%;
+            top: -3px;
+            bottom: -3px;
+            width: 1px;
+            background: #000;
+        }
+        .std-marker {
+            position: absolute;
+            top: -4px;
+            width: 3px;
+            height: 20px;
+            margin-left: -1.5px;
+            background: #000;
+        }
+        .std-ends {
+            display: flex;
+            justify-content: space-between;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 10px;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.2;
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
@@ -97,7 +245,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
                 Covariance and Correlation
             </h1>
-            <p class="text-sm mt-2 leading-relaxed">Drag the points on the grid to observe real-time changes in deviations, covariance, and correlation.</p>
+            <p class="text-sm mt-2 leading-relaxed">Drag the points on the grid to observe real-time changes in deviations, covariance, and correlation. Hover a point to read its (x, y).</p>
         </div>
         
         <div class="p-5 flex-1 flex flex-col gap-6">
@@ -148,6 +296,17 @@
                         <div class="w-4 h-0 bg-transparent border-t-2 border-dashed" style="border-color: var(--viz-explained)"></div> Show Trendline
                     </div>
                 </label>
+
+                <label class="flex items-center cursor-pointer relative group">
+                    <div class="relative w-12 h-6 rounded-full bg-slate-200 mr-3 shrink-0">
+                        <input type="checkbox" id="toggle-scale" class="sr-only toggle-checkbox" checked>
+                        <div class="toggle-label absolute inset-0 cursor-pointer group-hover:bg-slate-400"></div>
+                        <div class="toggle-circle absolute cursor-pointer"></div>
+                    </div>
+                    <div class="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors flex items-center gap-2">
+                        <div class="w-3.5 h-3 border border-dashed viz-border-reference" style="border-color: var(--viz-reference)"></div> Show s<sub>x</sub>s<sub>y</sub> limit
+                    </div>
+                </label>
             </div>
 
             <!-- Stats Board Section -->
@@ -174,6 +333,60 @@
                     </div>
                 </div>
 
+                <!-- Live formulae for the four statistics above. Symbolic form is static; plugged-in numbers update with the points. -->
+                <div class="demo-panel p-3" id="live-formulae">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live formulae</h3>
+                    <p class="text-[11px] text-slate-500 leading-relaxed mb-3">Means and sample variances from the points on the chart. Sample variance divides by <span class="math-italic">n</span> − 1.</p>
+
+                    <div class="live-formula">
+                        <div class="text-xs text-slate-500 mb-1 font-medium">Mean of X (<span class="viz-ink-group-a">x̄</span>)</div>
+                        <div class="math-eq is-symbolic" aria-hidden="true">
+                            <span><span class="math-italic">x̄</span> =</span>
+                            <span class="math-frac math-frac-inline">
+                                <span class="math-num">Σ <span class="math-italic">x</span><sub>i</sub></span>
+                                <span class="math-den"><span class="math-italic">n</span></span>
+                            </span>
+                        </div>
+                        <div id="plug-mean-x"></div>
+                    </div>
+
+                    <div class="live-formula">
+                        <div class="text-xs text-slate-500 mb-1 font-medium">Mean of Y (<span class="viz-ink-group-c">ȳ</span>)</div>
+                        <div class="math-eq is-symbolic" aria-hidden="true">
+                            <span><span class="math-italic">ȳ</span> =</span>
+                            <span class="math-frac math-frac-inline">
+                                <span class="math-num">Σ <span class="math-italic">y</span><sub>i</sub></span>
+                                <span class="math-den"><span class="math-italic">n</span></span>
+                            </span>
+                        </div>
+                        <div id="plug-mean-y"></div>
+                    </div>
+
+                    <div class="live-formula">
+                        <div class="text-xs text-slate-500 mb-1 font-medium">Variance of X (<span class="math-italic">s</span><sup>2</sup><sub>x</sub>)</div>
+                        <div class="math-eq is-symbolic" aria-hidden="true">
+                            <span><span class="math-italic">s</span><sup>2</sup><sub>x</sub> =</span>
+                            <span class="math-frac math-frac-inline">
+                                <span class="math-num">Σ (<span class="math-italic">x</span><sub>i</sub> − <span class="math-italic">x̄</span>)<sup>2</sup></span>
+                                <span class="math-den"><span class="math-italic">n</span> − 1</span>
+                            </span>
+                        </div>
+                        <div id="plug-var-x"></div>
+                    </div>
+
+                    <div class="live-formula">
+                        <div class="text-xs text-slate-500 mb-1 font-medium">Variance of Y (<span class="math-italic">s</span><sup>2</sup><sub>y</sub>)</div>
+                        <div class="math-eq is-symbolic" aria-hidden="true">
+                            <span><span class="math-italic">s</span><sup>2</sup><sub>y</sub> =</span>
+                            <span class="math-frac math-frac-inline">
+                                <span class="math-num">Σ (<span class="math-italic">y</span><sub>i</sub> − <span class="math-italic">ȳ</span>)<sup>2</sup></span>
+                                <span class="math-den"><span class="math-italic">n</span> − 1</span>
+                            </span>
+                        </div>
+                        <div id="plug-var-y"></div>
+                    </div>
+                </div>
+
                 <!-- Core Metrics -->
                 <div class="demo-panel p-4 mt-2">
                     <div class="flex justify-between items-end mb-3">
@@ -184,6 +397,41 @@
                     <div class="flex justify-between items-end border-l-4 pl-3 viz-border-explained">
                         <div class="text-sm font-semibold viz-ink-explained">Correlation <span class="text-xs font-normal opacity-70 block">Pearson's r</span></div>
                         <div id="stat-cor" class="text-2xl font-bold viz-ink-reference font-mono tracking-tight">0.000</div>
+                    </div>
+                </div>
+
+                <!-- Why dividing by s_x s_y bounds r. Numbers track the points; the chart box is the same product. -->
+                <div class="demo-panel p-3" id="standardize-panel">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Why r is between −1 and 1</h3>
+                    <p class="text-[11px] text-slate-500 leading-relaxed mb-2">The dashed box is anchored at the means: <span class="viz-ink-group-a">s<sub>x</sub></span> wide and <span class="viz-ink-group-c">s<sub>y</sub></span> tall. A single point’s rectangle can stick out past it. The average area |s<sub>xy</sub>| cannot — that average is the solid portion, and the filled fraction is |r|.</p>
+                    <div id="plug-standardize"></div>
+                    <div class="std-scale-label">
+                        <span>joint variation, s<sub>xy</sub></span>
+                        <span id="std-joint-caption" class="font-mono font-bold"></span>
+                    </div>
+                    <div class="std-track" id="std-track-joint">
+                        <div class="std-fill" id="std-fill-joint"></div>
+                        <div class="std-zero"></div>
+                        <div class="std-marker" id="std-marker-joint"></div>
+                    </div>
+                    <div class="std-ends">
+                        <span id="std-joint-min">−</span>
+                        <span>0</span>
+                        <span id="std-joint-max">+</span>
+                    </div>
+                    <div class="std-scale-label">
+                        <span>after ÷ s<sub>x</sub>s<sub>y</sub></span>
+                        <span id="std-r-caption" class="font-mono font-bold"></span>
+                    </div>
+                    <div class="std-track" id="std-track-r">
+                        <div class="std-fill" id="std-fill-r"></div>
+                        <div class="std-zero"></div>
+                        <div class="std-marker" id="std-marker-r"></div>
+                    </div>
+                    <div class="std-ends">
+                        <span>−1</span>
+                        <span>0</span>
+                        <span>+1</span>
                     </div>
                 </div>
 
@@ -232,6 +480,10 @@
                         <span class="shrink-0 w-3.5 h-3.5 mt-0.5 border viz-soft-residual viz-border-residual rounded-sm"></span> 
                         <p><strong class="viz-ink-residual">Negative Area:</strong> Point is above one mean but below the other. Decreases covariance.</p>
                     </div>
+                    <div class="flex items-start gap-2 mt-2">
+                        <span class="shrink-0 w-3.5 h-3.5 mt-0.5 border border-dashed" style="border-color: var(--viz-reference)"></span>
+                        <p><strong class="viz-ink-reference">Max joint box:</strong> s<sub>x</sub> by s<sub>y</sub>. |s<sub>xy</sub>| cannot exceed this area, so r = s<sub>xy</sub> / (s<sub>x</sub>s<sub>y</sub>) stays in [−1, 1].</p>
+                    </div>
                 </div>
             </div>
             
@@ -257,6 +509,7 @@
         let showYDev = true;
         let showCovArea = true;
         let showTrendline = true;
+        let showScale = true;
 
         // Chart configuration
         const domainMax = 100;
@@ -274,6 +527,11 @@
         
         let data = JSON.parse(JSON.stringify(initialData));
 
+        // Which point is under the pointer, and which one is being dragged.
+        let hoveredId = null;
+        let draggingId = null;
+        let tipHideTimer = null;
+
         // SVG and D3 Selections
         const container = document.getElementById('chart-container');
         const svg = d3.select("#viz");
@@ -284,11 +542,59 @@
         // SVG Group Elements (Layering order matters)
         const gGrid = svg.append("g").attr("class", "grid-layer");
         const gAreas = svg.append("g").attr("class", "areas-layer");
+        const gScale = svg.append("g").attr("class", "scale-layer").style("pointer-events", "none");
         const gRegression = svg.append("g").attr("class", "regression-layer");
         const gAxes = svg.append("g").attr("class", "axes-layer");
         const gDeviations = svg.append("g").attr("class", "deviations-layer");
         const gMeans = svg.append("g").attr("class", "means-layer");
         const gPoints = svg.append("g").attr("class", "points-layer");
+        const gTooltip = svg.append("g").attr("class", "point-tip").style("opacity", 0);
+        const tipBg = gTooltip.append("rect")
+            .attr("class", "point-tip-bg")
+            .attr("rx", 4)
+            .attr("ry", 4);
+        const tipText = gTooltip.append("text").attr("class", "point-tip-text");
+
+        function hidePointTip() {
+            gTooltip.style("opacity", 0);
+        }
+
+        // Callout in chart space, clamped to the SVG so the card is not clipped.
+        function showPointTip(d) {
+            if (!d || !xScale || !width) return;
+
+            const xLabel = formatCoord(d.x);
+            const yLabel = formatCoord(d.y);
+            tipText.selectAll("tspan").remove();
+            tipText.append("tspan").attr("fill", "#000").text("x = ");
+            tipText.append("tspan").attr("fill", statsViz.color("--viz-group-a")).text(xLabel);
+            tipText.append("tspan").attr("fill", "#000").text("  ·  y = ");
+            tipText.append("tspan").attr("fill", statsViz.color("--viz-group-c")).text(yLabel);
+            tipText.attr("x", 8).attr("y", 13).attr("dominant-baseline", "middle");
+
+            const tipW = Math.ceil(tipText.node().getComputedTextLength()) + 16;
+            const tipH = 26;
+            tipBg.attr("x", 0).attr("y", 0).attr("width", tipW).attr("height", tipH);
+
+            const px = xScale(d.x);
+            const py = yScale(d.y);
+            const gap = 10;
+            let left = margin.left + px + gap;
+            let top = margin.top + py - tipH - gap;
+            if (left + tipW > width - 6) left = margin.left + px - tipW - gap;
+            if (left < 6) left = 6;
+            if (top < 6) top = margin.top + py + gap;
+            if (top + tipH > height - 6) top = Math.max(6, height - tipH - 6);
+
+            gTooltip.attr("transform", `translate(${left},${top})`).style("opacity", 1);
+        }
+
+        function refreshPointTip() {
+            if (hoveredId == null) return;
+            const d = data.find(p => p.id === hoveredId);
+            if (d) showPointTip(d);
+            else hidePointTip();
+        }
 
         // D3 Drag Behavior (Declared globally to avoid re-creation memory leaks in render())
         const dragBehavior = d3.drag()
@@ -297,11 +603,15 @@
                 return { x: xScale(d.x), y: yScale(d.y) };
             })
             .on("start", function(event, d) {
+                clearTimeout(tipHideTimer);
+                draggingId = d.id;
+                hoveredId = d.id;
                 d3.select(this)
                     .raise()
                     .attr("stroke", statsViz.color("--viz-total"))
                     .attr("stroke-width", 3)
                     .attr("r", 9);
+                showPointTip(d);
             })
             .on("drag", function(event, d) {
                 let newX = xScale.invert(event.x);
@@ -315,11 +625,329 @@
                 render(); 
             })
             .on("end", function(event, d) {
+                draggingId = null;
                 d3.select(this)
                     .attr("stroke", "#fff")
                     .attr("stroke-width", 2)
                     .attr("r", 7);
+
+                const pe = event.sourceEvent;
+                const isTouch = pe && (pe.pointerType === "touch" || (pe.type && pe.type.indexOf("touch") === 0));
+                if (isTouch) {
+                    // No hover on touch: keep the values up briefly after the finger lifts.
+                    hoveredId = d.id;
+                    showPointTip(d);
+                    clearTimeout(tipHideTimer);
+                    tipHideTimer = setTimeout(() => {
+                        if (draggingId == null) {
+                            hoveredId = null;
+                            hidePointTip();
+                        }
+                    }, 800);
+                    return;
+                }
+
+                const stillOver = pe && pe.target === this;
+                if (!stillOver) {
+                    if (hoveredId === d.id) hoveredId = null;
+                    hidePointTip();
+                } else {
+                    hoveredId = d.id;
+                    showPointTip(d);
+                }
             });
+
+        // Coordinate readout. One decimal stays readable while a point is dragged.
+        function formatCoord(v) {
+            return v.toFixed(1);
+        }
+
+        function formatMean(v) {
+            return v.toFixed(1);
+        }
+
+        function formatVariance(v) {
+            return v.toFixed(2);
+        }
+
+        // Trim trailing zeros so 20 stays "20" and 20.40 stays "20.4".
+        function formatFixed(v, dp) {
+            let s = Number(v).toFixed(dp);
+            if (s.indexOf(".") !== -1) s = s.replace(/0+$/, "").replace(/\.$/, "");
+            return s;
+        }
+
+        function formatSigned(v, dp) {
+            const rounded = Number(v.toFixed(dp));
+            const body = formatFixed(Math.abs(rounded), dp);
+            return rounded < 0 ? "−" + body : body;
+        }
+
+        // A short dividend that still divides to `target`, and stays within half a cent
+        // of the real sum when that is possible. Stops "3621.4 / 6 = 603.57" when the
+        // squares on screen actually add to 3621.43.
+        function formatDividend(sum, divisor, digits, target) {
+            let fewest = null;
+            for (let dp = 0; dp <= 8; dp++) {
+                const shown = Number(sum.toFixed(dp));
+                if ((shown / divisor).toFixed(digits) !== target) continue;
+                if (fewest === null) fewest = dp;
+                if (Math.abs(shown - sum) < 5e-3) return formatFixed(shown, dp);
+            }
+            if (fewest !== null) return formatFixed(sum, fewest);
+            return formatFixed(sum, 8);
+        }
+
+        // Whole-number points stay as integers. Anything else is shown to at least
+        // one decimal, the same precision as the hover readout, then more if the
+        // rounded sum would no longer divide to the value on the card.
+        function chooseTermDp(values, n, target, digits) {
+            const whole = values.every(v => Math.abs(v - Math.round(v)) < 1e-6);
+            const start = whole ? 0 : 1;
+            for (let dp = start; dp <= 6; dp++) {
+                const sum = values.reduce((acc, v) => acc + Number(v.toFixed(dp)), 0);
+                if ((sum / n).toFixed(digits) === target) return dp;
+            }
+            return 6;
+        }
+
+        function fillMeanFormula(host, values, n, mean) {
+            const target = formatMean(mean);
+            const dp = chooseTermDp(values, n, target, 1);
+            const shown = values.map(v => Number(v.toFixed(dp)));
+            const sum = shown.reduce((acc, v) => acc + v, 0);
+            const numerator = shown.map(v => formatFixed(v, dp)).join(" + ");
+            const dividend = formatDividend(sum, n, 1, target);
+
+            host.replaceChildren();
+            const eq = document.createElement("div");
+            eq.className = "math-eq";
+            const equals = document.createElement("span");
+            equals.textContent = "=";
+            const frac = document.createElement("span");
+            frac.className = "math-frac";
+            const num = document.createElement("span");
+            num.className = "math-num";
+            num.textContent = numerator;
+            const den = document.createElement("span");
+            den.className = "math-den";
+            den.textContent = String(n);
+            frac.append(num, den);
+            eq.append(equals, frac);
+
+            const result = document.createElement("div");
+            result.className = "math-result";
+            result.textContent = "= " + dividend + " / " + n + " = " + target;
+
+            host.append(eq, result);
+            host.dataset.result = target;
+            host.setAttribute("aria-label", "equals " + numerator + " divided by " + n + ", which is " + target);
+        }
+
+        function mathVar(name) {
+            const el = document.createElement("span");
+            el.className = "math-italic";
+            el.textContent = name;
+            return el;
+        }
+
+        function mathIndexed(name) {
+            const wrap = document.createDocumentFragment();
+            wrap.append(mathVar(name));
+            const sub = document.createElement("sub");
+            sub.textContent = "i";
+            wrap.append(sub);
+            return wrap;
+        }
+
+        function mathBar(name) {
+            const el = mathVar(name);
+            el.textContent = name + "̄";
+            return el;
+        }
+
+        function fillVarianceFormula(host, devs, n, variance, variable) {
+            const target = formatVariance(variance);
+            const nMinus1 = n - 1;
+            // Numerator is the exact sum of squares, not squares of rounded deviations,
+            // so the division matches the card even while a point is mid-drag.
+            const sumSq = devs.reduce((acc, v) => acc + v * v, 0);
+            const dividend = formatDividend(sumSq, nMinus1, 2, target);
+            const devText = devs.map(v => formatSigned(v, 2)).join(", ");
+            const ink = variable === "y" ? "viz-ink-group-c" : "viz-ink-group-a";
+
+            host.replaceChildren();
+            const terms = document.createElement("div");
+            terms.className = "math-terms";
+            const lead = document.createElement("span");
+            lead.className = ink;
+            lead.append(mathIndexed(variable));
+            lead.append(document.createTextNode(" − "));
+            lead.append(mathBar(variable));
+            terms.append(lead);
+            terms.append(document.createTextNode(" = " + devText));
+
+            const eq = document.createElement("div");
+            eq.className = "math-eq";
+            const equals = document.createElement("span");
+            equals.textContent = "=";
+            const frac = document.createElement("span");
+            frac.className = "math-frac";
+            const num = document.createElement("span");
+            num.className = "math-num";
+            num.append(document.createTextNode("Σ ("));
+            num.append(mathIndexed(variable));
+            num.append(document.createTextNode(" − "));
+            num.append(mathBar(variable));
+            const sup = document.createElement("sup");
+            sup.textContent = "2";
+            num.append(document.createTextNode(")"));
+            num.append(sup);
+            num.append(document.createTextNode(" = " + dividend));
+            const den = document.createElement("span");
+            den.className = "math-den";
+            den.textContent = String(nMinus1);
+            frac.append(num, den);
+            eq.append(equals, frac);
+
+            const result = document.createElement("div");
+            result.className = "math-result";
+            result.textContent = "= " + dividend + " / " + nMinus1 + " = " + target;
+
+            host.append(terms, eq, result);
+            host.dataset.result = target;
+            host.setAttribute(
+                "aria-label",
+                "deviations " + devText + ". Sum of squared deviations " + dividend + " divided by " + nMinus1 + " equals " + target
+            );
+        }
+
+        function formatCov(v) {
+            return v.toFixed(2);
+        }
+
+        function appendSdTerm(parent, letter, inkClass) {
+            const wrap = document.createElement("span");
+            if (inkClass) wrap.className = inkClass;
+            const em = document.createElement("span");
+            em.className = "math-italic";
+            em.textContent = "s";
+            const sub = document.createElement("sub");
+            sub.textContent = letter;
+            wrap.append(em, sub);
+            parent.append(wrap);
+            return wrap;
+        }
+
+        // Displayed s_x, s_y, and s_xy whose product and quotient round to the card's r.
+        function scaleBreakdown(sdX, sdY, cov, cor) {
+            const target = cor.toFixed(3);
+            for (let dp = 2; dp <= 5; dp++) {
+                const sx = Number(sdX.toFixed(dp));
+                const sy = Number(sdY.toFixed(dp));
+                const prod = Number((sx * sy).toFixed(dp));
+                for (let cdp = 2; cdp <= 4; cdp++) {
+                    const c = Number(cov.toFixed(cdp));
+                    if (prod !== 0 && (c / prod).toFixed(3) === target) {
+                        return {
+                            sx: sx.toFixed(dp),
+                            sy: sy.toFixed(dp),
+                            prod: prod.toFixed(dp),
+                            cov: c.toFixed(cdp),
+                            r: target
+                        };
+                    }
+                }
+            }
+            return {
+                sx: sdX.toFixed(2),
+                sy: sdY.toFixed(2),
+                prod: (sdX * sdY).toFixed(2),
+                cov: cov.toFixed(2),
+                r: target
+            };
+        }
+
+        function placeStdTrack(fillId, markerId, cor) {
+            const c = Math.max(-1, Math.min(1, Number.isFinite(cor) ? cor : 0));
+            const fill = document.getElementById(fillId);
+            const marker = document.getElementById(markerId);
+            const color = c < -0.1 ? "var(--viz-null)" : c > 0.1 ? "var(--viz-significant)" : "var(--viz-reference)";
+            if (c >= 0) {
+                fill.style.left = "50%";
+                fill.style.width = (c * 50) + "%";
+            } else {
+                fill.style.left = (50 + c * 50) + "%";
+                fill.style.width = (-c * 50) + "%";
+            }
+            fill.style.background = color;
+            marker.style.left = ((c + 1) / 2 * 100) + "%";
+        }
+
+        function fillStandardize(stats) {
+            const host = document.getElementById("plug-standardize");
+            host.replaceChildren();
+            const { sdX, sdY, cov, cor, varX, varY } = stats;
+
+            if (!(sdX > 0) || !(sdY > 0)) {
+                const note = document.createElement("p");
+                note.className = "text-[11px] text-slate-500 text-center leading-relaxed";
+                note.textContent = "One variable has no spread, so there is no s_x s_y ceiling to divide by. r is shown as 0.";
+                host.append(note);
+                placeStdTrack("std-fill-joint", "std-marker-joint", 0);
+                placeStdTrack("std-fill-r", "std-marker-r", 0);
+                document.getElementById("std-joint-caption").textContent = "0";
+                document.getElementById("std-r-caption").textContent = "0";
+                document.getElementById("std-joint-min").textContent = "0";
+                document.getElementById("std-joint-max").textContent = "0";
+                host.dataset.result = "0.000";
+                return;
+            }
+
+            const parts = scaleBreakdown(sdX, sdY, cov, cor);
+            const math = document.createElement("div");
+            math.className = "std-math";
+
+            const lineX = document.createElement("div");
+            appendSdTerm(lineX, "x", "viz-ink-group-a");
+            lineX.append(document.createTextNode(" = √" + formatVariance(varX) + " = " + parts.sx));
+            const lineY = document.createElement("div");
+            appendSdTerm(lineY, "y", "viz-ink-group-c");
+            lineY.append(document.createTextNode(" = √" + formatVariance(varY) + " = " + parts.sy));
+            const lineProd = document.createElement("div");
+            appendSdTerm(lineProd, "x", "viz-ink-group-a");
+            appendSdTerm(lineProd, "y", "viz-ink-group-c");
+            lineProd.append(document.createTextNode(" = " + parts.sx + " × " + parts.sy + " = " + parts.prod));
+            math.append(lineX, lineY, lineProd);
+
+            const symbolic = document.createElement("div");
+            symbolic.className = "std-math";
+            symbolic.style.marginTop = "0.35rem";
+            const rSym = document.createElement("span");
+            rSym.className = "math-italic viz-ink-explained";
+            rSym.textContent = "r";
+            symbolic.append(rSym, document.createTextNode(" = "));
+            appendSdTerm(symbolic, "xy", "viz-ink-reference");
+            symbolic.append(document.createTextNode(" / ("));
+            appendSdTerm(symbolic, "x", "viz-ink-group-a");
+            appendSdTerm(symbolic, "y", "viz-ink-group-c");
+            symbolic.append(document.createTextNode(")"));
+
+            const evalLine = document.createElement("div");
+            evalLine.className = "std-eval";
+            evalLine.textContent = "= " + parts.cov + " / " + parts.prod + " = " + parts.r;
+
+            host.append(math, symbolic, evalLine);
+            host.dataset.result = parts.r;
+            host.setAttribute("aria-label", "r equals " + parts.cov + " divided by " + parts.prod + ", which is " + parts.r);
+
+            document.getElementById("std-joint-caption").textContent = parts.cov;
+            document.getElementById("std-r-caption").textContent = parts.r;
+            document.getElementById("std-joint-min").textContent = "−" + parts.prod;
+            document.getElementById("std-joint-max").textContent = "+" + parts.prod;
+            placeStdTrack("std-fill-joint", "std-marker-joint", cor);
+            placeStdTrack("std-fill-r", "std-marker-r", cor);
+        }
 
         // Statistics Calculations
         function calculateStats() {
@@ -354,21 +982,28 @@
                 cor = cov / (sdX * sdY);
             }
 
-            return { meanX, meanY, varX, varY, cov, cor, sdX, sdY };
+            return { meanX, meanY, varX, varY, cov, cor, sdX, sdY, n, devX, devY };
         }
 
         // Update DOM with statistics
         function updateStatUI(stats) {
-            document.getElementById('stat-mean-x').textContent = stats.meanX.toFixed(1);
-            document.getElementById('stat-mean-y').textContent = stats.meanY.toFixed(1);
-            
-            // Format variance nicely, avoiding huge decimals if large
-            document.getElementById('stat-var-x').textContent = stats.varX > 100 ? Math.round(stats.varX) : stats.varX.toFixed(2);
-            document.getElementById('stat-var-y').textContent = stats.varY > 100 ? Math.round(stats.varY) : stats.varY.toFixed(2);
+            document.getElementById('stat-mean-x').textContent = formatMean(stats.meanX);
+            document.getElementById('stat-mean-y').textContent = formatMean(stats.meanY);
+
+            // Two decimals, same strings as the live formulae underneath the cards.
+            document.getElementById('stat-var-x').textContent = formatVariance(stats.varX);
+            document.getElementById('stat-var-y').textContent = formatVariance(stats.varY);
+
+            fillMeanFormula(document.getElementById('plug-mean-x'), data.map(d => d.x), stats.n, stats.meanX);
+            fillMeanFormula(document.getElementById('plug-mean-y'), data.map(d => d.y), stats.n, stats.meanY);
+            fillVarianceFormula(document.getElementById('plug-var-x'), stats.devX, stats.n, stats.varX, "x");
+            fillVarianceFormula(document.getElementById('plug-var-y'), stats.devY, stats.n, stats.varY, "y");
             
             const covEl = document.getElementById('stat-cov');
-            const formattedCov = Math.abs(stats.cov) > 100 ? Math.round(stats.cov) : stats.cov.toFixed(2);
+            const formattedCov = formatCov(stats.cov);
             covEl.textContent = formattedCov;
+
+            fillStandardize(stats);
             
             if (stats.cov > 1) covEl.className = "text-2xl font-bold font-mono tracking-tight viz-ink-significant";
             else if (stats.cov < -1) covEl.className = "text-2xl font-bold font-mono tracking-tight viz-ink-null";
@@ -483,6 +1118,130 @@
                 .text("VARIABLE Y");
         }
 
+        // Side of the mean with room for a segment of length `sd`.
+        function fitSpreadDir(mean, sd) {
+            const roomPos = domainMax - mean;
+            const roomNeg = mean;
+            // Prefer the positive side of the mean when the segment fits, so a
+            // positive correlation sits in the upper-right quadrant.
+            if (roomPos >= sd) return 1;
+            if (roomNeg >= sd) return -1;
+            return roomPos >= roomNeg ? 1 : -1;
+        }
+
+        function scaleText(x, y, anchor, fill) {
+            return gScale.append("text")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("text-anchor", anchor)
+                .attr("font-family", "Arial, Helvetica, sans-serif")
+                .attr("font-size", "12px")
+                .attr("font-weight", "700")
+                .attr("fill", fill)
+                .attr("stroke", "#ffffff")
+                .attr("stroke-width", 3.5)
+                .attr("paint-order", "stroke")
+                .attr("stroke-linejoin", "round");
+        }
+
+        function appendSvgSub(textSel, base, sub) {
+            textSel.append("tspan").text(base);
+            textSel.append("tspan").attr("font-size", "9px").attr("dy", "3").text(sub);
+        }
+
+        // Dashed s_x by s_y box: the largest |covariance| those spreads allow.
+        // The solid portion has the same width and |r| of the height, so its
+        // area over the box is |r|. Pointer events stay off so points still drag.
+        function drawStandardBox(stats) {
+            gScale.selectAll("*").remove();
+            if (!showScale) return;
+            const { meanX, meanY, sdX, sdY, cor } = stats;
+            if (!(sdX > 0) || !(sdY > 0) || !xScale) return;
+
+            let xDir = fitSpreadDir(meanX, sdX);
+            let yDir = cor < 0 ? -xDir : xDir;
+            const room = (mean, dir) => dir > 0 ? domainMax - mean : mean;
+            if (room(meanY, yDir) < sdY * 0.5 && room(meanY, -yDir) > room(meanY, yDir)) {
+                const altX = -xDir;
+                if (room(meanX, altX) >= sdX * 0.35) {
+                    xDir = altX;
+                    yDir = -yDir;
+                }
+            }
+
+            const xA = xScale(meanX);
+            const xB = xScale(meanX + xDir * sdX);
+            const yA = yScale(meanY);
+            const yB = yScale(meanY + yDir * sdY);
+            const left = Math.min(xA, xB);
+            const top = Math.min(yA, yB);
+            const w = Math.abs(xB - xA);
+            const h = Math.abs(yB - yA);
+            const positive = cor >= 0;
+            const ink = positive ? "--viz-significant" : "--viz-residual";
+
+            gScale.append("rect")
+                .attr("x", left).attr("y", top)
+                .attr("width", w).attr("height", h)
+                .attr("fill", statsViz.rgba("--viz-reference", 0.07))
+                .attr("stroke", "none");
+
+            const innerH = h * Math.min(1, Math.abs(cor));
+            if (innerH > 0.75) {
+                const innerTop = yB >= yA ? yA : yA - innerH;
+                gScale.append("rect")
+                    .attr("x", left)
+                    .attr("y", innerTop)
+                    .attr("width", w)
+                    .attr("height", innerH)
+                    .attr("fill", statsViz.rgba(ink, 0.16))
+                    .attr("stroke", statsViz.color(ink))
+                    .attr("stroke-width", 1.5);
+            }
+
+            gScale.append("rect")
+                .attr("x", left).attr("y", top)
+                .attr("width", w).attr("height", h)
+                .attr("fill", "none")
+                .attr("stroke", statsViz.color("--viz-reference"))
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", "6,4");
+
+            gScale.append("line")
+                .attr("x1", xA).attr("x2", xB).attr("y1", yA).attr("y2", yA)
+                .attr("stroke", statsViz.color("--viz-group-a"))
+                .attr("stroke-width", 3)
+                .attr("stroke-linecap", "round");
+
+            gScale.append("line")
+                .attr("x1", xA).attr("x2", xA).attr("y1", yA).attr("y2", yB)
+                .attr("stroke", statsViz.color("--viz-group-c"))
+                .attr("stroke-width", 3)
+                .attr("stroke-linecap", "round");
+
+            if (w >= 32) {
+                const labelY = yB >= yA ? Math.min(yA + 15, innerHeight - 6) : Math.max(yA - 6, 14);
+                const labelX = Math.max(16, Math.min(innerWidth - 16, (xA + xB) / 2));
+                appendSvgSub(
+                    scaleText(labelX, labelY, "middle", statsViz.color("--viz-group-a")),
+                    "s",
+                    "x"
+                );
+            }
+
+            if (h >= 28) {
+                const labelX = xB >= xA ? Math.min(xA + 14, innerWidth - 18) : Math.max(xA - 14, 16);
+                const labelY = Math.max(14, Math.min(innerHeight - 6, (yA + yB) / 2));
+                const anchor = xB >= xA ? "start" : "end";
+                appendSvgSub(
+                    scaleText(labelX, labelY, anchor, statsViz.color("--viz-group-c")),
+                    "s",
+                    "y"
+                );
+            }
+
+        }
+
         function render() {
             const stats = calculateStats();
             if (!stats) return;
@@ -506,6 +1265,8 @@
                 .attr("x1", 0).attr("x2", innerWidth)
                 .attr("stroke", statsViz.color("--viz-group-c")).attr("stroke-width", 2).attr("stroke-dasharray", "6,4").attr("opacity", 0.7)
                 .attr("y1", d => yScale(d)).attr("y2", d => yScale(d));
+
+            drawStandardBox(stats);
 
             // --- 2. Draw Covariance Areas ---
             const areas = gAreas.selectAll("rect").data(showCovArea ? data : [], d => d.id);
@@ -599,10 +1360,22 @@
                 .attr("stroke", "#fff")
                 .attr("stroke-width", 2)
                 .style("filter", "drop-shadow(0px 3px 3px rgba(0,0,0,0.2))")
+                .on("mouseenter", function(event, d) {
+                    clearTimeout(tipHideTimer);
+                    hoveredId = d.id;
+                    showPointTip(d);
+                })
+                .on("mouseleave", function(event, d) {
+                    if (draggingId === d.id) return;
+                    if (hoveredId === d.id) hoveredId = null;
+                    hidePointTip();
+                })
                 .call(dragBehavior)
                 .merge(points)
                 .attr("cx", d => xScale(d.x))
                 .attr("cy", d => yScale(d.y));
+
+            refreshPointTip();
         }
 
         // Event Listeners for Toggles
@@ -626,10 +1399,19 @@
             render();
         });
 
+        document.getElementById('toggle-scale').addEventListener('change', (e) => {
+            showScale = e.target.checked;
+            render();
+        });
+
         // Reset Button
         document.getElementById('reset-btn').addEventListener('click', () => {
             // Deep copy initial data
             data = JSON.parse(JSON.stringify(initialData));
+            hoveredId = null;
+            draggingId = null;
+            clearTimeout(tipHideTimer);
+            hidePointTip();
             render();
             
             // Add a brief animation to the points to indicate reset
