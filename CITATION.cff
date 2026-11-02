@@ -1,7 +1,7 @@
 cff-version: "1.2.0"
 message: "If you use Project Viz, please cite it using the metadata from preferred-citation in this file. Teaching text, explanations, and figures are CC BY 4.0. Source code is MIT (see LICENSE-CODE). The Hyperspace template by HTML5 UP remains CC BY 3.0."
 type: software
-title: "Project Viz"
+title: "Project Viz: A visualization demo library for teaching"
 abstract: "A visualization demo library for teaching. Interactive demonstrations for exploring concepts in psychology, neuroscience, and statistics. Teaching content is CC BY 4.0. Source code is MIT."
 authors:
   - family-names: Ko
@@ -22,7 +22,7 @@ keywords:
   - teaching
 preferred-citation:
   type: website
-  title: "Project Viz"
+  title: "Project Viz: A visualization demo library for teaching"
   authors:
     - family-names: Ko
       given-names: "Yiu Hong"

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Formal citations use the full title *Project Viz: A visualization demo library for teaching* (APA, BibTeX, CITATION.cff, the homepage preferred cite, per-demo cites, and the credit line).
 - The catalog view is List. The Cards toggle is gone, and a remembered Cards choice opens List.
 - Statistics headings match Guided Track titles: Describing data, Statistical reasoning, t-test, Statistical power, ANOVA, and Association.
 
