@@ -45,6 +45,17 @@ GALTON_P = 0.5
 BINOMIAL_N = 10
 BINOMIAL_P = 0.5
 
+# Random-walk defaults in statistics/stats_conceptual_hierarchy.html, mode A.
+WALK_STEPS = 50
+WALK_P = 0.50
+
+# Raindrops preset in statistics/poisson_point_process.html.
+POISSON_RATE = 6.0
+POISSON_WINDOW = 1.0
+POISSON_TARGET_K = 6
+POISSON_BINS = 20
+POISSON_SEED = 38
+
 
 def _style() -> None:
     plt.rcParams.update(
@@ -121,6 +132,55 @@ def _legend(ax: plt.Axes, handles, **kwargs) -> None:
     )
 
 
+def _poisson_pmf(k: np.ndarray, mu: float) -> np.ndarray:
+    kk = np.asarray(k, dtype=float)
+    return np.exp(kk * np.log(mu) - mu - np.vectorize(math.lgamma)(kk + 1.0))
+
+
+def _arrow(ax: plt.Axes, points: list[tuple[float, float]], style: str | tuple) -> None:
+    """Polyline ending in an arrowhead. Points are in data coordinates."""
+    if len(points) < 2:
+        raise SystemExit("an arrow needs two points")
+    if len(points) > 2:
+        ax.plot(
+            [p[0] for p in points[:-1]],
+            [p[1] for p in points[:-1]],
+            color="black",
+            linestyle=style,
+            linewidth=0.95,
+            solid_capstyle="butt",
+            zorder=6,
+        )
+    ax.annotate(
+        "",
+        xy=points[-1],
+        xytext=points[-2],
+        arrowprops={
+            "arrowstyle": "-|>",
+            "color": "black",
+            "linestyle": style,
+            "linewidth": 0.95,
+            "shrinkA": 0,
+            "shrinkB": 0,
+            "mutation_scale": 8,
+        },
+        zorder=6,
+    )
+
+
+def _port(node: dict, side: str, shift: float = 0.0) -> tuple[float, float]:
+    cx, cy, w, h = node["cx"], node["cy"], node["w"], node["h"]
+    if side == "left":
+        return (cx - w / 2.0, cy + shift)
+    if side == "right":
+        return (cx + w / 2.0, cy + shift)
+    if side == "top":
+        return (cx + shift, cy + h / 2.0)
+    if side == "bottom":
+        return (cx + shift, cy - h / 2.0)
+    raise SystemExit(f"unknown side {side}")
+
+
 def _normal_pdf(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     return np.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * math.sqrt(2 * math.pi))
 
@@ -153,6 +213,442 @@ def _binomial_pmf(n: int, p: float) -> np.ndarray:
     for k in range(n):
         probs[k + 1] = probs[k] * (n - k) / (k + 1) * p / (1.0 - p)
     return probs
+
+
+def draw_hierarchy() -> None:
+    """Random-walk mode, before the first trial.
+
+    Level 0 fixes N = 50 and p = 0.50, so μ = N(2p − 1) = 0 and
+    σ² = 4Np(1 − p) = 50. Level 2 reads the end position as X = 2K − N.
+    Level 3 draws the theoretical law used on that page: the normal density
+    times the lattice spacing Δx = 2. Level 4 has not seen a sample.
+    """
+    n = WALK_STEPS
+    p = WALK_P
+    mu = n * (2.0 * p - 1.0)
+    var = 4.0 * n * p * (1.0 - p)
+    sigma = math.sqrt(var)
+    if abs(mu) > 1e-12 or abs(var - 50.0) > 1e-12:
+        raise SystemExit(f"walk parameters drifted: mu={mu}, var={var}")
+    peak = 2.0 / (sigma * math.sqrt(2.0 * math.pi))
+
+    fig, axes = plt.subplots(2, 2, figsize=(8.3, 6.5), constrained_layout=True)
+
+    ax = axes[0, 0]
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for ypos, line in (
+        (0.78, "N = 50 steps"),
+        (0.58, "P(up) = 0.50"),
+        (0.38, "μ = 0,    σ² = 50"),
+        (0.18, "Level 2:  X = 2K − N"),
+    ):
+        ax.text(0.5, ypos, line, ha="center", va="center", fontsize=12)
+    ax.set_title("Level 0: parameters")
+
+    ax = axes[0, 1]
+    ax.axhline(0.0, color="black", linestyle="dashed", linewidth=1.15, zorder=2)
+    _legend(
+        ax,
+        [Line2D([0], [0], color="black", linestyle="dashed", linewidth=1.15, label="μ = 0")],
+        loc="upper right",
+    )
+    ax.set_xlim(0, n)
+    ax.set_xticks([0, 25, 50])
+    ax.set_ylim(-n, n)
+    ax.set_yticks([-50, 0, 50])
+    ax.set_xlabel("step")
+    ax.set_ylabel("position")
+    ax.set_title("Level 1: no walk yet")
+
+    ax = axes[1, 0]
+    xs = np.linspace(-32, 32, 600)
+    ys = 2.0 * _normal_pdf(xs, mu, sigma)
+    at_zero = float(2.0 * _normal_pdf(np.array([0.0]), mu, sigma)[0])
+    if abs(at_zero - peak) > 1e-12:
+        raise SystemExit(f"scaled normal peak {at_zero} != {peak}")
+    ax.fill_between(xs, ys, color="#f2f2f2", zorder=1)
+    ax.plot(xs, ys, color="black", linewidth=1.7, zorder=2)
+    ax.axvline(0.0, color="black", linestyle="dashed", linewidth=1.15, zorder=3)
+    for xpos in (-sigma, sigma):
+        ax.axvline(xpos, color="black", linestyle=(0, (1.2, 1.2)), linewidth=1.15, zorder=3)
+    _legend(
+        ax,
+        [
+            Line2D([0], [0], color="black", linewidth=1.7, label="theoretical law"),
+            Line2D([0], [0], color="black", linestyle="dashed", linewidth=1.15, label="μ = 0"),
+            Line2D([0], [0], color="black", linestyle=(0, (1.2, 1.2)), linewidth=1.15, label="μ ± σ"),
+        ],
+        loc="upper right",
+    )
+    ax.set_xlim(-32, 32)
+    ax.set_xticks([-20, -10, 0, 10, 20])
+    ax.set_ylim(0, 0.16)
+    ax.set_yticks([0, 0.05, 0.10, 0.15])
+    ax.set_xlabel("end position")
+    ax.set_ylabel("probability")
+    ax.set_title("Level 3: theoretical law")
+
+    ax = axes[1, 1]
+    ax.axvline(0.0, color="black", linestyle="dashed", linewidth=1.15, zorder=2)
+    ax.text(-6, 0.66, "true μ = 0", ha="right", va="center", fontsize=12)
+    ax.text(6, 0.66, "M = 0", ha="left", va="center", fontsize=12)
+    ax.text(6, 0.34, "no sample mean", ha="left", va="center", fontsize=12)
+    ax.set_xlim(-50, 50)
+    ax.set_xticks([-50, 0, 50])
+    ax.set_ylim(0, 1)
+    ax.set_yticks([])
+    ax.set_xlabel("end position")
+    ax.set_title("Level 4: sample size 0")
+
+    _save(fig, "00-conceptual-hierarchy.png")
+    print(f"  hierarchy mu={mu:.1f} var={var:.1f} sigma={sigma:.3f} peak={peak:.4f}")
+
+
+def draw_distributions_map() -> None:
+    """Sixteen distributions, five neighborhoods, normal selected.
+
+    Arrow styles match the three link kinds on
+    statistics/probability_distributions_map.html: a special case that fixes
+    a parameter, a limit, and a transform or a sum. The side panel is the
+    opening normal, μ = 0 and σ = 1.
+    """
+    solid = "solid"
+    dashed = (0, (4.0, 2.0))
+    dotted = (0, (1.0, 1.35))
+
+    # (x, y, w, h, hatch, title). Hatches stand in for the page's tints.
+    regions = (
+        (1.6, 42.0, 47.2, 34.0, None, "Coin flip"),
+        (1.6, 2.0, 47.2, 36.0, ".", "Arrivals"),
+        (52.0, 58.0, 46.4, 18.0, "/", "Boundaries"),
+        (52.0, 30.0, 46.4, 24.0, "\\", "Natural world"),
+        (52.0, 2.0, 46.4, 24.0, "|", "Toolbelt"),
+    )
+    nodes = {
+        "bernoulli": {"label": "Bernoulli", "cx": 16.5, "cy": 63.2, "w": 13.2, "h": 6.2},
+        "binomial": {"label": "Binomial", "cx": 35.6, "cy": 63.2, "w": 13.2, "h": 6.2},
+        "geometric": {"label": "Geometric", "cx": 16.5, "cy": 51.0, "w": 13.2, "h": 6.2},
+        "hyper": {"label": "Hypergeometric", "cx": 35.6, "cy": 51.0, "w": 15.6, "h": 6.2},
+        "exponential": {"label": "Exponential", "cx": 16.5, "cy": 26.6, "w": 13.6, "h": 6.2},
+        "poisson": {"label": "Poisson", "cx": 35.6, "cy": 26.6, "w": 13.2, "h": 6.2},
+        "gamma": {"label": "Gamma", "cx": 16.5, "cy": 13.4, "w": 12.4, "h": 6.2},
+        "weibull": {"label": "Weibull", "cx": 35.6, "cy": 13.4, "w": 12.4, "h": 6.2},
+        "uniform": {"label": "Uniform", "cx": 61.2, "cy": 65.2, "w": 12.0, "h": 6.2},
+        "beta": {"label": "Beta", "cx": 75.6, "cy": 65.2, "w": 11.2, "h": 6.2},
+        "pareto": {"label": "Pareto", "cx": 89.6, "cy": 65.2, "w": 12.0, "h": 6.2},
+        "normal": {"label": "Normal", "cx": 64.4, "cy": 39.4, "w": 12.6, "h": 6.4, "selected": True},
+        "lognormal": {"label": "Lognormal", "cx": 84.6, "cy": 39.4, "w": 13.2, "h": 6.4},
+        "chisq": {"label": "Chi-square", "cx": 64.4, "cy": 12.6, "w": 13.2, "h": 6.2},
+        "t": {"label": "Student's t", "cx": 78.8, "cy": 12.6, "w": 13.4, "h": 6.2},
+        "f": {"label": "F", "cx": 91.4, "cy": 12.6, "w": 8.4, "h": 6.2},
+    }
+    if len(nodes) != 16:
+        raise SystemExit(f"expected 16 distributions, got {len(nodes)}")
+
+    fig = plt.figure(figsize=(10.6, 6.7), constrained_layout=True)
+    ax, axn = fig.subplots(1, 2, gridspec_kw={"width_ratios": [2.5, 1.0]})
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 78)
+    ax.set_axis_off()
+
+    for x, y, w, h, hatch, title in regions:
+        if hatch:
+            ax.add_patch(
+                Rectangle(
+                    (x, y),
+                    w,
+                    h,
+                    facecolor="white",
+                    edgecolor="0.72",
+                    hatch=hatch,
+                    linewidth=0.0,
+                    zorder=0,
+                )
+            )
+        ax.add_patch(
+            Rectangle(
+                (x, y),
+                w,
+                h,
+                facecolor="none",
+                edgecolor="black",
+                linewidth=1.05,
+                zorder=1,
+            )
+        )
+        ax.text(
+            x + 1.7,
+            y + h - 1.15,
+            title,
+            ha="left",
+            va="top",
+            fontsize=11,
+            zorder=5,
+        )
+
+    # Special case (solid), limit (dashed), transform (dotted).
+    b, bi = nodes["bernoulli"], nodes["binomial"]
+    g, hnode = nodes["geometric"], nodes["hyper"]
+    ex, po = nodes["exponential"], nodes["poisson"]
+    ga, no = nodes["gamma"], nodes["normal"]
+    lo, ch, td, fd = nodes["lognormal"], nodes["chisq"], nodes["t"], nodes["f"]
+    un, be = nodes["uniform"], nodes["beta"]
+    _arrow(ax, [_port(b, "right", 0.85), _port(bi, "left", 0.85)], dotted)
+    _arrow(ax, [_port(bi, "left", -0.85), _port(b, "right", -0.85)], solid)
+    _arrow(ax, [_port(b, "bottom"), _port(g, "top")], dotted)
+    _arrow(ax, [_port(hnode, "top"), _port(bi, "bottom")], dashed)
+    _arrow(ax, [_port(g, "bottom"), _port(ex, "top")], dashed)
+    _arrow(
+        ax,
+        [_port(bi, "right"), (46.4, bi["cy"]), (46.4, po["cy"]), _port(po, "right")],
+        dashed,
+    )
+    _arrow(
+        ax,
+        [
+            _port(bi, "top"),
+            (bi["cx"], 73.2),
+            (49.4, 73.2),
+            (49.4, no["cy"] + 1.15),
+            _port(no, "left", 1.15),
+        ],
+        dashed,
+    )
+    _arrow(ax, [_port(po, "left"), _port(ex, "right")], dotted)
+    _arrow(ax, [_port(ex, "bottom", -1.15), _port(ga, "top", -1.15)], dotted)
+    _arrow(ax, [_port(ga, "top", 1.15), _port(ex, "bottom", 1.15)], solid)
+    _arrow(
+        ax,
+        [_port(po, "right", -1.05), (50.6, po["cy"] - 1.05), (50.6, no["cy"] - 1.15), _port(no, "left", -1.15)],
+        dashed,
+    )
+    _arrow(ax, [_port(no, "right"), _port(lo, "left")], dotted)
+    _arrow(ax, [_port(no, "bottom"), _port(ch, "top")], dotted)
+    _arrow(
+        ax,
+        [_port(ch, "bottom"), (ch["cx"], 4.6), (fd["cx"], 4.6), _port(fd, "bottom")],
+        dotted,
+    )
+    _arrow(ax, [_port(be, "left"), _port(un, "right")], solid)
+
+    # Student's t to the normal is a limit. One straight dashed shaft, to the
+    # right of the chi-square arrow, so the head meets the bottom of Normal.
+    _arrow(
+        ax,
+        [
+            _port(td, "top"),
+            (no["cx"] + 3.6, no["cy"] - no["h"] / 2.0),
+        ],
+        dashed,
+    )
+
+    drawn = []
+    for key, node in nodes.items():
+        selected = bool(node.get("selected"))
+        rect = Rectangle(
+            (node["cx"] - node["w"] / 2.0, node["cy"] - node["h"] / 2.0),
+            node["w"],
+            node["h"],
+            facecolor="#d9d9d9" if selected else "white",
+            edgecolor="black",
+            linewidth=1.8 if selected else 0.95,
+            zorder=4,
+        )
+        ax.add_patch(rect)
+        text = ax.text(
+            node["cx"],
+            node["cy"],
+            node["label"],
+            ha="center",
+            va="center",
+            fontsize=8,
+            zorder=5,
+        )
+        drawn.append((key, text, rect))
+
+    x = np.linspace(-4.2, 4.2, 600)
+    y = _normal_pdf(x, 0.0, 1.0)
+    axn.fill_between(x, y, color="#f2f2f2", zorder=1)
+    axn.plot(x, y, color="black", linewidth=1.7, zorder=2)
+    axn.axvline(0.0, color="black", linestyle="dashed", linewidth=1.15, zorder=3)
+    for xpos in (-1.0, 1.0):
+        axn.axvline(xpos, color="black", linestyle=(0, (1.2, 1.2)), linewidth=1.15, zorder=3)
+    _legend(
+        axn,
+        [
+            Line2D([0], [0], color="black", linestyle="dashed", linewidth=1.15, label="μ = 0"),
+            Line2D([0], [0], color="black", linestyle=(0, (1.2, 1.2)), linewidth=1.15, label="μ ± σ  =  ±1"),
+        ],
+        loc="upper right",
+    )
+    axn.set_xlim(-4.2, 4.2)
+    axn.set_xticks([-4, -2, 0, 2, 4])
+    axn.set_ylim(0, 0.52)
+    axn.set_yticks([0, 0.2, 0.4])
+    axn.set_xlabel("x")
+    axn.set_ylabel("density")
+    axn.set_title("Normal(0, 1)")
+
+    fig.legend(
+        handles=[
+            Line2D([0], [0], color="black", linewidth=1.05, label="special case"),
+            Line2D([0], [0], color="black", linewidth=1.05, linestyle=dashed, label="limit"),
+            Line2D([0], [0], color="black", linewidth=1.05, linestyle=dotted, label="transform"),
+        ],
+        loc="outside lower center",
+        ncol=3,
+        frameon=True,
+        edgecolor="black",
+        fancybox=False,
+    )
+
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    for key, text, rect in drawn:
+        tb = text.get_window_extent(renderer)
+        pb = rect.get_window_extent(renderer)
+        if tb.x0 < pb.x0 - 1 or tb.x1 > pb.x1 + 1 or tb.y0 < pb.y0 - 1 or tb.y1 > pb.y1 + 1:
+            raise SystemExit(f"{key} label escapes its box")
+    _save(fig, "01b-distributions-map.png")
+    print("  distributions map: 16 nodes, normal selected")
+
+
+def draw_poisson() -> None:
+    """Raindrops preset: λ = 6 per second, window t = 1, target k = 6.
+
+    One window is an exponential-gap draw, NumPy seed 38, so the picture does
+    not change between regenerations. That window has four arrivals. The bars
+    are Poisson(μ) with μ = λt = 6. The curve is Binomial(n, μ/n) at the
+    page's opening bin count n = 20.
+    """
+    rate = POISSON_RATE
+    window = POISSON_WINDOW
+    mu = rate * window
+    n_bins = POISSON_BINS
+    p_bin = mu / n_bins
+    if abs(mu - 6.0) > 1e-12 or abs(p_bin - 0.3) > 1e-12:
+        raise SystemExit(f"poisson defaults drifted: mu={mu}, p={p_bin}")
+
+    rng = np.random.default_rng(POISSON_SEED)
+    times: list[float] = []
+    clock = 0.0
+    while True:
+        clock += float(rng.exponential(1.0 / rate))
+        if clock > window:
+            break
+        times.append(clock)
+    expected = (0.153, 0.354, 0.476, 0.681)
+    if len(times) != len(expected) or any(abs(got - exp) > 0.001 for got, exp in zip(times, expected)):
+        raise SystemExit(f"rain window changed: {times}")
+    drops_x = 0.16 + 0.68 * rng.random(len(times))
+    drops_y = 0.16 + 0.68 * rng.random(len(times))
+    count = len(times)
+    if count == POISSON_TARGET_K:
+        raise SystemExit("this window should not land on the target count")
+
+    ks = np.arange(0, 18)
+    pois = _poisson_pmf(ks, mu)
+    binom = _binomial_pmf(n_bins, p_bin)
+    full = _poisson_pmf(np.arange(0, 60), mu)
+    if abs(float(full.sum()) - 1.0) > 1e-8:
+        raise SystemExit(f"poisson masses sum to {full.sum()}")
+    # For integer μ the masses at μ − 1 and μ are equal, and both are the mode.
+    if abs(float(pois[5] - pois[6])) > 1e-9 or int(np.argmax(pois[:7])) not in (5, 6):
+        raise SystemExit("poisson mode should be shared by k = 5 and k = 6")
+    if int(np.argmax(binom)) != POISSON_TARGET_K:
+        raise SystemExit(f"binomial mode should be {POISSON_TARGET_K}")
+
+    fig = plt.figure(figsize=(9.6, 6.3), constrained_layout=True)
+    grid = fig.add_gridspec(3, 2, width_ratios=[1.05, 1.22], height_ratios=[1.15, 1.05, 0.72])
+    ax_stage = fig.add_subplot(grid[0, 0])
+    ax_path = fig.add_subplot(grid[1, 0])
+    ax_time = fig.add_subplot(grid[2, 0])
+    ax_pmf = fig.add_subplot(grid[:, 1])
+
+    ax_stage.scatter(drops_x, drops_y, s=46, c="black", linewidths=0, zorder=3)
+    ax_stage.set_xlim(0, 1)
+    ax_stage.set_ylim(0, 1)
+    ax_stage.set_xticks([])
+    ax_stage.set_yticks([])
+    ax_stage.set_xlabel("patio tile")
+    ax_stage.set_title("Four drops in one second")
+
+    step_x = [0.0]
+    step_y = [0.0]
+    for i, t in enumerate(times):
+        step_x.extend([t, t])
+        step_y.extend([i, i + 1])
+    step_x.append(window)
+    step_y.append(count)
+    ax_path.plot(step_x, step_y, color="black", linewidth=1.6, zorder=2)
+    ax_path.scatter(times, np.arange(1, count + 1), s=18, c="black", zorder=3)
+    ax_path.set_xlim(0, window)
+    ax_path.set_xticks([0, 0.5, 1])
+    ax_path.set_ylim(-0.35, count + 0.85)
+    ax_path.set_yticks([0, 2, 4])
+    ax_path.set_xlabel("seconds")
+    ax_path.set_ylabel("count  N(t)")
+    ax_path.set_title("Counting process")
+
+    ax_time.plot([0, window], [0, 0], color="black", linewidth=1.05, zorder=1)
+    ax_time.scatter(times, np.zeros(count), s=36, facecolors="white", edgecolors="black", linewidths=1.05, zorder=3)
+    for t in times:
+        ax_time.plot([t, t], [0, 0.45], color="black", linewidth=0.8, zorder=2)
+    ax_time.set_xlim(0, window)
+    ax_time.set_xticks([0, 0.5, 1])
+    ax_time.set_ylim(-0.8, 1.15)
+    ax_time.set_yticks([])
+    ax_time.set_xlabel("seconds")
+    ax_time.set_title("Arrival times")
+
+    colors = ["white"] * len(ks)
+    ax_pmf.bar(
+        ks,
+        pois,
+        width=0.78,
+        facecolor=colors,
+        edgecolor="black",
+        linewidth=0.9,
+        zorder=2,
+    )
+    ax_pmf.bar(
+        [POISSON_TARGET_K],
+        [pois[POISSON_TARGET_K]],
+        width=0.78,
+        facecolor="white",
+        edgecolor="black",
+        hatch="///",
+        linewidth=1.05,
+        zorder=3,
+    )
+    ax_pmf.plot(np.arange(n_bins + 1), binom, color="black", linewidth=1.6, zorder=4)
+    ax_pmf.axvline(mu, color="black", linestyle="dashed", linewidth=1.15, zorder=1)
+    _legend(
+        ax_pmf,
+        [
+            Rectangle((0, 0), 1, 1, facecolor="white", edgecolor="black", label="Poisson(6)"),
+            Rectangle((0, 0), 1, 1, facecolor="white", edgecolor="black", hatch="///", label="k = 6"),
+            Line2D([0], [0], color="black", linewidth=1.6, label="Binomial(20, 0.3)"),
+            Line2D([0], [0], color="black", linestyle="dashed", linewidth=1.15, label="μ = 6"),
+        ],
+        loc="upper right",
+    )
+    ax_pmf.set_xlim(-0.7, 17.7)
+    ax_pmf.set_xticks([0, 3, 6, 9, 12, 15])
+    ax_pmf.set_ylim(0, 0.28)
+    ax_pmf.set_yticks([0, 0.1, 0.2])
+    ax_pmf.set_xlabel("count in the window,  k")
+    ax_pmf.set_ylabel("probability")
+    ax_pmf.set_title("Rate 6 per second")
+
+    _save(fig, "03b-poisson-point-process.png")
+    print(
+        f"  poisson count={count} mu={mu:.1f} P6={float(pois[6]):.4f} "
+        f"B6={float(binom[6]):.4f}"
+    )
 
 
 def draw_normal() -> None:
@@ -634,9 +1130,12 @@ def draw_intervals() -> None:
 
 def main() -> None:
     _style()
+    draw_hierarchy()
     draw_normal()
+    draw_distributions_map()
     draw_clt()
     draw_binomial()
+    draw_poisson()
     draw_galton()
     draw_horowitz()
     draw_chi_square()

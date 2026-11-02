@@ -2,13 +2,17 @@
 
 These PNGs are drawn by `generate_figures.py` with Matplotlib. They are black-on-white diagrams. Regenerate them from the repo root with `python3 tracks/images/statistical-reasoning/generate_figures.py` (NumPy and Matplotlib).
 
-## Screenshots of the live demos
+## Conceptual hierarchy
 
-These three PNGs are screenshots of the light statistics chrome. `generate_figures.py` does not draw them.
+`statistics/stats_conceptual_hierarchy.html` opens on the random-walk mode, before any trial. Level 0 fixes `N = 50` steps and an up-step probability `p = 0.50`, so `μ = N(2p − 1) = 0` and `σ² = 4Np(1 − p) = 50`. Level 2 reads the end position as `X = 2K − N`. Level 1 is an empty position plot with a dashed line at 0. Level 3 draws the theoretical law from that page: the normal density times the lattice spacing `Δx = 2`, so the curve is about `P(X = x)` on the even positions. Dotted lines mark `μ ± σ`, and `σ = √50`. Level 4 has sample size `M = 0`.
 
-- `00-conceptual-hierarchy.png` — `statistics/stats_conceptual_hierarchy.html`, opened on the random-walk mode.
-- `01b-distributions-map.png` — `statistics/probability_distributions_map.html`, with the normal distribution selected.
-- `03b-poisson-point-process.png` — `statistics/poisson_point_process.html`, raindrops preset.
+## Distributions map
+
+`statistics/probability_distributions_map.html` places sixteen distributions in five neighborhoods. The figure keeps those neighborhoods and the three link kinds: a solid arrow is a special case, a dashed arrow is a limit, and a dotted arrow is a transform or a sum. Hatching distinguishes the neighborhoods. Normal is the selected node. The side panel is the opening normal, `μ = 0` and `σ = 1`.
+
+## Poisson point process
+
+`statistics/poisson_point_process.html` opens on raindrops, `λ = 6` per second over a window `t = 1`, so `μ = λt = 6`. The target count is `k = 6`. One window is an exponential-gap draw with NumPy seed 38: arrivals at about 0.15, 0.35, 0.48, and 0.68 seconds, four drops. The bars are Poisson(6). For an integer mean the masses at 5 and 6 are equal and are the mode; the bar at 6 is hatched because it is the target. The curve is Binomial(20, 0.3), the page's opening overlay `Binomial(n, μ/n)` with `n = 20` sub-intervals.
 
 ## Normal curve
 

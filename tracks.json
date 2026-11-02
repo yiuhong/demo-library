@@ -114,7 +114,7 @@
             "X̄ ± 1.96 · (s / √M)"
           ],
           "image": "tracks/images/statistical-reasoning/00-conceptual-hierarchy.png",
-          "imageAlt": "Light page with a black header. Level 0 sets a 50-step random walk with up-step probability 0.50, mean 0 and variance 50. Level 1 is an empty position plot with a red dashed mean line at 0. Level 3 draws the theoretical bell curve. Level 4 shows sample size 0."
+          "imageAlt": "Four panels for a 50-step random walk before any trial. Level 0 sets an up-step probability of 0.50, mean 0, and variance 50, and level 2 reads the end position as X = 2K − N. Level 1 is an empty position plot with a dashed line at 0. Level 3 is a normal curve for the end position, with a dashed line at the mean and dotted lines one standard deviation out. Level 4 marks the true mean at 0 and shows sample size 0."
         },
         {
           "href": "statistics/building_normal_distribution.html",
@@ -138,7 +138,7 @@
             "Binomial(n, p) → Normal as n → ∞ (de Moivre–Laplace)"
           ],
           "image": "tracks/images/statistical-reasoning/01b-distributions-map.png",
-          "imageAlt": "Neighborhood map of sixteen distributions on a light page. Coin-flip, arrivals, boundaries, the natural world, and the toolbelt are tinted regions linked by arrows. The normal distribution is selected, and the side panel shows a bell curve with mean 0 and standard deviation 1."
+          "imageAlt": "Sixteen distributions in five neighborhoods: coin flip, arrivals, boundaries, the natural world, and the toolbelt. Solid arrows are special cases, dashed arrows are limits, and dotted arrows are transforms. Normal is shaded, and the side panel is its density with mean 0 and standard deviation 1."
         },
         {
           "href": "statistics/central_limit_theorem.html",
@@ -175,7 +175,7 @@
             "Binomial(n, μ/n) → Poisson(μ) as n → ∞"
           ],
           "image": "tracks/images/statistical-reasoning/03b-poisson-point-process.png",
-          "imageAlt": "Raindrops preset at rate 6 per second over a one-second window. The stage, the counting-process step path, and the arrival timeline sit beside the Poisson bars. A red dashed line marks μ = 6, the bar at k = 6 is highlighted, and a binomial curve lies over the bars."
+          "imageAlt": "Rain on a tile at 6 drops per second. One window shows four drops, a counting-process step path that ends at 4, and the four arrival times. Beside them, Poisson probabilities for μ = 6: the bar at k = 6 is hatched, a dashed line marks μ = 6, and a Binomial(20, 0.3) curve lies on the bars."
         },
         {
           "href": "statistics/galton_board.html",
@@ -336,7 +336,7 @@
             "F = MS_effect / MS_error for the matching stratum"
           ],
           "image": "tracks/images/anova/02-sum-of-squares.png",
-          "imageAlt": "Between-subjects, one factor, symmetric view. Design controls sit above a notation guide. The brick bar splits a green SS for factor A from a larger rose error of subjects within A."
+          "imageAlt": "Between-subjects, one factor, three groups of ten. A bar proportional to degrees of freedom splits a small hatched brick, SS_A with df = 2, from a larger open brick for subjects within A with df = 27."
         },
         {
           "href": "statistics/two_way_anova.html",
@@ -360,7 +360,7 @@
             "F_time = MS_time / MS_error(within)"
           ],
           "image": "tracks/images/anova/03b-mixed-anova.png",
-          "imageAlt": "Lens 2 of a 2×2 mixed ANOVA on a light page. Group A and Group B trajectories run from pre to post, with subject averages on a between-subjects track. Variance lakes and the ANOVA table split between-subjects error from within-subjects error."
+          "imageAlt": "Ten subjects from pre to post, group A solid and group B dashed, with each person's average on a separate track. The between-subjects bar is a group brick of 80 against an error of 2916. The within-subjects bar splits time 180, the group-by-time interaction 101.25, and error 51.84."
         },
         {
           "href": "statistics/anova_assumptions.html",
