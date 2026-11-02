@@ -83,7 +83,7 @@
       "panel": "style3",
       "subcategories": [
         {
-          "title": "Describing data",
+          "title": "Center and spread",
           "demos": [
             {
               "href": "statistics/mean_mode_median_dot_plot.html",
@@ -111,7 +111,12 @@
               "tags": [
                 "Simulation"
               ]
-            },
+            }
+          ]
+        },
+        {
+          "title": "Shape and pictures",
+          "demos": [
             {
               "href": "statistics/skewed_distribution.html",
               "title": "Skewed Distribution",
@@ -147,7 +152,12 @@
               "tags": [
                 "Explorer"
               ]
-            },
+            }
+          ]
+        },
+        {
+          "title": "Same summaries, different graphs",
+          "demos": [
             {
               "href": "statistics/q_q_plot.html",
               "title": "Q-Q Plot",
@@ -169,7 +179,7 @@
           ]
         },
         {
-          "title": "Statistical reasoning",
+          "title": "From process to distribution",
           "demos": [
             {
               "href": "statistics/stats_conceptual_hierarchy.html",
@@ -197,16 +207,12 @@
               "tags": [
                 "Explorer"
               ]
-            },
-            {
-              "href": "statistics/central_limit_theorem.html",
-              "title": "Central Limit Theorem (CLT)",
-              "description": "A simulation of the central limit theorem (CLT).",
-              "keywords": "Central Limit Theorem (CLT)",
-              "tags": [
-                "Simulation"
-              ]
-            },
+            }
+          ]
+        },
+        {
+          "title": "Counts, arrivals, and the board",
+          "demos": [
             {
               "href": "statistics/binomial_bernoulli.html",
               "title": "Binomial Distribution & Bernoulli Process",
@@ -230,6 +236,20 @@
               "title": "Galton Board",
               "description": "How a binomial distribution approximates a normal distribution.",
               "keywords": "Galton Board binomial normal",
+              "tags": [
+                "Simulation"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Sampling distributions and intervals",
+          "demos": [
+            {
+              "href": "statistics/central_limit_theorem.html",
+              "title": "Central Limit Theorem (CLT)",
+              "description": "A simulation of the central limit theorem (CLT).",
+              "keywords": "Central Limit Theorem (CLT)",
               "tags": [
                 "Simulation"
               ]
