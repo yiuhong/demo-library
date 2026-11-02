@@ -472,14 +472,14 @@
             margin: 1.5em 0 0 0;
         }
 
-        /* Compact list: same cards, restacked into a single scannable column. */
-        body.view-list .card-grid {
+        /* Catalog list: scannable rows. The Tracks hub keeps the card grid. */
+        .catalog-panel .card-grid {
             display: flex;
             flex-direction: column;
             gap: 0;
         }
 
-        body.view-list a.demo-card {
+        .catalog-panel a.demo-card {
             display: grid;
             grid-template-columns: minmax(13rem, 18rem) minmax(0, 1fr) auto;
             align-items: center;
@@ -494,26 +494,26 @@
             border-radius: 0;
         }
 
-        body.view-list .card-grid > a.demo-card:last-child {
+        .catalog-panel .card-grid > a.demo-card:last-child {
             border-bottom: 0 !important;
         }
 
-        body.view-list .demo-card-title {
+        .catalog-panel .demo-card-title {
             font-size: 0.95em;
         }
 
-        body.view-list p.demo-card-desc {
+        .catalog-panel p.demo-card-desc {
             font-size: 0.8em;
         }
 
-        body.view-list .demo-card-tags {
+        .catalog-panel .demo-card-tags {
             margin-top: 0;
             padding-top: 0;
             justify-content: flex-end;
         }
 
-        body.view-list a.demo-card:hover,
-        body.view-list a.demo-card:focus-visible {
+        .catalog-panel a.demo-card:hover,
+        .catalog-panel a.demo-card:focus-visible {
             background: #000000;
             border-bottom-color: #ffffff !important;
         }
@@ -555,13 +555,13 @@
                 font-size: 1em;
             }
 
-            body.view-list a.demo-card {
+            .catalog-panel a.demo-card {
                 grid-template-columns: minmax(0, 1fr);
                 align-items: start;
                 padding: 0.65em 0.1em;
             }
 
-            body.view-list .demo-card-tags {
+            .catalog-panel .demo-card-tags {
                 justify-content: flex-start;
             }
         }
@@ -638,7 +638,7 @@
 
                 <div id="tracks-intro" hidden>
                     <h1 id="tracks-heading">Guided Tracks</h1>
-                    <p>Optional playlists through the demos. Cards and List show the full catalog.</p>
+                    <p>Optional playlists through the demos. List shows the full catalog.</p>
                 </div>
 
                 <div class="library-toolbar">
@@ -655,8 +655,7 @@
                     <div class="library-toolbar-view">
                         <p class="library-label" id="view-label">View</p>
                         <div class="view-toggle" role="group" aria-labelledby="view-label">
-                            <button type="button" class="view-toggle-btn is-active" data-view="cards" aria-pressed="true">Cards</button>
-                            <button type="button" class="view-toggle-btn" data-view="list" aria-pressed="false">List</button>
+                            <button type="button" class="view-toggle-btn is-active" data-view="list" aria-pressed="true">List</button>
                             <button type="button" class="view-toggle-btn" data-view="tracks" aria-pressed="false">Tracks</button>
                         </div>
                     </div>
@@ -679,7 +678,7 @@
             </div>
         </section>
 
-        <!-- Catalog. Cards and List are built from demos.json. -->
+        <!-- Catalog. List is built from demos.json. -->
         <section class="wrapper style2 fade-up catalog-panel" data-catalog-panel="style2">
             <div class="inner" id="catalog-mount-style2">
                 <p id="catalog-status" class="tracks-message">Loading catalog…</p>
@@ -842,7 +841,6 @@
             var libraryTitle = document.title;
             var tracksBaseTitle = 'Guided Tracks - Project Viz';
             var baseTitle = tracksBaseTitle;
-            var catalogView = 'cards';
             var currentView = '';
             var tracks = [];
             var tracksReady = false;
@@ -854,17 +852,63 @@
                 if (node) node.hidden = hidden;
             }
 
+            function viewToken(value) {
+                return (value || '').replace(/\s+/g, '').toLowerCase();
+            }
+
             function viewFromLocation() {
                 var params = new URLSearchParams(window.location.search);
-                if (params.get('view') === 'tracks') return 'tracks';
-                if ((params.get('track') || '').trim()) return 'tracks';
+                var queryView = viewToken(params.get('view'));
                 var hash = window.location.hash.replace(/^#/, '');
-                if (!hash) return '';
+                if (hash) {
+                    try {
+                        hash = decodeURIComponent(hash);
+                    } catch (err) {}
+                }
+                if (queryView === 'tracks' || (params.get('track') || '').trim() || hash.indexOf('track-') === 0) return 'tracks';
+                if (queryView === 'cards' || queryView === 'list') return 'list';
+                var hashView = viewToken(hash);
+                if (hashView === 'cards' || hashView === 'view=cards' || hashView === 'list' || hashView === 'view=list') return 'list';
+                return '';
+            }
+
+            function locationRemembersCards() {
+                var params = new URLSearchParams(window.location.search);
+                if (viewToken(params.get('view')) === 'cards') return true;
+                var hash = window.location.hash.replace(/^#/, '');
                 try {
                     hash = decodeURIComponent(hash);
                 } catch (err) {}
-                if (hash.indexOf('track-') === 0) return 'tracks';
-                return '';
+                var hashView = viewToken(hash);
+                return hashView === 'cards' || hashView === 'view=cards';
+            }
+
+            function stripCardsLocation() {
+                if (!locationRemembersCards()) return;
+                try {
+                    window.localStorage.setItem(viewStorageKey, 'list');
+                } catch (err) {}
+                var params = new URLSearchParams(window.location.search);
+                if (viewToken(params.get('view')) === 'cards') params.delete('view');
+                var hash = window.location.hash;
+                var bare = hash.replace(/^#/, '');
+                try {
+                    bare = decodeURIComponent(bare);
+                } catch (err) {}
+                if (viewToken(bare) === 'cards' || viewToken(bare) === 'view=cards') hash = '';
+                var query = params.toString();
+                var next = window.location.pathname + (query ? '?' + query : '') + hash;
+                try {
+                    history.replaceState({ libraryView: 'list' }, '', next);
+                } catch (err) {}
+            }
+
+            function migrateStoredCardsView() {
+                try {
+                    if (window.localStorage.getItem(viewStorageKey) === 'cards') {
+                        window.localStorage.setItem(viewStorageKey, 'list');
+                    }
+                } catch (err) {}
             }
 
             function writeHistory(view) {
@@ -882,11 +926,10 @@
             }
 
             function applyView(view, options) {
-                var next = view === 'list' ? 'list' : view === 'tracks' ? 'tracks' : 'cards';
+                var next = view === 'tracks' ? 'tracks' : 'list';
                 options = options || {};
                 currentView = next;
                 var showTracks = next === 'tracks';
-                document.body.classList.toggle('view-list', next === 'list');
                 document.body.classList.toggle('view-tracks', showTracks);
                 setHidden('catalog-intro', showTracks);
                 setHidden('tracks-intro', !showTracks);
@@ -909,12 +952,12 @@
                     ensureTracksLoaded();
                     if (tracksReady) render();
                 } else {
-                    catalogView = next;
                     try {
-                        window.localStorage.setItem(viewStorageKey, next);
+                        window.localStorage.setItem(viewStorageKey, 'list');
                     } catch (err) {}
                     document.title = libraryTitle;
                     if (options.updateUrl) writeHistory(next);
+                    stripCardsLocation();
                     applyFilters();
                 }
                 if (options.scroll) {
@@ -949,7 +992,7 @@
                 return value;
             }
 
-            // Cards and List are rendered from demos.json. Tracks stays on tracks.json.
+            // List is rendered from demos.json. Tracks stays on tracks.json.
             var CATALOG_PANELS = ['style2', 'style3', 'style1'];
 
             function catalogMount(panel) {
@@ -1471,13 +1514,9 @@
                 loadTracks();
             }
 
-            try {
-                catalogView = window.localStorage.getItem(viewStorageKey) === 'list' ? 'list' : 'cards';
-            } catch (err) {
-                catalogView = 'cards';
-            }
+            migrateStoredCardsView();
 
-            var initialView = viewFromLocation() === 'tracks' ? 'tracks' : catalogView;
+            var initialView = viewFromLocation() === 'tracks' ? 'tracks' : 'list';
             applyView(initialView);
             loadCatalog();
             try {
@@ -1492,20 +1531,24 @@
                 });
             });
 
-            window.addEventListener('popstate', function (event) {
-                var stateView = event.state && event.state.libraryView;
-                var next;
-                if (viewFromLocation() === 'tracks') next = 'tracks';
-                else if (stateView === 'list' || stateView === 'cards') next = stateView;
-                else next = catalogView;
+            window.addEventListener('popstate', function () {
+                var next = viewFromLocation() === 'tracks' ? 'tracks' : 'list';
                 if (next !== currentView) applyView(next);
                 else if (next === 'tracks' && tracksReady) render();
+                else if (locationRemembersCards()) stripCardsLocation();
             });
 
             window.addEventListener('hashchange', function () {
-                if (viewFromLocation() !== 'tracks') return;
-                if (currentView !== 'tracks') applyView('tracks');
-                else if (tracksReady) render();
+                var located = viewFromLocation();
+                if (located === 'tracks') {
+                    if (currentView !== 'tracks') applyView('tracks');
+                    else if (tracksReady) render();
+                    return;
+                }
+                if (located === 'list' || locationRemembersCards()) {
+                    if (currentView !== 'list') applyView('list');
+                    else stripCardsLocation();
+                }
             });
         })();
     </script>

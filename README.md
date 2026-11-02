@@ -26,7 +26,7 @@ Demo pages live in subject folders. The library page does not hard-code the cata
 * `📁 /neuroscience`
 * `📁 /statistics`
 * `📁 /personality_psychology`
-* [`demos.json`](demos.json) — catalog inventory for Cards and List
+* [`demos.json`](demos.json) — catalog inventory for List
 * [`tracks.json`](tracks.json) — Guided Tracks playlists only (order, notes, formulae, images)
 * [`scripts/check_catalog.py`](scripts/check_catalog.py) — checks catalog and track paths, required titles, and site chrome
 * [`CITATION.cff`](CITATION.cff) — machine-readable citation (Citation File Format 1.2.0)
@@ -36,7 +36,7 @@ Demo pages live in subject folders. The library page does not hard-code the cata
 
 ### demos.json
 
-The library page fetches [`demos.json`](demos.json) and builds the Cards and List views. Shape:
+The library page fetches [`demos.json`](demos.json) and builds the List view. Shape:
 
 ```json
 {
@@ -48,7 +48,7 @@ The library page fetches [`demos.json`](demos.json) and builds the Cards and Lis
       "panel": "style3",
       "subcategories": [
         {
-          "title": "Descriptive Statistics",
+          "title": "Describing data",
           "demos": [
             {
               "href": "statistics/example_demo.html",
@@ -73,7 +73,7 @@ Each category has:
 * `domId` — optional element id. Current anchors: `cognitive-category`, `neuro-category`, `stats-category`, `personality-category`.
 * `subcategories` — ordered groups
 
-Each subcategory has `title`, `demos`, and an optional `group`. Subcategories with the same `group` render under one topic heading (this is how Inferential Statistics nests Distributions & sampling, t-tests & related, ANOVA, and Power, correlation & explained variance). Omit `group` for a normal subcategory.
+Each subcategory has `title`, `demos`, and an optional `group`. Subcategories with the same `group` render under one topic heading. Omit `group` for a normal subcategory. Statistics topics are flat headings with the same names as the Guided Tracks: Describing data, Statistical reasoning, t-test, Statistical power, ANOVA, and Association.
 
 Each demo has:
 
@@ -101,7 +101,7 @@ You do not edit card markup in `index.html`. A new category is a new object in `
 
 ## Guided tracks
 
-Tracks are optional playlists, not filters. On the library page, **View** is Cards, List, or Tracks. Tracks uses the same page and the same menu as the catalog. The Tracks view reads [`tracks.json`](tracks.json) at the repo root and renders whatever is in that file. Adding, removing, or reordering materials later means editing `tracks.json`. Teaching notes, formulae, and images stay on the step, not in `demos.json`.
+Tracks are optional playlists, not filters. On the library page, **View** is List or Tracks. List is the full catalog. Tracks uses the same page and the same menu as the catalog. The Tracks view reads [`tracks.json`](tracks.json) at the repo root and renders whatever is in that file. Adding, removing, or reordering materials later means editing `tracks.json`. Teaching notes, formulae, and images stay on the step, not in `demos.json`.
 
 Share a track from the library view: `index.html?view=tracks&track=the-id` (or `#track-the-id`). `tracks.html?track=the-id` still opens that same view.
 
@@ -125,7 +125,7 @@ A step is still listed if its `href` has no matching card yet, so a playlist can
 
 ### How to add a demo to a track
 
-1. Add the demo in `demos.json` if it should appear in Cards and List. A playlist can still name an `href` before that card exists. The HTML file named by the `href` has to be in the repo.
+1. Add the demo in `demos.json` if it should appear in List. A playlist can still name an `href` before that row exists. The HTML file named by the `href` has to be in the repo.
 2. Open `tracks.json` and insert a step object in that track's `steps` array, at the point in the teaching order where it belongs:
 
 ```json
