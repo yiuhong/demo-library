@@ -23,10 +23,33 @@
             cursor: grab;
             transition: r 0.2s ease, stroke-width 0.2s ease, fill 0.2s ease;
             touch-action: none; /* Prevents mobile scrolling while dragging points */
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none; /* Long-press removes; don't open the callout */
         }
         
         .point:active {
             cursor: grabbing;
+        }
+
+        /* Hold still and the stroke warns that the point is about to go. */
+        .point.is-arming {
+            stroke: var(--viz-remove);
+            stroke-width: 2.5px;
+        }
+
+        .point.is-leaving {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes point-floor-pulse {
+            0% { stroke: var(--viz-remove); stroke-width: 3px; }
+            100% { stroke: #fff; stroke-width: 2px; }
+        }
+
+        .point.is-floor {
+            animation: point-floor-pulse 0.42s ease;
         }
 
         .point:hover {
@@ -360,7 +383,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
                 Covariance and Correlation
             </h1>
-            <p class="text-sm mt-2 leading-relaxed">Drag the points on the grid to observe real-time changes in deviations, covariance, and correlation. Hover a point to read its (x, y).</p>
+            <p class="text-sm mt-2 leading-relaxed">Drag the points on the grid to observe real-time changes in deviations, covariance, and correlation. Hover a point to read its (x, y). Shift-click a point to remove it, or press and hold a point on a touch screen. At least two points stay.</p>
         </div>
         
         <div class="p-5 flex-1 flex flex-col gap-6">
@@ -647,6 +670,21 @@
         let draggingId = null;
         let tipHideTimer = null;
 
+        // Shift-click removes a point. A still press does too, so touch needs no modifier.
+        // A move past the slop cancels the remove and becomes a drag. Sample correlation
+        // needs n ≥ 2, so the last two points stay. A point removed mid-gesture is kept in
+        // the DOM until the pointer lifts (heldExit); touchend is delivered to the element
+        // that received touchstart, and dropping it early loses that event.
+        const MIN_POINTS = 2;
+        const REMOVE_HOLD_MS = 520;
+        const REMOVE_ARM_MS = 180;
+        const REMOVE_SLOP_PX = 10;
+        let gesture = null;
+        let heldExit = null;
+        let removeTimer = null;
+        let armTimer = null;
+        let flushListener = null;
+
         // SVG and D3 Selections
         const container = document.getElementById('chart-container');
         const svg = d3.select("#viz");
@@ -711,6 +749,103 @@
             else hidePointTip();
         }
 
+        function clientPoint(event) {
+            const pe = event && event.sourceEvent;
+            if (pe && pe.changedTouches && pe.changedTouches.length) {
+                const t = pe.changedTouches[0];
+                return { x: t.clientX, y: t.clientY };
+            }
+            if (pe && typeof pe.clientX === "number") return { x: pe.clientX, y: pe.clientY };
+            return { x: event.x, y: event.y };
+        }
+
+        function movementPx(event) {
+            if (!gesture) return 0;
+            const p = clientPoint(event);
+            return Math.hypot(p.x - gesture.x, p.y - gesture.y);
+        }
+
+        function clearRemoveTimers() {
+            if (removeTimer != null) {
+                clearTimeout(removeTimer);
+                removeTimer = null;
+            }
+            if (armTimer != null) {
+                clearTimeout(armTimer);
+                armTimer = null;
+            }
+        }
+
+        function detachFlushListener() {
+            if (!flushListener) return;
+            window.removeEventListener("mouseup", flushListener, false);
+            window.removeEventListener("touchend", flushListener, false);
+            window.removeEventListener("touchcancel", flushListener, false);
+            flushListener = null;
+        }
+
+        // If the original point never receives the lift, drop the hidden node on the next release.
+        function armFlushListener() {
+            detachFlushListener();
+            flushListener = function() {
+                detachFlushListener();
+                if (!heldExit) return;
+                heldExit = null;
+                if (gesture) gesture.removed = true;
+                gesture = null;
+                draggingId = null;
+                render();
+            };
+            window.addEventListener("mouseup", flushListener, false);
+            window.addEventListener("touchend", flushListener, false);
+            window.addEventListener("touchcancel", flushListener, false);
+        }
+
+        function flushHeldExit() {
+            detachFlushListener();
+            if (!heldExit) return;
+            heldExit = null;
+            render();
+        }
+
+        function pulseFloor() {
+            gPoints.selectAll("circle.point")
+                .filter(d => !heldExit || d.id !== heldExit.id)
+                .classed("is-floor", true);
+            setTimeout(() => {
+                gPoints.selectAll("circle.point").classed("is-floor", false);
+            }, 420);
+        }
+
+        // deferNode keeps the circle mounted until the gesture ends so the touch can finish.
+        function commitRemove(id, deferNode) {
+            if (data.length <= MIN_POINTS) {
+                pulseFloor();
+                return false;
+            }
+            const index = data.findIndex(p => p.id === id);
+            if (index < 0) return false;
+            const removed = data.splice(index, 1)[0];
+            if (hoveredId === id) hoveredId = null;
+            if (draggingId === id) draggingId = null;
+            clearTimeout(tipHideTimer);
+            hidePointTip();
+            if (deferNode) {
+                heldExit = removed;
+                armFlushListener();
+            }
+            render();
+            return true;
+        }
+
+        function restorePointLook(node) {
+            d3.select(node)
+                .classed("is-arming", false)
+                .attr("stroke", "#fff")
+                .attr("stroke-width", 2)
+                .attr("r", 7);
+        }
+
         // D3 Drag Behavior (Declared globally to avoid re-creation memory leaks in render())
         const dragBehavior = d3.drag()
             .subject(function(event, d) {
@@ -718,33 +853,86 @@
                 return { x: xScale(d.x), y: yScale(d.y) };
             })
             .on("start", function(event, d) {
+                if (heldExit) flushHeldExit();
                 clearTimeout(tipHideTimer);
+                clearRemoveTimers();
+                const p = clientPoint(event);
+                const shift = !!(event.sourceEvent && event.sourceEvent.shiftKey);
+                gesture = {
+                    id: d.id,
+                    x: p.x,
+                    y: p.y,
+                    shift: shift,
+                    moved: false,
+                    removed: false
+                };
                 draggingId = d.id;
                 hoveredId = d.id;
-                d3.select(this)
-                    .raise()
-                    .attr("stroke", statsViz.color("--viz-total"))
-                    .attr("stroke-width", 3)
-                    .attr("r", 9);
+                d3.select(this).raise();
                 showPointTip(d);
+
+                const token = gesture;
+                const node = this;
+                armTimer = setTimeout(() => {
+                    armTimer = null;
+                    if (gesture !== token || token.moved || token.removed) return;
+                    d3.select(node).classed("is-arming", true);
+                }, REMOVE_ARM_MS);
+                removeTimer = setTimeout(() => {
+                    removeTimer = null;
+                    if (gesture !== token || token.moved || token.removed) return;
+                    d3.select(node).classed("is-arming", false);
+                    token.removed = commitRemove(d.id, true);
+                    if (!token.removed) restorePointLook(node);
+                }, REMOVE_HOLD_MS);
             })
             .on("drag", function(event, d) {
+                if (!gesture || gesture.removed || gesture.id !== d.id) return;
+                if (!gesture.moved && movementPx(event) > REMOVE_SLOP_PX) {
+                    gesture.moved = true;
+                    clearRemoveTimers();
+                    d3.select(this)
+                        .classed("is-arming", false)
+                        .raise()
+                        .attr("stroke", statsViz.color("--viz-total"))
+                        .attr("stroke-width", 3)
+                        .attr("r", 9);
+                }
+                if (!gesture.moved) return;
+
                 let newX = xScale.invert(event.x);
                 let newY = yScale.invert(event.y);
-                
+
                 // Constrain to chart domain boundaries
                 d.x = Math.max(0, Math.min(domainMax, newX));
                 d.y = Math.max(0, Math.min(domainMax, newY));
-                
+
                 // Re-render synchronously during drag for immediate feedback
-                render(); 
+                render();
             })
             .on("end", function(event, d) {
+                const g = gesture;
+                const node = this;
+                clearRemoveTimers();
+                if (!g || g.id !== d.id) {
+                    draggingId = null;
+                    return;
+                }
+
+                const moved = g.moved || movementPx(event) > REMOVE_SLOP_PX;
+                if (!g.removed && !moved && g.shift) {
+                    g.removed = commitRemove(d.id, false);
+                }
+                if (g.removed) {
+                    flushHeldExit();
+                    gesture = null;
+                    draggingId = null;
+                    return;
+                }
+
+                gesture = null;
                 draggingId = null;
-                d3.select(this)
-                    .attr("stroke", "#fff")
-                    .attr("stroke-width", 2)
-                    .attr("r", 7);
+                restorePointLook(node);
 
                 const pe = event.sourceEvent;
                 const isTouch = pe && (pe.pointerType === "touch" || (pe.type && pe.type.indexOf("touch") === 0));
@@ -762,7 +950,7 @@
                     return;
                 }
 
-                const stillOver = pe && pe.target === this;
+                const stillOver = pe && pe.target === node;
                 if (!stillOver) {
                     if (hoveredId === d.id) hoveredId = null;
                     hidePointTip();
@@ -1480,7 +1668,10 @@
                 .attr("stroke-linecap", "round");
 
             // --- 4. Draw Points (Draggable) ---
-            const points = gPoints.selectAll("circle.point").data(data, d => d.id);
+            // heldExit is already out of the statistics, but the circle stays mounted
+            // until the pointer lifts so a touch long-press can finish.
+            const pointData = heldExit ? data.concat([heldExit]) : data;
+            const points = gPoints.selectAll("circle.point").data(pointData, d => d.id);
             
             points.exit().remove();
             
@@ -1492,6 +1683,7 @@
                 .attr("stroke-width", 2)
                 .style("filter", "drop-shadow(0px 3px 3px rgba(0,0,0,0.2))")
                 .on("mouseenter", function(event, d) {
+                    if (heldExit && d.id === heldExit.id) return;
                     clearTimeout(tipHideTimer);
                     hoveredId = d.id;
                     showPointTip(d);
@@ -1501,8 +1693,17 @@
                     if (hoveredId === d.id) hoveredId = null;
                     hidePointTip();
                 })
+                .on("contextmenu", function(event) {
+                    event.preventDefault();
+                })
+                .each(function() {
+                    this.addEventListener("touchstart", function(event) {
+                        event.preventDefault();
+                    }, { passive: false });
+                })
                 .call(dragBehavior)
                 .merge(points)
+                .classed("is-leaving", d => !!(heldExit && d.id === heldExit.id))
                 .attr("cx", d => xScale(d.x))
                 .attr("cy", d => yScale(d.y));
 
@@ -1537,12 +1738,18 @@
 
         // Reset Button
         document.getElementById('reset-btn').addEventListener('click', () => {
-            // Deep copy initial data
+            // Deep copy initial data. Drop any half-finished remove so it cannot
+            // fire against the restored points (those ids match the originals).
+            clearRemoveTimers();
+            detachFlushListener();
+            gesture = null;
+            heldExit = null;
             data = JSON.parse(JSON.stringify(initialData));
             hoveredId = null;
             draggingId = null;
             clearTimeout(tipHideTimer);
             hidePointTip();
+            gPoints.selectAll("circle.point").classed("is-arming", false).classed("is-floor", false);
             render();
             
             // Add a brief animation to the points to indicate reset
