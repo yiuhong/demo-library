@@ -18,7 +18,7 @@ Small corrections — a wrong label, a broken link, a clearer sentence — are t
 
 ## Catalog
 
-Demo cards live in [`demos.json`](demos.json). Guided Tracks live in [`tracks.json`](tracks.json). The README lists the fields. Before you open a pull request, run:
+Demo cards live in [`demos.json`](demos.json). Concept maps live in [`families.json`](families.json). Guided Tracks live in [`tracks.json`](tracks.json). The README lists the fields. Before you open a pull request, run:
 
 ```bash
 python3 scripts/check_catalog.py

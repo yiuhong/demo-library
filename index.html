@@ -650,6 +650,7 @@
         }
     </style>
     <link rel="stylesheet" href="assets/curriculum-hub.css" />
+    <link rel="stylesheet" href="assets/concept-maps.css" />
 </head>
 <body class="is-preload">
 
@@ -729,6 +730,14 @@
                         </div>
                         <p class="hub-section-note">Open a section of the catalog.</p>
                         <div id="hub-path-mount"></div>
+                    </div>
+
+                    <div class="hub-block" id="hub-maps-section" hidden>
+                        <div class="hub-section-head">
+                            <h2 id="hub-maps-heading">Concept maps</h2>
+                        </div>
+                        <p class="hub-section-note">Related demonstrations that share a backbone, with what comes before and after.</p>
+                        <div id="hub-map-mount"></div>
                     </div>
 
                     <div class="hub-block" id="hub-tracks-section">
@@ -1531,7 +1540,7 @@
                     meter.setAttribute('aria-valuetext', label);
                 }
                 if (fill) fill.style.width = (total ? Math.round((count / total) * 100) : 0) + '%';
-                document.querySelectorAll('a.hub-plate, .catalog-panel a.demo-card').forEach(function (card) {
+                document.querySelectorAll('a.hub-plate, .catalog-panel a.demo-card, a.concept-node').forEach(function (card) {
                     card.classList.toggle('is-opened', !!openedSet[card.getAttribute('href')]);
                 });
             }
@@ -1544,6 +1553,155 @@
                 renderPaths(categories);
                 updateProgress();
                 revealPathFromLocation();
+            }
+
+            // Concept maps name catalog hrefs only. Titles are read from demos.json.
+            // A sibling demonstration stays in this tab. target="_blank" is for leaving the Viz skin.
+            function relationLabel(relation) {
+                if (relation === 'before') return 'Before';
+                if (relation === 'backbone') return 'Backbone';
+                if (relation === 'after') return 'After';
+                return '';
+            }
+
+            function normalizeFamilies(data, byHref) {
+                var list = data && Array.isArray(data.families) ? data.families : [];
+                var families = [];
+                var seenIds = {};
+                list.forEach(function (raw) {
+                    if (!raw || typeof raw !== 'object') return;
+                    var id = safeSlug(raw.id);
+                    var title = typeof raw.title === 'string' ? raw.title.trim() : '';
+                    var backbone = typeof raw.backbone === 'string' ? raw.backbone.trim() : '';
+                    if (!id || seenIds[id] || !title || title.length > 80 || !backbone || backbone.length > 280) return;
+                    var nodes = [];
+                    var seenHref = {};
+                    var rawNodes = Array.isArray(raw.nodes) ? raw.nodes : [];
+                    rawNodes.forEach(function (node) {
+                        if (!node || typeof node !== 'object') return;
+                        var href = safeHref(node.href);
+                        var relation = node.relation;
+                        if (!href || seenHref[href]) return;
+                        if (relation !== 'before' && relation !== 'backbone' && relation !== 'after') return;
+                        var hit = byHref[href];
+                        if (!hit) return;
+                        seenHref[href] = true;
+                        nodes.push({
+                            href: href,
+                            relation: relation,
+                            title: hit.demo.title
+                        });
+                    });
+                    if (nodes.length < 2) return;
+                    var hasBackbone = false;
+                    var hasSide = false;
+                    nodes.forEach(function (node) {
+                        if (node.relation === 'backbone') hasBackbone = true;
+                        if (node.relation === 'before' || node.relation === 'after') hasSide = true;
+                    });
+                    if (!hasBackbone || !hasSide) return;
+                    var show = [];
+                    var seenShow = {};
+                    var rawShow = Array.isArray(raw.show) ? raw.show : [];
+                    rawShow.forEach(function (place) {
+                        if (seenShow[place]) return;
+                        if (place !== 'hub' && (typeof place !== 'string' || !/^path-[a-z0-9-]+$/.test(place))) return;
+                        seenShow[place] = true;
+                        show.push(place);
+                    });
+                    if (!show.length) return;
+                    seenIds[id] = true;
+                    families.push({
+                        id: id,
+                        title: title,
+                        backbone: backbone,
+                        show: show,
+                        nodes: nodes
+                    });
+                });
+                return families;
+            }
+
+            function renderConceptMap(family, headingTag, headingId) {
+                var map = el('div', 'concept-map');
+                map.setAttribute('role', 'group');
+                map.setAttribute('aria-labelledby', headingId);
+                var head = el('div', 'concept-map-head');
+                if (headingTag === 'h4') head.appendChild(el('p', 'concept-map-kicker', 'Concept map'));
+                var title = el(headingTag, 'concept-map-title', family.title);
+                title.id = headingId;
+                head.appendChild(title);
+                var bone = el('p', 'concept-map-backbone');
+                var boneLabel = el('span', 'concept-map-backbone-label', 'Backbone');
+                bone.appendChild(boneLabel);
+                bone.appendChild(document.createTextNode(family.backbone));
+                head.appendChild(bone);
+                map.appendChild(head);
+                var rail = el('ol', 'concept-rail');
+                family.nodes.forEach(function (node) {
+                    var stop = el('li', 'concept-stop is-' + node.relation);
+                    var link = el('a', 'concept-node');
+                    link.href = node.href;
+                    var kicker = el('span', 'concept-kicker');
+                    kicker.appendChild(el('span', 'concept-relation', relationLabel(node.relation)));
+                    kicker.appendChild(el('span', 'hub-opened', 'Opened'));
+                    link.appendChild(kicker);
+                    link.appendChild(el('span', 'concept-title', node.title));
+                    stop.appendChild(link);
+                    rail.appendChild(stop);
+                });
+                map.appendChild(rail);
+                return map;
+            }
+
+            function clearConceptMaps() {
+                document.querySelectorAll('.concept-map').forEach(function (node) {
+                    if (node.parentNode) node.parentNode.removeChild(node);
+                });
+                var hubMount = document.getElementById('hub-map-mount');
+                if (hubMount) clear(hubMount);
+            }
+
+            function placeConceptMaps(families) {
+                clearConceptMaps();
+                var hubMount = document.getElementById('hub-map-mount');
+                var hubSection = document.getElementById('hub-maps-section');
+                var hubCount = 0;
+                families.forEach(function (family) {
+                    var seen = {};
+                    family.show.forEach(function (place) {
+                        if (seen[place]) return;
+                        seen[place] = true;
+                        if (place === 'hub') {
+                            if (!hubMount) return;
+                            hubMount.appendChild(renderConceptMap(family, 'h3', 'concept-map-' + family.id + '-hub'));
+                            hubCount++;
+                            return;
+                        }
+                        var section = document.getElementById(place);
+                        if (!section || !section.classList.contains('sub-category-section')) return;
+                        var map = renderConceptMap(family, 'h4', 'concept-map-' + family.id + '-' + place);
+                        map.classList.add('is-section');
+                        var grid = section.querySelector('.card-grid');
+                        if (grid) section.insertBefore(map, grid);
+                        else section.appendChild(map);
+                    });
+                });
+                if (hubSection) hubSection.hidden = hubCount === 0;
+            }
+
+            function loadFamilies(categories) {
+                var mapUrl = new URL('families.json', window.location.href);
+                mapUrl.search = '';
+                mapUrl.hash = '';
+                var byHref = indexDemos(categories);
+                fetch(mapUrl.toString()).then(function (response) {
+                    if (!response.ok) throw new Error('Concept maps could not be loaded.');
+                    return response.json();
+                }).then(function (data) {
+                    placeConceptMaps(normalizeFamilies(data, byHref));
+                    updateProgress();
+                }).catch(function () {});
             }
 
             function clearBrowse() {
@@ -1623,6 +1781,7 @@
                     renderCatalog(categories);
                     catalogReady = true;
                     if (!document.body.classList.contains('view-tracks')) applyFilters();
+                    loadFamilies(categories);
                 }).catch(function () {
                     showCatalogError();
                     catalogReady = true;

@@ -22,13 +22,14 @@ Version and last-updated date live in [`assets/site-meta.js`](assets/site-meta.j
 
 Demo pages live in subject folders. The library page does not hard-code the catalog cards.
 
-The home page is the curriculum hub. It leads with the wordmark, featured plates, a card for each subcategory, and a Guided Tracks strip. The full list follows, with search and category filters. Featured plates are a short list of `href`s in `index.html`; titles and sentences come from `demos.json`. Opening a demonstration records that path in this browser only (`localStorage` key `project-viz-opened`). The hub can reset that list. There is no account.
+The home page is the curriculum hub. It leads with the wordmark, featured plates, a card for each subcategory, concept maps, and a Guided Tracks strip. The full list follows, with search and category filters. Featured plates are a short list of `href`s in `index.html`; titles and sentences come from `demos.json`. Concept maps are the same kind of list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration records that path in this browser only (`localStorage` key `project-viz-opened`). The hub can reset that list, and the same list marks a map node as opened. There is no account.
 
 * `📁 /cognitive_psychology`
 * `📁 /neuroscience`
 * `📁 /statistics`
 * `📁 /personality_psychology`
 * [`demos.json`](demos.json) — catalog inventory for List
+* [`families.json`](families.json) — concept maps (shared backbone, before / after). Titles stay in `demos.json`
 * [`tracks.json`](tracks.json) — Guided Tracks playlists only (order, notes, formulae, images)
 * [`scripts/check_catalog.py`](scripts/check_catalog.py) — checks catalog and track paths, required titles, and site chrome
 * [`CITATION.cff`](CITATION.cff) — machine-readable citation (Citation File Format 1.2.0)
@@ -139,9 +140,34 @@ A step is still listed if its `href` has no matching card yet, so a playlist can
 
 To reorder, move the step object. You do not need to edit the library page to change a playlist.
 
-### Check catalog and track links
+## Concept maps
 
-[`scripts/check_catalog.py`](scripts/check_catalog.py) checks `demos.json` and `tracks.json`. Every demo and every track step needs a non-empty `title`. Every demo `href` and every step `href` needs to be a file in the repo, as a path from the site root (for example `statistics/central_limit_theorem.html`). When a step sets `image`, that path needs to be a file in the repo too.
+A concept map is a short strip of related demonstrations: one shared backbone, and the demos that come before and after it. It is not a playlist and not a graph. Edit [`families.json`](families.json). The library page does not store the demo titles; it reads them from `demos.json`.
+
+```json
+{
+  "id": "variance",
+  "title": "Variance",
+  "backbone": "One sentence naming the shared idea.",
+  "show": ["hub", "path-center-and-spread"],
+  "nodes": [
+    { "href": "statistics/moments_as_averages.html", "relation": "before" },
+    { "href": "statistics/bessels_correction_simulation.html", "relation": "backbone" }
+  ]
+}
+```
+
+* `id` — lowercase slug
+* `title` — the name of the family, not a demo title
+* `backbone` — one sentence for the idea the demos share
+* `show` — where the strip appears. `hub` is the home, under Choose a path. A `path-…` id is that catalog section. The id is `path-` plus the section title, lowercased, with other characters turned into hyphens (the same id as the home path card).
+* `nodes` — catalog `href`s in teaching order. `relation` is `before`, `backbone`, or `after`. Order is before, then backbone, then after. Do not add a `title`. A map needs a backbone demo and at least one before or after demo.
+
+A node opens in this tab. The opened mark is the hub's browser list.
+
+## Check catalog and track links
+
+[`scripts/check_catalog.py`](scripts/check_catalog.py) checks `demos.json`, `tracks.json`, and `families.json`. Every demo and every track step needs a non-empty `title`. Every demo `href` and every step `href` needs to be a file in the repo, as a path from the site root (for example `statistics/central_limit_theorem.html`). When a step sets `image`, that path needs to be a file in the repo too. Every concept-map node needs a catalog `href` and a `before`, `backbone`, or `after` relation, with no title of its own. `show` is `hub` or a catalog section id.
 
 Run it from any directory:
 

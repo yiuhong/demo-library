@@ -1,0 +1,64 @@
+{
+  "families": [
+    {
+      "id": "variance",
+      "title": "Variance",
+      "backbone": "Squared deviations from the mean: estimated with n − 1, then combined and partitioned.",
+      "show": [
+        "hub",
+        "path-center-and-spread",
+        "path-anova"
+      ],
+      "nodes": [
+        {
+          "href": "statistics/moments_as_averages.html",
+          "relation": "before"
+        },
+        {
+          "href": "statistics/bessels_correction_simulation.html",
+          "relation": "backbone"
+        },
+        {
+          "href": "statistics/additivity_of_variance.html",
+          "relation": "after"
+        },
+        {
+          "href": "statistics/partitioning_sum_of_squares_anova.html",
+          "relation": "after"
+        }
+      ]
+    },
+    {
+      "id": "correlation",
+      "title": "Correlation and covariance",
+      "backbone": "Paired deviations, scaled from covariance to correlation, then carried into a sum, a share, and a repeated-measures partition.",
+      "show": [
+        "hub",
+        "path-association",
+        "path-anova"
+      ],
+      "nodes": [
+        {
+          "href": "statistics/moments_as_averages.html",
+          "relation": "before"
+        },
+        {
+          "href": "statistics/covariance_and_correlation.html",
+          "relation": "backbone"
+        },
+        {
+          "href": "statistics/additivity_of_variance.html",
+          "relation": "after"
+        },
+        {
+          "href": "statistics/variance_explained.html",
+          "relation": "after"
+        },
+        {
+          "href": "statistics/paired_t_to_rm_anova.html",
+          "relation": "after"
+        }
+      ]
+    }
+  ]
+}

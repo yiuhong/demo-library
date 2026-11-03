@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Check that catalog and Guided Track links point at files in this repo.
 
-Reads ``demos.json`` and ``tracks.json`` at the repo root:
+Reads ``demos.json``, ``tracks.json``, and ``families.json`` at the repo root:
 
 * each demo has a non-empty title and href, and that href is a file in the repo
 * each track step has a non-empty title and href, and that href is a file in the repo
 * each track step image, when set, is a file in the repo
+* each concept map names catalog demos by href (titles stay in demos.json), in before / backbone / after order, and opts into the hub or a real catalog section
 * LICENSE states CC BY 4.0 for content and MIT for code, and LICENSE-CODE is the MIT text
 * index.html, cite.html, license.html, and each demo carry the site chrome, and no HTML page says "All rights reserved"
 * the cite page has cite, license, reuse, credit, accessibility, and report sections, an ORCID link, and a per-demo example whose title matches demos.json
@@ -31,6 +32,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DEMOS_PATH = ROOT / "demos.json"
 TRACKS_PATH = ROOT / "tracks.json"
+FAMILIES_PATH = ROOT / "families.json"
 ORCID_URL = "https://orcid.org/0000-0003-4436-0166"
 ORCID_LABEL = "ORCID iD 0000-0003-4436-0166"
 DEMO_CITE_HREF = "statistics/central_limit_theorem.html"
@@ -64,6 +66,19 @@ def main(argv: list[str] | None = None) -> int:
     else:
         step_count, image_count = check_tracks(tracks, problems)
 
+    families, error = load_json(FAMILIES_PATH)
+    family_count = 0
+    if error:
+        problems.append(error)
+    else:
+        family_count = check_families(
+            families,
+            problems,
+            set(demo_hrefs),
+            catalog_anchors(catalog),
+        )
+    check_map_page(problems)
+
     if problems:
         noun = "problem" if len(problems) == 1 else "problems"
         print(f"Catalog link check failed ({len(problems)} {noun}):")
@@ -75,7 +90,8 @@ def main(argv: list[str] | None = None) -> int:
         "Catalog link check passed: "
         f"{_count(demo_count, 'demo')}, "
         f"{_count(step_count, 'step')}, "
-        f"{_count(image_count, 'image')}. "
+        f"{_count(image_count, 'image')}, "
+        f"{_count(family_count, 'concept map', 'concept maps')}. "
         "Site chrome checked."
     )
     return 0
@@ -580,8 +596,175 @@ def blank(value: object) -> bool:
     return not isinstance(value, str) or value.strip() == ""
 
 
-def _count(n: int, noun: str) -> str:
-    return f"{n} {noun}" if n == 1 else f"{n} {noun}s"
+def _count(n: int, noun: str, plural: str | None = None) -> str:
+    if n == 1:
+        return f"{n} {noun}"
+    return f"{n} {plural or noun + 's'}"
+
+
+def catalog_anchors(data: object) -> set[str]:
+    """Section ids the library page assigns, matching index.html pathAnchor."""
+    anchors: set[str] = set()
+    if not isinstance(data, dict):
+        return anchors
+    categories = data.get("categories")
+    if not isinstance(categories, list):
+        return anchors
+    used: set[str] = set()
+    for category in categories:
+        if not isinstance(category, dict):
+            continue
+        category_id = safe_slug(category.get("id"))
+        subcategories = category.get("subcategories")
+        if not isinstance(subcategories, list):
+            continue
+        for subcategory in subcategories:
+            if not isinstance(subcategory, dict):
+                continue
+            title = label(subcategory.get("title"))
+            if title is None:
+                continue
+            anchor = path_anchor(title)
+            if not anchor:
+                continue
+            if anchor in used:
+                anchor = f"{anchor}-{category_id}" if category_id else ""
+            if not anchor or anchor in used:
+                continue
+            used.add(anchor)
+            anchors.add(anchor)
+    return anchors
+
+
+def path_anchor(title: str) -> str:
+    slug = title.lower().replace("\u00d7", "x").replace("&", " and ")
+    slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
+    if not slug or not ("a" <= slug[0] <= "z"):
+        return ""
+    return "path-" + slug
+
+
+def safe_slug(value: object) -> str:
+    if not isinstance(value, str):
+        return ""
+    ident = value.strip()
+    if re.fullmatch(r"[a-z][a-z0-9-]*", ident):
+        return ident
+    return ""
+
+
+def check_families(
+    data: object,
+    problems: list[str],
+    catalog_hrefs: set[str],
+    anchors: set[str],
+) -> int:
+    if not isinstance(data, dict) or not isinstance(data.get("families"), list):
+        problems.append('families.json: expected an object with a "families" array')
+        return 0
+
+    count = 0
+    seen_ids: set[str] = set()
+    for index, family in enumerate(data["families"], start=1):
+        if not isinstance(family, dict):
+            problems.append(f"families.json: family {index} is not an object")
+            continue
+        extra = sorted(set(family) - {"id", "title", "backbone", "show", "nodes"})
+        family_id = safe_slug(family.get("id"))
+        title = label(family.get("title"))
+        name = family_id or title or f"family {index}"
+        place = f"families.json: {name}"
+        if extra:
+            problems.append(f"{place}: unexpected fields {extra}")
+        if not family_id:
+            problems.append(f"{place}: id must be a lowercase slug")
+        elif family_id in seen_ids:
+            problems.append(f"{place}: duplicate id")
+        else:
+            seen_ids.add(family_id)
+        if title is None or len(title) > 80:
+            problems.append(f"{place}: title is missing, empty, or longer than 80 characters")
+        backbone = label(family.get("backbone"))
+        if backbone is None or len(backbone) > 280:
+            problems.append(f"{place}: backbone is missing, empty, or longer than 280 characters")
+
+        show = family.get("show")
+        if not isinstance(show, list) or not show:
+            problems.append(f"{place}: show must list hub and/or catalog sections")
+        else:
+            seen_show: set[str] = set()
+            for item in show:
+                if not isinstance(item, str) or item in seen_show:
+                    problems.append(f"{place}: show has a duplicate or invalid place {item!r}")
+                    continue
+                seen_show.add(item)
+                if item == "hub":
+                    continue
+                if not re.fullmatch(r"path-[a-z0-9-]+", item):
+                    problems.append(f"{place}: show place {item!r} is not hub or a path id")
+                elif item not in anchors:
+                    problems.append(f"{place}: show place {item!r} is not a catalog section")
+
+        nodes = family.get("nodes")
+        if not isinstance(nodes, list):
+            problems.append(f"{place}: nodes array is missing")
+            continue
+        relations: list[str] = []
+        seen_hrefs: set[str] = set()
+        for node_index, node in enumerate(nodes, start=1):
+            node_place = f"{place}: node {node_index}"
+            if not isinstance(node, dict):
+                problems.append(f"{node_place} is not an object")
+                continue
+            node_extra = sorted(set(node) - {"href", "relation"})
+            if node_extra:
+                problems.append(
+                    f"{node_place}: unexpected fields {node_extra}; titles come from demos.json"
+                )
+            href = node.get("href")
+            if blank(href):
+                problems.append(f"{node_place}: href is missing or empty")
+            else:
+                assert isinstance(href, str)
+                if href in seen_hrefs:
+                    problems.append(f"{node_place}: duplicate href {href!r}")
+                seen_hrefs.add(href)
+                reason = file_problem(href)
+                if reason:
+                    problems.append(f"{node_place}: href {href!r} {reason}")
+                elif href not in catalog_hrefs:
+                    problems.append(f"{node_place}: href {href!r} is not in demos.json")
+            relation = node.get("relation")
+            if relation not in ("before", "backbone", "after"):
+                problems.append(f"{node_place}: relation must be before, backbone, or after")
+            else:
+                relations.append(relation)
+        if len(relations) < 2:
+            problems.append(f"{place}: needs at least two catalog demos")
+        if "backbone" not in relations:
+            problems.append(f"{place}: needs a backbone demo")
+        if "before" not in relations and "after" not in relations:
+            problems.append(f"{place}: needs a before or after demo")
+        ranks = {"before": 0, "backbone": 1, "after": 2}
+        last = -1
+        for relation in relations:
+            rank = ranks[relation]
+            if rank < last:
+                problems.append(f"{place}: nodes must run before, then backbone, then after")
+                break
+            last = rank
+        count += 1
+    return count
+
+
+def check_map_page(problems: list[str]) -> None:
+    text = read_text(ROOT / "index.html")
+    if text is None:
+        problems.append("index.html: file not found")
+        return
+    for needle in ("families.json", "assets/concept-maps.css", "a.concept-node"):
+        if needle not in text:
+            problems.append(f"index.html: missing {needle}")
 
 
 if __name__ == "__main__":
