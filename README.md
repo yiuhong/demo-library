@@ -22,6 +22,8 @@ Version and last-updated date live in [`assets/site-meta.js`](assets/site-meta.j
 
 Demo pages live in subject folders. The library page does not hard-code the catalog cards.
 
+The home page is the curriculum hub. It leads with the wordmark, featured plates, a card for each subcategory, and a Guided Tracks strip. The full list follows, with search and category filters. Featured plates are a short list of `href`s in `index.html`; titles and sentences come from `demos.json`. Opening a demonstration records that path in this browser only (`localStorage` key `project-viz-opened`). The hub can reset that list. There is no account.
+
 * `📁 /cognitive_psychology`
 * `📁 /neuroscience`
 * `📁 /statistics`
