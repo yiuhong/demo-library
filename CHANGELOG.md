@@ -9,17 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Concept maps for the variance family and for correlation and covariance. A strip on the home and on the catalog sections that opt in. Titles come from the catalog. Opened demonstrations use the same browser list as the hub.
+- Concept maps for the variance family and for correlation and covariance. A strip on Guided Tracks and on the catalog sections that opt in. Titles come from the catalog. Opened demonstrations use the same browser list.
 - Limitations of summary statistics, under Statistics → Same summaries, different graphs, with a track step after the Q–Q plot (Datasaurus Dozen and Anscombe’s quartet)
 
 ### Changed
 
-- The home is a curriculum hub: masthead, featured plates, path cards into the catalog, a Guided Tracks strip, browser-only progress, and a colophon. The full list remains below that spine.
-- The library sidebar is the Project Viz menu: Catalog, Guided Tracks, Cite & reuse, and Licenses. It no longer repeats the personal-site menu, including My projects. A quiet About Yiu Hong chip links to the personal site.
+- The home is a front page: wordmark, buttons for the catalog and Guided Tracks, and a featured plate that cycles Variance Explained, Covariance and Correlation, and the ERP demo. The catalog and Guided Tracks are separate pages. Choose a path is gone. Each Guided Track is a concept-map rail; the same demos are not listed again underneath.
+- The library sidebar is the Project Viz menu: Home, Catalog, Guided Tracks, Cite & reuse, and Licenses. It no longer repeats the personal-site menu, including My projects. About Yiu Hong opens the personal site in a new tab.
 - Guided Tracks no longer show a draft badge.
 - The home wordmark is the upright black-and-white mark: thin Project, a node-and-link Viz, and a six-point asterisk over the i.
 - Formal citations use the full title *Project Viz: A visualization demo library for teaching* (APA, BibTeX, CITATION.cff, the homepage preferred cite, per-demo cites, and the credit line).
-- The catalog view is List. The Cards toggle is gone, and a remembered Cards choice opens List.
+- The Cards toggle is gone. A remembered Cards choice opens the catalog.
 - Statistics headings match Guided Track titles. Describing data is split into Center and spread, Shape and pictures, and Same summaries, different graphs. Statistical reasoning is split into From process to distribution, Counts, arrivals, and the board, and Sampling distributions and intervals. t-test, Statistical power, ANOVA, and Association are unchanged.
 
 ## [0.1.4] - 2026-11-01

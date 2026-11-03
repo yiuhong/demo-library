@@ -1,0 +1,360 @@
+/*
+ * Catalog page: search, category chips, section cards' targets, and the
+ * demonstration rows. Section cards themselves use curriculum-hub.css.
+ */
+
+.library-label {
+    margin: 0 0 0.65em 0;
+    font-weight: bold;
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.search-container {
+    margin: 0 0 1.35em 0;
+    display: flex;
+    justify-content: flex-start;
+}
+
+#searchInput {
+    width: 100%;
+    max-width: 36rem;
+    background: #ffffff !important;
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+}
+
+#searchInput::placeholder {
+    color: rgba(0, 0, 0, 0.45) !important;
+    opacity: 1 !important;
+}
+
+#searchInput::-webkit-input-placeholder {
+    color: rgba(0, 0, 0, 0.45) !important;
+    opacity: 1 !important;
+}
+
+#searchInput::-moz-placeholder {
+    color: rgba(0, 0, 0, 0.45) !important;
+    opacity: 1 !important;
+}
+
+#searchInput:-ms-input-placeholder {
+    color: rgba(0, 0, 0, 0.45) !important;
+    opacity: 1 !important;
+}
+
+#searchInput::-ms-input-placeholder {
+    color: rgba(0, 0, 0, 0.45) !important;
+    opacity: 1 !important;
+}
+
+#searchInput:focus {
+    border-color: #000000 !important;
+    box-shadow: 0 0 0 1px #000000;
+    outline: none;
+}
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55em;
+    margin: 0;
+    padding: 0;
+}
+
+button.filter-chip {
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0.55em 1em;
+    border: 1px solid #000000 !important;
+    border-radius: 3em;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    font-size: 0.78em;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    text-transform: none;
+    white-space: normal;
+    text-align: center;
+}
+
+button.filter-chip:after {
+    display: none !important;
+    content: none !important;
+}
+
+button.filter-chip:hover {
+    background: #f2f2f2 !important;
+    border-color: #000000 !important;
+    color: #000000 !important;
+}
+
+button.filter-chip.is-active,
+button.filter-chip.is-active:hover {
+    background: #000000 !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+button.filter-chip:focus {
+    outline: none;
+}
+
+button.filter-chip:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.category-section {
+    margin-bottom: 3em;
+}
+
+.sub-category-section {
+    margin-bottom: 1.75em;
+    background: #f6f6f6;
+    padding: 1.25em 1.25em 1.35em;
+    border-radius: 4px;
+    border-left: 4px solid #000000;
+}
+
+.sub-category-section h3,
+.sub-category-section h4 {
+    margin-bottom: 0.85em;
+}
+
+.sub-category-section h4 {
+    margin: 0 0 0.75em 0;
+    font-size: 1.05em;
+    line-height: 1.35;
+}
+
+.sub-category-section[id] {
+    scroll-margin-top: 4.5em;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr));
+    gap: 0.9em;
+    align-items: stretch;
+}
+
+a.demo-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45em;
+    height: 100%;
+    min-height: 8.5em;
+    padding: 1.05em 1.1em 1em;
+    background: #ffffff;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    color: #000000 !important;
+    text-align: left;
+    text-decoration: none !important;
+}
+
+a.demo-card:hover,
+a.demo-card:focus-visible {
+    background: #000000;
+    border-bottom-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+a.demo-card:focus {
+    outline: none;
+}
+
+a.demo-card:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.demo-card-title {
+    font-weight: bold;
+    font-size: 1.05em;
+    line-height: 1.35;
+    color: #000000 !important;
+}
+
+p.demo-card-desc {
+    margin: 0;
+    font-size: 0.82em;
+    line-height: 1.45;
+    color: #222222 !important;
+}
+
+.demo-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+    margin-top: auto;
+    padding-top: 0.35em;
+}
+
+.demo-tag {
+    display: inline-block;
+    border: 1px solid #000000;
+    border-radius: 2px;
+    padding: 0.12em 0.45em;
+    font-size: 0.68em;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+a.demo-card:hover .demo-card-title,
+a.demo-card:hover p.demo-card-desc,
+a.demo-card:focus-visible .demo-card-title,
+a.demo-card:focus-visible p.demo-card-desc,
+a.demo-card:hover .demo-tag,
+a.demo-card:focus-visible .demo-tag {
+    color: #ffffff !important;
+    border-color: #ffffff;
+}
+
+.demo-tag.is-draft {
+    background: #000000;
+    border-color: #000000;
+    color: #ffffff !important;
+}
+
+a.demo-card:hover .demo-tag.is-draft,
+a.demo-card:focus-visible .demo-tag.is-draft {
+    background: #ffffff;
+    color: #000000 !important;
+    border-color: #ffffff;
+}
+
+.catalog-message {
+    text-align: left;
+    font-style: italic;
+    padding: 1.25em 1.35em;
+    background: #f6f6f6;
+    border-radius: 4px;
+    border-left: 4px solid #000000;
+    margin: 0 0 1.5em 0;
+}
+
+.topic-group {
+    margin-top: 0.35em;
+}
+
+.topic-group-title {
+    margin: 0 0 0.8em 0;
+}
+
+.no-results {
+    display: none;
+    text-align: left;
+    font-style: italic;
+    padding: 1.25em 1.35em;
+    background: #f6f6f6;
+    border-radius: 4px;
+    border-left: 4px solid #000000;
+    margin: 1.5em 0 0 0;
+}
+
+#catalog-sections[hidden],
+.catalog-panel.is-pending {
+    display: none !important;
+}
+
+.catalog-panel .card-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.catalog-panel a.demo-card {
+    display: grid;
+    grid-template-columns: minmax(13rem, 18rem) minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 1.15em;
+    row-gap: 0.15em;
+    height: auto;
+    min-height: 0;
+    padding: 0.55em 0.15em;
+    background: transparent;
+    border: 0 !important;
+    border-bottom: 1px solid #000000 !important;
+    border-radius: 0;
+}
+
+.catalog-panel .card-grid > a.demo-card:last-child {
+    border-bottom: 0 !important;
+}
+
+.catalog-panel .demo-card-title {
+    font-size: 0.95em;
+}
+
+.catalog-panel p.demo-card-desc {
+    font-size: 0.8em;
+}
+
+.catalog-panel .demo-card-tags {
+    margin-top: 0;
+    padding-top: 0;
+    justify-content: flex-end;
+}
+
+.catalog-panel a.demo-card:hover,
+.catalog-panel a.demo-card:focus-visible {
+    background: #000000;
+    border-bottom-color: #ffffff !important;
+}
+
+#catalog-browser .library-toolbar {
+    margin-bottom: 0.35rem;
+}
+
+.page-lead {
+    max-width: 40rem;
+}
+
+@media screen and (max-width: 736px) {
+    .sub-category-section {
+        padding: 1em;
+    }
+
+    button.filter-chip {
+        font-size: 0.85em;
+    }
+
+    a.demo-card {
+        min-height: 0;
+    }
+
+    .sub-category-section h4 {
+        font-size: 1em;
+    }
+
+    .catalog-panel a.demo-card {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
+        padding: 0.65em 0.1em;
+    }
+
+    .catalog-panel .demo-card-tags {
+        justify-content: flex-start;
+    }
+}

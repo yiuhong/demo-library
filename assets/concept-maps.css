@@ -226,6 +226,23 @@ a.concept-node:focus-visible .hub-opened {
     min-height: 6.35rem;
 }
 
+.track-block {
+    scroll-margin-top: 4.5em;
+}
+
+.track-block + .track-block {
+    margin-top: 2.5rem;
+}
+
+#tracks-family-section[hidden],
+#tracks-missing[hidden] {
+    display: none !important;
+}
+
+.concept-stop.is-step .concept-relation::before {
+    border-radius: 1px;
+}
+
 @media screen and (max-width: 736px) {
     ol.concept-rail {
         --concept-join: 0.85rem;

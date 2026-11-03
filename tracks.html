@@ -1,29 +1,112 @@
 <!DOCTYPE HTML>
 <!--
-	Guided Tracks is a view of Project Viz.
-	This page keeps older links working and does not draw a second site menu.
-	The library page (index.html) owns the sidebar.
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 -->
 <html lang="en">
 <head>
     <title>Guided Tracks - Project Viz</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="description" content="Guided Tracks through the Project Viz demonstrations." />
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
-    <link rel="canonical" href="index.html?view=tracks" />
-    <script>
-        (function () {
-            var params = new URLSearchParams(window.location.search);
-            params.delete('view');
-            var query = ['view=tracks'];
-            params.forEach(function (value, key) {
-                query.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
-            });
-            window.location.replace('index.html?' + query.join('&') + window.location.hash);
-        })();
-    </script>
+    <link rel="stylesheet" href="https://yiuhong.github.io/assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="https://yiuhong.github.io/assets/css/noscript.css" /></noscript>
+    <link rel="stylesheet" href="assets/library-nav.css" />
+    <link rel="stylesheet" href="assets/curriculum-hub.css" />
+    <link rel="stylesheet" href="assets/concept-maps.css" />
 </head>
-<body>
-    <p><a id="tracks-library-link" href="index.html?view=tracks">Guided Tracks</a> open in Project Viz. Content is <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; code is <a href="LICENSE-CODE">MIT</a>. <a href="cite.html">Cite & reuse</a>.</p>
+<body class="is-preload">
+
+    <section id="sidebar">
+        <div class="inner">
+            <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="site-nav">
+                <span class="mobile-nav-toggle-label">Menu</span>
+                <span class="mobile-nav-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+            </button>
+            <nav id="site-nav" aria-label="Library">
+                <ul>
+                    <li><a href="index.html" data-library-nav="home">Home</a></li>
+                    <li><a href="catalog.html" data-library-nav="catalog">Catalog</a></li>
+                    <li><a href="tracks.html" data-library-nav="tracks" class="active" aria-current="page">Guided Tracks</a></li>
+                    <li><a href="cite.html">Cite &amp; reuse</a></li>
+                    <li><a href="license.html">Licenses</a></li>
+                </ul>
+                <p class="library-author-chip"><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></p>
+            </nav>
+        </div>
+    </section>
+
+    <div id="wrapper">
+
+        <section id="intro" class="wrapper style1 fade-up">
+            <div class="inner">
+                <p><a class="cite-back" href="index.html">← Project Viz</a></p>
+                <h1 id="tracks-heading">Guided Tracks</h1>
+                <p class="page-lead">Playlists through the demonstrations.</p>
+                <p id="tracks-missing" class="hub-quiet" hidden>That track was not found.</p>
+                <div id="hub-progress" class="hub-progress" hidden>
+                    <p id="hub-progress-status" class="hub-progress-status">Opened in this browser</p>
+                    <div id="hub-progress-meter" class="hub-progress-meter" role="progressbar" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-labelledby="hub-progress-status">
+                        <span id="hub-progress-fill" class="hub-progress-fill"></span>
+                    </div>
+                    <button type="button" id="hub-progress-reset" class="hub-progress-reset">Reset</button>
+                </div>
+                <p id="hub-progress-note" class="hub-progress-note" hidden>Saved in this browser only. No account.</p>
+            </div>
+        </section>
+
+        <section id="tracks-family-section" class="wrapper style1" hidden aria-labelledby="tracks-family-heading">
+            <div class="inner">
+                <h2 id="tracks-family-heading">Concept maps</h2>
+                <p class="hub-section-note">Related demonstrations that share a backbone, with what comes before and after.</p>
+                <div id="tracks-family-mount"></div>
+            </div>
+        </section>
+
+        <section id="tracks-view" class="wrapper style2 fade-up" aria-labelledby="tracks-heading">
+            <div class="inner">
+                <div id="tracks-root" aria-live="polite">
+                    <p class="hub-quiet">Loading tracks…</p>
+                </div>
+                <noscript>
+                    <p class="hub-quiet">Guided tracks need JavaScript.</p>
+                </noscript>
+            </div>
+        </section>
+
+    </div>
+
+    <footer id="footer" class="wrapper style1-alt">
+        <div class="inner">
+            <ul class="menu">
+                <li><a rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">Yiu Hong Ko</a> · <a href="mailto:yiuhong.ko@gmail.com">yiuhong.ko@gmail.com</a> · <a href="https://orcid.org/0000-0003-4436-0166" aria-label="ORCID iD 0000-0003-4436-0166">ORCID</a></li>
+                <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
+                <li>Content <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Code <a href="LICENSE-CODE">MIT</a></li>
+                <li><a href="cite.html">Cite & reuse</a></li>
+                <li><a href="license.html">Licenses</a></li>
+                <li><a href="CHANGELOG.md">Changelog</a></li>
+                <li><a href="CONTRIBUTING.md">Contribute</a></li>
+                <li><a href="https://github.com/yiuhong/demo-library/issues">Spotted a mistake?</a></li>
+                <li><a href="https://github.com/yiuhong/demo-library">View source on GitHub</a></li>
+                <li>Version <span data-site-field="version">0.1.4</span> · Updated <time datetime="2026-11-01" data-site-field="updatedDisplay" data-site-datetime="updated">1 November 2026</time></li>
+                <li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="https://yiuhong.github.io/assets/js/jquery.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/jquery.scrollex.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/jquery.scrolly.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/browser.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/breakpoints.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/util.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/main.js"></script>
+    <script src="assets/site-meta.js"></script>
+    <script src="assets/site-oer-footer.js"></script>
+    <script src="assets/opened.js"></script>
+    <script src="assets/concept-maps.js"></script>
+    <script src="assets/tracks-page.js"></script>
 </body>
 </html>

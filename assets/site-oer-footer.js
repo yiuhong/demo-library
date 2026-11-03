@@ -64,8 +64,14 @@
         var link = document.createElement("a");
         link.href = href;
         link.textContent = text;
-        if (rel) link.rel = rel;
         if (ariaLabel) link.setAttribute("aria-label", ariaLabel);
+        var external = href === meta.personalSite || href.indexOf("https://yiuhong.github.io/task-library") === 0;
+        if (external) {
+            link.target = "_blank";
+            link.rel = rel ? rel + " noopener noreferrer" : "noopener noreferrer";
+        } else if (rel) {
+            link.rel = rel;
+        }
         line.appendChild(link);
         return link;
     }
@@ -285,7 +291,7 @@
     function loadDemoCitation() {
         if (typeof meta.demoCitation !== "function") return;
         var href = currentDemoHref();
-        if (!href || href === "index.html" || href === "cite.html" || href === "tracks.html") return;
+        if (!href || href === "index.html" || href === "catalog.html" || href === "cite.html" || href === "license.html" || href === "tracks.html") return;
         var catalog = new URL("demos.json", root);
         fetch(catalog.href).then(function (response) {
             if (!response.ok) throw new Error("catalog");

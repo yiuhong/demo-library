@@ -16,13 +16,13 @@ Yiu Hong Ko · [ORCID 0000-0003-4436-0166](https://orcid.org/0000-0003-4436-0166
 
 Mistakes, bugs, and ideas: [GitHub Issues](https://github.com/yiuhong/demo-library/issues). Notes for contributors: [CONTRIBUTING.md](CONTRIBUTING.md). What changed: [CHANGELOG.md](CHANGELOG.md).
 
-Version and last-updated date live in [`assets/site-meta.js`](assets/site-meta.js). The current release is **0.1.4** (1 November 2026). Version 0.1.0 was the first versioned release. Bump `version` and `updated` there when the library changes in a way a syllabus should record, set the same version and `date-released` in [`CITATION.cff`](CITATION.cff), and add a changelog entry. The footer and cite page read that file. `index.html`, `cite.html`, and `license.html` repeat the same version and date for visitors without JavaScript; update that fallback when you bump `site-meta.js`.
+Version and last-updated date live in [`assets/site-meta.js`](assets/site-meta.js). The current release is **0.1.4** (1 November 2026). Version 0.1.0 was the first versioned release. Bump `version` and `updated` there when the library changes in a way a syllabus should record, set the same version and `date-released` in [`CITATION.cff`](CITATION.cff), and add a changelog entry. The footer and cite page read that file. `index.html`, `catalog.html`, `tracks.html`, `cite.html`, and `license.html` repeat the same version and date for visitors without JavaScript; update that fallback when you bump `site-meta.js`.
 
 ## 📂 Repository Structure
 
 Demo pages live in subject folders. The library page does not hard-code the catalog cards.
 
-The home page is the curriculum hub. It leads with the wordmark, featured plates, a card for each subcategory, concept maps, and a Guided Tracks strip. The full list follows, with search and category filters. Featured plates are a short list of `href`s in `index.html`; titles and sentences come from `demos.json`. Concept maps are the same kind of list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration records that path in this browser only (`localStorage` key `project-viz-opened`). The hub can reset that list, and the same list marks a map node as opened. There is no account.
+The home page (`index.html`) is the front page: the wordmark, two buttons (the catalog and Guided Tracks), and a featured plate that cycles three demonstrations. The catalog is [`catalog.html`](catalog.html), with section cards, search, and category filters. Guided Tracks are [`tracks.html`](tracks.html). Featured plates are the three `href`s in `index.html` (`FIG_VE`, `FIG_R`, `FIG_ERP`); titles and sentences come from `demos.json`. Those figure labels are only on the home plate. Concept maps are a separate list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration records that path in this browser only (`localStorage` key `project-viz-opened`). Home, catalog, and Guided Tracks can reset that list, and the same list marks a map node or catalog row as opened. There is no account.
 
 * `📁 /cognitive_psychology`
 * `📁 /neuroscience`
@@ -39,7 +39,7 @@ The home page is the curriculum hub. It leads with the wordmark, featured plates
 
 ### demos.json
 
-The library page fetches [`demos.json`](demos.json) and builds the List view. Shape:
+The catalog page fetches [`demos.json`](demos.json) and builds the list. Shape:
 
 ```json
 {
@@ -100,17 +100,17 @@ Each demo has:
 3. Append one object to that subcategory's `demos` array in `demos.json`.
 4. Optionally add a step in `tracks.json` if it belongs on a playlist.
 
-You do not edit card markup in `index.html`. A new category is a new object in `categories`; its chip is built from `id` and `title`.
+You do not edit card markup by hand. A new category is a new object in `categories`; its chip is built from `id` and `title`. The catalog page renders it.
 
 ## Guided tracks
 
-Tracks are optional playlists, not filters. On the library page, **View** is List or Tracks. List is the full catalog. Tracks uses the same page and the same menu as the catalog. The Tracks view reads [`tracks.json`](tracks.json) at the repo root and renders whatever is in that file. Adding, removing, or reordering materials later means editing `tracks.json`. Teaching notes, formulae, and images stay on the step, not in `demos.json`.
+Tracks are optional playlists, not filters. Guided Tracks is its own page. It reads [`tracks.json`](tracks.json) at the repo root and renders whatever is in that file. Adding, removing, or reordering materials later means editing `tracks.json`. Teaching notes, formulae, and images stay on the step, not in `demos.json`. The page draws each track as a concept-map rail. It does not repeat those demos as a second link list. Notes, formulae, and figures remain in `tracks.json` for the playlist; they are not printed under the map.
 
-Share a track from the library view: `index.html?view=tracks&track=the-id` (or `#track-the-id`). `tracks.html?track=the-id` still opens that same view.
+Share a track: `tracks.html?track=the-id` (or `#track-the-id`). Older links `index.html?view=tracks&track=the-id` still open that page.
 
 `tracks.json` is either a top-level array or an object `{ "tracks": [ ... ] }` (the file in this repo uses the object). Each track has:
 
-* `id` — slug used in shareable links (`index.html?view=tracks&track=the-id` or `#track-the-id`)
+* `id` — slug used in shareable links (`tracks.html?track=the-id` or `#track-the-id`)
 * `title`
 * `summary` — short overview of the path
 * `steps` — ordered list. Each step has `href` (path from the site root, the same kind of path as a demo card, such as `statistics/central_limit_theorem.html`), `title` (short label; it can match the card title), and an optional `note`.
@@ -160,7 +160,7 @@ A concept map is a short strip of related demonstrations: one shared backbone, a
 * `id` — lowercase slug
 * `title` — the name of the family, not a demo title
 * `backbone` — one sentence for the idea the demos share
-* `show` — where the strip appears. `hub` is the home, under Choose a path. A `path-…` id is that catalog section. The id is `path-` plus the section title, lowercased, with other characters turned into hyphens (the same id as the home path card).
+* `show` — where the strip appears. `hub` is the top of Guided Tracks. A `path-…` id is that catalog section on `catalog.html`. The id is `path-` plus the section title, lowercased, with other characters turned into hyphens (the same id as the section card).
 * `nodes` — catalog `href`s in teaching order. `relation` is `before`, `backbone`, or `after`. Order is before, then backbone, then after. Do not add a `title`. A map needs a backbone demo and at least one before or after demo.
 
 A node opens in this tab. The opened mark is the hub's browser list.
@@ -177,4 +177,4 @@ python3 scripts/check_catalog.py
 
 The command exits 0 when those titles and paths are in place, and when the license files and site chrome are in place. Otherwise it prints each problem and exits with an error. GitHub Actions runs the same check on pull requests and on pushes to `main`.
 
-The chrome check requires `LICENSE` (CC BY 4.0 for content, with the MIT split stated) and `LICENSE-CODE` (MIT for code). Every demo in `demos.json` must include `assets/site-meta.js`, `assets/site-oer-footer.js`, and `assets/site-oer-footer.css`. `index.html`, `cite.html`, and `license.html` must show the same version and date as `assets/site-meta.js`, and no public page may say "All rights reserved". It also checks the cite page sections, the ORCID link, the per-demo example title against `demos.json`, `CITATION.cff` against the current version, the dual-license wording, the accessibility note, and that `CHANGELOG.md` names the current version.
+The chrome check requires `LICENSE` (CC BY 4.0 for content, with the MIT split stated) and `LICENSE-CODE` (MIT for code). Every demo in `demos.json` must include `assets/site-meta.js`, `assets/site-oer-footer.js`, and `assets/site-oer-footer.css`. `index.html`, `catalog.html`, `tracks.html`, `cite.html`, and `license.html` must show the same version and date as `assets/site-meta.js`, and no public page may say "All rights reserved". It also checks the cite page sections, the ORCID link, the per-demo example title against `demos.json`, `CITATION.cff` against the current version, the dual-license wording, the accessibility note, and that `CHANGELOG.md` names the current version.
