@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The home is a curriculum hub: masthead, featured plates, path cards into the catalog, a Guided Tracks strip, browser-only progress, and a colophon. The full list remains below that spine.
 - The library sidebar is the Project Viz menu: Catalog, Guided Tracks, Cite & reuse, and Licenses. It no longer repeats the personal-site menu, including My projects. A quiet About Yiu Hong chip links to the personal site.
 - Guided Tracks no longer show a draft badge.
 - The home wordmark is the upright black-and-white mark: thin Project, a node-and-link Viz, and a six-point asterisk over the i.

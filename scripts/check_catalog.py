@@ -359,7 +359,19 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         if name in ("index.html", "cite.html"):
             required.append(CITATION_TITLE)
         if name == "index.html":
-            required.extend(('id="library-about"', 'id="library-preferred-cite"', "Full cite", "data-site-apa"))
+            required.extend(
+                (
+                    'id="library-about"',
+                    'id="library-preferred-cite"',
+                    "Full cite",
+                    "data-site-apa",
+                    'id="hub-spine"',
+                    'id="colophon"',
+                    "Choose a path",
+                    "FIG_ERP",
+                    "project-viz-opened",
+                )
+            )
             about = element_text(text, "library-about")
             if about is None:
                 problems.append("index.html: library about blurb is missing")

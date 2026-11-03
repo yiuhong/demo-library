@@ -307,6 +307,9 @@
         #catalog-filters[hidden],
         #tracks-intro[hidden],
         #tracks-view[hidden],
+        #hub-spine[hidden],
+        #catalog-browser[hidden],
+        #colophon[hidden],
         .catalog-panel[hidden],
         .catalog-panel.is-pending {
             display: none !important;
@@ -646,6 +649,7 @@
             white-space: nowrap;
         }
     </style>
+    <link rel="stylesheet" href="assets/curriculum-hub.css" />
 </head>
 <body class="is-preload">
 
@@ -675,45 +679,26 @@
         <section id="intro" class="wrapper style1 fade-up">
             <div class="inner">
                 <div id="catalog-intro">
+                    <p class="hub-edition"><span class="hub-edition-line">curriculum · v<span data-site-field="version">0.1.4</span></span><span class="hub-edition-line">open · <a href="LICENSE-CODE">MIT</a></span></p>
                     <h1 class="project-viz-wordmark">
                         <span class="visually-hidden">Project Viz</span>
                         <img src="images/project-viz-wordmark.svg" alt="" width="1041" height="271" aria-hidden="true">
                     </h1>
                     <p id="library-about" class="library-about">A visualization demo library for teaching. Interactive demonstrations for exploring concepts in psychology, neuroscience, and statistics.</p>
-                    <p id="library-preferred-cite" class="library-preferred-cite"><span id="library-apa" data-site-apa>Ko, Y. H. (2026). <em>Project Viz: A visualization demo library for teaching</em> (Version 0.1.4). https://yiuhong.github.io/demo-library/</span> <a class="library-full-cite" href="cite.html">Full cite →</a></p>
-                    <label class="visually-hidden" for="searchInput">Search for a keyword</label>
-                    <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Search for a keyword">
-                    </div>
                 </div>
 
                 <div id="tracks-intro" hidden>
                     <h1 id="tracks-heading">Guided Tracks</h1>
                     <p>Optional playlists through the demos. List shows the full catalog.</p>
-                </div>
-
-                <div class="library-toolbar">
-                    <div class="library-toolbar-filters" id="catalog-filters">
-                        <p class="library-label" id="filter-label">Filter by category</p>
-                        <div class="filter-chips" role="group" aria-labelledby="filter-label">
-                            <button type="button" class="filter-chip is-active" data-filter="all" aria-pressed="true">All</button>
-                            <button type="button" class="filter-chip" data-filter="cognitive" aria-pressed="false">Cognitive Psychology</button>
-                            <button type="button" class="filter-chip" data-filter="neuroscience" aria-pressed="false">Neuroscience</button>
-                            <button type="button" class="filter-chip" data-filter="statistics" aria-pressed="false">Statistics</button>
-                            <button type="button" class="filter-chip" data-filter="personality" aria-pressed="false">Personality Psychology</button>
+                    <div class="library-toolbar">
+                        <div class="library-toolbar-view">
+                            <p class="library-label" id="view-label">View</p>
+                            <div class="view-toggle" role="group" aria-labelledby="view-label">
+                                <button type="button" class="view-toggle-btn" data-view="list" aria-pressed="false">List</button>
+                                <button type="button" class="view-toggle-btn is-active" data-view="tracks" aria-pressed="true">Tracks</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="library-toolbar-view">
-                        <p class="library-label" id="view-label">View</p>
-                        <div class="view-toggle" role="group" aria-labelledby="view-label">
-                            <button type="button" class="view-toggle-btn is-active" data-view="list" aria-pressed="true">List</button>
-                            <button type="button" class="view-toggle-btn" data-view="tracks" aria-pressed="false">Tracks</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="noResults" class="no-results" role="status">
-                    No demonstrations found. Try a different keyword or category.
                 </div>
             </div>
         </section>
@@ -726,6 +711,78 @@
                 <noscript>
                     <p class="tracks-message">Guided tracks need JavaScript.</p>
                 </noscript>
+            </div>
+        </section>
+
+        <div id="hub-spine">
+            <section class="wrapper style1" aria-label="Curriculum">
+                <div class="inner">
+                    <div class="hub-block" id="hub-plates-section">
+                        <h2 id="hub-plates-heading" class="hub-kicker">Featured</h2>
+                        <p id="hub-status" class="hub-quiet">Loading the curriculum…</p>
+                        <div id="hub-plate-grid" class="hub-plate-grid"></div>
+                    </div>
+
+                    <div class="hub-block" id="hub-paths-section">
+                        <div class="hub-section-head">
+                            <h2 id="hub-paths-heading">Choose a path</h2>
+                        </div>
+                        <p class="hub-section-note">Open a section of the catalog.</p>
+                        <div id="hub-path-mount"></div>
+                    </div>
+
+                    <div class="hub-block" id="hub-tracks-section">
+                        <div class="hub-section-head">
+                            <h2 id="hub-tracks-heading">Guided Tracks</h2>
+                            <a class="hub-inline-link" id="hub-tracks-hub" href="tracks.html">Tracks hub</a>
+                        </div>
+                        <p class="hub-section-note">Playlists through the same demonstrations, with a step count.</p>
+                        <div id="hub-track-grid" class="hub-track-strip" tabindex="0" aria-labelledby="hub-tracks-heading"></div>
+                        <div id="hub-progress" class="hub-progress" hidden>
+                            <p id="hub-progress-status" class="hub-progress-status">Opened in this browser</p>
+                            <div id="hub-progress-meter" class="hub-progress-meter" role="progressbar" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-labelledby="hub-progress-status">
+                                <span id="hub-progress-fill" class="hub-progress-fill"></span>
+                            </div>
+                            <button type="button" id="hub-progress-reset" class="hub-progress-reset">Reset</button>
+                        </div>
+                        <p id="hub-progress-note" class="hub-progress-note" hidden>Saved in this browser only. No account.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section id="catalog-browser" class="wrapper style2 fade-up">
+            <div class="inner">
+                <div class="hub-section-head">
+                    <h2 id="catalog-heading">The catalog</h2>
+                    <div class="library-toolbar-view">
+                        <p class="library-label" id="catalog-view-label">View</p>
+                        <div class="view-toggle" role="group" aria-labelledby="catalog-view-label">
+                            <button type="button" class="view-toggle-btn is-active" data-view="list" aria-pressed="true">List</button>
+                            <button type="button" class="view-toggle-btn" data-view="tracks" aria-pressed="false">Tracks</button>
+                        </div>
+                    </div>
+                </div>
+                <p class="hub-section-note">Every demonstration, in the order of the curriculum.</p>
+                <label class="visually-hidden" for="searchInput">Search for a keyword</label>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search for a keyword">
+                </div>
+                <div class="library-toolbar">
+                    <div class="library-toolbar-filters" id="catalog-filters">
+                        <p class="library-label" id="filter-label">Filter by category</p>
+                        <div class="filter-chips" role="group" aria-labelledby="filter-label">
+                            <button type="button" class="filter-chip is-active" data-filter="all" aria-pressed="true">All</button>
+                            <button type="button" class="filter-chip" data-filter="cognitive" aria-pressed="false">Cognitive Psychology</button>
+                            <button type="button" class="filter-chip" data-filter="neuroscience" aria-pressed="false">Neuroscience</button>
+                            <button type="button" class="filter-chip" data-filter="statistics" aria-pressed="false">Statistics</button>
+                            <button type="button" class="filter-chip" data-filter="personality" aria-pressed="false">Personality Psychology</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="noResults" class="no-results" role="status">
+                    No demonstrations found. Try a different keyword or category.
+                </div>
             </div>
         </section>
 
@@ -749,6 +806,19 @@
             <div class="inner" id="catalog-mount-style1"></div>
         </section>
 
+        <section id="colophon" class="wrapper style1-alt">
+            <div class="inner">
+                <h2>Colophon</h2>
+                <p class="hub-colophon-lead">The curriculum is this catalog. Cite a figure, read the source, or follow the license.</p>
+                <ul class="hub-colophon-links">
+                    <li><a href="cite.html">Cite</a></li>
+                    <li><a href="https://github.com/yiuhong/demo-library">GitHub</a></li>
+                    <li><a href="license.html">License</a></li>
+                    <li><a class="about-yiu" rel="author" href="https://yiuhong.github.io/">About Yiu Hong</a></li>
+                </ul>
+                <p id="library-preferred-cite" class="library-preferred-cite"><span id="library-apa" data-site-apa>Ko, Y. H. (2026). <em>Project Viz: A visualization demo library for teaching</em> (Version 0.1.4). https://yiuhong.github.io/demo-library/</span> <a class="library-full-cite" href="cite.html">Full cite →</a></p>
+            </div>
+        </section>
 
     </div>
 
@@ -859,7 +929,8 @@
                 });
 
                 document.querySelectorAll('section.wrapper').forEach(function (wrapper) {
-                    if (wrapper.id === 'intro' || wrapper.id === 'tracks-view') return;
+                    if (wrapper.id === 'intro' || wrapper.id === 'tracks-view' || wrapper.id === 'catalog-browser' || wrapper.id === 'colophon') return;
+                    if (wrapper.closest && wrapper.closest('#hub-spine')) return;
                     var hasVisible = Array.prototype.some.call(
                         wrapper.querySelectorAll('.category-section'),
                         function (cat) { return cat.style.display !== 'none'; }
@@ -1002,6 +1073,9 @@
                 setHidden('tracks-intro', !showTracks);
                 setHidden('catalog-filters', showTracks);
                 setHidden('tracks-view', !showTracks);
+                setHidden('hub-spine', showTracks);
+                setHidden('catalog-browser', showTracks);
+                setHidden('colophon', showTracks);
                 var tracksView = document.getElementById('tracks-view');
                 if (tracksView) tracksView.style.display = '';
                 document.querySelectorAll('.catalog-panel').forEach(function (panel) {
@@ -1138,6 +1212,16 @@
                 };
             }
 
+            function pathAnchor(title) {
+                var slug = title.toLowerCase()
+                    .replace(/\u00d7/g, 'x')
+                    .replace(/&/g, ' and ')
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                if (!slug || slug.charAt(0) < 'a' || slug.charAt(0) > 'z') return '';
+                return 'path-' + slug;
+            }
+
             function normalizeSubcategory(raw) {
                 if (!raw || typeof raw !== 'object') return null;
                 var title = typeof raw.title === 'string' ? raw.title.trim() : '';
@@ -1145,7 +1229,21 @@
                 var group = typeof raw.group === 'string' ? raw.group.trim() : '';
                 var demos = Array.isArray(raw.demos) ? raw.demos.map(normalizeDemo).filter(Boolean) : [];
                 if (!demos.length) return null;
-                return { title: title, group: group, demos: demos };
+                return { title: title, group: group, demos: demos, anchor: '' };
+            }
+
+            function assignAnchors(categories) {
+                var used = {};
+                categories.forEach(function (category) {
+                    category.subcategories.forEach(function (sub) {
+                        var anchor = pathAnchor(sub.title);
+                        if (!anchor) return;
+                        if (used[anchor]) anchor = anchor + '-' + category.id;
+                        if (!anchor || used[anchor]) return;
+                        used[anchor] = true;
+                        sub.anchor = anchor;
+                    });
+                });
             }
 
             function normalizeCategory(raw) {
@@ -1169,7 +1267,9 @@
             function normalizeCatalog(data) {
                 var list = data && Array.isArray(data.categories) ? data.categories : null;
                 if (!list) throw new Error('Catalog could not be loaded.');
-                return list.map(normalizeCategory).filter(Boolean);
+                var categories = list.map(normalizeCategory).filter(Boolean);
+                assignAnchors(categories);
+                return categories;
             }
 
             function renderDemoCard(demo) {
@@ -1180,18 +1280,18 @@
                 var desc = el('p', 'demo-card-desc');
                 setDescription(desc, demo.description);
                 card.appendChild(desc);
-                if (demo.tags.length) {
-                    var tags = el('span', 'demo-card-tags');
-                    demo.tags.forEach(function (tag) {
-                        tags.appendChild(el('span', tag.draft ? 'demo-tag is-draft' : 'demo-tag', tag.label));
-                    });
-                    card.appendChild(tags);
-                }
+                var tags = el('span', 'demo-card-tags');
+                demo.tags.forEach(function (tag) {
+                    tags.appendChild(el('span', tag.draft ? 'demo-tag is-draft' : 'demo-tag', tag.label));
+                });
+                tags.appendChild(el('span', 'hub-opened', 'Opened'));
+                card.appendChild(tags);
                 return card;
             }
 
             function renderSubcategory(sub, level) {
                 var section = el('div', 'sub-category-section');
+                if (sub.anchor) section.id = sub.anchor;
                 section.appendChild(el(level, null, sub.title));
                 var grid = el('nav', 'card-grid');
                 sub.demos.forEach(function (demo) {
@@ -1285,12 +1385,229 @@
                     if (wrapper) wrapper.classList.remove('is-pending');
                 });
                 syncFilterChips(categories);
+                renderCurriculum(categories);
+            }
+
+            // Standout plates. Titles and hooks come from demos.json.
+            // This list only chooses which demonstrations are featured, and the figure label.
+            var FEATURED_PLATES = [
+                { href: 'statistics/variance_explained.html', fig: 'FIG_VE' },
+                { href: 'statistics/covariance_and_correlation.html', fig: 'FIG_R' },
+                { href: 'neuroscience/erp_demo.html', fig: 'FIG_ERP', kicker: 'Neuroscience · EEG' }
+            ];
+
+            // Shared with assets/site-oer-footer.js. Demonstrations the visitor opened, this browser only.
+            var OPENED_KEY = 'project-viz-opened';
+            var catalogHrefList = [];
+
+            function indexDemos(categories) {
+                var byHref = {};
+                categories.forEach(function (category) {
+                    category.subcategories.forEach(function (sub) {
+                        sub.demos.forEach(function (demo) {
+                            if (!byHref[demo.href]) {
+                                byHref[demo.href] = {
+                                    demo: demo,
+                                    category: category,
+                                    subcategory: sub
+                                };
+                            }
+                        });
+                    });
+                });
+                return byHref;
+            }
+
+            function collectHrefs(categories) {
+                var hrefs = [];
+                var seen = {};
+                categories.forEach(function (category) {
+                    category.subcategories.forEach(function (sub) {
+                        sub.demos.forEach(function (demo) {
+                            if (seen[demo.href]) return;
+                            seen[demo.href] = true;
+                            hrefs.push(demo.href);
+                        });
+                    });
+                });
+                return hrefs;
+            }
+
+            function renderPlates(byHref) {
+                var grid = document.getElementById('hub-plate-grid');
+                var section = document.getElementById('hub-plates-section');
+                if (!grid) return;
+                clear(grid);
+                var count = 0;
+                FEATURED_PLATES.forEach(function (spec) {
+                    var hit = byHref[spec.href];
+                    if (!hit) return;
+                    count++;
+                    var plate = el('a', hit.category.id === 'neuroscience' ? 'hub-plate is-neuro' : 'hub-plate');
+                    plate.href = hit.demo.href;
+                    var top = el('span', 'hub-plate-top');
+                    top.appendChild(el('span', 'hub-fig', spec.fig));
+                    top.appendChild(el('span', 'hub-opened', 'Opened'));
+                    plate.appendChild(top);
+                    plate.appendChild(el('span', 'hub-plate-kicker', spec.kicker || (hit.category.title + ' · ' + hit.subcategory.title)));
+                    plate.appendChild(el('span', 'hub-plate-title', hit.demo.title));
+                    var hook = el('p', 'hub-plate-hook');
+                    setDescription(hook, hit.demo.description);
+                    plate.appendChild(hook);
+                    plate.appendChild(el('span', 'hub-plate-open', 'Open'));
+                    grid.appendChild(plate);
+                });
+                if (section) section.hidden = count === 0;
+            }
+
+            function renderPaths(categories) {
+                var mount = document.getElementById('hub-path-mount');
+                if (!mount) return;
+                clear(mount);
+                categories.forEach(function (category) {
+                    var group = el('div', 'hub-path-group');
+                    group.appendChild(el('h3', 'hub-path-category', category.title));
+                    var grid = el('div', 'hub-path-grid');
+                    category.subcategories.forEach(function (sub) {
+                        if (!sub.anchor) return;
+                        var card = el('a', 'hub-path-card');
+                        card.href = '#' + sub.anchor;
+                        card.appendChild(el('span', 'hub-path-title', sub.title));
+                        var n = sub.demos.length;
+                        card.appendChild(el('span', 'hub-path-count', n === 1 ? '1 demo' : n + ' demos'));
+                        grid.appendChild(card);
+                    });
+                    if (!grid.firstChild) return;
+                    group.appendChild(grid);
+                    mount.appendChild(group);
+                });
+            }
+
+            function readOpened() {
+                try {
+                    var raw = window.localStorage.getItem(OPENED_KEY);
+                    if (raw == null) return [];
+                    var parsed = JSON.parse(raw);
+                    if (!Array.isArray(parsed)) return [];
+                    var out = [];
+                    var seen = {};
+                    for (var i = 0; i < parsed.length; i++) {
+                        if (typeof parsed[i] !== 'string' || seen[parsed[i]]) continue;
+                        seen[parsed[i]] = true;
+                        out.push(parsed[i]);
+                    }
+                    return out;
+                } catch (err) {
+                    return null;
+                }
+            }
+
+            function updateProgress() {
+                var box = document.getElementById('hub-progress');
+                var note = document.getElementById('hub-progress-note');
+                var status = document.getElementById('hub-progress-status');
+                var meter = document.getElementById('hub-progress-meter');
+                var fill = document.getElementById('hub-progress-fill');
+                var opened = readOpened();
+                var available = opened !== null && catalogHrefList.length > 0;
+                if (box) box.hidden = !available;
+                if (note) note.hidden = !available;
+                if (!available || !opened) return;
+                var known = {};
+                catalogHrefList.forEach(function (href) { known[href] = true; });
+                var total = catalogHrefList.length;
+                var count = 0;
+                var openedSet = {};
+                opened.forEach(function (href) {
+                    if (!known[href] || openedSet[href]) return;
+                    openedSet[href] = true;
+                    count++;
+                });
+                var label = count + ' of ' + total + ' opened in this browser';
+                if (status) status.textContent = label;
+                if (meter) {
+                    meter.setAttribute('aria-valuemax', String(total));
+                    meter.setAttribute('aria-valuenow', String(count));
+                    meter.setAttribute('aria-valuetext', label);
+                }
+                if (fill) fill.style.width = (total ? Math.round((count / total) * 100) : 0) + '%';
+                document.querySelectorAll('a.hub-plate, .catalog-panel a.demo-card').forEach(function (card) {
+                    card.classList.toggle('is-opened', !!openedSet[card.getAttribute('href')]);
+                });
+            }
+
+            function renderCurriculum(categories) {
+                var status = document.getElementById('hub-status');
+                if (status && status.parentNode) status.parentNode.removeChild(status);
+                catalogHrefList = collectHrefs(categories);
+                renderPlates(indexDemos(categories));
+                renderPaths(categories);
+                updateProgress();
+                revealPathFromLocation();
+            }
+
+            function clearBrowse() {
+                if (searchInput) searchInput.value = '';
+                activeFilter = 'all';
+                document.querySelectorAll('.filter-chip').forEach(function (chip) {
+                    var on = chip.getAttribute('data-filter') === 'all';
+                    chip.classList.toggle('is-active', on);
+                    chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+                });
+                applyFilters();
+            }
+
+            function pathIdFromLocation() {
+                var hash = window.location.hash.replace(/^#/, '');
+                if (!hash) return '';
+                try {
+                    hash = decodeURIComponent(hash);
+                } catch (err) {}
+                if (hash.indexOf('path-') !== 0) return '';
+                if (!/^[a-z][a-z0-9-]*$/.test(hash)) return '';
+                return hash;
+            }
+
+            function revealPathFromLocation() {
+                if (document.body.classList.contains('view-tracks')) return;
+                var id = pathIdFromLocation();
+                if (!id) return;
+                var node = document.getElementById(id);
+                if (!node) return;
+                clearBrowse();
+                node.scrollIntoView({ block: 'start' });
+            }
+
+            function scrollToPath(id) {
+                var node = document.getElementById(id);
+                if (!node) return;
+                clearBrowse();
+                if (window.location.hash !== '#' + id) {
+                    var next = window.location.pathname + window.location.search + '#' + id;
+                    try {
+                        history.pushState({ libraryView: 'list', path: id }, '', next);
+                    } catch (err) {}
+                }
+                var heading = node.querySelector('h3, h4');
+                if (heading && !heading.hasAttribute('tabindex')) heading.setAttribute('tabindex', '-1');
+                window.requestAnimationFrame(function () {
+                    node.scrollIntoView({ block: 'start' });
+                    if (heading && heading.focus) {
+                        try {
+                            heading.focus({ preventScroll: true });
+                        } catch (err) {
+                            heading.focus();
+                        }
+                    }
+                });
             }
 
             function showCatalogError() {
                 catalogError = true;
                 var status = document.getElementById('catalog-status');
                 if (status) status.textContent = 'The catalog could not be loaded.';
+                var hubStatus = document.getElementById('hub-status');
+                if (hubStatus) hubStatus.textContent = 'The curriculum could not be loaded.';
             }
 
             function loadCatalog() {
@@ -1561,10 +1878,51 @@
                 }).then(function (data) {
                     tracks = normalizeTracks(data);
                     tracksReady = true;
+                    renderTrackStrip();
                     if (currentView === 'tracks') render({ scrollIntoView: true });
                 }).catch(function () {
                     showError('Tracks could not be loaded.');
+                    showTrackStripError();
                 });
+            }
+
+            function renderTrackStrip() {
+                var mount = document.getElementById('hub-track-grid');
+                if (!mount || !tracksReady) return;
+                clear(mount);
+                if (!tracks.length) {
+                    mount.appendChild(el('p', 'hub-quiet', 'No tracks yet.'));
+                    return;
+                }
+                tracks.forEach(function (track) {
+                    var card = el('a', 'hub-track-card');
+                    card.href = trackUrl(track.id);
+                    card.appendChild(el('span', 'hub-track-title', track.title));
+                    card.appendChild(el('span', 'hub-track-count', stepCountLabel(track.steps.length)));
+                    card.addEventListener('click', function (event) {
+                        openTrackLink(card, event);
+                    });
+                    mount.appendChild(card);
+                });
+            }
+
+            function showTrackStripError() {
+                var mount = document.getElementById('hub-track-grid');
+                if (!mount) return;
+                clear(mount);
+                mount.appendChild(el('p', 'hub-quiet', 'Tracks could not be loaded.'));
+            }
+
+            function openTrackLink(anchor, event) {
+                if (!samePageClick(event)) return;
+                event.preventDefault();
+                var href = anchor.getAttribute('href');
+                if (!href) return;
+                try {
+                    history.pushState({ libraryView: 'tracks' }, '', href);
+                } catch (err) {}
+                if (currentView !== 'tracks') applyView('tracks');
+                if (tracksReady) render({ scrollIntoView: true });
             }
 
             function ensureTracksLoaded() {
@@ -1578,6 +1936,7 @@
             var initialView = viewFromLocation() === 'tracks' ? 'tracks' : 'list';
             applyView(initialView);
             loadCatalog();
+            ensureTracksLoaded();
             try {
                 history.replaceState({ libraryView: initialView }, '', window.location.href);
             } catch (err) {}
@@ -1590,11 +1949,49 @@
                 });
             });
 
+            var pathMount = document.getElementById('hub-path-mount');
+            if (pathMount) {
+                pathMount.addEventListener('click', function (event) {
+                    var card = event.target.closest ? event.target.closest('a[href^="#path-"]') : null;
+                    if (!card || !pathMount.contains(card) || !samePageClick(event)) return;
+                    event.preventDefault();
+                    scrollToPath(card.getAttribute('href').slice(1));
+                });
+            }
+
+            var tracksHubLink = document.getElementById('hub-tracks-hub');
+            if (tracksHubLink) {
+                tracksHubLink.addEventListener('click', function (event) {
+                    if (!samePageClick(event)) return;
+                    event.preventDefault();
+                    applyView('tracks', { updateUrl: true, scroll: true });
+                });
+            }
+
+            var progressReset = document.getElementById('hub-progress-reset');
+            if (progressReset) {
+                progressReset.addEventListener('click', function () {
+                    try {
+                        window.localStorage.removeItem(OPENED_KEY);
+                    } catch (err) {}
+                    updateProgress();
+                });
+            }
+
+            window.addEventListener('pageshow', function () {
+                updateProgress();
+            });
+
+            window.addEventListener('storage', function (event) {
+                if (event.key === OPENED_KEY) updateProgress();
+            });
+
             window.addEventListener('popstate', function () {
                 var next = viewFromLocation() === 'tracks' ? 'tracks' : 'list';
                 if (next !== currentView) applyView(next);
                 else if (next === 'tracks' && tracksReady) render();
                 else if (locationRemembersCards()) stripCardsLocation();
+                if (next === 'list') revealPathFromLocation();
             });
 
             window.addEventListener('hashchange', function () {

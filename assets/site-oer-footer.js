@@ -256,6 +256,32 @@
         layout();
     }
 
+    // The home reads this key for the quiet progress line. This browser only; no account.
+    function rememberOpened(href) {
+        var key = "project-viz-opened";
+        var list = [];
+        try {
+            var parsed = JSON.parse(window.localStorage.getItem(key) || "[]");
+            if (Array.isArray(parsed)) list = parsed;
+        } catch (error) {
+            return;
+        }
+        var next = [];
+        var seen = {};
+        var i;
+        for (i = 0; i < list.length; i++) {
+            if (typeof list[i] !== "string" || seen[list[i]]) continue;
+            seen[list[i]] = true;
+            next.push(list[i]);
+        }
+        if (seen[href]) return;
+        next.push(href);
+        if (next.length > 500) next = next.slice(next.length - 500);
+        try {
+            window.localStorage.setItem(key, JSON.stringify(next));
+        } catch (error) {}
+    }
+
     function loadDemoCitation() {
         if (typeof meta.demoCitation !== "function") return;
         var href = currentDemoHref();
@@ -267,6 +293,7 @@
         }).then(function (data) {
             var title = findDemoTitle(data, href);
             if (!title) return;
+            rememberOpened(href);
             insertDemoCite(meta.demoCitation(title, href));
         }).catch(function () {});
     }

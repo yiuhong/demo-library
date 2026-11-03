@@ -1,0 +1,570 @@
+/*
+ * Curriculum hub on the Project Viz home.
+ *
+ * The catalog list and Guided Tracks view keep their own rules in index.html.
+ * This file is the masthead, featured plates, path cards, tracks strip,
+ * browser-only progress, and colophon. Neuroscience plates reuse the dark
+ * lab surface from the neuroscience demos; everything else stays on the
+ * light statistics / library surface.
+ */
+
+#catalog-intro h1.project-viz-wordmark {
+    margin-bottom: 0.75rem;
+}
+
+#catalog-intro h1.project-viz-wordmark img {
+    max-height: none;
+    width: min(100%, 28rem);
+    height: auto;
+}
+
+.hub-edition {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.9rem;
+    margin: 0 0 0.9rem 0;
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+.hub-edition-line {
+    white-space: nowrap;
+}
+
+.hub-edition a {
+    color: #000000 !important;
+    border-bottom: 1px solid #000000;
+    text-decoration: none;
+}
+
+.hub-edition a:hover,
+.hub-edition a:focus-visible {
+    background: #000000;
+    color: #ffffff !important;
+}
+
+.hub-block + .hub-block {
+    margin-top: 2.75rem;
+}
+
+.hub-kicker {
+    margin: 0 0 0.85rem 0;
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.14em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+.hub-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.45rem 1.25rem;
+    margin: 0 0 0.45rem 0;
+}
+
+.hub-section-head h2 {
+    margin: 0;
+}
+
+p.hub-section-note,
+p.hub-quiet,
+p.hub-colophon-lead {
+    max-width: 40rem;
+    margin: 0 0 1rem 0;
+    color: #222222 !important;
+}
+
+p.hub-quiet {
+    font-style: italic;
+}
+
+a.hub-inline-link {
+    color: #000000 !important;
+    font-size: 0.85rem;
+    font-weight: bold;
+    line-height: 1.3;
+    text-decoration: none;
+    border-bottom: 1px solid #000000;
+}
+
+a.hub-inline-link:hover,
+a.hub-inline-link:focus-visible {
+    background: #000000;
+    color: #ffffff !important;
+}
+
+a.hub-inline-link:focus {
+    outline: none;
+}
+
+a.hub-inline-link:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.hub-plate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16.5rem), 1fr));
+    gap: 0.9rem;
+    align-items: stretch;
+}
+
+a.hub-plate {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.55rem;
+    min-height: 18.5rem;
+    padding: 1.2rem 1.25rem 1.15rem;
+    background: #ffffff !important;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    color: #000000 !important;
+    text-align: left;
+    text-decoration: none;
+}
+
+a.hub-plate:focus {
+    outline: none;
+}
+
+a.hub-plate:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+a.hub-plate:hover,
+a.hub-plate:focus-visible {
+    background: #000000 !important;
+    border-bottom-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+.hub-plate-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.hub-fig,
+.hub-plate-kicker {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+.hub-plate-kicker {
+    letter-spacing: 0.04em;
+}
+
+.hub-plate-title {
+    margin-top: 0.35rem;
+    font-size: 1.65rem;
+    font-weight: bold;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: #000000 !important;
+}
+
+p.hub-plate-hook {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: #222222 !important;
+}
+
+.hub-plate-open {
+    margin-top: auto;
+    display: inline-block;
+    padding: 0.45em 1.05em;
+    border: 1px solid #000000;
+    border-radius: 3em;
+    background: #000000;
+    color: #ffffff !important;
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+}
+
+a.hub-plate:hover .hub-fig,
+a.hub-plate:hover .hub-plate-kicker,
+a.hub-plate:hover .hub-plate-title,
+a.hub-plate:hover p.hub-plate-hook,
+a.hub-plate:focus-visible .hub-fig,
+a.hub-plate:focus-visible .hub-plate-kicker,
+a.hub-plate:focus-visible .hub-plate-title,
+a.hub-plate:focus-visible p.hub-plate-hook {
+    color: #ffffff !important;
+}
+
+a.hub-plate:hover .hub-plate-open,
+a.hub-plate:focus-visible .hub-plate-open {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #000000 !important;
+}
+
+/* Dark lab plate. Same surface as the neuroscience demos, not a new theme. */
+a.hub-plate.is-neuro {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+a.hub-plate.is-neuro .hub-fig,
+a.hub-plate.is-neuro .hub-plate-title,
+a.hub-plate.is-neuro p.hub-plate-hook {
+    color: #f1f5f9 !important;
+}
+
+a.hub-plate.is-neuro .hub-plate-kicker,
+a.hub-plate.is-neuro .hub-opened {
+    color: #a5b4fc !important;
+}
+
+a.hub-plate.is-neuro .hub-plate-open {
+    background: #6366f1;
+    border-color: #6366f1;
+    color: #ffffff !important;
+}
+
+a.hub-plate.is-neuro:hover,
+a.hub-plate.is-neuro:focus-visible {
+    background: #020617 !important;
+    border-color: #818cf8 !important;
+    color: #f1f5f9 !important;
+}
+
+a.hub-plate.is-neuro:hover .hub-fig,
+a.hub-plate.is-neuro:hover .hub-plate-title,
+a.hub-plate.is-neuro:hover p.hub-plate-hook,
+a.hub-plate.is-neuro:focus-visible .hub-fig,
+a.hub-plate.is-neuro:focus-visible .hub-plate-title,
+a.hub-plate.is-neuro:focus-visible p.hub-plate-hook {
+    color: #f1f5f9 !important;
+}
+
+a.hub-plate.is-neuro:hover .hub-plate-kicker,
+a.hub-plate.is-neuro:hover .hub-opened,
+a.hub-plate.is-neuro:focus-visible .hub-plate-kicker,
+a.hub-plate.is-neuro:focus-visible .hub-opened {
+    color: #c7d2fe !important;
+}
+
+a.hub-plate.is-neuro:hover .hub-plate-open,
+a.hub-plate.is-neuro:focus-visible .hub-plate-open {
+    background: #818cf8;
+    border-color: #818cf8;
+    color: #020617 !important;
+}
+
+a.hub-plate.is-neuro:focus-visible {
+    outline-color: #a5b4fc;
+}
+
+.hub-path-group + .hub-path-group {
+    margin-top: 1.35rem;
+}
+
+.hub-path-category {
+    margin: 0 0 0.7rem 0;
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+.hub-path-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 13.5rem), 1fr));
+    gap: 0.7rem;
+}
+
+a.hub-path-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.85rem;
+    min-height: 7.25rem;
+    padding: 0.95rem 1rem 0.9rem;
+    background: #ffffff !important;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    color: #000000 !important;
+    text-align: left;
+    text-decoration: none;
+}
+
+a.hub-path-card:hover,
+a.hub-path-card:focus-visible {
+    background: #000000 !important;
+    border-bottom-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+a.hub-path-card:focus {
+    outline: none;
+}
+
+a.hub-path-card:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.hub-path-title {
+    font-size: 1.05rem;
+    font-weight: bold;
+    line-height: 1.3;
+    color: #000000 !important;
+}
+
+.hub-path-count {
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: #222222 !important;
+}
+
+a.hub-path-card:hover .hub-path-title,
+a.hub-path-card:hover .hub-path-count,
+a.hub-path-card:focus-visible .hub-path-title,
+a.hub-path-card:focus-visible .hub-path-count {
+    color: #ffffff !important;
+}
+
+.hub-track-strip {
+    display: flex;
+    gap: 0.7rem;
+    overflow-x: auto;
+    padding: 0 0 0.45rem 0;
+    scroll-snap-type: x mandatory;
+}
+
+a.hub-track-card {
+    display: flex;
+    flex: 0 0 15rem;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 7.25rem;
+    padding: 0.95rem 1rem 0.9rem;
+    scroll-snap-align: start;
+    background: #ffffff !important;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    color: #000000 !important;
+    text-align: left;
+    text-decoration: none;
+}
+
+a.hub-track-card:hover,
+a.hub-track-card:focus-visible {
+    background: #000000 !important;
+    border-bottom-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+a.hub-track-card:focus {
+    outline: none;
+}
+
+a.hub-track-card:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.hub-track-title {
+    font-size: 1.02rem;
+    font-weight: bold;
+    line-height: 1.3;
+    color: #000000 !important;
+}
+
+.hub-track-count {
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: #222222 !important;
+}
+
+a.hub-track-card:hover .hub-track-title,
+a.hub-track-card:hover .hub-track-count,
+a.hub-track-card:focus-visible .hub-track-title,
+a.hub-track-card:focus-visible .hub-track-count {
+    color: #ffffff !important;
+}
+
+.hub-opened {
+    display: none;
+    font-size: 0.68rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+a.is-opened > .hub-opened,
+a.is-opened .hub-opened {
+    display: inline;
+}
+
+a.demo-card:hover .hub-opened,
+a.demo-card:focus-visible .hub-opened {
+    color: #ffffff !important;
+}
+
+#hub-progress[hidden],
+#hub-progress-note[hidden],
+#hub-plates-section[hidden] {
+    display: none !important;
+}
+
+.hub-progress {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem 0.9rem;
+    max-width: 38rem;
+    margin: 1.35rem 0 0 0;
+}
+
+p.hub-progress-status {
+    flex: 1 1 14rem;
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: #222222 !important;
+}
+
+.hub-progress-meter {
+    flex: 1 1 7rem;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e4e4e4;
+}
+
+.hub-progress-fill {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: #000000;
+}
+
+button.hub-progress-reset {
+    height: auto;
+    margin: 0;
+    padding: 0.35em 0.85em;
+    border: 1px solid #000000 !important;
+    border-radius: 3em;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+    text-transform: none;
+}
+
+button.hub-progress-reset:after {
+    display: none !important;
+    content: none !important;
+}
+
+button.hub-progress-reset:hover,
+button.hub-progress-reset:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+button.hub-progress-reset:focus {
+    outline: none;
+}
+
+button.hub-progress-reset:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+p.hub-progress-note {
+    margin: 0.35rem 0 0 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: #444444 !important;
+}
+
+.sub-category-section[id] {
+    scroll-margin-top: 4.5em;
+}
+
+#catalog-browser .library-toolbar {
+    margin-bottom: 0.35rem;
+}
+
+#colophon .hub-colophon-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.2rem;
+    margin: 0 0 1.15rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+#colophon .hub-colophon-links a {
+    color: #000000 !important;
+    font-weight: bold;
+    text-decoration: none;
+    border-bottom: 1px solid #000000;
+}
+
+#colophon .hub-colophon-links a.about-yiu {
+    border-bottom: 1px solid #000000;
+}
+
+#colophon .hub-colophon-links a:hover,
+#colophon .hub-colophon-links a:focus-visible {
+    background: #000000;
+    color: #ffffff !important;
+}
+
+@media screen and (max-width: 736px) {
+    a.hub-plate {
+        min-height: 0;
+    }
+
+    .hub-plate-title {
+        font-size: 1.35rem;
+    }
+
+    .hub-block + .hub-block {
+        margin-top: 2.15rem;
+    }
+
+    a.hub-track-card {
+        flex-basis: 13.5rem;
+    }
+}
