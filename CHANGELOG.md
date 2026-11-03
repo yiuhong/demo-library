@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Covariance and Correlation: Shift-click a point to remove it, or press and hold a point on a touch screen. At least two points stay.
+- Covariance and Correlation: press and hold a point to remove it, with a mouse or on a touch screen. At least two points stay.
 - The home is a front page: wordmark, buttons for the catalog and Guided Tracks, and a featured plate that cycles Variance Explained, Covariance and Correlation, and the ERP demo. The catalog and Guided Tracks are separate pages. Choose a path is gone. Each Guided Track is a concept-map rail; the same demos are not listed again underneath.
 - The library sidebar is the Project Viz menu: Home, Catalog, Guided Tracks, Cite & reuse, and Licenses. It no longer repeats the personal-site menu, including My projects. About Yiu Hong opens the personal site in a new tab.
 - Guided Tracks no longer show a draft badge.

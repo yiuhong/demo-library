@@ -383,7 +383,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
                 Covariance and Correlation
             </h1>
-            <p class="text-sm mt-2 leading-relaxed">Drag the points on the grid to observe real-time changes in deviations, covariance, and correlation. Hover a point to read its (x, y). Shift-click a point to remove it, or press and hold a point on a touch screen. At least two points stay.</p>
+            <p class="text-sm mt-2 leading-relaxed">Drag the points on the grid to observe real-time changes in deviations, covariance, and correlation. Hover a point to read its (x, y). Press and hold a point to remove it. At least two points stay.</p>
         </div>
         
         <div class="p-5 flex-1 flex flex-col gap-6">
@@ -670,11 +670,12 @@
         let draggingId = null;
         let tipHideTimer = null;
 
-        // Shift-click removes a point. A still press does too, so touch needs no modifier.
-        // A move past the slop cancels the remove and becomes a drag. Sample correlation
-        // needs n ≥ 2, so the last two points stay. A point removed mid-gesture is kept in
-        // the DOM until the pointer lifts (heldExit); touchend is delivered to the element
-        // that received touchstart, and dropping it early loses that event.
+        // A still press removes a point. The same gesture is used for mouse, trackpad, and
+        // touch, so no modifier key is required. A move past the slop cancels the remove
+        // and becomes a drag. Sample correlation needs n ≥ 2, so the last two points stay.
+        // A point removed mid-gesture is kept in the DOM until the pointer lifts (heldExit);
+        // touchend is delivered to the element that received touchstart, and dropping it
+        // early loses that event.
         const MIN_POINTS = 2;
         const REMOVE_HOLD_MS = 520;
         const REMOVE_ARM_MS = 180;
@@ -857,12 +858,10 @@
                 clearTimeout(tipHideTimer);
                 clearRemoveTimers();
                 const p = clientPoint(event);
-                const shift = !!(event.sourceEvent && event.sourceEvent.shiftKey);
                 gesture = {
                     id: d.id,
                     x: p.x,
                     y: p.y,
-                    shift: shift,
                     moved: false,
                     removed: false
                 };
@@ -919,10 +918,6 @@
                     return;
                 }
 
-                const moved = g.moved || movementPx(event) > REMOVE_SLOP_PX;
-                if (!g.removed && !moved && g.shift) {
-                    g.removed = commitRemove(d.id, false);
-                }
                 if (g.removed) {
                     flushHeldExit();
                     gesture = null;
