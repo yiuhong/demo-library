@@ -301,7 +301,10 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             "https://github.com/yiuhong/demo-library",
             "mailto:yiuhong.ko@gmail.com",
             "https://yiuhong.github.io/",
-            "Personal site",
+            "About Yiu Hong",
+            "Catalog",
+            "Guided Tracks",
+            "tracks.html",
             ORCID_URL,
             ORCID_LABEL,
             "CHANGELOG.md",
@@ -365,6 +368,17 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         for needle in required:
             if needle not in text:
                 problems.append(f"{name}: missing {needle}")
+        # The personal-site homepage menu stays on that site. These pages are the library.
+        for needle in (
+            "My projects",
+            "Research & Publications",
+            "Teaching & Mentorship",
+            "resources_page.html",
+            "yiuhong.github.io/#intro",
+            "yiuhong.github.io/#projects",
+        ):
+            if needle in text:
+                problems.append(f"{name}: personal-site menu item does not belong here ({needle})")
 
     if catalog is not None:
         cite_text = read_text(ROOT / "cite.html")

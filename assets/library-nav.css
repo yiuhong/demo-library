@@ -1,0 +1,101 @@
+/*
+ * Library sidebar extras for Project Viz.
+ *
+ * The sidebar list is the library menu (Catalog, Guided Tracks, Cite & reuse,
+ * Licenses). This file only styles the quiet About Yiu Hong chip so it does
+ * not pick up the uppercase personal-site nav treatment.
+ */
+
+a.about-yiu {
+    display: inline-block;
+    margin: 0;
+    padding: 0.45em 0.9em;
+    border: 1px solid #000000 !important;
+    border-radius: 3em;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 0.78em;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    white-space: nowrap;
+    vertical-align: baseline;
+}
+
+a.about-yiu:hover,
+a.about-yiu:focus-visible {
+    background: #000000 !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+a.about-yiu:focus {
+    outline: none;
+}
+
+a.about-yiu:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+/* The shared theme styles every sidebar anchor as a full nav row. */
+#sidebar nav a.about-yiu {
+    display: inline-block;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    padding: 0.45em 0.9em;
+    font-size: 0.78em;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    text-align: center;
+    text-transform: none;
+}
+
+#sidebar nav a.about-yiu:before,
+#sidebar nav a.about-yiu:after {
+    display: none !important;
+    content: none !important;
+    width: 0;
+    height: 0;
+    background: none !important;
+}
+
+#sidebar .library-author-chip {
+    margin: 2.5em 0 0 0;
+    padding: 0;
+    text-align: right;
+}
+
+/* The tablet bar is a single row. The chip lives in the footer there. */
+@media screen and (max-width: 1280px) and (min-width: 737px) {
+    #sidebar .library-author-chip {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 736px) {
+    #sidebar .library-author-chip {
+        margin: 0;
+        padding: 0.9em 1.25em 1.15em;
+        text-align: left;
+        border-top: 1px solid #000000;
+    }
+
+    #sidebar nav a.about-yiu {
+        min-height: 44px;
+        padding: 0.55em 0.95em;
+        line-height: 1.35;
+    }
+}
+
+/* Footer menu is already 0.8em, so the chip matches that text size. */
+#footer a.about-yiu {
+    font-size: 1em;
+    padding: 0.35em 0.8em;
+    vertical-align: 0.08em;
+}

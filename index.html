@@ -14,6 +14,7 @@
     <!-- Absolute links pointing to your main website's assets -->
     <link rel="stylesheet" href="https://yiuhong.github.io/assets/css/main.css" />
     <noscript><link rel="stylesheet" href="https://yiuhong.github.io/assets/css/noscript.css" /></noscript>
+    <link rel="stylesheet" href="assets/library-nav.css" />
     <style>
         /* Monochrome cards and chips. The site stylesheet forces black text on white,
            so these rules use !important only where that stylesheet does. */
@@ -655,16 +656,14 @@
                 <span class="mobile-nav-toggle-label">Menu</span>
                 <span class="mobile-nav-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
             </button>
-            <nav id="site-nav" aria-label="Primary">
+            <nav id="site-nav" aria-label="Library">
                 <ul>
-                    <li><a href="https://yiuhong.github.io/#intro" target="_self">Home</a></li>
-                    <li><a href="https://yiuhong.github.io/#one" target="_self">Research & Publications</a></li>
-                    <li><a href="https://yiuhong.github.io/#two" target="_self">Teaching & Mentorship</a></li>
-                    <li><a href="https://yiuhong.github.io/#projects" target="_self">My projects</a></li>
-                    <li><a href="https://yiuhong.github.io/#three" target="_self">Contact</a></li>
-                    <li><a href="#" class="active">Project Viz</a></li>
-					<li><a href="https://yiuhong.github.io/resources_page.html" target="_self">Resources</a></li>
+                    <li><a href="index.html" data-library-nav="catalog" class="active" aria-current="page">Catalog</a></li>
+                    <li><a href="tracks.html" data-library-nav="tracks">Guided Tracks</a></li>
+                    <li><a href="cite.html">Cite &amp; reuse</a></li>
+                    <li><a href="license.html">Licenses</a></li>
                 </ul>
+                <p class="library-author-chip"><a class="about-yiu" rel="author" href="https://yiuhong.github.io/">About Yiu Hong</a></p>
             </nav>
         </div>
     </section>
@@ -757,7 +756,8 @@
     <footer id="footer" class="wrapper style1-alt">
         <div class="inner">
             <ul class="menu">
-                <li><a rel="author" href="https://yiuhong.github.io/">Yiu Hong Ko</a> · <a href="https://yiuhong.github.io/">Personal site</a> · <a href="mailto:yiuhong.ko@gmail.com">yiuhong.ko@gmail.com</a> · <a href="https://orcid.org/0000-0003-4436-0166" aria-label="ORCID iD 0000-0003-4436-0166">ORCID</a></li>
+                <li><a rel="author" href="https://yiuhong.github.io/">Yiu Hong Ko</a> · <a href="mailto:yiuhong.ko@gmail.com">yiuhong.ko@gmail.com</a> · <a href="https://orcid.org/0000-0003-4436-0166" aria-label="ORCID iD 0000-0003-4436-0166">ORCID</a></li>
+                <li><a class="about-yiu" rel="author" href="https://yiuhong.github.io/">About Yiu Hong</a></li>
                 <li>Content <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Code <a href="LICENSE-CODE">MIT</a></li>
                 <li><a href="cite.html">Cite & reuse</a></li>
                 <li><a href="license.html">Licenses</a></li>
@@ -977,10 +977,25 @@
                 history.pushState({ libraryView: view }, '', url);
             }
 
+            function syncLibraryNav(view) {
+                var tracks = view === 'tracks';
+                var catalogLink = document.querySelector('#site-nav a[data-library-nav="catalog"]');
+                var tracksLink = document.querySelector('#site-nav a[data-library-nav="tracks"]');
+                function mark(link, on) {
+                    if (!link) return;
+                    link.classList.toggle('active', on);
+                    if (on) link.setAttribute('aria-current', 'page');
+                    else link.removeAttribute('aria-current');
+                }
+                mark(catalogLink, !tracks);
+                mark(tracksLink, tracks);
+            }
+
             function applyView(view, options) {
                 var next = view === 'tracks' ? 'tracks' : 'list';
                 options = options || {};
                 currentView = next;
+                syncLibraryNav(next);
                 var showTracks = next === 'tracks';
                 document.body.classList.toggle('view-tracks', showTracks);
                 setHidden('catalog-intro', showTracks);
