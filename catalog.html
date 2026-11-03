@@ -1,0 +1,161 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html lang="en">
+<head>
+    <title>Catalog - Project Viz</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="description" content="Every demonstration in Project Viz, with search and section jumps." />
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://yiuhong.github.io/assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="https://yiuhong.github.io/assets/css/noscript.css" /></noscript>
+    <link rel="stylesheet" href="assets/library-nav.css" />
+    <link rel="stylesheet" href="assets/curriculum-hub.css" />
+    <link rel="stylesheet" href="assets/concept-maps.css" />
+    <link rel="stylesheet" href="assets/catalog.css" />
+    <script>
+        (function () {
+            var params = new URLSearchParams(window.location.search);
+            var view = (params.get("view") || "").replace(/\s+/g, "").toLowerCase();
+            var track = (params.get("track") || "").trim();
+            var bare = window.location.hash.replace(/^#/, "");
+            try {
+                bare = decodeURIComponent(bare);
+            } catch (err) {}
+            if (view === "tracks" || track || bare.indexOf("track-") === 0) {
+                var id = track || (bare.indexOf("track-") === 0 ? bare.slice(6).trim() : "");
+                var next = new URLSearchParams();
+                if (id) next.set("track", id);
+                var hash = id ? "#track-" + encodeURIComponent(id) : "";
+                window.location.replace("tracks.html" + (next.toString() ? "?" + next.toString() : "") + hash);
+            }
+        })();
+    </script>
+</head>
+<body class="is-preload">
+
+    <section id="sidebar">
+        <div class="inner">
+            <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="site-nav">
+                <span class="mobile-nav-toggle-label">Menu</span>
+                <span class="mobile-nav-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+            </button>
+            <nav id="site-nav" aria-label="Library">
+                <ul>
+                    <li><a href="index.html" data-library-nav="home">Home</a></li>
+                    <li><a href="catalog.html" data-library-nav="catalog" class="active" aria-current="page">Catalog</a></li>
+                    <li><a href="tracks.html" data-library-nav="tracks">Guided Tracks</a></li>
+                    <li><a href="cite.html">Cite &amp; reuse</a></li>
+                    <li><a href="license.html">Licenses</a></li>
+                </ul>
+                <p class="library-author-chip"><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></p>
+            </nav>
+        </div>
+    </section>
+
+    <div id="wrapper">
+
+        <section id="intro" class="wrapper style1 fade-up">
+            <div class="inner">
+                <p><a class="cite-back" href="index.html">← Project Viz</a></p>
+                <h1>Catalog</h1>
+                <p class="page-lead">Every demonstration, in the order of the curriculum.</p>
+            </div>
+        </section>
+
+        <section id="catalog-sections" class="wrapper style1" hidden>
+            <div class="inner">
+                <h2 id="catalog-sections-heading">Sections</h2>
+                <p class="hub-section-note">Jump to a section of the catalog.</p>
+                <div id="hub-path-mount"></div>
+            </div>
+        </section>
+
+        <section id="catalog-browser" class="wrapper style2 fade-up">
+            <div class="inner">
+                <h2 id="catalog-heading">Demonstrations</h2>
+                <label class="visually-hidden" for="searchInput">Search for a keyword</label>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search for a keyword">
+                </div>
+                <div class="library-toolbar" id="catalog-filters">
+                    <p class="library-label" id="filter-label">Filter by category</p>
+                    <div class="filter-chips" role="group" aria-labelledby="filter-label">
+                        <button type="button" class="filter-chip is-active" data-filter="all" aria-pressed="true">All</button>
+                        <button type="button" class="filter-chip" data-filter="cognitive" aria-pressed="false">Cognitive Psychology</button>
+                        <button type="button" class="filter-chip" data-filter="neuroscience" aria-pressed="false">Neuroscience</button>
+                        <button type="button" class="filter-chip" data-filter="statistics" aria-pressed="false">Statistics</button>
+                        <button type="button" class="filter-chip" data-filter="personality" aria-pressed="false">Personality Psychology</button>
+                    </div>
+                </div>
+                <div id="noResults" class="no-results" role="status">
+                    No demonstrations found. Try a different keyword or category.
+                </div>
+                <div id="hub-progress" class="hub-progress" hidden>
+                    <p id="hub-progress-status" class="hub-progress-status">Opened in this browser</p>
+                    <div id="hub-progress-meter" class="hub-progress-meter" role="progressbar" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-labelledby="hub-progress-status">
+                        <span id="hub-progress-fill" class="hub-progress-fill"></span>
+                    </div>
+                    <button type="button" id="hub-progress-reset" class="hub-progress-reset">Reset</button>
+                </div>
+                <p id="hub-progress-note" class="hub-progress-note" hidden>Saved in this browser only. No account.</p>
+            </div>
+        </section>
+
+        <section class="wrapper style2 fade-up catalog-panel" data-catalog-panel="style2">
+            <div class="inner" id="catalog-mount-style2">
+                <p id="catalog-status" class="catalog-message">Loading catalog…</p>
+            </div>
+            <noscript>
+                <div class="inner">
+                    <p class="catalog-message">The catalog needs JavaScript.</p>
+                </div>
+            </noscript>
+        </section>
+
+        <section class="wrapper style3 fade-up catalog-panel is-pending" data-catalog-panel="style3">
+            <div class="inner" id="catalog-mount-style3"></div>
+        </section>
+
+        <section class="wrapper style1 fade-up catalog-panel is-pending" data-catalog-panel="style1">
+            <div class="inner" id="catalog-mount-style1"></div>
+        </section>
+
+    </div>
+
+    <footer id="footer" class="wrapper style1-alt">
+        <div class="inner">
+            <ul class="menu">
+                <li><a rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">Yiu Hong Ko</a> · <a href="mailto:yiuhong.ko@gmail.com">yiuhong.ko@gmail.com</a> · <a href="https://orcid.org/0000-0003-4436-0166" aria-label="ORCID iD 0000-0003-4436-0166">ORCID</a></li>
+                <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
+                <li>Content <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Code <a href="LICENSE-CODE">MIT</a></li>
+                <li><a href="cite.html">Cite & reuse</a></li>
+                <li><a href="license.html">Licenses</a></li>
+                <li><a href="CHANGELOG.md">Changelog</a></li>
+                <li><a href="CONTRIBUTING.md">Contribute</a></li>
+                <li><a href="https://github.com/yiuhong/demo-library/issues">Spotted a mistake?</a></li>
+                <li><a href="https://github.com/yiuhong/demo-library">View source on GitHub</a></li>
+                <li>Version <span data-site-field="version">0.1.4</span> · Updated <time datetime="2026-11-01" data-site-field="updatedDisplay" data-site-datetime="updated">1 November 2026</time></li>
+                <li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="https://yiuhong.github.io/assets/js/jquery.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/jquery.scrollex.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/jquery.scrolly.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/browser.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/breakpoints.min.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/util.js"></script>
+    <script src="https://yiuhong.github.io/assets/js/main.js"></script>
+    <script src="assets/site-meta.js"></script>
+    <script src="assets/site-oer-footer.js"></script>
+    <script src="assets/opened.js"></script>
+    <script src="assets/concept-maps.js"></script>
+    <script src="assets/catalog.js"></script>
+</body>
+</html>

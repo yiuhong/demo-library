@@ -1,0 +1,399 @@
+/*
+ * Home page. A short hero and one featured plate. The plate cycles
+ * three existing demonstrations. Motion stays in the figure.
+ */
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.home-hero {
+    display: grid;
+    gap: 2.75rem 3.25rem;
+    align-items: start;
+}
+
+.home-lead p.library-about {
+    max-width: 36rem;
+    margin: 0 0 1.5rem 0;
+    font-size: 1.15rem;
+    line-height: 1.45;
+}
+
+.home-hero h1.project-viz-wordmark {
+    margin: 0 0 1rem 0;
+}
+
+.home-hero h1.project-viz-wordmark img {
+    width: min(100%, 34rem);
+    max-height: none;
+}
+
+.home-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0 0 1.35rem 0;
+}
+
+a.home-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 12.5rem;
+    min-height: 3.1rem;
+    padding: 0.75rem 1.2rem;
+    border: 1px solid #000000 !important;
+    border-radius: 2px;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 0.98rem;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none !important;
+}
+
+a.home-cta.is-primary {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+a.home-cta:hover,
+a.home-cta:focus-visible,
+a.home-cta.is-primary:hover,
+a.home-cta.is-primary:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+a.home-cta.is-primary:hover,
+a.home-cta.is-primary:focus-visible {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+a.home-cta:focus {
+    outline: none;
+}
+
+a.home-cta:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+#home-stage {
+    min-width: 0;
+}
+
+.home-slide[hidden] {
+    display: none !important;
+}
+
+.home-frame {
+    margin: 0 0 0.95rem 0;
+    padding: 0.85rem 0.95rem 0.75rem;
+    border: 1px solid #dedede;
+    border-radius: 2px;
+    background-color: #fbfbfb;
+    background-image: radial-gradient(#e4e4e4 1px, transparent 1px);
+    background-size: 16px 16px;
+}
+
+.home-frame-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0 0 0.35rem 0;
+}
+
+.home-fig,
+.home-plate-index {
+    margin: 0;
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+.home-frame svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.home-slide-title {
+    margin: 0 0 0.35rem 0;
+    font-size: 1.45rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+p.home-hook {
+    max-width: 36rem;
+    margin: 0 0 0.85rem 0;
+    color: #222222 !important;
+}
+
+a.home-open {
+    display: inline-block;
+    padding: 0.45rem 0.95rem;
+    border: 1px solid #000000 !important;
+    border-radius: 999px;
+    background: #000000 !important;
+    color: #ffffff !important;
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.03em;
+    line-height: 1.35;
+    text-decoration: none !important;
+}
+
+a.home-open:hover,
+a.home-open:focus-visible {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+a.home-open:focus {
+    outline: none;
+}
+
+a.home-open:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+a.home-open .hub-opened {
+    margin-left: 0.45rem;
+    letter-spacing: 0.08em;
+}
+
+.home-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.95rem;
+}
+
+.home-dots {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+button.home-control,
+button.home-dot {
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    border: 1px solid #000000 !important;
+    border-radius: 2px;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+button.home-control {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.68rem;
+}
+
+button.home-dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    padding: 0;
+    border-radius: 50%;
+    letter-spacing: 0;
+    font-size: 0;
+}
+
+button.home-control:after,
+button.home-dot:after {
+    display: none !important;
+    content: none !important;
+}
+
+button.home-dot.is-active,
+button.home-control:hover,
+button.home-control:focus-visible,
+button.home-dot:hover,
+button.home-dot:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+button.home-control:focus,
+button.home-dot:focus {
+    outline: none;
+}
+
+button.home-control:focus-visible,
+button.home-dot:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.home-frame.is-neuro {
+    background-color: #0f172a;
+    background-image: radial-gradient(#1e293b 1px, transparent 1px);
+    border-color: #334155;
+}
+
+.home-frame.is-neuro .home-fig,
+.home-frame.is-neuro .home-plate-index {
+    color: #c7d2fe !important;
+}
+
+.ve-fit {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: ve-draw 2.8s ease-in-out infinite;
+}
+
+.ve-share {
+    transform-box: fill-box;
+    transform-origin: 0% 50%;
+    animation: ve-fill 2.8s ease-in-out infinite;
+}
+
+.r-loose,
+.r-label-loose {
+    animation: r-fade-loose 4.4s ease-in-out infinite;
+}
+
+.r-tight,
+.r-label-tight {
+    animation: r-fade-tight 4.4s ease-in-out infinite;
+}
+
+.erp-trace {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: erp-draw 3.6s ease-in-out infinite;
+}
+
+.erp-peak {
+    opacity: 0;
+    animation: erp-peak 3.6s ease-in-out infinite;
+}
+
+@keyframes ve-draw {
+    0% { stroke-dashoffset: 100; }
+    48%, 100% { stroke-dashoffset: 0; }
+}
+
+@keyframes ve-fill {
+    0% { transform: scaleX(0.08); }
+    48%, 100% { transform: scaleX(0.68); }
+}
+
+@keyframes r-fade-loose {
+    0%, 16% { opacity: 1; }
+    40%, 70% { opacity: 0; }
+    90%, 100% { opacity: 1; }
+}
+
+@keyframes r-fade-tight {
+    0%, 16% { opacity: 0; }
+    40%, 70% { opacity: 1; }
+    90%, 100% { opacity: 0; }
+}
+
+@keyframes erp-draw {
+    0% { stroke-dashoffset: 100; }
+    64%, 100% { stroke-dashoffset: 0; }
+}
+
+@keyframes erp-peak {
+    0%, 42% { opacity: 0; }
+    64%, 86% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ve-fit,
+    .ve-share,
+    .r-loose,
+    .r-tight,
+    .r-label-loose,
+    .r-label-tight,
+    .erp-trace,
+    .erp-peak {
+        animation: none;
+    }
+
+    .ve-fit { stroke-dashoffset: 0; }
+    .ve-share { transform: scaleX(0.68); }
+    .r-loose,
+    .r-label-loose { opacity: 0; }
+    .r-tight,
+    .r-label-tight { opacity: 1; }
+    .erp-trace { stroke-dashoffset: 0; }
+    .erp-peak { opacity: 1; }
+}
+
+p.library-preferred-cite {
+    max-width: 42rem;
+    margin: 0 0 1.5em 0;
+    padding: 0.85em 1em;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+}
+
+p.library-preferred-cite em,
+p.library-preferred-cite a {
+    color: #000000 !important;
+}
+
+a.library-full-cite {
+    display: inline-block;
+    margin-left: 0.65em;
+    font-weight: bold;
+    white-space: nowrap;
+    text-decoration: none !important;
+    border-bottom: 1px solid #000000 !important;
+}
+
+@media screen and (min-width: 1280px) {
+    .home-hero {
+        grid-template-columns: minmax(0, 1.05fr) minmax(17rem, 0.95fr);
+        align-items: center;
+    }
+}
+
+@media screen and (max-width: 736px) {
+    .home-hero {
+        gap: 2rem;
+    }
+
+    a.home-cta {
+        flex: 1 1 100%;
+    }
+
+    .home-slide-title {
+        font-size: 1.25rem;
+    }
+}

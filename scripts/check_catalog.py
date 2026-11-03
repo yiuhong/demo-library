@@ -6,9 +6,9 @@ Reads ``demos.json``, ``tracks.json``, and ``families.json`` at the repo root:
 * each demo has a non-empty title and href, and that href is a file in the repo
 * each track step has a non-empty title and href, and that href is a file in the repo
 * each track step image, when set, is a file in the repo
-* each concept map names catalog demos by href (titles stay in demos.json), in before / backbone / after order, and opts into the hub or a real catalog section
+* each concept map names catalog demos by href (titles stay in demos.json), in before / backbone / after order, and opts into the tracks page (hub) or a real catalog section
 * LICENSE states CC BY 4.0 for content and MIT for code, and LICENSE-CODE is the MIT text
-* index.html, cite.html, license.html, and each demo carry the site chrome, and no HTML page says "All rights reserved"
+* index.html, catalog.html, tracks.html, cite.html, license.html, and each demo carry the site chrome, and no HTML page says "All rights reserved"
 * the cite page has cite, license, reuse, credit, accessibility, and report sections, an ORCID link, and a per-demo example whose title matches demos.json
 * CITATION.cff matches the current version, and the cite page links the machine-readable citation
 * CHANGELOG.md and CONTRIBUTING.md are present, and the changelog names the current version
@@ -302,7 +302,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             if needle not in footer_js:
                 problems.append(f"assets/site-oer-footer.js: missing {needle}")
 
-    for name in ("index.html", "cite.html", "license.html"):
+    for name in ("index.html", "catalog.html", "tracks.html", "cite.html", "license.html"):
         text = read_text(ROOT / name)
         if text is None:
             problems.append(f"{name}: file not found")
@@ -383,11 +383,16 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                     "data-site-apa",
                     'id="hub-spine"',
                     'id="colophon"',
-                    "Choose a path",
+                    "Browse the catalog",
+                    "catalog.html",
+                    "FIG_VE",
+                    "FIG_R",
                     "FIG_ERP",
                     "project-viz-opened",
                 )
             )
+            if "Choose a path" in text:
+                problems.append("index.html: Choose a path does not belong on the home page")
             about = element_text(text, "library-about")
             if about is None:
                 problems.append("index.html: library about blurb is missing")
@@ -758,13 +763,26 @@ def check_families(
 
 
 def check_map_page(problems: list[str]) -> None:
-    text = read_text(ROOT / "index.html")
-    if text is None:
-        problems.append("index.html: file not found")
-        return
-    for needle in ("families.json", "assets/concept-maps.css", "a.concept-node"):
-        if needle not in text:
-            problems.append(f"index.html: missing {needle}")
+    for name in ("tracks.html", "catalog.html"):
+        text = read_text(ROOT / name)
+        if text is None:
+            problems.append(f"{name}: file not found")
+            continue
+        for needle in ("assets/concept-maps.css", "assets/concept-maps.js"):
+            if needle not in text:
+                problems.append(f"{name}: missing {needle}")
+    script = read_text(ROOT / "assets" / "concept-maps.js")
+    sheet = read_text(ROOT / "assets" / "concept-maps.css")
+    if script is None or "families.json" not in script or "concept-node" not in script:
+        problems.append("assets/concept-maps.js: concept-map renderer is missing")
+    if sheet is None or "a.concept-node" not in sheet:
+        problems.append("assets/concept-maps.css: concept-map links are missing")
+    tracks = read_text(ROOT / "tracks.html")
+    tracks_js = read_text(ROOT / "assets" / "tracks-page.js")
+    if tracks and "Choose a path" in tracks:
+        problems.append("tracks.html: Choose a path does not belong on Guided Tracks")
+    if tracks_js and "track-steps" in tracks_js:
+        problems.append("assets/tracks-page.js: do not repeat track steps as a link list")
 
 
 if __name__ == "__main__":

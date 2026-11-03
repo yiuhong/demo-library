@@ -1,11 +1,9 @@
 /*
  * Curriculum hub on the Project Viz home.
  *
- * The catalog list and Guided Tracks view keep their own rules in index.html.
- * This file is the masthead, featured plates, path cards, tracks strip,
- * browser-only progress, and colophon. Neuroscience plates reuse the dark
- * lab surface from the neuroscience demos; everything else stays on the
- * light statistics / library surface.
+ * Shared chrome for the home, the catalog, and Guided Tracks:
+ * edition line, section cards, browser-only progress, and the colophon.
+ * Page layouts live in home.css, catalog.css, and concept-maps.css.
  */
 
 #catalog-intro h1.project-viz-wordmark {
