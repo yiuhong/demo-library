@@ -1,0 +1,258 @@
+/*
+ * Concept-family strips. A shared backbone, then the catalog titles
+ * before and after it. No graph library: a row of links, a 2px join,
+ * and the same black-and-white surface as the curriculum hub.
+ * Neuroscience stays on its own plates; these strips are library navigation.
+ */
+
+#hub-maps-section[hidden] {
+    display: none !important;
+}
+
+.concept-map {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.concept-map + .concept-map {
+    margin-top: 1.65rem;
+}
+
+.concept-map-head {
+    max-width: 40rem;
+    margin: 0 0 0.85rem 0;
+}
+
+p.concept-map-kicker {
+    margin: 0 0 0.3rem 0;
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+.concept-map h3.concept-map-title,
+.concept-map h4.concept-map-title {
+    margin: 0 0 0.35rem 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    text-transform: none;
+    color: #000000 !important;
+}
+
+.concept-map h4.concept-map-title {
+    font-size: 1.05rem;
+}
+
+p.concept-map-backbone {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: #222222 !important;
+}
+
+.concept-map-backbone-label {
+    display: block;
+    margin: 0 0 0.15rem 0;
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+ol.concept-rail {
+    --concept-join: 1rem;
+    display: flex;
+    align-items: stretch;
+    gap: var(--concept-join);
+    max-width: 100%;
+    margin: 0;
+    padding: 0.15rem 0.05rem 0.35rem;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+}
+
+.concept-stop {
+    position: relative;
+    display: flex;
+    flex: 1 0 10.15rem;
+    min-width: 10.15rem;
+    scroll-snap-align: start;
+}
+
+.concept-stop:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: var(--concept-join);
+    height: 2px;
+    margin-top: -1px;
+    background: #000000;
+}
+
+a.concept-node {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+    width: 100%;
+    min-height: 7.25rem;
+    padding: 0.85rem 0.9rem 0.8rem;
+    background: #ffffff !important;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    box-shadow: none !important;
+    color: #000000 !important;
+    text-align: left;
+    text-decoration: none !important;
+}
+
+a.concept-node:focus {
+    outline: none;
+}
+
+a.concept-node:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+a.concept-node:hover,
+a.concept-node:focus-visible {
+    background: #000000 !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+.concept-kicker {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.concept-relation,
+a.concept-node .hub-opened {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: #000000 !important;
+}
+
+.concept-relation::before {
+    content: "";
+    display: inline-block;
+    width: 0.42rem;
+    height: 0.42rem;
+    margin-right: 0.38rem;
+    box-sizing: border-box;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    vertical-align: 0.05em;
+}
+
+.concept-stop.is-backbone .concept-relation::before {
+    background: currentColor;
+}
+
+.concept-title {
+    font-size: 0.98rem;
+    font-weight: bold;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+    color: #000000 !important;
+}
+
+.concept-stop.is-backbone a.concept-node {
+    background: #000000 !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+.concept-stop.is-backbone a.concept-node .concept-relation,
+.concept-stop.is-backbone a.concept-node .concept-title,
+.concept-stop.is-backbone a.concept-node .hub-opened {
+    color: #ffffff !important;
+}
+
+a.concept-node:hover .concept-relation,
+a.concept-node:hover .concept-title,
+a.concept-node:hover .hub-opened,
+a.concept-node:focus-visible .concept-relation,
+a.concept-node:focus-visible .concept-title,
+a.concept-node:focus-visible .hub-opened {
+    color: #ffffff !important;
+}
+
+.concept-stop.is-backbone a.concept-node:hover,
+.concept-stop.is-backbone a.concept-node:focus-visible {
+    background: #ffffff !important;
+    border-color: #000000 !important;
+    color: #000000 !important;
+}
+
+.concept-stop.is-backbone a.concept-node:hover .concept-relation,
+.concept-stop.is-backbone a.concept-node:hover .concept-title,
+.concept-stop.is-backbone a.concept-node:hover .hub-opened,
+.concept-stop.is-backbone a.concept-node:focus-visible .concept-relation,
+.concept-stop.is-backbone a.concept-node:focus-visible .concept-title,
+.concept-stop.is-backbone a.concept-node:focus-visible .hub-opened {
+    color: #000000 !important;
+}
+
+.concept-map.is-section {
+    margin: 0 0 1.15rem 0;
+}
+
+.concept-map.is-section + .concept-map.is-section {
+    margin-top: 0;
+}
+
+.concept-map.is-section a.concept-node {
+    min-height: 6.35rem;
+}
+
+@media screen and (max-width: 736px) {
+    ol.concept-rail {
+        --concept-join: 0.85rem;
+        flex-direction: column;
+        overflow-x: visible;
+        scroll-snap-type: none;
+    }
+
+    .concept-stop {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .concept-stop:not(:last-child)::after {
+        top: 100%;
+        left: 1.15rem;
+        width: 2px;
+        height: var(--concept-join);
+    }
+
+    a.concept-node,
+    .concept-map.is-section a.concept-node {
+        min-height: 0;
+    }
+
+    .concept-map + .concept-map {
+        margin-top: 1.35rem;
+    }
+}

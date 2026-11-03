@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Concept maps for the variance family and for correlation and covariance. A strip on the home and on the catalog sections that opt in. Titles come from the catalog. Opened demonstrations use the same browser list as the hub.
 - Limitations of summary statistics, under Statistics → Same summaries, different graphs, with a track step after the Q–Q plot (Datasaurus Dozen and Anscombe’s quartet)
 
 ### Changed
