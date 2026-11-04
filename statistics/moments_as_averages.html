@@ -84,12 +84,6 @@
     <div class="max-w-7xl mx-auto w-full">
     <div class="demo-topbar">
         <a class="demo-back" href="../index.html">← Project Viz</a>
-        <button id="fullscreen-btn" class="demo-btn demo-btn-primary" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-            </svg>
-            <span class="hidden sm:inline font-medium text-sm">Fullscreen</span>
-        </button>
     </div>
 
     <header class="demo-header mb-6 text-center">
@@ -685,38 +679,6 @@
         document.getElementById('toggle-mean').addEventListener('change', updateVisualization);
         document.getElementById('toggle-var').addEventListener('change', updateVisualization);
         document.getElementById('toggle-shape').addEventListener('change', updateVisualization);
-
-        // Fullscreen Toggle Logic with cross-browser support
-        document.getElementById('fullscreen-btn').addEventListener('click', () => {
-            const docElm = document.documentElement;
-            
-            // Check if we are currently in fullscreen mode across different browsers
-            const isFullscreen = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
-
-            if (!isFullscreen) {
-                // Enter fullscreen
-                if (docElm.requestFullscreen) {
-                    docElm.requestFullscreen();
-                } else if (docElm.mozRequestFullScreen) { /* Firefox */
-                    docElm.mozRequestFullScreen();
-                } else if (docElm.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-                    docElm.webkitRequestFullscreen();
-                } else if (docElm.msRequestFullscreen) { /* IE/Edge */
-                    docElm.msRequestFullscreen();
-                }
-            } else {
-                // Exit fullscreen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.mozCancelFullScreen) { /* Firefox */
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) { /* IE/Edge */
-                    document.msExitFullscreen();
-                }
-            }
-        });
 
         // Initialize
         createSliders();

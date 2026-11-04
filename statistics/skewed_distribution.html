@@ -87,12 +87,6 @@
     <div class="max-w-6xl w-full">
         <div class="demo-topbar">
             <a class="demo-back" href="../index.html">← Project Viz</a>
-            <button id="fullscreen-btn" class="demo-btn demo-btn-primary" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-                </svg>
-                <span class="hidden sm:inline">Fullscreen</span>
-            </button>
         </div>
         <header class="demo-header mb-6">
             <h1 class="text-3xl font-bold mb-2">Skewed vs. Normal Distribution</h1>
@@ -912,23 +906,6 @@
             
             initCharts();
             updateCharts(currentAlpha);
-        });
-
-        // Fullscreen functionality
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        fullscreenBtn.addEventListener('click', () => {
-            const doc = window.document;
-            const docEl = doc.documentElement;
-
-            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-            const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-
-            if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-                requestFullScreen.call(docEl);
-            }
-            else {
-                cancelFullScreen.call(doc);
-            }
         });
 
     </script>

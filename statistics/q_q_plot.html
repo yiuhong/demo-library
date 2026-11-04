@@ -170,12 +170,6 @@
 
 <div class="demo-topbar" style="width:100%;max-width:1024px;">
     <a class="demo-back" href="../index.html">← Project Viz</a>
-    <button id="fullscreen-btn" class="demo-btn demo-btn-primary" type="button">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-        </svg>
-        <span class="hidden sm:inline font-medium text-sm">Fullscreen</span>
-    </button>
 </div>
 
 <div class="container">
@@ -653,52 +647,6 @@
     });
 
     initChart();
-
-    // Fullscreen Toggle Logic
-    const fsBtn = document.getElementById('fullscreen-btn');
-    const fsText = fsBtn.querySelector('span');
-
-    fsBtn.addEventListener('click', () => {
-        const elem = document.documentElement;
-        
-        if (!document.fullscreenElement && !document.mozFullScreenElement && 
-            !document.webkitFullscreenElement && !document.msFullscreenElement) {
-            // Request Fullscreen
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
-            } else if (elem.mozRequestFullScreen) {
-                elem.mozRequestFullScreen();
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            }
-        } else {
-            // Exit Fullscreen
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            }
-        }
-    });
-
-    const updateFsText = () => {
-        if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
-            fsText.textContent = "Exit Fullscreen";
-        } else {
-            fsText.textContent = "Fullscreen";
-        }
-    };
-
-    document.addEventListener('fullscreenchange', updateFsText);
-    document.addEventListener('webkitfullscreenchange', updateFsText);
-    document.addEventListener('mozfullscreenchange', updateFsText);
-    document.addEventListener('MSFullscreenChange', updateFsText);
 </script>
 
 <script src="../assets/site-meta.js"></script>

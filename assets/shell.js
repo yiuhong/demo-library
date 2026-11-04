@@ -1,8 +1,11 @@
 /*
  * Catalog and Guided Tracks shell.
- * The demo pane loads the selected file in place. Fullscreen only
- * hides the rail; this file does not call the browser Fullscreen API.
- * Phone shows the rail, then the demo. Back returns to the same rail.
+ * The demo pane loads the selected file in place. A Guided Tracks
+ * connection uses the same path: tracks/connection.html?track=&step=
+ * in the iframe, and tracks.html?demo=tracks/connection.html&step=
+ * in the address bar. Fullscreen only hides the rail; this file does
+ * not call the browser Fullscreen API. Phone shows the rail, then the
+ * page. Back returns to the same rail.
  */
 (function () {
     var page = document.body.getAttribute("data-viz-page");
@@ -20,9 +23,24 @@
     var seeded = false;
     var railScroll = 0;
     var scoped = false;
+    var openSelector = "a.demo-card, a.concept-node, a.playlist-connection-link";
 
     function isPhone() {
         return phoneQuery.matches;
+    }
+
+    function safeTrackId(value) {
+        if (typeof value !== "string") return "";
+        var id = value.trim();
+        if (!/^[a-z][a-z0-9-]*$/.test(id)) return "";
+        return id;
+    }
+
+    function connectionParts(href) {
+        if (typeof href !== "string") return null;
+        var match = /^tracks\/connection\.html\?track=([a-z][a-z0-9-]*)&step=([0-9]{1,3})$/.exec(href);
+        if (!match) return null;
+        return { href: href, track: match[1], step: match[2] };
     }
 
     function safeDemoHref(href) {
@@ -33,18 +51,29 @@
         if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return "";
         if (value.indexOf("//") === 0 || value.indexOf("..") !== -1) return "";
         if (value.charAt(0) === "/") return "";
+        if (value === "tracks/connection.html") return "";
+        if (connectionParts(value)) return value;
         if (!/^[a-z0-9_./-]+\.html$/i.test(value)) return "";
         return value;
     }
 
-    function safeTrackId(value) {
-        if (typeof value !== "string") return "";
-        var id = value.trim();
-        if (!/^[a-z][a-z0-9-]*$/.test(id)) return "";
-        return id;
+    function readConnection() {
+        var params;
+        try {
+            params = new URLSearchParams(window.location.search);
+        } catch (err) {
+            return "";
+        }
+        if ((params.get("demo") || "").trim() !== "tracks/connection.html") return "";
+        var track = safeTrackId(params.get("track") || "");
+        var step = (params.get("step") || "").trim();
+        if (!track || !/^[0-9]{1,3}$/.test(step)) return "";
+        return "tracks/connection.html?track=" + track + "&step=" + String(parseInt(step, 10));
     }
 
     function readDemo() {
+        var connection = readConnection();
+        if (connection) return connection;
         try {
             return safeDemoHref(new URLSearchParams(window.location.search).get("demo") || "");
         } catch (err) {
@@ -53,7 +82,7 @@
     }
 
     function findLink(href) {
-        var links = document.querySelectorAll("a.demo-card, a.concept-node");
+        var links = document.querySelectorAll(openSelector);
         var i;
         for (i = 0; i < links.length; i++) {
             if (links[i].getAttribute("href") === href) return links[i];
@@ -63,6 +92,8 @@
 
     function titleFrom(link) {
         if (!link) return "";
+        var named = link.getAttribute("data-pane-title");
+        if (named && named.trim()) return named.replace(/\s+/g, " ").trim();
         var node = link.querySelector(".demo-card-title, .concept-title");
         var text = node ? node.textContent : link.textContent;
         return (text || "").replace(/\s+/g, " ").trim();
@@ -108,7 +139,7 @@
     }
 
     function trackFor(href) {
-        var links = document.querySelectorAll(".track-block a.concept-node");
+        var links = document.querySelectorAll(".track-block a.concept-node, .track-block a.playlist-connection-link");
         var i;
         for (i = 0; i < links.length; i++) {
             if (links[i].getAttribute("href") !== href) continue;
@@ -118,6 +149,8 @@
                 return safeTrackId(heading.id.slice("track-".length));
             }
         }
+        var parts = connectionParts(href);
+        if (parts) return parts.track;
         return "";
     }
 
@@ -161,7 +194,7 @@
     }
 
     function highlight(href) {
-        document.querySelectorAll("a.demo-card, a.concept-node").forEach(function (link) {
+        document.querySelectorAll(openSelector).forEach(function (link) {
             var on = !!href && link.getAttribute("href") === href;
             link.classList.toggle("is-current", on);
             if (on) link.setAttribute("aria-current", "location");
@@ -184,9 +217,21 @@
 
     function buildUrl(href) {
         var url = new URL(window.location.href);
-        if (href) url.searchParams.set("demo", href);
-        else url.searchParams.delete("demo");
+        var parts = connectionParts(href);
+        if (parts) {
+            url.searchParams.set("demo", "tracks/connection.html");
+            url.searchParams.set("step", parts.step);
+            if (page === "tracks") {
+                url.searchParams.set("track", parts.track);
+                url.hash = "track-" + encodeURIComponent(parts.track);
+            }
+        } else {
+            if (href) url.searchParams.set("demo", href);
+            else url.searchParams.delete("demo");
+            url.searchParams.delete("step");
+        }
         if (page === "catalog") {
+            url.searchParams.delete("step");
             var category = activeCategory();
             if (category && category !== "all") url.searchParams.set("category", category);
             else url.searchParams.delete("category");
@@ -199,6 +244,7 @@
         seeded = true;
         var listUrl = new URL(demoUrl.href);
         listUrl.searchParams.delete("demo");
+        listUrl.searchParams.delete("step");
         history.replaceState({ vizShell: "list", demo: "" }, "", listUrl);
         history.pushState({ vizShell: "demo", demo: currentHref }, "", demoUrl);
     }
@@ -208,15 +254,16 @@
         href = safeDemoHref(href);
         if (!href || !frame) return;
         var title = options.title || titleFrom(findLink(href));
+        if (!title && connectionParts(href)) title = "Connection";
         var same = currentHref === href && !!frame.getAttribute("src");
         currentHref = href;
         showDemoChrome(true, title);
         highlight(href);
+        frame.title = title || "Demonstration";
         if (!same) {
             var src = new URL(href, window.location.href);
             src.searchParams.set("embed", "shell");
             src.hash = "";
-            frame.title = title || "Demonstration";
             frame.src = src.href;
         }
         if (options.track) {
@@ -292,7 +339,7 @@
     document.addEventListener("click", function (event) {
         if (!event.isTrusted || event.defaultPrevented || event.button !== 0) return;
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        var link = event.target.closest ? event.target.closest("a.demo-card, a.concept-node") : null;
+        var link = event.target.closest ? event.target.closest(openSelector) : null;
         if (!link || (rail && !rail.contains(link))) return;
         var href = safeDemoHref(link.getAttribute("href") || "");
         if (!href) return;

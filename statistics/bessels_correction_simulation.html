@@ -36,12 +36,6 @@
     <div class="max-w-6xl mx-auto">
     <div class="demo-topbar">
         <a class="demo-back" href="../index.html">← Project Viz</a>
-        <button id="fullscreenToggleBtn" class="demo-btn demo-btn-primary" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            </svg>
-            <span class="hidden sm:inline text-sm font-medium">Fullscreen</span>
-        </button>
     </div>
 
     <div class="demo-card overflow-hidden">
@@ -183,7 +177,6 @@
         const biasedAvgDisplay = document.getElementById('biasedAvgDisplay');
         const unbiasedAvgDisplay = document.getElementById('unbiasedAvgDisplay');
         const latestSampleDetails = document.getElementById('latestSampleDetails');
-        const fullscreenToggleBtn = document.getElementById('fullscreenToggleBtn');
 
         // --- Helper Functions ---
         function randomNormal(mean, stdDev) {
@@ -573,33 +566,6 @@
             }
         }
 
-        function toggleFullscreen() {
-            const docElm = document.documentElement;
-            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                // Enter fullscreen
-                if (docElm.requestFullscreen) {
-                    docElm.requestFullscreen();
-                } else if (docElm.msRequestFullscreen) {
-                    docElm.msRequestFullscreen();
-                } else if (docElm.mozRequestFullScreen) {
-                    docElm.mozRequestFullScreen();
-                } else if (docElm.webkitRequestFullScreen) {
-                    docElm.webkitRequestFullScreen();
-                }
-            } else {
-                // Exit fullscreen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.webkitCancelFullScreen) {
-                    document.webkitCancelFullScreen();
-                }
-            }
-        }
-
         // --- Event Listeners ---
         sampleSizeInput.addEventListener('input', (e) => {
             sampleSizeVal.innerText = e.target.value;
@@ -613,7 +579,6 @@
 
         drawBtn.addEventListener('click', runSimulationStep);
         resetBtn.addEventListener('click', resetSimulation);
-        fullscreenToggleBtn.addEventListener('click', toggleFullscreen);
 
         window.onload = () => {
             sampleSizeVal.innerText = sampleSizeInput.value;

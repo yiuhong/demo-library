@@ -27,6 +27,8 @@
                 var demo = (params.get("demo") || "").trim();
                 if (demo && demo.length <= 300 && !/[\s\\]/.test(demo) && !/^[a-z][a-z0-9+.-]*:/i.test(demo) && demo.indexOf("..") === -1 && /^[a-z0-9_./-]+\.html$/i.test(demo)) {
                     next.set("demo", demo);
+                    var step = (params.get("step") || "").trim();
+                    if (demo === "tracks/connection.html" && /^[0-9]{1,3}$/.test(step)) next.set("step", step);
                 }
                 var hash = id ? "#track-" + encodeURIComponent(id) : "";
                 window.location.replace("tracks.html" + (next.toString() ? "?" + next.toString() : "") + hash);

@@ -9,14 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Catalog and Guided Tracks share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane. The catalog rail is search, filters, and the list. The Guided Tracks rail keeps the concept-map strips, and each playlist is a vertical menu: the demonstration link, then that step’s note, formulae, and figure between it and the next demonstration. The selected demonstration loads in the pane. Fullscreen hides the rail inside the shell. A phone shows the list or map first, then the demonstration; Back returns to the same category or track. `catalog.html?demo=…` and `tracks.html?demo=…` open that demonstration directly.
+- A Guided Tracks connection opens in the demo pane. The rail shows a Connection link after a step that has a note, formulae, or figure, instead of that text and image inline. [`tracks/connection.html`](tracks/connection.html) reads the step from `tracks.json`. `tracks.html?track=the-id&demo=tracks/connection.html&step=0` opens it. Phone Back returns to the same track list.
+- Catalog and Guided Tracks share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane. The catalog rail is search, filters, and the list. The Guided Tracks rail keeps the concept-map strips, and each playlist is a vertical menu of demonstration links. The selected demonstration loads in the pane. Fullscreen hides the rail inside the shell. A phone shows the list or map first, then the demonstration; Back returns to the same category or track. `catalog.html?demo=…` and `tracks.html?demo=…` open that demonstration directly.
 
 ### Changed
 
-- A demonstration embedded in the shell hides Return to Project Viz. That link stays when the file is opened on its own. Home stays the featured page.
+- A demonstration or connection page embedded in the shell hides Return to Project Viz. That link stays when the file is opened on its own. Home stays the featured page.
 
 ### Removed
 
+- Fullscreen buttons on demonstrations that called the browser Fullscreen API. Catalog and Guided Tracks keep the shell Fullscreen control, which only hides the rail.
 - The opened-progress counter, its Reset control, and the “Saved in this browser only. No account.” note on Home, Catalog, and Guided Tracks.
 - Catalog cards no longer show an Opened tag or any open-state styling. The catalog does not read the opened list.
 - The Opened label on Guided Tracks concept maps and playlist steps.
