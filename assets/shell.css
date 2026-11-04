@@ -1,6 +1,8 @@
 /*
- * Shared Catalog and Guided Tracks shell.
- * Top bar, skinny left rail, demo pane on the same row.
+ * Shared library shell.
+ * .viz-topbar is the horizontal menu on Home, Catalog, and Guided Tracks.
+ * Catalog and Guided Tracks also use the left rail and demo pane (.viz-app).
+ * Home keeps the featured landing and does not use .viz-app.
  * Fullscreen hides the rail inside this shell. It does not use
  * the browser Fullscreen API. Phone shows one step at a time.
  */
@@ -21,6 +23,7 @@
 }
 
 .viz-topbar {
+    --bg-base: #ffffff;
     flex: 0 0 auto;
     background: var(--bg-base) !important;
     border-bottom: 1px solid #000000;
