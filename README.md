@@ -22,7 +22,7 @@ Version and last-updated date live in [`assets/site-meta.js`](assets/site-meta.j
 
 Demo pages live in subject folders. The library page does not hard-code the catalog cards.
 
-The home page (`index.html`) is the front page: the wordmark, two buttons (the catalog and Guided Tracks), and a featured plate that cycles three demonstrations. The catalog is [`catalog.html`](catalog.html), with search and category filters. Guided Tracks are [`tracks.html`](tracks.html). Featured plates are the three `href`s in `index.html` (`FIG_VE`, `FIG_R`, `FIG_ERP`); titles and sentences come from `demos.json`. Those figure labels are only on the home plate. Concept maps are a separate list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration marks that catalog row, concept-map node, or featured plate (`localStorage` key `project-viz-opened`).
+The home page (`index.html`) is the front page: the wordmark, two buttons (the catalog and Guided Tracks), and a featured plate that cycles three demonstrations. The catalog is [`catalog.html`](catalog.html), with search and category filters. Guided Tracks are [`tracks.html`](tracks.html). Featured plates are the three `href`s in `index.html` (`FIG_VE`, `FIG_R`, `FIG_ERP`); titles and sentences come from `demos.json`. Those figure labels are only on the home plate. Concept maps are a separate list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration is stored in this browser (`localStorage` key `project-viz-opened`). Guided Tracks paint a concept-map or playlist box black when that demo is in the list. The home featured plate can show Opened from the same list. The catalog does not.
 
 * `📁 /cognitive_psychology`
 * `📁 /neuroscience`
@@ -163,7 +163,7 @@ A concept map is a short strip of related demonstrations in teaching order. It i
 * `show` — `hub` puts the strip at the top of Guided Tracks. The catalog does not draw these strips.
 * `nodes` — catalog `href`s in teaching order. `relation` is `before`, `backbone`, or `after`. Order is before, then backbone, then after. Do not add a `title`. A map needs a backbone demo and at least one before or after demo.
 
-A node opens in this tab. The opened mark is the hub's browser list.
+A node opens in this tab. A box is black only when that demonstration is in the browser's opened list. The map does not show an Opened label. The center (backbone) demo is not filled black on its own.
 
 ## Check catalog and track links
 

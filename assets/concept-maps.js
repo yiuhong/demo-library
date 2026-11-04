@@ -111,10 +111,11 @@
             var stop = el("li", "concept-stop is-" + (node.relation || "step"));
             var link = el("a", "concept-node");
             link.href = node.href;
-            var kicker = el("span", "concept-kicker");
-            if (node.label) kicker.appendChild(el("span", "concept-relation", node.label));
-            kicker.appendChild(el("span", "hub-opened", "Opened"));
-            link.appendChild(kicker);
+            if (node.label) {
+                var kicker = el("span", "concept-kicker");
+                kicker.appendChild(el("span", "concept-relation", node.label));
+                link.appendChild(kicker);
+            }
             link.appendChild(el("span", "concept-title", node.title));
             stop.appendChild(link);
             rail.appendChild(stop);

@@ -262,7 +262,7 @@
         layout();
     }
 
-    // The hub reads this key to mark opened demonstrations.
+    // Guided Tracks and the home plate read this key. The catalog does not.
     function rememberOpened(href) {
         var key = "project-viz-opened";
         var list = [];
