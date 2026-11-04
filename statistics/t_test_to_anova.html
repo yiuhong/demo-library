@@ -14,6 +14,7 @@
     
     <!-- D3.js for Visualizations -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../assets/press-readout.js"></script>
 
     <!-- jStat for Statistical Functions (p-value calculation) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.6/jstat.min.js"></script>
@@ -509,20 +510,46 @@
             // Helper function to clamp x-coordinates within the visible scale boundaries
             const clampX = val => Math.max(margin.left, Math.min(width - margin.right, xScale(val)));
 
-            layerPoints.selectAll("circle").data(data, d => d.id).join("circle")
+            function placeTip(event, html) {
+                const pageX = event.pageX != null ? event.pageX : event.clientX + window.scrollX;
+                const pageY = event.pageY != null ? event.pageY : event.clientY + window.scrollY;
+                tooltip.interrupt().style("opacity", .9);
+                tooltip.html(html)
+                    .style("left", (pageX + 10) + "px")
+                    .style("top", (pageY - 28) + "px");
+            }
+            function hideTip() {
+                if (window.vizPressReadout && vizPressReadout.holding()) return;
+                tooltip.transition().duration(500).style("opacity", 0);
+            }
+            function forceHideTip() {
+                tooltip.interrupt().style("opacity", 0);
+            }
+
+            layerPoints.selectAll("circle.data-point").data(data, d => d.id).join("circle")
                 .attr("class", "data-point")
-                .attr("r", 8) 
+                .attr("r", 8)
                 .attr("cx", d => clampX(d.val)).attr("cy", d => d.y)
                 .attr("fill", d => d.color).attr("stroke", d => d3.color(d.color).darker(0.5))
+                .style("pointer-events", "none");
+
+            layerPoints.selectAll("circle.point-hit").data(data, d => d.id).join("circle")
+                .attr("class", "point-hit")
+                .attr("r", 18)
+                .attr("fill", "transparent")
+                .attr("cx", d => clampX(d.val)).attr("cy", d => d.y)
+                .style("cursor", "pointer")
                 .on("mouseover", function(event, d) {
-                    tooltip.transition().duration(200).style("opacity", .9);
-                    tooltip.html(`Value: ${fmtDec(d.val)}`)
-                           .style("left", (event.pageX + 10) + "px")
-                           .style("top", (event.pageY - 28) + "px");
+                    placeTip(event, `Value: ${fmtDec(d.val)}`);
                 })
-                .on("mouseout", function(d) {
-                    tooltip.transition().duration(500).style("opacity", 0);
+                .on("mouseout", function(event) {
+                    if (window.vizPressReadout && vizPressReadout.touchMouse(event)) return;
+                    hideTip();
                 });
+            vizPressReadout.bind(layerPoints.selectAll("circle.point-hit"), {
+                show(event, d) { placeTip(event, `Value: ${fmtDec(d.val)}`); },
+                hide: forceHideTip
+            });
 
             const meansData = [
                 { type: 'Group A Mean', val: actualMeanA, color: colors.A },
@@ -530,20 +557,31 @@
                 { type: 'Grand Mean', val: grandMean, color: colors.Grand }
             ];
             
-            layerMeans.selectAll("line").data(meansData).join("line")
+            layerMeans.selectAll("line.mean-line, line.grand-mean-line").data(meansData).join("line")
                 .attr("class", d => d.type === 'Grand Mean' ? 'grand-mean-line' : 'mean-line')
                 .attr("x1", d => clampX(d.val)).attr("x2", d => clampX(d.val))
                 .attr("y1", margin.top - 20).attr("y2", height - margin.bottom + 10)
                 .attr("stroke", d => d.color)
+                .style("pointer-events", "none");
+
+            layerMeans.selectAll("line.mean-hit").data(meansData).join("line")
+                .attr("class", "mean-hit")
+                .attr("x1", d => clampX(d.val)).attr("x2", d => clampX(d.val))
+                .attr("y1", margin.top - 20).attr("y2", height - margin.bottom + 10)
+                .attr("stroke", "transparent")
+                .attr("stroke-width", 22)
+                .style("cursor", "pointer")
                 .on("mouseover", function(event, d) {
-                    tooltip.transition().duration(200).style("opacity", .9);
-                    tooltip.html(`${d.type}: ${fmtDec(d.val)}`)
-                           .style("left", (event.pageX + 10) + "px")
-                           .style("top", (event.pageY - 28) + "px");
+                    placeTip(event, `${d.type}: ${fmtDec(d.val)}`);
                 })
-                .on("mouseout", function(d) {
-                    tooltip.transition().duration(500).style("opacity", 0);
+                .on("mouseout", function(event) {
+                    if (window.vizPressReadout && vizPressReadout.touchMouse(event)) return;
+                    hideTip();
                 });
+            vizPressReadout.bind(layerMeans.selectAll("line.mean-hit"), {
+                show(event, d) { placeTip(event, `${d.type}: ${fmtDec(d.val)}`); },
+                hide: forceHideTip
+            });
 
             layerTotal.selectAll("line").data(data, d => d.id).join("line")
                 .attr("class", "deviation-line").attr("stroke", statsViz.color("total"))

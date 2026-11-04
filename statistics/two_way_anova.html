@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../assets/press-readout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
     <style>
         body {
@@ -999,30 +1000,71 @@
                 .attr("stroke", d => genderColor(d.gender))
                 .attr("stroke-width", 2)
                 .attr("transform", d => `translate(${d.x},${d.y})`)
-                .style("cursor", "pointer")
-                .on("mouseover", function (event, d) {
-                    if (selectedPoint && selectedPoint.id === d.id) return;
-                    d3.select(this).attr("stroke", statsViz.color('highlight')).attr("stroke-width", 2.5);
-                    tooltip.style("opacity", 0.95)
-                        .html(`<strong>Group ${d.group} (${GENDER_LABELS[d.gender]})</strong><br>Value: ${d.val.toFixed(2)}<br>Cell Mean: ${stats.cellMeans[d.cellKey].toFixed(2)}`)
-                        .style("left", (event.pageX + 12) + "px")
-                        .style("top", (event.pageY - 28) + "px");
-                })
-                .on("mouseout", function (event, d) {
-                    if (selectedPoint && selectedPoint.id === d.id) return;
-                    d3.select(this).attr("stroke", genderColor(d.gender)).attr("stroke-width", 2);
-                    tooltip.style("opacity", 0);
-                })
-                .on("click", function(event, d) {
-                    event.stopPropagation();
-                    selectedPoint = d;
-                    renderBreakdown();
-                    tooltip.style("opacity", 0); // Hide tooltip when transitioning to breakdown mode
-                }),
+                .style("pointer-events", "none"),
             update => update.transition().duration(400)
                 .attr("transform", d => `translate(${d.x},${d.y})`),
             exit => exit.remove()
         );
+
+        function tipHtml(d) {
+            return `<strong>Group ${d.group} (${GENDER_LABELS[d.gender]})</strong><br>Value: ${d.val.toFixed(2)}<br>Cell Mean: ${stats.cellMeans[d.cellKey].toFixed(2)}`;
+        }
+        function placeTip(event, html) {
+            const pageX = event.pageX != null ? event.pageX : event.clientX + window.scrollX;
+            const pageY = event.pageY != null ? event.pageY : event.clientY + window.scrollY;
+            tooltip.style("opacity", 0.95)
+                .html(html)
+                .style("left", (pageX + 12) + "px")
+                .style("top", (pageY - 28) + "px");
+        }
+        function markPoint(d, on) {
+            dotLayer.selectAll("path.data-pt").filter(p => p.id === d.id)
+                .attr("stroke", on ? statsViz.color("highlight") : genderColor(d.gender))
+                .attr("stroke-width", on ? 2.5 : 2);
+        }
+
+        // The symbol is about 9px across. This circle is the finger target.
+        const hitPts = dotLayer.selectAll("circle.pt-hit").data(data, d => d.id);
+        hitPts.join(
+            enter => enter.append("circle")
+                .attr("class", "pt-hit")
+                .attr("r", 18)
+                .attr("fill", "transparent")
+                .style("cursor", "pointer"),
+            update => update,
+            exit => exit.remove()
+        )
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y)
+            .on("mouseover", function (event, d) {
+                if (selectedPoint && selectedPoint.id === d.id) return;
+                markPoint(d, true);
+                placeTip(event, tipHtml(d));
+            })
+            .on("mouseout", function (event, d) {
+                if (window.vizPressReadout && (vizPressReadout.touchMouse(event) || vizPressReadout.holding())) return;
+                if (selectedPoint && selectedPoint.id === d.id) return;
+                markPoint(d, false);
+                tooltip.style("opacity", 0);
+            })
+            .on("click", function (event, d) {
+                event.stopPropagation();
+                selectedPoint = d;
+                renderBreakdown();
+                tooltip.style("opacity", 0);
+            });
+        vizPressReadout.bind(dotLayer.selectAll("circle.pt-hit"), {
+            show(event, d) {
+                if (selectedPoint && selectedPoint.id === d.id) return;
+                markPoint(d, true);
+                placeTip(event, tipHtml(d));
+            },
+            hide(event, d) {
+                if (!d) return;
+                if (!(selectedPoint && selectedPoint.id === d.id)) markPoint(d, false);
+                tooltip.style("opacity", 0);
+            }
+        });
 
         if (selectedPoint) {
             selectedPoint = data.find(p => p.id === selectedPoint.id);

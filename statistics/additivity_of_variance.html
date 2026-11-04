@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../assets/press-readout.js"></script>
     <script>
         window.MathJax = {
             tex: {
@@ -632,13 +633,27 @@
                 .append("circle")
                 .attr("class", "data-point")
                 .attr("r", 4)
+                .style("pointer-events", "none")
                 .attr("cx", d => xScale(d.x))
                 .attr("cy", d => yScale(d.y))
                 .merge(points)
+                .style("pointer-events", "none")
                 .attr("cx", d => xScale(d.x))
                 .attr("cy", d => yScale(d.y));
 
             points.exit().remove();
+
+            const hits = pointsGroup.selectAll("circle.point-hit").data(currentData, d => d.id);
+            hits.exit().remove();
+            hits.enter()
+                .append("circle")
+                .attr("class", "point-hit")
+                .attr("r", 16)
+                .attr("fill", "transparent")
+                .style("cursor", "pointer")
+                .merge(hits)
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y));
 
             // 3. Projections
             const projLinesGroup = d3.select("#projection-lines-group");
@@ -883,9 +898,9 @@
             // 5. Interactive Tooltips + Individual Point Squared Deviation Highlight (on Hover)
             const hoverSSGroup = d3.select("#hover-ss-group");
 
-            d3.select("#data-points-group").selectAll("circle")
-                .on("mouseover", function(event, d) {
-                    d3.select(this).attr("r", 6).attr("fill", statsViz.color("highlight")).attr("opacity", 1);
+            function showPoint(event, d) {
+                    pointsGroup.selectAll("circle.data-point").filter(p => p.id === d.id)
+                        .attr("r", 6).attr("fill", statsViz.color("highlight")).attr("opacity", 1);
 
                     const tooltip = d3.select("#tooltip");
                     const [mx, my] = d3.pointer(event, container);
@@ -929,12 +944,28 @@
                     hoverSSGroup.append("circle")
                         .attr("cx", xScale(px)).attr("cy", yScale(py))
                         .attr("r", 5).attr("fill", statsViz.color("highlight"));
-                })
-                .on("mouseout", function() {
-                    d3.select(this).attr("r", 4).attr("fill", statsViz.color("sample")).attr("opacity", 0.6);
+            }
+
+            d3.select("#data-points-group").selectAll("circle.point-hit")
+                .on("mouseover", showPoint)
+                .on("mouseout", function(event, d) {
+                    if (window.vizPressReadout && (vizPressReadout.touchMouse(event) || vizPressReadout.holding())) return;
+                    pointsGroup.selectAll("circle.data-point").filter(p => p.id === d.id)
+                        .attr("r", 4).attr("fill", statsViz.color("sample")).attr("opacity", 0.6);
                     d3.select("#tooltip").transition().duration(150).style("opacity", 0);
                     hoverSSGroup.selectAll("*").remove();
                 });
+
+            vizPressReadout.bind(d3.select("#data-points-group").selectAll("circle.point-hit"), {
+                show: showPoint,
+                hide(event, d) {
+                    if (!d) return;
+                    pointsGroup.selectAll("circle.data-point").filter(p => p.id === d.id)
+                        .attr("r", 4).attr("fill", statsViz.color("sample")).attr("opacity", 0.6);
+                    d3.select("#tooltip").interrupt().style("opacity", 0);
+                    hoverSSGroup.selectAll("*").remove();
+                }
+            });
         }
 
         // Event Listeners for Mode Toggle

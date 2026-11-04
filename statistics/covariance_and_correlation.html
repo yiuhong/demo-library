@@ -22,14 +22,25 @@
         .point {
             cursor: grab;
             transition: r 0.2s ease, stroke-width 0.2s ease, fill 0.2s ease;
+            pointer-events: none; /* The larger hit circle underneath receives the press. */
+        }
+
+        /* Invisible grab target. Visual radius stays 7px; the finger gets 44px. */
+        .point-hit {
+            fill: transparent;
+            cursor: grab;
             touch-action: none; /* Prevents mobile scrolling while dragging points */
             -webkit-user-select: none;
             user-select: none;
             -webkit-touch-callout: none; /* Long-press removes; don't open the callout */
         }
-        
-        .point:active {
+
+        .point-hit:active {
             cursor: grabbing;
+        }
+
+        .point-hit.is-leaving {
+            pointer-events: none;
         }
 
         /* Hold still and the stroke warns that the point is about to go. */
@@ -62,7 +73,8 @@
             animation: point-pop 0.22s ease;
         }
 
-        .point:hover {
+        .point:hover,
+        .point.is-hot {
             r: 9;
             stroke-width: 2.5;
             fill: color-mix(in srgb, var(--viz-sample) 72%, black);
@@ -404,7 +416,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
                 Covariance and Correlation
             </h1>
-            <p class="text-sm mt-2 leading-relaxed">Drag the points on the grid to observe real-time changes in deviations, covariance, and correlation. Hover a point to read its (x, y). Click or tap empty space to add a point. Press and hold a point to remove it. At least two points stay.</p>
+            <p class="text-sm mt-2 leading-relaxed">Drag the points on the grid to observe real-time changes in deviations, covariance, and correlation. Hover or press a point to read its (x, y). Click or tap empty space to add a point. Press and hold a point to remove it. At least two points stay.</p>
         </div>
         
         <div class="p-5 flex-1 flex flex-col gap-6">
@@ -877,12 +889,23 @@
             return true;
         }
 
-        function restorePointLook(node) {
-            d3.select(node)
+        const POINT_R = 7;
+        const POINT_HIT_R = 22;
+
+        // The drag target is the invisible hit circle. Paint changes belong on the dot.
+        function visualFor(node, d) {
+            if (node && node.classList && node.classList.contains("point")) return d3.select(node);
+            const id = d && d.id;
+            return gPoints.selectAll("circle.point").filter(p => p.id === id);
+        }
+
+        function restorePointLook(node, d) {
+            visualFor(node, d)
                 .classed("is-arming", false)
+                .classed("is-hot", false)
                 .attr("stroke", "#fff")
                 .attr("stroke-width", 2)
-                .attr("r", 7);
+                .attr("r", POINT_R);
         }
 
         function detachPlotAddListeners() {
@@ -1014,7 +1037,8 @@
             .on("start", function(event, d) {
                 // A press on a circle is drag or remove, never an add.
                 cancelPlotAdd();
-                d3.select(this).classed("is-new", false);
+                const vis = visualFor(this, d);
+                vis.classed("is-new", false);
                 if (heldExit) flushHeldExit();
                 clearTimeout(tipHideTimer);
                 clearRemoveTimers();
@@ -1028,6 +1052,7 @@
                 };
                 draggingId = d.id;
                 hoveredId = d.id;
+                vis.raise();
                 d3.select(this).raise();
                 showPointTip(d);
 
@@ -1036,14 +1061,14 @@
                 armTimer = setTimeout(() => {
                     armTimer = null;
                     if (gesture !== token || token.moved || token.removed) return;
-                    d3.select(node).classed("is-arming", true);
+                    visualFor(node, d).classed("is-arming", true);
                 }, REMOVE_ARM_MS);
                 removeTimer = setTimeout(() => {
                     removeTimer = null;
                     if (gesture !== token || token.moved || token.removed) return;
-                    d3.select(node).classed("is-arming", false);
+                    visualFor(node, d).classed("is-arming", false);
                     token.removed = commitRemove(d.id, true);
-                    if (!token.removed) restorePointLook(node);
+                    if (!token.removed) restorePointLook(node, d);
                 }, REMOVE_HOLD_MS);
             })
             .on("drag", function(event, d) {
@@ -1051,12 +1076,14 @@
                 if (!gesture.moved && movementPx(event) > REMOVE_SLOP_PX) {
                     gesture.moved = true;
                     clearRemoveTimers();
-                    d3.select(this)
-                        .classed("is-arming", false)
-                        .raise()
+                    const vis = visualFor(this, d);
+                    vis.classed("is-arming", false)
+                        .classed("is-hot", true)
                         .attr("stroke", statsViz.color("--viz-total"))
                         .attr("stroke-width", 3)
                         .attr("r", 9);
+                    vis.raise();
+                    d3.select(this).raise();
                 }
                 if (!gesture.moved) return;
 
@@ -1088,7 +1115,7 @@
 
                 gesture = null;
                 draggingId = null;
-                restorePointLook(node);
+                restorePointLook(node, d);
 
                 const pe = event.sourceEvent;
                 const isTouch = pe && (pe.pointerType === "touch" || (pe.type && pe.type.indexOf("touch") === 0));
@@ -1106,12 +1133,13 @@
                     return;
                 }
 
-                const stillOver = pe && pe.target === node;
+                const stillOver = pe && (pe.target === node || (node.parentNode && pe.target === node.parentNode));
                 if (!stillOver) {
                     if (hoveredId === d.id) hoveredId = null;
                     hidePointTip();
                 } else {
                     hoveredId = d.id;
+                    visualFor(node, d).classed("is-hot", true);
                     showPointTip(d);
                 }
             });
@@ -1828,25 +1856,33 @@
             // heldExit is already out of the statistics, but the circle stays mounted
             // until the pointer lifts so a touch long-press can finish.
             const pointData = heldExit ? data.concat([heldExit]) : data;
-            const points = gPoints.selectAll("circle.point").data(pointData, d => d.id);
-            
-            points.exit().remove();
-            
-            points.enter().append("circle")
-                .attr("class", "point")
-                .attr("r", 7)
-                .attr("fill", statsViz.color("--viz-sample"))
-                .attr("stroke", "#fff")
-                .attr("stroke-width", 2)
-                .style("filter", "drop-shadow(0px 3px 3px rgba(0,0,0,0.2))")
+            const leaving = d => !!(heldExit && d.id === heldExit.id);
+
+            // Hit circles first, so the visible dots paint above them. The dots
+            // ignore pointers, so a press anywhere in the 44px target hits this.
+            const hits = gPoints.selectAll("circle.point-hit").data(pointData, d => d.id);
+            hits.exit().remove();
+            hits.enter().append("circle")
+                .attr("class", "point-hit")
+                .attr("r", POINT_HIT_R)
                 .on("mouseenter", function(event, d) {
                     if (heldExit && d.id === heldExit.id) return;
                     clearTimeout(tipHideTimer);
                     hoveredId = d.id;
+                    visualFor(this, d).classed("is-hot", true);
+                    showPointTip(d);
+                })
+                .on("pointerdown", function(event, d) {
+                    if (event.pointerType === "mouse") return;
+                    if (heldExit && d.id === heldExit.id) return;
+                    clearTimeout(tipHideTimer);
+                    hoveredId = d.id;
+                    visualFor(this, d).classed("is-hot", true);
                     showPointTip(d);
                 })
                 .on("mouseleave", function(event, d) {
                     if (draggingId === d.id) return;
+                    visualFor(this, d).classed("is-hot", false);
                     if (hoveredId === d.id) hoveredId = null;
                     hidePointTip();
                 })
@@ -1859,8 +1895,22 @@
                     }, { passive: false });
                 })
                 .call(dragBehavior)
+                .merge(hits)
+                .classed("is-leaving", leaving)
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y));
+
+            const points = gPoints.selectAll("circle.point").data(pointData, d => d.id);
+            points.exit().remove();
+            points.enter().append("circle")
+                .attr("class", "point")
+                .attr("r", POINT_R)
+                .attr("fill", statsViz.color("--viz-sample"))
+                .attr("stroke", "#fff")
+                .attr("stroke-width", 2)
+                .style("filter", "drop-shadow(0px 3px 3px rgba(0,0,0,0.2))")
                 .merge(points)
-                .classed("is-leaving", d => !!(heldExit && d.id === heldExit.id))
+                .classed("is-leaving", leaving)
                 .attr("cx", d => xScale(d.x))
                 .attr("cy", d => yScale(d.y));
 
@@ -1911,11 +1961,11 @@
             render();
             
             // Add a brief animation to the points to indicate reset
-            gPoints.selectAll("circle")
+            gPoints.selectAll("circle.point")
                 .transition().duration(400).ease(d3.easeElastic)
                 .attr("r", 9)
                 .transition().duration(200)
-                .attr("r", 7);
+                .attr("r", POINT_R);
         });
 
         // Fullscreen Toggle Logic

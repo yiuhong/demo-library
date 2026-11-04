@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../assets/press-readout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.6/jstat.min.js"></script>
     <style>
     .chart-container {
@@ -630,10 +631,10 @@
             document.getElementById('stat-power').innerText = `${(metrics.power * 100).toFixed(1)}%`;
         }
 
-        overlay.on("mousemove", function(event) {
-            const [mouseX] = d3.pointer(event, this);
+        function showPowerReadout(event) {
+            const [mouseX] = d3.pointer(event, overlay.node());
             const xVal = xScale.invert(mouseX);
-            
+
             const densityH0 = normalPDF(xVal, params.mu0, metrics.se);
             const densityH1 = normalPDF(xVal, params.mu1, metrics.se);
 
@@ -651,19 +652,43 @@
                 hoverDotH1.style("opacity", 0);
             }
 
+            const pageX = event.pageX != null ? event.pageX : event.clientX + window.scrollX;
+            const pageY = event.pageY != null ? event.pageY : event.clientY + window.scrollY;
             let tooltipContent = `<strong>Sample Mean (x̄):</strong> ${xVal.toFixed(2)}<br/>`;
             if (params.showH0) tooltipContent += `<span style="color:var(--h0-color)">●</span> f(x̄ | H₀): ${densityH0.toFixed(3)}<br/>`;
             if (params.showH1) tooltipContent += `<span style="color:var(--h1-color)">●</span> f(x̄ | H₁): ${densityH1.toFixed(3)}`;
 
             tooltip.html(tooltipContent)
-                .style("left", `${event.pageX + 15}px`)
-                .style("top", `${event.pageY - 28}px`)
+                .style("left", `${pageX + 15}px`)
+                .style("top", `${pageY - 28}px`)
                 .style("opacity", 1);
-        }).on("mouseleave", function() {
+        }
+
+        function hidePowerReadout() {
+            if (window.vizPressReadout && vizPressReadout.holding()) return;
             hoverLine.style("opacity", 0);
             hoverDotH0.style("opacity", 0);
             hoverDotH1.style("opacity", 0);
             tooltip.style("opacity", 0);
+        }
+
+        overlay.on("mousemove", function(event) {
+            showPowerReadout(event);
+        }).on("mouseleave", function(event) {
+            if (window.vizPressReadout && vizPressReadout.touchMouse(event)) return;
+            hidePowerReadout();
+        });
+
+        // A still press reads the region under the finger. A slide still scrolls.
+        vizPressReadout.bind(overlay, {
+            show: showPowerReadout,
+            move: showPowerReadout,
+            hide: function() {
+                hoverLine.style("opacity", 0);
+                hoverDotH0.style("opacity", 0);
+                hoverDotH1.style("opacity", 0);
+                tooltip.style("opacity", 0);
+            }
         });
 
         document.getElementById('alpha-slider').addEventListener('input', (e) => {
