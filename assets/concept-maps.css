@@ -270,11 +270,6 @@ a.playlist-connection-link:focus-visible {
     margin-top: 2.5rem;
 }
 
-#tracks-family-section:not([hidden]) {
-    margin-bottom: 1.35rem;
-}
-
-#tracks-family-section[hidden],
 #tracks-missing[hidden] {
     display: none !important;
 }

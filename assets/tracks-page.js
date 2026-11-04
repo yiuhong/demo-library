@@ -1,15 +1,13 @@
 /*
- * Guided Tracks page. Concept-map strips from families.json sit above
- * the playlists. Each playlist is a vertical menu. When a step has a
- * note, formulae, or figure, its connectionTitle is a link immediately
- * before that demonstration. The link opens tracks/connection.html,
- * which reads the same step from tracks.json. step= is that step's
- * index. The same demos are not listed a second time.
+ * Guided Tracks page. The rail is the playlists from tracks.json.
+ * Family concept maps stay in families.json and are not mounted here.
+ * Each playlist is a vertical menu. When a step has a note, formulae,
+ * or figure, its connectionTitle is a link immediately before that
+ * demonstration. The link opens tracks/connection.html, which reads
+ * the same step from tracks.json. step= is that step's index.
  */
 (function () {
     var root = document.getElementById("tracks-root");
-    var familyMount = document.getElementById("tracks-family-mount");
-    var familySection = document.getElementById("tracks-family-section");
     var missing = document.getElementById("tracks-missing");
 
     function el(tag, className, text) {
@@ -103,25 +101,6 @@
         var list = Array.isArray(data) ? data : (data && Array.isArray(data.tracks) ? data.tracks : null);
         if (!list) throw new Error("Tracks could not be loaded.");
         return list.map(normalizeTrack).filter(Boolean);
-    }
-
-    function titleMap(data) {
-        var byHref = {};
-        var categories = data && Array.isArray(data.categories) ? data.categories : [];
-        categories.forEach(function (category) {
-            var subs = category && Array.isArray(category.subcategories) ? category.subcategories : [];
-            subs.forEach(function (sub) {
-                var demos = sub && Array.isArray(sub.demos) ? sub.demos : [];
-                demos.forEach(function (demo) {
-                    if (!demo || typeof demo.href !== "string" || typeof demo.title !== "string") return;
-                    var href = demo.href.trim();
-                    var title = demo.title.trim();
-                    if (!href || !title || byHref[href]) return;
-                    byHref[href] = title;
-                });
-            });
-        });
-        return { byHref: byHref };
     }
 
     function trackIdFromLocation() {
@@ -235,19 +214,8 @@
         });
     }
 
-    function render(tracks, families) {
-        clear(familyMount);
+    function render(tracks) {
         clear(root);
-        var hubCount = 0;
-        families.forEach(function (family) {
-            if (family.show.indexOf("hub") === -1 || !familyMount) return;
-            familyMount.appendChild(window.ProjectVizMaps.renderConceptMap(family, {
-                headingTag: "h3",
-                headingId: "concept-map-" + family.id
-            }));
-            hubCount++;
-        });
-        if (familySection) familySection.hidden = hubCount === 0;
         if (!tracks.length) {
             root.appendChild(el("p", "hub-quiet", "No tracks yet."));
             return;
@@ -262,7 +230,6 @@
 
     function showError() {
         clear(root);
-        if (familySection) familySection.hidden = true;
         if (root) root.appendChild(el("p", "hub-quiet", "Guided tracks could not be loaded."));
     }
 
@@ -274,26 +241,12 @@
     }
 
     function load() {
-        Promise.all([
-            fetch(jsonUrl("tracks.json")).then(function (response) {
-                if (!response.ok) throw new Error("tracks");
-                return response.json();
-            }),
-            fetch(jsonUrl("demos.json")).then(function (response) {
-                if (!response.ok) throw new Error("demos");
-                return response.json();
-            }),
-            fetch(jsonUrl("families.json")).then(function (response) {
-                if (!response.ok) throw new Error("families");
-                return response.json();
-            })
-        ]).then(function (results) {
-            var tracks = normalizeTracks(results[0]);
-            var titles = titleMap(results[1]);
-            var families = window.ProjectVizMaps.normalizeFamilies(results[2], function (href) {
-                return titles.byHref[href] || "";
-            });
-            render(tracks, families);
+        fetch(jsonUrl("tracks.json")).then(function (response) {
+            if (!response.ok) throw new Error("tracks");
+            return response.json();
+        }).then(function (data) {
+            var tracks = normalizeTracks(data);
+            render(tracks);
             refreshOpened();
             revealTrack(tracks);
             document.dispatchEvent(new CustomEvent("projectviz:tracks"));

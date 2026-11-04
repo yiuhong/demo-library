@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - A Guided Tracks connection opens in the demo pane. When a step has a note, formulae, or figure, the rail lists that step's `connectionTitle` immediately before the demonstration. The same title is the heading on [`tracks/connection.html`](tracks/connection.html), which reads the step from `tracks.json`. `step=` is still that step's index. `tracks.html?track=the-id&demo=tracks/connection.html&step=0` opens the page for step 0. Phone Back returns to the same track list.
-- Catalog and Guided Tracks share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane. The catalog rail is search, filters, and the list. The Guided Tracks rail keeps the concept-map strips, and each playlist is a vertical menu of demonstration links. The selected demonstration loads in the pane. Fullscreen hides the rail inside the shell. A phone shows the list or map first, then the demonstration; Back returns to the same category or track. `catalog.html?demo=…` and `tracks.html?demo=…` open that demonstration directly.
+- Catalog and Guided Tracks share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane. The catalog rail is search, filters, and the list. The Guided Tracks rail is a vertical menu of playlist links. The selected demonstration loads in the pane. Fullscreen hides the rail inside the shell. A phone shows the list or map first, then the demonstration; Back returns to the same category or track. `catalog.html?demo=…` and `tracks.html?demo=…` open that demonstration directly.
 
 ### Changed
 
@@ -19,12 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Variance and Correlation and covariance from the Guided Tracks menu. Those titles were concept-map strips from `families.json`. The file stays, and those families are not playlists. Real tracks keep their connection titles.
 - Guided Tracks rail copy that did not navigate: the “Concept maps” heading, “Related demonstrations along a path.”, the “Concept map” kicker, the backbone sentence under a concept map, and the summary paragraph under a playlist. Section titles and demonstration titles stay.
 - Fullscreen buttons on demonstrations that called the browser Fullscreen API. Catalog and Guided Tracks keep the shell Fullscreen control, which only hides the rail.
 - The opened-progress counter, its Reset control, and the “Saved in this browser only. No account.” note on Home, Catalog, and Guided Tracks.
 - Catalog cards no longer show an Opened tag or any open-state styling. The catalog does not read the opened list.
 - The Opened label on Guided Tracks concept maps and playlist steps.
-- Concept-map labels for Before, Backbone, and After, including the Backbone prefix on the shared sentence. The strips stay, in the same order, on Guided Tracks.
+- Concept-map labels for Before, Backbone, and After, including the Backbone prefix on the shared sentence. Guided Tracks does not draw the family strips.
 - The Catalog Sections jump list, and the concept-map strips that sat above catalog demo lists. Search, category filters, and the demonstration list stay.
 
 ### Added

@@ -1,8 +1,8 @@
 /*
  * Concept-map rails. Titles come from the caller. Nodes are catalog hrefs
- * and open in this tab. families.json decides which maps exist; Guided
- * Tracks build one rail per playlist from tracks.json. The backbone
- * sentence stays in families.json and is not drawn on the strip.
+ * and open in this tab. families.json keeps the maps. Guided Tracks
+ * does not mount those strips; its playlists come from tracks.json.
+ * The backbone sentence stays in families.json and is not drawn.
  */
 (function (global) {
     function el(tag, className, text) {
