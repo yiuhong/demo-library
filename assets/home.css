@@ -1,7 +1,15 @@
 /*
  * Home page. A short hero and one featured plate. The plate cycles
  * three existing demonstrations. Motion stays in the figure.
+ * The menu is the shared .viz-topbar from shell.css. This page scrolls,
+ * so the bar stays pinned. It is not the Catalog two-pane shell.
  */
+
+body.viz-home .viz-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
 
 .visually-hidden {
     position: absolute !important;
