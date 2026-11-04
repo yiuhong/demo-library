@@ -153,6 +153,130 @@
     line-height: 1.4;
 }
 
+.viz-rail .page-lead[hidden],
+button.track-rail-back[hidden] {
+    display: none !important;
+}
+
+button.track-rail-back {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    width: 100%;
+    height: auto !important;
+    min-height: 2.75rem;
+    margin: 0 0 0.85rem;
+    padding: 0.4rem 0.95rem !important;
+    border: 1px solid #000000 !important;
+    border-radius: 3em !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    font-family: var(--font-family);
+    font-size: 0.92rem !important;
+    font-weight: bold;
+    letter-spacing: 0.01em !important;
+    line-height: 1.2 !important;
+    text-align: left;
+    text-transform: none !important;
+    cursor: pointer;
+}
+
+button.track-rail-back::before {
+    content: "\2190";
+    margin-right: 0.45rem;
+}
+
+button.track-rail-back:after {
+    display: none !important;
+    content: none !important;
+}
+
+button.track-rail-back:hover,
+button.track-rail-back:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+button.track-rail-back:focus {
+    outline: none;
+}
+
+button.track-rail-back:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+.viz-rail ul.track-chooser {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.viz-rail ul.track-chooser > li {
+    margin: 0 0 0.55rem;
+    padding: 0;
+    list-style: none;
+}
+
+.viz-rail ul.track-chooser > li::before,
+.viz-rail ul.track-chooser > li::after {
+    display: none !important;
+    content: none !important;
+}
+
+.viz-rail a.track-choice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 4.375rem;
+    margin: 0;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    font-weight: bold;
+    text-align: left;
+    text-decoration: none !important;
+}
+
+.viz-rail a.track-choice:hover,
+.viz-rail a.track-choice:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+.viz-rail a.track-choice:focus {
+    outline: none;
+}
+
+.viz-rail a.track-choice:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+.viz-rail .track-choice-title {
+    font-size: 0.98rem;
+    font-weight: bold;
+    line-height: 1.3;
+}
+
+.viz-rail .track-choice-count {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: inherit !important;
+}
+
 .viz-rail .search-container,
 .viz-rail #searchInput {
     max-width: none;

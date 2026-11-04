@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Demo pages keep a short strip: **Cite this demo** (that demo’s citation, in a new tab) and the author site (in a new tab). License, site-wide cite, ORCID, issues, and source links stay on the library footer.
+- Guided Tracks opens on the list of tracks. Choosing a track shows that playlist in the rail: the connection title, then the demonstration. Back returns to the track list. On a phone, Back from a demonstration returns to that track, and Back from the track returns to the list. A shared `tracks.html?track=the-id&demo=…` link still opens the step; Back restores the playlist first.
 - Home uses the same horizontal top bar as Catalog and Guided Tracks (Home, Catalog, Guided Tracks, About Yiu Hong). The page stays a featured landing: wordmark, buttons, and the plate. Cite & reuse and Licenses stay in the colophon and the footer.
 - Cite & reuse and Licenses use that same horizontal top bar. The vertical sidebar, the phone Menu button, and the “← Project Viz” button are gone from those pages. The citation and license text, and the footer, stay.
 - The About Yiu Hong control in the shared top bar keeps a full outline. The text-link underline no longer removes its bottom edge, so the whole label stays visible and tappable on Home, Catalog, Guided Tracks, Cite & reuse, and Licenses.
