@@ -1,6 +1,6 @@
 /*
  * Compact strip for interactive demos: Cite this demo, and the author site.
- * Library pages use the Hyperspace footer for license and site-wide cite.
+ * Library pages keep license and site-wide cite on the page footer.
  * Locked full-viewport demos pin the strip; other demos keep it in flow
  * so it sits after the page, including any pedagogy navigation.
  */
