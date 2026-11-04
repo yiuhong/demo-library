@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../assets/press-readout.js"></script>
     <style>
         body {
             background-color: var(--demo-bg);
@@ -56,11 +57,13 @@
             transition: all 0.5s ease-in-out;
         }
         
-        .dot:hover {
+        .dot:hover,
+        .dot.hovered {
             fill: var(--viz-highlight);
             fill-opacity: 1;
             r: 6;
         }
+        .dot-hit { cursor: pointer; }
 
         .reference-line {
             stroke: var(--viz-reference);
@@ -533,8 +536,25 @@
             .attr("y1", yScale(m * (-3.5) + c))
             .attr("y2", yScale(m * (3.5) + c));
 
-        const dots = dotGroup.selectAll("circle")
+        const dots = dotGroup.selectAll("circle.dot")
             .data(pairedData);
+
+        function showDotTip(event, d) {
+            dotGroup.selectAll("circle.dot").classed("hovered", false);
+            dotGroup.selectAll("circle.dot").filter(p => p === d).classed("hovered", true);
+            const pageX = event.pageX != null ? event.pageX : event.clientX + window.scrollX;
+            const pageY = event.pageY != null ? event.pageY : event.clientY + window.scrollY;
+            tooltip.interrupt().style("opacity", .9);
+            tooltip.html(`Theoretical: ${d.theoretical.toFixed(2)}<br/>Sample: ${d.sample.toFixed(2)}`)
+                .style("left", (pageX + 10) + "px")
+                .style("top", (pageY - 28) + "px");
+        }
+
+        function hideDotTip() {
+            if (window.vizPressReadout && vizPressReadout.holding()) return;
+            dotGroup.selectAll("circle.dot").classed("hovered", false);
+            tooltip.transition().duration(500).style("opacity", 0);
+        }
 
         dots.enter()
             .append("circle")
@@ -542,24 +562,44 @@
             .attr("r", 4)
             .attr("cx", scatterWidth / 2)
             .attr("cy", scatterHeight / 2)
-            .on("mouseover", function(event, d) {
-                d3.select(this).classed("hovered", true);
-                tooltip.transition().duration(200).style("opacity", .9);
-                tooltip.html(`Theoretical: ${d.theoretical.toFixed(2)}<br/>Sample: ${d.sample.toFixed(2)}`)
-                    .style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 28) + "px");
-            })
-            .on("mouseout", function(d) {
-                d3.select(this).classed("hovered", false);
-                tooltip.transition().duration(500).style("opacity", 0);
-            })
+            .style("pointer-events", "none")
             .merge(dots)
+            .style("pointer-events", "none")
             .transition()
             .duration(750)
             .attr("cx", d => Math.max(0, Math.min(scatterWidth, xScale(d.theoretical))))
             .attr("cy", d => yScale(d.sample));
 
         dots.exit().remove();
+
+        // Wider than the 4px dot so a finger can land on it. The dot stays the same size.
+        const hits = dotGroup.selectAll("circle.dot-hit").data(pairedData);
+        hits.exit().remove();
+        hits.enter()
+            .append("circle")
+            .attr("class", "dot-hit")
+            .attr("r", 16)
+            .attr("fill", "transparent")
+            .attr("cx", scatterWidth / 2)
+            .attr("cy", scatterHeight / 2)
+            .on("mouseover", showDotTip)
+            .on("mouseout", function(event) {
+                if (window.vizPressReadout && vizPressReadout.touchMouse(event)) return;
+                hideDotTip();
+            })
+            .merge(hits)
+            .transition()
+            .duration(750)
+            .attr("cx", d => Math.max(0, Math.min(scatterWidth, xScale(d.theoretical))))
+            .attr("cy", d => yScale(d.sample));
+
+        vizPressReadout.bind(dotGroup.selectAll("circle.dot-hit"), {
+            show: showDotTip,
+            hide: function() {
+                dotGroup.selectAll("circle.dot").classed("hovered", false);
+                tooltip.interrupt().style("opacity", 0);
+            }
+        });
 
         drawLeftHistogram(dataObj.sampleData);
     }

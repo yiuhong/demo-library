@@ -304,7 +304,8 @@
     }
 
     .factor-pill:hover .tooltip-popup,
-    .info-icon:hover .tooltip-popup {
+    .info-icon:hover .tooltip-popup,
+    .factor-pill.is-pinned .tooltip-popup {
       visibility: visible;
       opacity: 1;
     }
@@ -3506,6 +3507,32 @@
     // Initialize on load
     syncFactorUI();
     updateParams();
+
+    // A still tap pins a factor note. A slide does not, so the wide trees can scroll.
+    // Mouse hover is unchanged.
+    document.querySelectorAll(".factor-pill").forEach((pill) => {
+      if (!pill.querySelector(".tooltip-popup")) return;
+      let press = null;
+      pill.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "mouse") return;
+        press = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      });
+      pill.addEventListener("pointerup", (event) => {
+        if (!press || press.id !== event.pointerId) return;
+        const start = press;
+        press = null;
+        if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 12) return;
+        document.querySelectorAll(".factor-pill.is-pinned").forEach((other) => other.classList.remove("is-pinned"));
+        pill.classList.add("is-pinned");
+      });
+      pill.addEventListener("pointercancel", () => { press = null; });
+    });
+    document.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse") return;
+      const pill = event.target.closest && event.target.closest(".factor-pill");
+      if (pill && pill.querySelector(".tooltip-popup")) return;
+      document.querySelectorAll(".factor-pill.is-pinned").forEach((el) => el.classList.remove("is-pinned"));
+    });
   </script>
   <script src="../assets/site-meta.js"></script>
   <script src="../assets/site-oer-footer.js"></script>

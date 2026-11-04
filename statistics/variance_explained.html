@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../assets/press-readout.js"></script>
     <style>
         body {
             font-family: var(--demo-font, Arial, Helvetica, sans-serif);
@@ -605,25 +606,32 @@
             updateXAxis();
             const dots = dotGroup.selectAll(".dot").data(data, d => d.id);
 
+            function placeTip(event, d) {
+                dotGroup.selectAll("circle.dot").attr("r", 4).style("stroke-width", 1);
+                dotGroup.selectAll("circle.dot").filter(p => p.id === d.id).attr("r", 7).style("stroke-width", 2);
+                const xText = d.xLabel != null ? d.xLabel : d.x.toFixed(1);
+                const pageX = event.pageX != null ? event.pageX : event.clientX + window.scrollX;
+                const pageY = event.pageY != null ? event.pageY : event.clientY + window.scrollY;
+                tooltip.interrupt().style("opacity", .9);
+                tooltip.html(`X: ${xText}<br/>Y: ${d.y.toFixed(1)}`)
+                    .style("left", (pageX + 10) + "px")
+                    .style("top", (pageY - 28) + "px");
+            }
+            function hideTip() {
+                if (window.vizPressReadout && vizPressReadout.holding()) return;
+                dotGroup.selectAll("circle.dot").attr("r", 4).style("stroke-width", 1);
+                tooltip.transition().duration(500).style("opacity", 0);
+            }
+
             dots.enter()
                 .append("circle")
                 .attr("class", "dot")
                 .attr("r", 4)
+                .style("pointer-events", "none")
                 .attr("cx", d => xScale(d.x))
                 .attr("cy", d => yScale(d.y))
-                .on("mouseover", function(event, d) {
-                    d3.select(this).attr("r", 7).style("stroke-width", 2);
-                    tooltip.transition().duration(200).style("opacity", .9);
-                    const xText = d.xLabel != null ? d.xLabel : d.x.toFixed(1);
-                    tooltip.html(`X: ${xText}<br/>Y: ${d.y.toFixed(1)}`)
-                        .style("left", (event.pageX + 10) + "px")
-                        .style("top", (event.pageY - 28) + "px");
-                })
-                .on("mouseout", function(event, d) {
-                    d3.select(this).attr("r", 4).style("stroke-width", 1);
-                    tooltip.transition().duration(500).style("opacity", 0);
-                })
                 .merge(dots)
+                .style("pointer-events", "none")
                 .transition()
                 .duration(200)
                 .ease(d3.easeLinear)
@@ -631,6 +639,30 @@
                 .attr("cy", d => yScale(d.y));
 
             dots.exit().remove();
+
+            const hits = dotGroup.selectAll("circle.dot-hit").data(data, d => d.id);
+            hits.exit().remove();
+            hits.enter()
+                .append("circle")
+                .attr("class", "dot-hit")
+                .attr("r", 16)
+                .attr("fill", "transparent")
+                .style("cursor", "pointer")
+                .on("mouseover", placeTip)
+                .on("mouseout", function(event) {
+                    if (window.vizPressReadout && vizPressReadout.touchMouse(event)) return;
+                    hideTip();
+                })
+                .merge(hits)
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y));
+            vizPressReadout.bind(dotGroup.selectAll("circle.dot-hit"), {
+                show: placeTip,
+                hide() {
+                    dotGroup.selectAll("circle.dot").attr("r", 4).style("stroke-width", 1);
+                    tooltip.interrupt().style("opacity", 0);
+                }
+            });
 
             const model = calculateModel(data);
             const getY = d => {

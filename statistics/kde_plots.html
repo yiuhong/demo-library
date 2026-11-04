@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../assets/press-readout.js"></script>
     <style>
         .kde-app {
             box-sizing: border-box;
@@ -90,6 +91,47 @@
         }
         #floating-tooltip :is(.border-slate-700, .border-slate-800) {
             border-color: #000000 !important;
+        }
+        /* Narrow screens and fingers: a 44px target, track still a thin rule. */
+        @media (max-width: 768px), (pointer: coarse) {
+            .kde-app input[type="range"] {
+                -webkit-appearance: none;
+                appearance: none;
+                height: 44px;
+                margin: 0;
+                background: transparent !important;
+                border-radius: 0;
+            }
+            .kde-app input[type="range"]::-webkit-slider-runnable-track {
+                height: 8px;
+                background: #e2e8f0;
+                border-radius: 999px;
+            }
+            .kde-app input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 28px;
+                height: 28px;
+                margin-top: -10px;
+                border-radius: 50%;
+                background: #0f172a;
+                border: 2px solid #ffffff;
+                cursor: pointer;
+            }
+            .kde-app input[type="range"]::-moz-range-track {
+                height: 8px;
+                background: #e2e8f0;
+                border: none;
+                border-radius: 999px;
+            }
+            .kde-app input[type="range"]::-moz-range-thumb {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background: #0f172a;
+                border: 2px solid #ffffff;
+                cursor: pointer;
+            }
         }
         #hover-readout-top {
             background: #ffffff !important;
@@ -751,6 +793,7 @@
         }
 
         function hideTooltip() {
+            if (window.vizPressReadout && vizPressReadout.holding()) return;
             tooltipEl.classList.add('opacity-0');
         }
 
@@ -1041,6 +1084,8 @@
                 .attr('stroke-width', 1.5)
                 .attr('pointer-events', 'none')
                 .style('opacity', 0);
+
+            bindPanelPress(gTop, width, height, xScale);
         }
 
         // ------------------------------------------
@@ -1612,6 +1657,30 @@
                 .attr('stroke-width', 1.5)
                 .attr('pointer-events', 'none')
                 .style('opacity', 0);
+
+            bindPanelPress(gBottom, width, height, xScale);
+        }
+
+        // A still press traces the curve. A slide keeps scrolling the page.
+        // Mouse hover stays on the rect and mark listeners above.
+        function bindPanelPress(group, width, height, xScale) {
+            group.style('touch-action', 'pan-y');
+            vizPressReadout.bind(group, {
+                show(event) {
+                    const [mx, my] = d3.pointer(event, group.node());
+                    if (mx < 0 || my < 0 || mx > width || my > height) return;
+                    updateSynchronizedCrosshair(xScale.invert(mx), event, true);
+                },
+                move(event) {
+                    const [mx, my] = d3.pointer(event, group.node());
+                    if (mx < 0 || my < 0 || mx > width || my > height) return;
+                    updateSynchronizedCrosshair(xScale.invert(mx), event, true);
+                },
+                hide() {
+                    clearSynchronizedCrosshair();
+                    hideTooltip();
+                }
+            });
         }
 
         // Synchronize Vertical Hover Crosshair & Curve Density Tracers Across Both Canvases
@@ -1681,6 +1750,7 @@
         }
 
         function clearSynchronizedCrosshair() {
+            if (window.vizPressReadout && vizPressReadout.holding()) return;
             state.hoverX = null;
             svgTop.selectAll('.crosshair-line, .kde-tracer-top').style('opacity', 0);
             svgBottom.selectAll('.crosshair-line, .violin-tracer-upper, .violin-tracer-lower').style('opacity', 0);

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Phone and tablet should-fix from the cross-device audit. A still press shows readouts that were hover-only (covariance coordinates, distribution-map edges, KDE crosshair, Q-Q, t-test-to-ANOVA, two-way ANOVA, variance explained, additivity, statistical power, sum-of-squares notes, mixed-ANOVA row highlight). The distributions map pans with one finger horizontally and with two fingers in either direction, pinches to zoom, and uses a taller frame on a narrow screen. EEG, ERP, KDE, and mixed-ANOVA sliders have a finger-sized target on narrow screens. Home, catalog, guided tracks, cite, and licenses allow pinch-zoom.
 - Covariance and Correlation: press and hold a point to remove it, with a mouse or on a touch screen. At least two points stay.
 - The home is a front page: wordmark, buttons for the catalog and Guided Tracks, and a featured plate that cycles Variance Explained, Covariance and Correlation, and the ERP demo. The catalog and Guided Tracks are separate pages. Choose a path is gone. Each Guided Track is a concept-map rail; the same demos are not listed again underneath.
 - The library sidebar is the Project Viz menu: Home, Catalog, Guided Tracks, Cite & reuse, and Licenses. It no longer repeats the personal-site menu, including My projects. About Yiu Hong opens the personal site in a new tab.

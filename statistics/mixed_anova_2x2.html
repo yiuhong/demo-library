@@ -255,6 +255,37 @@
     transform: scale(1.15);
   }
 
+  /* Finger-sized target on a phone or tablet. Desktop keeps the 5px track. */
+  @media (max-width: 768px), (pointer: coarse) {
+    input[type="range"] {
+      height: 44px;
+      background: transparent;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 8px;
+      background: #e5e5e5;
+      border-radius: 4px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      width: 28px;
+      height: 28px;
+      margin-top: -10px;
+    }
+    input[type="range"]::-moz-range-track {
+      height: 8px;
+      background: #e5e5e5;
+      border: none;
+      border-radius: 4px;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--text-main);
+      border: 2px solid var(--blue);
+    }
+  }
+
   .slider-group.orange input[type="range"]::-webkit-slider-thumb { border-color: var(--orange); }
   .slider-group.purple input[type="range"]::-webkit-slider-thumb { border-color: var(--purple); }
   .slider-group.green input[type="range"]::-webkit-slider-thumb { border-color: var(--green); }
@@ -1005,7 +1036,7 @@
         </thead>
         <tbody>
           <tr class="bucket-sep"><td colspan="6">Bucket 1: Between-Subjects (Tested on Subject Midpoints)</td></tr>
-          <tr class="interactive-row" data-hover="group" onmouseenter="setHoverRow('group')" onmouseleave="setHoverRow(null)">
+          <tr class="interactive-row" data-hover="group">
             <td><span style="color:var(--blue);">●</span> Group (A vs B) <span class="ss-ms-badge">SS=MS</span></td>
             <td id="t-ss-g">0.00</td>
             <td>1</td>
@@ -1013,7 +1044,7 @@
             <td id="t-f-g" style="font-weight:700; color:var(--blue);">0.00</td>
             <td id="t-p-g">.000</td>
           </tr>
-          <tr class="interactive-row" data-hover="errB" onmouseenter="setHoverRow('errB')" onmouseleave="setHoverRow(null)">
+          <tr class="interactive-row" data-hover="errB">
             <td><span style="color:var(--viz-reference);">●</span> Error (Between)</td>
             <td id="t-ss-eb">0.00</td>
             <td id="t-df-eb">8</td>
@@ -1023,7 +1054,7 @@
           </tr>
 
           <tr class="bucket-sep"><td colspan="6">Bucket 2: Within-Subjects (Tested on Pre → Post Slopes)</td></tr>
-          <tr class="interactive-row" data-hover="time" onmouseenter="setHoverRow('time')" onmouseleave="setHoverRow(null)">
+          <tr class="interactive-row" data-hover="time">
             <td><span style="color:var(--green);">●</span> Time (Pre vs Post) <span class="ss-ms-badge">SS=MS</span></td>
             <td id="t-ss-t">0.00</td>
             <td>1</td>
@@ -1031,7 +1062,7 @@
             <td id="t-f-t" style="font-weight:700; color:var(--green);">0.00</td>
             <td id="t-p-t">.000</td>
           </tr>
-          <tr class="interactive-row" data-hover="int" onmouseenter="setHoverRow('int')" onmouseleave="setHoverRow(null)">
+          <tr class="interactive-row" data-hover="int">
             <td><span style="color:var(--purple);">●</span> Group × Time <span class="ss-ms-badge">SS=MS</span></td>
             <td id="t-ss-i">0.00</td>
             <td>1</td>
@@ -1039,7 +1070,7 @@
             <td id="t-f-i" style="font-weight:700; color:var(--purple);">0.00</td>
             <td id="t-p-i">.000</td>
           </tr>
-          <tr class="interactive-row" data-hover="errW" onmouseenter="setHoverRow('errW')" onmouseleave="setHoverRow(null)">
+          <tr class="interactive-row" data-hover="errW">
             <td><span style="color:var(--viz-total);">●</span> Error (Within)</td>
             <td id="t-ss-ew">0.00</td>
             <td id="t-df-ew">8</td>
@@ -1828,8 +1859,37 @@
 
   function setHoverRow(rowKey) {
     state.hoverRow = rowKey;
+    document.querySelectorAll("tr.interactive-row").forEach((row) => {
+      row.classList.toggle("active-hover", !!rowKey && row.getAttribute("data-hover") === rowKey);
+    });
     renderCanvas();
   }
+
+  // Mouse hover still highlights a row. A still tap toggles the same highlight.
+  document.querySelectorAll("tr.interactive-row").forEach((row) => {
+    const key = row.getAttribute("data-hover");
+    let press = null;
+    row.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "touch") return;
+      setHoverRow(key);
+    });
+    row.addEventListener("pointerleave", (event) => {
+      if (event.pointerType === "touch") return;
+      if (state.hoverRow === key) setHoverRow(null);
+    });
+    row.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse") return;
+      press = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    });
+    row.addEventListener("pointerup", (event) => {
+      if (!press || press.id !== event.pointerId) return;
+      const start = press;
+      press = null;
+      if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 12) return;
+      setHoverRow(state.hoverRow === key ? null : key);
+    });
+    row.addEventListener("pointercancel", () => { press = null; });
+  });
 
   function toggleCenterBaseline() {
     state.centerBaseline = document.getElementById('chk-center').checked;
