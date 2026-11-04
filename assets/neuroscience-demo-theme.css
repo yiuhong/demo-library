@@ -338,3 +338,8 @@ html {
 ::-webkit-scrollbar-thumb:hover {
     background: #475569;
 }
+
+/* Embedded in the Catalog / Guided Tracks shell. Standalone pages keep the link. */
+html.viz-embedded .demo-back {
+    display: none !important;
+}

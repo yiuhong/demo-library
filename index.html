@@ -28,17 +28,27 @@
             try {
                 bare = decodeURIComponent(bare);
             } catch (err) {}
+            var demo = (params.get("demo") || "").trim();
+            function withDemo(next) {
+                if (!demo || demo.length > 300 || /[\s\\]/.test(demo)) return;
+                if (/^[a-z][a-z0-9+.-]*:/i.test(demo) || demo.indexOf("..") !== -1) return;
+                if (!/^[a-z0-9_./-]+\.html$/i.test(demo)) return;
+                next.set("demo", demo);
+            }
             if (view === "tracks" || track || bare.indexOf("track-") === 0) {
                 var id = track || (bare.indexOf("track-") === 0 ? bare.slice(6).trim() : "");
                 var next = new URLSearchParams();
                 if (id) next.set("track", id);
+                withDemo(next);
                 var hash = id ? "#track-" + encodeURIComponent(id) : "";
                 window.location.replace("tracks.html" + (next.toString() ? "?" + next.toString() : "") + hash);
                 return;
             }
             var catalogHash = /^(path-[a-z0-9-]+|stats-category|cognitive-category|neuro-category|personality-category)$/.test(bare);
             if (view === "list" || view === "cards" || catalogHash) {
-                window.location.replace("catalog.html" + (catalogHash ? "#" + encodeURIComponent(bare) : ""));
+                var catalogNext = new URLSearchParams();
+                withDemo(catalogNext);
+                window.location.replace("catalog.html" + (catalogNext.toString() ? "?" + catalogNext.toString() : "") + (catalogHash ? "#" + encodeURIComponent(bare) : ""));
             }
         })();
     </script>

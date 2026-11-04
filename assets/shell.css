@@ -1,0 +1,391 @@
+/*
+ * Shared Catalog and Guided Tracks shell.
+ * Top bar, skinny left rail, demo pane on the same row.
+ * Fullscreen hides the rail inside this shell. It does not use
+ * the browser Fullscreen API. Phone shows one step at a time.
+ */
+
+.viz-app {
+    --bg-base: #ffffff;
+    --bg-subtle: #f6f6f6;
+    --font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0 !important;
+    overflow: hidden;
+    background: var(--bg-base) !important;
+    color: #000000 !important;
+    font-family: var(--font-family);
+}
+
+.viz-topbar {
+    flex: 0 0 auto;
+    background: var(--bg-base) !important;
+    border-bottom: 1px solid #000000;
+    padding: 0 0.9rem;
+}
+
+.viz-topbar nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.15rem 1.05rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.viz-topbar nav li {
+    margin: 0;
+    padding: 0;
+}
+
+.viz-topbar nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.35rem 0;
+    border-bottom: 2px solid transparent !important;
+    color: #000000 !important;
+    font-size: 0.92rem;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-decoration: none !important;
+}
+
+.viz-topbar nav a[aria-current="page"] {
+    border-bottom-color: #000000 !important;
+}
+
+.viz-topbar nav a:hover,
+.viz-topbar nav a:focus-visible {
+    border-bottom-color: #000000 !important;
+}
+
+.viz-topbar nav a:focus {
+    outline: none;
+}
+
+.viz-topbar nav a:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.viz-topbar a.about-yiu {
+    min-height: 0;
+    margin: 0.35rem 0;
+}
+
+.viz-workspace {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: minmax(16rem, 25%) minmax(0, 1fr);
+    min-height: 0;
+    background: var(--bg-base);
+}
+
+.viz-rail {
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 0.85rem 0.9rem 1.4rem;
+    background: var(--bg-base) !important;
+    border-right: 1px solid #000000;
+    font-size: 0.92rem;
+    line-height: 1.45;
+}
+
+.viz-rail h1 {
+    margin: 0 0 0.3rem;
+    font-size: 1.35rem !important;
+    font-weight: bold;
+    letter-spacing: -0.02em;
+    line-height: 1.15 !important;
+    text-transform: none;
+}
+
+.viz-rail h2 {
+    margin: 0.15rem 0 0.55rem;
+    font-size: 1.02rem !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.viz-rail h3,
+.viz-rail h4,
+.viz-rail .topic-group-title,
+.viz-rail .concept-map-title {
+    font-size: 0.95rem !important;
+    line-height: 1.3 !important;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.viz-rail .page-lead,
+.viz-rail .hub-section-note {
+    margin: 0 0 0.85rem;
+    font-size: 0.88rem;
+    line-height: 1.4;
+}
+
+.viz-rail .search-container,
+.viz-rail #searchInput {
+    max-width: none;
+}
+
+.viz-rail .catalog-panel a.demo-card {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+}
+
+.viz-rail .catalog-panel .demo-card-tags {
+    justify-content: flex-start;
+}
+
+.viz-rail .sub-category-section {
+    padding: 0.75rem 0.7rem 0.85rem;
+}
+
+.viz-rail .category-section {
+    margin-bottom: 1.6rem;
+}
+
+.viz-rail ol.concept-rail {
+    --concept-join: 0.7rem;
+    flex-direction: column;
+    overflow-x: visible;
+    scroll-snap-type: none;
+}
+
+.viz-rail .concept-stop {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.viz-rail .concept-stop:not(:last-child)::after {
+    top: 100%;
+    left: 1.05rem;
+    width: 2px;
+    height: var(--concept-join);
+}
+
+.viz-rail a.concept-node {
+    min-height: 0;
+}
+
+.viz-rail .track-block + .track-block,
+.viz-rail .concept-map + .concept-map {
+    margin-top: 1.25rem;
+}
+
+.viz-rail a.demo-card.is-current {
+    background: var(--bg-subtle) !important;
+    box-shadow: inset 3px 0 0 #000000;
+}
+
+.viz-rail a.concept-node.is-current {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+.viz-rail a.concept-node.is-opened.is-current {
+    outline-color: #ffffff;
+    box-shadow: 0 0 0 2px #000000;
+}
+
+.viz-pane {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: var(--bg-subtle) !important;
+}
+
+.viz-pane-chrome {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 3rem;
+    padding: 0.4rem 0.7rem;
+    background: var(--bg-base) !important;
+    border-bottom: 1px solid #000000;
+}
+
+.viz-pane-chrome h2 {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    font-size: 1rem !important;
+    font-weight: bold;
+    letter-spacing: 0;
+    line-height: 1.3 !important;
+    text-transform: none;
+}
+
+button.viz-chrome-btn {
+    flex: 0 0 auto;
+    height: auto !important;
+    min-height: 2.25rem;
+    margin: 0;
+    padding: 0.35rem 0.85rem !important;
+    border: 1px solid #000000 !important;
+    border-radius: 3em !important;
+    background: var(--bg-base) !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    font-family: var(--font-family);
+    font-size: 0.78rem !important;
+    font-weight: bold;
+    letter-spacing: 0.01em !important;
+    line-height: 1.2 !important;
+    text-transform: none !important;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+button.viz-chrome-btn:after {
+    display: none !important;
+    content: none !important;
+}
+
+button.viz-chrome-btn:hover,
+button.viz-chrome-btn:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+button.viz-chrome-btn:focus {
+    outline: none;
+}
+
+button.viz-chrome-btn:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+button.viz-chrome-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+    background: var(--bg-base) !important;
+    color: #000000 !important;
+}
+
+.viz-pane-stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    background: var(--bg-subtle) !important;
+}
+
+.viz-empty {
+    margin: 0;
+    padding: 1.2rem 1rem;
+    color: #222222 !important;
+    font-style: italic;
+}
+
+.viz-pane-stage iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: var(--bg-base);
+}
+
+.viz-pane-stage iframe[hidden],
+.viz-empty[hidden],
+button.viz-chrome-btn[hidden] {
+    display: none !important;
+}
+
+body.viz-app.is-expanded .viz-workspace {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+body.viz-app.is-expanded .viz-rail {
+    display: none;
+}
+
+body.viz-app #footer.wrapper {
+    flex: 0 0 auto;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-top: 1px solid #000000;
+    background: var(--bg-base) !important;
+}
+
+body.viz-app #footer.wrapper > .inner {
+    width: 100% !important;
+    max-width: none;
+    padding: 0.35rem 0.85rem !important;
+}
+
+body.viz-app #footer ul.menu {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.15rem 0.85rem;
+    margin: 0;
+    overflow-x: auto;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+body.viz-app #footer ul.menu li {
+    margin: 0;
+    white-space: nowrap;
+}
+
+@media screen and (max-width: 736px) {
+    .viz-workspace {
+        display: block;
+    }
+
+    .viz-rail,
+    .viz-pane {
+        height: 100%;
+    }
+
+    body.viz-app .viz-pane {
+        display: none;
+    }
+
+    body.viz-app .viz-rail {
+        display: block;
+        border-right: 0;
+    }
+
+    html.viz-deep-demo body.viz-app:not(.viz-shell-ready) .viz-rail,
+    body.viz-app.is-demo-open .viz-rail,
+    body.viz-app.is-demo-open #footer {
+        display: none;
+    }
+
+    html.viz-deep-demo body.viz-app:not(.viz-shell-ready) .viz-pane,
+    body.viz-app.is-demo-open .viz-pane {
+        display: flex;
+    }
+
+    button.viz-back {
+        display: inline-flex;
+    }
+
+    #viz-fullscreen,
+    #viz-exit {
+        display: none !important;
+    }
+}
+
+@media screen and (min-width: 737px) {
+    button.viz-back {
+        display: none !important;
+    }
+}
