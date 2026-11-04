@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- The HTML5 UP design credit from the library footers on Home, Catalog, Guided Tracks, Cite, and Licenses. Those pages no longer name HTML5 UP, and the license table no longer lists a template credit.
 - Variance and Correlation and covariance from the Guided Tracks menu. Those titles were concept-map strips from `families.json`. The file stays, and those families are not playlists. Real tracks keep their connection titles.
 - Guided Tracks rail copy that did not navigate: the “Concept maps” heading, “Related demonstrations along a path.”, the “Concept map” kicker, the backbone sentence under a concept map, and the summary paragraph under a playlist. Section titles and demonstration titles stay.
 - Fullscreen buttons on demonstrations that called the browser Fullscreen API. Catalog and Guided Tracks keep the shell Fullscreen control, which only hides the rail.

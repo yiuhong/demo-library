@@ -9,7 +9,7 @@ Reads ``demos.json``, ``tracks.json``, and ``families.json`` at the repo root:
 * each track step image, when set, is a file in the repo
 * each concept map names catalog demos by href (titles stay in demos.json), in before / backbone / after order, and opts into the tracks page (hub) or a real catalog section
 * LICENSE states CC BY 4.0 for content and MIT for code, and LICENSE-CODE is the MIT text
-* index.html, catalog.html, tracks.html, cite.html, license.html, and each demo carry the site chrome, those five pages use the shared horizontal top bar, and no HTML page says "All rights reserved"
+* index.html, catalog.html, tracks.html, cite.html, license.html, and each demo carry the site chrome, those five pages use the shared horizontal top bar, those five pages do not credit HTML5 UP, and no HTML page says "All rights reserved"
 * the cite page has cite, license, reuse, credit, accessibility, and report sections, an ORCID link, and a per-demo example whose title matches demos.json
 * CITATION.cff matches the current version, and the cite page links the machine-readable citation
 * CHANGELOG.md and CONTRIBUTING.md are present, and the changelog names the current version
@@ -445,18 +445,18 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                     'id="accessibility"',
                     "keyboard",
                     "contrast",
-                    "CC BY 3.0",
-                    "HTML5 UP",
-                    "Hyperspace",
                 )
             )
             lowered = text.lower()
             if "wcag" in lowered or "conforms to" in lowered:
                 problems.append(f"{name}: do not claim a conformance standard")
         if name == "license.html":
-            for needle in ("CC BY 3.0", "HTML5 UP", "Hyperspace", "LICENSE-CODE", "cite.html"):
+            for needle in ("LICENSE-CODE", "cite.html"):
                 if needle not in text:
                     problems.append(f"{name}: missing {needle}")
+        for banned in ("HTML5 UP", "html5up.net", "Hyperspace"):
+            if banned in text:
+                problems.append(f"{name}: do not credit {banned}")
         if name in ("index.html", "cite.html"):
             required.append(CITATION_TITLE)
         if name == "index.html":

@@ -6,7 +6,7 @@ A visualization demo library for teaching. Interactive demonstrations for explor
 
 ## Cite, license, and contact
 
-Teaching text, explanations, and figures are [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source code is [MIT](LICENSE-CODE). [LICENSE](LICENSE) states the split: prose and figures in a page are CC BY 4.0, and the code in that page is MIT. The Hyperspace template by HTML5 UP remains [CC BY 3.0](https://html5up.net/license). The same three-way split is on [license.html](license.html).
+Teaching text, explanations, and figures are [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source code is [MIT](LICENSE-CODE). [LICENSE](LICENSE) states the split: prose and figures in a page are CC BY 4.0, and the code in that page is MIT. The same split is on [license.html](license.html).
 
 Cite and reuse the library (APA 7, BibTeX, license, and a credit line): [cite.html](https://yiuhong.github.io/demo-library/cite.html).
 
@@ -34,7 +34,7 @@ Featured plates are the three `href`s in `index.html` (`FIG_VE`, `FIG_R`, `FIG_E
 * [`tracks.json`](tracks.json) — Guided Tracks playlists only (order, notes, formulae, images)
 * [`scripts/check_catalog.py`](scripts/check_catalog.py) — checks catalog and track paths, required titles, and site chrome
 * [`CITATION.cff`](CITATION.cff) — machine-readable citation (Citation File Format 1.2.0)
-* [`license.html`](license.html) — which license covers content, code, and the Hyperspace template
+* [`license.html`](license.html) — which license covers content and code
 
 `demos.json` is the list of demos: titles, blurbs, links, search keywords, tags, and category order. `tracks.json` is playlists. Teaching notes stay in `tracks.json`; do not copy them into `demos.json`.
 

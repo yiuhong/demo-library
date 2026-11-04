@@ -14,7 +14,7 @@ GitHub Discussions are not enabled for this repository. Suggest an idea on [GitH
 
 Pull requests are welcome. Opening a pull request is not a guarantee of merge.
 
-Small corrections — a wrong label, a broken link, a clearer sentence — are the easiest to review. Keep teaching text, explanations, and figures under CC BY 4.0, and source code under MIT, as [LICENSE](LICENSE) and [LICENSE-CODE](LICENSE-CODE) describe. The Hyperspace template by HTML5 UP stays CC BY 3.0. [license.html](license.html) lists that split.
+Small corrections — a wrong label, a broken link, a clearer sentence — are the easiest to review. Keep teaching text, explanations, and figures under CC BY 4.0, and source code under MIT, as [LICENSE](LICENSE) and [LICENSE-CODE](LICENSE-CODE) describe. [license.html](license.html) lists that split.
 
 ## Catalog
 
