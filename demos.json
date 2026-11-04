@@ -410,6 +410,15 @@
               ]
             },
             {
+              "href": "statistics/ols_simple_linear_regression.html",
+              "title": "Ordinary Least Squares (OLS)",
+              "description": "Fit a straight line by minimizing squared vertical gaps, and see SST split into SSR and SSE.",
+              "keywords": "Ordinary Least Squares OLS simple linear regression SSE SSR SST R-squared slope intercept loss surface residuals Anscombe",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
               "href": "statistics/variance_explained.html",
               "title": "Variance Explained",
               "description": "How much of the variation is explained.",

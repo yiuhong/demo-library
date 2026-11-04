@@ -170,6 +170,47 @@ def draw_correlation() -> None:
     )
 
 
+def draw_ols() -> None:
+    x, y = _cloud()
+    stats = _association(x, y)
+    fitted = stats["intercept"] + stats["slope"] * x
+    sse = stats["ss_total"] - stats["ss_line"]
+    if sse <= 0:
+        raise SystemExit(f"expected a positive SSE, got {sse}")
+    if stats["ss_line"] <= sse:
+        raise SystemExit("the line should account for more than it leaves behind on this cloud")
+
+    fig, ax = plt.subplots(figsize=(6.6, 5.4), constrained_layout=True)
+    ax.scatter(x, y, s=32, facecolors="white", edgecolors="black", linewidths=1.0, zorder=3)
+    order = np.argsort(x)
+    ax.plot(x[order], fitted[order], color="black", linewidth=1.6, zorder=2)
+    for xv, yv, yhat in zip(x, y, fitted):
+        ax.plot([xv, xv], [yv, yhat], color="black", linewidth=0.6, linestyle=(0, (1, 1.2)), zorder=1)
+    ax.text(
+        0.04,
+        0.96,
+        "SSE minimized\nSST = SSR + SSE",
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=12,
+        bbox={"facecolor": "white", "edgecolor": "black", "pad": 4},
+    )
+    ax.set_xlim(-2.9, 2.2)
+    ax.set_ylim(-3.1, 2.3)
+    ax.set_xticks([-2, -1, 0, 1, 2])
+    ax.set_yticks([-2, -1, 0, 1, 2])
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_title("Least squares line")
+    _save(fig, "02-ols.png")
+    print(
+        "  sse={sse:.3f} ssr={ss_line:.3f} sst={ss_total:.3f} slope={slope:.3f}".format(
+            sse=sse, **stats
+        )
+    )
+
+
 def draw_variance_explained() -> None:
     x, y = _cloud()
     stats = _association(x, y)
@@ -223,7 +264,7 @@ def draw_variance_explained() -> None:
     ax.set_ylabel("variance in y  (%)")
     ax.set_title(f"R² = {stats['r2']:.2f}")
 
-    _save(fig, "02-variance-explained.png")
+    _save(fig, "03-variance-explained.png")
     print(f"  R2={stats['r2']:.4f} r2={stats['r'] ** 2:.4f} ss_line={stats['ss_line']:.3f} ss_total={stats['ss_total']:.3f}")
 
 
@@ -258,15 +299,21 @@ def draw_additivity() -> None:
     ax.set_xticks([0, 1, 2], ["Var(X)", "Var(Y)", "Var(X+Y)"])
     ax.set_ylabel("variance")
     ax.set_title("Independent sources: the two variances stack")
-    _save(fig, "03-additivity.png")
+    _save(fig, "04-additivity.png")
     print(f"  var x={VAR_X} var y={VAR_Y} total={total}")
 
 
 def main() -> None:
     _style()
     draw_correlation()
+    draw_ols()
     draw_variance_explained()
     draw_additivity()
+    for stale in ("02-variance-explained.png", "03-additivity.png"):
+        old = OUT / stale
+        if old.exists():
+            old.unlink()
+            print(f"removed {stale}")
 
 
 if __name__ == "__main__":

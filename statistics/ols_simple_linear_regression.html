@@ -1,0 +1,3137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+  <title>Ordinary Least Squares (OLS)</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+  <script src="../assets/stats-viz-theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css">
+  <style>
+    :root {
+      --bg-app: var(--demo-bg);
+      --bg-panel: var(--demo-card);
+      --bg-subtle: var(--demo-panel);
+      --border: var(--demo-border);
+      --border-strong: var(--demo-border);
+      --text-main: var(--demo-text);
+      --text-muted: var(--viz-reference);
+      --text-faint: var(--viz-reference);
+
+      /* Series roles from assets/stats-viz-theme.css.
+         Candidate line = group C. OLS / SSR = explained.
+         SSE = residual. Null model / SST = total. */
+      --col-data: var(--viz-sample);
+      --col-hover: var(--viz-highlight);
+      --col-null: var(--viz-total);
+      --col-sst: var(--viz-total);
+      --col-sst-fill: var(--viz-total-soft);
+      --col-cand: var(--viz-group-c);
+      --col-cand-fill: var(--viz-group-c-soft);
+      --col-ols: var(--viz-explained);
+      --col-ols-fill: var(--viz-explained-soft);
+      --col-sse: var(--viz-residual);
+      --col-sse-fill: var(--viz-residual-soft);
+      --col-ssr: var(--viz-explained);
+
+      --radius: var(--demo-radius);
+      --shadow: none;
+      --font-sans: var(--demo-font);
+      --font-mono: ui-monospace, Consolas, "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      line-height: 1.45;
+      font-size: 13.5px;
+      min-height: 100vh;
+    }
+
+    .page-wrap {
+      max-width: 1920px;
+      margin: 0 auto;
+      padding: 1rem 0.85rem 2rem;
+    }
+
+    .page-title h1 {
+      font-size: 1.65rem;
+    }
+
+    .page-title p {
+      font-size: 0.95rem;
+      line-height: 1.45;
+      max-width: 52rem;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+      padding: 0.75rem 0.9rem;
+      background: var(--demo-card);
+      border: 1px solid var(--demo-border);
+      border-radius: var(--demo-radius);
+    }
+
+    .header-controls label {
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    .header-controls .demo-select {
+      width: auto;
+      min-width: 16rem;
+      max-width: 100%;
+      flex: 1 1 16rem;
+    }
+
+    /* MAIN GRID */
+    .workspace {
+      display: grid;
+      grid-template-columns: 315px 1fr 390px;
+      gap: 12px;
+      padding: 12px 0;
+      width: 100%;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    @media (max-width: 1280px) {
+      .workspace {
+        grid-template-columns: 300px 1fr;
+      }
+      .right-stage {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 9px 13px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 12.5px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    /* SIDEBAR CONTROLS */
+    .control-section {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-faint);
+    }
+
+    .mode-pills {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .mode-pill {
+      text-align: center;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-subtle);
+      cursor: pointer;
+    }
+
+    .mode-pill.active-cand {
+      background: var(--viz-group-c-soft);
+      border-color: var(--viz-group-c);
+      color: var(--viz-group-c);
+    }
+
+    .mode-pill.active-ols {
+      background: var(--viz-explained-soft);
+      border-color: var(--viz-explained);
+      color: var(--viz-explained);
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+
+    .slider-val {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--col-cand);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--col-cand);
+      cursor: pointer;
+    }
+
+    .checkbox-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12.5px;
+      color: var(--text-main);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-item input {
+      cursor: pointer;
+      width: 14px;
+      height: 14px;
+    }
+
+    .swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* PACKAGED VISUAL LAYER CARDS */
+    .layer-package {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: opacity 0.15s ease, border-color 0.15s ease;
+    }
+
+    .layer-package.pkg-cand {
+      border-left: 3px solid var(--col-cand);
+    }
+
+    .layer-package.pkg-ols {
+      border-left: 3px solid var(--col-ols);
+    }
+
+    .layer-package.pkg-null {
+      border-left: 3px solid var(--col-sst);
+    }
+
+    .sub-options {
+      padding-left: 21px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: opacity 0.15s ease;
+    }
+
+    .sub-options.disabled {
+      opacity: 0.42;
+      pointer-events: none;
+    }
+
+    .sub-pill-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .sub-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 4px 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border-radius: 5px;
+      border: 1px solid var(--border-strong);
+      background: var(--demo-card);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.12s ease;
+    }
+
+    .sub-pill input[type="radio"] {
+      display: none;
+    }
+
+    .sub-pill.active-cand-err {
+      background: var(--viz-group-c-soft);
+      border-color: var(--viz-group-c);
+      color: var(--viz-group-c);
+    }
+
+    .sub-pill.active-ols-err {
+      background: var(--viz-residual-soft);
+      border-color: var(--viz-residual);
+      color: var(--viz-residual);
+    }
+
+    .sub-pill.active-null-err {
+      background: var(--viz-total-soft);
+      border-color: var(--viz-total);
+      color: var(--viz-total);
+    }
+
+    /* CHALLENGE SCORE BOX */
+    .challenge-box {
+      background: var(--viz-group-c-soft);
+      border: 1px solid var(--viz-group-c);
+      color: var(--demo-text);
+      border-radius: var(--demo-radius);
+      padding: 9px 10px;
+      font-size: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .challenge-box.visible {
+      display: flex;
+    }
+
+    /* PRIMARY SVG PLOT - FILLS ALL AVAILABLE PANEL SPACE */
+    .svg-container {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      min-height: 320px;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+      background: var(--demo-card);
+      user-select: none;
+      overflow: hidden;
+    }
+
+    svg#scatterSvg {
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .plot-instructions {
+      font-size: 11.5px;
+      color: var(--text-faint);
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 12px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-subtle);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* TABS FOR RIGHT STAGE */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-subtle);
+    }
+
+    .tab-btn {
+      flex: 1;
+      border: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      padding: 9px 6px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .tab-btn:hover {
+      background: var(--demo-panel);
+      color: var(--demo-text);
+    }
+
+    .tab-btn.active {
+      color: var(--demo-text);
+      border-bottom-color: var(--demo-text);
+      background: var(--demo-card);
+    }
+
+    .tab-pane {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      padding: 12px;
+    }
+
+    .tab-pane.active {
+      display: flex;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      min-height: 280px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--demo-card);
+      display: flex;
+    }
+
+    canvas#lossCanvas {
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      display: block;
+      cursor: pointer;
+    }
+
+    /* BOTTOM DIAGNOSTICS & MATH PANEL */
+    .bottom-grid {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .bottom-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* SS DECOMPOSITION BAR */
+    .ss-meter-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--bg-subtle);
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .ss-bar-track {
+      height: 20px;
+      width: 100%;
+      background: var(--demo-card);
+      border-radius: var(--demo-radius);
+      overflow: hidden;
+      display: flex;
+      border: 1px solid var(--demo-border);
+    }
+
+    .ss-bar-ssr {
+      background: var(--col-ols);
+      height: 100%;
+      transition: width 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 10.5px;
+      font-weight: 700;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ss-bar-sse {
+      background: var(--col-sse);
+      height: 100%;
+      transition: width 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 10.5px;
+      font-weight: 700;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    /* ANOVA TABLE */
+    table.anova-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    table.anova-table th,
+    table.anova-table td {
+      padding: 6px 8px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+    }
+
+    table.anova-table th:first-child,
+    table.anova-table td:first-child {
+      text-align: left;
+      font-family: var(--font-sans);
+      font-weight: 600;
+    }
+
+    table.anova-table th {
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+    }
+
+    .formula-box {
+      background: var(--bg-subtle);
+      border-left: 3px solid var(--col-ols);
+      padding: 8px 11px;
+      border-radius: 4px;
+      font-size: 12.5px;
+      overflow-x: auto;
+    }
+
+    .point-inspector {
+      background: var(--demo-panel);
+      border: 1px solid var(--demo-border);
+      color: var(--demo-text);
+      padding: 7px 10px;
+      border-radius: var(--demo-radius);
+      font-size: 12px;
+      font-family: var(--font-mono);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .kpi-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 9px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kpi-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .kpi-num {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 2px;
+    }
+
+    .Suboptimality-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    .katex { font-size: 1.02em; }
+
+    .fit-badge {
+      display: inline-block;
+      padding: 0.1em 0.7em;
+      border-radius: 3em;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      background: var(--viz-explained-soft);
+      color: var(--viz-explained);
+      border: 1px solid var(--viz-explained);
+    }
+
+    .challenge-title { font-weight: 700; color: var(--viz-group-c); }
+    .challenge-result {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--viz-explained);
+    }
+
+    svg#scatterSvg,
+    canvas#lossCanvas {
+      touch-action: none;
+    }
+
+    .checkbox-item input {
+      width: 1.05rem;
+      height: 1.05rem;
+      accent-color: #000000;
+    }
+
+    @media (max-width: 860px) {
+      .page-title h1 { font-size: 1.35rem; }
+      .header-controls { align-items: stretch; }
+      .header-controls .demo-select,
+      .header-controls .demo-btn { width: 100%; }
+      .svg-container { height: 360px; min-height: 280px; }
+      .kpi-row { grid-template-columns: 1fr 1fr; }
+      .plot-instructions { flex-direction: column; }
+      .demo-btn, .mode-pill, .sub-pill, .tab-btn { min-height: 44px; }
+      input[type="range"] { min-height: 44px; }
+    }
+  </style>
+</head>
+<body class="demo-page">
+  <div class="page-wrap">
+    <div class="demo-topbar">
+      <a class="demo-back" href="../index.html">← Project Viz</a>
+    </div>
+    <header class="demo-header page-title">
+      <h1>Ordinary Least Squares (OLS)</h1>
+      <p>Simple linear regression. Fit a line by squared vertical gaps, watch the loss surface, and split the total sum of squares into SSR and SSE.</p>
+    </header>
+
+    <div class="header-controls">
+      <label for="presetSelect">Preset</label>
+      <select id="presetSelect" class="demo-select" title="Select a curated statistical dataset">
+        <option value="classic">1. Classic Linear Trend (r = 0.86, n = 12)</option>
+        <option value="null_noise">2. Zero Slope / Pure Noise (r = 0.00, n = 14)</option>
+        <option value="high_leverage">3. High-Leverage Outlier vs. Centroid</option>
+        <option value="anscombe1">4a. Anscombe's Quartet I (Standard Linear)</option>
+        <option value="anscombe2">4b. Anscombe's Quartet II (Quadratic Curvature)</option>
+        <option value="anscombe3">4c. Anscombe's Quartet III (Vertical Outlier)</option>
+        <option value="anscombe4">4d. Anscombe's Quartet IV (Extreme Leverage)</option>
+      </select>
+      <button id="btnChallenge" class="demo-btn" type="button" title="Hide the OLS line and try to minimize SSE manually!">Guess the Line Challenge</button>
+      <button id="btnResetData" class="demo-btn" type="button" title="Restore the current preset's initial coordinates">Reset Data</button>
+    </div>
+
+  <!-- MAIN WORKSPACE -->
+  <div class="workspace">
+
+    <!-- LEFT SIDEBAR: CONTROLS & LAYERS -->
+    <aside class="panel">
+      <div class="panel-header">
+        <span>1. Model &amp; Parameter Controls</span>
+        <span id="modeBadge" style="font-size:11px; color:var(--col-cand); font-weight:700;">Manual Mode</span>
+      </div>
+      <div class="panel-body">
+
+        <!-- Challenge Box -->
+        <div id="challengeBox" class="challenge-box">
+          <div class="challenge-title">Challenge Mode Active!</div>
+          <div>Adjust $b_0$ and $b_1$ (or drag the handles on the candidate line) to make the total area of the squared residuals as small as possible.</div>
+          <div id="challengeResult" class="challenge-result"></div>
+          <button id="btnRevealOLS" class="demo-btn demo-btn-primary is-block" type="button">Reveal True OLS Solution</button>
+        </div>
+
+        <!-- Line Mode Toggle -->
+        <div class="control-section">
+          <div class="section-label">Regression Line Control</div>
+          <div class="mode-pills">
+            <div id="pillManual" class="mode-pill active-cand">Manual Candidate ($b_0, b_1$)</div>
+            <div id="pillLockOLS" class="mode-pill">Lock to OLS ($\hat{\beta}_0, \hat{\beta}_1$)</div>
+          </div>
+          <label class="checkbox-item" style="margin-top:4px; background:var(--bg-subtle); padding:6px 8px; border-radius:5px;">
+            <input type="checkbox" id="chkPinCentroid" />
+            <span>Pin Line to $(\bar{X}, \bar{Y})$</span>
+          </label>
+        </div>
+
+        <!-- Sliders & Optimization Buttons -->
+        <div class="control-section">
+          <div class="section-label">Candidate Parameters</div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Intercept ($b_0$):</span>
+              <span id="valB0" class="slider-val">2.00</span>
+            </div>
+            <input type="range" id="sliderB0" min="-10" max="20" step="0.02" value="2.00" />
+          </div>
+
+          <div class="slider-group" style="margin-top:4px;">
+            <div class="slider-header">
+              <span>Slope ($b_1$):</span>
+              <span id="valB1" class="slider-val">0.50</span>
+            </div>
+            <input type="range" id="sliderB1" min="-2.5" max="3.0" step="0.01" value="0.50" />
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">
+            <button id="btnSnapOLS" class="demo-btn demo-btn-primary is-block" type="button">OLS analytical solution</button>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button id="btnGradDescent" class="demo-btn" style="flex:1;" type="button" title="Animate gradient descent down the SSE surface">Gradient descent</button>
+              <button id="btnGradStep1" class="demo-btn" style="flex:1.15;" type="button" title="Advance gradient descent by exactly 1 step">Gradient descent +1 step</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Packaged Visual Layers (Matched to Tab B: SS Area Comparator Colors) -->
+        <div class="control-section">
+          <div class="section-label">Geometric Visual Layers (Color-Matched to B)</div>
+
+          <!-- Candidate line and its residuals (group C) -->
+          <div class="layer-package pkg-cand">
+            <label class="checkbox-item" style="font-weight:600;">
+              <input type="checkbox" id="chkShowCandLine" checked />
+              <span class="swatch" style="background:var(--col-cand);"></span>
+              <span>Candidate Line ($\tilde{Y} = b_0 + b_1 X$) &amp; Residuals</span>
+            </label>
+            <div id="candSubOptions" class="sub-options">
+              <div class="sub-pill-group">
+                <label class="sub-pill active-cand-err" id="lblCandSquares">
+                  <input type="radio" name="candErrMode" value="squares" checked />
+                  <span class="swatch" style="background:var(--col-cand-fill); border:1px solid var(--col-cand);"></span>
+                  <span>Squares ($e_i^2$)</span>
+                </label>
+                <label class="sub-pill" id="lblCandDistances">
+                  <input type="radio" name="candErrMode" value="distances" />
+                  <span class="swatch" style="background:var(--col-cand);"></span>
+                  <span>Distances ($|e_i|$)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytical OLS line (explained) and OLS residuals (residual) -->
+          <div class="layer-package pkg-ols">
+            <label class="checkbox-item" style="font-weight:600;">
+              <input type="checkbox" id="chkShowOLSLine" />
+              <span class="swatch" style="background:var(--col-ols);"></span>
+              <span>Analytical OLS Line ($\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X$) &amp; Errors</span>
+            </label>
+            <div id="olsSubOptions" class="sub-options disabled">
+              <div class="sub-pill-group">
+                <label class="sub-pill active-ols-err" id="lblOlsSquares">
+                  <input type="radio" name="olsErrMode" value="squares" checked />
+                  <span class="swatch" style="background:var(--col-sse-fill); border:1px solid var(--col-sse);"></span>
+                  <span>Squares ($\hat{e}_i^2$)</span>
+                </label>
+                <label class="sub-pill" id="lblOlsDistances">
+                  <input type="radio" name="olsErrMode" value="distances" />
+                  <span class="swatch" style="background:var(--col-sse);"></span>
+                  <span>Distances ($|\hat{e}_i|$)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Null model and SST squares or distances (total) -->
+          <div class="layer-package pkg-null">
+            <label class="checkbox-item" style="font-weight:600;">
+              <input type="checkbox" id="chkShowNullLine" checked />
+              <span class="swatch" style="background:var(--col-sst);"></span>
+              <span>Null Model ($\bar{Y}$) &amp; $(\bar{X}, \bar{Y})$</span>
+            </label>
+            <div id="nullSubOptions" class="sub-options">
+              <div class="sub-pill-group">
+                <label class="sub-pill" id="lblNullSquares" title="Click to toggle SST squares">
+                  <input type="radio" name="nullErrMode" value="squares" />
+                  <span class="swatch" style="background:var(--col-sst-fill); border:1px solid var(--col-sst);"></span>
+                  <span>Squares ($(Y_i - \bar{Y})^2$)</span>
+                </label>
+                <label class="sub-pill" id="lblNullDistances" title="Click to toggle SST distances">
+                  <input type="radio" name="nullErrMode" value="distances" />
+                  <span class="swatch" style="background:var(--col-sst);"></span>
+                  <span>Distances ($|Y_i - \bar{Y}|$)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Diagnostic Layers -->
+          <div class="checkbox-list" style="margin-top:2px;">
+            <label class="checkbox-item">
+              <input type="checkbox" id="chkShowCIBand" />
+              <span class="swatch" style="background:var(--viz-explained-soft); border:1px dashed var(--viz-explained);"></span>
+              <span>95% OLS Mean Confidence Band</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="chkShowLeverage" />
+              <span class="swatch" style="background:var(--col-hover); border-radius:50%;"></span>
+              <span>Leverage ($h_{ii}$) &amp; Cook's $D$ Halos</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Live Comparison Summary -->
+        <div class="control-section">
+          <div class="section-label">Objective Function ($SSE = \sum e_i^2$)</div>
+          <div class="kpi-row" style="grid-template-columns: 1fr 1fr;">
+            <div class="kpi-card" style="border-left: 3px solid var(--col-cand);">
+              <span class="kpi-title">Your Line $SSE(b_0,b_1)$</span>
+              <span id="kpiCandSSE" class="kpi-num" style="color:var(--col-cand);">-</span>
+            </div>
+            <div class="kpi-card" style="border-left: 3px solid var(--col-sse);">
+              <span class="kpi-title">Optimal $SSE_{\text{OLS}}$</span>
+              <span id="kpiOlsSSE" class="kpi-num" style="color:var(--col-sse);">-</span>
+            </div>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px; display:flex; justify-content:space-between;">
+            <span>Candidate $\sum |e_i|$ vs. OLS $\sum |\hat{e}_i|$:</span>
+            <span id="kpiSumAbsE" style="font-family:var(--font-mono); font-weight:700; color:var(--col-cand);">0.00</span>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-muted); display:flex; justify-content:space-between;">
+            <span>Total Deviation $\sum |Y_i - \bar{Y}|$ ($SST = \sum (Y_i-\bar{Y})^2$):</span>
+            <span id="kpiSSTSummary" style="font-family:var(--font-mono); font-weight:700; color:var(--col-sst);">0.00</span>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-muted); display:flex; justify-content:space-between;">
+            <span>Excess Loss ($SSE - SSE_{\text{OLS}}$):</span>
+            <span id="kpiExcessSSE" style="font-family:var(--font-mono); font-weight:700; color:var(--col-sse);">0.00</span>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- CENTER STAGE: INTERACTIVE SCATTERPLOT & GEOMETRIC SQUARES -->
+    <main class="panel">
+      <div class="panel-header">
+        <span>2. Data Space &amp; Geometric Least Squares Canvas (1:1 Aspect Ratio)</span>
+        <span id="nPointsBadge" style="font-family:var(--font-mono); font-size:12px; color:var(--text-muted);">n = 12</span>
+      </div>
+
+      <div class="svg-container" id="scatterContainer">
+        <svg id="scatterSvg" viewBox="0 0 700 520"></svg>
+      </div>
+
+      <div class="plot-instructions">
+        <span><b>Drag any point</b> to move it &bull; <b>Click empty space</b> to add a point &bull; <b>Shift+click a point</b> to delete</span>
+        <span><b>Drag the handles</b> on the candidate line to tilt or shift it. Press a point to read it.</span>
+      </div>
+    </main>
+
+    <!-- RIGHT STAGE: MULTI-TAB COMPANION VISUALIZATION -->
+    <aside class="panel right-stage">
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="tabLoss">A. Loss Surface</button>
+        <button class="tab-btn" data-tab="tabDecomp">B. SS Area Comparator</button>
+        <button class="tab-btn" data-tab="tabResid">C. Residual Plot</button>
+      </div>
+
+      <!-- TAB A: 2D PARAMETER SPACE & LOSS SURFACE -->
+      <div id="tabLoss" class="tab-pane active">
+        <div style="font-size:12px; color:var(--text-muted);">
+          <b>Parameter Space $(b_0, b_1) \to SSE$:</b> Each point on this contour map represents an entire line in data space. Click or drag anywhere on the bowl to test $(b_0, b_1)$!
+        </div>
+        <div class="canvas-wrap" id="lossCanvasWrap">
+          <canvas id="lossCanvas" width="360" height="320"></canvas>
+        </div>
+        <div class="formula-box" id="quadLossFormula">
+          <div><b>Quadratic Loss Decomposition:</b></div>
+          <div style="font-size:11.5px; margin-top:4px;" id="quadLossNumbers"></div>
+        </div>
+      </div>
+
+      <!-- TAB B: VARIANCE DECOMPOSITION & AREA COMPARATOR -->
+      <div id="tabDecomp" class="tab-pane">
+        <div style="font-size:12px; color:var(--text-muted);">
+          <b>Total Squared Area Comparison:</b> Why does OLS partition $SST = SSR + SSE$ cleanly while non-OLS lines can have $SSE > SST$?
+        </div>
+        <svg id="decompSvg" viewBox="0 0 365 275" preserveAspectRatio="xMidYMid meet" style="width:100%; flex:1; min-height:280px; background:var(--demo-panel); border:1px solid var(--border); border-radius:4px;"></svg>
+        <div class="formula-box" style="font-size:12px;">
+          <div><b>Orthogonality Check:</b> $\sum (\hat{Y}_i - \bar{Y})(Y_i - \hat{Y}_i) = 0$ at OLS.</div>
+          <div id="crossTermText" style="margin-top:4px; font-size:11.5px;"></div>
+        </div>
+      </div>
+
+      <!-- TAB C: RESIDUAL DIAGNOSTICS PLOT -->
+      <div id="tabResid" class="tab-pane">
+        <div style="font-size:12px; color:var(--text-muted);">
+          <b>Residuals ($e_i = Y_i - \tilde{Y}_i$) vs. Predictor ($X_i$):</b> Notice that only at the OLS solution does the residual trend line sit flat on $e = 0$ ($\sum e_i = 0$ and $\sum X_i e_i = 0$).
+        </div>
+        <svg id="residSvg" viewBox="0 0 350 260" preserveAspectRatio="xMidYMid meet" style="width:100%; flex:1; min-height:280px; background:var(--demo-card); border:1px solid var(--border); border-radius:4px;"></svg>
+        <div class="formula-box" style="font-size:11.5px;" id="residOrthogStats"></div>
+      </div>
+    </aside>
+
+    <!-- BOTTOM PANEL: LIVE EQUATIONS, POINT INSPECTOR & ANOVA TABLE -->
+    <section class="bottom-grid">
+
+      <!-- Left Bottom: Live Equations & Point Inspector -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>3. Live Normal Equations &amp; Closed-Form OLS Estimators</span>
+          <span id="rSquaredBadge" class="fit-badge">$R^2 = 0.000$</span>
+        </div>
+        <div class="panel-body">
+
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <span class="kpi-title">Centroid $(\bar{X}, \bar{Y})$</span>
+              <span id="statCentroid" class="kpi-num" style="color:var(--col-sst);">(0.0, 0.0)</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-title">Correlation ($r$)</span>
+              <span id="statCorr" class="kpi-num">0.000</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-title">OLS Slope ($\hat{\beta}_1$)</span>
+              <span id="statBeta1" class="kpi-num" style="color:var(--col-ols);">0.000</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-title">OLS Intercept ($\hat{\beta}_0$)</span>
+              <span id="statBeta0" class="kpi-num" style="color:var(--col-ols);">0.000</span>
+            </div>
+          </div>
+
+          <div class="formula-box" id="liveMathEquation"></div>
+
+          <div class="point-inspector" id="pointInspector">
+            <span><b>Hover or press a data point $(X_i, Y_i)$</b> on the plot to inspect its residual $e_i$, squared error $e_i^2$, leverage $h_{ii}$, and Cook's distance $D_i$.</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right Bottom: Variance Decomposition Meter & ANOVA Table -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>4. Variance Partitioning ($SST = SSR + SSE_{\text{OLS}}$) &amp; ANOVA Table</span>
+          <span id="fStatBadge" style="font-family:var(--font-mono); font-size:12px; color:var(--col-ols);">F = -, p = -</span>
+        </div>
+        <div class="panel-body">
+
+          <div class="ss-meter-wrap">
+            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600;">
+              <span style="color:var(--col-ols);">Explained by OLS ($SSR$): <span id="lblSSR">0.0</span> (<span id="lblR2Pct">0%</span>)</span>
+              <span style="color:var(--col-sse);">Unexplained Error ($SSE_{\text{OLS}}$): <span id="lblSSE">0.0</span> (<span id="lblUnexpPct">0%</span>)</span>
+            </div>
+            <div class="ss-bar-track">
+              <div id="barSSR" class="ss-bar-ssr" style="width: 50%;">SSR</div>
+              <div id="barSSE" class="ss-bar-sse" style="width: 50%;">SSE</div>
+            </div>
+          </div>
+
+          <table class="anova-table">
+            <thead>
+              <tr>
+                <th>Source of Variation</th>
+                <th>Sum of Squares ($SS$)</th>
+                <th>$df$</th>
+                <th>Mean Square ($MS$)</th>
+                <th>$F$-ratio</th>
+                <th>$p$-value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--col-ols);">Regression (Model)</td>
+                <td id="tblSSR">-</td>
+                <td id="tblDfR">1</td>
+                <td id="tblMSR">-</td>
+                <td id="tblF" style="font-weight:700;">-</td>
+                <td id="tblP" style="font-weight:700;">-</td>
+              </tr>
+              <tr>
+                <td style="color:var(--col-sse);">Error (Residual)</td>
+                <td id="tblSSE">-</td>
+                <td id="tblDfE">-</td>
+                <td id="tblMSE">-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr style="background:var(--bg-subtle); font-weight:700; color:var(--col-sst);">
+                <td>Total ($SST$)</td>
+                <td id="tblSST">-</td>
+                <td id="tblDfT">-</td>
+                <td id="tblMST">-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  </div>
+
+  <script src="../assets/press-readout.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      const PAL = (function () {
+        const V = window.statsViz;
+        const rootStyle = getComputedStyle(document.documentElement);
+        const text = rootStyle.getPropertyValue("--demo-text").trim() || "#000000";
+        const card = rootStyle.getPropertyValue("--demo-card").trim() || "#ffffff";
+        function channelsOf(token) {
+          const value = V.color(token).replace(/\s+/g, "");
+          const hex = value.match(/^#([0-9a-f]{6})$/i);
+          if (!hex) throw new Error("OLS palette: cannot parse " + token);
+          const h = hex[1];
+          return [
+            parseInt(h.slice(0, 2), 16),
+            parseInt(h.slice(2, 4), 16),
+            parseInt(h.slice(4, 6), 16)
+          ];
+        }
+        return {
+          text: text,
+          card: card,
+          white: "#ffffff",
+          data: V.color("sample"),
+          hover: V.color("highlight"),
+          hoverInk: V.color("null"),
+          sst: V.color("total"),
+          sstFill: V.rgba("total", 0.16),
+          sstSoft: V.rgba("total", 0.22),
+          meanGuide: V.rgba("total", 0.45),
+          cand: V.color("group-c"),
+          candFill: V.rgba("group-c", 0.20),
+          candSoft: V.rgba("group-c", 0.28),
+          ols: V.color("explained"),
+          olsFill: V.rgba("explained", 0.14),
+          olsEdge: V.rgba("explained", 0.45),
+          sse: V.color("residual"),
+          sseFill: V.rgba("residual", 0.18),
+          hoverFill: V.rgba("highlight", 0.26),
+          muted: V.color("reference"),
+          grid: V.rgba("reference", 0.28),
+          gridSoft: V.rgba("reference", 0.14),
+          hidden: V.color("reference"),
+          cookHighFill: V.rgba("residual", 0.18),
+          cookLowFill: V.rgba("explained", 0.14),
+          font: "Arial, Helvetica, sans-serif",
+          mono: "ui-monospace, Consolas, monospace",
+          lossLow: channelsOf("explained"),
+          lossHigh: channelsOf("residual")
+        };
+      })();
+
+      // =========================================================================
+      // 1. CURATED REPRODUCIBLE DATASETS
+      // =========================================================================
+      const PRESETS = {
+        classic: {
+          name: "Classic Linear Trend",
+          points: [
+            { x: 1.5, y: 3.1 }, { x: 2.3, y: 4.8 }, { x: 3.2, y: 4.2 },
+            { x: 4.1, y: 6.5 }, { x: 5.0, y: 5.9 }, { x: 5.8, y: 7.8 },
+            { x: 6.7, y: 7.1 }, { x: 7.5, y: 9.3 }, { x: 8.4, y: 8.6 },
+            { x: 9.2, y: 10.8 }, { x: 10.3, y: 10.1 }, { x: 11.2, y: 12.2 }
+          ],
+          initCand: { b0: 3.2, b1: 0.52 }
+        },
+        null_noise: {
+          name: "Zero Slope / Pure Noise",
+          points: [
+            { x: 1.5, y: 6.8 }, { x: 2.2, y: 4.5 }, { x: 3.0, y: 8.9 },
+            { x: 3.9, y: 5.2 }, { x: 4.7, y: 7.4 }, { x: 5.5, y: 9.1 },
+            { x: 6.3, y: 4.2 }, { x: 7.1, y: 6.7 }, { x: 8.0, y: 8.8 },
+            { x: 8.8, y: 5.0 }, { x: 9.6, y: 7.5 }, { x: 10.5, y: 4.9 },
+            { x: 11.2, y: 8.2 }, { x: 12.0, y: 6.3 }
+          ],
+          initCand: { b0: 3.5, b1: 0.45 }
+        },
+        high_leverage: {
+          name: "High-Leverage Outlier vs. Centroid",
+          points: [
+            { x: 2.0, y: 3.6 }, { x: 2.6, y: 4.1 }, { x: 3.2, y: 4.8 },
+            { x: 3.8, y: 5.2 }, { x: 4.4, y: 5.9 }, { x: 5.0, y: 6.3 },
+            { x: 5.6, y: 7.0 }, { x: 6.2, y: 7.4 }, { x: 6.8, y: 8.1 },
+            { x: 7.4, y: 8.6 },
+            { x: 12.2, y: 3.2, special: true }
+          ],
+          initCand: { b0: 2.0, b1: 0.88 }
+        },
+        anscombe1: {
+          name: "Anscombe I (Linear)",
+          points: [
+            { x: 10, y: 8.04 }, { x: 8, y: 6.95 }, { x: 13, y: 7.58 },
+            { x: 9, y: 8.81 }, { x: 11, y: 8.33 }, { x: 14, y: 9.96 },
+            { x: 6, y: 7.24 }, { x: 4, y: 4.26 }, { x: 12, y: 10.84 },
+            { x: 7, y: 4.82 }, { x: 5, y: 5.68 }
+          ],
+          initCand: { b0: 3.0, b1: 0.50 }
+        },
+        anscombe2: {
+          name: "Anscombe II (Quadratic)",
+          points: [
+            { x: 10, y: 9.14 }, { x: 8, y: 8.14 }, { x: 13, y: 8.74 },
+            { x: 9, y: 8.77 }, { x: 11, y: 9.26 }, { x: 14, y: 8.10 },
+            { x: 6, y: 6.13 }, { x: 4, y: 3.10 }, { x: 12, y: 9.13 },
+            { x: 7, y: 7.26 }, { x: 5, y: 4.74 }
+          ],
+          initCand: { b0: 3.0, b1: 0.50 }
+        },
+        anscombe3: {
+          name: "Anscombe III (Vertical Outlier)",
+          points: [
+            { x: 10, y: 7.46 }, { x: 8, y: 6.77 }, { x: 13, y: 12.74, special: true },
+            { x: 9, y: 7.11 }, { x: 11, y: 7.81 }, { x: 14, y: 8.84 },
+            { x: 6, y: 6.08 }, { x: 4, y: 5.39 }, { x: 12, y: 8.15 },
+            { x: 7, y: 6.42 }, { x: 5, y: 5.73 }
+          ],
+          initCand: { b0: 3.0, b1: 0.50 }
+        },
+        anscombe4: {
+          name: "Anscombe IV (Extreme Leverage)",
+          points: [
+            { x: 8, y: 6.58 }, { x: 8, y: 5.76 }, { x: 8, y: 7.71 },
+            { x: 8, y: 8.84 }, { x: 8, y: 8.47 }, { x: 8, y: 7.04 },
+            { x: 8, y: 5.25 }, { x: 15.5, y: 12.50, special: true }, { x: 8, y: 5.56 },
+            { x: 8, y: 7.91 }, { x: 8, y: 6.89 }
+          ],
+          initCand: { b0: 3.0, b1: 0.50 }
+        }
+      };
+
+      // =========================================================================
+      // 2. APPLICATION STATE
+      // =========================================================================
+      const state = {
+        presetKey: "classic",
+        points: [],
+        b0: 3.2,
+        b1: 0.52,
+        lockedToOLS: false,
+        pinToCentroid: false,
+        challengeMode: false,
+
+        // Packaged Error Representation Modes ('squares' | 'distances' | 'none' for null)
+        candErrMode: "squares",
+        olsErrMode: "squares",
+        nullErrMode: "none",
+
+        hoveredIndex: null,
+        draggingPointIndex: null,
+        draggingHandle: null, // 'left' or 'right'
+        touchPress: null,
+        touchHoldTimer: null,
+        activeTab: "tabLoss",
+        gradTimer: null,
+        gdTrail: [], // Stores gradient descent step trajectory [(b0, b1), ...]
+
+        // Base minimum coordinate domain [0, 16] x [0, 14] with 1:1 pixel scaling
+        domainX: [0, 16],
+        domainY: [0, 14],
+
+        // Computed statistics cache
+        stats: null
+      };
+
+      // Helper to render KaTeX inline math inside any DOM container
+      function typesetMath(el) {
+        if (!el) return;
+        if (window.renderMathInElement) {
+          try {
+            window.renderMathInElement(el, {
+              delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+              ],
+              throwOnError: false
+            });
+          } catch (e) { /* fallback */ }
+        }
+      }
+
+      // =========================================================================
+      // 3. EXACT STATISTICAL DISTRIBUTIONS (t, F, p-values)
+      // =========================================================================
+      function logGamma(z) {
+        const c = [
+          76.18009172947146, -86.50532032941677, 24.01409824083091,
+          -1.231739572450155, 0.001208650973866179, -0.000005395239384953
+        ];
+        let x = z, y = z;
+        let tmp = x + 5.5;
+        tmp -= (x + 0.5) * Math.log(tmp);
+        let ser = 1.000000000190015;
+        for (let i = 0; i < 6; i++) ser += c[i] / ++y;
+        return -tmp + Math.log(2.5066282746310005 * ser / x);
+      }
+
+      function betacf(a, b, x) {
+        const MAXIT = 150, EPS = 3e-9, FPMIN = 1e-30;
+        let qab = a + b, qap = a + 1, qam = a - 1;
+        let c = 1, d = 1 - qab * x / qap;
+        if (Math.abs(d) < FPMIN) d = FPMIN;
+        d = 1 / d;
+        let h = d;
+        for (let m = 1; m <= MAXIT; m++) {
+          let m2 = 2 * m;
+          let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+          d = 1 + aa * d;
+          if (Math.abs(d) < FPMIN) d = FPMIN;
+          c = 1 + aa / c;
+          if (Math.abs(c) < FPMIN) c = FPMIN;
+          d = 1 / d;
+          h *= d * c;
+          aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+          d = 1 + aa * d;
+          if (Math.abs(d) < FPMIN) d = FPMIN;
+          c = 1 + aa / c;
+          if (Math.abs(c) < FPMIN) c = FPMIN;
+          d = 1 / d;
+          let del = d * c;
+          h *= del;
+          if (Math.abs(del - 1.0) < EPS) break;
+        }
+        return h;
+      }
+
+      function regIncompleteBeta(x, a, b) {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+        const bt = Math.exp(
+          logGamma(a + b) - logGamma(a) - logGamma(b) +
+          a * Math.log(x) + b * Math.log(1 - x)
+        );
+        if (x < (a + 1) / (a + b + 2)) {
+          return bt * betacf(a, b, x) / a;
+        } else {
+          return 1 - bt * betacf(b, a, 1 - x) / b;
+        }
+      }
+
+      function fDistPValue(F, df1, df2) {
+        if (!isFinite(F) || F <= 0 || df1 <= 0 || df2 <= 0) return 1.0;
+        const x = df2 / (df2 + df1 * F);
+        return regIncompleteBeta(x, df2 / 2, df1 / 2);
+      }
+
+      function tCritical95(df) {
+        if (df <= 0) return 1.96;
+        let low = 1.95, high = 12.71;
+        if (df === 1) return 12.706;
+        if (df === 2) return 4.303;
+        for (let i = 0; i < 30; i++) {
+          let mid = 0.5 * (low + high);
+          let p = fDistPValue(mid * mid, 1, df);
+          if (p > 0.05) low = mid;
+          else high = mid;
+        }
+        return 0.5 * (low + high);
+      }
+
+      // =========================================================================
+      // 4. STATISTICAL ENGINE
+      // =========================================================================
+      function computeStatistics() {
+        const pts = state.points;
+        const n = pts.length;
+        let sumX = 0, sumY = 0;
+        for (let i = 0; i < n; i++) {
+          sumX += pts[i].x;
+          sumY += pts[i].y;
+        }
+        const meanX = sumX / n;
+        const meanY = sumY / n;
+
+        let Sxx = 0, Syy = 0, Sxy = 0;
+        for (let i = 0; i < n; i++) {
+          const dx = pts[i].x - meanX;
+          const dy = pts[i].y - meanY;
+          Sxx += dx * dx;
+          Syy += dy * dy;
+          Sxy += dx * dy;
+        }
+
+        const safeSxx = Math.max(Sxx, 1e-9);
+        const beta1 = Sxy / safeSxx;
+        const beta0 = meanY - beta1 * meanX;
+        const r = (Sxx > 1e-9 && Syy > 1e-9) ? (Sxy / Math.sqrt(Sxx * Syy)) : 0;
+
+        // If pinned to centroid or locked to OLS, synchronize candidate parameters
+        if (state.lockedToOLS && !state.challengeMode) {
+          state.b0 = beta0;
+          state.b1 = beta1;
+        } else if (state.pinToCentroid) {
+          state.b0 = meanY - state.b1 * meanX;
+        }
+
+        const b0 = state.b0;
+        const b1 = state.b1;
+
+        const SST = Syy;
+        const SSR_OLS = beta1 * beta1 * Sxx;
+        const SSE_OLS = Math.max(0, SST - SSR_OLS);
+
+        let candSSE = 0;
+        let candSSR = 0;
+        let candCross = 0;
+        let sumE = 0;
+        let sumAbsE = 0;
+        let sumAbsEOls = 0;
+        let sumAbsSST = 0;
+        let sumXE = 0;
+
+        const dfE = Math.max(1, n - 2);
+        const MSE = SSE_OLS / dfE;
+
+        const pointDiagnostics = [];
+        for (let i = 0; i < n; i++) {
+          const xi = pts[i].x;
+          const yi = pts[i].y;
+          const yHatOls = beta0 + beta1 * xi;
+          const yTilde = b0 + b1 * xi;
+          const eCand = yi - yTilde;
+          const eOls = yi - yHatOls;
+          const devSST = yi - meanY;
+
+          candSSE += eCand * eCand;
+          candSSR += (yTilde - meanY) * (yTilde - meanY);
+          candCross += 2 * (yTilde - meanY) * eCand;
+          sumE += eCand;
+          sumAbsE += Math.abs(eCand);
+          sumAbsEOls += Math.abs(eOls);
+          sumAbsSST += Math.abs(devSST);
+          sumXE += xi * eCand;
+
+          // Leverage h_ii and Cook's Distance D_i (under OLS)
+          const hii = (1 / n) + ((xi - meanX) * (xi - meanX)) / safeSxx;
+          const denom = Math.max(1e-6, 1 - hii);
+          const cooksD = (MSE > 1e-9)
+            ? ((eOls * eOls) / (2 * MSE)) * (hii / (denom * denom))
+            : 0;
+
+          pointDiagnostics.push({
+            index: i,
+            x: xi,
+            y: yi,
+            yHatOls,
+            yTilde,
+            eCand,
+            eOls,
+            devSST,
+            hii,
+            cooksD,
+            special: !!pts[i].special
+          });
+        }
+
+        const R2 = SST > 1e-9 ? (SSR_OLS / SST) : 0;
+        const F = MSE > 1e-9 ? (SSR_OLS / MSE) : 0;
+        const pVal = n > 2 ? fDistPValue(F, 1, n - 2) : 1.0;
+        const tCrit = tCritical95(dfE);
+
+        // Quadratic Loss Decomposition terms:
+        // SSE(b0, b1) = SSE_OLS + n*(Y_bar - b0 - b1*X_bar)^2 + Sxx*(b1 - beta1)^2
+        const levelPenalty = n * Math.pow(meanY - b0 - b1 * meanX, 2);
+        const slopePenalty = Sxx * Math.pow(b1 - beta1, 2);
+
+        state.stats = {
+          n, meanX, meanY, Sxx, Syy, Sxy,
+          beta0, beta1, r, R2,
+          SST, SSR_OLS, SSE_OLS,
+          candSSE, candSSR, candCross,
+          sumE, sumAbsE, sumAbsEOls, sumAbsSST, sumXE,
+          dfE, MSE, F, pVal, tCrit,
+          levelPenalty, slopePenalty,
+          pointDiagnostics
+        };
+      }
+
+      // =========================================================================
+      // 5. PRIMARY SCATTERPLOT & GEOMETRIC SQUARES / DISTANCES RENDERER (SVG)
+      // =========================================================================
+      const svgNS = "http://www.w3.org/2000/svg";
+      const scatterContainer = document.getElementById("scatterContainer");
+      const scatterSvg = document.getElementById("scatterSvg");
+
+      const PLOT = {
+        svgW: 700,
+        svgH: 520,
+        marginL: 44,
+        marginR: 14,
+        marginT: 14,
+        marginB: 36,
+        scale: 32, // Dynamically updated to fill container while maintaining 1:1 aspect ratio
+        xMin: 0,
+        xMax: 16,
+        yMin: 0,
+        yMax: 14,
+        width: 642,
+        height: 470
+      };
+
+      // Dynamically resize the SVG coordinate system so the plot fills 100% of the panel's empty space
+      // while preserving a strict 1:1 pixel-per-unit aspect ratio for geometric squares.
+      function syncPlotGeometryToContainer() {
+        const rect = scatterContainer.getBoundingClientRect();
+        const svgW = Math.max(360, Math.round(rect.width || 700));
+        const svgH = Math.max(340, Math.round(rect.height || 520));
+
+        PLOT.svgW = svgW;
+        PLOT.svgH = svgH;
+        scatterSvg.setAttribute("viewBox", `0 0 ${svgW} ${svgH}`);
+
+        const availW = Math.max(200, svgW - PLOT.marginL - PLOT.marginR);
+        const availH = Math.max(200, svgH - PLOT.marginT - PLOT.marginB);
+
+        const baseSpanX = 16;
+        const baseSpanY = 14;
+        PLOT.scale = Math.min(availW / baseSpanX, availH / baseSpanY);
+        PLOT.width = availW;
+        PLOT.height = availH;
+        PLOT.xMin = 0;
+        PLOT.yMin = 0;
+        PLOT.xMax = availW / PLOT.scale;
+        PLOT.yMax = availH / PLOT.scale;
+      }
+
+      function xToPx(x) {
+        return PLOT.marginL + (x - PLOT.xMin) * PLOT.scale;
+      }
+      function yToPx(y) {
+        return PLOT.marginT + (PLOT.yMax - y) * PLOT.scale;
+      }
+      function pxToX(px) {
+        return PLOT.xMin + (px - PLOT.marginL) / PLOT.scale;
+      }
+      function pxToY(py) {
+        return PLOT.yMax - (py - PLOT.marginT) / PLOT.scale;
+      }
+
+      function createSvgEl(tag, attrs) {
+        const el = document.createElementNS(svgNS, tag);
+        for (const k in attrs) {
+          el.setAttribute(k, attrs[k]);
+        }
+        return el;
+      }
+
+      function syncLayerControlStates() {
+        const showCand = document.getElementById("chkShowCandLine").checked;
+        const showOLS = document.getElementById("chkShowOLSLine").checked && !state.challengeMode;
+        const showNull = document.getElementById("chkShowNullLine").checked;
+
+        document.getElementById("candSubOptions").classList.toggle("disabled", !showCand);
+        document.getElementById("olsSubOptions").classList.toggle("disabled", !showOLS);
+        document.getElementById("nullSubOptions").classList.toggle("disabled", !showNull);
+
+        document.getElementById("lblCandSquares").classList.toggle("active-cand-err", state.candErrMode === "squares");
+        document.getElementById("lblCandDistances").classList.toggle("active-cand-err", state.candErrMode === "distances");
+
+        document.getElementById("lblOlsSquares").classList.toggle("active-ols-err", state.olsErrMode === "squares");
+        document.getElementById("lblOlsDistances").classList.toggle("active-ols-err", state.olsErrMode === "distances");
+
+        document.getElementById("lblNullSquares").classList.toggle("active-null-err", state.nullErrMode === "squares");
+        document.getElementById("lblNullDistances").classList.toggle("active-null-err", state.nullErrMode === "distances");
+      }
+
+      function renderScatterPlot() {
+        const st = state.stats;
+        syncPlotGeometryToContainer();
+        scatterSvg.innerHTML = "";
+        syncLayerControlStates();
+
+        const showCand = document.getElementById("chkShowCandLine").checked;
+        const showOLS = document.getElementById("chkShowOLSLine").checked && !state.challengeMode;
+        const showNull = document.getElementById("chkShowNullLine").checked;
+        const showCI = document.getElementById("chkShowCIBand").checked && !state.challengeMode;
+        const showLev = document.getElementById("chkShowLeverage").checked;
+
+        // Clip path for plot area
+        const defs = createSvgEl("defs", {});
+        const clip = createSvgEl("clipPath", { id: "plotClip" });
+        clip.appendChild(createSvgEl("rect", {
+          x: PLOT.marginL,
+          y: PLOT.marginT,
+          width: PLOT.width,
+          height: PLOT.height
+        }));
+        defs.appendChild(clip);
+        scatterSvg.appendChild(defs);
+
+        // Background & Gridlines
+        scatterSvg.appendChild(createSvgEl("rect", {
+          x: PLOT.marginL,
+          y: PLOT.marginT,
+          width: PLOT.width,
+          height: PLOT.height,
+          fill: PAL.white,
+          stroke: PAL.muted,
+          "stroke-width": 1
+        }));
+
+        const gridGroup = createSvgEl("g", {});
+        const maxTickX = Math.floor(PLOT.xMax);
+        for (let x = 0; x <= maxTickX; x += 2) {
+          const px = xToPx(x);
+          gridGroup.appendChild(createSvgEl("line", {
+            x1: px, y1: PLOT.marginT, x2: px, y2: PLOT.marginT + PLOT.height,
+            stroke: PAL.gridSoft, "stroke-width": 1
+          }));
+          const lbl = createSvgEl("text", {
+            x: px, y: PLOT.marginT + PLOT.height + 15,
+            "text-anchor": "middle", fill: PAL.muted, "font-size": "11px"
+          });
+          lbl.textContent = x;
+          gridGroup.appendChild(lbl);
+        }
+
+        const maxTickY = Math.floor(PLOT.yMax);
+        for (let y = 0; y <= maxTickY; y += 2) {
+          const py = yToPx(y);
+          gridGroup.appendChild(createSvgEl("line", {
+            x1: PLOT.marginL, y1: py, x2: PLOT.marginL + PLOT.width, y2: py,
+            stroke: PAL.gridSoft, "stroke-width": 1
+          }));
+          const lbl = createSvgEl("text", {
+            x: PLOT.marginL - 7, y: py + 4,
+            "text-anchor": "end", fill: PAL.muted, "font-size": "11px"
+          });
+          lbl.textContent = y;
+          gridGroup.appendChild(lbl);
+        }
+
+        // Axis titles
+        const xTitle = createSvgEl("text", {
+          x: PLOT.marginL + PLOT.width / 2,
+          y: PLOT.marginT + PLOT.height + 32,
+          "text-anchor": "middle",
+          fill: PAL.text,
+          "font-weight": "700",
+          "font-size": "12px"
+        });
+        xTitle.textContent = "Predictor Variable (X)";
+        gridGroup.appendChild(xTitle);
+
+        const yTitle = createSvgEl("text", {
+          x: 14,
+          y: PLOT.marginT + PLOT.height / 2,
+          "text-anchor": "middle",
+          fill: PAL.text,
+          "font-weight": "700",
+          "font-size": "12px",
+          transform: `rotate(-90, 14, ${PLOT.marginT + PLOT.height / 2})`
+        });
+        yTitle.textContent = "Outcome Variable (Y)";
+        gridGroup.appendChild(yTitle);
+
+        scatterSvg.appendChild(gridGroup);
+
+        // Clipped layer for geometric elements
+        const clipped = createSvgEl("g", { "clip-path": "url(#plotClip)" });
+
+        // 1. 95% OLS Confidence Interval Band
+        if (showCI && st.n > 2 && st.Sxx > 1e-6) {
+          const steps = 65;
+          let upperPts = [];
+          let lowerPts = [];
+          for (let k = 0; k <= steps; k++) {
+            const xVal = PLOT.xMin + (k / steps) * (PLOT.xMax - PLOT.xMin);
+            const yHat = st.beta0 + st.beta1 * xVal;
+            const seMean = Math.sqrt(st.MSE * ((1 / st.n) + Math.pow(xVal - st.meanX, 2) / st.Sxx));
+            const margin = st.tCrit * seMean;
+            upperPts.push(`${xToPx(xVal).toFixed(1)},${yToPx(yHat + margin).toFixed(1)}`);
+            lowerPts.unshift(`${xToPx(xVal).toFixed(1)},${yToPx(yHat - margin).toFixed(1)}`);
+          }
+          clipped.appendChild(createSvgEl("polygon", {
+            points: upperPts.concat(lowerPts).join(" "),
+            fill: PAL.olsFill,
+            stroke: PAL.olsEdge,
+            "stroke-dasharray": "3,3",
+            "stroke-width": 1
+          }));
+        }
+
+        // 2. Null Model (Y_bar) & SST Squares / Distances (Matched to Tab B Indigo #6366f1)
+        if (showNull) {
+          const pyMean = yToPx(st.meanY);
+          const pxMean = xToPx(st.meanX);
+          clipped.appendChild(createSvgEl("line", {
+            x1: PLOT.marginL, y1: pyMean,
+            x2: PLOT.marginL + PLOT.width, y2: pyMean,
+            stroke: PAL.sst, "stroke-width": 1.6, "stroke-dasharray": "6,4"
+          }));
+          clipped.appendChild(createSvgEl("line", {
+            x1: pxMean, y1: PLOT.marginT,
+            x2: pxMean, y2: PLOT.marginT + PLOT.height,
+            stroke: PAL.meanGuide, "stroke-width": 1.2, "stroke-dasharray": "3,4"
+          }));
+          const nullLbl = createSvgEl("text", {
+            x: PLOT.marginL + PLOT.width - 6,
+            y: pyMean - 6,
+            "text-anchor": "end",
+            fill: PAL.sst,
+            "font-size": "11px",
+            "font-weight": "700"
+          });
+          nullLbl.textContent = `Null Model Mean Y = ${st.meanY.toFixed(2)} (SST)`;
+          clipped.appendChild(nullLbl);
+
+          // SST Geometric Squares (Y_i - Y_bar)^2 in Tab B Indigo (#6366f1)
+          if (state.nullErrMode === "squares") {
+            st.pointDiagnostics.forEach((d, idx) => {
+              const px = xToPx(d.x);
+              const py = yToPx(d.y);
+              const sidePx = Math.abs(py - pyMean);
+              if (sidePx < 0.5) return;
+
+              const isHov = state.hoveredIndex === idx;
+              const strokeCol = isHov ? PAL.hover : PAL.sst;
+              const fillCol = isHov ? PAL.hoverFill : PAL.sstFill;
+              const topY = Math.min(py, pyMean);
+
+              const preferLeft = (showCand || showOLS) && (px - sidePx >= PLOT.marginL + 4);
+              const drawLeft = preferLeft || (px + sidePx > PLOT.marginL + PLOT.width - 5);
+              const leftX = drawLeft ? (px - sidePx) : px;
+
+              clipped.appendChild(createSvgEl("rect", {
+                x: leftX,
+                y: topY,
+                width: sidePx,
+                height: sidePx,
+                fill: fillCol,
+                stroke: strokeCol,
+                "stroke-width": isHov ? 1.8 : 1.1
+              }));
+
+              clipped.appendChild(createSvgEl("line", {
+                x1: px, y1: py, x2: px, y2: pyMean,
+                stroke: strokeCol,
+                "stroke-width": isHov ? 2.5 : 1.8,
+                "stroke-dasharray": "4,3"
+              }));
+
+              if (sidePx > 26) {
+                const sqTxt = createSvgEl("text", {
+                  x: leftX + sidePx / 2,
+                  y: topY + sidePx / 2 + 4,
+                  "text-anchor": "middle",
+                  fill: isHov ? PAL.hoverInk : PAL.sst,
+                  "font-size": "10px",
+                  "font-family": "var(--font-mono)",
+                  "font-weight": "700"
+                });
+                sqTxt.textContent = (d.devSST * d.devSST).toFixed(1);
+                clipped.appendChild(sqTxt);
+              }
+            });
+          } else if (state.nullErrMode === "distances") {
+            // SST Vertical Distances |Y_i - Y_bar| in Tab B Indigo (#6366f1)
+            const xOffset = (showCand || showOLS) ? -5 : 0;
+            st.pointDiagnostics.forEach((d, idx) => {
+              const px = xToPx(d.x) + xOffset;
+              const py = yToPx(d.y);
+              const distPx = Math.abs(py - pyMean);
+              if (distPx < 1) return;
+
+              const isHov = state.hoveredIndex === idx;
+              const col = isHov ? PAL.hover : PAL.sst;
+
+              if (xOffset !== 0) {
+                clipped.appendChild(createSvgEl("line", {
+                  x1: xToPx(d.x), y1: py, x2: px, y2: py,
+                  stroke: col, "stroke-width": 1, "stroke-dasharray": "2,2"
+                }));
+              }
+
+              clipped.appendChild(createSvgEl("line", {
+                x1: px, y1: py, x2: px, y2: pyMean,
+                stroke: col,
+                "stroke-width": isHov ? 2.8 : 2.0,
+                "stroke-dasharray": "2,2"
+              }));
+
+              const capW = 3.8;
+              clipped.appendChild(createSvgEl("line", {
+                x1: px - capW, y1: py, x2: px + capW, y2: py,
+                stroke: col, "stroke-width": 1.6
+              }));
+              clipped.appendChild(createSvgEl("line", {
+                x1: px - capW, y1: pyMean, x2: px + capW, y2: pyMean,
+                stroke: col, "stroke-width": 1.6
+              }));
+
+              if (distPx > 18) {
+                const midY = (py + pyMean) / 2;
+                const distTxt = createSvgEl("text", {
+                  x: px - 5,
+                  y: midY + 3,
+                  "text-anchor": "end",
+                  fill: col,
+                  "font-size": "9.5px",
+                  "font-family": "var(--font-mono)",
+                  "font-weight": "700",
+                  stroke: PAL.white,
+                  "stroke-width": "2.4",
+                  "paint-order": "stroke"
+                });
+                distTxt.textContent = Math.abs(d.devSST).toFixed(2);
+                clipped.appendChild(distTxt);
+              }
+            });
+          }
+        }
+
+        // 3. Analytical OLS Error Visuals Package (Rose #e11d48 matching Tab B SSE_OLS)
+        if (showOLS) {
+          st.pointDiagnostics.forEach((d, idx) => {
+            const px = xToPx(d.x);
+            const py = yToPx(d.y);
+            const pyOls = yToPx(d.yHatOls);
+            const sidePx = Math.abs(py - pyOls);
+            if (sidePx < 0.5) return;
+
+            const isHov = state.hoveredIndex === idx;
+            const strokeCol = isHov ? PAL.hover : PAL.sse;
+            const fillCol = isHov ? PAL.hoverFill : PAL.sseFill;
+
+            if (state.olsErrMode === "squares") {
+              const topY = Math.min(py, pyOls);
+              const preferLeft = showCand && (px - sidePx >= PLOT.marginL + 4);
+              const drawLeft = preferLeft || (px + sidePx > PLOT.marginL + PLOT.width - 5);
+              const leftX = drawLeft ? (px - sidePx) : px;
+
+              clipped.appendChild(createSvgEl("rect", {
+                x: leftX,
+                y: topY,
+                width: sidePx,
+                height: sidePx,
+                fill: fillCol,
+                stroke: strokeCol,
+                "stroke-width": isHov ? 1.8 : 1.1
+              }));
+
+              clipped.appendChild(createSvgEl("line", {
+                x1: px, y1: py, x2: px, y2: pyOls,
+                stroke: strokeCol,
+                "stroke-width": isHov ? 2.5 : 1.8,
+                "stroke-dasharray": "4,3"
+              }));
+
+              if (sidePx > 26) {
+                const sqTxt = createSvgEl("text", {
+                  x: leftX + sidePx / 2,
+                  y: topY + sidePx / 2 + 4,
+                  "text-anchor": "middle",
+                  fill: isHov ? PAL.hoverInk : PAL.sse,
+                  "font-size": "10px",
+                  "font-family": "var(--font-mono)",
+                  "font-weight": "700"
+                });
+                sqTxt.textContent = (d.eOls * d.eOls).toFixed(1);
+                clipped.appendChild(sqTxt);
+              }
+            } else if (state.olsErrMode === "distances") {
+              const xOff = showCand ? 3.5 : 0;
+              const barX = px + xOff;
+
+              clipped.appendChild(createSvgEl("line", {
+                x1: barX, y1: py, x2: barX, y2: pyOls,
+                stroke: strokeCol,
+                "stroke-width": isHov ? 3.0 : 2.3
+              }));
+
+              const capW = 4.2;
+              clipped.appendChild(createSvgEl("line", {
+                x1: barX - capW, y1: py, x2: barX + capW, y2: py,
+                stroke: strokeCol, "stroke-width": 1.7
+              }));
+              clipped.appendChild(createSvgEl("line", {
+                x1: barX - capW, y1: pyOls, x2: barX + capW, y2: pyOls,
+                stroke: strokeCol, "stroke-width": 1.7
+              }));
+
+              if (sidePx > 15) {
+                const midY = (py + pyOls) / 2;
+                const placeLeft = (barX > PLOT.marginL + PLOT.width - 45);
+                const labelX = placeLeft ? (barX - 6) : (barX + 6);
+                const anchor = placeLeft ? "end" : "start";
+
+                const distTxt = createSvgEl("text", {
+                  x: labelX,
+                  y: midY + 3.5,
+                  "text-anchor": anchor,
+                  fill: strokeCol,
+                  "font-size": "9.5px",
+                  "font-family": "var(--font-mono)",
+                  "font-weight": "700",
+                  stroke: PAL.white,
+                  "stroke-width": "2.5",
+                  "paint-order": "stroke"
+                });
+                distTxt.textContent = `|e_OLS|=${Math.abs(d.eOls).toFixed(2)}`;
+                clipped.appendChild(distTxt);
+              }
+            }
+          });
+        }
+
+        // 4. Candidate Line Error Visuals Package (Amber #d97706 matching Tab B SSE(b))
+        if (showCand) {
+          st.pointDiagnostics.forEach((d, idx) => {
+            const px = xToPx(d.x);
+            const py = yToPx(d.y);
+            const pyFit = yToPx(d.yTilde);
+            const sidePx = Math.abs(py - pyFit);
+            if (sidePx < 0.5) return;
+
+            const isHov = state.hoveredIndex === idx;
+            const strokeCol = isHov ? PAL.hover : PAL.cand;
+            const fillCol = isHov ? PAL.hoverFill : PAL.candFill;
+
+            if (state.candErrMode === "squares") {
+              const topY = Math.min(py, pyFit);
+              const drawLeft = (px + sidePx > PLOT.marginL + PLOT.width - 5);
+              const leftX = drawLeft ? (px - sidePx) : px;
+
+              clipped.appendChild(createSvgEl("rect", {
+                x: leftX,
+                y: topY,
+                width: sidePx,
+                height: sidePx,
+                fill: fillCol,
+                stroke: strokeCol,
+                "stroke-width": isHov ? 1.8 : 1.1
+              }));
+
+              clipped.appendChild(createSvgEl("line", {
+                x1: px, y1: py, x2: px, y2: pyFit,
+                stroke: strokeCol,
+                "stroke-width": isHov ? 2.5 : 1.8,
+                "stroke-dasharray": "4,3"
+              }));
+
+              if (sidePx > 26) {
+                const sqTxt = createSvgEl("text", {
+                  x: leftX + sidePx / 2,
+                  y: topY + sidePx / 2 + 4,
+                  "text-anchor": "middle",
+                  fill: isHov ? PAL.hoverInk : PAL.cand,
+                  "font-size": "10px",
+                  "font-family": "var(--font-mono)",
+                  "font-weight": "700"
+                });
+                sqTxt.textContent = (d.eCand * d.eCand).toFixed(1);
+                clipped.appendChild(sqTxt);
+              }
+            } else if (state.candErrMode === "distances") {
+              clipped.appendChild(createSvgEl("line", {
+                x1: px, y1: py, x2: px, y2: pyFit,
+                stroke: strokeCol,
+                "stroke-width": isHov ? 3.2 : 2.4
+              }));
+
+              const capW = 4.5;
+              clipped.appendChild(createSvgEl("line", {
+                x1: px - capW, y1: py, x2: px + capW, y2: py,
+                stroke: strokeCol, "stroke-width": 1.8
+              }));
+              clipped.appendChild(createSvgEl("line", {
+                x1: px - capW, y1: pyFit, x2: px + capW, y2: pyFit,
+                stroke: strokeCol, "stroke-width": 1.8
+              }));
+
+              if (sidePx > 14) {
+                const midY = (py + pyFit) / 2;
+                const placeLeft = (px > PLOT.marginL + PLOT.width - 42);
+                const labelX = placeLeft ? (px - 7) : (px + 7);
+                const anchor = placeLeft ? "end" : "start";
+
+                const distTxt = createSvgEl("text", {
+                  x: labelX,
+                  y: midY + 3.5,
+                  "text-anchor": anchor,
+                  fill: strokeCol,
+                  "font-size": "10px",
+                  "font-family": "var(--font-mono)",
+                  "font-weight": "700",
+                  stroke: PAL.white,
+                  "stroke-width": "2.5",
+                  "paint-order": "stroke"
+                });
+                distTxt.textContent = `|e|=${Math.abs(d.eCand).toFixed(2)}`;
+                clipped.appendChild(distTxt);
+              }
+            }
+          });
+        }
+
+        // Determine if candidate line is effectively at OLS optimum
+        const isAtOLS = Math.abs(state.b0 - st.beta0) < 0.015 && Math.abs(state.b1 - st.beta1) < 0.008;
+
+        // 5. Analytical OLS Line (#0d9488 Teal matching Tab B SSR / OLS Model)
+        if (showOLS) {
+          const y1 = st.beta0 + st.beta1 * PLOT.xMin;
+          const y2 = st.beta0 + st.beta1 * PLOT.xMax;
+          clipped.appendChild(createSvgEl("line", {
+            x1: xToPx(PLOT.xMin), y1: yToPx(y1),
+            x2: xToPx(PLOT.xMax), y2: yToPx(y2),
+            stroke: PAL.ols,
+            "stroke-width": 2.7
+          }));
+        }
+
+        // 6. Candidate User Line + Direct Drag Handles (#d97706 Amber matching Tab B)
+        if (showCand) {
+          const y1 = state.b0 + state.b1 * PLOT.xMin;
+          const y2 = state.b0 + state.b1 * PLOT.xMax;
+          clipped.appendChild(createSvgEl("line", {
+            x1: xToPx(PLOT.xMin), y1: yToPx(y1),
+            x2: xToPx(PLOT.xMax), y2: yToPx(y2),
+            stroke: PAL.cand,
+            "stroke-width": isAtOLS && showOLS ? 2.0 : 2.7,
+            "stroke-dasharray": isAtOLS && showOLS ? "6,4" : "none"
+          }));
+
+          // Two interactive handles on the candidate line at X = 2.5 and X = 13.5
+          if (!state.lockedToOLS) {
+            [
+              { id: "left", x: 2.5 },
+              { id: "right", x: 13.5 }
+            ].forEach(h => {
+              const hy = state.b0 + state.b1 * h.x;
+              if (hy >= PLOT.yMin && hy <= PLOT.yMax) {
+                const handle = createSvgEl("circle", {
+                  cx: xToPx(h.x),
+                  cy: yToPx(hy),
+                  r: 7,
+                  fill: PAL.candSoft,
+                  stroke: PAL.cand,
+                  "stroke-width": 2.2,
+                  cursor: "ns-resize"
+                });
+                handle.addEventListener("pointerdown", (ev) => {
+                  ev.stopPropagation();
+                  clearGdTrail();
+                  state.draggingHandle = h.id;
+                  scatterSvg.setPointerCapture(ev.pointerId);
+                });
+                clipped.appendChild(handle);
+              }
+            });
+          }
+        }
+
+        // 7. Centroid Pin (X_bar, Y_bar)
+        if (showNull) {
+          const cx = xToPx(st.meanX);
+          const cy = yToPx(st.meanY);
+          clipped.appendChild(createSvgEl("circle", {
+            cx, cy, r: 7.5,
+            fill: state.pinToCentroid ? PAL.sstSoft : PAL.white,
+            stroke: PAL.sst,
+            "stroke-width": 2.2
+          }));
+          clipped.appendChild(createSvgEl("circle", {
+            cx, cy, r: 2.6,
+            fill: PAL.sst
+          }));
+        }
+
+        // 8. Data Points & Leverage Halos
+        st.pointDiagnostics.forEach((d, idx) => {
+          const px = xToPx(d.x);
+          const py = yToPx(d.y);
+          const isHov = state.hoveredIndex === idx;
+
+          // Leverage / Cook's Distance Halo
+          if (showLev || d.special) {
+            const haloRadius = Math.min(28, 7 + d.hii * 28 + Math.min(12, d.cooksD * 8));
+            clipped.appendChild(createSvgEl("circle", {
+              cx: px, cy: py, r: haloRadius,
+              fill: d.cooksD > 0.5 ? PAL.cookHighFill : PAL.olsFill,
+              stroke: d.cooksD > 0.5 ? PAL.sse : PAL.ols,
+              "stroke-width": 1.2,
+              "stroke-dasharray": "2,2"
+            }));
+          }
+
+          const ptCircle = createSvgEl("circle", {
+            cx: px,
+            cy: py,
+            r: isHov ? 7.5 : (d.special ? 6.5 : 5.5),
+            fill: isHov ? PAL.hover : (d.special ? PAL.sse : PAL.data),
+            stroke: PAL.white,
+            "stroke-width": 1.8,
+            cursor: "grab"
+          });
+
+          ptCircle.addEventListener("pointerenter", (ev) => {
+            if (ev.pointerType && ev.pointerType !== "mouse") return;
+            if (window.vizPressReadout && vizPressReadout.touchMouse(ev)) return;
+            state.hoveredIndex = idx;
+            updatePointInspector();
+            renderScatterPlot();
+            renderResidualPlot();
+          });
+
+          ptCircle.addEventListener("pointerleave", (ev) => {
+            if (window.vizPressReadout && (vizPressReadout.touchMouse(ev) || vizPressReadout.holding())) return;
+            if (state.touchPress || state.touchHoldTimer) return;
+            state.hoveredIndex = null;
+            updatePointInspector();
+            renderScatterPlot();
+            renderResidualPlot();
+          });
+
+          ptCircle.addEventListener("pointerdown", (ev) => {
+            ev.stopPropagation();
+            clearGdTrail();
+            if (ev.shiftKey) {
+              if (state.points.length > 3) {
+                state.points.splice(idx, 1);
+                state.hoveredIndex = null;
+                updateAll();
+              }
+              return;
+            }
+            const touch = ev.pointerType !== "mouse";
+            state.hoveredIndex = idx;
+            if (!touch) {
+              state.draggingPointIndex = idx;
+              scatterSvg.setPointerCapture(ev.pointerId);
+              return;
+            }
+            if (state.touchHoldTimer) {
+              clearTimeout(state.touchHoldTimer);
+              state.touchHoldTimer = null;
+            }
+            state.touchPress = {
+              id: ev.pointerId,
+              idx: idx,
+              x: ev.clientX,
+              y: ev.clientY,
+              moved: false
+            };
+            updatePointInspector();
+            renderScatterPlot();
+            renderResidualPlot();
+          });
+
+          clipped.appendChild(ptCircle);
+        });
+
+        scatterSvg.appendChild(clipped);
+      }
+
+      // =========================================================================
+      // 6. SECONDARY VIEW A: 2D PARAMETER SPACE & LOSS SURFACE (CANVAS)
+      // =========================================================================
+      const lossCanvasWrap = document.getElementById("lossCanvasWrap");
+      const lossCanvas = document.getElementById("lossCanvas");
+      const lossCtx = lossCanvas.getContext("2d");
+
+      const LOSS_BOUNDS = {
+        b0Min: -4, b0Max: 14,
+        b1Min: -1.0, b1Max: 2.2
+      };
+
+      const LOSS_LAYOUT = {
+        padL: 56,
+        padR: 16,
+        padT: 16,
+        padB: 44,
+        cssW: 360,
+        cssH: 320,
+        plotW: 288,
+        plotH: 260
+      };
+
+      function syncLossCanvasGeometry() {
+        const rect = lossCanvasWrap.getBoundingClientRect();
+        const cssW = Math.max(280, Math.round(rect.width || 360));
+        const cssH = Math.max(250, Math.round(rect.height || 320));
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+        LOSS_LAYOUT.cssW = cssW;
+        LOSS_LAYOUT.cssH = cssH;
+        LOSS_LAYOUT.plotW = Math.max(120, cssW - LOSS_LAYOUT.padL - LOSS_LAYOUT.padR);
+        LOSS_LAYOUT.plotH = Math.max(120, cssH - LOSS_LAYOUT.padT - LOSS_LAYOUT.padB);
+
+        const targetW = Math.round(cssW * dpr);
+        const targetH = Math.round(cssH * dpr);
+        if (lossCanvas.width !== targetW || lossCanvas.height !== targetH) {
+          lossCanvas.width = targetW;
+          lossCanvas.height = targetH;
+        }
+        lossCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function renderLossSurface() {
+        const st = state.stats;
+        syncLossCanvasGeometry();
+
+        const { padL, padR, padT, padB, cssW, cssH, plotW, plotH } = LOSS_LAYOUT;
+
+        // Center window dynamically around OLS beta0, beta1 while keeping stable span
+        const b0Span = 14;
+        const b1Span = 2.6;
+        LOSS_BOUNDS.b0Min = Math.round((st.beta0 - b0Span / 2) * 2) / 2;
+        LOSS_BOUNDS.b0Max = LOSS_BOUNDS.b0Min + b0Span;
+        LOSS_BOUNDS.b1Min = Math.round((st.beta1 - b1Span / 2) * 10) / 10;
+        LOSS_BOUNDS.b1Max = LOSS_BOUNDS.b1Min + b1Span;
+
+        // Clear outer frame background
+        lossCtx.fillStyle = PAL.white;
+        lossCtx.fillRect(0, 0, cssW, cssH);
+
+        // Render 1x heatmap bitmap for the inner plot area and draw scaled to plot rect
+        const offCanvas = document.createElement("canvas");
+        offCanvas.width = plotW;
+        offCanvas.height = plotH;
+        const offCtx = offCanvas.getContext("2d");
+        const imgData = offCtx.createImageData(plotW, plotH);
+        const data = imgData.data;
+
+        for (let py = 0; py < plotH; py++) {
+          const b1 = LOSS_BOUNDS.b1Max - (py / Math.max(1, plotH - 1)) * (LOSS_BOUNDS.b1Max - LOSS_BOUNDS.b1Min);
+          for (let px = 0; px < plotW; px++) {
+            const b0 = LOSS_BOUNDS.b0Min + (px / Math.max(1, plotW - 1)) * (LOSS_BOUNDS.b0Max - LOSS_BOUNDS.b0Min);
+
+            // Fast exact quadratic identity for SSE(b0, b1)
+            const excess = st.n * Math.pow(st.meanY - b0 - b1 * st.meanX, 2) +
+                           st.Sxx * Math.pow(b1 - st.beta1, 2);
+            const norm = Math.log1p(excess / Math.max(1, st.n));
+            const t = Math.min(1, norm / 5.2);
+
+            const wash = 0.78 * (1 - t);
+            const mix = (a, bch) => a * (1 - t) + bch * t;
+            let r = mix(PAL.lossLow[0], PAL.lossHigh[0]);
+            let g = mix(PAL.lossLow[1], PAL.lossHigh[1]);
+            let b = mix(PAL.lossLow[2], PAL.lossHigh[2]);
+            r = r * (1 - wash) + 255 * wash;
+            g = g * (1 - wash) + 255 * wash;
+            b = b * (1 - wash) + 255 * wash;
+
+            const ring = Math.abs((norm * 3.2) % 1 - 0.5) < 0.045 ? 0.72 : 1.0;
+
+            const idx = (py * plotW + px) * 4;
+            data[idx] = Math.round(r * ring);
+            data[idx + 1] = Math.round(g * ring);
+            data[idx + 2] = Math.round(b * ring);
+            data[idx + 3] = 255;
+          }
+        }
+        offCtx.putImageData(imgData, 0, 0);
+        lossCtx.drawImage(offCanvas, padL, padT, plotW, plotH);
+
+        // Coordinate mappers inside the plot area
+        function b0ToPx(b0) {
+          return padL + ((b0 - LOSS_BOUNDS.b0Min) / (LOSS_BOUNDS.b0Max - LOSS_BOUNDS.b0Min)) * plotW;
+        }
+        function b1ToPy(b1) {
+          return padT + ((LOSS_BOUNDS.b1Max - b1) / (LOSS_BOUNDS.b1Max - LOSS_BOUNDS.b1Min)) * plotH;
+        }
+
+        // Clip overlays (trail, connector, cursors) to the inner plot rectangle
+        lossCtx.save();
+        lossCtx.beginPath();
+        lossCtx.rect(padL, padT, plotW, plotH);
+        lossCtx.clip();
+
+        const olsX = b0ToPx(st.beta0);
+        const olsY = b1ToPy(st.beta1);
+        const candX = b0ToPx(state.b0);
+        const candY = b1ToPy(state.b1);
+
+        // Draw Gradient Descent Trajectory Trail if present
+        if (state.gdTrail.length > 1) {
+          lossCtx.beginPath();
+          state.gdTrail.forEach((pt, i) => {
+            const tx = b0ToPx(pt.b0);
+            const ty = b1ToPy(pt.b1);
+            if (i === 0) lossCtx.moveTo(tx, ty);
+            else lossCtx.lineTo(tx, ty);
+          });
+          lossCtx.strokeStyle = PAL.hover;
+          lossCtx.lineWidth = 2;
+          lossCtx.stroke();
+
+          state.gdTrail.forEach((pt) => {
+            const tx = b0ToPx(pt.b0);
+            const ty = b1ToPy(pt.b1);
+            lossCtx.beginPath();
+            lossCtx.arc(tx, ty, 3, 0, Math.PI * 2);
+            lossCtx.fillStyle = PAL.hover;
+            lossCtx.fill();
+          });
+        }
+
+        // Connector line from user candidate to OLS minimum
+        if (!state.challengeMode) {
+          lossCtx.beginPath();
+          lossCtx.setLineDash([4, 3]);
+          lossCtx.moveTo(candX, candY);
+          lossCtx.lineTo(olsX, olsY);
+          lossCtx.strokeStyle = "rgba(255,255,255,0.75)";
+          lossCtx.lineWidth = 1.5;
+          lossCtx.stroke();
+          lossCtx.setLineDash([]);
+
+          // Draw OLS Minimum Bullseye
+          lossCtx.beginPath();
+          lossCtx.arc(olsX, olsY, 6.5, 0, Math.PI * 2);
+          lossCtx.fillStyle = PAL.ols;
+          lossCtx.fill();
+          lossCtx.lineWidth = 2;
+          lossCtx.strokeStyle = PAL.white;
+          lossCtx.stroke();
+
+          lossCtx.fillStyle = PAL.white;
+          lossCtx.font = "700 11px " + PAL.font;
+          lossCtx.textAlign = "left";
+          lossCtx.textBaseline = "middle";
+          lossCtx.fillText("OLS Min", olsX + 9, olsY);
+        }
+
+        // Draw User Candidate Cursor
+        lossCtx.beginPath();
+        lossCtx.arc(candX, candY, 7, 0, Math.PI * 2);
+        lossCtx.fillStyle = PAL.cand;
+        lossCtx.fill();
+        lossCtx.lineWidth = 2.2;
+        lossCtx.strokeStyle = PAL.white;
+        lossCtx.stroke();
+
+        lossCtx.restore();
+
+        // Plot border frame
+        lossCtx.strokeStyle = PAL.muted;
+        lossCtx.lineWidth = 1.25;
+        lossCtx.strokeRect(padL, padT, plotW, plotH);
+
+        // X-Axis (b0 Intercept) Ticks & Numeric Labels
+        const numXTicks = 5;
+        lossCtx.fillStyle = PAL.muted;
+        lossCtx.strokeStyle = PAL.muted;
+        lossCtx.lineWidth = 1.2;
+        lossCtx.font = "500 10px " + PAL.mono;
+        lossCtx.textAlign = "center";
+        lossCtx.textBaseline = "top";
+
+        for (let i = 0; i < numXTicks; i++) {
+          const frac = i / (numXTicks - 1);
+          const val = LOSS_BOUNDS.b0Min + frac * (LOSS_BOUNDS.b0Max - LOSS_BOUNDS.b0Min);
+          const px = padL + frac * plotW;
+
+          lossCtx.beginPath();
+          lossCtx.moveTo(px, padT + plotH);
+          lossCtx.lineTo(px, padT + plotH + 4);
+          lossCtx.stroke();
+
+          lossCtx.fillText(val.toFixed(1), px, padT + plotH + 6);
+        }
+
+        // Y-Axis (b1 Slope) Ticks & Numeric Labels
+        const numYTicks = 5;
+        lossCtx.textAlign = "right";
+        lossCtx.textBaseline = "middle";
+
+        for (let i = 0; i < numYTicks; i++) {
+          const frac = i / (numYTicks - 1);
+          const val = LOSS_BOUNDS.b1Max - frac * (LOSS_BOUNDS.b1Max - LOSS_BOUNDS.b1Min);
+          const py = padT + frac * plotH;
+
+          lossCtx.beginPath();
+          lossCtx.moveTo(padL - 4, py);
+          lossCtx.lineTo(padL, py);
+          lossCtx.stroke();
+
+          lossCtx.fillText(val.toFixed(2), padL - 7, py);
+        }
+
+        // Centered X-Axis Title: Intercept (b0)
+        lossCtx.fillStyle = PAL.text;
+        lossCtx.font = "700 11.5px " + PAL.font;
+        lossCtx.textAlign = "center";
+        lossCtx.textBaseline = "bottom";
+        lossCtx.fillText(
+          `Intercept (b0) [${LOSS_BOUNDS.b0Min.toFixed(1)} to ${LOSS_BOUNDS.b0Max.toFixed(1)}]`,
+          padL + plotW / 2,
+          cssH - 5
+        );
+
+        // Centered Y-Axis Title: Slope (b1)
+        lossCtx.save();
+        lossCtx.translate(13, padT + plotH / 2);
+        lossCtx.rotate(-Math.PI / 2);
+        lossCtx.fillStyle = PAL.text;
+        lossCtx.font = "700 11.5px " + PAL.font;
+        lossCtx.textAlign = "center";
+        lossCtx.textBaseline = "middle";
+        lossCtx.fillText(
+          `Slope (b1) [${LOSS_BOUNDS.b1Min.toFixed(1)} to ${LOSS_BOUNDS.b1Max.toFixed(1)}]`,
+          0,
+          0
+        );
+        lossCtx.restore();
+
+        // Update Quadratic Decomposition readout with KaTeX
+        const qEl = document.getElementById("quadLossNumbers");
+        if (state.challengeMode) {
+          qEl.innerHTML = `$SSE(b_0, b_1) = ${st.candSSE.toFixed(2)}$ (Reveal OLS to see exact decomposition)`;
+        } else {
+          qEl.innerHTML =
+            `$SSE(b_0,b_1) = \\color{${PAL.sse}}{${st.SSE_OLS.toFixed(2)}}\\text{ (Min)} + ` +
+            `\\color{${PAL.cand}}{${st.levelPenalty.toFixed(2)}}\\text{ (Level)} + ` +
+            `\\color{${PAL.cand}}{${st.slopePenalty.toFixed(2)}}\\text{ (Slope)} = \\mathbf{${st.candSSE.toFixed(2)}}$`;
+        }
+        typesetMath(qEl);
+      }
+
+      // =========================================================================
+      // 7. SECONDARY VIEW B: SUM OF SQUARES AREA COMPARATOR WITH Y-AXIS (SVG)
+      // =========================================================================
+      const decompSvg = document.getElementById("decompSvg");
+
+      function computeNiceAxisMax(val) {
+        if (!isFinite(val) || val <= 0) return 10;
+        const padded = val * 1.08;
+        const exp = Math.floor(Math.log10(padded));
+        const frac = padded / Math.pow(10, exp);
+        let niceFrac;
+        if (frac <= 1.2) niceFrac = 1.2;
+        else if (frac <= 1.5) niceFrac = 1.5;
+        else if (frac <= 2) niceFrac = 2;
+        else if (frac <= 2.5) niceFrac = 2.5;
+        else if (frac <= 3) niceFrac = 3;
+        else if (frac <= 4) niceFrac = 4;
+        else if (frac <= 5) niceFrac = 5;
+        else if (frac <= 6) niceFrac = 6;
+        else if (frac <= 8) niceFrac = 8;
+        else niceFrac = 10;
+        return niceFrac * Math.pow(10, exp);
+      }
+
+      function renderDecompPlot() {
+        const st = state.stats;
+        decompSvg.innerHTML = "";
+
+        const rawMax = Math.max(st.SST, st.candSSE, 1);
+        const yAxisMax = computeNiceAxisMax(rawMax);
+
+        const marginL = 52;
+        const marginR = 14;
+        const topY = 20;
+        const baseY = 222;
+        const maxBarH = baseY - topY; // 202 px
+        const plotW = 365 - marginL - marginR;
+
+        // Horizontal gridlines & Y-axis ticks
+        const numTicks = 5;
+        for (let i = 0; i <= numTicks; i++) {
+          const tickVal = (i / numTicks) * yAxisMax;
+          const py = baseY - (tickVal / yAxisMax) * maxBarH;
+
+          // Gridline
+          decompSvg.appendChild(createSvgEl("line", {
+            x1: marginL, y1: py, x2: marginL + plotW, y2: py,
+            stroke: i === 0 ? PAL.muted : PAL.grid,
+            "stroke-width": i === 0 ? 1.5 : 1,
+            "stroke-dasharray": i === 0 ? "none" : "3,3"
+          }));
+
+          // Tick mark on Y-axis
+          decompSvg.appendChild(createSvgEl("line", {
+            x1: marginL - 4, y1: py, x2: marginL, y2: py,
+            stroke: PAL.muted, "stroke-width": 1.2
+          }));
+
+          // Tick label
+          const tLbl = createSvgEl("text", {
+            x: marginL - 7, y: py + 3.5,
+            "text-anchor": "end", fill: PAL.muted,
+            "font-size": "10px", "font-family": "var(--font-mono)"
+          });
+          tLbl.textContent = yAxisMax >= 50 ? Math.round(tickVal) : tickVal.toFixed(1);
+          decompSvg.appendChild(tLbl);
+        }
+
+        // Y-axis vertical spine
+        decompSvg.appendChild(createSvgEl("line", {
+          x1: marginL, y1: topY, x2: marginL, y2: baseY,
+          stroke: PAL.muted, "stroke-width": 1.5
+        }));
+
+        // Y-axis title
+        const yAxisTitle = createSvgEl("text", {
+          x: 13,
+          y: topY + maxBarH / 2,
+          "text-anchor": "middle",
+          fill: PAL.text,
+          "font-size": "10.5px",
+          "font-weight": "700",
+          transform: `rotate(-90, 13, ${topY + maxBarH / 2})`
+        });
+        yAxisTitle.textContent = "Sum of Squares (SS)";
+        decompSvg.appendChild(yAxisTitle);
+
+        const barW = 62;
+        const cols = [
+          {
+            label: "Null Model (Mean Y)",
+            sub: `SST = ${st.SST.toFixed(1)}`,
+            x: marginL + 18,
+            bars: [{ h: (st.SST / yAxisMax) * maxBarH, fill: PAL.sst, name: "SST" }]
+          },
+          {
+            label: "Your Line (b0,b1)",
+            sub: `SSE = ${st.candSSE.toFixed(1)}`,
+            x: marginL + 114,
+            bars: [{ h: (st.candSSE / yAxisMax) * maxBarH, fill: PAL.cand, name: "SSE(b)" }]
+          },
+          {
+            label: "Optimal OLS",
+            sub: `SSR + SSE`,
+            x: marginL + 210,
+            bars: state.challengeMode
+              ? [{ h: 12, fill: PAL.hidden, name: "Hidden" }]
+              : [
+                  { h: (st.SSE_OLS / yAxisMax) * maxBarH, fill: PAL.sse, name: `SSE (${st.SSE_OLS.toFixed(1)})` },
+                  { h: (st.SSR_OLS / yAxisMax) * maxBarH, fill: PAL.ols, name: `SSR (${st.SSR_OLS.toFixed(1)})` }
+                ]
+          }
+        ];
+
+        cols.forEach(c => {
+          let currY = baseY;
+          c.bars.forEach(b => {
+            const bh = Math.max(2, b.h);
+            currY -= bh;
+            decompSvg.appendChild(createSvgEl("rect", {
+              x: c.x, y: currY, width: barW, height: bh,
+              fill: b.fill, rx: 4
+            }));
+            if (bh > 18) {
+              const t = createSvgEl("text", {
+                x: c.x + barW / 2, y: currY + bh / 2 + 4,
+                "text-anchor": "middle", fill: PAL.white,
+                "font-size": "9.5px", "font-weight": "700"
+              });
+              t.textContent = b.name;
+              decompSvg.appendChild(t);
+            }
+          });
+
+          const lbl = createSvgEl("text", {
+            x: c.x + barW / 2, y: baseY + 16,
+            "text-anchor": "middle", fill: PAL.text,
+            "font-size": "10.5px", "font-weight": "700"
+          });
+          lbl.textContent = c.label;
+          decompSvg.appendChild(lbl);
+
+          const sub = createSvgEl("text", {
+            x: c.x + barW / 2, y: baseY + 30,
+            "text-anchor": "middle", fill: PAL.muted,
+            "font-size": "10px", "font-family": "var(--font-mono)"
+          });
+          sub.textContent = c.sub;
+          decompSvg.appendChild(sub);
+        });
+
+        const crossEl = document.getElementById("crossTermText");
+        crossEl.innerHTML =
+          `Cross-term $2\\sum(\\tilde{Y}_i - \\bar{Y})e_i = \\mathbf{${st.candCross.toFixed(2)}}$ ` +
+          (Math.abs(st.candCross) < 0.05 ? "(Strictly $0$ at OLS!)" : "(Non-zero away from OLS)");
+        typesetMath(crossEl);
+      }
+
+      // =========================================================================
+      // 8. SECONDARY VIEW C: RESIDUAL DIAGNOSTICS PLOT (SVG)
+      // =========================================================================
+      const residSvg = document.getElementById("residSvg");
+
+      function renderResidualPlot() {
+        const st = state.stats;
+        residSvg.innerHTML = "";
+
+        const mL = 42, mT = 18, w = 290, h = 205;
+        const zeroY = mT + h / 2;
+
+        let maxAbsE = 4.5;
+        st.pointDiagnostics.forEach(d => {
+          maxAbsE = Math.max(maxAbsE, Math.abs(d.eCand) * 1.15);
+        });
+
+        const xSpanMax = Math.max(16, PLOT.xMax);
+        const rxToPx = (x) => mL + ((x - PLOT.xMin) / (xSpanMax - PLOT.xMin)) * w;
+        const reToPy = (e) => zeroY - (e / maxAbsE) * (h / 2);
+
+        // Y-axis spine and top/bottom ticks for residual plot
+        residSvg.appendChild(createSvgEl("line", {
+          x1: mL, y1: mT, x2: mL, y2: mT + h,
+          stroke: PAL.muted, "stroke-width": 1.2
+        }));
+
+        [-maxAbsE * 0.75, 0, maxAbsE * 0.75].forEach(val => {
+          const py = reToPy(val);
+          const lbl = createSvgEl("text", {
+            x: mL - 6, y: py + 3.5, "text-anchor": "end",
+            fill: PAL.muted, "font-size": "10px", "font-family": "var(--font-mono)"
+          });
+          lbl.textContent = (val > 0 ? "+" : "") + val.toFixed(1);
+          residSvg.appendChild(lbl);
+        });
+
+        // Zero reference line e = 0
+        residSvg.appendChild(createSvgEl("line", {
+          x1: mL, y1: zeroY, x2: mL + w, y2: zeroY,
+          stroke: PAL.ols, "stroke-width": 1.5, "stroke-dasharray": "4,4"
+        }));
+
+        // Residual trend line: e_hat(x) = (beta0 - b0) + (beta1 - b1)*x
+        const eLine1 = (st.beta0 - state.b0) + (st.beta1 - state.b1) * PLOT.xMin;
+        const eLine2 = (st.beta0 - state.b0) + (st.beta1 - state.b1) * xSpanMax;
+        residSvg.appendChild(createSvgEl("line", {
+          x1: rxToPx(PLOT.xMin), y1: Math.max(mT, Math.min(mT + h, reToPy(eLine1))),
+          x2: rxToPx(xSpanMax), y2: Math.max(mT, Math.min(mT + h, reToPy(eLine2))),
+          stroke: PAL.cand, "stroke-width": 2
+        }));
+
+        // Stem and points
+        st.pointDiagnostics.forEach((d, idx) => {
+          const px = rxToPx(d.x);
+          const py = Math.max(mT, Math.min(mT + h, reToPy(d.eCand)));
+          const isHov = state.hoveredIndex === idx;
+
+          residSvg.appendChild(createSvgEl("line", {
+            x1: px, y1: zeroY, x2: px, y2: py,
+            stroke: isHov ? PAL.hover : PAL.cand,
+            "stroke-width": 1.5, "stroke-dasharray": "2,2"
+          }));
+
+          residSvg.appendChild(createSvgEl("circle", {
+            cx: px, cy: py, r: isHov ? 6 : 4.5,
+            fill: isHov ? PAL.hover : PAL.data,
+            stroke: PAL.white, "stroke-width": 1.2
+          }));
+        });
+
+        const xLbl = createSvgEl("text", {
+          x: mL + w / 2, y: mT + h + 24, "text-anchor": "middle",
+          fill: PAL.text, "font-size": "11px", "font-weight": "600"
+        });
+        xLbl.textContent = "Predictor (X_i) vs. Candidate Residual (e_i)";
+        residSvg.appendChild(xLbl);
+
+        const orthEl = document.getElementById("residOrthogStats");
+        orthEl.innerHTML =
+          `$\\sum e_i = \\mathbf{${st.sumE.toFixed(2)}}$ &nbsp;|&nbsp; ` +
+          `$\\sum X_i e_i = \\mathbf{${st.sumXE.toFixed(2)}}$ &nbsp;|&nbsp; ` +
+          `Residual Slope $= \\mathbf{${(st.beta1 - state.b1).toFixed(3)}}$`;
+        typesetMath(orthEl);
+      }
+
+      // =========================================================================
+      // 9. DOM READOUTS, ANOVA TABLE & LATEX RENDERING
+      // =========================================================================
+      function renderMathFormula(el, tex, fallbackHtml) {
+        if (window.katex) {
+          try {
+            window.katex.render(tex, el, { displayMode: false, throwOnError: false });
+            return;
+          } catch (e) { /* fallback */ }
+        }
+        el.innerHTML = fallbackHtml;
+      }
+
+      function updatePointInspector() {
+        const el = document.getElementById("pointInspector");
+        const st = state.stats;
+        if (state.hoveredIndex === null || !st.pointDiagnostics[state.hoveredIndex]) {
+          el.innerHTML = `<span><b>Hover or press a data point $(X_i, Y_i)$</b> on the plot to inspect its candidate residual $e_i$, OLS residual $\\hat{e}_i$, $SST$ deviation $(Y_i - \\bar{Y})$, leverage $h_{ii}$, and Cook's $D_i$.</span>`;
+          typesetMath(el);
+          return;
+        }
+        const d = st.pointDiagnostics[state.hoveredIndex];
+        el.innerHTML =
+          `<span><b>Point #${d.index + 1}:</b> $(X = ${d.x.toFixed(2)}, Y = ${d.y.toFixed(2)})$ &bull; ` +
+          `Cand $e_i = ${d.eCand >= 0 ? "+" : ""}${d.eCand.toFixed(2)}$ ($e_i^2 = ${(d.eCand * d.eCand).toFixed(2)}$) &bull; ` +
+          `OLS $\\hat{e}_i = ${d.eOls >= 0 ? "+" : ""}${d.eOls.toFixed(2)}$ ($\\hat{e}_i^2 = ${(d.eOls * d.eOls).toFixed(2)}$) &bull; ` +
+          `$Y_i - \\bar{Y} = ${d.devSST >= 0 ? "+" : ""}${d.devSST.toFixed(2)}$ ($(Y_i - \\bar{Y})^2 = ${(d.devSST * d.devSST).toFixed(2)}$)</span>` +
+          `<span>Leverage $h_{ii} = \\mathbf{${d.hii.toFixed(3)}}$ &bull; Cook's $D_i = \\mathbf{${d.cooksD.toFixed(3)}}$</span>`;
+        typesetMath(el);
+      }
+
+      function updateReadouts() {
+        const st = state.stats;
+
+        // Sliders & Sidebar badges
+        document.getElementById("sliderB0").value = state.b0;
+        document.getElementById("sliderB1").value = state.b1;
+        document.getElementById("valB0").textContent = state.b0.toFixed(2);
+        document.getElementById("valB1").textContent = state.b1.toFixed(2);
+        document.getElementById("nPointsBadge").textContent = `n = ${st.n} points`;
+
+        document.getElementById("kpiCandSSE").textContent = st.candSSE.toFixed(2);
+        document.getElementById("kpiOlsSSE").textContent = state.challengeMode ? "Hidden" : st.SSE_OLS.toFixed(2);
+        document.getElementById("kpiSumAbsE").textContent = state.challengeMode
+          ? `${st.sumAbsE.toFixed(2)} vs. -`
+          : `${st.sumAbsE.toFixed(2)} vs. ${st.sumAbsEOls.toFixed(2)}`;
+        document.getElementById("kpiSSTSummary").textContent = `${st.sumAbsSST.toFixed(2)} (SST=${st.SST.toFixed(1)})`;
+        document.getElementById("kpiExcessSSE").textContent = state.challengeMode
+          ? "-"
+          : `+${Math.max(0, st.candSSE - st.SSE_OLS).toFixed(2)}`;
+
+        // Bottom KPI cards
+        document.getElementById("statCentroid").textContent = `(${st.meanX.toFixed(2)}, ${st.meanY.toFixed(2)})`;
+        document.getElementById("statCorr").textContent = st.r.toFixed(3);
+        document.getElementById("statBeta1").textContent = state.challengeMode ? "???" : st.beta1.toFixed(3);
+        document.getElementById("statBeta0").textContent = state.challengeMode ? "???" : st.beta0.toFixed(3);
+
+        const r2Badge = document.getElementById("rSquaredBadge");
+        r2Badge.innerHTML = state.challengeMode
+          ? "$R^2 =$ Hidden"
+          : `$R^2 = ${st.R2.toFixed(3)}$ (${(st.R2 * 100).toFixed(1)}%)`;
+        typesetMath(r2Badge);
+
+        // Live Math Formula
+        const mathEl = document.getElementById("liveMathEquation");
+        if (state.challengeMode) {
+          const signCand = state.b1 >= 0 ? "+" : "-";
+          mathEl.innerHTML = `<b>Challenge Active:</b> Your candidate equation is $\\tilde{Y} = ${state.b0.toFixed(2)} ${signCand} ${Math.abs(state.b1).toFixed(2)}X$ with $SSE = ${st.candSSE.toFixed(2)}$. Click <b>Reveal True OLS Solution</b> to compare!`;
+          typesetMath(mathEl);
+        } else {
+          const sign = st.beta1 >= 0 ? "+" : "-";
+          const tex =
+            `\\hat{\\beta}_1 = \\frac{S_{XY}}{S_{XX}} = \\frac{${st.Sxy.toFixed(2)}}{${st.Sxx.toFixed(2)}} = \\mathbf{${st.beta1.toFixed(3)}}, \\quad ` +
+            `\\hat{\\beta}_0 = \\bar{Y} - \\hat{\\beta}_1\\bar{X} = ${st.meanY.toFixed(2)} - (${st.beta1.toFixed(2)})(${st.meanX.toFixed(2)}) = \\mathbf{${st.beta0.toFixed(3)}} \\implies ` +
+            `\\hat{Y} = ${st.beta0.toFixed(2)} ${sign} ${Math.abs(st.beta1).toFixed(2)}X`;
+          const fallback =
+            `<b>beta_1</b> = S<sub>XY</sub> / S<sub>XX</sub> = ${st.Sxy.toFixed(2)} / ${st.Sxx.toFixed(2)} = <b>${st.beta1.toFixed(3)}</b> &nbsp;|&nbsp; ` +
+            `<b>beta_0</b> = Mean(Y) - beta_1*Mean(X) = <b>${st.beta0.toFixed(3)}</b> &nbsp;&rArr;&nbsp; ` +
+            `<b>Y_hat = ${st.beta0.toFixed(2)} ${sign} ${Math.abs(st.beta1).toFixed(2)}X</b>`;
+          renderMathFormula(mathEl, tex, fallback);
+        }
+
+        // Variance Partitioning Bar
+        const r2Pct = Math.max(0, Math.min(100, st.R2 * 100));
+        const unexpPct = 100 - r2Pct;
+        document.getElementById("lblSSR").textContent = state.challengeMode ? "-" : st.SSR_OLS.toFixed(2);
+        document.getElementById("lblSSE").textContent = state.challengeMode ? "-" : st.SSE_OLS.toFixed(2);
+        document.getElementById("lblR2Pct").textContent = state.challengeMode ? "-" : `${r2Pct.toFixed(1)}%`;
+        document.getElementById("lblUnexpPct").textContent = state.challengeMode ? "-" : `${unexpPct.toFixed(1)}%`;
+
+        const barSSR = document.getElementById("barSSR");
+        const barSSE = document.getElementById("barSSE");
+        barSSR.style.width = `${r2Pct}%`;
+        barSSE.style.width = `${unexpPct}%`;
+        barSSR.textContent = r2Pct > 14 ? `SSR (${r2Pct.toFixed(0)}%)` : "";
+        barSSE.textContent = unexpPct > 14 ? `SSE (${unexpPct.toFixed(0)}%)` : "";
+
+        // ANOVA Table
+        const pStr = st.pVal < 0.0001 ? "< 0.0001" : st.pVal.toFixed(4);
+        document.getElementById("fStatBadge").textContent = state.challengeMode
+          ? "F = Hidden"
+          : `F(1, ${st.dfE}) = ${st.F.toFixed(2)}, p = ${pStr}`;
+
+        document.getElementById("tblSSR").textContent = state.challengeMode ? "-" : st.SSR_OLS.toFixed(3);
+        document.getElementById("tblDfR").textContent = "1";
+        document.getElementById("tblMSR").textContent = state.challengeMode ? "-" : st.SSR_OLS.toFixed(3);
+        document.getElementById("tblF").textContent = state.challengeMode ? "-" : st.F.toFixed(2);
+        document.getElementById("tblP").textContent = state.challengeMode ? "-" : pStr;
+
+        document.getElementById("tblSSE").textContent = state.challengeMode ? "-" : st.SSE_OLS.toFixed(3);
+        document.getElementById("tblDfE").textContent = st.dfE;
+        document.getElementById("tblMSE").textContent = state.challengeMode ? "-" : st.MSE.toFixed(3);
+
+        document.getElementById("tblSST").textContent = st.SST.toFixed(3);
+        document.getElementById("tblDfT").textContent = st.n - 1;
+        document.getElementById("tblMST").textContent = (st.SST / Math.max(1, st.n - 1)).toFixed(3);
+
+        updatePointInspector();
+      }
+
+      function updateAll() {
+        computeStatistics();
+        renderScatterPlot();
+        renderLossSurface();
+        renderDecompPlot();
+        renderResidualPlot();
+        updateReadouts();
+      }
+
+      // Observe container resizes so the graphs always fill 100% of their panel space cleanly
+      if (window.ResizeObserver) {
+        const ro = new ResizeObserver(() => {
+          if (state.stats) {
+            renderScatterPlot();
+            renderLossSurface();
+            renderResidualPlot();
+          }
+        });
+        ro.observe(scatterContainer);
+        ro.observe(lossCanvasWrap);
+      } else {
+        window.addEventListener("resize", () => {
+          if (state.stats) {
+            renderScatterPlot();
+            renderLossSurface();
+            renderResidualPlot();
+          }
+        });
+      }
+
+      // =========================================================================
+      // 10. INTERACTION HANDLERS (DRAGGING, SLIDERS, PRESETS, GRADIENT DESCENT)
+      // =========================================================================
+      function stopGradTimer() {
+        if (state.gradTimer) {
+          clearInterval(state.gradTimer);
+          state.gradTimer = null;
+        }
+      }
+
+      function clearGdTrail() {
+        state.gdTrail = [];
+      }
+
+      function setMode(lockOLS) {
+        state.lockedToOLS = lockOLS;
+        const pillM = document.getElementById("pillManual");
+        const pillO = document.getElementById("pillLockOLS");
+        const badge = document.getElementById("modeBadge");
+
+        if (lockOLS) {
+          pillM.classList.remove("active-cand");
+          pillO.classList.add("active-ols");
+          badge.textContent = "Locked to OLS";
+          badge.style.color = "var(--col-ols)";
+        } else {
+          pillO.classList.remove("active-ols");
+          pillM.classList.add("active-cand");
+          badge.textContent = "Manual Mode";
+          badge.style.color = "var(--col-cand)";
+        }
+        updateAll();
+      }
+
+      function getSvgCoords(ev) {
+        const rect = scatterSvg.getBoundingClientRect();
+        const scaleX = PLOT.svgW / Math.max(1, rect.width);
+        const scaleY = PLOT.svgH / Math.max(1, rect.height);
+        return {
+          px: (ev.clientX - rect.left) * scaleX,
+          py: (ev.clientY - rect.top) * scaleY
+        };
+      }
+
+      scatterSvg.addEventListener("pointerdown", (ev) => {
+        if (state.draggingPointIndex !== null || state.draggingHandle !== null) return;
+        const { px, py } = getSvgCoords(ev);
+        const x = pxToX(px);
+        const y = pxToY(py);
+        if (x >= PLOT.xMin && x <= PLOT.xMax && y >= PLOT.yMin && y <= PLOT.yMax) {
+          clearGdTrail();
+          state.points.push({
+            x: Math.max(0.2, Math.min(PLOT.xMax - 0.2, x)),
+            y: Math.max(0.2, Math.min(PLOT.yMax - 0.2, y))
+          });
+          updateAll();
+        }
+      });
+
+      scatterSvg.addEventListener("pointermove", (ev) => {
+        if (state.touchPress && ev.pointerId === state.touchPress.id && !state.touchPress.moved) {
+          const moved = Math.hypot(ev.clientX - state.touchPress.x, ev.clientY - state.touchPress.y) > 12;
+          if (!moved) return;
+          state.touchPress.moved = true;
+          if (state.touchHoldTimer) {
+            clearTimeout(state.touchHoldTimer);
+            state.touchHoldTimer = null;
+          }
+          state.draggingPointIndex = state.touchPress.idx;
+          try { scatterSvg.setPointerCapture(ev.pointerId); } catch (err) { /* already captured */ }
+        }
+        if (state.draggingPointIndex === null && state.draggingHandle === null) return;
+        const { px, py } = getSvgCoords(ev);
+        const x = Math.max(0.2, Math.min(PLOT.xMax - 0.2, pxToX(px)));
+        const y = Math.max(0.2, Math.min(PLOT.yMax - 0.2, pxToY(py)));
+
+        if (state.draggingPointIndex !== null) {
+          state.points[state.draggingPointIndex].x = x;
+          state.points[state.draggingPointIndex].y = y;
+          updateAll();
+        } else if (state.draggingHandle !== null) {
+          setMode(false);
+          const st = state.stats;
+          const hX = state.draggingHandle === "left" ? 2.5 : 13.5;
+          const anchorX = state.pinToCentroid
+            ? st.meanX
+            : (state.draggingHandle === "left" ? 13.5 : 2.5);
+          const anchorY = state.pinToCentroid
+            ? st.meanY
+            : (state.b0 + state.b1 * anchorX);
+
+          const newB1 = Math.max(-2.5, Math.min(3.0, (y - anchorY) / (hX - anchorX)));
+          const newB0 = Math.max(-10, Math.min(20, anchorY - newB1 * anchorX));
+          state.b1 = newB1;
+          state.b0 = newB0;
+          updateAll();
+        }
+      });
+
+      window.addEventListener("pointerup", (ev) => {
+        if (state.touchPress && (!ev || ev.pointerId === state.touchPress.id)) {
+          const press = state.touchPress;
+          state.touchPress = null;
+          state.draggingPointIndex = null;
+          state.draggingHandle = null;
+          if (!press.moved) {
+            state.hoveredIndex = press.idx;
+            updatePointInspector();
+            if (state.touchHoldTimer) clearTimeout(state.touchHoldTimer);
+            state.touchHoldTimer = setTimeout(() => {
+              state.touchHoldTimer = null;
+              if (state.hoveredIndex === press.idx && state.draggingPointIndex === null) {
+                state.hoveredIndex = null;
+                updatePointInspector();
+                renderScatterPlot();
+                renderResidualPlot();
+              }
+            }, 1400);
+          }
+          return;
+        }
+        state.draggingPointIndex = null;
+        state.draggingHandle = null;
+      });
+
+      // Loss surface canvas click & drag mapped to inner heatmap rectangle
+      let draggingLoss = false;
+      function updateFromLossCanvas(ev) {
+        const rect = lossCanvas.getBoundingClientRect();
+        const scaleX = LOSS_LAYOUT.cssW / Math.max(1, rect.width);
+        const scaleY = LOSS_LAYOUT.cssH / Math.max(1, rect.height);
+        const cx = (ev.clientX - rect.left) * scaleX;
+        const cy = (ev.clientY - rect.top) * scaleY;
+
+        const tx = Math.max(0, Math.min(1, (cx - LOSS_LAYOUT.padL) / Math.max(1, LOSS_LAYOUT.plotW)));
+        const ty = Math.max(0, Math.min(1, (cy - LOSS_LAYOUT.padT) / Math.max(1, LOSS_LAYOUT.plotH)));
+
+        stopGradTimer();
+        clearGdTrail();
+        setMode(false);
+        state.b1 = LOSS_BOUNDS.b1Max - ty * (LOSS_BOUNDS.b1Max - LOSS_BOUNDS.b1Min);
+        if (state.pinToCentroid) {
+          state.b0 = state.stats.meanY - state.b1 * state.stats.meanX;
+        } else {
+          state.b0 = LOSS_BOUNDS.b0Min + tx * (LOSS_BOUNDS.b0Max - LOSS_BOUNDS.b0Min);
+        }
+        updateAll();
+      }
+
+      lossCanvas.addEventListener("pointerdown", (ev) => {
+        draggingLoss = true;
+        lossCanvas.setPointerCapture(ev.pointerId);
+        updateFromLossCanvas(ev);
+      });
+      lossCanvas.addEventListener("pointermove", (ev) => {
+        if (draggingLoss) updateFromLossCanvas(ev);
+      });
+      lossCanvas.addEventListener("pointerup", () => {
+        draggingLoss = false;
+      });
+
+      // Sidebar Controls
+      document.getElementById("pillManual").addEventListener("click", () => {
+        stopGradTimer();
+        setMode(false);
+      });
+      document.getElementById("pillLockOLS").addEventListener("click", () => {
+        if (state.challengeMode) return;
+        stopGradTimer();
+        clearGdTrail();
+        setMode(true);
+      });
+
+      document.getElementById("chkPinCentroid").addEventListener("change", (ev) => {
+        stopGradTimer();
+        clearGdTrail();
+        state.pinToCentroid = ev.target.checked;
+        document.getElementById("sliderB0").disabled = state.pinToCentroid;
+        updateAll();
+      });
+
+      document.getElementById("sliderB0").addEventListener("input", (ev) => {
+        stopGradTimer();
+        clearGdTrail();
+        state.b0 = parseFloat(ev.target.value);
+        setMode(false);
+      });
+
+      document.getElementById("sliderB1").addEventListener("input", (ev) => {
+        stopGradTimer();
+        clearGdTrail();
+        state.b1 = parseFloat(ev.target.value);
+        if (state.pinToCentroid) {
+          state.b0 = state.stats.meanY - state.b1 * state.stats.meanX;
+        }
+        setMode(false);
+      });
+
+      // OLS analytical solution button
+      document.getElementById("btnSnapOLS").addEventListener("click", () => {
+        if (state.challengeMode) return;
+        stopGradTimer();
+        clearGdTrail();
+        state.b0 = state.stats.beta0;
+        state.b1 = state.stats.beta1;
+        updateAll();
+      });
+
+      // Single Gradient Descent Step Helper
+      function performOneGradientDescentStep() {
+        const st = state.stats;
+        if (state.gdTrail.length === 0) {
+          state.gdTrail.push({ b0: state.b0, b1: state.b1 });
+        }
+
+        const db0 = state.b0 - st.beta0;
+        const db1 = state.b1 - st.beta1;
+        const dist = Math.hypot(db0, db1);
+
+        if (dist < 0.004) {
+          state.b0 = st.beta0;
+          state.b1 = st.beta1;
+          state.gdTrail.push({ b0: state.b0, b1: state.b1 });
+          updateAll();
+          return true; // converged
+        }
+
+        const stepRate = 0.22;
+        state.b1 = state.b1 - stepRate * db1;
+        if (state.pinToCentroid) {
+          state.b0 = st.meanY - state.b1 * st.meanX;
+        } else {
+          state.b0 = state.b0 - stepRate * db0;
+        }
+
+        state.gdTrail.push({ b0: state.b0, b1: state.b1 });
+        updateAll();
+        return false;
+      }
+
+      // Button: Gradient descent (continuous animated descent)
+      document.getElementById("btnGradDescent").addEventListener("click", () => {
+        stopGradTimer();
+        setMode(false);
+        clearGdTrail();
+        state.gdTrail.push({ b0: state.b0, b1: state.b1 });
+
+        let stepCount = 0;
+        state.gradTimer = setInterval(() => {
+          const done = performOneGradientDescentStep();
+          stepCount++;
+          if (done || stepCount > 35) {
+            state.b0 = state.stats.beta0;
+            state.b1 = state.stats.beta1;
+            stopGradTimer();
+            updateAll();
+          }
+        }, 45);
+      });
+
+      // Button: Gradient descent +1 step (single-step pedagogical walk)
+      document.getElementById("btnGradStep1").addEventListener("click", () => {
+        stopGradTimer();
+        setMode(false);
+        performOneGradientDescentStep();
+      });
+
+      // Packaged Error Mode Radio Buttons for Candidate Line, Analytical OLS Line & Null Model
+      document.querySelectorAll('input[name="candErrMode"]').forEach(rad => {
+        rad.addEventListener("change", (ev) => {
+          state.candErrMode = ev.target.value;
+          updateAll();
+        });
+      });
+
+      document.querySelectorAll('input[name="olsErrMode"]').forEach(rad => {
+        rad.addEventListener("change", (ev) => {
+          state.olsErrMode = ev.target.value;
+          updateAll();
+        });
+      });
+
+      // Null model error mode pills (click to select Squares or Distances; click active pill to toggle off)
+      document.querySelectorAll('input[name="nullErrMode"]').forEach(rad => {
+        rad.addEventListener("click", (ev) => {
+          const val = ev.target.value;
+          if (state.nullErrMode === val) {
+            state.nullErrMode = "none";
+            ev.target.checked = false;
+          } else {
+            state.nullErrMode = val;
+          }
+          updateAll();
+        });
+      });
+
+      // Layer checkboxes
+      [
+        "chkShowCandLine", "chkShowOLSLine",
+        "chkShowNullLine",
+        "chkShowCIBand", "chkShowLeverage"
+      ].forEach(id => {
+        document.getElementById(id).addEventListener("change", updateAll);
+      });
+
+      // Companion Tabs
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById(btn.dataset.tab).classList.add("active");
+          updateAll();
+        });
+      });
+
+      // Preset Loader
+      function loadPreset(key) {
+        stopGradTimer();
+        clearGdTrail();
+        const p = PRESETS[key] || PRESETS.classic;
+        state.presetKey = key;
+        state.points = p.points.map(pt => ({ x: pt.x, y: pt.y, special: !!pt.special }));
+        state.b0 = p.initCand.b0;
+        state.b1 = p.initCand.b1;
+        state.hoveredIndex = null;
+        state.challengeMode = false;
+        const challengeBtn = document.getElementById("btnChallenge");
+        const box = document.getElementById("challengeBox");
+        const result = document.getElementById("challengeResult");
+        if (challengeBtn) challengeBtn.classList.remove("demo-btn-primary");
+        if (box) {
+          box.classList.remove("visible");
+          const title = box.querySelector(".challenge-title");
+          if (title) title.textContent = "Challenge Mode Active!";
+        }
+        if (result) result.textContent = "";
+        updateAll();
+      }
+
+      document.getElementById("presetSelect").addEventListener("change", (ev) => {
+        loadPreset(ev.target.value);
+      });
+
+      document.getElementById("btnResetData").addEventListener("click", () => {
+        loadPreset(state.presetKey);
+      });
+
+      // Challenge Mode ("Guess the Line")
+      const btnChallenge = document.getElementById("btnChallenge");
+      const challengeBox = document.getElementById("challengeBox");
+      const challengeResult = document.getElementById("challengeResult");
+
+      btnChallenge.addEventListener("click", () => {
+        stopGradTimer();
+        clearGdTrail();
+        state.challengeMode = !state.challengeMode;
+        btnChallenge.classList.toggle("demo-btn-primary", state.challengeMode);
+        challengeBox.classList.toggle("visible", state.challengeMode);
+        challengeResult.textContent = "";
+        const challengeTitle = challengeBox.querySelector(".challenge-title");
+        if (state.challengeMode) {
+          challengeTitle.textContent = "Challenge Mode Active!";
+          setMode(false);
+          state.b0 = Math.round((state.stats.meanY - 1.5) * 10) / 10;
+          state.b1 = 0.15;
+        }
+        updateAll();
+      });
+
+      document.getElementById("btnRevealOLS").addEventListener("click", () => {
+        const st = state.stats;
+        const eff = Math.min(100, (st.SSE_OLS / Math.max(1e-6, st.candSSE)) * 100);
+        state.challengeMode = false;
+        btnChallenge.classList.remove("demo-btn-primary");
+        challengeBox.querySelector(".challenge-title").textContent = "Challenge result";
+        document.getElementById("chkShowOLSLine").checked = true;
+        challengeResult.textContent =
+          `Your SSE: ${st.candSSE.toFixed(2)} vs. True OLS SSE: ${st.SSE_OLS.toFixed(2)} (Efficiency: ${eff.toFixed(1)}%)`;
+        updateAll();
+      });
+
+      // Initialize app & render static KaTeX labels once scripts finish loading
+      window.addEventListener("load", () => {
+        typesetMath(document.body);
+        loadPreset("classic");
+      });
+      loadPreset("classic");
+    })();
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

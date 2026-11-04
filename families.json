@@ -31,7 +31,7 @@
     {
       "id": "correlation",
       "title": "Correlation and covariance",
-      "backbone": "Paired deviations, scaled from covariance to correlation, then carried into a sum, a share, and a repeated-measures partition.",
+      "backbone": "Paired deviations, scaled from covariance to correlation, fitted by least squares, then carried into a share of variance, a sum, and a repeated-measures partition.",
       "show": [
         "hub",
         "path-association",
@@ -47,11 +47,15 @@
           "relation": "backbone"
         },
         {
-          "href": "statistics/additivity_of_variance.html",
+          "href": "statistics/ols_simple_linear_regression.html",
           "relation": "after"
         },
         {
           "href": "statistics/variance_explained.html",
+          "relation": "after"
+        },
+        {
+          "href": "statistics/additivity_of_variance.html",
           "relation": "after"
         },
         {
