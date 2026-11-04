@@ -1,7 +1,7 @@
 /*
  * Concept-map rails. Titles come from the caller. Nodes are catalog hrefs
- * and open in this tab. families.json still decides which backbone maps
- * exist; Guided Tracks build one rail per playlist from tracks.json.
+ * and open in this tab. families.json decides which maps exist; Guided
+ * Tracks build one rail per playlist from tracks.json.
  */
 (function (global) {
     function el(tag, className, text) {
@@ -31,13 +31,6 @@
         var id = value.trim();
         if (!/^[a-z][a-z0-9-]*$/.test(id)) return "";
         return id;
-    }
-
-    function relationLabel(relation) {
-        if (relation === "before") return "Before";
-        if (relation === "backbone") return "Backbone";
-        if (relation === "after") return "After";
-        return "";
     }
 
     function normalizeFamilies(data, titleFor) {
@@ -110,12 +103,7 @@
         if (options.tabIndex != null) title.tabIndex = options.tabIndex;
         head.appendChild(title);
         if (family.backbone) {
-            var bone = el("p", "concept-map-backbone");
-            if (options.backboneLabel) {
-                bone.appendChild(el("span", "concept-map-backbone-label", options.backboneLabel));
-            }
-            bone.appendChild(document.createTextNode(family.backbone));
-            head.appendChild(bone);
+            head.appendChild(el("p", "concept-map-backbone", family.backbone));
         }
         map.appendChild(head);
         var rail = el("ol", "concept-rail");
@@ -124,7 +112,7 @@
             var link = el("a", "concept-node");
             link.href = node.href;
             var kicker = el("span", "concept-kicker");
-            kicker.appendChild(el("span", "concept-relation", node.label || relationLabel(node.relation)));
+            if (node.label) kicker.appendChild(el("span", "concept-relation", node.label));
             kicker.appendChild(el("span", "hub-opened", "Opened"));
             link.appendChild(kicker);
             link.appendChild(el("span", "concept-title", node.title));
@@ -135,41 +123,10 @@
         return map;
     }
 
-    function placeSectionMaps(families) {
-        document.querySelectorAll(".concept-map.is-section").forEach(function (node) {
-            if (node.parentNode) node.parentNode.removeChild(node);
-        });
-        var byPlace = {};
-        families.forEach(function (family) {
-            family.show.forEach(function (place) {
-                if (place === "hub") return;
-                if (!byPlace[place]) byPlace[place] = [];
-                byPlace[place].push(family);
-            });
-        });
-        Object.keys(byPlace).forEach(function (place) {
-            var section = document.getElementById(place);
-            if (!section || !section.classList.contains("sub-category-section")) return;
-            var grid = section.querySelector(".card-grid");
-            byPlace[place].forEach(function (family) {
-                var map = renderConceptMap(family, {
-                    headingTag: "h4",
-                    headingId: "concept-map-" + family.id + "-" + place,
-                    kicker: "Concept map",
-                    backboneLabel: "Backbone",
-                    className: "is-section"
-                });
-                if (grid) section.insertBefore(map, grid);
-                else section.appendChild(map);
-            });
-        });
-    }
-
     global.ProjectVizMaps = {
         clear: clear,
         safeHref: safeHref,
         normalizeFamilies: normalizeFamilies,
-        renderConceptMap: renderConceptMap,
-        placeSectionMaps: placeSectionMaps
+        renderConceptMap: renderConceptMap
     };
 })(window);

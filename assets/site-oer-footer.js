@@ -262,7 +262,7 @@
         layout();
     }
 
-    // The home reads this key for the quiet progress line. This browser only; no account.
+    // The hub reads this key to mark opened demonstrations.
     function rememberOpened(href) {
         var key = "project-viz-opened";
         var list = [];

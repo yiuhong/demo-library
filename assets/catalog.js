@@ -1,7 +1,6 @@
 /*
- * Catalog page. Cards come from demos.json. Section jumps use the same
- * path- anchors as families.json. Concept maps for a section are drawn
- * by assets/concept-maps.js. There is no List / Tracks toggle on this page.
+ * Catalog page. Cards come from demos.json. Search and category filters
+ * narrow the list. There is no List / Tracks toggle on this page.
  */
 (function () {
     var searchInput = document.getElementById("searchInput");
@@ -9,7 +8,6 @@
     var activeFilter = "all";
     var catalogReady = false;
     var catalogError = false;
-    var catalogHrefs = [];
     var CATALOG_PANELS = ["style2", "style3", "style1"];
 
     function normalize(value) {
@@ -365,64 +363,9 @@
         syncFilterChips(categories);
     }
 
-    function indexDemos(categories) {
-        var byHref = {};
-        categories.forEach(function (category) {
-            category.subcategories.forEach(function (sub) {
-                sub.demos.forEach(function (demo) {
-                    if (!byHref[demo.href]) byHref[demo.href] = demo;
-                });
-            });
-        });
-        return byHref;
-    }
-
-    function collectHrefs(categories) {
-        var hrefs = [];
-        var seen = {};
-        categories.forEach(function (category) {
-            category.subcategories.forEach(function (sub) {
-                sub.demos.forEach(function (demo) {
-                    if (seen[demo.href]) return;
-                    seen[demo.href] = true;
-                    hrefs.push(demo.href);
-                });
-            });
-        });
-        return hrefs;
-    }
-
-    function renderSections(categories) {
-        var mount = document.getElementById("hub-path-mount");
-        var block = document.getElementById("catalog-sections");
-        if (!mount) return;
-        clear(mount);
-        var count = 0;
-        categories.forEach(function (category) {
-            var group = el("div", "hub-path-group");
-            group.appendChild(el("h3", "hub-path-category", category.title));
-            var grid = el("div", "hub-path-grid");
-            category.subcategories.forEach(function (sub) {
-                if (!sub.anchor) return;
-                var card = el("a", "hub-path-card");
-                card.href = "#" + sub.anchor;
-                card.appendChild(el("span", "hub-path-title", sub.title));
-                var n = sub.demos.length;
-                card.appendChild(el("span", "hub-path-count", n === 1 ? "1 demo" : n + " demos"));
-                grid.appendChild(card);
-                count++;
-            });
-            if (!grid.firstChild) return;
-            group.appendChild(grid);
-            mount.appendChild(group);
-        });
-        if (block) block.hidden = count === 0;
-    }
-
     function refreshOpened() {
         if (!window.ProjectVizOpened) return;
-        window.ProjectVizOpened.renderProgress(catalogHrefs);
-        window.ProjectVizOpened.mark("a.demo-card, a.concept-node");
+        window.ProjectVizOpened.mark("a.demo-card");
     }
 
     function clearBrowse() {
@@ -446,30 +389,6 @@
         return hash;
     }
 
-    function scrollToPath(id) {
-        var node = document.getElementById(id);
-        if (!node) return;
-        clearBrowse();
-        if (window.location.hash !== "#" + id) {
-            var next = window.location.pathname + window.location.search + "#" + id;
-            try {
-                history.pushState({ path: id }, "", next);
-            } catch (err) {}
-        }
-        var heading = node.querySelector("h3, h4");
-        if (heading && !heading.hasAttribute("tabindex")) heading.setAttribute("tabindex", "-1");
-        window.requestAnimationFrame(function () {
-            node.scrollIntoView({ block: "start" });
-            if (heading && heading.focus) {
-                try {
-                    heading.focus({ preventScroll: true });
-                } catch (err) {
-                    heading.focus();
-                }
-            }
-        });
-    }
-
     function revealPathFromLocation() {
         var id = pathIdFromLocation();
         if (!id) return;
@@ -485,24 +404,6 @@
         if (status) status.textContent = "The catalog could not be loaded.";
     }
 
-    function loadFamilies(categories) {
-        var byHref = indexDemos(categories);
-        var mapUrl = new URL("families.json", window.location.href);
-        mapUrl.search = "";
-        mapUrl.hash = "";
-        fetch(mapUrl.toString()).then(function (response) {
-            if (!response.ok) throw new Error("Concept maps could not be loaded.");
-            return response.json();
-        }).then(function (data) {
-            if (!window.ProjectVizMaps) return;
-            var families = window.ProjectVizMaps.normalizeFamilies(data, function (href) {
-                return byHref[href] ? byHref[href].title : "";
-            });
-            window.ProjectVizMaps.placeSectionMaps(families);
-            refreshOpened();
-        }).catch(function () {});
-    }
-
     function loadCatalog() {
         var catalogUrl = new URL("demos.json", window.location.href);
         catalogUrl.search = "";
@@ -513,36 +414,15 @@
         }).then(function (data) {
             var categories = normalizeCatalog(data);
             if (!categories.length) throw new Error("Catalog could not be loaded.");
-            catalogHrefs = collectHrefs(categories);
             renderCatalog(categories);
-            renderSections(categories);
             catalogReady = true;
             applyFilters();
             refreshOpened();
             revealPathFromLocation();
-            loadFamilies(categories);
         }).catch(function () {
             showCatalogError();
             catalogReady = true;
             applyFilters();
-        });
-    }
-
-    function samePageClick(event) {
-        if (event.defaultPrevented || event.button !== 0) return false;
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return false;
-        return true;
-    }
-
-    var pathMount = document.getElementById("hub-path-mount");
-    if (pathMount) {
-        pathMount.addEventListener("click", function (event) {
-            var card = event.target.closest ? event.target.closest('a[href^="#"]') : null;
-            if (!card || !pathMount.contains(card) || !samePageClick(event)) return;
-            var id = card.getAttribute("href").slice(1);
-            if (!id) return;
-            event.preventDefault();
-            scrollToPath(id);
         });
     }
 
@@ -552,9 +432,6 @@
         }
     } catch (err) {}
 
-    if (window.ProjectVizOpened) {
-        window.ProjectVizOpened.bindReset(document.getElementById("hub-progress-reset"), refreshOpened);
-    }
     window.addEventListener("pageshow", refreshOpened);
     window.addEventListener("storage", function (event) {
         if (event.key === "project-viz-opened") refreshOpened();

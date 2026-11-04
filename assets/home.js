@@ -1,6 +1,6 @@
 /*
- * Home page. Cycles the featured plates and reads opened demos from this
- * browser. Plate copy starts in the HTML and is refreshed from demos.json.
+ * Home page. Cycles the featured plates and marks opened demos.
+ * Plate copy starts in the HTML and is refreshed from demos.json.
  */
 (function () {
     var slides = Array.prototype.slice.call(document.querySelectorAll(".home-slide"));
@@ -10,7 +10,6 @@
     var index = 0;
     var timer = 0;
     var paused = false;
-    var catalogHrefs = [];
     var reduce = false;
     try {
         reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -88,13 +87,11 @@
 
     function refreshOpened() {
         if (!window.ProjectVizOpened) return;
-        window.ProjectVizOpened.renderProgress(catalogHrefs);
         window.ProjectVizOpened.mark("a.home-open");
     }
 
     function applyCatalog(data) {
         var byHref = {};
-        var hrefs = [];
         var seen = {};
         var categories = data && Array.isArray(data.categories) ? data.categories : [];
         categories.forEach(function (category) {
@@ -106,7 +103,6 @@
                     var href = demo.href.trim();
                     if (!href || seen[href]) return;
                     seen[href] = true;
-                    hrefs.push(href);
                     if (typeof demo.title === "string" && demo.title.trim()) {
                         byHref[href] = {
                             title: demo.title.trim(),
@@ -116,7 +112,6 @@
                 });
             });
         });
-        catalogHrefs = hrefs;
         slides.forEach(function (slide) {
             var href = slide.getAttribute("data-href");
             var hit = byHref[href];
@@ -130,9 +125,6 @@
     show(0, false);
     start();
 
-    if (window.ProjectVizOpened) {
-        window.ProjectVizOpened.bindReset(document.getElementById("hub-progress-reset"), refreshOpened);
-    }
     window.addEventListener("pageshow", refreshOpened);
     window.addEventListener("storage", function (event) {
         if (event.key === "project-viz-opened") refreshOpened();

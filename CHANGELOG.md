@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- The opened-progress counter, its Reset control, and the “Saved in this browser only. No account.” note on Home, Catalog, and Guided Tracks.
+- Concept-map labels for Before, Backbone, and After, including the Backbone prefix on the shared sentence. The strips stay, in the same order, on Guided Tracks.
+- The Catalog Sections jump list, and the concept-map strips that sat above catalog demo lists. Search, category filters, and the demonstration list stay.
+
 ### Added
 
 - Ordinary Least Squares (OLS) for simple linear regression, under Statistics → Association, with an Association track step after Covariance and Correlation

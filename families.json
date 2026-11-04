@@ -5,9 +5,7 @@
       "title": "Variance",
       "backbone": "Squared deviations from the mean: estimated with n − 1, then combined and partitioned.",
       "show": [
-        "hub",
-        "path-center-and-spread",
-        "path-anova"
+        "hub"
       ],
       "nodes": [
         {
@@ -33,9 +31,7 @@
       "title": "Correlation and covariance",
       "backbone": "Paired deviations, scaled from covariance to correlation, fitted by least squares, then carried into a share of variance, a sum, and a repeated-measures partition.",
       "show": [
-        "hub",
-        "path-association",
-        "path-anova"
+        "hub"
       ],
       "nodes": [
         {
