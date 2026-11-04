@@ -15,38 +15,8 @@
     <link rel="stylesheet" href="https://yiuhong.github.io/assets/css/main.css" />
     <noscript><link rel="stylesheet" href="https://yiuhong.github.io/assets/css/noscript.css" /></noscript>
     <link rel="stylesheet" href="assets/library-nav.css" />
+    <link rel="stylesheet" href="assets/shell.css" />
     <style>
-        a.cite-back {
-            display: inline-block;
-            margin: 0 0 1.25em 0;
-            padding: 0.55em 1.05em;
-            border: 1px solid #000000 !important;
-            border-radius: 3em;
-            background: #ffffff;
-            color: #000000 !important;
-            font-size: 0.78em;
-            font-weight: bold;
-            letter-spacing: 0.01em;
-            line-height: 1.35;
-            text-decoration: none;
-        }
-
-        a.cite-back:hover,
-        a.cite-back:focus-visible {
-            background: #000000;
-            border-bottom-color: #000000 !important;
-            color: #ffffff !important;
-        }
-
-        a.cite-back:focus {
-            outline: none;
-        }
-
-        a.cite-back:focus-visible {
-            outline: 2px solid #000000;
-            outline-offset: 3px;
-        }
-
         p.cite-toc {
             margin: 0 0 1.5em 0;
             line-height: 1.8;
@@ -54,7 +24,7 @@
 
         #wrapper h2[id],
         #wrapper h3[id] {
-            scroll-margin-top: 1.25rem;
+            scroll-margin-top: 4.5rem;
         }
 
         .cite-block {
@@ -179,29 +149,20 @@
 </head>
 <body class="is-preload">
 
-    <section id="sidebar">
-        <div class="inner">
-            <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="site-nav">
-                <span class="mobile-nav-toggle-label">Menu</span>
-                <span class="mobile-nav-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
-            </button>
-            <nav id="site-nav" aria-label="Library">
-                <ul>
-                    <li><a href="index.html" data-library-nav="home">Home</a></li>
-                    <li><a href="catalog.html" data-library-nav="catalog">Catalog</a></li>
-                    <li><a href="tracks.html" data-library-nav="tracks">Guided Tracks</a></li>
-                    <li><a href="cite.html" class="active" aria-current="page">Cite &amp; reuse</a></li>
-                    <li><a href="license.html">Licenses</a></li>
-                </ul>
-                <p class="library-author-chip"><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></p>
-            </nav>
-        </div>
-    </section>
+    <header class="viz-topbar">
+        <nav aria-label="Library">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="catalog.html">Catalog</a></li>
+                <li><a href="tracks.html">Guided Tracks</a></li>
+                <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
+            </ul>
+        </nav>
+    </header>
 
     <div id="wrapper">
         <section id="intro" class="wrapper style1 fade-up">
             <div class="inner">
-                <p><a class="cite-back" href="index.html">← Project Viz</a></p>
                 <h1>Cite & reuse</h1>
                 <p>Bookmark this page. It is the citation, the license, and what you may do with Project Viz. This is <em>Project Viz</em> by <a rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">Yiu Hong Ko</a> (<a href="https://orcid.org/0000-0003-4436-0166" aria-label="ORCID iD 0000-0003-4436-0166">ORCID 0000-0003-4436-0166</a>), version <span data-site-field="version">0.1.4</span>, last updated <time datetime="2026-11-01" data-site-field="updatedDisplay" data-site-datetime="updated">1 November 2026</time>.</p>
                 <p class="cite-toc"><a href="#cite">Cite</a> · <a href="#citation-cff">Machine-readable citation</a> · <a href="#license">License</a> · <a href="#reuse">Reuse</a> · <a href="#credit">Credit line</a> · <a href="#accessibility">Accessibility</a> · <a href="#report">Report a mistake</a> · <a href="#about">About</a> · <a href="#contribute">Contribute</a></p>
