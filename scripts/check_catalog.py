@@ -539,6 +539,15 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                 if needle in text:
                     problems.append(f"{name}: back-to-hub button does not belong here ({needle})")
 
+    shell_css = read_text(ROOT / "assets" / "shell.css")
+    if shell_css is None:
+        problems.append("assets/shell.css: file not found")
+    else:
+        if "nav a:not(.about-yiu)" not in shell_css:
+            problems.append("assets/shell.css: About Yiu Hong must not take the text-link underline")
+        if ".viz-topbar a.about-yiu" not in shell_css or "border: 1px solid #000000 !important;" not in shell_css:
+            problems.append("assets/shell.css: About Yiu Hong chip needs a full border")
+
     if catalog is not None:
         cite_text = read_text(ROOT / "cite.html")
         title = demo_title(catalog, DEMO_CITE_HREF)

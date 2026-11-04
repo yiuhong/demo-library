@@ -30,9 +30,10 @@
     top: 0;
     z-index: 20;
     flex: 0 0 auto;
+    overflow: visible;
     background: var(--bg-base) !important;
     border-bottom: 1px solid #000000;
-    padding: 0.15rem 0.9rem 0.2rem;
+    padding: 0.35rem 0.9rem;
 }
 
 .viz-topbar nav ul {
@@ -46,13 +47,17 @@
 }
 
 .viz-topbar nav li {
+    flex: 0 0 auto;
+    max-width: 100%;
     margin: 0;
     padding: 0;
+    overflow: visible;
 }
 
 .viz-topbar nav a {
     display: inline-flex;
     align-items: center;
+    box-sizing: border-box;
     min-height: 2.75rem;
     padding: 0.35rem 0;
     border-bottom: 2px solid transparent !important;
@@ -64,12 +69,12 @@
     text-decoration: none !important;
 }
 
-.viz-topbar nav a[aria-current="page"] {
+.viz-topbar nav a:not(.about-yiu)[aria-current="page"] {
     border-bottom-color: #000000 !important;
 }
 
-.viz-topbar nav a:hover,
-.viz-topbar nav a:focus-visible {
+.viz-topbar nav a:not(.about-yiu):hover,
+.viz-topbar nav a:not(.about-yiu):focus-visible {
     border-bottom-color: #000000 !important;
 }
 
@@ -83,9 +88,15 @@
 }
 
 .viz-topbar a.about-yiu {
-    min-height: 0;
-    margin: 0.3rem 0;
-    padding: 0.4rem 0.75rem;
+    flex: 0 0 auto;
+    justify-content: center;
+    min-height: 2.75rem;
+    margin: 0;
+    padding: 0.35rem 0.95rem;
+    border: 1px solid #000000 !important;
+    border-radius: 3em;
+    overflow: visible;
+    white-space: nowrap;
 }
 
 .viz-workspace {
@@ -390,22 +401,22 @@ body.viz-app #footer ul.menu > li {
 
 @media screen and (max-width: 736px) {
     .viz-topbar {
-        padding: 0.15rem 0.75rem 0.55rem;
+        padding: 0.3rem 0.75rem 0.4rem;
     }
 
     .viz-topbar nav ul {
         column-gap: 0.7rem;
-        row-gap: 0.1rem;
+        row-gap: 0.2rem;
     }
 
     .viz-topbar nav a {
-        min-height: 2.4rem;
+        min-height: 2.75rem;
         font-size: 0.86rem;
     }
 
     .viz-topbar a.about-yiu {
-        margin: 0.1rem 0 0.2rem;
-        padding: 0.4rem 0.72rem;
+        min-height: 2.75rem;
+        padding: 0.35rem 0.85rem;
     }
 
     .viz-workspace {
