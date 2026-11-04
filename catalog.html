@@ -9,13 +9,12 @@
     <title>Catalog - Project Viz</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Every demonstration in Project Viz, with search and section jumps." />
+    <meta name="description" content="Every demonstration in Project Viz, with search and category filters." />
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="https://yiuhong.github.io/assets/css/main.css" />
     <noscript><link rel="stylesheet" href="https://yiuhong.github.io/assets/css/noscript.css" /></noscript>
     <link rel="stylesheet" href="assets/library-nav.css" />
     <link rel="stylesheet" href="assets/curriculum-hub.css" />
-    <link rel="stylesheet" href="assets/concept-maps.css" />
     <link rel="stylesheet" href="assets/catalog.css" />
     <script>
         (function () {
@@ -67,14 +66,6 @@
             </div>
         </section>
 
-        <section id="catalog-sections" class="wrapper style1" hidden>
-            <div class="inner">
-                <h2 id="catalog-sections-heading">Sections</h2>
-                <p class="hub-section-note">Jump to a section of the catalog.</p>
-                <div id="hub-path-mount"></div>
-            </div>
-        </section>
-
         <section id="catalog-browser" class="wrapper style2 fade-up">
             <div class="inner">
                 <h2 id="catalog-heading">Demonstrations</h2>
@@ -95,14 +86,6 @@
                 <div id="noResults" class="no-results" role="status">
                     No demonstrations found. Try a different keyword or category.
                 </div>
-                <div id="hub-progress" class="hub-progress" hidden>
-                    <p id="hub-progress-status" class="hub-progress-status">Opened in this browser</p>
-                    <div id="hub-progress-meter" class="hub-progress-meter" role="progressbar" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-labelledby="hub-progress-status">
-                        <span id="hub-progress-fill" class="hub-progress-fill"></span>
-                    </div>
-                    <button type="button" id="hub-progress-reset" class="hub-progress-reset">Reset</button>
-                </div>
-                <p id="hub-progress-note" class="hub-progress-note" hidden>Saved in this browser only. No account.</p>
             </div>
         </section>
 
@@ -155,7 +138,6 @@
     <script src="assets/site-meta.js"></script>
     <script src="assets/site-oer-footer.js"></script>
     <script src="assets/opened.js"></script>
-    <script src="assets/concept-maps.js"></script>
     <script src="assets/catalog.js"></script>
 </body>
 </html>

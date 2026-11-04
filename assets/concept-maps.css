@@ -1,8 +1,8 @@
 /*
- * Concept-family strips. A shared backbone, then the catalog titles
- * before and after it. No graph library: a row of links, a 2px join,
- * and the same black-and-white surface as the curriculum hub.
- * Neuroscience stays on its own plates; these strips are library navigation.
+ * Concept-family strips. A row of related demonstrations. No graph
+ * library: a 2px join, and the same black-and-white surface as the
+ * curriculum hub. Neuroscience stays on its own plates; these strips
+ * are library navigation.
  */
 
 #hub-maps-section[hidden] {
@@ -54,18 +54,6 @@ p.concept-map-backbone {
     font-size: 0.92rem;
     line-height: 1.45;
     color: #222222 !important;
-}
-
-.concept-map-backbone-label {
-    display: block;
-    margin: 0 0 0.15rem 0;
-    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
-    font-size: 0.68rem;
-    font-weight: bold;
-    letter-spacing: 0.12em;
-    line-height: 1.3;
-    text-transform: uppercase;
-    color: #000000 !important;
 }
 
 ol.concept-rail {
@@ -165,8 +153,8 @@ a.concept-node .hub-opened {
     vertical-align: 0.05em;
 }
 
-.concept-stop.is-backbone .concept-relation::before {
-    background: currentColor;
+a.concept-node:not(.is-opened) .concept-kicker:not(:has(.concept-relation)) {
+    display: none;
 }
 
 .concept-title {
@@ -214,18 +202,6 @@ a.concept-node:focus-visible .hub-opened {
     color: #000000 !important;
 }
 
-.concept-map.is-section {
-    margin: 0 0 1.15rem 0;
-}
-
-.concept-map.is-section + .concept-map.is-section {
-    margin-top: 0;
-}
-
-.concept-map.is-section a.concept-node {
-    min-height: 6.35rem;
-}
-
 .track-block {
     scroll-margin-top: 4.5em;
 }
@@ -264,8 +240,7 @@ a.concept-node:focus-visible .hub-opened {
         height: var(--concept-join);
     }
 
-    a.concept-node,
-    .concept-map.is-section a.concept-node {
+    a.concept-node {
         min-height: 0;
     }
 
