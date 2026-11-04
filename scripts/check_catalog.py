@@ -298,9 +298,32 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             "Cite & reuse",
             "ORCID iD",
             "license.html",
+            "project-viz-opened",
         ):
             if needle not in footer_js:
                 problems.append(f"assets/site-oer-footer.js: missing {needle}")
+
+    opened_js = read_text(ROOT / "assets" / "opened.js")
+    if opened_js is None:
+        problems.append("assets/opened.js: file not found")
+    elif "project-viz-opened" not in opened_js:
+        problems.append("assets/opened.js: missing project-viz-opened")
+
+    maps_js = read_text(ROOT / "assets" / "concept-maps.js")
+    tracks_js = read_text(ROOT / "assets" / "tracks-page.js")
+    if maps_js is None:
+        problems.append("assets/concept-maps.js: file not found")
+    else:
+        for needle in (
+            'return "Before"',
+            'return "Backbone"',
+            'return "After"',
+            "backboneLabel",
+        ):
+            if needle in maps_js:
+                problems.append(f"assets/concept-maps.js: do not show relation labels ({needle})")
+    if tracks_js and "backboneLabel" in tracks_js:
+        problems.append("assets/tracks-page.js: do not show a Backbone label")
 
     for name in ("index.html", "catalog.html", "tracks.html", "cite.html", "license.html"):
         text = read_text(ROOT / name)
@@ -388,7 +411,6 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                     "FIG_VE",
                     "FIG_R",
                     "FIG_ERP",
-                    "project-viz-opened",
                 )
             )
             if "Choose a path" in text:
@@ -398,6 +420,25 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                 problems.append("index.html: library about blurb is missing")
             elif "A visualization demo library for teaching." not in about:
                 problems.append("index.html: about blurb is not the Project Viz tagline")
+        if name in ("index.html", "catalog.html", "tracks.html"):
+            for banned in (
+                'id="hub-progress"',
+                "Saved in this browser",
+                "No account",
+            ):
+                if banned in text:
+                    problems.append(f"{name}: {banned} does not belong on the hub")
+        if name == "tracks.html" and "backbone" in text.lower():
+            problems.append("tracks.html: do not mention a backbone")
+        if name == "catalog.html":
+            for banned in (
+                'id="catalog-sections"',
+                'id="hub-path-mount"',
+                "Jump to a section",
+                "concept-maps.js",
+            ):
+                if banned in text:
+                    problems.append(f"catalog.html: {banned} does not belong on the catalog")
         for needle in required:
             if needle not in text:
                 problems.append(f"{name}: missing {needle}")
@@ -763,14 +804,13 @@ def check_families(
 
 
 def check_map_page(problems: list[str]) -> None:
-    for name in ("tracks.html", "catalog.html"):
-        text = read_text(ROOT / name)
-        if text is None:
-            problems.append(f"{name}: file not found")
-            continue
+    text = read_text(ROOT / "tracks.html")
+    if text is None:
+        problems.append("tracks.html: file not found")
+    else:
         for needle in ("assets/concept-maps.css", "assets/concept-maps.js"):
             if needle not in text:
-                problems.append(f"{name}: missing {needle}")
+                problems.append(f"tracks.html: missing {needle}")
     script = read_text(ROOT / "assets" / "concept-maps.js")
     sheet = read_text(ROOT / "assets" / "concept-maps.css")
     if script is None or "families.json" not in script or "concept-node" not in script:

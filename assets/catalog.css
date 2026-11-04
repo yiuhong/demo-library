@@ -273,7 +273,6 @@ a.demo-card:focus-visible .demo-tag.is-draft {
     margin: 1.5em 0 0 0;
 }
 
-#catalog-sections[hidden],
 .catalog-panel.is-pending {
     display: none !important;
 }

@@ -1,6 +1,6 @@
 /*
  * Guided Tracks page. Each playlist is one concept-map rail. The nodes
- * open the demonstrations. families.json backbone maps that opt into "hub"
+ * open the demonstrations. families.json maps that opt into "hub"
  * sit above the playlists. Step notes stay in tracks.json; this page does
  * not repeat the same demos as a second link list.
  */
@@ -9,7 +9,6 @@
     var familyMount = document.getElementById("tracks-family-mount");
     var familySection = document.getElementById("tracks-family-section");
     var missing = document.getElementById("tracks-missing");
-    var catalogHrefs = [];
 
     function el(tag, className, text) {
         var node = document.createElement(tag);
@@ -60,8 +59,6 @@
 
     function titleMap(data) {
         var byHref = {};
-        var hrefs = [];
-        var seen = {};
         var categories = data && Array.isArray(data.categories) ? data.categories : [];
         categories.forEach(function (category) {
             var subs = category && Array.isArray(category.subcategories) ? category.subcategories : [];
@@ -73,14 +70,10 @@
                     var title = demo.title.trim();
                     if (!href || !title || byHref[href]) return;
                     byHref[href] = title;
-                    if (!seen[href]) {
-                        seen[href] = true;
-                        hrefs.push(href);
-                    }
                 });
             });
         });
-        return { byHref: byHref, hrefs: hrefs };
+        return { byHref: byHref };
     }
 
     function trackIdFromLocation() {
@@ -121,7 +114,6 @@
 
     function refreshOpened() {
         if (!window.ProjectVizOpened) return;
-        window.ProjectVizOpened.renderProgress(catalogHrefs);
         window.ProjectVizOpened.mark("a.concept-node");
     }
 
@@ -159,8 +151,7 @@
             familyMount.appendChild(window.ProjectVizMaps.renderConceptMap(family, {
                 headingTag: "h3",
                 headingId: "concept-map-" + family.id,
-                kicker: "Concept map",
-                backboneLabel: "Backbone"
+                kicker: "Concept map"
             }));
             hubCount++;
         });
@@ -207,7 +198,6 @@
         ]).then(function (results) {
             var tracks = normalizeTracks(results[0]);
             var titles = titleMap(results[1]);
-            catalogHrefs = titles.hrefs;
             var families = window.ProjectVizMaps.normalizeFamilies(results[2], function (href) {
                 return titles.byHref[href] || "";
             });
@@ -219,9 +209,6 @@
         });
     }
 
-    if (window.ProjectVizOpened) {
-        window.ProjectVizOpened.bindReset(document.getElementById("hub-progress-reset"), refreshOpened);
-    }
     window.addEventListener("pageshow", refreshOpened);
     window.addEventListener("storage", function (event) {
         if (event.key === "project-viz-opened") refreshOpened();
