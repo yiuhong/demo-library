@@ -62,12 +62,14 @@
         <section class="viz-pane" id="viz-pane" aria-label="Demonstration">
             <div class="viz-pane-chrome">
                 <button type="button" class="viz-chrome-btn viz-back" id="viz-back">Back</button>
-                <h2 id="viz-pane-title">Select a demonstration</h2>
+                <h2 id="viz-pane-title">Select a track</h2>
+                <button type="button" class="viz-chrome-btn" id="viz-prev" hidden disabled>Previous</button>
+                <button type="button" class="viz-chrome-btn" id="viz-next" hidden disabled>Next</button>
                 <button type="button" class="viz-chrome-btn" id="viz-fullscreen" aria-pressed="false" disabled>Fullscreen</button>
                 <button type="button" class="viz-chrome-btn" id="viz-exit" hidden>Exit</button>
             </div>
             <div class="viz-pane-stage">
-                <p id="viz-empty" class="viz-empty">Select a step from the map.</p>
+                <p id="viz-empty" class="viz-empty">Select a track.</p>
                 <iframe id="viz-frame" title="Demonstration" hidden></iframe>
             </div>
         </section>

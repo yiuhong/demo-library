@@ -9,12 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Guided Tracks Previous and Next, on the same pane bar as Fullscreen. They step through the open track in rail order: the connection title, then its demonstration. Previous is unavailable on the first page. Next is unavailable on the last. The same controls stay on a phone, where Fullscreen is hidden.
 - A Guided Tracks connection opens in the demo pane. When a step has a note, formulae, or figure, the rail lists that step's `connectionTitle` immediately before the demonstration. The same title is the heading on [`tracks/connection.html`](tracks/connection.html), which reads the step from `tracks.json`. `step=` is still that step's index. `tracks.html?track=the-id&demo=tracks/connection.html&step=0` opens the page for step 0. Phone Back returns to the same track list.
 - Catalog and Guided Tracks share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane. The catalog rail is search, filters, and the list. The Guided Tracks rail is a vertical menu of playlist links. The selected demonstration loads in the pane. Fullscreen hides the rail inside the shell. A phone shows the list or map first, then the demonstration; Back returns to the same category or track. `catalog.html?demo=…` and `tracks.html?demo=…` open that demonstration directly.
 
 ### Changed
 
 - Demo pages keep a short strip: **Cite this demo** (that demo’s citation, in a new tab) and the author site (in a new tab). License, site-wide cite, ORCID, issues, and source links stay on the library footer.
+- Guided Tracks opens on the list of tracks. Choosing a track shows that playlist in the rail: the connection title, then the demonstration. Back returns to the track list. On a phone, Back from a demonstration returns to that track, and Back from the track returns to the list. A shared `tracks.html?track=the-id&demo=…` link still opens the step; Back restores the playlist first.
 - Home uses the same horizontal top bar as Catalog and Guided Tracks (Home, Catalog, Guided Tracks, About Yiu Hong). The page stays a featured landing: wordmark, buttons, and the plate. Cite & reuse and Licenses stay in the colophon and the footer.
 - Cite & reuse and Licenses use that same horizontal top bar. The vertical sidebar, the phone Menu button, and the “← Project Viz” button are gone from those pages. The citation and license text, and the footer, stay.
 - The About Yiu Hong control in the shared top bar keeps a full outline. The text-link underline no longer removes its bottom edge, so the whole label stays visible and tappable on Home, Catalog, Guided Tracks, Cite & reuse, and Licenses.

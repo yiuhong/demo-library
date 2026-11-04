@@ -1,14 +1,21 @@
 /*
- * Guided Tracks page. The rail is the playlists from tracks.json.
+ * Guided Tracks page. The rail starts as the list of tracks.
+ * Choosing one replaces that list with the playlist: when a step has
+ * a note, formulae, or figure, its connectionTitle is a link
+ * immediately before that demonstration. The link opens
+ * tracks/connection.html, which reads the same step from tracks.json.
+ * step= is that step's index. Back returns to the track list.
  * Family concept maps stay in families.json and are not mounted here.
- * Each playlist is a vertical menu. When a step has a note, formulae,
- * or figure, its connectionTitle is a link immediately before that
- * demonstration. The link opens tracks/connection.html, which reads
- * the same step from tracks.json. step= is that step's index.
  */
 (function () {
     var root = document.getElementById("tracks-root");
     var missing = document.getElementById("tracks-missing");
+    var rail = document.getElementById("viz-rail");
+    var tracks = [];
+    var ready = false;
+    var failed = false;
+    var currentId = "";
+    var renderedKey = "";
 
     function el(tag, className, text) {
         var node = document.createElement(tag);
@@ -103,15 +110,43 @@
         return list.map(normalizeTrack).filter(Boolean);
     }
 
-    function trackIdFromLocation() {
-        var params = new URLSearchParams(window.location.search);
+    function requestedRaw() {
+        var params;
+        try {
+            params = new URLSearchParams(window.location.search);
+        } catch (err) {
+            return "";
+        }
         if (params.has("track")) return (params.get("track") || "").trim();
         var hash = window.location.hash.replace(/^#/, "");
         if (!hash) return "";
         try {
             hash = decodeURIComponent(hash);
-        } catch (err) {}
+        } catch (err2) {}
         if (hash.indexOf("track-") === 0) return hash.slice("track-".length).trim();
+        return "";
+    }
+
+    function findTrack(id) {
+        var i;
+        for (i = 0; i < tracks.length; i++) {
+            if (tracks[i].id === id) return tracks[i];
+        }
+        return null;
+    }
+
+    function trackForHref(href) {
+        if (typeof href !== "string" || !href) return "";
+        var parts = /^tracks\/connection\.html\?track=([a-z][a-z0-9-]*)&step=([0-9]{1,3})$/.exec(href);
+        if (parts) return parts[1];
+        var i;
+        var j;
+        for (i = 0; i < tracks.length; i++) {
+            var steps = tracks[i].steps;
+            for (j = 0; j < steps.length; j++) {
+                if (steps[j].href === href) return safeSlug(tracks[i].id);
+            }
+        }
         return "";
     }
 
@@ -184,48 +219,104 @@
         window.ProjectVizOpened.mark("a.concept-node");
     }
 
-    function revealTrack(tracks) {
-        var requested = trackIdFromLocation();
-        if (missing) missing.hidden = true;
-        if (!requested) {
-            document.title = "Guided Tracks - Project Viz";
-            return;
-        }
-        var found = null;
-        tracks.forEach(function (track) {
-            if (track.id === requested) found = track;
-        });
-        if (!found) {
-            if (missing) missing.hidden = false;
-            document.title = "Guided Tracks - Project Viz";
-            return;
-        }
-        document.title = found.title + " - Guided Tracks";
-        var demo = "";
-        try {
-            demo = (new URLSearchParams(window.location.search).get("demo") || "").trim();
-        } catch (err) {}
-        if (demo) return;
-        var headingId = safeSlug(found.id) ? "track-" + found.id : "";
-        var heading = headingId ? document.getElementById(headingId) : null;
-        if (!heading) return;
-        window.requestAnimationFrame(function () {
-            heading.scrollIntoView({ block: "start" });
-        });
+    function setLeadVisible(show) {
+        var lead = rail ? rail.querySelector(".page-lead") : null;
+        if (lead) lead.hidden = !show;
     }
 
-    function render(tracks) {
+    function placeBack(show) {
+        var button = document.getElementById("tracks-back");
+        if (!show) {
+            if (button) button.hidden = true;
+            return;
+        }
+        if (!button) {
+            button = el("button", "track-rail-back", "Back");
+            button.id = "tracks-back";
+            button.type = "button";
+            button.setAttribute("aria-label", "Back to all tracks");
+            if (rail) rail.insertBefore(button, rail.firstChild);
+        }
+        button.hidden = false;
+    }
+
+    function renderLanding(missingOn) {
         clear(root);
-        if (!tracks.length) {
+        placeBack(false);
+        setLeadVisible(true);
+        if (missing) missing.hidden = !missingOn;
+        document.title = "Guided Tracks - Project Viz";
+        currentId = "";
+        var visible = [];
+        tracks.forEach(function (track) {
+            if (track.steps.length && safeSlug(track.id)) visible.push(track);
+        });
+        if (!visible.length) {
             root.appendChild(el("p", "hub-quiet", "No tracks yet."));
             return;
         }
-        tracks.forEach(function (track) {
-            if (!track.steps.length) return;
-            var block = el("div", "track-block");
-            block.appendChild(trackPlaylist(track));
-            root.appendChild(block);
+        var list = el("ul", "track-chooser");
+        list.setAttribute("aria-label", "Tracks");
+        visible.forEach(function (track) {
+            var id = safeSlug(track.id);
+            var item = el("li");
+            var link = el("a", "track-choice");
+            link.href = "tracks.html?track=" + id;
+            link.setAttribute("data-track", id);
+            link.appendChild(el("span", "track-choice-title", track.title));
+            link.appendChild(el("span", "track-choice-count", stepCountLabel(track.steps.length)));
+            item.appendChild(link);
+            list.appendChild(item);
         });
+        root.appendChild(list);
+    }
+
+    function renderTrack(track) {
+        clear(root);
+        placeBack(true);
+        setLeadVisible(false);
+        if (missing) missing.hidden = true;
+        currentId = safeSlug(track.id);
+        document.title = track.title + " - Guided Tracks";
+        var block = el("div", "track-block");
+        block.appendChild(trackPlaylist(track));
+        root.appendChild(block);
+    }
+
+    function focusChoice(id) {
+        id = safeSlug(id);
+        if (!id || !root) return;
+        var links = root.querySelectorAll("a.track-choice");
+        var i;
+        for (i = 0; i < links.length; i++) {
+            if (links[i].getAttribute("data-track") === id) {
+                links[i].focus();
+                return;
+            }
+        }
+    }
+
+    function sync(options) {
+        options = options || {};
+        if (!ready || failed) return currentId;
+        var raw = requestedRaw();
+        var id = safeSlug(raw);
+        var found = id ? findTrack(id) : null;
+        var missingOn = !!raw && !found;
+        var key = (missingOn ? "missing:" : "ok:") + (found ? id : "");
+        if (key !== renderedKey) {
+            renderedKey = key;
+            if (found) renderTrack(found);
+            else renderLanding(missingOn);
+            refreshOpened();
+        }
+        if (options.focus === "back") {
+            var back = document.getElementById("tracks-back");
+            if (back && !back.hidden) back.focus();
+        } else if (options.focusChoice) {
+            focusChoice(options.focusChoice);
+        }
+        return currentId;
     }
 
     function showError() {
@@ -245,30 +336,31 @@
             if (!response.ok) throw new Error("tracks");
             return response.json();
         }).then(function (data) {
-            var tracks = normalizeTracks(data);
-            render(tracks);
-            refreshOpened();
-            revealTrack(tracks);
+            tracks = normalizeTracks(data);
+            ready = true;
+            failed = false;
+            sync();
             document.dispatchEvent(new CustomEvent("projectviz:tracks"));
         }).catch(function () {
+            failed = true;
+            ready = false;
             showError();
             document.dispatchEvent(new CustomEvent("projectviz:tracks"));
         });
     }
+
+    window.ProjectVizTracks = {
+        sync: sync,
+        trackForHref: trackForHref,
+        currentId: function () { return currentId; }
+    };
 
     window.addEventListener("pageshow", refreshOpened);
     window.addEventListener("storage", function (event) {
         if (event.key === "project-viz-opened") refreshOpened();
     });
     window.addEventListener("hashchange", function () {
-        var blocks = root ? root.querySelectorAll(".track-block") : [];
-        var tracks = [];
-        blocks.forEach(function (block) {
-            var heading = block.querySelector("h2");
-            if (!heading || !heading.id || heading.id.indexOf("track-") !== 0) return;
-            tracks.push({ id: heading.id.slice("track-".length), title: heading.textContent });
-        });
-        revealTrack(tracks);
+        sync();
     });
 
     load();
