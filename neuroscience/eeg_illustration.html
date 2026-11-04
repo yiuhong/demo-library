@@ -631,8 +631,22 @@
         }
 
         // Map Click events on Canvas
+        // Tap a tissue layer to open its inspector. A slide still scrolls the page.
+        let layerPress = null;
+        canvasBiophysics.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            layerPress = { id: e.pointerId, x: e.clientX, y: e.clientY };
+        });
+        canvasBiophysics.addEventListener('pointerup', (e) => {
+            if (!layerPress || layerPress.id !== e.pointerId) return;
+            const start = layerPress;
+            layerPress = null;
+            if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return;
+            handleCanvasClick(e);
+        });
+        canvasBiophysics.addEventListener('pointercancel', () => { layerPress = null; });
+
         canvasBiophysics.addEventListener('mousemove', handleCanvasHover);
-        canvasBiophysics.addEventListener('mousedown', handleCanvasClick);
 
         // Track and clear tooltip triggers
         canvasBiophysics.addEventListener('mouseleave', () => {

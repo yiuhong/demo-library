@@ -683,6 +683,7 @@
 
   .draggable-node {
     cursor: ns-resize;
+    touch-action: none;
     transition: r 0.15s;
   }
   .draggable-node:hover {
@@ -741,6 +742,39 @@
     .knife-divider { background: #000 !important; width: 2px !important; }
     .demo-header { margin-bottom: 0; }
     .demo-header h1 { font-size: 1.35rem; }
+
+    @media (max-width: 1100px) {
+      .page-shell { max-width: 100%; padding: 12px; }
+      .workspace {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        overflow: visible;
+      }
+      .panel { min-width: 0; }
+      .panel-left,
+      .panel-center { border-right: none; border-bottom: 1px solid #000; }
+      .canvas-wrap { min-height: 420px; }
+      .callout-banner {
+        position: static;
+        left: auto;
+        right: auto;
+        top: auto;
+        margin: 0 0 8px;
+      }
+      .controls-bar { flex-wrap: wrap; align-items: flex-start; }
+      .lens-switcher { flex-direction: column; align-items: stretch; }
+      body.demo-page .lens-btn,
+      body.demo-page .se-btn,
+      body.demo-page .preset-btn {
+        min-height: 40px;
+        height: auto;
+        white-space: normal;
+        text-align: left;
+        justify-content: flex-start;
+      }
+      .se-selector { flex-wrap: wrap; }
+      .section-card { max-width: 100%; overflow-x: auto; }
+    }
 
 </style>
 </head>
@@ -884,7 +918,7 @@
         </div>
       </div>
       <div style="font-size:11px; color:var(--text-muted);">
-        Hover table rows on the right to inspect geometry →
+        ANOVA table rows highlight the matching geometry.
       </div>
     </div>
 
@@ -1596,7 +1630,11 @@
           <text x="23" y="4" fill="${statsViz.color('--viz-group-b')}" font-size="10" font-weight="700" text-anchor="middle" font-family="monospace">B:${cm.B_Post.toFixed(1)}</text>
         </g>
 
-        <!-- 4 Draggable Cell Mean Nodes (drawn on top) -->
+        <!-- 4 Draggable Cell Mean Nodes. The transparent circle is the touch target. -->
+        <circle class="draggable-node" data-node="A_Pre" cx="${coord.xPre}" cy="${yAPre}" r="28" fill="transparent" stroke="none" />
+        <circle class="draggable-node" data-node="A_Post" cx="${coord.xPost}" cy="${yAPost}" r="28" fill="transparent" stroke="none" />
+        <circle class="draggable-node" data-node="B_Pre" cx="${coord.xPre}" cy="${yBPre}" r="28" fill="transparent" stroke="none" />
+        <circle class="draggable-node" data-node="B_Post" cx="${coord.xPost}" cy="${yBPost}" r="28" fill="transparent" stroke="none" />
         <circle class="draggable-node" data-node="A_Pre" cx="${coord.xPre}" cy="${yAPre}" r="7.5" fill="${statsViz.color('--viz-group-a')}" stroke="#000000" stroke-width="2.5" />
         <circle class="draggable-node" data-node="A_Post" cx="${coord.xPost}" cy="${yAPost}" r="7.5" fill="${statsViz.color('--viz-group-a')}" stroke="#000000" stroke-width="2.5" />
         <circle class="draggable-node" data-node="B_Pre" cx="${coord.xPre}" cy="${yBPre}" r="7.5" fill="${statsViz.color('--viz-group-b')}" stroke="#000000" stroke-width="2.5" />
@@ -1859,19 +1897,26 @@
     updateAll();
   }
 
-  // Direct Canvas Dragging of the 4 Cell Mean Nodes
-  svg.addEventListener('mousedown', (e) => {
-    const target = e.target.closest('.draggable-node');
-    if (!target) return;
-    state.draggingNode = target.getAttribute('data-node');
-  });
-
-  window.addEventListener('mousemove', (e) => {
-    if (!state.draggingNode) return;
+  // Direct dragging of the 4 cell-mean nodes. Pointer events cover mouse and touch.
+  function dragPoint(e) {
     const pt = svg.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
-    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  svg.addEventListener('pointerdown', (e) => {
+    const target = e.target.closest('.draggable-node');
+    if (!target) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    state.draggingNode = target.getAttribute('data-node');
+    svg.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+
+  svg.addEventListener('pointermove', (e) => {
+    if (!state.draggingNode) return;
+    const svgP = dragPoint(e);
     const newVal = Math.max(15, Math.min(85, yToVal(svgP.y)));
 
     const cm = getCellMeans();
@@ -1891,9 +1936,11 @@
     updateAll();
   });
 
-  window.addEventListener('mouseup', () => {
+  function endNodeDrag() {
     state.draggingNode = null;
-  });
+  }
+  svg.addEventListener('pointerup', endNodeDrag);
+  svg.addEventListener('pointercancel', endNodeDrag);
 
   // Initialize with Preset 1 (Baseline Noise Trap)
   applyPreset(1);
