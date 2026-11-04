@@ -130,8 +130,7 @@ a.concept-node:focus-visible {
     width: 100%;
 }
 
-.concept-relation,
-a.concept-node .hub-opened {
+.concept-relation {
     font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
     font-size: 0.68rem;
     font-weight: bold;
@@ -153,10 +152,6 @@ a.concept-node .hub-opened {
     vertical-align: 0.05em;
 }
 
-a.concept-node:not(.is-opened) .concept-kicker:not(:has(.concept-relation)) {
-    display: none;
-}
-
 .concept-title {
     font-size: 0.98rem;
     font-weight: bold;
@@ -165,40 +160,35 @@ a.concept-node:not(.is-opened) .concept-kicker:not(:has(.concept-relation)) {
     color: #000000 !important;
 }
 
-.concept-stop.is-backbone a.concept-node {
+a.concept-node.is-opened {
     background: #000000 !important;
     border-color: #000000 !important;
     color: #ffffff !important;
 }
 
-.concept-stop.is-backbone a.concept-node .concept-relation,
-.concept-stop.is-backbone a.concept-node .concept-title,
-.concept-stop.is-backbone a.concept-node .hub-opened {
+a.concept-node.is-opened .concept-relation,
+a.concept-node.is-opened .concept-title {
     color: #ffffff !important;
 }
 
 a.concept-node:hover .concept-relation,
 a.concept-node:hover .concept-title,
-a.concept-node:hover .hub-opened,
 a.concept-node:focus-visible .concept-relation,
-a.concept-node:focus-visible .concept-title,
-a.concept-node:focus-visible .hub-opened {
+a.concept-node:focus-visible .concept-title {
     color: #ffffff !important;
 }
 
-.concept-stop.is-backbone a.concept-node:hover,
-.concept-stop.is-backbone a.concept-node:focus-visible {
+a.concept-node.is-opened:hover,
+a.concept-node.is-opened:focus-visible {
     background: #ffffff !important;
     border-color: #000000 !important;
     color: #000000 !important;
 }
 
-.concept-stop.is-backbone a.concept-node:hover .concept-relation,
-.concept-stop.is-backbone a.concept-node:hover .concept-title,
-.concept-stop.is-backbone a.concept-node:hover .hub-opened,
-.concept-stop.is-backbone a.concept-node:focus-visible .concept-relation,
-.concept-stop.is-backbone a.concept-node:focus-visible .concept-title,
-.concept-stop.is-backbone a.concept-node:focus-visible .hub-opened {
+a.concept-node.is-opened:hover .concept-relation,
+a.concept-node.is-opened:hover .concept-title,
+a.concept-node.is-opened:focus-visible .concept-relation,
+a.concept-node.is-opened:focus-visible .concept-title {
     color: #000000 !important;
 }
 

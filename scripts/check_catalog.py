@@ -436,6 +436,9 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                 'id="hub-path-mount"',
                 "Jump to a section",
                 "concept-maps.js",
+                "assets/opened.js",
+                "hub-opened",
+                "Opened",
             ):
                 if banned in text:
                     problems.append(f"catalog.html: {banned} does not belong on the catalog")
@@ -815,8 +818,19 @@ def check_map_page(problems: list[str]) -> None:
     sheet = read_text(ROOT / "assets" / "concept-maps.css")
     if script is None or "families.json" not in script or "concept-node" not in script:
         problems.append("assets/concept-maps.js: concept-map renderer is missing")
+    elif "hub-opened" in script or '"Opened"' in script:
+        problems.append("assets/concept-maps.js: do not show an Opened tag")
     if sheet is None or "a.concept-node" not in sheet:
         problems.append("assets/concept-maps.css: concept-map links are missing")
+    elif "a.concept-node.is-opened" not in sheet:
+        problems.append("assets/concept-maps.css: opened boxes need the visited fill")
+    elif re.search(r"\.concept-stop\.is-backbone[^{]*\{[^}]*background\s*:", sheet):
+        problems.append("assets/concept-maps.css: backbone must not paint its own fill")
+    catalog_js = read_text(ROOT / "assets" / "catalog.js")
+    if catalog_js is None:
+        problems.append("assets/catalog.js: file not found")
+    elif "hub-opened" in catalog_js or "ProjectVizOpened" in catalog_js or '"Opened"' in catalog_js:
+        problems.append("assets/catalog.js: catalog cards must not show or mark opened state")
     tracks = read_text(ROOT / "tracks.html")
     tracks_js = read_text(ROOT / "assets" / "tracks-page.js")
     if tracks and "Choose a path" in tracks:

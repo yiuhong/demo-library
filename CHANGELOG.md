@@ -10,17 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - The opened-progress counter, its Reset control, and the “Saved in this browser only. No account.” note on Home, Catalog, and Guided Tracks.
+- Catalog cards no longer show an Opened tag or any open-state styling. The catalog does not read the opened list.
+- The Opened label on Guided Tracks concept maps and playlist steps.
 - Concept-map labels for Before, Backbone, and After, including the Backbone prefix on the shared sentence. The strips stay, in the same order, on Guided Tracks.
 - The Catalog Sections jump list, and the concept-map strips that sat above catalog demo lists. Search, category filters, and the demonstration list stay.
 
 ### Added
 
 - Ordinary Least Squares (OLS) for simple linear regression, under Statistics → Association, with an Association track step after Covariance and Correlation
-- Concept maps for the variance family and for correlation and covariance. A strip on Guided Tracks and on the catalog sections that opt in. Titles come from the catalog. Opened demonstrations use the same browser list.
+- Concept maps for the variance family and for correlation and covariance. A strip on Guided Tracks. Titles come from the catalog.
 - Limitations of summary statistics, under Statistics → Same summaries, different graphs, with a track step after the Q–Q plot (Datasaurus Dozen and Anscombe’s quartet)
 
 ### Changed
 
+- A Guided Tracks box is black only when that demonstration was opened in this browser. The old backbone fill no longer paints the center box. Opening a demo is still stored in this browser for Guided Tracks and the home plate.
 - Phone and tablet should-fix from the cross-device audit. A still press shows readouts that were hover-only (covariance coordinates, distribution-map edges, KDE crosshair, Q-Q, t-test-to-ANOVA, two-way ANOVA, variance explained, additivity, statistical power, sum-of-squares notes, mixed-ANOVA row highlight). The distributions map pans with one finger horizontally and with two fingers in either direction, pinches to zoom, and uses a taller frame on a narrow screen. EEG, ERP, KDE, and mixed-ANOVA sliders have a finger-sized target on narrow screens. Home, catalog, guided tracks, cite, and licenses allow pinch-zoom.
 - Covariance and Correlation: press and hold a point to remove it, with a mouse or on a touch screen. At least two points stay.
 - The home is a front page: wordmark, buttons for the catalog and Guided Tracks, and a featured plate that cycles Variance Explained, Covariance and Correlation, and the ERP demo. The catalog and Guided Tracks are separate pages. Choose a path is gone. Each Guided Track is a concept-map rail; the same demos are not listed again underneath.

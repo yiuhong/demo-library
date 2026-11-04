@@ -259,8 +259,7 @@
         demo.tags.forEach(function (tag) {
             tags.appendChild(el("span", tag.draft ? "demo-tag is-draft" : "demo-tag", tag.label));
         });
-        tags.appendChild(el("span", "hub-opened", "Opened"));
-        card.appendChild(tags);
+        if (tags.firstChild) card.appendChild(tags);
         return card;
     }
 
@@ -363,11 +362,6 @@
         syncFilterChips(categories);
     }
 
-    function refreshOpened() {
-        if (!window.ProjectVizOpened) return;
-        window.ProjectVizOpened.mark("a.demo-card");
-    }
-
     function clearBrowse() {
         if (searchInput) searchInput.value = "";
         activeFilter = "all";
@@ -417,7 +411,6 @@
             renderCatalog(categories);
             catalogReady = true;
             applyFilters();
-            refreshOpened();
             revealPathFromLocation();
         }).catch(function () {
             showCatalogError();
@@ -432,10 +425,6 @@
         }
     } catch (err) {}
 
-    window.addEventListener("pageshow", refreshOpened);
-    window.addEventListener("storage", function (event) {
-        if (event.key === "project-viz-opened") refreshOpened();
-    });
     window.addEventListener("popstate", revealPathFromLocation);
     window.addEventListener("hashchange", revealPathFromLocation);
 

@@ -354,11 +354,6 @@ a.is-opened .hub-opened {
     display: inline;
 }
 
-a.demo-card:hover .hub-opened,
-a.demo-card:focus-visible .hub-opened {
-    color: #ffffff !important;
-}
-
 #hub-plates-section[hidden] {
     display: none !important;
 }
