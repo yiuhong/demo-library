@@ -338,16 +338,32 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         problems.append("assets/site-oer-footer.js: file not found")
     else:
         for needle in (
-            "meta.orcid",
             "Cite this demo",
-            "demoCitation",
-            "Cite & reuse",
-            "ORCID iD",
-            "license.html",
+            "personalSite",
+            'target = "_blank"',
+            "noopener noreferrer",
+            "cite.html?demo=",
             "project-viz-opened",
         ):
             if needle not in footer_js:
                 problems.append(f"assets/site-oer-footer.js: missing {needle}")
+        for banned in (
+            "license.html",
+            "Cite & reuse",
+            "contentLicense",
+            "LICENSE-CODE",
+            "creativecommons.org",
+            "Spotted a mistake",
+            "View source",
+            "meta.orcid",
+        ):
+            if banned in footer_js:
+                problems.append(
+                    f"assets/site-oer-footer.js: in-demo strip should not include {banned}"
+                )
+    cite_js = read_text(ROOT / "assets" / "cite-page.js")
+    if cite_js is None or '.get("demo")' not in cite_js:
+        problems.append("assets/cite-page.js: per-demo cite query is missing")
 
     opened_js = read_text(ROOT / "assets" / "opened.js")
     if opened_js is None:
@@ -559,6 +575,13 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         ):
             problems.append(
                 f"{href}: remove the demo Fullscreen control; the shell provides Fullscreen"
+            )
+        if re.search(
+            r"""href=["'][^"']*(?:license\.html|cite\.html|LICENSE-CODE|creativecommons\.org)""",
+            text,
+        ):
+            problems.append(
+                f"{href}: remove in-demo license or site-wide cite links"
             )
 
     for path in sorted(ROOT.rglob("*.html")):

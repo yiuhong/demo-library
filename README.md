@@ -91,7 +91,7 @@ Each demo has:
 ### How to add a demo
 
 1. Add the demo HTML file in the subject folder.
-2. In that file, link the site-chrome stylesheet and load the two scripts below (paths are `../assets/` from a subject folder). The strip is the author, ORCID, license, cite, issues, source, and version line. When the page is listed in `demos.json`, the strip can also copy a short citation for that demo. Do not add an "All rights reserved" notice.
+2. In that file, link the site-chrome stylesheet and load the two scripts below (paths are `../assets/` from a subject folder). The strip is **Cite this demo** (when the page is listed in `demos.json`; it opens that demo’s citation in a new tab) and the author’s site, also in a new tab. License, site-wide cite, and source links stay on the library footer. Do not add an "All rights reserved" notice.
 
 ```html
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
