@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Catalog and Guided Tracks share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane. The catalog rail is search, filters, and the list. The Guided Tracks rail keeps the concept-map strips, and each playlist is a vertical menu: the demonstration link, then that step’s note, formulae, and figure between it and the next demonstration. The selected demonstration loads in the pane. Fullscreen hides the rail inside the shell. A phone shows the list or map first, then the demonstration; Back returns to the same category or track. `catalog.html?demo=…` and `tracks.html?demo=…` open that demonstration directly.
+
+### Changed
+
+- A demonstration embedded in the shell hides Return to Project Viz. That link stays when the file is opened on its own. Home stays the featured page.
+
 ### Removed
 
 - The opened-progress counter, its Reset control, and the “Saved in this browser only. No account.” note on Home, Catalog, and Guided Tracks.

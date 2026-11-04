@@ -136,3 +136,8 @@ html.site-oer-fit .site-oer-strip > p:first-child::-webkit-scrollbar {
         position: static;
     }
 }
+
+/* Embedded in the Catalog / Guided Tracks shell. Standalone pages keep the link. */
+html.viz-embedded .demo-back {
+    display: none !important;
+}

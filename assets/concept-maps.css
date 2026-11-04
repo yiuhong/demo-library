@@ -192,6 +192,70 @@ a.concept-node.is-opened:focus-visible .concept-title {
     color: #000000 !important;
 }
 
+ol.playlist {
+    list-style: none;
+    margin: 0.85rem 0 0;
+    padding: 0;
+}
+
+.playlist-demo {
+    margin: 0;
+    padding: 0;
+}
+
+.playlist-bridge {
+    margin: 0.7rem 0 0.9rem;
+    padding: 0;
+}
+
+.playlist-bridge + .playlist-demo {
+    margin-top: 0.15rem;
+}
+
+figure.playlist-figure {
+    margin: 0 0 0.55rem;
+}
+
+img.playlist-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #ffffff;
+    border: 1px solid #000000 !important;
+    border-radius: 2px;
+}
+
+p.playlist-note {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: #222222 !important;
+}
+
+ul.playlist-formulae {
+    list-style: none;
+    margin: 0.55rem 0 0;
+    padding: 0.45rem 0.7rem;
+    background: #ffffff;
+    border: 1px solid #000000 !important;
+    border-radius: 2px;
+}
+
+ul.playlist-formulae > li {
+    margin: 0;
+    padding: 0.1rem 0;
+    border: 0;
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    color: #000000 !important;
+}
+
+.playlist a.concept-node {
+    min-height: 0;
+}
+
 .track-block {
     scroll-margin-top: 4.5em;
 }

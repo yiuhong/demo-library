@@ -271,3 +271,8 @@
 .demo-page .demo-prose strong {
     font-family: var(--demo-font);
 }
+
+/* Embedded in the Catalog / Guided Tracks shell. Standalone pages keep the link. */
+html.viz-embedded .demo-back {
+    display: none !important;
+}

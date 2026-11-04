@@ -122,6 +122,18 @@
         refreshOpened();
     }
 
+    document.addEventListener("click", function (event) {
+        var node = event.target && event.target.nodeType === 1 ? event.target : event.target.parentElement;
+        var link = node && node.closest ? node.closest("a.home-open") : null;
+        if (!link) return;
+        if (event.defaultPrevented || event.button !== 0) return;
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        var href = link.getAttribute("href");
+        if (!href || href.indexOf("..") !== -1 || /^[a-z][a-z0-9+.-]*:/i.test(href)) return;
+        event.preventDefault();
+        window.location.href = "catalog.html?demo=" + href;
+    });
+
     show(0, false);
     start();
 

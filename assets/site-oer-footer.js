@@ -3,6 +3,12 @@
  * adds the compact license strip. Does not replace a demo's own navigation.
  */
 (function () {
+    try {
+        if (new URLSearchParams(window.location.search).get("embed") === "shell") {
+            document.documentElement.classList.add("viz-embedded");
+        }
+    } catch (error) {}
+
     var meta = window.DEMO_LIBRARY;
     if (!meta || window.__siteOerFooterMounted) return;
     window.__siteOerFooterMounted = true;

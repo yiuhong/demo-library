@@ -11,11 +11,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Every demonstration in Project Viz, with search and category filters." />
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="https://yiuhong.github.io/assets/css/main.css" />
-    <noscript><link rel="stylesheet" href="https://yiuhong.github.io/assets/css/noscript.css" /></noscript>
-    <link rel="stylesheet" href="assets/library-nav.css" />
-    <link rel="stylesheet" href="assets/curriculum-hub.css" />
-    <link rel="stylesheet" href="assets/catalog.css" />
     <script>
         (function () {
             var params = new URLSearchParams(window.location.search);
@@ -29,85 +24,93 @@
                 var id = track || (bare.indexOf("track-") === 0 ? bare.slice(6).trim() : "");
                 var next = new URLSearchParams();
                 if (id) next.set("track", id);
+                var demo = (params.get("demo") || "").trim();
+                if (demo && demo.length <= 300 && !/[\s\\]/.test(demo) && !/^[a-z][a-z0-9+.-]*:/i.test(demo) && demo.indexOf("..") === -1 && /^[a-z0-9_./-]+\.html$/i.test(demo)) {
+                    next.set("demo", demo);
+                }
                 var hash = id ? "#track-" + encodeURIComponent(id) : "";
                 window.location.replace("tracks.html" + (next.toString() ? "?" + next.toString() : "") + hash);
+                return;
+            }
+            var demoOnly = (params.get("demo") || "").trim();
+            if (demoOnly && demoOnly.length <= 300 && !/[\s\\]/.test(demoOnly) && !/^[a-z][a-z0-9+.-]*:/i.test(demoOnly) && demoOnly.indexOf("..") === -1 && demoOnly.charAt(0) !== "/" && /^[a-z0-9_./-]+\.html$/i.test(demoOnly)) {
+                document.documentElement.classList.add("viz-deep-demo");
             }
         })();
     </script>
+    <link rel="stylesheet" href="https://yiuhong.github.io/assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="https://yiuhong.github.io/assets/css/noscript.css" /></noscript>
+    <link rel="stylesheet" href="assets/library-nav.css" />
+    <link rel="stylesheet" href="assets/curriculum-hub.css" />
+    <link rel="stylesheet" href="assets/catalog.css" />
+    <link rel="stylesheet" href="assets/shell.css" />
 </head>
-<body class="is-preload">
+<body class="viz-app" data-viz-page="catalog">
 
-    <section id="sidebar">
-        <div class="inner">
-            <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="site-nav">
-                <span class="mobile-nav-toggle-label">Menu</span>
-                <span class="mobile-nav-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
-            </button>
-            <nav id="site-nav" aria-label="Library">
-                <ul>
-                    <li><a href="index.html" data-library-nav="home">Home</a></li>
-                    <li><a href="catalog.html" data-library-nav="catalog" class="active" aria-current="page">Catalog</a></li>
-                    <li><a href="tracks.html" data-library-nav="tracks">Guided Tracks</a></li>
-                    <li><a href="cite.html">Cite &amp; reuse</a></li>
-                    <li><a href="license.html">Licenses</a></li>
-                </ul>
-                <p class="library-author-chip"><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></p>
-            </nav>
-        </div>
-    </section>
+    <header class="viz-topbar">
+        <nav aria-label="Library">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="catalog.html" aria-current="page">Catalog</a></li>
+                <li><a href="tracks.html">Guided Tracks</a></li>
+                <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
+            </ul>
+        </nav>
+    </header>
 
-    <div id="wrapper">
-
-        <section id="intro" class="wrapper style1 fade-up">
-            <div class="inner">
-                <p><a class="cite-back" href="index.html">← Project Viz</a></p>
-                <h1>Catalog</h1>
-                <p class="page-lead">Every demonstration, in the order of the curriculum.</p>
+    <div class="viz-workspace">
+        <aside class="viz-rail" id="viz-rail" aria-label="Catalog">
+            <h1>Catalog</h1>
+            <p class="page-lead">Every demonstration, in the order of the curriculum.</p>
+            <h2 id="catalog-heading" class="visually-hidden">Demonstrations</h2>
+            <label class="visually-hidden" for="searchInput">Search for a keyword</label>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for a keyword">
             </div>
-        </section>
-
-        <section id="catalog-browser" class="wrapper style2 fade-up">
-            <div class="inner">
-                <h2 id="catalog-heading">Demonstrations</h2>
-                <label class="visually-hidden" for="searchInput">Search for a keyword</label>
-                <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="Search for a keyword">
-                </div>
-                <div class="library-toolbar" id="catalog-filters">
-                    <p class="library-label" id="filter-label">Filter by category</p>
-                    <div class="filter-chips" role="group" aria-labelledby="filter-label">
-                        <button type="button" class="filter-chip is-active" data-filter="all" aria-pressed="true">All</button>
-                        <button type="button" class="filter-chip" data-filter="cognitive" aria-pressed="false">Cognitive Psychology</button>
-                        <button type="button" class="filter-chip" data-filter="neuroscience" aria-pressed="false">Neuroscience</button>
-                        <button type="button" class="filter-chip" data-filter="statistics" aria-pressed="false">Statistics</button>
-                        <button type="button" class="filter-chip" data-filter="personality" aria-pressed="false">Personality Psychology</button>
-                    </div>
-                </div>
-                <div id="noResults" class="no-results" role="status">
-                    No demonstrations found. Try a different keyword or category.
+            <div class="library-toolbar" id="catalog-filters">
+                <p class="library-label" id="filter-label">Filter by category</p>
+                <div class="filter-chips" role="group" aria-labelledby="filter-label">
+                    <button type="button" class="filter-chip is-active" data-filter="all" aria-pressed="true">All</button>
+                    <button type="button" class="filter-chip" data-filter="cognitive" aria-pressed="false">Cognitive Psychology</button>
+                    <button type="button" class="filter-chip" data-filter="neuroscience" aria-pressed="false">Neuroscience</button>
+                    <button type="button" class="filter-chip" data-filter="statistics" aria-pressed="false">Statistics</button>
+                    <button type="button" class="filter-chip" data-filter="personality" aria-pressed="false">Personality Psychology</button>
                 </div>
             </div>
-        </section>
-
-        <section class="wrapper style2 fade-up catalog-panel" data-catalog-panel="style2">
-            <div class="inner" id="catalog-mount-style2">
-                <p id="catalog-status" class="catalog-message">Loading catalog…</p>
+            <div id="noResults" class="no-results" role="status">
+                No demonstrations found. Try a different keyword or category.
             </div>
-            <noscript>
-                <div class="inner">
+
+            <section class="catalog-panel" data-catalog-panel="style2">
+                <div id="catalog-mount-style2">
+                    <p id="catalog-status" class="catalog-message">Loading catalog…</p>
+                </div>
+                <noscript>
                     <p class="catalog-message">The catalog needs JavaScript.</p>
-                </div>
-            </noscript>
-        </section>
+                </noscript>
+            </section>
 
-        <section class="wrapper style3 fade-up catalog-panel is-pending" data-catalog-panel="style3">
-            <div class="inner" id="catalog-mount-style3"></div>
-        </section>
+            <section class="catalog-panel is-pending" data-catalog-panel="style3">
+                <div id="catalog-mount-style3"></div>
+            </section>
 
-        <section class="wrapper style1 fade-up catalog-panel is-pending" data-catalog-panel="style1">
-            <div class="inner" id="catalog-mount-style1"></div>
-        </section>
+            <section class="catalog-panel is-pending" data-catalog-panel="style1">
+                <div id="catalog-mount-style1"></div>
+            </section>
+        </aside>
 
+        <section class="viz-pane" id="viz-pane" aria-label="Demonstration">
+            <div class="viz-pane-chrome">
+                <button type="button" class="viz-chrome-btn viz-back" id="viz-back">Back</button>
+                <h2 id="viz-pane-title">Select a demonstration</h2>
+                <button type="button" class="viz-chrome-btn" id="viz-fullscreen" aria-pressed="false" disabled>Fullscreen</button>
+                <button type="button" class="viz-chrome-btn" id="viz-exit" hidden>Exit</button>
+            </div>
+            <div class="viz-pane-stage">
+                <p id="viz-empty" class="viz-empty">Select a demonstration from the list.</p>
+                <iframe id="viz-frame" title="Demonstration" hidden></iframe>
+            </div>
+        </section>
     </div>
 
     <footer id="footer" class="wrapper style1-alt">
@@ -128,15 +131,9 @@
         </div>
     </footer>
 
-    <script src="https://yiuhong.github.io/assets/js/jquery.min.js"></script>
-    <script src="https://yiuhong.github.io/assets/js/jquery.scrollex.min.js"></script>
-    <script src="https://yiuhong.github.io/assets/js/jquery.scrolly.min.js"></script>
-    <script src="https://yiuhong.github.io/assets/js/browser.min.js"></script>
-    <script src="https://yiuhong.github.io/assets/js/breakpoints.min.js"></script>
-    <script src="https://yiuhong.github.io/assets/js/util.js"></script>
-    <script src="https://yiuhong.github.io/assets/js/main.js"></script>
     <script src="assets/site-meta.js"></script>
     <script src="assets/site-oer-footer.js"></script>
     <script src="assets/catalog.js"></script>
+    <script src="assets/shell.js"></script>
 </body>
 </html>

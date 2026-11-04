@@ -412,10 +412,12 @@
             catalogReady = true;
             applyFilters();
             revealPathFromLocation();
+            document.dispatchEvent(new CustomEvent("projectviz:catalog"));
         }).catch(function () {
             showCatalogError();
             catalogReady = true;
             applyFilters();
+            document.dispatchEvent(new CustomEvent("projectviz:catalog"));
         });
     }
 

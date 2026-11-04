@@ -1,8 +1,8 @@
 /*
- * Guided Tracks page. Each playlist is one concept-map rail. The nodes
- * open the demonstrations. families.json maps that opt into "hub"
- * sit above the playlists. Step notes stay in tracks.json; this page does
- * not repeat the same demos as a second link list.
+ * Guided Tracks page. Concept-map strips from families.json sit above
+ * the playlists. Each playlist is a vertical menu: a demonstration link,
+ * then the note, formulae, and figure from tracks.json between that
+ * link and the next. The same demos are not listed a second time.
  */
 (function () {
     var root = document.getElementById("tracks-root");
@@ -33,12 +33,48 @@
         return count === 1 ? "1 step" : count + " steps";
     }
 
+    function safeImagePath(href) {
+        if (!window.ProjectVizMaps) return "";
+        var value = window.ProjectVizMaps.safeHref(href);
+        if (!value || value.charAt(0) === "/") return "";
+        if (!/^[A-Za-z0-9._/-]+$/.test(value)) return "";
+        if (!/\.(png|svg|jpe?g|gif|webp)$/i.test(value)) return "";
+        return value;
+    }
+
+    function normalizeFormulae(raw) {
+        if (!Array.isArray(raw)) return [];
+        var formulae = [];
+        var i;
+        for (i = 0; i < raw.length; i++) {
+            if (typeof raw[i] !== "string") continue;
+            var text = raw[i].trim();
+            if (!text || text.length > 400) continue;
+            formulae.push(text);
+        }
+        return formulae;
+    }
+
     function normalizeStep(raw) {
         if (!raw || typeof raw !== "object" || !window.ProjectVizMaps) return null;
         var title = typeof raw.title === "string" ? raw.title.trim() : "";
         var href = window.ProjectVizMaps.safeHref(raw.href);
         if (!title || !href) return null;
-        return { title: title, href: href };
+        var note = typeof raw.note === "string" ? raw.note.trim() : "";
+        var image = safeImagePath(raw.image);
+        var imageAlt = typeof raw.imageAlt === "string" ? raw.imageAlt.trim() : "";
+        if (!image || !imageAlt) {
+            image = "";
+            imageAlt = "";
+        }
+        return {
+            title: title,
+            href: href,
+            note: note,
+            image: image,
+            imageAlt: imageAlt,
+            formulae: normalizeFormulae(raw.formulae)
+        };
     }
 
     function normalizeTrack(raw) {
@@ -88,28 +124,73 @@
         return "";
     }
 
-    function trackMap(track) {
-        var nodes = track.steps.map(function (step, index) {
-            var n = String(index + 1);
-            if (n.length < 2) n = "0" + n;
-            return {
-                href: step.href,
-                title: step.title,
-                relation: "step",
-                label: n
-            };
+    function stepNumber(index) {
+        var n = String(index + 1);
+        if (n.length < 2) n = "0" + n;
+        return n;
+    }
+
+    function demoItem(step, index) {
+        var item = el("li", "playlist-demo");
+        var link = el("a", "concept-node");
+        link.href = step.href;
+        var kicker = el("span", "concept-kicker");
+        kicker.appendChild(el("span", "concept-relation", stepNumber(index)));
+        link.appendChild(kicker);
+        link.appendChild(el("span", "concept-title", step.title));
+        item.appendChild(link);
+        return item;
+    }
+
+    function bridgeItem(step) {
+        if (!step.note && !step.image && !step.formulae.length) return null;
+        var item = el("li", "playlist-bridge");
+        if (step.image) {
+            var figure = el("figure", "playlist-figure");
+            var img = document.createElement("img");
+            img.className = "playlist-image";
+            img.src = step.image;
+            img.alt = step.imageAlt;
+            figure.appendChild(img);
+            item.appendChild(figure);
+        }
+        if (step.note) item.appendChild(el("p", "playlist-note", step.note));
+        if (step.formulae.length) {
+            var list = el("ul", "playlist-formulae");
+            list.setAttribute("aria-label", "Formulae");
+            step.formulae.forEach(function (formula) {
+                list.appendChild(el("li", null, formula));
+            });
+            item.appendChild(list);
+        }
+        return item;
+    }
+
+    function trackPlaylist(track) {
+        var map = el("div", "concept-map is-track");
+        var headingId = safeSlug(track.id) ? "track-" + track.id : "";
+        if (headingId) {
+            map.setAttribute("role", "group");
+            map.setAttribute("aria-labelledby", headingId);
+        }
+        var head = el("div", "concept-map-head");
+        head.appendChild(el("p", "concept-map-kicker", stepCountLabel(track.steps.length)));
+        var title = el("h2", "concept-map-title", track.title);
+        if (headingId) {
+            title.id = headingId;
+            title.tabIndex = -1;
+        }
+        head.appendChild(title);
+        if (track.summary) head.appendChild(el("p", "concept-map-backbone", track.summary));
+        map.appendChild(head);
+        var list = el("ol", "playlist");
+        track.steps.forEach(function (step, index) {
+            list.appendChild(demoItem(step, index));
+            var bridge = bridgeItem(step);
+            if (bridge) list.appendChild(bridge);
         });
-        return window.ProjectVizMaps.renderConceptMap({
-            title: track.title,
-            backbone: track.summary,
-            nodes: nodes
-        }, {
-            headingTag: "h2",
-            headingId: safeSlug(track.id) ? "track-" + track.id : "",
-            kicker: stepCountLabel(nodes.length),
-            tabIndex: -1,
-            className: "is-track"
-        });
+        map.appendChild(list);
+        return map;
     }
 
     function refreshOpened() {
@@ -163,7 +244,7 @@
         tracks.forEach(function (track) {
             if (!track.steps.length) return;
             var block = el("div", "track-block");
-            block.appendChild(trackMap(track));
+            block.appendChild(trackPlaylist(track));
             root.appendChild(block);
         });
     }
@@ -204,8 +285,10 @@
             render(tracks, families);
             refreshOpened();
             revealTrack(tracks);
+            document.dispatchEvent(new CustomEvent("projectviz:tracks"));
         }).catch(function () {
             showError();
+            document.dispatchEvent(new CustomEvent("projectviz:tracks"));
         });
     }
 
