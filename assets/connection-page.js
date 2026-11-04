@@ -133,9 +133,19 @@
             var img = document.createElement("img");
             img.alt = imageAlt;
             img.src = new URL("../" + image, window.location.href).href;
+            img.addEventListener("load", revealFigure);
             figure.appendChild(img);
             root.appendChild(figure);
         }
+    }
+
+    function revealFigure() {
+        if (!document.documentElement.classList.contains("viz-embedded")) return;
+        var img = root.querySelector(".connection-figure img");
+        if (!img || !img.scrollIntoView) return;
+        var view = window.innerHeight || document.documentElement.clientHeight || 0;
+        if (!view || img.getBoundingClientRect().height <= view * 0.45) return;
+        img.scrollIntoView({ block: "end", inline: "nearest" });
     }
 
     function jsonUrl() {

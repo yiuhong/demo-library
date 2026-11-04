@@ -276,3 +276,24 @@
 html.viz-embedded .demo-back {
     display: none !important;
 }
+
+/* The shell pane is the viewport. Keep wide tables and hidden MathML
+   from opening a horizontal scrollbar across the demonstration. */
+html.viz-embedded body.demo-page {
+    overflow-x: clip;
+}
+
+html.viz-embedded .overflow-x-auto {
+    max-width: 100%;
+    min-width: 0;
+}
+
+html.viz-embedded .katex-mathml {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    clip: rect(1px, 1px, 1px, 1px) !important;
+}

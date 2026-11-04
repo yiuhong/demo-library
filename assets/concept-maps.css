@@ -204,20 +204,22 @@ ol.playlist {
 }
 
 .playlist-join {
-    margin: 0;
-    padding: 0.28rem 0 0.28rem 0.15rem;
+    margin: 0.35rem 0;
+    padding: 0;
 }
 
 a.playlist-connection-link {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 0.45rem;
-    max-width: 100%;
+    box-sizing: border-box;
+    gap: 0.55rem;
+    width: 100%;
+    min-height: 4.375rem;
     margin: 0;
-    padding: 0.22rem 0.65rem 0.22rem 0.4rem;
-    border: 1px solid transparent;
-    border-radius: 3em;
-    background: transparent;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    background: #ffffff !important;
     color: #000000 !important;
     font-size: 0.74rem;
     font-weight: bold;
@@ -235,6 +237,10 @@ a.playlist-connection-link::before {
     background: currentColor;
 }
 
+a.playlist-connection-link .playlist-connection-label {
+    color: #000000 !important;
+}
+
 a.playlist-connection-link:focus {
     outline: none;
 }
@@ -243,7 +249,13 @@ a.playlist-connection-link:hover,
 a.playlist-connection-link:focus-visible,
 a.playlist-connection-link.is-current {
     background: #000000 !important;
-    border-color: #000000;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+a.playlist-connection-link:hover .playlist-connection-label,
+a.playlist-connection-link:focus-visible .playlist-connection-label,
+a.playlist-connection-link.is-current .playlist-connection-label {
     color: #ffffff !important;
 }
 

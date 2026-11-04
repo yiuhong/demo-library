@@ -212,6 +212,11 @@
             return;
         }
         document.title = found.title + " - Guided Tracks";
+        var demo = "";
+        try {
+            demo = (new URLSearchParams(window.location.search).get("demo") || "").trim();
+        } catch (err) {}
+        if (demo) return;
         var headingId = safeSlug(found.id) ? "track-" + found.id : "";
         var heading = headingId ? document.getElementById(headingId) : null;
         if (!heading) return;

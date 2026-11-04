@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Guided Tracks phone and tablet polish. An open Connection row keeps its label and matches the height of a step card. Footer credits wrap instead of scrolling sideways, and the phone top bar no longer sits the About chip on the divider. The rail is a quarter of a tablet portrait instead of a fixed 16rem. Connection figures and statistics demonstrations scroll inside the pane without a horizontal scrollbar or a clipped axis label. Opening a step highlights that step, not every concept-map copy.
 - A demonstration or connection page embedded in the shell hides Return to Project Viz. That link stays when the file is opened on its own. Home stays the featured page.
 
 ### Removed
