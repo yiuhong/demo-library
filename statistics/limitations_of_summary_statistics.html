@@ -310,12 +310,6 @@
   <div class="app-shell">
     <div class="demo-topbar">
       <a class="demo-back" href="../index.html">← Project Viz</a>
-      <button id="fullscreen-btn" class="demo-btn demo-btn-primary" type="button">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-        </svg>
-        <span class="hidden sm:inline">Fullscreen</span>
-      </button>
     </div>
 
     <section class="demo-card mb-4">
@@ -1636,23 +1630,6 @@
       updateStatsPanel();
     })();
   
-  </script>
-  <script>
-    (function () {
-      var fsBtn = document.getElementById("fullscreen-btn");
-      var fsText = fsBtn.querySelector("span");
-      fsBtn.addEventListener("click", function () {
-        var elem = document.documentElement;
-        if (!document.fullscreenElement) {
-          if (elem.requestFullscreen) elem.requestFullscreen();
-        } else if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-      });
-      document.addEventListener("fullscreenchange", function () {
-        fsText.textContent = document.fullscreenElement ? "Exit Fullscreen" : "Fullscreen";
-      });
-    })();
   </script>
   <script src="../assets/site-meta.js"></script>
   <script src="../assets/site-oer-footer.js"></script>

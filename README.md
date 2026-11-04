@@ -22,7 +22,7 @@ Version and last-updated date live in [`assets/site-meta.js`](assets/site-meta.j
 
 Demo pages live in subject folders. The library page does not hard-code the catalog cards.
 
-The home page (`index.html`) is the front page: the wordmark, two buttons (the catalog and Guided Tracks), and a featured plate that cycles three demonstrations. It is not the two-pane shell. The catalog ([`catalog.html`](catalog.html)) and Guided Tracks ([`tracks.html`](tracks.html)) share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane on the same row. The catalog rail is search, category filters, and the demonstration list. The Guided Tracks rail is the concept-map strips and the playlists. Each playlist step is a link, and that step’s note, formulae, and figure sit between it and the next step. Choosing a demonstration loads it in the pane. Fullscreen hides the rail and lets the pane fill the shell; it does not ask the browser to go fullscreen. On a phone the rail is the first step and the demonstration is the next; Back returns to that same category or track. `catalog.html?demo=statistics/variance_explained.html` and `tracks.html?demo=statistics/variance_explained.html` open that demonstration directly. Opening a demonstration file on its own still shows Return to Project Viz. Inside the shell that link is omitted.
+The home page (`index.html`) is the front page: the wordmark, two buttons (the catalog and Guided Tracks), and a featured plate that cycles three demonstrations. It is not the two-pane shell. The catalog ([`catalog.html`](catalog.html)) and Guided Tracks ([`tracks.html`](tracks.html)) share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane on the same row. The catalog rail is search, category filters, and the demonstration list. The Guided Tracks rail is the concept-map strips and the playlists. Each playlist step is a demonstration link. When that step has a note, formulae, or figure, a Connection link sits after it and opens that material in the pane. Choosing a demonstration or a connection loads it in the pane. Fullscreen hides the rail and lets the pane fill the shell; it does not ask the browser to go fullscreen. Demonstrations do not add a second Fullscreen button. On a phone the rail is the first step and the page is the next; Back returns to that same category or track. `catalog.html?demo=statistics/variance_explained.html` and `tracks.html?demo=statistics/variance_explained.html` open that demonstration directly. `tracks.html?track=center-and-spread&demo=tracks/connection.html&step=0` opens that connection. Opening a demonstration or connection file on its own still shows Return to Project Viz. Inside the shell that link is omitted.
 
 Featured plates are the three `href`s in `index.html` (`FIG_VE`, `FIG_R`, `FIG_ERP`); titles and sentences come from `demos.json`. Those figure labels are only on the home plate. Concept maps are a separate list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration is stored in this browser (`localStorage` key `project-viz-opened`). Guided Tracks paint a concept-map or playlist box black when that demo is in the list. The home featured plate can show Opened from the same list. The catalog does not.
 
@@ -106,9 +106,9 @@ You do not edit card markup by hand. A new category is a new object in `categori
 
 ## Guided tracks
 
-Tracks are optional playlists, not filters. Guided Tracks is its own page. It reads [`tracks.json`](tracks.json) at the repo root and renders whatever is in that file. Adding, removing, or reordering materials later means editing `tracks.json`. Teaching notes, formulae, and images stay on the step, not in `demos.json`. Each playlist is a vertical menu in the rail: the demonstration is the link, and the note, formulae, and figure from that step sit between it and the next demonstration. Concept-map strips stay above the playlists. The page does not repeat those demos as a second link list.
+Tracks are optional playlists, not filters. Guided Tracks is its own page. It reads [`tracks.json`](tracks.json) at the repo root and renders whatever is in that file. Adding, removing, or reordering materials later means editing `tracks.json`. Teaching notes, formulae, and images stay on the step, not in `demos.json`. Each playlist is a vertical menu in the rail: the demonstration is a link, and a Connection link follows it when the step has a note, formulae, or figure. That link opens [`tracks/connection.html`](tracks/connection.html), which reads the same step from `tracks.json`. The rail does not paste the note or the figure between demonstrations, and the connection page does not list the other demonstrations again. Concept-map strips stay above the playlists.
 
-Share a track: `tracks.html?track=the-id` (or `#track-the-id`). Add `demo=` with a demonstration path to open that step in the shell. Older links `index.html?view=tracks&track=the-id` still open that page.
+Share a track: `tracks.html?track=the-id` (or `#track-the-id`). Add `demo=` with a demonstration path to open that step in the shell. Add `demo=tracks/connection.html` and `step=` (the zero-based index of that step) to open the connection. Older links `index.html?view=tracks&track=the-id` still open that page.
 
 `tracks.json` is either a top-level array or an object `{ "tracks": [ ... ] }` (the file in this repo uses the object). Each track has:
 
@@ -117,13 +117,13 @@ Share a track: `tracks.html?track=the-id` (or `#track-the-id`). Add `demo=` with
 * `summary` — short overview of the path
 * `steps` — ordered list. Each step has `href` (path from the site root, the same kind of path as a demo card, such as `statistics/central_limit_theorem.html`), `title` (short label; it can match the card title), and an optional `note`.
 
-Optional fields on a step, rendered when present:
+Optional fields on a step. When any of them is set, the rail shows a Connection link and the connection page renders the fields that are present:
 
-* `formulae` — array of plain-text formula strings, shown under the note. They are inserted as text, not as HTML.
+* `formulae` — array of plain-text formula strings. They are inserted as text, not as HTML.
 * `image` — relative path from the site root, such as `tracks/images/describing-data/01-mean-median-mode.png`.
 * `imageAlt` — text alternative. Required when `image` is set. If the alt text is missing, or the path is not a relative image path, the image is left out.
 
-An image path has to stay relative: no URL scheme and no `..`. Steps that omit these fields render as before.
+An image path has to stay relative: no URL scheme and no `..`. A step with only `href` and `title` stays a demonstration link, with no Connection link after it. The figures stay the black-and-white preview images already in `tracks/images/`. Do not copy the note into a new HTML file; `tracks/connection.html` reads `tracks.json`. A neuroscience demonstration uses the dark demo chrome on that connection page. Other demonstrations use the light statistics chrome.
 
 A step is still listed if its `href` has no matching card yet, so a playlist can name a demo before that card is in `demos.json`. The HTML file named by the `href` still has to be in the repo.
 

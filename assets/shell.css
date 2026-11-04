@@ -189,7 +189,8 @@
     box-shadow: inset 3px 0 0 #000000;
 }
 
-.viz-rail a.concept-node.is-current {
+.viz-rail a.concept-node.is-current,
+.viz-rail a.playlist-connection-link.is-current {
     outline: 2px solid #000000;
     outline-offset: 2px;
 }

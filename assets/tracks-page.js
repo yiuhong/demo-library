@@ -1,8 +1,9 @@
 /*
  * Guided Tracks page. Concept-map strips from families.json sit above
  * the playlists. Each playlist is a vertical menu: a demonstration link,
- * then the note, formulae, and figure from tracks.json between that
- * link and the next. The same demos are not listed a second time.
+ * then a Connection link when that step has a note, formulae, or figure.
+ * The connection opens tracks/connection.html, which reads tracks.json.
+ * The same demos are not listed a second time.
  */
 (function () {
     var root = document.getElementById("tracks-root");
@@ -142,27 +143,23 @@
         return item;
     }
 
-    function bridgeItem(step) {
+    function connectionHref(track, index) {
+        var id = safeSlug(track.id);
+        if (!id) return "";
+        return "tracks/connection.html?track=" + id + "&step=" + index;
+    }
+
+    function connectionItem(track, step, index) {
         if (!step.note && !step.image && !step.formulae.length) return null;
-        var item = el("li", "playlist-bridge");
-        if (step.image) {
-            var figure = el("figure", "playlist-figure");
-            var img = document.createElement("img");
-            img.className = "playlist-image";
-            img.src = step.image;
-            img.alt = step.imageAlt;
-            figure.appendChild(img);
-            item.appendChild(figure);
-        }
-        if (step.note) item.appendChild(el("p", "playlist-note", step.note));
-        if (step.formulae.length) {
-            var list = el("ul", "playlist-formulae");
-            list.setAttribute("aria-label", "Formulae");
-            step.formulae.forEach(function (formula) {
-                list.appendChild(el("li", null, formula));
-            });
-            item.appendChild(list);
-        }
+        var href = connectionHref(track, index);
+        if (!href) return null;
+        var item = el("li", "playlist-join");
+        var link = el("a", "playlist-connection-link");
+        link.href = href;
+        link.setAttribute("data-pane-title", "Connection · " + step.title);
+        link.setAttribute("aria-label", "Connection after " + step.title);
+        link.appendChild(el("span", "playlist-connection-label", "Connection"));
+        item.appendChild(link);
         return item;
     }
 
@@ -186,8 +183,8 @@
         var list = el("ol", "playlist");
         track.steps.forEach(function (step, index) {
             list.appendChild(demoItem(step, index));
-            var bridge = bridgeItem(step);
-            if (bridge) list.appendChild(bridge);
+            var connection = connectionItem(track, step, index);
+            if (connection) list.appendChild(connection);
         });
         map.appendChild(list);
         return map;

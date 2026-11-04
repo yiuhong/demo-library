@@ -73,15 +73,6 @@
     <div class="max-w-6xl w-full">
     <div class="demo-topbar">
         <a class="demo-back" href="../index.html">← Project Viz</a>
-        <button id="fullscreenBtn" class="demo-btn demo-btn-primary" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
-                <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
-                <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
-                <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
-            </svg>
-            <span class="hidden sm:inline text-sm font-medium">Fullscreen</span>
-        </button>
     </div>
 
     <div class="demo-card w-full overflow-hidden flex flex-col md:flex-row">
@@ -422,37 +413,6 @@
             allocRatioInput.addEventListener('input', updateChart);
             alphaInput.addEventListener('change', updateChart);
             targetPowerInput.addEventListener('input', updateChart);
-
-            // Fullscreen functionality with cross-browser support
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
-            fullscreenBtn.addEventListener('click', () => {
-                const doc = document.documentElement;
-                
-                // Check if already in fullscreen
-                if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                    // Enter fullscreen
-                    if (doc.requestFullscreen) {
-                        doc.requestFullscreen();
-                    } else if (doc.webkitRequestFullscreen) { /* Safari / Chrome */
-                        doc.webkitRequestFullscreen();
-                    } else if (doc.msRequestFullscreen) { /* IE11 */
-                        doc.msRequestFullscreen();
-                    } else if (doc.mozRequestFullScreen) { /* Firefox */
-                        doc.mozRequestFullScreen();
-                    }
-                } else {
-                    // Exit fullscreen
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.webkitExitFullscreen) { /* Safari / Chrome */
-                        document.webkitExitFullscreen();
-                    } else if (document.msExitFullscreen) { /* IE11 */
-                        document.msExitFullscreen();
-                    } else if (document.mozCancelFullScreen) { /* Firefox */
-                        document.mozCancelFullScreen();
-                    }
-                }
-            });
 
             // Initial render
             updateChart();

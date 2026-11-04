@@ -505,6 +505,15 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         ):
             if needle not in text:
                 problems.append(f"{href}: missing {needle}")
+        if re.search(
+            r"id=[\"'](?:fullscreen-btn|fullscreenBtn|btn-fullscreen|fullscreenToggleBtn)[\"']"
+            r"|>\s*Fullscreen\s*<",
+            text,
+            re.IGNORECASE,
+        ):
+            problems.append(
+                f"{href}: remove the demo Fullscreen control; the shell provides Fullscreen"
+            )
 
     for path in sorted(ROOT.rglob("*.html")):
         text = read_text(path)
@@ -837,6 +846,26 @@ def check_map_page(problems: list[str]) -> None:
         problems.append("tracks.html: Choose a path does not belong on Guided Tracks")
     if tracks_js and "track-steps" in tracks_js:
         problems.append("assets/tracks-page.js: do not repeat track steps as a link list")
+    if tracks_js and ("playlist-note" in tracks_js or "playlist-bridge" in tracks_js):
+        problems.append("assets/tracks-page.js: connection notes must not render inline")
+    if not tracks_js or "tracks/connection.html?track=" not in tracks_js:
+        problems.append("assets/tracks-page.js: connection links are missing")
+    connection = read_text(ROOT / "tracks" / "connection.html")
+    if connection is None:
+        problems.append("tracks/connection.html: file not found")
+    else:
+        for needle in (
+            "viz-embedded",
+            "demo-back",
+            "assets/connection-page.js",
+            "assets/site-oer-footer.js",
+            "assets/site-oer-footer.css",
+        ):
+            if needle not in connection:
+                problems.append(f"tracks/connection.html: missing {needle}")
+    shell = read_text(ROOT / "assets" / "shell.js")
+    if shell is None or "tracks/connection.html" not in shell or "viz-fullscreen" not in shell:
+        problems.append("assets/shell.js: connection pages should open in the shell pane")
 
 
 if __name__ == "__main__":

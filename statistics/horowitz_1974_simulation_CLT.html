@@ -99,12 +99,6 @@
     <div class="max-w-6xl w-full">
         <div class="demo-topbar">
             <a class="demo-back" href="../index.html">← Project Viz</a>
-            <button id="btn-fullscreen" class="demo-btn demo-btn-primary" type="button" title="Toggle Fullscreen">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z" clip-rule="evenodd" />
-                </svg>
-                <span class="hidden sm:inline text-sm font-bold">Fullscreen</span>
-            </button>
         </div>
         <header class="demo-header mb-6 text-center">
             <h1 class="text-3xl font-extrabold mb-2">Horowitz (1974) Simulation</h1>
@@ -251,7 +245,6 @@
         const btnDrawOne = document.getElementById('btn-draw-one');
         const btnDrawAll = document.getElementById('btn-draw-all');
         const btnReset = document.getElementById('btn-reset');
-        const btnFullscreen = document.getElementById('btn-fullscreen');
         const statsCounterEl = document.getElementById('stats-counter');
         const statMeanOfMeansEl = document.getElementById('stat-mean-of-means');
         const statEmpSeEl = document.getElementById('stat-emp-se');
@@ -701,26 +694,6 @@
         btnDrawOne.addEventListener('click', drawSampleAnimated);
         btnDrawAll.addEventListener('click', drawRemainingFast);
         btnReset.addEventListener('click', resetStats);
-        
-        btnFullscreen.addEventListener('click', () => {
-            const doc = window.document;
-            const docEl = doc.documentElement;
-            
-            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-            const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-            
-            if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-                if (requestFullScreen) {
-                    requestFullScreen.call(docEl).catch(err => {
-                        console.error(`Error attempting to enable fullscreen: ${err.message}`);
-                    });
-                }
-            } else {
-                if (cancelFullScreen) {
-                    cancelFullScreen.call(doc);
-                }
-            }
-        });
 
         // Handle window resize for charts
         window.addEventListener('resize', () => {
