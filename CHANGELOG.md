@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Ordinary Least Squares (OLS) for simple linear regression, under Statistics → Association, with an Association track step after Covariance and Correlation
 - Concept maps for the variance family and for correlation and covariance. A strip on Guided Tracks and on the catalog sections that opt in. Titles come from the catalog. Opened demonstrations use the same browser list.
 - Limitations of summary statistics, under Statistics → Same summaries, different graphs, with a track step after the Q–Q plot (Datasaurus Dozen and Anscombe’s quartet)
 

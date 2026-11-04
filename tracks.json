@@ -412,7 +412,7 @@
     {
       "id": "association",
       "title": "Association",
-      "summary": "This path is for how two variables move together, from shared movement to a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference.",
+      "summary": "This path is for how two variables move together, from shared movement to the straight line that minimizes squared error, and then to a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference.",
       "steps": [
         {
           "href": "statistics/covariance_and_correlation.html",
@@ -426,6 +426,20 @@
           "imageAlt": "Scatter of 36 points with a positive association. Dashed lines mark the mean of x and the mean of y. A label reads r = 0.81, unit-free."
         },
         {
+          "href": "statistics/ols_simple_linear_regression.html",
+          "title": "Ordinary Least Squares (OLS)",
+          "note": "A straight line through paired measurements is a claim about how one variable changes with the other. Ordinary least squares chooses the intercept and the slope that make the squared vertical gaps as small as they can be. That minimum is the error sum of squares. The same line splits the total sum of squares into a part the line accounts for and a part left over. The share the line accounts for is the proportion of variance in the outcome that the straight line explains.",
+          "formulae": [
+            "SSE(b₀, b₁) = Σ (yᵢ − b₀ − b₁ xᵢ)²",
+            "β̂₁ = Σ (xᵢ − x̄)(yᵢ − ȳ) / Σ (xᵢ − x̄)²",
+            "β̂₀ = ȳ − β̂₁ x̄",
+            "SST = SSR + SSE",
+            "R² = SSR / SST"
+          ],
+          "image": "tracks/images/association/02-ols.png",
+          "imageAlt": "Scatter of 36 points with a solid least-squares line and dotted vertical residuals. A label reads SSE minimized, SST = SSR + SSE."
+        },
+        {
           "href": "statistics/variance_explained.html",
           "title": "Variance Explained",
           "note": "A correlation says how strongly two variables line up; squaring it turns that strength into a share of variance. That square is the proportion of variance in one variable that a straight-line relationship with the other accounts for. The last step stays with variance and asks what happens when sources do not share anything.",
@@ -433,7 +447,7 @@
             "R² = r²",
             "R² = SS_line / SS_total"
           ],
-          "image": "tracks/images/association/02-variance-explained.png",
+          "image": "tracks/images/association/03-variance-explained.png",
           "imageAlt": "Left: 36 points with a fitted straight line and dotted residuals. Right: a bar of the variance in y, hatched for the shared 66 percent and open for the remaining 34 percent. The panel title reads R² = 0.66."
         },
         {
@@ -446,7 +460,7 @@
             "SS(X + Y) = SS(X) + SS(Y) + 2 SP(X, Y)",
             "SS(X − Y) = SS(X) + SS(Y) − 2 SP(X, Y)"
           ],
-          "image": "tracks/images/association/03-additivity.png",
+          "image": "tracks/images/association/04-additivity.png",
           "imageAlt": "Three bars. Var(X) and Var(Y) are each 1. The third bar stacks those two parts into Var(X+Y) = 2. A note says the covariance term is 0."
         }
       ]

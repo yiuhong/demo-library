@@ -10,6 +10,10 @@ These PNGs are drawn by `generate_figures.py` with Matplotlib. They are black-on
 
 `s_x` and `s_y` use that same divisor. The scatter is 36 points, NumPy seed 8: `y = 0.85x` plus normal noise with standard deviation 0.55. For this cloud, `r = 0.81`. Correlation has no units; covariance is still in the product of the two variables’ units.
 
+## Ordinary least squares
+
+On the same cloud, the straight line is the ordinary least-squares fit: the intercept and slope that minimize the sum of squared vertical gaps. `SSE` is that minimum, `SSR` is the sum of squared distances from the fitted values to the mean of y, and `SST = SSR + SSE`. The figure is that line with the vertical gaps drawn. `statistics/ols_simple_linear_regression.html` is the same fit, with a candidate line you can move.
+
 ## Variance explained
 
 On the same cloud, `R² = r² = SS_line / SS_total = 0.66`. `SS_line` is the sum of squared distances from the fitted values to the mean of y, and `SS_total` is the sum of squared distances from y to its mean. That is the straight-line share shown in `statistics/variance_explained.html`. The bar rounds the two shares to 66 percent and 34 percent.
