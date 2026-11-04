@@ -10,17 +10,18 @@
  * Graph paper stays on the library chrome.
  * It does not enter a demonstration iframe, and it does not repaint a
  * featured plate (.home-frame), including the dark neuroscience plate.
- * Cream is the light shell only. An open neuroscience demonstration
- * keeps a cooler, quieter grid in the pane and a dark stage.
- * No spiral, tape, or stains.
+ * Chrome paper is white. The plot stage stays #f6f6f6 and the iframe
+ * stays #ffffff. An open neuroscience demonstration keeps a cooler
+ * gray pane and a dark stage, with no grid inside the iframe.
+ * A thin margin line stays on the home sheet and the left rail.
+ * No binder holes, spiral, tape, or stains.
  */
 
 html.viz-notebook {
-    --notebook-paper: #f4efe4;
+    --notebook-paper: #ffffff;
     --notebook-ink: rgba(17, 17, 17, 0.065);
     --notebook-cell: 28px;
     --notebook-margin: rgba(17, 17, 17, 0.38);
-    --notebook-hole: rgba(17, 17, 17, 0.55);
     --notebook-tick: rgba(17, 17, 17, 0.22);
     --notebook-tick-strong: rgba(17, 17, 17, 0.45);
     --notebook-rule: 1.55rem;
@@ -99,14 +100,6 @@ html.viz-notebook body.viz-home #footer::before {
     width: var(--notebook-rule);
     pointer-events: none;
     border-right: 1px solid var(--notebook-margin);
-    background-image: radial-gradient(circle, var(--notebook-hole) 0 3.1px, transparent 3.3px);
-    background-size: var(--notebook-rule) 12.5rem;
-    background-repeat: repeat-y;
-    background-position: center 1.6rem;
-}
-
-html.viz-notebook body.viz-home #footer::before {
-    background-image: none;
 }
 
 html.viz-notebook body.viz-app .viz-rail {
@@ -127,11 +120,6 @@ html.viz-notebook body.viz-app .viz-rail::before {
     margin-bottom: -100dvh;
     pointer-events: none;
     border-right: 1px solid var(--notebook-margin);
-    background-image:
-        radial-gradient(circle at 0.58rem 1.35rem, var(--notebook-hole) 3.1px, transparent 3.3px),
-        radial-gradient(circle at 0.58rem 38vh, var(--notebook-hole) 3.1px, transparent 3.3px),
-        radial-gradient(circle at 0.58rem 68vh, var(--notebook-hole) 3.1px, transparent 3.3px);
-    background-repeat: no-repeat;
 }
 
 /* Quiet ticks on the pane's left edge, in the chrome bar only.
@@ -191,8 +179,8 @@ html.viz-notebook body.viz-app #footer .inner {
 }
 
 /* Neuroscience stays a dark lab. The pane chrome is a cool gray,
- * not cream, and it does not take the page grid. The stage and the
- * iframe stay dark and ungridded. */
+ * not the white page, and it does not take the page grid. The stage
+ * and the iframe stay dark and ungridded. */
 
 html.viz-notebook body.viz-app:has(#viz-frame:not([hidden])[src*="/neuroscience/"]) .viz-pane,
 html.viz-notebook body.viz-app:has(#viz-frame:not([hidden])[src*="/neuroscience/"]) .viz-pane-chrome {

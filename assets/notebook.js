@@ -1,6 +1,8 @@
 /*
  * Notebook sheet. Home, Catalog, and Guided Tracks start with
- * class viz-notebook on <html>. This file only applies a preview:
+ * class viz-notebook on <html>. The sheet is white graph paper
+ * with a margin line and no binder holes; assets/notebook.css draws it.
+ * This file only applies a preview:
  *   ?notebook=0  plain shell
  *   ?notebook=1  sheet on
  * Demonstration pages do not load this file.
