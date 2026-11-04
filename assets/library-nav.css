@@ -1,10 +1,10 @@
 /*
  * About Yiu Hong chip for Project Viz.
  *
- * Home, Catalog, and Guided Tracks put the chip in the shared top bar
- * (shell.css .viz-topbar). Cite and Licenses still use the Hyperspace
- * sidebar. This file styles the chip so it does not pick up the
- * uppercase personal-site nav treatment.
+ * Home, Catalog, Guided Tracks, Cite & reuse, and Licenses put the chip
+ * in the shared top bar (shell.css .viz-topbar). The footer uses the
+ * same chip. This file styles it so it does not pick up the uppercase
+ * personal-site nav treatment.
  */
 
 a.about-yiu {
@@ -40,58 +40,6 @@ a.about-yiu:focus {
 a.about-yiu:focus-visible {
     outline: 2px solid #000000;
     outline-offset: 3px;
-}
-
-/* The shared theme styles every sidebar anchor as a full nav row. */
-#sidebar nav a.about-yiu {
-    display: inline-block;
-    width: auto;
-    height: auto;
-    min-height: 0;
-    padding: 0.45em 0.9em;
-    font-size: 0.78em;
-    font-weight: bold;
-    letter-spacing: 0.01em;
-    line-height: 1.35;
-    text-align: center;
-    text-transform: none;
-}
-
-#sidebar nav a.about-yiu:before,
-#sidebar nav a.about-yiu:after {
-    display: none !important;
-    content: none !important;
-    width: 0;
-    height: 0;
-    background: none !important;
-}
-
-#sidebar .library-author-chip {
-    margin: 2.5em 0 0 0;
-    padding: 0;
-    text-align: right;
-}
-
-/* The tablet bar is a single row. The chip lives in the footer there. */
-@media screen and (max-width: 1280px) and (min-width: 737px) {
-    #sidebar .library-author-chip {
-        display: none;
-    }
-}
-
-@media screen and (max-width: 736px) {
-    #sidebar .library-author-chip {
-        margin: 0;
-        padding: 0.9em 1.25em 1.15em;
-        text-align: left;
-        border-top: 1px solid #000000;
-    }
-
-    #sidebar nav a.about-yiu {
-        min-height: 44px;
-        padding: 0.55em 0.95em;
-        line-height: 1.35;
-    }
 }
 
 /* Footer menu is already 0.8em, so the chip matches that text size. */

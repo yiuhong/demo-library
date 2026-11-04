@@ -9,7 +9,7 @@ Reads ``demos.json``, ``tracks.json``, and ``families.json`` at the repo root:
 * each track step image, when set, is a file in the repo
 * each concept map names catalog demos by href (titles stay in demos.json), in before / backbone / after order, and opts into the tracks page (hub) or a real catalog section
 * LICENSE states CC BY 4.0 for content and MIT for code, and LICENSE-CODE is the MIT text
-* index.html, catalog.html, tracks.html, cite.html, license.html, and each demo carry the site chrome, and no HTML page says "All rights reserved"
+* index.html, catalog.html, tracks.html, cite.html, license.html, and each demo carry the site chrome, those five pages use the shared horizontal top bar, and no HTML page says "All rights reserved"
 * the cite page has cite, license, reuse, credit, accessibility, and report sections, an ORCID link, and a per-demo example whose title matches demos.json
 * CITATION.cff matches the current version, and the cite page links the machine-readable citation
 * CHANGELOG.md and CONTRIBUTING.md are present, and the changelog names the current version
@@ -518,6 +518,22 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         ):
             if needle in text:
                 problems.append(f"{name}: personal-site menu item does not belong here ({needle})")
+        if 'class="viz-topbar"' not in text:
+            problems.append(f"{name}: missing the shared horizontal top bar")
+        for needle in ('id="sidebar"', "mobile-nav-toggle", 'id="site-nav"', "data-library-nav"):
+            if needle in text:
+                problems.append(f"{name}: old vertical menu does not belong here ({needle})")
+        current = {
+            "index.html": ">Home</a>",
+            "catalog.html": ">Catalog</a>",
+            "tracks.html": ">Guided Tracks</a>",
+        }.get(name)
+        current_count = text.count('aria-current="page"')
+        if current is None:
+            if current_count:
+                problems.append(f"{name}: top bar has no current-page item")
+        elif current_count != 1 or f'aria-current="page"{current}' not in text:
+            problems.append(f"{name}: top bar should underline only the current page")
 
     if catalog is not None:
         cite_text = read_text(ROOT / "cite.html")

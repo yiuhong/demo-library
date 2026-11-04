@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://yiuhong.github.io/assets/css/main.css" />
     <noscript><link rel="stylesheet" href="https://yiuhong.github.io/assets/css/noscript.css" /></noscript>
     <link rel="stylesheet" href="assets/library-nav.css" />
+    <link rel="stylesheet" href="assets/shell.css" />
     <style>
         a.cite-back {
             display: inline-block;
@@ -54,7 +55,7 @@
 
         #wrapper h2[id],
         #wrapper h3[id] {
-            scroll-margin-top: 1.25rem;
+            scroll-margin-top: 4.5rem;
         }
 
         .cite-block {
@@ -179,24 +180,16 @@
 </head>
 <body class="is-preload">
 
-    <section id="sidebar">
-        <div class="inner">
-            <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="site-nav">
-                <span class="mobile-nav-toggle-label">Menu</span>
-                <span class="mobile-nav-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
-            </button>
-            <nav id="site-nav" aria-label="Library">
-                <ul>
-                    <li><a href="index.html" data-library-nav="home">Home</a></li>
-                    <li><a href="catalog.html" data-library-nav="catalog">Catalog</a></li>
-                    <li><a href="tracks.html" data-library-nav="tracks">Guided Tracks</a></li>
-                    <li><a href="cite.html" class="active" aria-current="page">Cite &amp; reuse</a></li>
-                    <li><a href="license.html">Licenses</a></li>
-                </ul>
-                <p class="library-author-chip"><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></p>
-            </nav>
-        </div>
-    </section>
+    <header class="viz-topbar">
+        <nav aria-label="Library">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="catalog.html">Catalog</a></li>
+                <li><a href="tracks.html">Guided Tracks</a></li>
+                <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
+            </ul>
+        </nav>
+    </header>
 
     <div id="wrapper">
         <section id="intro" class="wrapper style1 fade-up">
