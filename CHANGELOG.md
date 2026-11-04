@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Guided Tracks Previous and Next, on the same pane bar as Fullscreen. They step through the open track in rail order: the connection title, then its demonstration. Previous is unavailable on the first page. Next is unavailable on the last. The same controls stay on a phone, where Fullscreen is hidden.
 - A Guided Tracks connection opens in the demo pane. When a step has a note, formulae, or figure, the rail lists that step's `connectionTitle` immediately before the demonstration. The same title is the heading on [`tracks/connection.html`](tracks/connection.html), which reads the step from `tracks.json`. `step=` is still that step's index. `tracks.html?track=the-id&demo=tracks/connection.html&step=0` opens the page for step 0. Phone Back returns to the same track list.
 - Catalog and Guided Tracks share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane. The catalog rail is search, filters, and the list. The Guided Tracks rail is a vertical menu of playlist links. The selected demonstration loads in the pane. Fullscreen hides the rail inside the shell. A phone shows the list or map first, then the demonstration; Back returns to the same category or track. `catalog.html?demo=…` and `tracks.html?demo=…` open that demonstration directly.
 

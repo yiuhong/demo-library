@@ -19,6 +19,8 @@
     var empty = document.getElementById("viz-empty");
     var titleNode = document.getElementById("viz-pane-title");
     var fullscreenBtn = document.getElementById("viz-fullscreen");
+    var prevBtn = document.getElementById("viz-prev");
+    var nextBtn = document.getElementById("viz-next");
     var exitBtn = document.getElementById("viz-exit");
     var backBtn = document.getElementById("viz-back");
     var rail = document.getElementById("viz-rail");
@@ -221,6 +223,7 @@
             }
         }
         if (fullscreenBtn) fullscreenBtn.disabled = !open;
+        refreshStepNav();
         if (!open) setExpanded(false);
         if (rail && !open) {
             window.requestAnimationFrame(function () {
@@ -332,6 +335,69 @@
     function syncTracks(options) {
         if (page !== "tracks" || !window.ProjectVizTracks || !window.ProjectVizTracks.sync) return;
         window.ProjectVizTracks.sync(options || {});
+        refreshStepNav();
+    }
+
+    function stepLinks() {
+        if (page !== "tracks" || !rail) return [];
+        return Array.prototype.slice.call(rail.querySelectorAll("a.playlist-connection-link, a.concept-node"));
+    }
+
+    function stepIndex(links) {
+        var i;
+        if (!currentHref) return -1;
+        for (i = 0; i < links.length; i++) {
+            if (links[i].classList.contains("is-current") && links[i].getAttribute("href") === currentHref) {
+                return i;
+            }
+        }
+        for (i = 0; i < links.length; i++) {
+            if (links[i].getAttribute("href") === currentHref) return i;
+        }
+        return -1;
+    }
+
+    function refreshStepNav() {
+        if (page !== "tracks" || !prevBtn || !nextBtn) return;
+        var inTrack = window.ProjectVizTracks && window.ProjectVizTracks.currentId
+            ? window.ProjectVizTracks.currentId()
+            : "";
+        var links = inTrack ? stepLinks() : [];
+        var show = !!inTrack && links.length > 0;
+        prevBtn.hidden = !show;
+        nextBtn.hidden = !show;
+        if (!show) {
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+            return;
+        }
+        var index = stepIndex(links);
+        prevBtn.disabled = index <= 0;
+        nextBtn.disabled = index >= 0 && index >= links.length - 1;
+    }
+
+    function moveStep(delta) {
+        var links = stepLinks();
+        if (!links.length) return;
+        var index = stepIndex(links);
+        var target = index + delta;
+        if (index < 0 && delta > 0) target = 0;
+        if (target < 0 || target >= links.length) return;
+        var link = links[target];
+        var href = safeDemoHref(link.getAttribute("href") || "");
+        if (!href) return;
+        var track = "";
+        var block = link.closest ? link.closest(".track-block") : null;
+        if (block) {
+            var heading = block.querySelector("h2[id^='track-']");
+            if (heading) track = safeTrackId(heading.id.slice("track-".length));
+        }
+        openDemo(href, {
+            mode: "push",
+            title: titleFrom(link),
+            track: track,
+            link: link
+        });
     }
 
     function seed(demoUrl) {
@@ -576,6 +642,18 @@
         }, 0);
     });
 
+    if (prevBtn) {
+        prevBtn.addEventListener("click", function () {
+            if (prevBtn.disabled || prevBtn.hidden) return;
+            moveStep(-1);
+        });
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener("click", function () {
+            if (nextBtn.disabled || nextBtn.hidden) return;
+            moveStep(1);
+        });
+    }
     if (fullscreenBtn) {
         fullscreenBtn.addEventListener("click", function () {
             setExpanded(true);
