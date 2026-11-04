@@ -1,6 +1,8 @@
 /*
- * Fills the library footer from assets/site-meta.js, and on demo pages
- * adds the compact license strip. Does not replace a demo's own navigation.
+ * Fills library-page fields from assets/site-meta.js, and on demo pages
+ * adds a short strip: Cite this demo, and the author site.
+ * License, site-wide cite, and source links stay on the library footer.
+ * Does not replace a demo's own navigation.
  */
 (function () {
     try {
@@ -52,7 +54,7 @@
 
     var strip = document.createElement("footer");
     strip.className = "site-oer-strip";
-    strip.setAttribute("aria-label", "License, citation, and source");
+    strip.setAttribute("aria-label", "Citation and author");
 
     var line = document.createElement("p");
 
@@ -65,69 +67,19 @@
         line.appendChild(sep);
     }
 
-    function addLink(href, text, rel, ariaLabel) {
+    function addLink(href, text, rel) {
         addSep();
         var link = document.createElement("a");
         link.href = href;
         link.textContent = text;
-        if (ariaLabel) link.setAttribute("aria-label", ariaLabel);
-        var external = href === meta.personalSite || href.indexOf("https://yiuhong.github.io/task-library") === 0;
-        if (external) {
-            link.target = "_blank";
-            link.rel = rel ? rel + " noopener noreferrer" : "noopener noreferrer";
-        } else if (rel) {
-            link.rel = rel;
-        }
+        link.target = "_blank";
+        link.rel = rel ? rel + " noopener noreferrer" : "noopener noreferrer";
         line.appendChild(link);
         return link;
     }
 
-    function addNode(node) {
-        addSep();
-        line.appendChild(node);
-    }
-
-    function addText(text) {
-        addSep();
-        line.appendChild(document.createTextNode(text));
-    }
-
     addLink(meta.personalSite, meta.author, "author");
-    if (meta.orcid) {
-        addLink(meta.orcid, "ORCID", null, "ORCID iD " + (meta.orcidId || meta.orcid));
-    }
-
-    var content = document.createElement("span");
-    content.appendChild(document.createTextNode("Content "));
-    var cc = document.createElement("a");
-    cc.rel = "license";
-    cc.href = meta.contentLicenseUrl;
-    cc.textContent = meta.contentLicense;
-    content.appendChild(cc);
-    addNode(content);
-
-    var code = document.createElement("span");
-    code.appendChild(document.createTextNode("Code "));
-    var mit = document.createElement("a");
-    mit.href = rootUrl("LICENSE-CODE");
-    mit.textContent = meta.codeLicense;
-    code.appendChild(mit);
-    addNode(code);
-
-    addLink(rootUrl("license.html"), "Licenses");
-    addLink(rootUrl("cite.html"), "Cite & reuse");
-    addLink(meta.issues, "Spotted a mistake?");
-    addLink(meta.repo, "View source");
-    addText("v" + meta.version);
-    addText(meta.updatedShort);
-
     strip.appendChild(line);
-
-    var detail = document.createElement("p");
-    detail.id = "site-oer-demo-cite";
-    detail.className = "site-oer-demo-cite";
-    detail.hidden = true;
-    strip.appendChild(detail);
     document.body.appendChild(strip);
 
     var padBase = null;
@@ -197,74 +149,19 @@
         return "";
     }
 
-    function flash(button, label) {
-        button.textContent = "Copied";
-        window.setTimeout(function () {
-            button.textContent = label;
-        }, 1600);
-    }
+    function insertDemoCite(href) {
+        var link = document.createElement("a");
+        link.href = rootUrl("cite.html?demo=" + encodeURIComponent(href) + "#one-demo");
+        link.textContent = "Cite this demo";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
 
-    function copyText(text, button, node) {
-        function fallback() {
-            if (!node) return;
-            var range = document.createRange();
-            range.selectNodeContents(node);
-            var selection = window.getSelection();
-            if (!selection) return;
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-        if (!text || !navigator.clipboard || !navigator.clipboard.writeText) {
-            fallback();
-            return;
-        }
-        navigator.clipboard.writeText(text).then(function () {
-            flash(button, "Copy");
-        }).catch(function () {
-            fallback();
-        });
-    }
-
-    function insertDemoCite(citation) {
         var sep = document.createElement("span");
         sep.className = "site-oer-sep";
         sep.setAttribute("aria-hidden", "true");
         sep.textContent = "·";
-
-        var button = document.createElement("button");
-        button.type = "button";
-        button.className = "site-oer-textbtn";
-        button.textContent = "Cite this demo";
-        button.setAttribute("aria-expanded", "false");
-        button.setAttribute("aria-controls", "site-oer-demo-cite");
-
-        var text = document.createElement("span");
-        text.id = "site-oer-demo-cite-text";
-        text.textContent = citation;
-
-        var copy = document.createElement("button");
-        copy.type = "button";
-        copy.className = "site-oer-textbtn";
-        copy.textContent = "Copy";
-        copy.addEventListener("click", function () {
-            copyText(citation, copy, text);
-        });
-
-        detail.textContent = "";
-        detail.appendChild(text);
-        detail.appendChild(document.createTextNode(" "));
-        detail.appendChild(copy);
-
-        button.addEventListener("click", function () {
-            var willOpen = detail.hidden;
-            detail.hidden = !willOpen;
-            detail.classList.toggle("is-open", willOpen);
-            button.setAttribute("aria-expanded", willOpen ? "true" : "false");
-            layout();
-        });
-
-        line.insertBefore(button, content);
-        line.insertBefore(sep, content);
+        line.insertBefore(sep, line.firstChild);
+        line.insertBefore(link, sep);
         layout();
     }
 
@@ -295,9 +192,9 @@
     }
 
     function loadDemoCitation() {
-        if (typeof meta.demoCitation !== "function") return;
         var href = currentDemoHref();
-        if (!href || href === "index.html" || href === "catalog.html" || href === "cite.html" || href === "license.html" || href === "tracks.html") return;
+        // Library pages live at the site root. Demos live in a subject folder.
+        if (!href || href.indexOf("/") === -1) return;
         var catalog = new URL("demos.json", root);
         fetch(catalog.href).then(function (response) {
             if (!response.ok) throw new Error("catalog");
@@ -306,7 +203,7 @@
             var title = findDemoTitle(data, href);
             if (!title) return;
             rememberOpened(href);
-            insertDemoCite(meta.demoCitation(title, href));
+            insertDemoCite(href);
         }).catch(function () {});
     }
 

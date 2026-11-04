@@ -42,19 +42,40 @@
         return "";
     }
 
+    function catalogDemoQuery() {
+        var value = "";
+        try {
+            value = new URLSearchParams(window.location.search).get("demo") || "";
+        } catch (error) {
+            return "";
+        }
+        value = String(value).replace(/^\/+/, "");
+        if (!value || value.indexOf("..") !== -1 || !/^[A-Za-z0-9_./-]+$/.test(value)) return "";
+        return value;
+    }
+
     var demoNode = document.getElementById("cite-demo");
-    var demoHref = demoNode && demoNode.getAttribute("data-demo-href");
-    if (demoNode && demoHref && typeof meta.demoCitation === "function") {
+    var fallbackHref = demoNode && demoNode.getAttribute("data-demo-href");
+    var requestedHref = catalogDemoQuery();
+    if (demoNode && (requestedHref || fallbackHref) && typeof meta.demoCitation === "function") {
         fetch(new URL("demos.json", window.location.href)).then(function (response) {
             if (!response.ok) throw new Error("catalog");
             return response.json();
         }).then(function (data) {
-            var title = findDemoTitle(data, demoHref);
+            var href = requestedHref && findDemoTitle(data, requestedHref) ? requestedHref : fallbackHref;
+            var title = findDemoTitle(data, href);
             if (!title) return;
-            demoNode.textContent = meta.demoCitation(title, demoHref);
+            demoNode.textContent = meta.demoCitation(title, href);
+            if (requestedHref && href === requestedHref) {
+                var example = document.getElementById("cite-demo-example");
+                if (example) {
+                    example.textContent = title;
+                    example.setAttribute("href", href);
+                }
+            }
             var frame = document.getElementById("cite-iframe");
             if (!frame) return;
-            var pageUrl = meta.url + String(demoHref).replace(/^\/+/, "");
+            var pageUrl = meta.url + String(href).replace(/^\/+/, "");
             var safeTitle = title.replace(/"/g, "");
             frame.textContent = '<iframe src="' + pageUrl + '" title="' + safeTitle
                 + '" width="100%" height="720" style="border:0"></iframe>';
