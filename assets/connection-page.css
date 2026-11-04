@@ -16,14 +16,8 @@
     margin: 0 0 1.1rem;
 }
 
-.connection-kicker {
-    margin: 0 0 0.35rem;
-    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
-    font-size: 0.68rem;
-    font-weight: bold;
-    letter-spacing: 0.12em;
-    line-height: 1.3;
-    text-transform: uppercase;
+.connection-page .demo-header h1 {
+    margin: 0;
 }
 
 .connection-note {

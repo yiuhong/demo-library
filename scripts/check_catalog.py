@@ -5,6 +5,7 @@ Reads ``demos.json``, ``tracks.json``, and ``families.json`` at the repo root:
 
 * each demo has a non-empty title and href, and that href is a file in the repo
 * each track step has a non-empty title and href, and that href is a file in the repo
+* each track step with a note, formulae, or image has a short connectionTitle that is not the word Connection
 * each track step image, when set, is a file in the repo
 * each concept map names catalog demos by href (titles stay in demos.json), in before / backbone / after order, and opts into the tracks page (hub) or a real catalog section
 * LICENSE states CC BY 4.0 for content and MIT for code, and LICENSE-CODE is the MIT text
@@ -213,6 +214,7 @@ def check_tracks(data: object, problems: list[str]) -> tuple[int, int]:
                 reason = file_problem(href)
                 if reason:
                     problems.append(f"{place}: href {href!r} {reason}")
+            check_connection_title(step, place, problems)
             if "image" not in step or step["image"] is None:
                 continue
             image_count += 1
@@ -225,6 +227,50 @@ def check_tracks(data: object, problems: list[str]) -> tuple[int, int]:
             if reason:
                 problems.append(f"{place}: image {image!r} {reason}")
     return step_count, image_count
+
+
+CONNECTION_LABEL = re.compile(
+    r"^[\s\-—–·.:]*connection[\s\-—–·.]*$",
+    re.IGNORECASE,
+)
+
+
+def step_has_connection(step: dict) -> bool:
+    if label(step.get("note")):
+        return True
+    formulae = step.get("formulae")
+    if isinstance(formulae, list) and any(label(item) for item in formulae):
+        return True
+    image = step.get("image")
+    return isinstance(image, str) and bool(image.strip())
+
+
+def connection_title_problem(value: object) -> str | None:
+    if not isinstance(value, str) or not value.strip():
+        return "connectionTitle is missing or empty"
+    title = value.strip()
+    if len(title) > 80:
+        return "connectionTitle is longer than 80 characters"
+    if CONNECTION_LABEL.fullmatch(title):
+        return "connectionTitle must name the idea, not the word Connection"
+    if not re.search(r"[A-Za-z]", title):
+        return "connectionTitle needs words"
+    return None
+
+
+def check_connection_title(step: dict, place: str, problems: list[str]) -> None:
+    has_content = step_has_connection(step)
+    if "connectionTitle" not in step:
+        if has_content:
+            problems.append(f"{place}: connectionTitle is missing")
+        return
+    problem = connection_title_problem(step.get("connectionTitle"))
+    if problem:
+        problems.append(f"{place}: {problem}")
+    elif not has_content:
+        problems.append(
+            f"{place}: connectionTitle is set but this step has no note, formulae, or image"
+        )
 
 
 def track_entries(data: object) -> list[object] | None:

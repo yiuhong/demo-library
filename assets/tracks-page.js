@@ -1,14 +1,13 @@
 /*
- * Guided Tracks page. Concept-map strips from families.json sit above
- * the playlists. Each playlist is a vertical menu: a demonstration link,
- * then a Connection link when that step has a note, formulae, or figure.
- * The connection opens tracks/connection.html, which reads tracks.json.
- * The same demos are not listed a second time.
+ * Guided Tracks page. The rail is the playlists from tracks.json.
+ * Family concept maps stay in families.json and are not mounted here.
+ * Each playlist is a vertical menu. When a step has a note, formulae,
+ * or figure, its connectionTitle is a link immediately before that
+ * demonstration. The link opens tracks/connection.html, which reads
+ * the same step from tracks.json. step= is that step's index.
  */
 (function () {
     var root = document.getElementById("tracks-root");
-    var familyMount = document.getElementById("tracks-family-mount");
-    var familySection = document.getElementById("tracks-family-section");
     var missing = document.getElementById("tracks-missing");
 
     function el(tag, className, text) {
@@ -62,6 +61,7 @@
         var href = window.ProjectVizMaps.safeHref(raw.href);
         if (!title || !href) return null;
         var note = typeof raw.note === "string" ? raw.note.trim() : "";
+        var connectionTitle = connectionTitleOf(raw.connectionTitle);
         var image = safeImagePath(raw.image);
         var imageAlt = typeof raw.imageAlt === "string" ? raw.imageAlt.trim() : "";
         if (!image || !imageAlt) {
@@ -71,11 +71,20 @@
         return {
             title: title,
             href: href,
+            connectionTitle: connectionTitle,
             note: note,
             image: image,
             imageAlt: imageAlt,
             formulae: normalizeFormulae(raw.formulae)
         };
+    }
+
+    function connectionTitleOf(raw) {
+        if (typeof raw !== "string") return "";
+        var title = raw.trim().replace(/\s+/g, " ");
+        if (!title || title.length > 80) return "";
+        if (/^[\s\-—–·.:]*connection[\s\-—–·.]*$/i.test(title)) return "";
+        return title;
     }
 
     function normalizeTrack(raw) {
@@ -92,25 +101,6 @@
         var list = Array.isArray(data) ? data : (data && Array.isArray(data.tracks) ? data.tracks : null);
         if (!list) throw new Error("Tracks could not be loaded.");
         return list.map(normalizeTrack).filter(Boolean);
-    }
-
-    function titleMap(data) {
-        var byHref = {};
-        var categories = data && Array.isArray(data.categories) ? data.categories : [];
-        categories.forEach(function (category) {
-            var subs = category && Array.isArray(category.subcategories) ? category.subcategories : [];
-            subs.forEach(function (sub) {
-                var demos = sub && Array.isArray(sub.demos) ? sub.demos : [];
-                demos.forEach(function (demo) {
-                    if (!demo || typeof demo.href !== "string" || typeof demo.title !== "string") return;
-                    var href = demo.href.trim();
-                    var title = demo.title.trim();
-                    if (!href || !title || byHref[href]) return;
-                    byHref[href] = title;
-                });
-            });
-        });
-        return { byHref: byHref };
     }
 
     function trackIdFromLocation() {
@@ -150,15 +140,15 @@
     }
 
     function connectionItem(track, step, index) {
+        if (!step.connectionTitle) return null;
         if (!step.note && !step.image && !step.formulae.length) return null;
         var href = connectionHref(track, index);
         if (!href) return null;
         var item = el("li", "playlist-join");
         var link = el("a", "playlist-connection-link");
         link.href = href;
-        link.setAttribute("data-pane-title", "Connection · " + step.title);
-        link.setAttribute("aria-label", "Connection after " + step.title);
-        link.appendChild(el("span", "playlist-connection-label", "Connection"));
+        link.setAttribute("data-pane-title", step.connectionTitle);
+        link.appendChild(el("span", "playlist-connection-label", step.connectionTitle));
         item.appendChild(link);
         return item;
     }
@@ -178,13 +168,12 @@
             title.tabIndex = -1;
         }
         head.appendChild(title);
-        if (track.summary) head.appendChild(el("p", "concept-map-backbone", track.summary));
         map.appendChild(head);
         var list = el("ol", "playlist");
         track.steps.forEach(function (step, index) {
-            list.appendChild(demoItem(step, index));
             var connection = connectionItem(track, step, index);
             if (connection) list.appendChild(connection);
+            list.appendChild(demoItem(step, index));
         });
         map.appendChild(list);
         return map;
@@ -225,20 +214,8 @@
         });
     }
 
-    function render(tracks, families) {
-        clear(familyMount);
+    function render(tracks) {
         clear(root);
-        var hubCount = 0;
-        families.forEach(function (family) {
-            if (family.show.indexOf("hub") === -1 || !familyMount) return;
-            familyMount.appendChild(window.ProjectVizMaps.renderConceptMap(family, {
-                headingTag: "h3",
-                headingId: "concept-map-" + family.id,
-                kicker: "Concept map"
-            }));
-            hubCount++;
-        });
-        if (familySection) familySection.hidden = hubCount === 0;
         if (!tracks.length) {
             root.appendChild(el("p", "hub-quiet", "No tracks yet."));
             return;
@@ -253,7 +230,6 @@
 
     function showError() {
         clear(root);
-        if (familySection) familySection.hidden = true;
         if (root) root.appendChild(el("p", "hub-quiet", "Guided tracks could not be loaded."));
     }
 
@@ -265,26 +241,12 @@
     }
 
     function load() {
-        Promise.all([
-            fetch(jsonUrl("tracks.json")).then(function (response) {
-                if (!response.ok) throw new Error("tracks");
-                return response.json();
-            }),
-            fetch(jsonUrl("demos.json")).then(function (response) {
-                if (!response.ok) throw new Error("demos");
-                return response.json();
-            }),
-            fetch(jsonUrl("families.json")).then(function (response) {
-                if (!response.ok) throw new Error("families");
-                return response.json();
-            })
-        ]).then(function (results) {
-            var tracks = normalizeTracks(results[0]);
-            var titles = titleMap(results[1]);
-            var families = window.ProjectVizMaps.normalizeFamilies(results[2], function (href) {
-                return titles.byHref[href] || "";
-            });
-            render(tracks, families);
+        fetch(jsonUrl("tracks.json")).then(function (response) {
+            if (!response.ok) throw new Error("tracks");
+            return response.json();
+        }).then(function (data) {
+            var tracks = normalizeTracks(data);
+            render(tracks);
             refreshOpened();
             revealTrack(tracks);
             document.dispatchEvent(new CustomEvent("projectviz:tracks"));

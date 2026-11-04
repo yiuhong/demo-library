@@ -49,13 +49,6 @@ p.concept-map-kicker {
     font-size: 1.05rem;
 }
 
-p.concept-map-backbone {
-    margin: 0;
-    font-size: 0.92rem;
-    line-height: 1.45;
-    color: #222222 !important;
-}
-
 ol.concept-rail {
     --concept-join: 1rem;
     display: flex;
@@ -221,12 +214,13 @@ a.playlist-connection-link {
     border-radius: 4px;
     background: #ffffff !important;
     color: #000000 !important;
-    font-size: 0.74rem;
+    font-size: 0.92rem;
     font-weight: bold;
-    letter-spacing: 0.06em;
-    line-height: 1.3;
+    letter-spacing: 0;
+    line-height: 1.35;
+    text-align: left;
     text-decoration: none !important;
-    text-transform: uppercase;
+    text-transform: none;
 }
 
 a.playlist-connection-link::before {
@@ -276,7 +270,6 @@ a.playlist-connection-link:focus-visible {
     margin-top: 2.5rem;
 }
 
-#tracks-family-section[hidden],
 #tracks-missing[hidden] {
     display: none !important;
 }
