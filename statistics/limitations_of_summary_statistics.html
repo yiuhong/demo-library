@@ -1362,11 +1362,18 @@
         };
       }
 
-      mainCanvas.addEventListener("mousedown", function(evt) {
+      // Drag a point. Pointer events cover a mouse and a finger.
+      // A finger that misses every point can still scroll the page.
+      mainCanvas.style.touchAction = "pan-y";
+
+      function pickPoint(evt) {
         const cfg = getActiveConfig();
         const pos = getCanvasMousePos(evt);
+        const rect = mainCanvas.getBoundingClientRect();
+        const scale = mainCanvas.width / rect.width;
+        const limit = evt.pointerType === "touch" ? 28 * scale : 18;
         let bestIdx = -1;
-        let bestDist = 18;
+        let bestDist = limit;
         for (let i = 0; i < livePoints.length; i++) {
           const pt = dataToPx(livePoints[i].x, livePoints[i].y, mainCanvas.width, mainCanvas.height, cfg);
           const d = Math.hypot(pt.px - pos.x, pt.py - pos.y);
@@ -1375,10 +1382,10 @@
             bestIdx = i;
           }
         }
-        draggingPointIdx = bestIdx;
-      });
+        return bestIdx;
+      }
 
-      window.addEventListener("mousemove", function(evt) {
+      function moveDraggedPoint(evt) {
         if (draggingPointIdx < 0) return;
         const cfg = getActiveConfig();
         const pos = getCanvasMousePos(evt);
@@ -1387,14 +1394,29 @@
         livePoints[draggingPointIdx].y = dataCoord.y;
         renderMainCanvas();
         updateStatsPanel();
+      }
+
+      mainCanvas.addEventListener("pointerdown", function(evt) {
+        if (evt.pointerType === "mouse" && evt.button !== 0) return;
+        const idx = pickPoint(evt);
+        if (idx < 0) return;
+        draggingPointIdx = idx;
+        mainCanvas.setPointerCapture(evt.pointerId);
+        evt.preventDefault();
       });
 
-      window.addEventListener("mouseup", function() {
-        if (draggingPointIdx >= 0) {
-          draggingPointIdx = -1;
-          renderMainCanvas();
-        }
+      mainCanvas.addEventListener("pointermove", function(evt) {
+        if (draggingPointIdx < 0) return;
+        moveDraggedPoint(evt);
       });
+
+      function endPointDrag() {
+        if (draggingPointIdx < 0) return;
+        draggingPointIdx = -1;
+        renderMainCanvas();
+      }
+      mainCanvas.addEventListener("pointerup", endPointDrag);
+      mainCanvas.addEventListener("pointercancel", endPointDrag);
 
       // Build Reference Small Multiples Grid for either Datasaurus Dozen or Anscombe's Quartet
       function buildPosterGrid() {

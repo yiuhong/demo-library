@@ -14,7 +14,8 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
     <style>
         canvas {
-            touch-action: none;
+            /* Tap selects a bin. A slide must still scroll the page. */
+            touch-action: manipulation;
             user-select: none;
         }
         .demo-page .grid > * {
@@ -1865,8 +1866,10 @@
             return null;
         }
 
-        // Hover over canvas bins to inspect k and relative frequency
+        // Hover over canvas bins to inspect k and relative frequency.
+        // Touch moves are scrolls, so they must not retarget the readout.
         canvas.addEventListener('pointermove', (e) => {
+            if (e.pointerType === 'touch') return;
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
@@ -1889,13 +1892,25 @@
             }
         });
 
-        // Click on a bin column to toggle its highlight (does not drop beads)
+        // A still tap toggles a bin. A slide is a scroll, so it does not.
+        let binPress = null;
         canvas.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
             const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const k = getBinAtPointer(x, y);
-
+            binPress = {
+                id: e.pointerId,
+                x: e.clientX,
+                y: e.clientY,
+                ox: e.clientX - rect.left,
+                oy: e.clientY - rect.top
+            };
+        });
+        canvas.addEventListener('pointerup', (e) => {
+            if (!binPress || binPress.id !== e.pointerId) return;
+            const start = binPress;
+            binPress = null;
+            if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return;
+            const k = getBinAtPointer(start.ox, start.oy);
             if (k !== null) {
                 selectedBin = (selectedBin === k) ? null : k;
             } else if (selectedBin !== null) {
@@ -1903,6 +1918,7 @@
             }
             updateBinCalculationUI();
         });
+        canvas.addEventListener('pointercancel', () => { binPress = null; });
 
         // Responsive Resize Handling
         window.addEventListener('resize', () => {
