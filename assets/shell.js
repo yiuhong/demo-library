@@ -20,6 +20,7 @@
     var backBtn = document.getElementById("viz-back");
     var rail = document.getElementById("viz-rail");
     var currentHref = "";
+    var currentLink = null;
     var seeded = false;
     var railScroll = 0;
     var scoped = false;
@@ -81,13 +82,42 @@
         }
     }
 
-    function findLink(href) {
+    function inTrackList(link) {
+        return !!(link && link.closest && link.closest(".track-block"));
+    }
+
+    function linksFor(href) {
         var links = document.querySelectorAll(openSelector);
+        var matches = [];
         var i;
         for (i = 0; i < links.length; i++) {
-            if (links[i].getAttribute("href") === href) return links[i];
+            if (links[i].getAttribute("href") === href) matches.push(links[i]);
         }
-        return null;
+        return matches;
+    }
+
+    function findLink(href) {
+        var chosen = preferredLink(href, null);
+        return chosen;
+    }
+
+    function preferredLink(href, explicit) {
+        if (explicit && explicit.getAttribute && explicit.getAttribute("href") === href) return explicit;
+        var matches = linksFor(href);
+        var trackId = page === "tracks" ? trackFromLocation() : "";
+        var i;
+        if (trackId) {
+            for (i = 0; i < matches.length; i++) {
+                if (!inTrackList(matches[i])) continue;
+                var block = matches[i].closest(".track-block");
+                var heading = block ? block.querySelector("h2[id^='track-']") : null;
+                if (heading && heading.id === "track-" + trackId) return matches[i];
+            }
+        }
+        for (i = 0; i < matches.length; i++) {
+            if (inTrackList(matches[i])) return matches[i];
+        }
+        return matches.length ? matches[0] : null;
     }
 
     function titleFrom(link) {
@@ -193,18 +223,23 @@
         }
     }
 
-    function highlight(href) {
+    function highlight(href, explicit) {
+        var chosen = href ? preferredLink(href, explicit) : null;
+        currentLink = chosen;
         document.querySelectorAll(openSelector).forEach(function (link) {
-            var on = !!href && link.getAttribute("href") === href;
+            var on = link === chosen;
             link.classList.toggle("is-current", on);
             if (on) link.setAttribute("aria-current", "location");
             else link.removeAttribute("aria-current");
         });
-        if (!href || isPhone()) return;
-        var current = document.querySelector(".viz-rail a.is-current");
-        if (current && current.scrollIntoView) {
-            current.scrollIntoView({ block: "nearest", inline: "nearest" });
-        }
+        if (!chosen || isPhone() || !chosen.scrollIntoView) return;
+        window.requestAnimationFrame(function () {
+            window.requestAnimationFrame(function () {
+                if (currentLink === chosen) {
+                    chosen.scrollIntoView({ block: "nearest", inline: "nearest" });
+                }
+            });
+        });
     }
 
     function revealTrack(id) {
@@ -258,7 +293,7 @@
         var same = currentHref === href && !!frame.getAttribute("src");
         currentHref = href;
         showDemoChrome(true, title);
-        highlight(href);
+        highlight(href, options.link || null);
         frame.title = title || "Demonstration";
         if (!same) {
             var src = new URL(href, window.location.href);
@@ -285,6 +320,7 @@
 
     function closeDemo(mode) {
         var previous = currentHref;
+        var previousLink = currentLink;
         currentHref = "";
         showDemoChrome(false);
         highlight("");
@@ -295,7 +331,9 @@
             }
         }
         if (isPhone() && previous) {
-            var link = findLink(previous);
+            var link = previousLink && previousLink.getAttribute("href") === previous
+                ? previousLink
+                : preferredLink(previous, null);
             if (link) link.focus();
         }
     }
@@ -331,7 +369,7 @@
             prep.searchParams.set("track", track);
             if (!prep.hash) prep.hash = "track-" + encodeURIComponent(track);
             history.replaceState(history.state || { vizShell: demo ? "demo" : "list", demo: demo || "" }, "", prep);
-            revealTrack(track);
+            if (!demo) revealTrack(track);
         }
         if (demo) openDemo(demo, { mode: seeded ? "replace" : "seed" });
     }
@@ -354,7 +392,8 @@
             mode: "push",
             title: titleFrom(link),
             track: track,
-            focus: true
+            focus: true,
+            link: link
         });
     });
 

@@ -24,7 +24,7 @@
     flex: 0 0 auto;
     background: var(--bg-base) !important;
     border-bottom: 1px solid #000000;
-    padding: 0 0.9rem;
+    padding: 0.15rem 0.9rem 0.2rem;
 }
 
 .viz-topbar nav ul {
@@ -76,13 +76,14 @@
 
 .viz-topbar a.about-yiu {
     min-height: 0;
-    margin: 0.35rem 0;
+    margin: 0.3rem 0;
+    padding: 0.4rem 0.75rem;
 }
 
 .viz-workspace {
     flex: 1 1 auto;
     display: grid;
-    grid-template-columns: minmax(16rem, 25%) minmax(0, 1fr);
+    grid-template-columns: minmax(15rem, 22%) minmax(0, 1fr);
     min-height: 0;
     background: var(--bg-base);
 }
@@ -177,6 +178,11 @@
 
 .viz-rail a.concept-node {
     min-height: 0;
+    scroll-margin: 0.65rem 0;
+}
+
+.viz-rail a.playlist-connection-link {
+    scroll-margin: 0.65rem 0;
 }
 
 .viz-rail .track-block + .track-block,
@@ -331,21 +337,69 @@ body.viz-app #footer.wrapper > .inner {
 
 body.viz-app #footer ul.menu {
     display: flex;
-    flex-wrap: nowrap;
-    gap: 0.15rem 0.85rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.75rem;
     margin: 0;
-    overflow-x: auto;
+    padding: 0;
+    overflow: visible;
     font-size: 0.72rem;
-    line-height: 1.4;
-    white-space: nowrap;
+    line-height: 1.45;
+    white-space: normal;
 }
 
-body.viz-app #footer ul.menu li {
-    margin: 0;
-    white-space: nowrap;
+body.viz-app #footer ul.menu > li {
+    display: block;
+    max-width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    white-space: normal;
+}
+
+@media screen and (min-width: 737px) and (max-width: 1100px) {
+    .viz-workspace {
+        grid-template-columns: minmax(11.25rem, 24%) minmax(0, 1fr);
+    }
+
+    .viz-rail {
+        padding: 0.7rem 0.6rem 1.15rem;
+    }
+
+    .viz-rail a.concept-node {
+        padding: 0.6rem 0.65rem 0.55rem;
+    }
+
+    .viz-rail .concept-title {
+        font-size: 0.88rem;
+        line-height: 1.35;
+    }
+
+    .viz-rail h2 {
+        font-size: 0.98rem !important;
+    }
 }
 
 @media screen and (max-width: 736px) {
+    .viz-topbar {
+        padding: 0.15rem 0.75rem 0.55rem;
+    }
+
+    .viz-topbar nav ul {
+        column-gap: 0.7rem;
+        row-gap: 0.1rem;
+    }
+
+    .viz-topbar nav a {
+        min-height: 2.4rem;
+        font-size: 0.86rem;
+    }
+
+    .viz-topbar a.about-yiu {
+        margin: 0.1rem 0 0.2rem;
+        padding: 0.4rem 0.72rem;
+    }
+
     .viz-workspace {
         display: block;
     }
