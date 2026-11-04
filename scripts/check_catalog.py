@@ -518,6 +518,12 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         ):
             if needle in text:
                 problems.append(f"{name}: personal-site menu item does not belong here ({needle})")
+        if name in ("index.html", "catalog.html", "tracks.html"):
+            for needle in ('class="viz-notebook"', "assets/notebook.css", "assets/notebook.js"):
+                if needle not in text:
+                    problems.append(f"{name}: missing the notebook sheet ({needle})")
+        elif "viz-notebook" in text or "assets/notebook.css" in text or "assets/notebook.js" in text:
+            problems.append(f"{name}: notebook sheet stays on Home, Catalog, and Guided Tracks")
         if 'class="viz-topbar"' not in text:
             problems.append(f"{name}: missing the shared horizontal top bar")
         for needle in ('id="sidebar"', "mobile-nav-toggle", 'id="site-nav"', "data-library-nav"):
@@ -547,6 +553,17 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             problems.append("assets/shell.css: About Yiu Hong must not take the text-link underline")
         if ".viz-topbar a.about-yiu" not in shell_css or "border: 1px solid #000000 !important;" not in shell_css:
             problems.append("assets/shell.css: About Yiu Hong chip needs a full border")
+
+    notebook_css = read_text(ROOT / "assets" / "notebook.css")
+    if notebook_css is None:
+        problems.append("assets/notebook.css: file not found")
+    else:
+        if "html.viz-notebook" not in notebook_css:
+            problems.append("assets/notebook.css: sheet must stay behind html.viz-notebook")
+        if ".viz-pane-stage iframe" not in notebook_css:
+            problems.append("assets/notebook.css: keep the plot well and iframe off the graph paper")
+        if re.search(r"(^|[^\w-])canvas\s*[,.{]", notebook_css, re.I):
+            problems.append("assets/notebook.css: do not style demonstration canvases")
 
     if catalog is not None:
         cite_text = read_text(ROOT / "cite.html")
@@ -621,6 +638,11 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             problems.append(
                 f'{path.relative_to(ROOT)}: still says "All rights reserved"'
             )
+        rel = path.relative_to(ROOT).as_posix()
+        if rel not in ("index.html", "catalog.html", "tracks.html") and (
+            "viz-notebook" in text or "assets/notebook.css" in text or "assets/notebook.js" in text
+        ):
+            problems.append(f"{rel}: notebook sheet stays on Home, Catalog, and Guided Tracks")
 
     license_text = read_text(ROOT / "LICENSE")
     if license_text is None:

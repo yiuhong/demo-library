@@ -1,0 +1,243 @@
+/*
+ * Notebook sheet for Home, Catalog, and Guided Tracks.
+ * Feature: class viz-notebook on <html>.
+ *
+ * Remove that class to ship the plain shell.
+ * ?notebook=0 hides the sheet for one visit. ?notebook=1 shows it.
+ * assets/notebook.js applies the address-bar override.
+ * Cite & reuse, Licenses, and demonstration files do not load this file.
+ *
+ * Graph paper stays on the library chrome.
+ * It does not enter a demonstration iframe, and it does not repaint a
+ * featured plate (.home-frame), including the dark neuroscience plate.
+ * Cream is the light shell only. An open neuroscience demonstration
+ * keeps a cooler, quieter grid in the pane and a dark stage.
+ * No spiral, tape, or stains.
+ */
+
+html.viz-notebook {
+    --notebook-paper: #f4efe4;
+    --notebook-ink: rgba(17, 17, 17, 0.065);
+    --notebook-cell: 28px;
+    --notebook-margin: rgba(17, 17, 17, 0.38);
+    --notebook-hole: rgba(17, 17, 17, 0.55);
+    --notebook-tick: rgba(17, 17, 17, 0.22);
+    --notebook-tick-strong: rgba(17, 17, 17, 0.45);
+    --notebook-rule: 1.55rem;
+    --notebook-neuro-paper: #e7eaef;
+    background-color: var(--notebook-paper) !important;
+    background-image:
+        linear-gradient(to right, var(--notebook-ink) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--notebook-ink) 1px, transparent 1px) !important;
+    background-size: var(--notebook-cell) var(--notebook-cell);
+    background-attachment: fixed;
+}
+
+/* The personal-site stylesheet paints these surfaces solid white.
+ * Leave them clear so one sheet shows through. Cards, buttons, the
+ * plot well, and featured plates keep their own fills. */
+
+html.viz-notebook body.viz-home,
+html.viz-notebook body.viz-home #wrapper,
+html.viz-notebook body.viz-home #intro,
+html.viz-notebook body.viz-home #colophon,
+html.viz-notebook body.viz-home .wrapper,
+html.viz-notebook body.viz-home .inner,
+html.viz-notebook body.viz-app,
+html.viz-notebook body.viz-app .viz-workspace,
+html.viz-notebook body.viz-app .viz-rail,
+html.viz-notebook body.viz-app .viz-pane,
+html.viz-notebook body.viz-app #footer.wrapper {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+html.viz-notebook .viz-topbar {
+    background-color: var(--notebook-paper) !important;
+    background-image: none !important;
+    padding-bottom: 0.85rem;
+}
+
+html.viz-notebook .viz-topbar::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 9px;
+    pointer-events: none;
+    background-image:
+        repeating-linear-gradient(
+            to right,
+            transparent 0 calc(var(--notebook-cell) - 1px),
+            var(--notebook-tick-strong) calc(var(--notebook-cell) - 1px) var(--notebook-cell)
+        ),
+        repeating-linear-gradient(
+            to right,
+            transparent 0 6px,
+            var(--notebook-tick) 6px 7px
+        );
+    background-size: var(--notebook-cell) 9px, 7px 4px;
+    background-position: left bottom, left bottom;
+    background-repeat: repeat-x, repeat-x;
+}
+
+html.viz-notebook body.viz-home #wrapper,
+html.viz-notebook body.viz-home #footer {
+    position: relative;
+}
+
+html.viz-notebook body.viz-home #wrapper::before,
+html.viz-notebook body.viz-home #footer::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--notebook-rule);
+    pointer-events: none;
+    border-right: 1px solid var(--notebook-margin);
+    background-image: radial-gradient(circle, var(--notebook-hole) 0 3.1px, transparent 3.3px);
+    background-size: var(--notebook-rule) 12.5rem;
+    background-repeat: repeat-y;
+    background-position: center 1.6rem;
+}
+
+html.viz-notebook body.viz-home #footer::before {
+    background-image: none;
+}
+
+html.viz-notebook body.viz-app .viz-rail {
+    padding-left: 2.3rem;
+}
+
+html.viz-notebook body.viz-app .viz-rail::before {
+    content: "";
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: block;
+    width: var(--notebook-rule);
+    height: 100vh;
+    height: 100dvh;
+    margin-left: -2.3rem;
+    margin-bottom: -100vh;
+    margin-bottom: -100dvh;
+    pointer-events: none;
+    border-right: 1px solid var(--notebook-margin);
+    background-image:
+        radial-gradient(circle at 0.58rem 1.35rem, var(--notebook-hole) 3.1px, transparent 3.3px),
+        radial-gradient(circle at 0.58rem 38vh, var(--notebook-hole) 3.1px, transparent 3.3px),
+        radial-gradient(circle at 0.58rem 68vh, var(--notebook-hole) 3.1px, transparent 3.3px);
+    background-repeat: no-repeat;
+}
+
+/* Quiet ticks on the pane's left edge, in the chrome bar only.
+ * A narrow strip, not rules across the title. The stage under it
+ * stays a plain plot well. */
+
+html.viz-notebook body.viz-app .viz-pane-chrome {
+    position: relative;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+html.viz-notebook body.viz-app .viz-pane-chrome::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 7px;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0 4px,
+        var(--notebook-tick) 4px 5px
+    );
+}
+
+@media screen and (max-width: 736px) {
+    html.viz-notebook body.viz-app .viz-pane-chrome::before {
+        display: none;
+    }
+}
+
+html.viz-notebook body.viz-app .viz-pane-stage {
+    background-color: #f6f6f6 !important;
+    background-image: none !important;
+}
+
+html.viz-notebook body.viz-app .viz-pane-stage iframe {
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+html.viz-notebook .catalog-panel,
+html.viz-notebook .viz-rail .sub-category-section,
+html.viz-notebook .viz-rail .category-section {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+html.viz-notebook body.viz-home #footer,
+html.viz-notebook body.viz-home #footer .inner,
+html.viz-notebook body.viz-app #footer.wrapper,
+html.viz-notebook body.viz-app #footer .inner {
+    background-color: var(--notebook-paper) !important;
+    background-image: none !important;
+}
+
+/* Neuroscience stays a dark lab. The pane chrome is a cool gray,
+ * not cream, and it does not take the page grid. The stage and the
+ * iframe stay dark and ungridded. */
+
+html.viz-notebook body.viz-app:has(#viz-frame:not([hidden])[src*="/neuroscience/"]) .viz-pane,
+html.viz-notebook body.viz-app:has(#viz-frame:not([hidden])[src*="/neuroscience/"]) .viz-pane-chrome {
+    background-color: var(--notebook-neuro-paper) !important;
+    background-image: none !important;
+}
+
+html.viz-notebook body.viz-app:has(#viz-frame:not([hidden])[src*="/neuroscience/"]) .viz-pane-chrome::before {
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0 5px,
+        rgba(30, 41, 59, 0.22) 5px 6px
+    );
+}
+
+html.viz-notebook body.viz-app:has(#viz-frame:not([hidden])[src*="/neuroscience/"]) .viz-pane-stage,
+html.viz-notebook body.viz-app:has(#viz-frame:not([hidden])[src*="/neuroscience/"]) .viz-pane-stage iframe {
+    background-color: #020617 !important;
+    background-image: none !important;
+}
+
+@media (prefers-contrast: more) {
+    html.viz-notebook {
+        --notebook-ink: transparent;
+        background-image: none !important;
+    }
+
+    html.viz-notebook .viz-topbar {
+        background-image: none !important;
+    }
+}
+
+@media (forced-colors: active) {
+    html.viz-notebook,
+    html.viz-notebook .viz-topbar,
+    html.viz-notebook body.viz-app .viz-pane-stage,
+    html.viz-notebook body.viz-app .viz-pane-stage iframe {
+        background-image: none !important;
+        background-color: Canvas !important;
+    }
+
+    html.viz-notebook .viz-topbar::after,
+    html.viz-notebook body.viz-home #wrapper::before,
+    html.viz-notebook body.viz-home #footer::before,
+    html.viz-notebook body.viz-app .viz-rail::before {
+        display: none;
+    }
+}
