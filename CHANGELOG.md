@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Demo pages keep a short strip: **Cite this demo** (that demo’s citation, in a new tab) and the author site (in a new tab). License, site-wide cite, ORCID, issues, and source links stay on the library footer.
 - Home uses the same horizontal top bar as Catalog and Guided Tracks (Home, Catalog, Guided Tracks, About Yiu Hong). The page stays a featured landing: wordmark, buttons, and the plate. Cite & reuse and Licenses stay in the colophon and the footer.
-- Cite & reuse and Licenses use that same horizontal top bar. The vertical sidebar and the phone Menu button are gone from those pages. The citation and license text, and the footer, stay.
+- Cite & reuse and Licenses use that same horizontal top bar. The vertical sidebar, the phone Menu button, and the “← Project Viz” button are gone from those pages. The citation and license text, and the footer, stay.
 - Guided Tracks phone and tablet polish. An open connection row keeps its title and matches the height of a step card. Footer credits wrap instead of scrolling sideways, and the phone top bar no longer sits the About chip on the divider. The rail is a quarter of a tablet portrait instead of a fixed 16rem. Connection figures and statistics demonstrations scroll inside the pane without a horizontal scrollbar or a clipped axis label. Opening a step highlights that step, not every concept-map copy.
 - A demonstration or connection page embedded in the shell hides Return to Project Viz. That link stays when the file is opened on its own. Home stays the featured page.
 

@@ -534,6 +534,10 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                 problems.append(f"{name}: top bar has no current-page item")
         elif current_count != 1 or f'aria-current="page"{current}' not in text:
             problems.append(f"{name}: top bar should underline only the current page")
+        if name in ("cite.html", "license.html"):
+            for needle in ("cite-back", "← Project Viz"):
+                if needle in text:
+                    problems.append(f"{name}: back-to-hub button does not belong here ({needle})")
 
     if catalog is not None:
         cite_text = read_text(ROOT / "cite.html")
