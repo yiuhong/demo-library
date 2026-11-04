@@ -1,7 +1,9 @@
 /*
  * Renders one Guided Tracks connection from tracks.json.
  * Address: tracks/connection.html?track=<id>&step=<index>
- * The note, formulae, and figure stay in tracks.json.
+ * step= is the zero-based index of the demonstration this page introduces.
+ * The heading is that step's connectionTitle. The note, formulae, and
+ * figure stay in tracks.json.
  */
 (function () {
     var root = document.getElementById("connection-root");
@@ -97,8 +99,16 @@
         if (neuro && theme) theme.href = "../assets/neuroscience-demo-theme.css";
     }
 
+    function connectionTitleOf(raw) {
+        if (typeof raw !== "string") return "";
+        var title = raw.trim().replace(/\s+/g, " ");
+        if (!title || title.length > 80) return "";
+        if (/^[\s\-—–·.:]*connection[\s\-—–·.]*$/i.test(title)) return "";
+        return title;
+    }
+
     function render(step) {
-        var title = typeof step.title === "string" ? step.title.trim() : "";
+        var heading = connectionTitleOf(step.connectionTitle);
         var note = typeof step.note === "string" ? step.note.trim() : "";
         if (note.length > 4000) note = note.slice(0, 4000);
         var image = safeImagePath(step.image);
@@ -108,17 +118,18 @@
             imageAlt = "";
         }
         var formulae = formulaeOf(step.formulae);
-        if (!title && !note && !image && !formulae.length) {
-            showStatus("This connection was not found.");
+        if (!heading && !note && !image && !formulae.length) {
+            showStatus("This page was not found.");
             return;
         }
         applyTheme(step.href);
-        document.title = (title ? title + " — " : "") + "Connection - Project Viz";
+        document.title = (heading ? heading + " - " : "") + "Project Viz";
         clear(root);
-        var header = el("header", "demo-header");
-        header.appendChild(el("p", "connection-kicker", "Connection"));
-        if (title) header.appendChild(el("h1", null, title));
-        root.appendChild(header);
+        if (heading) {
+            var header = el("header", "demo-header");
+            header.appendChild(el("h1", null, heading));
+            root.appendChild(header);
+        }
         if (note) root.appendChild(el("p", "connection-note", note));
         if (formulae.length) {
             var list = el("ul", "connection-formulae");
@@ -157,7 +168,7 @@
 
     var query = readQuery();
     if (!query) {
-        showStatus("This connection was not found.");
+        showStatus("This page was not found.");
         return;
     }
 
@@ -167,11 +178,11 @@
     }).then(function (data) {
         var step = findStep(data, query);
         if (!step) {
-            showStatus("This connection was not found.");
+            showStatus("This page was not found.");
             return;
         }
         render(step);
     }).catch(function () {
-        showStatus("This connection could not be loaded.");
+        showStatus("This page could not be loaded.");
     });
 })();

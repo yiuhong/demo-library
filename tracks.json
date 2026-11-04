@@ -8,6 +8,7 @@
         {
           "href": "statistics/mean_mode_median_dot_plot.html",
           "title": "Mean, Median, and Mode",
+          "connectionTitle": "Three kinds of average",
           "note": "We often describe data by their averages: numerical summaries that answer where the numbers sit. The mean, the median, and the mode are three such answers; they line up when the numbers are roughly balanced, and they pull apart when the shape is not. In the demonstration, move the points and watch which average shifts. When they disagree, the next question is what other kinds of average can capture spread and shape, not only center.",
           "formulae": [
             "x̄ = (Σ xᵢ) / n",
@@ -20,6 +21,7 @@
         {
           "href": "statistics/moments_as_averages.html",
           "title": "Moments",
+          "connectionTitle": "Averages of spread and skew",
           "note": "There are different types of averages, and in statistics those averages of powers of the values (or of their deviations) are called moments. The mean is the first moment; higher moments give numbers for spread and for skew. Compare how each moment responds when you change the sample. Those numbers still treat the sample mean as if it were already known, which matters once variance is estimated from the same data.",
           "formulae": [
             "m₁ = x̄",
@@ -32,6 +34,7 @@
         {
           "href": "statistics/bessels_correction_simulation.html",
           "title": "Bessel's Correction",
+          "connectionTitle": "Why divide by n − 1",
           "note": "When we use the data to estimate how spread out they are, the usual average of squared deviations is a little too small, because the sample mean was taken from those same values. Dividing by n − 1 instead of n corrects for that. Run many samples and see which divisor lands nearer the true variance on average.",
           "formulae": [
             "s² = Σ (xᵢ − x̄)² / (n − 1)",
@@ -50,6 +53,7 @@
         {
           "href": "statistics/skewed_distribution.html",
           "title": "Skewed Distribution",
+          "connectionTitle": "When a long tail pulls the mean",
           "note": "Not every set of numbers is balanced around its center; a long tail on one side pulls the mean toward itself, so mean, median, and mode sit in different places. That imbalance is skew. Drag the skew and watch the three averages separate. A number for skew is useful, but the same shape is easier to see in a picture of how the values pile up and where the middle of the data sits.",
           "formulae": [
             "skew = (1/n) Σ ((xᵢ − x̄) / σ)³",
@@ -61,6 +65,7 @@
         {
           "href": "statistics/boxplot_histogram.html",
           "title": "Boxplot and Histogram",
+          "connectionTitle": "The pile beside the box",
           "note": "Numbers for center, spread, and skew summarize a shape; pictures show that shape directly. A histogram shows how values pile up; a boxplot packs the center and spread of the same data into a box and whiskers. Read the pile and the box together on one sample. Reading both together also shows how far a point can sit before it looks unusual against the middle of the data.",
           "formulae": [
             "Q₁, Q₂ (median), Q₃",
@@ -72,6 +77,7 @@
         {
           "href": "statistics/boxplot_outliers.html",
           "title": "Boxplot and Outliers",
+          "connectionTitle": "Points past the fence",
           "note": "Once you can see the middle of the data in a boxplot, the next question is which points sit so far out that they count as unusual. The whiskers mark how far a point can sit from the quartiles before it counts as an outlier; the fence is a multiple of the spread inside the box. Add extreme points and watch which ones fall outside the fences. The histogram’s bars still depend on where the bin edges fall. A smooth curve can follow the same pile without those cuts.",
           "formulae": [
             "lower fence = Q₁ − 1.5 × IQR",
@@ -83,6 +89,7 @@
         {
           "href": "statistics/kde_plots.html",
           "title": "Kernel Density Estimate (KDE)",
+          "connectionTitle": "A smooth curve, not bin edges",
           "note": "A histogram’s bars move when the bin edges move, even though the numbers have not. A kernel density estimate sets a small kernel on each point and adds those kernels, so the same pile becomes a smooth curve. The bandwidth h is how wide each kernel is: a narrow kernel keeps the spikes, and a wide one flattens them. The kernel’s shape — Gaussian, Epanechnikov, or boxcar — is how the weights fall away from each point. That same curve is the violin, and a half of it is the cloud in a raincloud plot. The box beside them is still the five-number summary, which is what makes an extreme point look unusual.",
           "formulae": [
             "f̂(x) = (1/(n h)) Σ K((x − xᵢ) / h)",
@@ -101,6 +108,7 @@
         {
           "href": "statistics/q_q_plot.html",
           "title": "Q–Q Plot",
+          "connectionTitle": "The sample against a reference curve",
           "note": "A few extreme points are one way a set of numbers can look unusual; another is that the overall shape does not match a familiar reference curve. A Q–Q plot lines the sample’s quantiles up against a reference distribution, often the normal. Compare the sample quantiles to the reference line. A curve away from the straight line means the sample’s shape and the reference shape differ. That check still describes one sample. The next question is whether another picture could carry the same means, the same spread, and the same correlation.",
           "formulae": [
             "plot (theoretical quantile, sample quantile) for each order statistic"
@@ -111,6 +119,7 @@
         {
           "href": "statistics/limitations_of_summary_statistics.html",
           "title": "Limitations of summary statistics",
+          "connectionTitle": "Same summaries, different pictures",
           "note": "A Q–Q plot can show that a sample’s shape and a reference shape differ. Summaries of center, spread, and correlation can still agree while the pictures do not. Anscombe’s quartet and the Datasaurus dozen keep the means, the standard deviations, and r fixed, and the graph changes from a line to a curve, a stack, a star, or a dinosaur. Switch shapes and those summaries stay put. Drag a point and they move. Re-lock them and the strange picture can return with the same numbers. When the averages match, the graph is still part of the description.",
           "formulae": [
             "same x̄, sₓ, ȳ, sᵧ, and r across shapes"
@@ -128,6 +137,7 @@
         {
           "href": "statistics/stats_conceptual_hierarchy.html",
           "title": "The 5-Level Conceptual Hierarchy of Statistics",
+          "connectionTitle": "A claim built in levels",
           "note": "A statistical claim is built in levels. A parameter is a fixed rule of the process. The process produces one outcome. A random variable turns that outcome into a number. The distribution is the pattern of those numbers. Inference uses the sample to say something about the parameter you cannot see. The next step builds one such distribution, the normal curve, from a center and a spread.",
           "formulae": [
             "parameter θ fixes the process",
@@ -141,6 +151,7 @@
         {
           "href": "statistics/building_normal_distribution.html",
           "title": "Building the Normal Distribution",
+          "connectionTitle": "A curve fixed by center and spread",
           "note": "Many descriptions of data end by asking whether the shape looks like a familiar smooth curve. The normal distribution is one such curve, fixed by a center and a spread. Putting the curve together shows what the model is made of. The next step places that curve among the other distributions it connects to.",
           "formulae": [
             "f(x) = (1 / (σ√(2π))) exp(−(x − μ)² / (2σ²))",
@@ -153,6 +164,7 @@
         {
           "href": "statistics/probability_distributions_map.html",
           "title": "Probability Distributions Map",
+          "connectionTitle": "The normal curve among the others",
           "note": "The normal curve is one model among many. This map places sixteen common distributions in five neighborhoods and draws three kinds of link: a special case that fixes a parameter, a transformation or a sum, and a limit. Binomial(n, p) with n = 1 is Bernoulli(p). As n grows and np settles on λ, the binomial count approaches Poisson(λ). As n grows, the binomial count also approaches a normal curve, the shape the previous step built.",
           "formulae": [
             "Binomial(1, p) = Bernoulli(p)",
@@ -172,6 +184,7 @@
         {
           "href": "statistics/binomial_bernoulli.html",
           "title": "Binomial Distribution & Bernoulli Process",
+          "connectionTitle": "Counting heads in n tosses",
           "note": "A coin toss is a Bernoulli trial: two outcomes, the same chance of heads every time, and no memory of the tosses before it. Count the heads in n tosses and that count is binomial, the sum of those trials. The bars are the exact probabilities. Run many trials and the observed frequencies settle onto the bars. The next step counts arrivals in a stretch of time instead of successes in a fixed number of trials.",
           "formulae": [
             "Xᵢ ~ Bernoulli(p),  P(Xᵢ = 1) = p",
@@ -185,6 +198,7 @@
         {
           "href": "statistics/poisson_point_process.html",
           "title": "Poisson Distribution & Poisson Point Process",
+          "connectionTitle": "Arrivals in a stretch of time",
           "note": "A coin toss fixes the number of trials and counts the successes. A Poisson process fixes a stretch of time and counts arrivals that have no memory of one another. The waiting time between arrivals is exponential with the same rate, and the count in an interval of length t is Poisson(λt). Chop that interval into many short bins and each bin is nearly a Bernoulli trial. As the bins get finer, the binomial count approaches the Poisson count. The next step writes a binomial count as left and right bounces on a Galton board.",
           "formulae": [
             "N(t) ~ Poisson(λt)",
@@ -198,6 +212,7 @@
         {
           "href": "statistics/galton_board.html",
           "title": "Galton Board",
+          "connectionTitle": "Bounces that pile into a bell",
           "note": "Each bead on a Galton board takes a left or right bounce at every peg, the same Bernoulli trial as a coin toss. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape, and the binomial distribution approximates a normal distribution.",
           "formulae": [
             "X = X₁ + … + Xₙ ~ Binomial(n, p)",
@@ -217,6 +232,7 @@
         {
           "href": "statistics/central_limit_theorem.html",
           "title": "Central Limit Theorem (CLT)",
+          "connectionTitle": "Many means, one curve",
           "note": "A single sample mean is one summary of one set of numbers. If you imagine drawing many samples of the same size, those means themselves form a distribution. As each sample gets larger, that distribution of means settles toward a normal curve, whatever shape the raw observations had. The central limit theorem is that statement about means — and classroom simulations make the settling visible.",
           "formulae": [
             "X̄ ≈ N(μ, σ²/n) for large n",
@@ -228,6 +244,7 @@
         {
           "href": "statistics/horowitz_1974_simulation_CLT.html",
           "title": "Horowitz (1974) CLT Simulation",
+          "connectionTitle": "Watching sample means accumulate",
           "note": "The central limit theorem is easier to trust when you can watch sample means accumulate. Horowitz's 1974 simulation draws samples again and again in a classroom setting; the collection of sample means takes on a normal shape. Once means behave like normals, sums of squared standard normals become the next building block.",
           "formulae": [
             "X̄ₙ → N(μ, σ²/n) as n grows"
@@ -238,6 +255,7 @@
         {
           "href": "statistics/chi_square_distribution.html",
           "title": "Chi-Square Distribution",
+          "connectionTitle": "Squared normals, added up",
           "note": "Not every sampling story is about a mean. Square independent standard normal draws and add them up; the sum follows a chi-square distribution, the usual sampling model for a variance. With sampling distributions for means and for variances in view, you can ask what kind of interval claim a sampling distribution can support.",
           "formulae": [
             "χ²_ν = Z₁² + … + Z_ν²",
@@ -249,6 +267,7 @@
         {
           "href": "statistics/target_analogy_confidence_intervals.html",
           "title": "Target Analogy of Confidence Intervals",
+          "connectionTitle": "A percentage for the procedure",
           "note": "A confidence interval is a range computed from a sample. In the target analogy the unknown value stays fixed and each interval is a shot, so the stated percentage describes the procedure over many samples — not the chance that this one interval covers that value.",
           "formulae": [
             "CI = X̄ ± z* · (σ / √n)",
@@ -267,6 +286,7 @@
         {
           "href": "statistics/z_distribution_vs_t_distribution.html",
           "title": "z-Distribution vs t-Distribution",
+          "connectionTitle": "Estimated spread, heavier tails",
           "note": "When a mean is compared against a known standard deviation, a z curve is the usual reference. In practice that standard deviation is almost always estimated from the same data, and the extra uncertainty shows up as heavier tails than z. Those tails are heavier still in a small sample; that wider curve is the t distribution, and it is the reference you will use for the two comparisons that follow.",
           "formulae": [
             "z = (X̄ − μ) / (σ / √n)",
@@ -279,6 +299,7 @@
         {
           "href": "statistics/independent_t_test_simulation.html",
           "title": "Independent Samples t-Test",
+          "connectionTitle": "Two groups that do not share people",
           "note": "One common comparison is two groups that do not share people — each person is in one group only. An independent-samples t-test asks whether the two group means differ by more than you would expect from the spread within the groups, using a t curve whose standard error combines those two spreads. A different design pairs two scores within the same person instead.",
           "formulae": [
             "t = (X̄₁ − X̄₂) / SE",
@@ -291,6 +312,7 @@
         {
           "href": "statistics/paired_t_test_simulation.html",
           "title": "Paired Sample t-Test",
+          "connectionTitle": "One difference per person",
           "note": "In a paired design, the two scores from each person become one difference. That removes person-to-person variation before the mean difference is set against a t curve. The path ends here: the same family of reference curve, and two designs for which scores enter the comparison.",
           "formulae": [
             "dᵢ = xᵢ,post − xᵢ,pre",
@@ -310,6 +332,7 @@
         {
           "href": "statistics/statistical_power.html",
           "title": "Statistical Power",
+          "connectionTitle": "The chance of detecting a real effect",
           "note": "A significance cutoff is set under the null, but a real effect shifts the sampling distribution of the test statistic. Power is the chance of detecting an effect that is really there: the share of that alternative distribution that lands beyond the null cutoff. Once that definition is clear, the next question is how power changes when the study changes.",
           "formulae": [
             "power = P(reject H₀ | H₁ true)",
@@ -321,6 +344,7 @@
         {
           "href": "statistics/power_curve.html",
           "title": "Power Curve",
+          "connectionTitle": "Power moves with effect and sample",
           "note": "Power is not a fixed number; it moves with the study. A power curve shows how the chance of detecting a real effect changes with the size of the effect and the size of the sample. A larger effect or a larger sample moves the alternative distribution farther past the null cutoff, and more of it counts as a detection.",
           "formulae": [
             "power rises with |effect| and with n",
@@ -339,6 +363,7 @@
         {
           "href": "statistics/t_test_to_anova.html",
           "title": "From t-Test to ANOVA",
+          "connectionTitle": "The same question for more means",
           "note": "With two groups, a t-test asks whether the means differ by more than the scatter inside the groups. ANOVA asks the same kind of question when there may be more than two means: is the variation among group means large relative to the variation left inside groups? When each person is measured more than once, that inside scatter depends on how their scores move together.",
           "formulae": [
             "F = MS_between / MS_within",
@@ -350,6 +375,7 @@
         {
           "href": "statistics/paired_t_to_rm_anova.html",
           "title": "From Paired t-Test to RM-ANOVA",
+          "connectionTitle": "Individual differences set aside",
           "note": "The difference-score standard deviation already has the pre–post correlation built into it. A more positive covariance shrinks s_D: when scores move together, people who score high at one timepoint tend to score high at the other, so individual change scores stay small — and that smaller s_D is what feeds Residual. The same positive covariance enlarges SS Subjects, because subject sums of squares track how far each person's average sits from the grand mean. Together, SS Subjects and Residual make up within-conditions: the scatter around each timepoint mean. By partitioning out those individual differences, the paired t and repeated-measures ANOVA cut noise that an independent test would leave intact. An independent test treats all of within-conditions as residual.",
           "formulae": [
             "s_D² = s₁² + s₂² − 2 r s₁ s₂",
@@ -361,6 +387,7 @@
         {
           "href": "statistics/partitioning_sum_of_squares_anova.html",
           "title": "Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA",
+          "connectionTitle": "Where the variation comes from",
           "note": "To compare several means, it helps to say where the variation in the data comes from. With one factor the total splits into a part between groups and a part left inside groups. With two or three factors, and with between-subjects, within-subjects, or mixed designs, that total breaks into more bricks: each main effect, each interaction, and an error term that matches the stratum. The same bricks can be read as a flat linear model, grouped by error stratum, or introduced condition by condition. The next step is the 2×2 between-subjects case, two main effects, their interaction, and one error.",
           "formulae": [
             "SS_total = sum of the atomic bricks",
@@ -374,6 +401,7 @@
         {
           "href": "statistics/two_way_anova.html",
           "title": "Two-Way ANOVA",
+          "connectionTitle": "Two factors, and their combination",
           "note": "Sometimes each observation belongs to a combination of two factors, not one. Two-way ANOVA labels variation with both factors at once: each factor has its own main effect, and the interaction is the pattern that appears only in the combination. The next step is the mixed case, where one factor separates people and the other measures the same people twice. The usual reading of these F tests still depends on conditions on the residuals.",
           "formulae": [
             "SS_total = SS_A + SS_B + SS_AB + SS_error",
@@ -385,6 +413,7 @@
         {
           "href": "statistics/mixed_anova_2x2.html",
           "title": "2×2 Mixed ANOVA",
+          "connectionTitle": "One factor for groups, one for time",
           "note": "A 2×2 mixed design has one factor that separates people into groups and one factor that measures the same people twice. The group effect is tested against differences between people. The time effect and the group-by-time interaction are tested against how people vary in their change. The same picture can be read as two simple comparisons: the midpoints, and the pre-to-post changes. The usual reading of these F tests still depends on conditions on the residuals.",
           "formulae": [
             "SS_between = SS_group + SS_error(between)",
@@ -398,6 +427,7 @@
         {
           "href": "statistics/anova_assumptions.html",
           "title": "ANOVA Assumptions",
+          "connectionTitle": "Residuals, spread, and independence",
           "note": "The usual reading of an F test wants residuals that are roughly normal, groups with similar spread, and observations that are independent of each other. Those are the conditions for the standard interpretation — a check on whether the splits and F ratios can be read in the ordinary way.",
           "formulae": [
             "residuals ≈ normal",
@@ -417,6 +447,7 @@
         {
           "href": "statistics/covariance_and_correlation.html",
           "title": "Covariance and Correlation",
+          "connectionTitle": "Shared movement on a common scale",
           "note": "When two variables are measured together, a natural question is whether they tend to move in the same direction. Covariance records that shared movement in the units of both variables; dividing by the two standard deviations turns the record into a correlation on a scale from negative one to one. The size of that correlation also has a meaning in units of variance.",
           "formulae": [
             "cov(X, Y) = Σ (xᵢ − x̄)(yᵢ − ȳ) / (n − 1)",
@@ -428,6 +459,7 @@
         {
           "href": "statistics/ols_simple_linear_regression.html",
           "title": "Ordinary Least Squares (OLS)",
+          "connectionTitle": "The smallest squared gaps",
           "note": "A straight line through paired measurements is a claim about how one variable changes with the other. Ordinary least squares chooses the intercept and the slope that make the squared vertical gaps as small as they can be. That minimum is the error sum of squares. The same line splits the total sum of squares into a part the line accounts for and a part left over. The share the line accounts for is the proportion of variance in the outcome that the straight line explains.",
           "formulae": [
             "SSE(b₀, b₁) = Σ (yᵢ − b₀ − b₁ xᵢ)²",
@@ -442,6 +474,7 @@
         {
           "href": "statistics/variance_explained.html",
           "title": "Variance Explained",
+          "connectionTitle": "A correlation turned into a share",
           "note": "A correlation says how strongly two variables line up; squaring it turns that strength into a share of variance. That square is the proportion of variance in one variable that a straight-line relationship with the other accounts for. The last step stays with variance and asks what happens when sources do not share anything.",
           "formulae": [
             "R² = r²",
@@ -453,6 +486,7 @@
         {
           "href": "statistics/additivity_of_variance.html",
           "title": "Additivity of Variance & SS",
+          "connectionTitle": "Adding squares, and the correlation",
           "note": "Sum of squares is simply another way to measure deviation — the same idea as variance, kept as a total rather than an average. Because squared deviations are always positive, those totals add cleanly. The catch is mild: since they are squares, adding or subtracting two variables still has to carry their correlation, which widens a sum and narrows a difference when the association is positive.",
           "formulae": [
             "Var(X + Y) = Var(X) + Var(Y) + 2 Cov(X, Y)",

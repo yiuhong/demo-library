@@ -1,9 +1,10 @@
 /*
  * Guided Tracks page. Concept-map strips from families.json sit above
- * the playlists. Each playlist is a vertical menu: a demonstration link,
- * then a Connection link when that step has a note, formulae, or figure.
- * The connection opens tracks/connection.html, which reads tracks.json.
- * The same demos are not listed a second time.
+ * the playlists. Each playlist is a vertical menu. When a step has a
+ * note, formulae, or figure, its connectionTitle is a link immediately
+ * before that demonstration. The link opens tracks/connection.html,
+ * which reads the same step from tracks.json. step= is that step's
+ * index. The same demos are not listed a second time.
  */
 (function () {
     var root = document.getElementById("tracks-root");
@@ -62,6 +63,7 @@
         var href = window.ProjectVizMaps.safeHref(raw.href);
         if (!title || !href) return null;
         var note = typeof raw.note === "string" ? raw.note.trim() : "";
+        var connectionTitle = connectionTitleOf(raw.connectionTitle);
         var image = safeImagePath(raw.image);
         var imageAlt = typeof raw.imageAlt === "string" ? raw.imageAlt.trim() : "";
         if (!image || !imageAlt) {
@@ -71,11 +73,20 @@
         return {
             title: title,
             href: href,
+            connectionTitle: connectionTitle,
             note: note,
             image: image,
             imageAlt: imageAlt,
             formulae: normalizeFormulae(raw.formulae)
         };
+    }
+
+    function connectionTitleOf(raw) {
+        if (typeof raw !== "string") return "";
+        var title = raw.trim().replace(/\s+/g, " ");
+        if (!title || title.length > 80) return "";
+        if (/^[\s\-—–·.:]*connection[\s\-—–·.]*$/i.test(title)) return "";
+        return title;
     }
 
     function normalizeTrack(raw) {
@@ -150,15 +161,15 @@
     }
 
     function connectionItem(track, step, index) {
+        if (!step.connectionTitle) return null;
         if (!step.note && !step.image && !step.formulae.length) return null;
         var href = connectionHref(track, index);
         if (!href) return null;
         var item = el("li", "playlist-join");
         var link = el("a", "playlist-connection-link");
         link.href = href;
-        link.setAttribute("data-pane-title", "Connection · " + step.title);
-        link.setAttribute("aria-label", "Connection after " + step.title);
-        link.appendChild(el("span", "playlist-connection-label", "Connection"));
+        link.setAttribute("data-pane-title", step.connectionTitle);
+        link.appendChild(el("span", "playlist-connection-label", step.connectionTitle));
         item.appendChild(link);
         return item;
     }
@@ -178,13 +189,12 @@
             title.tabIndex = -1;
         }
         head.appendChild(title);
-        if (track.summary) head.appendChild(el("p", "concept-map-backbone", track.summary));
         map.appendChild(head);
         var list = el("ol", "playlist");
         track.steps.forEach(function (step, index) {
-            list.appendChild(demoItem(step, index));
             var connection = connectionItem(track, step, index);
             if (connection) list.appendChild(connection);
+            list.appendChild(demoItem(step, index));
         });
         map.appendChild(list);
         return map;
@@ -233,8 +243,7 @@
             if (family.show.indexOf("hub") === -1 || !familyMount) return;
             familyMount.appendChild(window.ProjectVizMaps.renderConceptMap(family, {
                 headingTag: "h3",
-                headingId: "concept-map-" + family.id,
-                kicker: "Concept map"
+                headingId: "concept-map-" + family.id
             }));
             hubCount++;
         });

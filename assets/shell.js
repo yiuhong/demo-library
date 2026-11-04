@@ -3,7 +3,8 @@
  * The demo pane loads the selected file in place. A Guided Tracks
  * connection uses the same path: tracks/connection.html?track=&step=
  * in the iframe, and tracks.html?demo=tracks/connection.html&step=
- * in the address bar. Fullscreen only hides the rail; this file does
+ * in the address bar. step= is still that step's index. The rail lists
+ * the connection before the demonstration. Fullscreen only hides the rail; this file does
  * not call the browser Fullscreen API. Phone shows the rail, then the
  * page. Back returns to the same rail.
  */
@@ -289,7 +290,6 @@
         href = safeDemoHref(href);
         if (!href || !frame) return;
         var title = options.title || titleFrom(findLink(href));
-        if (!title && connectionParts(href)) title = "Connection";
         var same = currentHref === href && !!frame.getAttribute("src");
         currentHref = href;
         showDemoChrome(true, title);

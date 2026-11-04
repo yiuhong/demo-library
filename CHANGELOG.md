@@ -9,16 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- A Guided Tracks connection opens in the demo pane. The rail shows a Connection link after a step that has a note, formulae, or figure, instead of that text and image inline. [`tracks/connection.html`](tracks/connection.html) reads the step from `tracks.json`. `tracks.html?track=the-id&demo=tracks/connection.html&step=0` opens it. Phone Back returns to the same track list.
+- A Guided Tracks connection opens in the demo pane. When a step has a note, formulae, or figure, the rail lists that step's `connectionTitle` immediately before the demonstration. The same title is the heading on [`tracks/connection.html`](tracks/connection.html), which reads the step from `tracks.json`. `step=` is still that step's index. `tracks.html?track=the-id&demo=tracks/connection.html&step=0` opens the page for step 0. Phone Back returns to the same track list.
 - Catalog and Guided Tracks share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane. The catalog rail is search, filters, and the list. The Guided Tracks rail keeps the concept-map strips, and each playlist is a vertical menu of demonstration links. The selected demonstration loads in the pane. Fullscreen hides the rail inside the shell. A phone shows the list or map first, then the demonstration; Back returns to the same category or track. `catalog.html?demo=…` and `tracks.html?demo=…` open that demonstration directly.
 
 ### Changed
 
-- Guided Tracks phone and tablet polish. An open Connection row keeps its label and matches the height of a step card. Footer credits wrap instead of scrolling sideways, and the phone top bar no longer sits the About chip on the divider. The rail is a quarter of a tablet portrait instead of a fixed 16rem. Connection figures and statistics demonstrations scroll inside the pane without a horizontal scrollbar or a clipped axis label. Opening a step highlights that step, not every concept-map copy.
+- Guided Tracks phone and tablet polish. An open connection row keeps its title and matches the height of a step card. Footer credits wrap instead of scrolling sideways, and the phone top bar no longer sits the About chip on the divider. The rail is a quarter of a tablet portrait instead of a fixed 16rem. Connection figures and statistics demonstrations scroll inside the pane without a horizontal scrollbar or a clipped axis label. Opening a step highlights that step, not every concept-map copy.
 - A demonstration or connection page embedded in the shell hides Return to Project Viz. That link stays when the file is opened on its own. Home stays the featured page.
 
 ### Removed
 
+- Guided Tracks rail copy that did not navigate: the “Concept maps” heading, “Related demonstrations along a path.”, the “Concept map” kicker, the backbone sentence under a concept map, and the summary paragraph under a playlist. Section titles and demonstration titles stay.
 - Fullscreen buttons on demonstrations that called the browser Fullscreen API. Catalog and Guided Tracks keep the shell Fullscreen control, which only hides the rail.
 - The opened-progress counter, its Reset control, and the “Saved in this browser only. No account.” note on Home, Catalog, and Guided Tracks.
 - Catalog cards no longer show an Opened tag or any open-state styling. The catalog does not read the opened list.

@@ -1,7 +1,8 @@
 /*
  * Concept-map rails. Titles come from the caller. Nodes are catalog hrefs
  * and open in this tab. families.json decides which maps exist; Guided
- * Tracks build one rail per playlist from tracks.json.
+ * Tracks build one rail per playlist from tracks.json. The backbone
+ * sentence stays in families.json and is not drawn on the strip.
  */
 (function (global) {
     function el(tag, className, text) {
@@ -102,9 +103,6 @@
         if (headingId) title.id = headingId;
         if (options.tabIndex != null) title.tabIndex = options.tabIndex;
         head.appendChild(title);
-        if (family.backbone) {
-            head.appendChild(el("p", "concept-map-backbone", family.backbone));
-        }
         map.appendChild(head);
         var rail = el("ol", "concept-rail");
         family.nodes.forEach(function (node) {
