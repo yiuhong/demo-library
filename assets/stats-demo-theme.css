@@ -206,6 +206,64 @@
     accent-color: #000000 !important;
 }
 
+/* Phone and coarse pointers: a 44px target, track still an 8px rule.
+   body.demo-page beats a later page rule that paints a 4px track
+   or a thumb with a negative margin, so the hit box stays 44px.
+   Thumb fill is only a fallback; a demo that paints its own thumb keeps that color. */
+@media (max-width: 768px), (pointer: coarse) {
+    body.demo-page input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 44px;
+        margin-top: 0;
+        margin-bottom: 0;
+        background: transparent !important;
+        border-radius: 0;
+        touch-action: pan-x;
+    }
+
+    body.demo-page input[type="range"]::-webkit-slider-runnable-track {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 999px;
+    }
+
+    body.demo-page input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 28px;
+        height: 28px;
+        margin-top: -10px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    body.demo-page input[type="range"]::-moz-range-track {
+        height: 8px;
+        background: #e2e8f0;
+        border: none;
+        border-radius: 999px;
+    }
+
+    body.demo-page input[type="range"]::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    /* Less specific than a demo's own thumb color or border. */
+    ::-webkit-slider-thumb {
+        background-color: #0f172a;
+        border: 2px solid #ffffff;
+    }
+
+    ::-moz-range-thumb {
+        background-color: #0f172a;
+        border: 2px solid #ffffff;
+    }
+}
+
 .demo-btn.is-block,
 .demo-chip.is-block {
     width: 100%;
