@@ -4,9 +4,10 @@
  * connection uses the same path: tracks/connection.html?track=&step=
  * in the iframe, and tracks.html?demo=tracks/connection.html&step=
  * in the address bar. step= is still that step's index. The rail lists
- * the connection before the demonstration. Fullscreen only hides the rail; this file does
- * not call the browser Fullscreen API. Phone shows the rail, then the
- * page. On Guided Tracks the desktop rail lists topics and the pane
+ * the connection before the demonstration. Fullscreen calls the browser
+ * Fullscreen API on #viz-pane (the bar and the open demonstration).
+ * Exit and Escape leave it. Phone shows the rail, then the page.
+ * On Guided Tracks the desktop rail lists topics and the pane
  * shows the topic tree until a track is open. Choosing a topic zooms
  * that subtree. Back from a demonstration returns to that track, and
  * Back in the rail returns to the focused topic or the full overview.
@@ -260,15 +261,84 @@
         return "";
     }
 
-    function setExpanded(on) {
-        if (!currentHref) on = false;
-        if (isPhone()) on = false;
+    function fullscreenHost() {
+        return document.getElementById("viz-pane") || document.documentElement;
+    }
+
+    function activeFullscreen() {
+        return document.fullscreenElement
+            || document.webkitFullscreenElement
+            || document.mozFullScreenElement
+            || document.msFullscreenElement
+            || null;
+    }
+
+    function requestFullscreen(el) {
+        if (!el) return Promise.reject(new Error("fullscreen-unavailable"));
+        var fn = el.requestFullscreen
+            || el.webkitRequestFullscreen
+            || el.mozRequestFullScreen
+            || el.msRequestFullscreen;
+        if (!fn) return Promise.reject(new Error("fullscreen-unavailable"));
+        try {
+            var result = fn.call(el);
+            if (result && typeof result.then === "function") return result;
+            return Promise.resolve();
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    }
+
+    function exitFullscreen() {
+        if (!activeFullscreen()) return Promise.resolve();
+        var fn = document.exitFullscreen
+            || document.webkitExitFullscreen
+            || document.mozCancelFullScreen
+            || document.msExitFullscreen;
+        if (!fn) return Promise.resolve();
+        try {
+            var result = fn.call(document);
+            if (result && typeof result.then === "function") return result;
+            return Promise.resolve();
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    }
+
+    function applyExpanded(on) {
         document.body.classList.toggle("is-expanded", !!on);
         if (fullscreenBtn) {
             fullscreenBtn.hidden = !!on;
             fullscreenBtn.setAttribute("aria-pressed", on ? "true" : "false");
         }
         if (exitBtn) exitBtn.hidden = !on;
+    }
+
+    function syncExpanded() {
+        var on = !!activeFullscreen();
+        if (on && (isPhone() || !currentHref)) {
+            exitFullscreen().catch(function () {});
+            on = false;
+        }
+        applyExpanded(on);
+    }
+
+    function setExpanded(on) {
+        if (!currentHref || isPhone()) on = false;
+        if (!on) {
+            exitFullscreen().catch(function () {});
+            applyExpanded(false);
+            return;
+        }
+        if (activeFullscreen()) {
+            applyExpanded(true);
+            return;
+        }
+        requestFullscreen(fullscreenHost()).then(function () {
+            syncExpanded();
+        }).catch(function () {
+            applyExpanded(!!activeFullscreen());
+        });
     }
 
     function showDemoChrome(open, title) {
@@ -980,8 +1050,17 @@
 
     document.addEventListener("keydown", function (event) {
         if (event.key !== "Escape") return;
-        if (!document.body.classList.contains("is-expanded")) return;
+        if (!document.body.classList.contains("is-expanded") && !activeFullscreen()) return;
         setExpanded(false);
+    });
+
+    ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange"].forEach(function (name) {
+        document.addEventListener(name, syncExpanded);
+    });
+    ["fullscreenerror", "webkitfullscreenerror", "mozfullscreenerror", "MSFullscreenError"].forEach(function (name) {
+        document.addEventListener(name, function () {
+            applyExpanded(!!activeFullscreen());
+        });
     });
 
     function inTracksSurface(node) {

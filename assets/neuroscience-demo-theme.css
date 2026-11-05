@@ -339,10 +339,17 @@ html {
     background: #475569;
 }
 
-/* Phone and coarse pointers: a 44px target, track still an 8px rule.
-   body.demo-page beats a later page rule that paints a 4px track
-   or a thumb with a negative margin, so the hit box stays 44px.
-   Thumb fill is only a fallback; a demo that paints its own thumb keeps that color. */
+/*
+ * STANDING STANDARD for every new demonstration. See CONTRIBUTING.md.
+ * Load this theme and keep body.demo-page. Do not override this hit
+ * box back to a thin appearance:none track. Page-specific thumb colors
+ * are fine.
+ *
+ * Phone and coarse pointers: a 44px target, track still an 8px rule.
+ * body.demo-page beats a later page rule that paints a 4px track
+ * or a thumb with a negative margin, so the hit box stays 44px.
+ * Thumb fill is only a fallback; a demo that paints its own thumb keeps that color.
+ */
 @media (max-width: 768px), (pointer: coarse) {
     body.demo-page input[type="range"] {
         -webkit-appearance: none;
