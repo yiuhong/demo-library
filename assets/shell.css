@@ -344,11 +344,6 @@ button.track-rail-back:focus-visible {
     outline-offset: 2px;
 }
 
-.viz-rail a.concept-node.is-opened.is-current {
-    outline-color: #ffffff;
-    box-shadow: 0 0 0 2px #000000;
-}
-
 .viz-pane {
     display: flex;
     flex-direction: column;

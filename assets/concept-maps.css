@@ -153,36 +153,11 @@ a.concept-node:focus-visible {
     color: #000000 !important;
 }
 
-a.concept-node.is-opened {
-    background: #000000 !important;
-    border-color: #000000 !important;
-    color: #ffffff !important;
-}
-
-a.concept-node.is-opened .concept-relation,
-a.concept-node.is-opened .concept-title {
-    color: #ffffff !important;
-}
-
 a.concept-node:hover .concept-relation,
 a.concept-node:hover .concept-title,
 a.concept-node:focus-visible .concept-relation,
 a.concept-node:focus-visible .concept-title {
     color: #ffffff !important;
-}
-
-a.concept-node.is-opened:hover,
-a.concept-node.is-opened:focus-visible {
-    background: #ffffff !important;
-    border-color: #000000 !important;
-    color: #000000 !important;
-}
-
-a.concept-node.is-opened:hover .concept-relation,
-a.concept-node.is-opened:hover .concept-title,
-a.concept-node.is-opened:focus-visible .concept-relation,
-a.concept-node.is-opened:focus-visible .concept-title {
-    color: #000000 !important;
 }
 
 ol.playlist {

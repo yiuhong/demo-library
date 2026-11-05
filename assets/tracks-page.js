@@ -214,11 +214,6 @@
         return map;
     }
 
-    function refreshOpened() {
-        if (!window.ProjectVizOpened) return;
-        window.ProjectVizOpened.mark("a.concept-node");
-    }
-
     function setLeadVisible(show) {
         var lead = rail ? rail.querySelector(".page-lead") : null;
         if (lead) lead.hidden = !show;
@@ -308,7 +303,6 @@
             renderedKey = key;
             if (found) renderTrack(found);
             else renderLanding(missingOn);
-            refreshOpened();
         }
         if (options.focus === "back") {
             var back = document.getElementById("tracks-back");
@@ -355,10 +349,6 @@
         currentId: function () { return currentId; }
     };
 
-    window.addEventListener("pageshow", refreshOpened);
-    window.addEventListener("storage", function (event) {
-        if (event.key === "project-viz-opened") refreshOpened();
-    });
     window.addEventListener("hashchange", function () {
         sync();
     });

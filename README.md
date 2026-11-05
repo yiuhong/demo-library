@@ -26,7 +26,7 @@ The home page (`index.html`) is the front page: the wordmark, two buttons (the c
 
 Home, Catalog, and Guided Tracks wear a notebook sheet: class `viz-notebook` on `<html>`, drawn by [`assets/notebook.css`](assets/notebook.css). The page chrome is white graph paper, with a thin margin line on the left and a quiet ruler under the top bar. Cite & reuse and Licenses stay plain. A featured plate keeps its own canvas, including the dark neuroscience plate. While a neuroscience demonstration is open, the pane uses a cool gray bar over a dark stage. The demonstration stays in the iframe, which this sheet does not enter. Remove `viz-notebook` from those three pages to ship the plain shell. `?notebook=0` hides the sheet for one visit, and `?notebook=1` shows it.
 
-Featured plates are the three `href`s in `index.html` (`FIG_VE`, `FIG_R`, `FIG_ERP`); titles and sentences come from `demos.json`. Those figure labels are only on the home plate. Concept maps are a separate list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration is stored in this browser (`localStorage` key `project-viz-opened`). Guided Tracks paint a playlist box black when that demo is in the list. The home featured plate can show Opened from the same list. The catalog does not.
+Featured plates are the three `href`s in `index.html` (`FIG_VE`, `FIG_R`, `FIG_ERP`); titles and sentences come from `demos.json`. Those figure labels are only on the home plate. Concept maps are a separate list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration is stored in this browser (`localStorage` key `project-viz-opened`). The home featured plate can show Opened from that list. Guided Tracks and the catalog do not paint an opened box.
 
 * `📁 /cognitive_psychology`
 * `📁 /neuroscience`
@@ -169,7 +169,7 @@ A concept map is a short strip of related demonstrations in teaching order. It i
 * `show` — `hub` keeps the family on record. Guided Tracks does not draw these strips. The catalog does not draw them. The home page does not draw them.
 * `nodes` — catalog `href`s in teaching order. `relation` is `before`, `backbone`, or `after`. Order is before, then backbone, then after. Do not add a `title`. A map needs a backbone demo and at least one before or after demo.
 
-A node opens in this tab. A box is black only when that demonstration is in the browser's opened list. The map does not show an Opened label. The center (backbone) demo is not filled black on its own.
+A node opens in this tab. The map does not show an Opened label, and an opened demonstration does not fill its box. The center (backbone) demo is not filled on its own.
 
 ## Check catalog and track links
 

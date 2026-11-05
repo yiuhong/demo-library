@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Variance and Correlation and covariance from the Guided Tracks menu. Those titles were concept-map strips from `families.json`. The file stays, and those families are not playlists. Real tracks keep their connection titles.
 - Guided Tracks rail copy that did not navigate: the “Concept maps” heading, “Related demonstrations along a path.”, the “Concept map” kicker, the backbone sentence under a concept map, and the summary paragraph under a playlist. Section titles and demonstration titles stay.
 - Fullscreen buttons on demonstrations that called the browser Fullscreen API. Catalog and Guided Tracks keep the shell Fullscreen control, which only hides the rail.
+- Guided Tracks no longer fills a playlist box black after that demonstration was opened in this browser. The step that is open stays outlined. The home plate can still show Opened. The catalog already had no opened styling.
 - The opened-progress counter, its Reset control, and the “Saved in this browser only. No account.” note on Home, Catalog, and Guided Tracks.
 - Catalog cards no longer show an Opened tag or any open-state styling. The catalog does not read the opened list.
 - The Opened label on Guided Tracks concept maps and playlist steps.
