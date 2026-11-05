@@ -636,6 +636,39 @@
       touch-action: none;
     }
 
+    /* Long-press removes the point. The stroke warns before it goes.
+       A press that would leave fewer than three points pulses instead. */
+    svg#scatterSvg circle.data-point {
+      pointer-events: none;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    /* Finger-sized press target. The painted dot stays small. */
+    svg#scatterSvg circle.data-point-hit {
+      cursor: grab;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    svg#scatterSvg circle.data-point.is-arming {
+      stroke: var(--viz-remove);
+      stroke-width: 2.6px;
+    }
+
+    @keyframes ols-point-floor-pulse {
+      0% { stroke: var(--viz-remove); stroke-width: 3px; }
+      100% { stroke: #fff; stroke-width: 1.8px; }
+    }
+
+    svg#scatterSvg circle.data-point.is-floor {
+      animation: ols-point-floor-pulse 0.42s ease;
+    }
+
     .checkbox-item input {
       width: 1.05rem;
       height: 1.05rem;
@@ -871,7 +904,7 @@
       </div>
 
       <div class="plot-instructions">
-        <span><b>Drag any point</b> to move it &bull; <b>Click empty space</b> to add a point &bull; <b>Shift+click a point</b> to delete</span>
+        <span><b>Drag any point</b> to move it &bull; <b>Click empty space</b> to add a point &bull; <b>Long-press or long-click a point</b> to remove it. At least three points stay.</span>
         <span><b>Drag the handles</b> on the candidate line to tilt or shift it. Press a point to read it.</span>
       </div>
     </main>
@@ -1177,8 +1210,11 @@
         hoveredIndex: null,
         draggingPointIndex: null,
         draggingHandle: null, // 'left' or 'right'
-        touchPress: null,
-        touchHoldTimer: null,
+        // Still press on a point. Mouse, trackpad, and touch share this gesture.
+        pointPress: null,
+        armTimer: null,
+        removeTimer: null,
+        readoutTimer: null,
         activeTab: "tabLoss",
         gradTimer: null,
         gdTrail: [], // Stores gradient descent step trajectory [(b0, b1), ...]
@@ -2016,16 +2052,31 @@
           }
 
           const ptCircle = createSvgEl("circle", {
+            class: "data-point",
+            "data-index": String(idx),
             cx: px,
             cy: py,
             r: isHov ? 7.5 : (d.special ? 6.5 : 5.5),
             fill: isHov ? PAL.hover : (d.special ? PAL.sse : PAL.data),
             stroke: PAL.white,
             "stroke-width": 1.8,
+            "pointer-events": "none"
+          });
+          // Same 22px press target as Covariance and Correlation. The painted
+          // dot stays small; a finger lands on this circle.
+          const hit = createSvgEl("circle", {
+            class: "data-point-hit",
+            "data-index": String(idx),
+            cx: px,
+            cy: py,
+            r: 22,
+            fill: "transparent",
+            stroke: "none",
             cursor: "grab"
           });
 
-          ptCircle.addEventListener("pointerenter", (ev) => {
+          hit.addEventListener("pointerenter", (ev) => {
+            if (state.pointPress) return;
             if (ev.pointerType && ev.pointerType !== "mouse") return;
             if (window.vizPressReadout && vizPressReadout.touchMouse(ev)) return;
             state.hoveredIndex = idx;
@@ -2034,50 +2085,36 @@
             renderResidualPlot();
           });
 
-          ptCircle.addEventListener("pointerleave", (ev) => {
+          hit.addEventListener("pointerleave", (ev) => {
             if (window.vizPressReadout && (vizPressReadout.touchMouse(ev) || vizPressReadout.holding())) return;
-            if (state.touchPress || state.touchHoldTimer) return;
+            if (state.pointPress || state.readoutTimer || state.draggingPointIndex !== null) return;
             state.hoveredIndex = null;
             updatePointInspector();
             renderScatterPlot();
             renderResidualPlot();
           });
 
-          ptCircle.addEventListener("pointerdown", (ev) => {
+          // Remove is a still hold. Shift and other modifiers do not remove.
+          // A press on the line handle, which can sit inside this target, tilts
+          // the line instead.
+          hit.addEventListener("pointerdown", (ev) => {
             ev.stopPropagation();
-            clearGdTrail();
-            if (ev.shiftKey) {
-              if (state.points.length > 3) {
-                state.points.splice(idx, 1);
-                state.hoveredIndex = null;
-                updateAll();
-              }
+            ev.preventDefault();
+            if (ev.isPrimary === false) return;
+            if (ev.button !== 0) return;
+            const handleId = handleUnderPointer(ev);
+            if (handleId) {
+              beginHandleDrag(ev, handleId);
               return;
             }
-            const touch = ev.pointerType !== "mouse";
-            state.hoveredIndex = idx;
-            if (!touch) {
-              state.draggingPointIndex = idx;
-              scatterSvg.setPointerCapture(ev.pointerId);
-              return;
-            }
-            if (state.touchHoldTimer) {
-              clearTimeout(state.touchHoldTimer);
-              state.touchHoldTimer = null;
-            }
-            state.touchPress = {
-              id: ev.pointerId,
-              idx: idx,
-              x: ev.clientX,
-              y: ev.clientY,
-              moved: false
-            };
-            updatePointInspector();
-            renderScatterPlot();
-            renderResidualPlot();
+            beginPointPress(ev, idx);
+          });
+          hit.addEventListener("contextmenu", (ev) => {
+            ev.preventDefault();
           });
 
           clipped.appendChild(ptCircle);
+          clipped.appendChild(hit);
         });
 
         scatterSvg.appendChild(clipped);
@@ -2786,8 +2823,162 @@
         };
       }
 
+      // A still press on a point removes it. Mouse, trackpad, and touch use the
+      // same gesture, so no modifier key is required. A move past the slop
+      // cancels the remove and becomes a drag. At least three points stay.
+      const REMOVE_HOLD_MS = 520;
+      const REMOVE_ARM_MS = 180;
+      const REMOVE_SLOP_PX = 10;
+      const MIN_POINTS = 3;
+      const READOUT_HOLD_MS = 1400;
+
+      function clearPointGestureTimers() {
+        if (state.armTimer != null) {
+          clearTimeout(state.armTimer);
+          state.armTimer = null;
+        }
+        if (state.removeTimer != null) {
+          clearTimeout(state.removeTimer);
+          state.removeTimer = null;
+        }
+      }
+
+      function cancelPointGesture() {
+        clearPointGestureTimers();
+        state.pointPress = null;
+        state.draggingPointIndex = null;
+        if (state.readoutTimer != null) {
+          clearTimeout(state.readoutTimer);
+          state.readoutTimer = null;
+        }
+      }
+
+      function pointCircle(idx) {
+        return scatterSvg.querySelector('circle.data-point[data-index="' + idx + '"]');
+      }
+
+      function pulsePointFloor() {
+        scatterSvg.querySelectorAll("circle.data-point").forEach((node) => {
+          node.classList.remove("is-arming");
+          node.classList.add("is-floor");
+        });
+        setTimeout(() => {
+          scatterSvg.querySelectorAll("circle.data-point").forEach((node) => {
+            node.classList.remove("is-floor");
+          });
+        }, 420);
+      }
+
+      function beginHandleDrag(ev, id) {
+        clearGdTrail();
+        cancelPointGesture();
+        state.draggingHandle = id;
+        try { scatterSvg.setPointerCapture(ev.pointerId); } catch (err) { /* synthetic or already released */ }
+      }
+
+      // The press target is larger than the handle. A press on the handle itself
+      // still tilts the candidate line.
+      function handleUnderPointer(ev) {
+        if (state.lockedToOLS) return null;
+        const showCand = document.getElementById("chkShowCandLine");
+        if (showCand && !showCand.checked) return null;
+        const { px, py } = getSvgCoords(ev);
+        const handles = [
+          { id: "left", x: 2.5 },
+          { id: "right", x: 13.5 }
+        ];
+        for (const h of handles) {
+          const hy = state.b0 + state.b1 * h.x;
+          if (hy < PLOT.yMin || hy > PLOT.yMax) continue;
+          if (Math.hypot(px - xToPx(h.x), py - yToPx(hy)) <= 8) return h.id;
+        }
+        return null;
+      }
+
+      function beginPointPress(ev, idx) {
+        clearPointGestureTimers();
+        if (state.readoutTimer != null) {
+          clearTimeout(state.readoutTimer);
+          state.readoutTimer = null;
+        }
+        clearGdTrail();
+        state.hoveredIndex = idx;
+        state.draggingPointIndex = null;
+        state.pointPress = {
+          id: ev.pointerId,
+          idx: idx,
+          x: ev.clientX,
+          y: ev.clientY,
+          moved: false,
+          removed: false
+        };
+        // Keep this circle mounted. Rebuilding the plot here would drop the
+        // pointer target before the hold or the drag can finish.
+        const node = pointCircle(idx);
+        if (node) {
+          node.setAttribute("r", "7.5");
+          node.setAttribute("fill", PAL.hover);
+        }
+        updatePointInspector();
+        renderResidualPlot();
+        try { scatterSvg.setPointerCapture(ev.pointerId); } catch (err) { /* synthetic or already released */ }
+
+        const token = state.pointPress;
+        state.armTimer = setTimeout(() => {
+          state.armTimer = null;
+          if (state.pointPress !== token || token.moved || token.removed) return;
+          const node = pointCircle(token.idx);
+          if (node) node.classList.add("is-arming");
+        }, REMOVE_ARM_MS);
+        state.removeTimer = setTimeout(() => {
+          state.removeTimer = null;
+          if (state.pointPress !== token || token.moved || token.removed) return;
+          const node = pointCircle(token.idx);
+          if (node) node.classList.remove("is-arming");
+          if (state.points.length <= MIN_POINTS) {
+            pulsePointFloor();
+            return;
+          }
+          token.removed = true;
+          state.points.splice(token.idx, 1);
+          state.hoveredIndex = null;
+          state.draggingPointIndex = null;
+          updateAll();
+        }, REMOVE_HOLD_MS);
+      }
+
+      function endPointPress(ev) {
+        const press = state.pointPress;
+        if (!press) return false;
+        if (ev && ev.pointerId !== press.id) return false;
+        state.pointPress = null;
+        clearPointGestureTimers();
+        state.draggingPointIndex = null;
+        state.draggingHandle = null;
+        if (press.removed) return true;
+        if (!press.moved) {
+          state.hoveredIndex = press.idx;
+          updatePointInspector();
+          renderScatterPlot();
+          renderResidualPlot();
+          const touch = !ev || ev.pointerType !== "mouse";
+          if (touch) {
+            state.readoutTimer = setTimeout(() => {
+              state.readoutTimer = null;
+              if (state.hoveredIndex === press.idx && state.draggingPointIndex === null && !state.pointPress) {
+                state.hoveredIndex = null;
+                updatePointInspector();
+                renderScatterPlot();
+                renderResidualPlot();
+              }
+            }, READOUT_HOLD_MS);
+          }
+        }
+        return true;
+      }
+
       scatterSvg.addEventListener("pointerdown", (ev) => {
-        if (state.draggingPointIndex !== null || state.draggingHandle !== null) return;
+        if (state.draggingPointIndex !== null || state.draggingHandle !== null || state.pointPress) return;
         const { px, py } = getSvgCoords(ev);
         const x = pxToX(px);
         const y = pxToY(py);
@@ -2802,17 +2993,19 @@
       });
 
       scatterSvg.addEventListener("pointermove", (ev) => {
-        if (state.touchPress && ev.pointerId === state.touchPress.id && !state.touchPress.moved) {
-          const moved = Math.hypot(ev.clientX - state.touchPress.x, ev.clientY - state.touchPress.y) > 12;
-          if (!moved) return;
-          state.touchPress.moved = true;
-          if (state.touchHoldTimer) {
-            clearTimeout(state.touchHoldTimer);
-            state.touchHoldTimer = null;
+        const press = state.pointPress;
+        if (press && ev.pointerId === press.id && !press.removed) {
+          if (!press.moved) {
+            const dist = Math.hypot(ev.clientX - press.x, ev.clientY - press.y);
+            if (dist <= REMOVE_SLOP_PX) return;
+            press.moved = true;
+            clearPointGestureTimers();
+            const node = pointCircle(press.idx);
+            if (node) node.classList.remove("is-arming");
+            state.draggingPointIndex = press.idx;
           }
-          state.draggingPointIndex = state.touchPress.idx;
-          try { scatterSvg.setPointerCapture(ev.pointerId); } catch (err) { /* already captured */ }
         }
+        if (press && press.removed) return;
         if (state.draggingPointIndex === null && state.draggingHandle === null) return;
         const { px, py } = getSvgCoords(ev);
         const x = Math.max(0.2, Math.min(PLOT.xMax - 0.2, pxToX(px)));
@@ -2841,30 +3034,19 @@
         }
       });
 
+      scatterSvg.addEventListener("contextmenu", (ev) => {
+        ev.preventDefault();
+      });
+
       window.addEventListener("pointerup", (ev) => {
-        if (state.touchPress && (!ev || ev.pointerId === state.touchPress.id)) {
-          const press = state.touchPress;
-          state.touchPress = null;
-          state.draggingPointIndex = null;
-          state.draggingHandle = null;
-          if (!press.moved) {
-            state.hoveredIndex = press.idx;
-            updatePointInspector();
-            if (state.touchHoldTimer) clearTimeout(state.touchHoldTimer);
-            state.touchHoldTimer = setTimeout(() => {
-              state.touchHoldTimer = null;
-              if (state.hoveredIndex === press.idx && state.draggingPointIndex === null) {
-                state.hoveredIndex = null;
-                updatePointInspector();
-                renderScatterPlot();
-                renderResidualPlot();
-              }
-            }, 1400);
-          }
-          return;
-        }
+        if (endPointPress(ev)) return;
         state.draggingPointIndex = null;
         state.draggingHandle = null;
+      });
+
+      window.addEventListener("pointercancel", (ev) => {
+        if (!state.pointPress || (ev && ev.pointerId !== state.pointPress.id)) return;
+        cancelPointGesture();
       });
 
       // Loss surface canvas click & drag mapped to inner heatmap rectangle
@@ -3062,6 +3244,8 @@
       function loadPreset(key) {
         stopGradTimer();
         clearGdTrail();
+        cancelPointGesture();
+        state.draggingHandle = null;
         const p = PRESETS[key] || PRESETS.classic;
         state.presetKey = key;
         state.points = p.points.map(pt => ({ x: pt.x, y: pt.y, special: !!pt.special }));
