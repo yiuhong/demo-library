@@ -97,6 +97,9 @@
         var neuro = typeof href === "string" && href.indexOf("neuroscience/") === 0;
         var theme = document.getElementById("connection-theme");
         if (neuro && theme) theme.href = "../assets/neuroscience-demo-theme.css";
+        if (document.documentElement.classList.contains("viz-embedded")) {
+            document.documentElement.classList.toggle("connection-sheet", !neuro);
+        }
     }
 
     function connectionTitleOf(raw) {

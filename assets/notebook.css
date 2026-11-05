@@ -10,9 +10,11 @@
  * Graph paper stays on the library chrome.
  * It does not enter a demonstration iframe, and it does not repaint a
  * featured plate (.home-frame), including the dark neuroscience plate.
- * Chrome paper is white. The plot stage stays #f6f6f6 and the iframe
- * stays #ffffff. An open neuroscience demonstration keeps a cooler
- * gray pane and a dark stage, with no grid inside the iframe.
+ * Chrome paper is white. Empty stages, the topic overview, Catalog
+ * browse, and an embedded connection note use that same sheet.
+ * The demonstration iframe stays #ffffff, with no grid in the plot well.
+ * An open neuroscience demonstration keeps a cooler gray pane and a
+ * dark stage, with no grid inside the iframe.
  * A thin margin line stays on the home sheet and the left rail.
  * No binder holes, spiral, tape, or stains.
  */
@@ -36,7 +38,7 @@ html.viz-notebook {
 
 /* The personal-site stylesheet paints these surfaces solid white.
  * Leave them clear so one sheet shows through. Cards, buttons, the
- * plot well, and featured plates keep their own fills. */
+ * demonstration iframe, and featured plates keep their own fills. */
 
 html.viz-notebook body.viz-home,
 html.viz-notebook body.viz-home #wrapper,
@@ -153,19 +155,36 @@ html.viz-notebook body.viz-app .viz-pane-chrome::before {
     }
 }
 
+/* The stage is shell paper: the topic tree, “Select a step.”,
+ * and the Catalog card grid. Leave it clear so the one sheet
+ * shows through. Do not paint a second grid here; a local grid
+ * would slip out of line with the page. */
+
 html.viz-notebook body.viz-app .viz-pane-stage {
-    background-color: #f6f6f6 !important;
+    background-color: transparent !important;
     background-image: none !important;
 }
+
+/* The iframe is the plot well. Opaque white, no graph paper.
+ * A connection note is prose, so that iframe stays clear and
+ * the sheet shows through. Its figure keeps its own white fill. */
 
 html.viz-notebook body.viz-app .viz-pane-stage iframe {
     background-color: #ffffff !important;
     background-image: none !important;
 }
 
+html.viz-notebook body.viz-app .viz-pane-stage iframe[src*="tracks/connection.html"] {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
 html.viz-notebook .catalog-panel,
 html.viz-notebook .viz-rail .sub-category-section,
-html.viz-notebook .viz-rail .category-section {
+html.viz-notebook .viz-rail .category-section,
+html.viz-notebook .catalog-message,
+html.viz-notebook .no-results,
+html.viz-notebook .sub-category-section {
     background-color: transparent !important;
     background-image: none !important;
 }
@@ -217,7 +236,8 @@ html.viz-notebook body.viz-app:has(#viz-frame:not([hidden])[src*="/neuroscience/
     html.viz-notebook,
     html.viz-notebook .viz-topbar,
     html.viz-notebook body.viz-app .viz-pane-stage,
-    html.viz-notebook body.viz-app .viz-pane-stage iframe {
+    html.viz-notebook body.viz-app .viz-pane-stage iframe,
+    html.viz-notebook body.viz-app .viz-pane-stage iframe[src*="tracks/connection.html"] {
         background-image: none !important;
         background-color: Canvas !important;
     }
