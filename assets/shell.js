@@ -6,7 +6,9 @@
  * in the address bar. step= is still that step's index. The rail lists
  * the connection before the demonstration. Fullscreen calls the browser
  * Fullscreen API on #viz-pane (the bar and the open demonstration).
- * Exit and Escape leave it. Phone shows the rail, then the page.
+ * Exit and Escape leave it. The control is hidden only under 480px.
+ * Phone shows the rail, then the page. A wider phone shell still
+ * offers Fullscreen.
  * On Guided Tracks the desktop rail lists topics and the pane
  * shows the topic tree until a track is open. Choosing a topic zooms
  * that subtree. Back from a demonstration returns to that track, and
@@ -22,7 +24,14 @@
     if (page !== "catalog" && page !== "tracks") return;
 
     var phoneQuery = window.matchMedia("(max-width: 736px)");
+    var hidesFullscreenQuery = window.matchMedia("(max-width: 479px)");
     var frame = document.getElementById("viz-frame");
+    if (frame) {
+        frame.allowFullscreen = true;
+        if ((frame.getAttribute("allow") || "").indexOf("fullscreen") === -1) {
+            frame.setAttribute("allow", "fullscreen");
+        }
+    }
     var empty = document.getElementById("viz-empty");
     var titleNode = document.getElementById("viz-pane-title");
     var fullscreenBtn = document.getElementById("viz-fullscreen");
@@ -41,6 +50,10 @@
 
     function isPhone() {
         return phoneQuery.matches;
+    }
+
+    function hidesFullscreen() {
+        return hidesFullscreenQuery.matches;
     }
 
     function safeTrackId(value) {
@@ -268,41 +281,79 @@
     function activeFullscreen() {
         return document.fullscreenElement
             || document.webkitFullscreenElement
+            || document.webkitCurrentFullScreenElement
             || document.mozFullScreenElement
             || document.msFullscreenElement
             || null;
     }
 
+    function callFullscreen(target, name) {
+        var fn = target[name];
+        if (typeof fn !== "function") return undefined;
+        if (name === "webkitRequestFullScreen" && typeof Element !== "undefined" && Element.ALLOW_KEYBOARD_INPUT) {
+            return fn.call(target, Element.ALLOW_KEYBOARD_INPUT);
+        }
+        return fn.call(target);
+    }
+
+    function asFullscreenPromise(result) {
+        if (result && typeof result.then === "function") return result;
+        return Promise.resolve();
+    }
+
     function requestFullscreen(el) {
         if (!el) return Promise.reject(new Error("fullscreen-unavailable"));
-        var fn = el.requestFullscreen
-            || el.webkitRequestFullscreen
-            || el.mozRequestFullScreen
-            || el.msRequestFullscreen;
-        if (!fn) return Promise.reject(new Error("fullscreen-unavailable"));
-        try {
-            var result = fn.call(el);
-            if (result && typeof result.then === "function") return result;
-            return Promise.resolve();
-        } catch (err) {
-            return Promise.reject(err);
+        var names = [
+            "requestFullscreen",
+            "webkitRequestFullscreen",
+            "webkitRequestFullScreen",
+            "mozRequestFullScreen",
+            "msRequestFullscreen"
+        ];
+        var i, result, lastErr, saw = false;
+        for (i = 0; i < names.length; i++) {
+            if (typeof el[names[i]] !== "function") continue;
+            saw = true;
+            try {
+                result = callFullscreen(el, names[i]);
+            } catch (err) {
+                if (names[i] === "webkitRequestFullScreen") {
+                    try {
+                        result = el.webkitRequestFullScreen();
+                    } catch (err2) {
+                        lastErr = err2;
+                        continue;
+                    }
+                } else {
+                    lastErr = err;
+                    continue;
+                }
+            }
+            return asFullscreenPromise(result);
         }
+        return Promise.reject(lastErr || new Error(saw ? "fullscreen-rejected" : "fullscreen-unavailable"));
     }
 
     function exitFullscreen() {
         if (!activeFullscreen()) return Promise.resolve();
-        var fn = document.exitFullscreen
-            || document.webkitExitFullscreen
-            || document.mozCancelFullScreen
-            || document.msExitFullscreen;
-        if (!fn) return Promise.resolve();
-        try {
-            var result = fn.call(document);
-            if (result && typeof result.then === "function") return result;
-            return Promise.resolve();
-        } catch (err) {
-            return Promise.reject(err);
+        var names = [
+            "exitFullscreen",
+            "webkitExitFullscreen",
+            "webkitCancelFullScreen",
+            "mozCancelFullScreen",
+            "msExitFullscreen"
+        ];
+        var i, result;
+        for (i = 0; i < names.length; i++) {
+            if (typeof document[names[i]] !== "function") continue;
+            try {
+                result = callFullscreen(document, names[i]);
+            } catch (err) {
+                continue;
+            }
+            return asFullscreenPromise(result);
         }
+        return Promise.resolve();
     }
 
     function applyExpanded(on) {
@@ -316,7 +367,7 @@
 
     function syncExpanded() {
         var on = !!activeFullscreen();
-        if (on && (isPhone() || !currentHref)) {
+        if (on && (hidesFullscreen() || !currentHref)) {
             exitFullscreen().catch(function () {});
             on = false;
         }
@@ -324,7 +375,7 @@
     }
 
     function setExpanded(on) {
-        if (!currentHref || isPhone()) on = false;
+        if (!currentHref || hidesFullscreen()) on = false;
         if (!on) {
             exitFullscreen().catch(function () {});
             applyExpanded(false);
@@ -1100,9 +1151,9 @@
         };
     }
 
-    if (phoneQuery.addEventListener) {
-        phoneQuery.addEventListener("change", function () {
-            if (isPhone()) setExpanded(false);
+    if (hidesFullscreenQuery.addEventListener) {
+        hidesFullscreenQuery.addEventListener("change", function () {
+            if (hidesFullscreen()) setExpanded(false);
         });
     }
 })();
