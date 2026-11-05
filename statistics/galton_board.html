@@ -66,7 +66,7 @@
     <header class="demo-header">
         <h1 class="text-3xl font-bold mb-2">Galton Board</h1>
         <p class="leading-relaxed">
-            Each bead takes an independent left or right bounce at every peg. The bin it reaches counts those right bounces ($k$), and as the rows add up that pile converges to a normal curve.
+            Start the flow or drop a burst. Change the rows and the right-bias. Each bead’s bin is its count of right bounces.
         </p>
     </header>
 
@@ -285,7 +285,7 @@
                         <span class="text-xs font-semibold px-2.5 py-0.5 border border-black bg-white viz-ink-group-c">Discrete dots</span>
                     </div>
                     <p class="text-xs sm:text-sm leading-relaxed mb-3">
-                        Each bead passes through $n$ rows of pegs. Let $X_i \in \{0, 1\}$ denote a left ($0$) or right ($1$) bounce at row $i$ with probability $\mathbb{P}(X_i = 1) = p$. The final horizontal bin index $k$ is the sum of $n$ independent Bernoulli trials:
+                        Each bead’s bin is the count of right bounces. The box below evaluates $P(X = k)$ for the bin in view.
                     </p>
                     <div class="math-block formula-fit bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;">
                         <div data-katex-display="X = \sum_{i=1}^{n} X_i \sim \text{Binomial}(n, p)"></div>
@@ -313,7 +313,7 @@
                         <span class="text-xs font-semibold px-2.5 py-0.5 border border-black bg-white viz-ink-density">Continuous curve</span>
                     </div>
                     <p class="text-xs sm:text-sm leading-relaxed mb-3">
-                        Because $X$ is the sum of $n$ independent and identically distributed (i.i.d.) variables with mean $p$ and variance $p(1-p)$, its exact mean and variance over $n$ rows are $\mu = np$ and $\sigma^2 = np(1-p)$. For large $n$, $P(X=k)$ converges to the Gaussian density $f(k)$:
+                        With more rows, that binomial probability sits close to the normal curve. The box below evaluates the approximation for the same bin.
                     </p>
                     <div class="math-block formula-fit bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;">
                         <div data-katex-display="\mu = np, \qquad \sigma = \sqrt{np(1-p)}"></div>

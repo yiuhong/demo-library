@@ -430,7 +430,7 @@
 
     <header class="demo-header">
       <h1>Binomial Distribution &amp; Bernoulli Process</h1>
-      <p>Each coin is a Bernoulli trial. The number of heads in \(n\) tosses is binomial. Flip once, or run many trials, and watch the observed frequencies settle onto the probability mass function.</p>
+      <p>Set the number of coins and the chance of heads. Flip once, or run many trials. The bars are the exact probabilities; the marks are how often each count showed up.</p>
     </header>
 
     <div class="dashboard" id="demo-dashboard">
@@ -555,44 +555,19 @@
 
     <div class="notes-grid">
       <div class="demo-card panel note-card">
-        <span class="note-badge badge-blue">Theoretical foundation</span>
-        <h3>Note on the Bernoulli process</h3>
-        <p>
-          A <strong>Bernoulli process</strong> is a sequence of independent and identically distributed binary random variables \(X_1, X_2, \dots, X_n\). Each coin toss is a <em>Bernoulli trial</em> with \(X_i \sim \text{Bernoulli}(p)\):
-        </p>
-        <div class="math-box demo-panel">
-          $$P(X_i = 1) = p \quad \text{(success / heads)}, \qquad P(X_i = 0) = 1 - p = q \quad \text{(failure / tails)}$$
-        </div>
-        <p>Three conditions have to hold:</p>
-        <ul class="note-list">
-          <li><strong>Binary outcomes.</strong> Every trial \(i\) is one of two mutually exclusive outcomes (\(X_i \in \{0, 1\}\)).</li>
-          <li><strong>Constant probability.</strong> The chance of heads \(p\) is the same on every trial.</li>
-          <li><strong>Independence.</strong> Earlier tosses say nothing about the next one (\(P(X_i = 1 \mid X_1, \dots, X_{i-1}) = p\)).</li>
-        </ul>
+        <span class="note-badge badge-blue">How to read the bars</span>
+        <h3>From coins to a count</h3>
         <p style="margin-bottom: 0;">
-          <strong>Connection to the binomial distribution.</strong> The number of heads across \(n\) trials is the sum of those indicators, and that sum is binomial:
-          $$X = \sum_{i=1}^{n} X_i \sim \text{Binomial}(n, p)$$
-          Each rightward bounce on the Galton board is this same trial. The bin is this same count.
+          Each coin is one trial. The count of heads is the bar you are on. Hover or click a bar to read \(P(X = k)\) for that count.
         </p>
       </div>
 
       <div class="demo-card panel note-card">
         <span class="note-badge badge-amber">Combinatorics</span>
-        <h3>Note on the combination</h3>
+        <h3>Sequences with k heads</h3>
         <p>
-          Any one sequence with exactly \(k\) heads and \(n - k\) tails has probability \(p^k(1-p)^{n-k}\). Those \(k\) heads can sit in any of the \(n\) positions.
+          The combination below counts the sequences with exactly \(k\) heads for the bar you select.
         </p>
-        <p>
-          The <strong>binomial coefficient</strong> (“\(n\) choose \(k\)”) counts the sequences with \(k\) heads. Order within the heads does not matter:
-        </p>
-        <div class="math-box demo-panel">
-          $$\binom{n}{k} = {}_nC_k = C(n, k) = \frac{n!}{k!\,(n - k)!}$$
-        </div>
-        <ul class="note-list">
-          <li><strong>Factorial.</strong> \(n! = n \times (n-1) \times \cdots \times 1\), and \(0! = 1\).</li>
-          <li><strong>Symmetry.</strong> \(\binom{n}{k} = \binom{n}{n-k}\). Choosing the heads is the same as choosing the tails.</li>
-          <li><strong>Boundaries.</strong> \(\binom{n}{0} = \binom{n}{n} = 1\). The probabilities add to 1: \(\sum_{k=0}^{n} \binom{n}{k} p^k (1-p)^{n-k} = 1\).</li>
-        </ul>
         <div class="live-comb-box" id="live-comb-eval"></div>
       </div>
     </div>

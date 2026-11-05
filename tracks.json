@@ -58,7 +58,7 @@
           "href": "statistics/moments_as_averages.html",
           "title": "Moments",
           "connectionTitle": "Averages of spread and skew",
-          "note": "There are different types of averages, and in statistics those averages of powers of the values (or of their deviations) are called moments. The mean is the first moment; higher moments give numbers for spread and for skew. Compare how each moment responds when you change the sample. Those numbers still treat the sample mean as if it were already known, which matters once variance is estimated from the same data.",
+          "note": "There are different types of averages, and in statistics those averages of powers of the values (or of their deviations) are called moments. The mean is the first moment; higher moments give numbers for spread and for skew. Raising the deviations to a higher power, or changing the center and the scale, is what turns that average into the variance, the skewness, or the kurtosis. Compare how each moment responds when you change the sample. Those numbers still treat the sample mean as if it were already known, which matters once variance is estimated from the same data.",
           "formulae": [
             "m₁ = x̄",
             "m₂ = Σ (xᵢ − x̄)² / n",
@@ -156,7 +156,7 @@
           "href": "statistics/limitations_of_summary_statistics.html",
           "title": "Limitations of summary statistics",
           "connectionTitle": "Same summaries, different pictures",
-          "note": "A Q–Q plot can show that a sample’s shape and a reference shape differ. Summaries of center, spread, and correlation can still agree while the pictures do not. Anscombe’s quartet and the Datasaurus dozen keep the means, the standard deviations, and r fixed, and the graph changes from a line to a curve, a stack, a star, or a dinosaur. Switch shapes and those summaries stay put. Drag a point and they move. Re-lock them and the strange picture can return with the same numbers. When the averages match, the graph is still part of the description.",
+          "note": "A Q–Q plot can show that a sample’s shape and a reference shape differ. Summaries of center, spread, and correlation can still agree while the pictures do not. Anscombe’s quartet (Anscombe, 1973) and the Datasaurus dozen (Matejka & Fitzmaurice, 2017) keep the means, the standard deviations, and r fixed, and the graph changes from a line to a curve, a stack, a star, or a dinosaur. Switch shapes and those summaries stay put. Drag a point and they move. Re-lock them and the strange picture can return with the same numbers. When the averages match, the graph is still part of the description.",
           "formulae": [
             "same x̄, sₓ, ȳ, sᵧ, and r across shapes"
           ],
@@ -269,7 +269,7 @@
           "href": "statistics/central_limit_theorem.html",
           "title": "Central Limit Theorem (CLT)",
           "connectionTitle": "Many means, one curve",
-          "note": "A single sample mean is one summary of one set of numbers. If you imagine drawing many samples of the same size, those means themselves form a distribution. As each sample gets larger, that distribution of means settles toward a normal curve, whatever shape the raw observations had. The central limit theorem is that statement about means — and classroom simulations make the settling visible.",
+          "note": "A single sample mean is one summary of one set of numbers. If you imagine drawing many samples of the same size, those means themselves form a distribution. As each sample gets larger, that distribution of means settles toward a normal curve, whatever shape the raw observations had. The central limit theorem is that statement about means. The spread of those means is the standard error, σ / √n, so a larger sample pulls them in tighter. This simulation uses the population standard deviation; with one real sample that spread is estimated by s / √n.",
           "formulae": [
             "X̄ ≈ N(μ, σ²/n) for large n",
             "SE = σ / √n"
@@ -281,7 +281,7 @@
           "href": "statistics/horowitz_1974_simulation_CLT.html",
           "title": "Horowitz (1974) CLT Simulation",
           "connectionTitle": "Watching sample means accumulate",
-          "note": "The central limit theorem is easier to trust when you can watch sample means accumulate. Horowitz's 1974 simulation draws samples again and again in a classroom setting; the collection of sample means takes on a normal shape. Once means behave like normals, sums of squared standard normals become the next building block.",
+          "note": "The central limit theorem is easier to trust when you can watch sample means accumulate. Horowitz's 1974 classroom simulation draws samples of 10 again and again from about 1,000 scores, roughly N(50, 15.8); the collection of sample means takes on a normal shape. The spread of those means is about σ / √10. Each sample also estimates that spread with s / √n, and the average of those estimates settles near it (Horowitz, 1974, pp. 179–182). Once means behave like normals, sums of squared standard normals become the next building block.",
           "formulae": [
             "X̄ₙ → N(μ, σ²/n) as n grows"
           ],
@@ -323,7 +323,7 @@
           "href": "statistics/z_distribution_vs_t_distribution.html",
           "title": "z-Distribution vs t-Distribution",
           "connectionTitle": "Estimated spread, heavier tails",
-          "note": "When a mean is compared against a known standard deviation, a z curve is the usual reference. In practice that standard deviation is almost always estimated from the same data, and the extra uncertainty shows up as heavier tails than z. Those tails are heavier still in a small sample; that wider curve is the t distribution, and it is the reference you will use for the two comparisons that follow.",
+          "note": "When a mean is compared against a known standard deviation, a z curve is the usual reference. In practice that standard deviation is almost always estimated from the same data, and the extra uncertainty shows up as heavier tails than z. When that estimate of the spread comes out small, the statistic is pushed farther into the tail. Those tails are heavier still in a small sample; that wider curve is the t distribution, and it is the reference you will use for the two comparisons that follow.",
           "formulae": [
             "z = (X̄ − μ) / (σ / √n)",
             "t = (X̄ − μ) / (s / √n)",
@@ -464,7 +464,7 @@
           "href": "statistics/anova_assumptions.html",
           "title": "ANOVA Assumptions",
           "connectionTitle": "Residuals, spread, and independence",
-          "note": "The usual reading of an F test wants residuals that are roughly normal, groups with similar spread, and observations that are independent of each other. Those are the conditions for the standard interpretation — a check on whether the splits and F ratios can be read in the ordinary way.",
+          "note": "The usual reading of an F test wants residuals that are roughly normal, groups with similar spread, and observations that are independent of each other. Those are the conditions for the standard interpretation — a check on whether the splits and F ratios can be read in the ordinary way. Breaking one of them moves the Type I error under the null, the power under the alternative, or both.",
           "formulae": [
             "residuals ≈ normal",
             "group variances similar",

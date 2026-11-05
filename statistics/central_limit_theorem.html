@@ -29,26 +29,17 @@
         <header class="demo-header">
             <h1 class="text-3xl font-bold mb-2">The Central Limit Theorem (CLT)</h1>
             <p class="leading-relaxed">
-                The Central Limit Theorem states that if you draw repeated samples of size $n$ from <strong>any</strong> population distribution (even heavily skewed ones), the distribution of those sample means will approach a normal distribution (a bell curve) as $n$ gets larger.
+                Pick a population shape and a sample size, then run the simulation. The right-hand plot is the pile of sample means.
             </p>
         </header>
 
         <div class="demo-card demo-prose p-6">
             <h2 class="font-bold text-lg mb-2">The Standard Error (SE)</h2>
             <p class="text-sm leading-relaxed mb-3">
-                The standard deviation of this resulting sampling distribution is called the <strong>Standard Error (SE)</strong>. It is calculated by dividing the population's standard deviation ($\sigma$) by the square root of the sample size ($n$):
+                The spread of that pile is the standard error. Raise $n$ and the pile gets narrower. This simulation uses the population $\sigma$.
             </p>
             <div class="demo-panel text-xl text-center my-4 py-3 w-fit mx-auto px-8">
                 $$SE = \frac{\sigma}{\sqrt{n}}$$
-            </div>
-            <p class="text-sm leading-relaxed">
-                This mathematically proves why larger sample sizes yield tighter, more precise estimates of the population mean: as the sample size $n$ (the denominator $\sqrt{n}$) grows, the error shrinks, clustering the sample means closer to the true population mean.
-            </p>
-
-            <div class="demo-divider mt-4 pt-4">
-                <p class="text-xs leading-relaxed">
-                    <strong>Note on Real-World Application:</strong> This simulation uses the exact mathematical truth ($\sigma$) because we defined the population. In the real world, the true population standard deviation is rarely known, so statisticians must estimate it using the standard deviation of their single sample ($s$). In practice, the formula becomes $SE \approx \frac{s}{\sqrt{n}}$.
-                </p>
             </div>
         </div>
 
