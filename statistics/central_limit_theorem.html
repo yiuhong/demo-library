@@ -562,16 +562,13 @@
             document.getElementById('emp-se').innerText = '--';
         });
 
-        // Run setup functions on window load
+        // Run setup functions on window load.
+        // Do not start the simulation here. runSimulation() disables the
+        // sliders until the animation finishes, so a phone cannot move them
+        // on arrival. Empty axes are drawn; Run starts the simulation.
         window.onload = () => {
-            // Render the theoretical population distribution immediately
             drawPopulation();
-            
-            // Draw empty axes for the sampling distribution placeholder
-            btnReset.click(); 
-            
-            // Automatically run the first simulation so the user isn't staring at a blank chart
-            runSimulation();
+            btnReset.click();
         };
 
     </script>
