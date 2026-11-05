@@ -1,104 +1,27 @@
 /*
- * Catalog page. Cards come from demos.json. Search and category filters
- * narrow the list. There is no List / Tracks toggle on this page.
+ * Catalog page. Cards come from demos.json.
+ * Desktop browse: the rail is categories only, and the pane is the
+ * focused category's card grid. The first category is focused on arrival.
+ * Opening a card switches the rail to that category's demos and loads
+ * the demonstration in the pane. Back to browse restores the grid.
+ * Phone stacks categories, then that category's demos, then the
+ * demonstration. Search stays inside the focused category.
  */
 (function () {
-    var searchInput = document.getElementById("searchInput");
-    var noResults = document.getElementById("noResults");
-    var activeFilter = "all";
-    var catalogReady = false;
-    var catalogError = false;
-    var CATALOG_PANELS = ["style2", "style3", "style1"];
+    var rail = document.getElementById("viz-rail");
+    var mount = document.getElementById("catalog-rail");
+    var browse = document.getElementById("catalog-browse");
+    var phoneQuery = window.matchMedia("(max-width: 736px)");
+    var categories = [];
+    var ready = false;
+    var failed = false;
+    var currentId = "";
+    var explicit = false;
+    var demoOpen = false;
+    var searchTerm = "";
 
-    function normalize(value) {
-        return (value || "").toLowerCase().replace(/\s+/g, " ").trim();
-    }
-
-    function applyFilters() {
-        if (!noResults) return;
-        if (!catalogReady || catalogError) {
-            noResults.style.display = "none";
-            return;
-        }
-        var searchTerm = normalize(searchInput ? searchInput.value : "");
-        var totalVisibleDemos = 0;
-
-        document.querySelectorAll(".category-section").forEach(function (category) {
-            var categoryKey = category.getAttribute("data-category");
-            var chipMatch = activeFilter === "all" || activeFilter === categoryKey;
-            if (!chipMatch) {
-                category.style.display = "none";
-                return;
-            }
-            var categoryTitle = normalize(category.querySelector("h2").textContent);
-            var categoryTitleMatch = searchTerm !== "" && categoryTitle.indexOf(searchTerm) !== -1;
-
-            category.querySelectorAll(".sub-category-section").forEach(function (sub) {
-                var heading = sub.querySelector("h3, h4");
-                var subTitle = normalize(heading ? heading.textContent : "");
-                var group = sub.closest(".topic-group");
-                var groupHeading = group ? group.querySelector(".topic-group-title") : null;
-                var groupTitle = normalize(groupHeading ? groupHeading.textContent : "");
-                var subTitleMatch = searchTerm !== "" && subTitle.indexOf(searchTerm) !== -1;
-                var groupTitleMatch = searchTerm !== "" && groupTitle.indexOf(searchTerm) !== -1;
-                var subHasVisibleCards = false;
-
-                sub.querySelectorAll(".demo-card").forEach(function (card) {
-                    var keywords = normalize(card.getAttribute("data-keywords"));
-                    var cardText = normalize(card.textContent);
-                    var cardMatch = (keywords + " " + cardText).indexOf(searchTerm) !== -1;
-                    if (searchTerm === "" || cardMatch || subTitleMatch || groupTitleMatch || categoryTitleMatch) {
-                        card.style.display = "";
-                        subHasVisibleCards = true;
-                        totalVisibleDemos++;
-                    } else {
-                        card.style.display = "none";
-                    }
-                });
-                sub.style.display = subHasVisibleCards ? "" : "none";
-            });
-
-            category.querySelectorAll(".topic-group").forEach(function (group) {
-                var groupHasVisibleSubs = Array.prototype.some.call(
-                    group.querySelectorAll(".sub-category-section"),
-                    function (sub) { return sub.style.display !== "none"; }
-                );
-                group.style.display = groupHasVisibleSubs ? "" : "none";
-            });
-
-            var categoryHasVisibleSubs = Array.prototype.some.call(
-                category.querySelectorAll(".sub-category-section"),
-                function (sub) { return sub.style.display !== "none"; }
-            );
-            category.style.display = categoryHasVisibleSubs ? "" : "none";
-        });
-
-        document.querySelectorAll("section.catalog-panel").forEach(function (wrapper) {
-            var hasVisible = Array.prototype.some.call(
-                wrapper.querySelectorAll(".category-section"),
-                function (cat) { return cat.style.display !== "none"; }
-            );
-            wrapper.style.display = hasVisible ? "" : "none";
-        });
-        noResults.style.display = totalVisibleDemos === 0 ? "block" : "none";
-    }
-
-    if (searchInput) searchInput.addEventListener("input", applyFilters);
-
-    var filterChips = document.querySelector(".filter-chips");
-    if (filterChips) {
-        filterChips.addEventListener("click", function (event) {
-            var chip = event.target.closest ? event.target.closest(".filter-chip") : null;
-            if (!chip || !filterChips.contains(chip)) return;
-            filterChips.querySelectorAll(".filter-chip").forEach(function (other) {
-                other.classList.remove("is-active");
-                other.setAttribute("aria-pressed", "false");
-            });
-            chip.classList.add("is-active");
-            chip.setAttribute("aria-pressed", "true");
-            activeFilter = chip.getAttribute("data-filter");
-            applyFilters();
-        });
+    function isPhone() {
+        return phoneQuery.matches;
     }
 
     function el(tag, className, text) {
@@ -109,7 +32,12 @@
     }
 
     function clear(node) {
+        if (!node) return;
         while (node.firstChild) node.removeChild(node.firstChild);
+    }
+
+    function normalize(value) {
+        return (value || "").toLowerCase().replace(/\s+/g, " ").trim();
     }
 
     function safeHref(href) {
@@ -121,10 +49,6 @@
         if (value.indexOf("//") === 0) return "";
         if (value.indexOf("..") !== -1) return "";
         return value;
-    }
-
-    function catalogMount(panel) {
-        return document.getElementById("catalog-mount-" + panel);
     }
 
     function safeSlug(value) {
@@ -213,9 +137,9 @@
         return { title: title, group: group, demos: demos, anchor: "" };
     }
 
-    function assignAnchors(categories) {
+    function assignAnchors(list) {
         var used = {};
-        categories.forEach(function (category) {
+        list.forEach(function (category) {
             category.subcategories.forEach(function (sub) {
                 var anchor = pathAnchor(sub.title);
                 if (!anchor) return;
@@ -242,160 +166,382 @@
     function normalizeCatalog(data) {
         var list = data && Array.isArray(data.categories) ? data.categories : null;
         if (!list) throw new Error("Catalog could not be loaded.");
-        var categories = list.map(normalizeCategory).filter(Boolean);
-        assignAnchors(categories);
-        return categories;
+        var next = list.map(normalizeCategory).filter(Boolean);
+        assignAnchors(next);
+        return next;
     }
 
-    function renderDemoCard(demo) {
-        var card = el("a", "demo-card");
-        card.href = demo.href;
-        card.setAttribute("data-keywords", demo.keywords);
-        card.appendChild(el("span", "demo-card-title", demo.title));
-        var desc = el("p", "demo-card-desc");
-        setDescription(desc, demo.description);
-        card.appendChild(desc);
-        var tags = el("span", "demo-card-tags");
-        demo.tags.forEach(function (tag) {
-            tags.appendChild(el("span", tag.draft ? "demo-tag is-draft" : "demo-tag", tag.label));
-        });
-        if (tags.firstChild) card.appendChild(tags);
-        return card;
-    }
-
-    function renderSubcategory(sub, level) {
-        var section = el("div", "sub-category-section");
-        if (sub.anchor) section.id = sub.anchor;
-        section.appendChild(el(level, null, sub.title));
-        var grid = el("nav", "card-grid");
-        grid.setAttribute("aria-label", sub.title);
-        sub.demos.forEach(function (demo) {
-            grid.appendChild(renderDemoCard(demo));
-        });
-        section.appendChild(grid);
-        return section;
-    }
-
-    function renderCategory(category) {
-        var section = el("div", "category-section");
-        if (category.domId) section.id = category.domId;
-        section.setAttribute("data-category", category.id);
-        section.appendChild(el("h2", null, category.title));
-        var index = 0;
-        while (index < category.subcategories.length) {
-            var sub = category.subcategories[index];
-            if (!sub.group) {
-                section.appendChild(renderSubcategory(sub, "h3"));
-                index++;
-                continue;
-            }
-            var group = el("div", "topic-group");
-            group.appendChild(el("h3", "topic-group-title", sub.group));
-            var name = sub.group;
-            while (index < category.subcategories.length && category.subcategories[index].group === name) {
-                group.appendChild(renderSubcategory(category.subcategories[index], "h4"));
-                index++;
-            }
-            section.appendChild(group);
-        }
-        return section;
-    }
-
-    function syncFilterChips(categories) {
-        var group = document.querySelector(".filter-chips");
-        if (!group) return;
-        var chips = group.querySelectorAll(".filter-chip");
-        var same = chips.length === categories.length + 1 && chips[0] && chips[0].getAttribute("data-filter") === "all";
+    function findCategory(id) {
         var i;
-        if (same) {
-            for (i = 0; i < categories.length; i++) {
-                if (chips[i + 1].getAttribute("data-filter") !== categories[i].id) same = false;
-                if (chips[i + 1].textContent !== categories[i].title) same = false;
-            }
-        }
-        if (same) return;
-        var keepAll = chips[0] && chips[0].getAttribute("data-filter") === "all" ? chips[0] : null;
-        clear(group);
-        if (!keepAll) {
-            keepAll = el("button", "filter-chip is-active", "All");
-            keepAll.type = "button";
-            keepAll.setAttribute("data-filter", "all");
-            keepAll.setAttribute("aria-pressed", "true");
-        }
-        var known = false;
         for (i = 0; i < categories.length; i++) {
-            if (categories[i].id === activeFilter) known = true;
+            if (categories[i].id === id) return categories[i];
         }
-        if (!known) activeFilter = "all";
-        keepAll.classList.toggle("is-active", activeFilter === "all");
-        keepAll.setAttribute("aria-pressed", activeFilter === "all" ? "true" : "false");
-        group.appendChild(keepAll);
-        categories.forEach(function (category) {
-            var on = activeFilter === category.id;
-            var btn = el("button", on ? "filter-chip is-active" : "filter-chip", category.title);
-            btn.type = "button";
-            btn.setAttribute("data-filter", category.id);
-            btn.setAttribute("aria-pressed", on ? "true" : "false");
-            group.appendChild(btn);
-        });
+        return null;
     }
 
-    function renderCatalog(categories) {
-        var byPanel = { style1: [], style2: [], style3: [] };
-        categories.forEach(function (category) {
-            byPanel[category.panel].push(category);
-        });
-        CATALOG_PANELS.forEach(function (panel) {
-            var mount = catalogMount(panel);
-            if (!mount) return;
-            var wrapper = mount.closest ? mount.closest("section") : null;
-            clear(mount);
-            if (!byPanel[panel].length) {
-                if (wrapper) wrapper.classList.add("is-pending");
-                return;
+    function demoCount(category) {
+        var n = 0;
+        var i;
+        for (i = 0; i < category.subcategories.length; i++) n += category.subcategories[i].demos.length;
+        return n;
+    }
+
+    function countLabel(n) {
+        return n === 1 ? "1 demo" : n + " demos";
+    }
+
+    function categoryForHref(href) {
+        if (typeof href !== "string" || !href) return "";
+        var value = href.trim();
+        var query = value.indexOf("?");
+        if (query !== -1) value = value.slice(0, query);
+        var i;
+        var j;
+        var k;
+        for (i = 0; i < categories.length; i++) {
+            var subs = categories[i].subcategories;
+            for (j = 0; j < subs.length; j++) {
+                var demos = subs[j].demos;
+                for (k = 0; k < demos.length; k++) {
+                    if (demos[k].href === value) return categories[i].id;
+                }
             }
-            byPanel[panel].forEach(function (category) {
-                mount.appendChild(renderCategory(category));
-            });
-            if (wrapper) wrapper.classList.remove("is-pending");
-        });
-        syncFilterChips(categories);
+        }
+        return "";
     }
 
-    function clearBrowse() {
-        if (searchInput) searchInput.value = "";
-        activeFilter = "all";
-        document.querySelectorAll(".filter-chip").forEach(function (chip) {
-            var on = chip.getAttribute("data-filter") === "all";
-            chip.classList.toggle("is-active", on);
-            chip.setAttribute("aria-pressed", on ? "true" : "false");
-        });
-        applyFilters();
-    }
-
-    function pathIdFromLocation() {
+    function hashToken() {
         var hash = window.location.hash.replace(/^#/, "");
         if (!hash) return "";
         try {
             hash = decodeURIComponent(hash);
         } catch (err) {}
-        if (!/^[a-z][a-z0-9-]*$/.test(hash)) return "";
+        if (!/^[A-Za-z][\w-]*$/.test(hash)) return "";
         return hash;
     }
 
-    function revealPathFromLocation() {
-        var id = pathIdFromLocation();
-        if (!id) return;
-        var node = document.getElementById(id);
-        if (!node) return;
-        clearBrowse();
-        node.scrollIntoView({ block: "start" });
+    function categoryForHash(hash) {
+        var token = typeof hash === "string" ? hash.replace(/^#/, "") : hashToken();
+        if (typeof hash === "string") {
+            try {
+                token = decodeURIComponent(token);
+            } catch (err) {}
+        }
+        if (!token || !/^[A-Za-z][\w-]*$/.test(token)) return "";
+        var i;
+        var j;
+        for (i = 0; i < categories.length; i++) {
+            if (categories[i].domId === token) return categories[i].id;
+            var subs = categories[i].subcategories;
+            for (j = 0; j < subs.length; j++) {
+                if (subs[j].anchor === token) return categories[i].id;
+            }
+        }
+        return "";
     }
 
-    function showCatalogError() {
-        catalogError = true;
-        var status = document.getElementById("catalog-status");
-        if (status) status.textContent = "The catalog could not be loaded.";
+    function stageTitle() {
+        var category = findCategory(currentId);
+        if (category) return category.title;
+        return isPhone() ? "Select a category" : "Catalog";
+    }
+
+    function paintStageTitle() {
+        if (demoOpen) return;
+        var node = document.getElementById("viz-pane-title");
+        if (node) node.textContent = stageTitle();
+        var empty = document.getElementById("viz-empty");
+        if (empty) empty.hidden = !!(browse && !browse.hidden);
+    }
+
+    function setLeadVisible(show) {
+        var lead = rail ? rail.querySelector(".page-lead") : null;
+        if (lead) lead.hidden = !show;
+    }
+
+    function setLandingChrome(landing) {
+        var heading = rail ? rail.querySelector("h1") : null;
+        if (heading) heading.classList.toggle("visually-hidden", !landing);
+        setLeadVisible(landing);
+    }
+
+    function placeBack(show, label, aria) {
+        var button = document.getElementById("catalog-back");
+        if (!show) {
+            if (button) button.hidden = true;
+            return;
+        }
+        if (!button) {
+            button = el("button", "catalog-rail-back");
+            button.id = "catalog-back";
+            button.type = "button";
+            if (rail) rail.insertBefore(button, rail.firstChild);
+        }
+        button.hidden = false;
+        button.textContent = label;
+        button.setAttribute("aria-label", aria || label);
+    }
+
+    function keywordText(demo) {
+        var extra = demo.tags.map(function (tag) { return tag.label; }).join(" ");
+        return (demo.keywords + " " + extra).trim();
+    }
+
+    function renderCard(demo, categoryId) {
+        var card = el("a", "demo-card");
+        card.href = demo.href;
+        card.setAttribute("data-category", categoryId);
+        card.setAttribute("data-keywords", keywordText(demo));
+        card.appendChild(el("span", "demo-card-title", demo.title));
+        var desc = el("p", "demo-card-desc");
+        setDescription(desc, demo.description);
+        card.appendChild(desc);
+        return card;
+    }
+
+    function renderCompactLink(demo, categoryId) {
+        var item = el("li");
+        var link = el("a", "catalog-demo", demo.title);
+        link.href = demo.href;
+        link.setAttribute("data-category", categoryId);
+        item.appendChild(link);
+        return item;
+    }
+
+    function renderTopic(sub, category, compact) {
+        var section = el("section", compact ? "catalog-topic is-compact" : "catalog-topic");
+        section.setAttribute("data-topic", sub.title);
+        if (sub.anchor) section.id = sub.anchor;
+        var heading = el("h3", compact ? "catalog-topic-title" : null, sub.title);
+        section.appendChild(heading);
+        if (compact) {
+            var list = el("ul", "catalog-demo-list");
+            sub.demos.forEach(function (demo) {
+                list.appendChild(renderCompactLink(demo, category.id));
+            });
+            section.appendChild(list);
+            return section;
+        }
+        var grid = el("div", "card-grid");
+        sub.demos.forEach(function (demo) {
+            grid.appendChild(renderCard(demo, category.id));
+        });
+        section.appendChild(grid);
+        return section;
+    }
+
+    function appendTopics(parent, category, compact) {
+        var subs = category.subcategories;
+        var index = 0;
+        while (index < subs.length) {
+            var sub = subs[index];
+            if (!sub.group) {
+                parent.appendChild(renderTopic(sub, category, compact));
+                index++;
+                continue;
+            }
+            var group = el("div", "catalog-group");
+            group.setAttribute("data-topic", sub.group);
+            group.appendChild(el("h3", "catalog-group-title", sub.group));
+            var name = sub.group;
+            while (index < subs.length && subs[index].group === name) {
+                group.appendChild(renderTopic(subs[index], category, compact));
+                index++;
+            }
+            parent.appendChild(group);
+        }
+    }
+
+    function topicHaystack(card) {
+        var names = [];
+        var topic = card.closest ? card.closest("[data-topic]") : null;
+        while (topic) {
+            names.push(topic.getAttribute("data-topic") || "");
+            topic = topic.parentElement && topic.parentElement.closest
+                ? topic.parentElement.closest("[data-topic]")
+                : null;
+        }
+        return normalize(names.join(" "));
+    }
+
+    function applySearch(root) {
+        if (!root) return;
+        var term = normalize(searchTerm);
+        var visible = 0;
+        root.querySelectorAll("a.demo-card").forEach(function (card) {
+            var hay = normalize((card.getAttribute("data-keywords") || "") + " " + card.textContent);
+            var show = term === "" || hay.indexOf(term) !== -1 || topicHaystack(card).indexOf(term) !== -1;
+            card.hidden = !show;
+            if (show) visible++;
+        });
+        root.querySelectorAll("[data-topic]").forEach(function (topic) {
+            var any = false;
+            var cards = topic.querySelectorAll("a.demo-card");
+            var i;
+            for (i = 0; i < cards.length; i++) {
+                if (!cards[i].hidden) any = true;
+            }
+            topic.hidden = !any;
+        });
+        var empty = root.querySelector(".no-results");
+        if (empty) empty.hidden = visible !== 0;
+    }
+
+    function searchField() {
+        var wrap = el("div", "search-container");
+        var label = el("label", "visually-hidden", "Search this category");
+        label.htmlFor = "searchInput";
+        var input = document.createElement("input");
+        input.id = "searchInput";
+        input.type = "search";
+        input.placeholder = "Search this category";
+        input.value = searchTerm;
+        input.setAttribute("autocomplete", "off");
+        input.addEventListener("input", function () {
+            searchTerm = input.value;
+            applySearch(input.closest("#catalog-browse, .catalog-phone-list"));
+        });
+        wrap.appendChild(label);
+        wrap.appendChild(input);
+        return wrap;
+    }
+
+    function noResultsNote() {
+        var note = el("p", "no-results", "No demonstrations found. Try a different keyword.");
+        note.hidden = true;
+        note.setAttribute("role", "status");
+        return note;
+    }
+
+    function renderCategories() {
+        clear(mount);
+        placeBack(false);
+        setLandingChrome(true);
+        if (!categories.length) {
+            mount.appendChild(el("p", "catalog-message", "The catalog could not be loaded."));
+            return;
+        }
+        var list = el("ul", "catalog-chooser");
+        list.setAttribute("aria-label", "Categories");
+        categories.forEach(function (category) {
+            var item = el("li");
+            var link = el("a", "catalog-choice");
+            link.href = "catalog.html?category=" + category.id;
+            link.setAttribute("data-category", category.id);
+            var on = !demoOpen && category.id === currentId;
+            if (on) {
+                link.classList.add("is-current");
+                link.setAttribute("aria-current", "true");
+            }
+            link.appendChild(el("span", "catalog-choice-title", category.title));
+            link.appendChild(el("span", "catalog-choice-count", countLabel(demoCount(category))));
+            item.appendChild(link);
+            list.appendChild(item);
+        });
+        mount.appendChild(list);
+    }
+
+    function renderDemoList(category, compact) {
+        clear(mount);
+        placeBack(
+            true,
+            compact ? "Back to browse" : "Back",
+            compact ? "Back to browse" : "Back to all categories"
+        );
+        setLandingChrome(false);
+        var heading = el("h2", null, category.title);
+        if (category.domId && isPhone()) heading.id = category.domId;
+        mount.appendChild(heading);
+        var body = el("div", compact ? "catalog-demo-rail" : "catalog-phone-list");
+        if (!compact) {
+            body.appendChild(searchField());
+            body.appendChild(noResultsNote());
+        }
+        var nav = el("nav");
+        nav.setAttribute("aria-label", category.title);
+        appendTopics(nav, category, compact);
+        body.appendChild(nav);
+        mount.appendChild(body);
+        if (!compact) applySearch(body);
+    }
+
+    function renderGrid(category) {
+        if (!browse) return;
+        clear(browse);
+        browse.hidden = false;
+        if (category.domId) {
+            var marker = el("div");
+            marker.id = category.domId;
+            browse.appendChild(marker);
+        }
+        var head = el("div", "catalog-browse-head");
+        head.appendChild(el("p", "catalog-browse-kicker", "Pick a demonstration"));
+        head.appendChild(searchField());
+        browse.appendChild(head);
+        browse.appendChild(noResultsNote());
+        var nav = el("nav");
+        nav.setAttribute("aria-label", category.title);
+        appendTopics(nav, category, false);
+        browse.appendChild(nav);
+        applySearch(browse);
+        browse.scrollTop = 0;
+    }
+
+    function hideBrowse() {
+        if (!browse) return;
+        browse.hidden = true;
+        clear(browse);
+    }
+
+    function revealHash() {
+        var id = hashToken();
+        if (!id) return;
+        var node = document.getElementById(id);
+        if (!node || !node.scrollIntoView) return;
+        window.requestAnimationFrame(function () {
+            if (node.isConnected) node.scrollIntoView({ block: "start" });
+        });
+    }
+
+    function sync(options) {
+        options = options || {};
+        if (!ready || failed) return currentId;
+        if (options.explicit != null) explicit = !!options.explicit;
+        demoOpen = !!options.demoOpen;
+        var categoryId = typeof options.category === "string" ? safeSlug(options.category) : currentId;
+        if (categoryId && !findCategory(categoryId)) categoryId = "";
+        if (!categoryId && !isPhone()) categoryId = categories.length ? categories[0].id : "";
+        if (categoryId !== currentId) searchTerm = "";
+        currentId = categoryId || "";
+        var category = findCategory(currentId);
+        document.title = category ? category.title + " - Catalog" : "Catalog - Project Viz";
+        if (!category) {
+            renderCategories();
+            hideBrowse();
+            paintStageTitle();
+            return currentId;
+        }
+        if (isPhone()) renderDemoList(category, false);
+        else if (demoOpen) renderDemoList(category, true);
+        else renderCategories();
+        if (!isPhone() && !demoOpen) renderGrid(category);
+        else hideBrowse();
+        paintStageTitle();
+        revealHash();
+        return currentId;
+    }
+
+    function showError() {
+        failed = true;
+        ready = true;
+        clear(mount);
+        if (mount) mount.appendChild(el("p", "catalog-message", "The catalog could not be loaded."));
+        hideBrowse();
+        var empty = document.getElementById("viz-empty");
+        if (empty) {
+            empty.hidden = false;
+            empty.textContent = "The catalog could not be loaded.";
+        }
     }
 
     function loadCatalog() {
@@ -406,18 +552,45 @@
             if (!response.ok) throw new Error("Catalog could not be loaded.");
             return response.json();
         }).then(function (data) {
-            var categories = normalizeCatalog(data);
+            categories = normalizeCatalog(data);
             if (!categories.length) throw new Error("Catalog could not be loaded.");
-            renderCatalog(categories);
-            catalogReady = true;
-            applyFilters();
-            revealPathFromLocation();
+            ready = true;
+            failed = false;
             document.dispatchEvent(new CustomEvent("projectviz:catalog"));
         }).catch(function () {
-            showCatalogError();
-            catalogReady = true;
-            applyFilters();
+            showError();
             document.dispatchEvent(new CustomEvent("projectviz:catalog"));
+        });
+    }
+
+    window.ProjectVizCatalog = {
+        sync: sync,
+        ready: function () { return ready && !failed; },
+        has: function (id) { return !!findCategory(safeSlug(id)); },
+        firstId: function () { return categories.length ? categories[0].id : ""; },
+        currentId: function () { return currentId; },
+        explicit: function () { return explicit; },
+        categoryForHref: categoryForHref,
+        categoryForHash: categoryForHash,
+        stageTitle: stageTitle
+    };
+
+    window.addEventListener("hashchange", function () {
+        if (!ready || failed) return;
+        var id = categoryForHash(window.location.hash);
+        if (!id) return;
+        if (window.ProjectVizShell && window.ProjectVizShell.openCategory) {
+            window.ProjectVizShell.openCategory(id, { replace: true });
+        }
+        revealHash();
+    });
+
+    if (phoneQuery.addEventListener) {
+        phoneQuery.addEventListener("change", function () {
+            if (!ready || failed) return;
+            if (window.ProjectVizShell && window.ProjectVizShell.syncCatalog) {
+                window.ProjectVizShell.syncCatalog();
+            }
         });
     }
 
@@ -426,9 +599,6 @@
             window.localStorage.setItem("demo-library-view", "list");
         }
     } catch (err) {}
-
-    window.addEventListener("popstate", revealPathFromLocation);
-    window.addEventListener("hashchange", revealPathFromLocation);
 
     loadCatalog();
 })();

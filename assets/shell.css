@@ -154,11 +154,13 @@
 }
 
 .viz-rail .page-lead[hidden],
-button.track-rail-back[hidden] {
+button.track-rail-back[hidden],
+button.catalog-rail-back[hidden] {
     display: none !important;
 }
 
-button.track-rail-back {
+button.track-rail-back,
+button.catalog-rail-back {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -183,27 +185,40 @@ button.track-rail-back {
     cursor: pointer;
 }
 
-button.track-rail-back::before {
+button.catalog-rail-back {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    background: #ffffff !important;
+}
+
+button.track-rail-back::before,
+button.catalog-rail-back::before {
     content: "\2190";
     margin-right: 0.45rem;
 }
 
-button.track-rail-back:after {
+button.track-rail-back:after,
+button.catalog-rail-back:after {
     display: none !important;
     content: none !important;
 }
 
 button.track-rail-back:hover,
-button.track-rail-back:focus-visible {
+button.catalog-rail-back:hover,
+button.track-rail-back:focus-visible,
+button.catalog-rail-back:focus-visible {
     background: #000000 !important;
     color: #ffffff !important;
 }
 
-button.track-rail-back:focus {
+button.track-rail-back:focus,
+button.catalog-rail-back:focus {
     outline: none;
 }
 
-button.track-rail-back:focus-visible {
+button.track-rail-back:focus-visible,
+button.catalog-rail-back:focus-visible {
     outline: 2px solid #000000;
     outline-offset: 2px;
 }
@@ -275,6 +290,143 @@ button.track-rail-back:focus-visible {
     line-height: 1.3;
     text-transform: uppercase;
     color: inherit !important;
+}
+
+.viz-rail ul.catalog-chooser,
+.viz-rail ul.catalog-demo-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.viz-rail ul.catalog-chooser > li,
+.viz-rail ul.catalog-demo-list > li {
+    margin: 0 0 0.55rem;
+    padding: 0;
+    list-style: none;
+}
+
+.viz-rail ul.catalog-chooser > li::before,
+.viz-rail ul.catalog-chooser > li::after,
+.viz-rail ul.catalog-demo-list > li::before,
+.viz-rail ul.catalog-demo-list > li::after {
+    display: none !important;
+    content: none !important;
+}
+
+.viz-rail a.catalog-choice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 4.375rem;
+    margin: 0;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    font-weight: bold;
+    text-align: left;
+    text-decoration: none !important;
+}
+
+.viz-rail a.catalog-choice.is-current {
+    background: #f6f6f6 !important;
+    box-shadow: inset 3px 0 0 #000000;
+}
+
+.viz-rail a.catalog-choice:hover,
+.viz-rail a.catalog-choice:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+    box-shadow: none;
+}
+
+.viz-rail a.catalog-choice:focus {
+    outline: none;
+}
+
+.viz-rail a.catalog-choice:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+.viz-rail .catalog-choice-title {
+    font-size: 0.98rem;
+    font-weight: bold;
+    line-height: 1.3;
+}
+
+.viz-rail .catalog-choice-count {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: inherit !important;
+}
+
+.viz-rail a.catalog-demo {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    font-size: 0.92rem;
+    font-weight: bold;
+    line-height: 1.35;
+    text-align: left;
+    text-decoration: none !important;
+}
+
+.viz-rail a.catalog-demo.is-current {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+    background: #ffffff !important;
+}
+
+.viz-rail a.catalog-demo:hover,
+.viz-rail a.catalog-demo:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+.viz-rail a.catalog-demo.is-current:hover,
+.viz-rail a.catalog-demo.is-current:focus-visible {
+    outline-color: #ffffff;
+}
+
+.viz-rail a.catalog-demo:focus {
+    outline: none;
+}
+
+.viz-rail a.catalog-demo:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+.viz-rail .catalog-topic-title,
+.viz-rail .catalog-group-title {
+    margin: 0.85rem 0 0.4rem;
+    font-size: 0.72rem !important;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    line-height: 1.3 !important;
+    text-transform: uppercase;
+}
+
+.viz-rail .catalog-phone-list a.demo-card {
+    min-height: 0;
 }
 
 .viz-rail .search-container,
