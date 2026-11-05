@@ -215,6 +215,30 @@ html.viz-notebook body.viz-app:has(#viz-frame:not([hidden])[src*="/neuroscience/
     background-image: none !important;
 }
 
+/* The page sheet is transparent on the pane. In browser fullscreen that
+ * would show the black backdrop through the bar. Keep an opaque sheet.
+ * An open neuroscience demonstration still uses the cooler pane above. */
+
+html.viz-notebook body.viz-app .viz-pane:fullscreen {
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+html.viz-notebook body.viz-app .viz-pane:-webkit-full-screen {
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+html.viz-notebook body.viz-app .viz-pane:fullscreen .viz-pane-chrome {
+    background-color: var(--notebook-paper) !important;
+    background-image: none !important;
+}
+
+html.viz-notebook body.viz-app .viz-pane:-webkit-full-screen .viz-pane-chrome {
+    background-color: var(--notebook-paper) !important;
+    background-image: none !important;
+}
+
 @media (prefers-contrast: more) {
     html.viz-notebook {
         --notebook-ink: transparent;

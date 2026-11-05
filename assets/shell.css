@@ -5,8 +5,9 @@
  * Catalog and Guided Tracks also use the left rail and demo pane (.viz-app).
  * Home, Cite & reuse, and Licenses scroll and do not use .viz-app.
  * The bar stays pinned while those pages scroll.
- * Fullscreen hides the rail inside this shell. It does not use
- * the browser Fullscreen API. Phone shows one step at a time.
+ * Fullscreen uses the browser Fullscreen API on the demo pane
+ * (#viz-pane): the chrome bar and the open demonstration.
+ * Exit and Escape leave it. Phone hides those controls.
  */
 
 .viz-app {
@@ -259,11 +260,12 @@ button.catalog-rail-back:focus-visible {
     font-weight: bold;
     text-align: left;
     text-decoration: none !important;
+    transition: none;
 }
 
 .viz-rail a.topic-choice.is-current {
     background: #f6f6f6 !important;
-    box-shadow: inset 3px 0 0 #000000;
+    box-shadow: inset 3px 0 0 #000000 !important;
     color: #000000 !important;
 }
 
@@ -273,7 +275,7 @@ button.catalog-rail-back:focus-visible {
 .viz-rail a.topic-choice.is-current:focus-visible {
     background: #000000 !important;
     color: #ffffff !important;
-    box-shadow: none;
+    box-shadow: none !important;
 }
 
 .viz-rail a.topic-choice:focus {
@@ -289,6 +291,7 @@ button.catalog-rail-back:focus-visible {
     font-size: 0.98rem;
     font-weight: bold;
     line-height: 1.3;
+    color: inherit !important;
 }
 
 .viz-rail .track-choice-count {
@@ -341,18 +344,21 @@ button.catalog-rail-back:focus-visible {
     font-weight: bold;
     text-align: left;
     text-decoration: none !important;
+    transition: none;
 }
 
 .viz-rail a.catalog-choice.is-current {
     background: #f6f6f6 !important;
-    box-shadow: inset 3px 0 0 #000000;
+    box-shadow: inset 3px 0 0 #000000 !important;
 }
 
 .viz-rail a.catalog-choice:hover,
-.viz-rail a.catalog-choice:focus-visible {
+.viz-rail a.catalog-choice:focus-visible,
+.viz-rail a.catalog-choice.is-current:hover,
+.viz-rail a.catalog-choice.is-current:focus-visible {
     background: #000000 !important;
     color: #ffffff !important;
-    box-shadow: none;
+    box-shadow: none !important;
 }
 
 .viz-rail a.catalog-choice:focus {
@@ -368,6 +374,7 @@ button.catalog-rail-back:focus-visible {
     font-size: 0.98rem;
     font-weight: bold;
     line-height: 1.3;
+    color: inherit !important;
 }
 
 .viz-rail .catalog-choice-count {
@@ -529,6 +536,31 @@ button.catalog-rail-back:focus-visible {
     min-width: 0;
     min-height: 0;
     background: var(--bg-subtle) !important;
+}
+
+/* Vendor fullscreen pseudos must stay in separate rules.
+ * One unknown pseudo in a group drops the whole rule. */
+
+.viz-pane:fullscreen {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+.viz-pane:-webkit-full-screen {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    background-color: #ffffff !important;
+    background-image: none !important;
 }
 
 .viz-pane-chrome {
