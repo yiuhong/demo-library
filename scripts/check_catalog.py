@@ -66,6 +66,7 @@ def main(argv: list[str] | None = None) -> int:
         problems.append(error)
     else:
         step_count, image_count = check_tracks(tracks, problems)
+        check_topics(tracks, problems)
 
     families, error = load_json(FAMILIES_PATH)
     family_count = 0
@@ -271,6 +272,60 @@ def check_connection_title(step: dict, place: str, problems: list[str]) -> None:
         problems.append(
             f"{place}: connectionTitle is set but this step has no note, formulae, or image"
         )
+
+
+def check_topics(data: object, problems: list[str]) -> None:
+    """Topics are optional. When present, every track id belongs to one topic."""
+    if not isinstance(data, dict) or "topics" not in data:
+        return
+    topics = data.get("topics")
+    if not isinstance(topics, list):
+        problems.append('tracks.json: "topics" must be an array')
+        return
+    track_ids: list[str] = []
+    for track in track_entries(data) or []:
+        if isinstance(track, dict):
+            ident = safe_slug(track.get("id"))
+            if ident:
+                track_ids.append(ident)
+    known = set(track_ids)
+    seen_topics: set[str] = set()
+    seen_tracks: set[str] = set()
+    for index, topic in enumerate(topics, start=1):
+        if not isinstance(topic, dict):
+            problems.append(f"tracks.json: topic {index} is not an object")
+            continue
+        extra = sorted(set(topic) - {"id", "title", "tracks"})
+        ident = safe_slug(topic.get("id"))
+        name = ident or f"topic {index}"
+        place = f"tracks.json: topic {name!r}"
+        if extra:
+            problems.append(f"{place}: unexpected fields {extra}")
+        if not ident:
+            problems.append(f"{place}: id must be a lowercase slug")
+        elif ident in seen_topics:
+            problems.append(f"{place}: duplicate id")
+        else:
+            seen_topics.add(ident)
+        title = label(topic.get("title"))
+        if title is None or len(title) > 80:
+            problems.append(f"{place}: title is missing, empty, or longer than 80 characters")
+        children = topic.get("tracks")
+        if not isinstance(children, list) or not children:
+            problems.append(f"{place}: tracks must list at least one track id")
+            continue
+        for child_index, child in enumerate(children, start=1):
+            child_id = safe_slug(child)
+            if not child_id or child_id not in known:
+                problems.append(f"{place}: track {child_index} {child!r} is not a track id")
+                continue
+            if child_id in seen_tracks:
+                problems.append(f"{place}: track {child_id!r} is listed in more than one topic")
+            else:
+                seen_tracks.add(child_id)
+    missing = [ident for ident in track_ids if ident not in seen_tracks]
+    if topics and missing:
+        problems.append("tracks.json: tracks missing from topics: " + ", ".join(missing))
 
 
 def track_entries(data: object) -> list[object] | None:

@@ -6,9 +6,11 @@
  * in the address bar. step= is still that step's index. The rail lists
  * the connection before the demonstration. Fullscreen only hides the rail; this file does
  * not call the browser Fullscreen API. Phone shows the rail, then the
- * page. On Guided Tracks the rail is the track list until a track is
- * open; Back from a demonstration returns to that track, and Back in
- * the rail returns to the track list. On Catalog the desktop rail is
+ * page. On Guided Tracks the desktop rail lists topics and the pane
+ * shows the topic tree until a track is open. Choosing a topic zooms
+ * that subtree. Back from a demonstration returns to that track, and
+ * Back in the rail returns to the focused topic or the full overview.
+ * A phone shows the tree first. On Catalog the desktop rail is
  * categories until a demonstration is open, and the pane holds that
  * category's cards. Back to browse restores the grid. On a phone,
  * Back from a demonstration returns to that category, and Back in the
@@ -280,7 +282,10 @@
         else if (titleNode && !open && page === "catalog" && window.ProjectVizCatalog && window.ProjectVizCatalog.stageTitle) {
             titleNode.textContent = window.ProjectVizCatalog.stageTitle() || "Catalog";
         } else if (titleNode && !open) titleNode.textContent = "Select a demonstration";
-        if (empty) empty.hidden = !!open || (page === "catalog" && catalogBrowsing());
+        if (empty) {
+            var topicMap = page === "tracks" && !open && tracksBrowsing() && !isPhone();
+            empty.hidden = !!open || (page === "catalog" && catalogBrowsing()) || topicMap;
+        }
         if (frame) {
             frame.hidden = !open;
             if (!open) {
@@ -298,6 +303,7 @@
                 else rail.scrollTop = railScroll;
             });
         }
+        if (page === "tracks") syncTracksChrome();
     }
 
     function highlight(href, explicit) {
@@ -352,13 +358,27 @@
         return url;
     }
 
-    function landingUrl() {
+    function topicFromLocation() {
+        try {
+            return safeTrackId(new URLSearchParams(window.location.search).get("topic") || "");
+        } catch (err) {
+            return "";
+        }
+    }
+
+    function topicUrl(id) {
         var url = new URL(window.location.href);
         url.searchParams.delete("track");
         url.searchParams.delete("demo");
         url.searchParams.delete("step");
         url.hash = "";
+        if (id) url.searchParams.set("topic", id);
+        else url.searchParams.delete("topic");
         return url;
+    }
+
+    function landingUrl() {
+        return topicUrl("");
     }
 
     function trackUrl(id) {
@@ -366,16 +386,23 @@
         url.searchParams.delete("demo");
         url.searchParams.delete("step");
         url.searchParams.set("track", id);
+        var topic = topicFromLocation();
+        if (topic) url.searchParams.set("topic", topic);
+        else url.searchParams.delete("topic");
         url.hash = "";
         return url;
     }
 
     function trackState(id, pushed) {
-        return { vizShell: "track", track: id, demo: "", pushed: !!pushed };
+        return { vizShell: "track", track: id, topic: topicFromLocation(), demo: "", pushed: !!pushed };
+    }
+
+    function topicState(id, pushed) {
+        return { vizShell: "topic", topic: id, track: "", demo: "", pushed: !!pushed };
     }
 
     function tracksState() {
-        return { vizShell: "tracks", demo: "", track: "" };
+        return { vizShell: "tracks", demo: "", track: "", topic: "" };
     }
 
     function demoState(href) {
@@ -394,17 +421,41 @@
             vizShell: "demo",
             demo: href,
             track: trackFromLocation(),
+            topic: topicFromLocation(),
             trackPushed: trackPushed
         };
     }
 
-    function refreshTracksIdle() {
-        if (page !== "tracks" || currentHref) return;
+    function tracksBrowsing() {
+        return page === "tracks"
+            && !currentHref
+            && !!(window.ProjectVizTracks && window.ProjectVizTracks.browsing && window.ProjectVizTracks.browsing());
+    }
+
+    function syncTracksChrome() {
+        if (page !== "tracks") return;
+        var overview = document.getElementById("viz-overview");
+        var showMap = tracksBrowsing() && !isPhone();
+        if (overview) overview.hidden = !showMap;
+        if (empty) empty.hidden = !!currentHref || showMap;
+        var pane = document.getElementById("viz-pane");
+        if (pane) pane.setAttribute("aria-label", showMap ? "Topic overview" : "Demonstration");
+        if (currentHref || !titleNode) return;
         var inTrack = window.ProjectVizTracks && window.ProjectVizTracks.currentId
             ? window.ProjectVizTracks.currentId()
             : "";
-        if (titleNode) titleNode.textContent = inTrack ? "Select a demonstration" : "Select a track";
-        if (empty) empty.textContent = inTrack ? "Select a step." : "Select a track.";
+        if (inTrack) {
+            titleNode.textContent = "Select a demonstration";
+            if (empty) empty.textContent = "Select a step.";
+        } else if (window.ProjectVizTracks && window.ProjectVizTracks.stageTitle) {
+            titleNode.textContent = window.ProjectVizTracks.stageTitle() || "All topics";
+        } else {
+            titleNode.textContent = "All topics";
+        }
+    }
+
+    function refreshTracksIdle() {
+        syncTracksChrome();
     }
 
     function syncTracks(options) {
@@ -582,6 +633,24 @@
         }
     }
 
+    function openTopic(id) {
+        id = safeTrackId(id);
+        if (id && (!window.ProjectVizTracks || !window.ProjectVizTracks.hasTopic || !window.ProjectVizTracks.hasTopic(id))) return;
+        if (!id && !trackFromLocation() && !topicFromLocation() && !currentHref) return;
+        if (id && id === topicFromLocation() && !trackFromLocation() && !currentHref) return;
+        var next = topicUrl(id);
+        var state = id ? topicState(id, true) : tracksState();
+        if (currentHref) {
+            currentHref = "";
+            showDemoChrome(false);
+            highlight("");
+        }
+        if (window.location.href !== next.href) history.pushState(state, "", next);
+        else history.replaceState(state, "", next);
+        syncTracks(isPhone() && id ? { focus: "back" } : { focusTopic: id });
+        refreshTracksIdle();
+    }
+
     function openTrack(id) {
         id = safeTrackId(id);
         if (!id) return;
@@ -631,22 +700,28 @@
 
     function returnToTrackList() {
         var state = history.state || {};
-        pendingTrackFocus = state.track || trackFromLocation() || "";
+        var fromTrack = safeTrackId(trackFromLocation() || state.track || "");
+        var topic = fromTrack ? topicFromLocation() : "";
+        pendingTrackFocus = fromTrack;
         if (currentHref) {
             currentHref = "";
             showDemoChrome(false);
             highlight("");
         }
-        var next = landingUrl();
+        var next = topic ? topicUrl(topic) : landingUrl();
+        var dest = topic ? topicState(topic, true) : tracksState();
         // A second history.back() is dropped when it follows the demo Back.
-        // Write the track list directly. Replacing a demo entry keeps Back
+        // Write the overview directly. Replacing a demo entry keeps Back
         // from reopening that demonstration.
         if (state.vizShell === "demo" || window.location.href === next.href) {
-            history.replaceState(tracksState(), "", next);
+            history.replaceState(dest, "", next);
         } else if (window.location.href !== next.href) {
-            history.pushState(tracksState(), "", next);
+            history.pushState(dest, "", next);
         }
-        syncTracks({ focusChoice: pendingTrackFocus });
+        var focus;
+        if (topic) focus = isPhone() ? { focus: "back" } : { focusTopic: topic };
+        else focus = isPhone() ? { focusChoice: pendingTrackFocus } : { focusTopic: "" };
+        syncTracks(focus);
         pendingTrackFocus = "";
         refreshTracksIdle();
     }
@@ -782,6 +857,7 @@
                 vizShell: demo ? "demo" : "track",
                 demo: demo || "",
                 track: track,
+                topic: topicFromLocation(),
                 pushed: !!prior.pushed,
                 trackPushed: !!prior.trackPushed
             }, "", prep);
@@ -828,8 +904,16 @@
             returnToTrackList();
             return;
         }
-        var choice = event.target.closest ? event.target.closest("a.track-choice") : null;
-        if (!choice || (rail && !rail.contains(choice))) return;
+        var topicLink = event.target.closest
+            ? event.target.closest("a.topic-choice, a.overview-node.is-topic")
+            : null;
+        if (topicLink && inTracksSurface(topicLink)) {
+            event.preventDefault();
+            openTopic(topicLink.getAttribute("data-topic") || "");
+            return;
+        }
+        var choice = event.target.closest ? event.target.closest("a.overview-node.is-track") : null;
+        if (!choice || !inTracksSurface(choice)) return;
         var chosen = safeTrackId(choice.getAttribute("data-track") || "");
         if (!chosen) return;
         event.preventDefault();
@@ -900,15 +984,34 @@
         setExpanded(false);
     });
 
+    function inTracksSurface(node) {
+        if (!node) return false;
+        if (rail && rail.contains(node)) return true;
+        var map = document.getElementById("viz-overview");
+        return !!(map && map.contains(node));
+    }
+
     window.addEventListener("popstate", syncFromLocation);
     document.addEventListener("projectviz:catalog", onCatalogReady);
     document.addEventListener("projectviz:tracks", onTracksReady);
+    document.addEventListener("projectviz:tracks-view", function () {
+        if (page !== "tracks") return;
+        if (currentHref) highlight(currentHref);
+        syncTracksChrome();
+        refreshStepNav();
+    });
 
     var initial = readDemo();
     if (initial) openDemo(initial, { mode: "none", focus: isPhone() });
     else if (page === "tracks") {
         var openingTrack = trackFromLocation();
-        history.replaceState(openingTrack ? trackState(openingTrack, false) : tracksState(), "", window.location.href);
+        var openingTopic = topicFromLocation();
+        var openingState = openingTrack
+            ? trackState(openingTrack, false)
+            : openingTopic
+                ? topicState(openingTopic, false)
+                : tracksState();
+        history.replaceState(openingState, "", window.location.href);
     } else history.replaceState({ vizShell: page === "catalog" ? "categories" : "list", category: "", demo: "", pushed: false }, "", window.location.href);
     document.body.classList.add("viz-shell-ready");
     if (page === "catalog") {

@@ -108,11 +108,22 @@ a.concept-node:focus-visible {
     outline-offset: 3px;
 }
 
+a.concept-node.is-current {
+    background: #f6f6f6 !important;
+    border-color: #000000 !important;
+    color: #000000 !important;
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
 a.concept-node:hover,
-a.concept-node:focus-visible {
+a.concept-node:focus-visible,
+a.concept-node.is-current:hover,
+a.concept-node.is-current:focus-visible {
     background: #000000 !important;
     border-color: #000000 !important;
     color: #ffffff !important;
+    outline-color: #ffffff;
 }
 
 .concept-kicker {
@@ -153,10 +164,19 @@ a.concept-node:focus-visible {
     color: #000000 !important;
 }
 
+a.concept-node.is-current .concept-relation,
+a.concept-node.is-current .concept-title {
+    color: #000000 !important;
+}
+
 a.concept-node:hover .concept-relation,
 a.concept-node:hover .concept-title,
 a.concept-node:focus-visible .concept-relation,
-a.concept-node:focus-visible .concept-title {
+a.concept-node:focus-visible .concept-title,
+a.concept-node.is-current:hover .concept-relation,
+a.concept-node.is-current:hover .concept-title,
+a.concept-node.is-current:focus-visible .concept-relation,
+a.concept-node.is-current:focus-visible .concept-title {
     color: #ffffff !important;
 }
 
@@ -214,17 +234,32 @@ a.playlist-connection-link:focus {
     outline: none;
 }
 
+a.playlist-connection-link.is-current {
+    background: #f6f6f6 !important;
+    border-color: #000000 !important;
+    color: #000000 !important;
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
 a.playlist-connection-link:hover,
 a.playlist-connection-link:focus-visible,
-a.playlist-connection-link.is-current {
+a.playlist-connection-link.is-current:hover,
+a.playlist-connection-link.is-current:focus-visible {
     background: #000000 !important;
     border-color: #000000 !important;
     color: #ffffff !important;
+    outline-color: #ffffff;
+}
+
+a.playlist-connection-link.is-current .playlist-connection-label {
+    color: #000000 !important;
 }
 
 a.playlist-connection-link:hover .playlist-connection-label,
 a.playlist-connection-link:focus-visible .playlist-connection-label,
-a.playlist-connection-link.is-current .playlist-connection-label {
+a.playlist-connection-link.is-current:hover .playlist-connection-label,
+a.playlist-connection-link.is-current:focus-visible .playlist-connection-label {
     color: #ffffff !important;
 }
 

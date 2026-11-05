@@ -186,6 +186,18 @@ a.demo-card:focus-visible {
     outline-offset: 3px;
 }
 
+a.demo-card.is-current {
+    background: #f6f6f6;
+    box-shadow: inset 3px 0 0 #000000;
+}
+
+a.demo-card.is-current:hover,
+a.demo-card.is-current:focus-visible {
+    background: #000000;
+    box-shadow: none;
+    color: #ffffff !important;
+}
+
 .demo-card-title {
     font-weight: bold;
     font-size: 1.05em;
@@ -316,10 +328,19 @@ a.demo-card:focus-visible .demo-tag.is-draft {
     justify-content: flex-end;
 }
 
+.catalog-panel a.demo-card.is-current {
+    background: #f6f6f6;
+    box-shadow: inset 3px 0 0 #000000;
+}
+
 .catalog-panel a.demo-card:hover,
-.catalog-panel a.demo-card:focus-visible {
+.catalog-panel a.demo-card:focus-visible,
+.catalog-panel a.demo-card.is-current:hover,
+.catalog-panel a.demo-card.is-current:focus-visible {
     background: #000000;
     border-bottom-color: #ffffff !important;
+    box-shadow: none;
+    color: #ffffff !important;
 }
 
 #catalog-browser .library-toolbar {
