@@ -84,23 +84,19 @@
 
                 <!-- Dynamic Explanation for Sum -->
                 <div id="explanation-sum">
-                    <p class="text-sm text-slate-600 mb-3 font-medium">Why do Variance and Sum of Squares ($SS$) of $Z = X + Y$ project onto $y = x$?</p>
+                    <p class="text-sm text-slate-600 mb-3 font-medium">Reading the sum, $Z = X + Y$</p>
                     <div class="prose prose-sm prose-slate space-y-2 text-xs text-slate-600">
-                        <p><strong>1. Lines of Constant Sum:</strong> Defining $Z = X + Y$, the line $Z = C$ (or $y = -x + C$) has slope $-1$. Every point on a slate contour line shares the exact same sum $Z$.</p>
-                        <p><strong>2. Orthogonal Projection:</strong> Moving perpendicular to $y = -x$ along $y = x$ changes $Z$ fastest. Each green point's distance from the mean along $y = x$ is $d_{\perp} = \frac{Z_i - \bar{Z}}{\sqrt{2}} = \frac{(X_i+Y_i) - (\bar{X}+\bar{Y})}{\sqrt{2}}$.</p>
-                        <p><strong>3. Sum of Squares ($SS$) Decomposition:</strong> Squaring and summing all deviations $\sum(Z_i - \bar{Z})^2$ yields $SS_{X+Y} = SS_X + SS_Y + 2\,SP_{XY}$, where $SP_{XY} = \sum(X_i-\bar{X})(Y_i-\bar{Y})$ is the Sum of Cross-Products.</p>
-                        <p><strong>4. Dividing by $df = N - 1$:</strong> Dividing the entire $SS$ identity by $N - 1$ yields the sample variance law: $s_{X+Y}^2 = s_X^2 + s_Y^2 + 2r s_X s_Y$.</p>
+                        <p>Slate contours are lines of constant sum (slope −1). The green axis is $y = x$, where that sum changes fastest.</p>
+                        <p>Drag $\rho$. The bars are $SS$ and the variance of $Z$.</p>
                     </div>
                 </div>
 
                 <!-- Dynamic Explanation for Difference -->
                 <div id="explanation-diff" class="hidden">
-                    <p class="text-sm text-slate-600 mb-3 font-medium">Why does positive correlation <em>shrink</em> $SS_{X-Y}$ and $\text{Var}(Z)$ for $Z = X - Y$?</p>
+                    <p class="text-sm text-slate-600 mb-3 font-medium">Reading the difference, $Z = X - Y$</p>
                     <div class="prose prose-sm prose-slate space-y-2 text-xs text-slate-600">
-                        <p><strong>1. Lines of Constant Difference:</strong> Defining $Z = X - Y$, the line $Z = C$ (or $y = x - C$) has slope $+1$. Along $y = x$, $X = Y$ so the difference $Z = 0$.</p>
-                        <p><strong>2. Projection &amp; Cancelation:</strong> When $\rho > 0$, points cluster along $y = x$. Projecting onto $y = -x$ gives distance $d_{\perp} = \frac{|Z_i - \bar{Z}|}{\sqrt{2}}$, producing tiny deviations because shared fluctuations cancel out.</p>
-                        <p><strong>3. Sum of Squares ($SS$) Decomposition:</strong> Subtracting $Y$ flips the sign of the cross-product term: $SS_{X-Y} = \sum(Z_i - \bar{Z})^2 = SS_X + SS_Y - 2\,SP_{XY}$.</p>
-                        <p><strong>4. Geometric Cosine Law:</strong> Positive $SP_{XY}$ closes the hinge angle between the $\sqrt{SS_X}$ and $-\sqrt{SS_Y}$ vectors, directly reducing $SS_{X-Y}$.</p>
+                        <p>Contours are lines of constant difference (slope +1). Along $y = x$ the difference is 0, so a positive correlation shrinks the spread of $Z$.</p>
+                        <p>Drag $\rho$ and watch that bar.</p>
                     </div>
                 </div>
             </div>

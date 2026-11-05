@@ -89,16 +89,14 @@
     <header class="demo-header mb-6 text-center">
         <h1 class="text-3xl font-bold mb-2">Moments are Just Averages</h1>
         <p class="max-w-2xl mx-auto">
-            In statistics, the "moments" of a distribution describe its shape. While they might sound complicated, 
-            every moment is fundamentally just an <strong>average (expected value)</strong> of the data raised to a certain power. 
-            Adjust the data points below to see how this works in practice.
+            Drag the points. The 1st moment is their average, the 2nd is the average of squared deviations, and the 3rd is the average of cubed deviations.
         </p>
     </header>
 
     <div class="max-w-3xl mx-auto text-left viz-soft-group-a border-l-4 viz-border-group-a p-5 mb-6">
-            <h3 class="text-lg font-semibold viz-ink-group-a mb-2">Definition of a Moment</h3>
+            <h3 class="text-lg font-semibold viz-ink-group-a mb-2">On the chart</h3>
             <p class="text-sm viz-ink-group-a leading-relaxed">
-                In mathematics and statistics, a <strong>moment</strong> is a quantitative measure of the shape of a set of points. The generalized \( n \)-th moment of a variable \( X \) evaluated around a reference center \( c \) and scaled by a factor \( a \) is the expected value (average) of \( \left(\frac{X - c}{a}\right)^n \). By changing \( n \), \( c \), and \( a \), we can derive the mean, variance, skewness, and kurtosis!
+                Toggle a moment to draw it. The power on that card is the only change; the points stay the same.
             </p>
         </div>
 
@@ -163,9 +161,9 @@
 
     <!-- Step-by-Step Table Breakdown -->
     <div class="mb-8 demo-card p-6">
-        <h2 class="text-xl font-semibold mb-4 text-center">What exactly are we averaging?</h2>
+        <h2 class="text-xl font-semibold mb-4 text-center">Column averages</h2>
         <p class="text-center text-gray-600 mb-6 text-sm max-w-3xl mx-auto">
-            This table reveals the "under the hood" calculations. It shows how each raw data point is mathematically transformed before being summed up. Notice how the final <strong>Average (&Sigma;/N)</strong> row perfectly matches the moment values below!
+            Each column is one moment. The bottom row is the average of that column, the same number drawn on the chart.
         </p>
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-center border-collapse min-w-[800px]">

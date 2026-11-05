@@ -51,7 +51,7 @@
         <div class="w-full md:w-1/3 demo-panel p-6 border-b md:border-b-0 md:border-r border-black">
             <h1 class="text-2xl font-bold mb-2">z-distribution vs <br> t-distribution</h1>
             <p class="text-sm text-slate-500 mb-6 leading-relaxed">
-                Explore how substituting population standard deviation ($\sigma$) with sample standard deviation ($s$) changes the test statistic distribution from Normal to Student's t.
+                Set the sample size and run the simulation. Show or hide the z curve and the t curve. The histograms are the statistics from those repeated samples.
             </p>
 
             <!-- Population Parameters Info -->
@@ -68,10 +68,9 @@
             </div>
             
             <div class="mb-6 p-4 viz-soft-group-c rounded-lg border viz-border-group-c shadow-sm">
-                <h2 class="text-sm font-semibold viz-ink-group-c uppercase tracking-wider mb-2">Why heavier tails?</h2>
+                <h2 class="text-sm font-semibold viz-ink-group-c uppercase tracking-wider mb-2">Reading the curves</h2>
                 <p class="text-xs viz-ink-group-c leading-relaxed">
-                    When we use the sample standard deviation ($s$) instead of the true population standard deviation ($\sigma$), we introduce extra uncertainty. 
-                    Because $s$ varies from sample to sample, sometimes it underestimates $\sigma$. When a small $s$ is in the denominator of our test statistic, it inflates the resulting $t$-value, pushing it further into the tails. This extra variability is why the t-distribution has "fatter" tails than the normal distribution, especially at small sample sizes.
+                    Compare the two curves as $n$ changes. The t curve uses $s$ in the denominator; the z curve uses $\sigma$. The two formulas are listed under Run Simulation.
                 </p>
             </div>
 
@@ -169,7 +168,7 @@
                         <div class="w-3 h-3 rounded-sm mr-2" style="background: var(--viz-reference);"></div>
                         Simulated Statistics
                     </h3>
-                    <p class="text-sm text-slate-700">The histograms show the empirical distribution of calculated test statistics from repeated random sampling. Notice how the simulated t-statistics match the theoretical t-curve, not the normal curve, especially at small sample sizes.</p>
+                    <p class="text-sm text-slate-700">The histograms are the statistics from the repeated samples, drawn against the curves you left on.</p>
                 </div>
             </div>
         </div>

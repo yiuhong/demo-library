@@ -103,8 +103,7 @@
         <header class="demo-header mb-6 text-center">
             <h1 class="text-3xl font-extrabold mb-2">Horowitz (1974) Simulation</h1>
             <p class="max-w-3xl mx-auto">
-                Demonstrating the Central Limit Theorem. 1000 pieces of scores, roughly normally distributed $N(50, 15.8)$. 
-                Students draw 10 random pieces with replacement to find the mean.
+                A population of 1,000 scores, about $N(50, 15.8)$. Draw 10 with replacement and watch the sample means pile up.
             </p>
         </header>
 
@@ -210,12 +209,9 @@
         </div>
         
         <div class="demo-card demo-prose mt-8 p-6">
-            <h3 class="text-lg font-bold mb-2">The Central Limit Theorem in Action</h3>
-            <p class="text-slate-600 text-sm leading-relaxed mb-3">
-                Notice how the sampling distribution of the means builds up. According to theory, the mean of these sample means should be close to the population mean ($\mu \approx 50$), and the standard deviation of these sample means (the true Standard Error) is calculated using the population standard deviation: $\sigma / \sqrt{n} = 15.8 / \sqrt{10} \approx 5.00$. 
-            </p>
+            <h3 class="text-lg font-bold mb-2">What the readouts are</h3>
             <p class="text-slate-600 text-sm leading-relaxed">
-                <strong>However, in reality</strong>, we rarely know the population standard deviation ($\sigma$). Instead, we estimate the Standard Error using the <strong>sample standard deviation ($s$)</strong>. This simulation calculates the estimated standard error for each individual sample ($s / \sqrt{n}$) to show how its average approaches the theoretical standard error and matches the empirical standard deviation of the means.
+                Draw samples of 10. The mean of the means should sit near 50, and their spread near $15.8 / \sqrt{10}$. Each sample also reports $s / \sqrt{n}$; the average of those estimates is shown next to that spread.
             </p>
             
             <div class="demo-divider mt-5 pt-4 text-sm text-slate-500">
