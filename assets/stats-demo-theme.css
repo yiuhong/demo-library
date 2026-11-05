@@ -226,7 +226,8 @@
         margin-bottom: 0;
         background: transparent !important;
         border-radius: 0;
-        touch-action: pan-x;
+        /* A vertical finger scrolls the page. The horizontal drag stays with the control. */
+        touch-action: pan-y pinch-zoom;
     }
 
     body.demo-page input[type="range"]::-webkit-slider-runnable-track {
