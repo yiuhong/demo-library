@@ -11,6 +11,31 @@
         }
     } catch (error) {}
 
+    /* A finger that starts on a range and then scrolls must not leave the
+       control where that finger landed. The browser cancels the gesture
+       when it takes the pan. */
+    if (!window.__rangeScrollGuard) {
+        window.__rangeScrollGuard = true;
+        document.querySelectorAll('input[type="range"]').forEach(function (el) {
+            var snapshot = null;
+            el.addEventListener("pointerdown", function (event) {
+                if (event.pointerType === "mouse") return;
+                snapshot = el.value;
+            });
+            el.addEventListener("pointercancel", function () {
+                if (snapshot == null) return;
+                var restore = snapshot;
+                snapshot = null;
+                if (el.value === restore) return;
+                el.value = restore;
+                el.dispatchEvent(new Event("input", { bubbles: true }));
+            });
+            el.addEventListener("pointerup", function () {
+                snapshot = null;
+            });
+        });
+    }
+
     var meta = window.DEMO_LIBRARY;
     if (!meta || window.__siteOerFooterMounted) return;
     window.__siteOerFooterMounted = true;
