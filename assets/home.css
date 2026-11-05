@@ -235,13 +235,20 @@ button.home-dot:after {
     content: none !important;
 }
 
-button.home-dot.is-active,
+button.home-dot.is-active {
+    background: #ffffff !important;
+    box-shadow: 0 0 0 2px #000000 !important;
+}
+
 button.home-control:hover,
 button.home-control:focus-visible,
 button.home-dot:hover,
-button.home-dot:focus-visible {
+button.home-dot:focus-visible,
+button.home-dot.is-active:hover,
+button.home-dot.is-active:focus-visible {
     background: #000000 !important;
     color: #ffffff !important;
+    box-shadow: none !important;
 }
 
 button.home-control:focus,

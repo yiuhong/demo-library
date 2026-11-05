@@ -1,20 +1,29 @@
 /*
- * Guided Tracks page. The rail starts as the list of tracks.
- * Choosing one replaces that list with the playlist: when a step has
- * a note, formulae, or figure, its connectionTitle is a link
- * immediately before that demonstration. The link opens
- * tracks/connection.html, which reads the same step from tracks.json.
- * step= is that step's index. Back returns to the track list.
- * Family concept maps stay in families.json and are not mounted here.
+ * Guided Tracks page.
+ * Topics come from tracks.json. The desktop rail lists All topics and
+ * each topic. The right pane draws one tree: Guided Tracks, the topics,
+ * and the tracks under them. Choosing a topic zooms that subtree.
+ * Choosing a track replaces the rail with the playlist: when a step has
+ * a note, formulae, or figure, its connectionTitle is a link immediately
+ * before that demonstration. The link opens tracks/connection.html, which
+ * reads the same step from tracks.json. step= is that step's index.
+ * Back returns to the focused topic, or to the full overview.
+ * A phone shows the tree in the rail first, then the playlist, then the
+ * demonstration. Family concept maps stay in families.json and are not
+ * mounted here.
  */
 (function () {
     var root = document.getElementById("tracks-root");
     var missing = document.getElementById("tracks-missing");
     var rail = document.getElementById("viz-rail");
+    var overview = document.getElementById("viz-overview");
+    var phoneQuery = window.matchMedia("(max-width: 736px)");
     var tracks = [];
+    var topics = [];
     var ready = false;
     var failed = false;
     var currentId = "";
+    var currentTopicId = "";
     var renderedKey = "";
 
     function el(tag, className, text) {
@@ -29,6 +38,10 @@
         while (node.firstChild) node.removeChild(node.firstChild);
     }
 
+    function isPhone() {
+        return phoneQuery.matches;
+    }
+
     function safeSlug(value) {
         if (typeof value !== "string") return "";
         var id = value.trim();
@@ -38,6 +51,10 @@
 
     function stepCountLabel(count) {
         return count === 1 ? "1 step" : count + " steps";
+    }
+
+    function countLabel(count, singular, plural) {
+        return count === 1 ? "1 " + singular : count + " " + plural;
     }
 
     function safeImagePath(href) {
@@ -110,14 +127,48 @@
         return list.map(normalizeTrack).filter(Boolean);
     }
 
-    function requestedRaw() {
+    function normalizeTopics(data, trackList) {
+        var raw = data && !Array.isArray(data) && Array.isArray(data.topics) ? data.topics : [];
+        var byId = {};
+        var i;
+        for (i = 0; i < trackList.length; i++) {
+            if (trackList[i].steps.length && safeSlug(trackList[i].id)) byId[trackList[i].id] = trackList[i];
+        }
+        var grouped = [];
+        var seenTopic = {};
+        var seenTrack = {};
+        raw.forEach(function (item) {
+            if (!item || typeof item !== "object") return;
+            var id = safeSlug(item.id);
+            var title = typeof item.title === "string" ? item.title.trim() : "";
+            if (!id || !title || title.length > 80 || seenTopic[id]) return;
+            var ids = Array.isArray(item.tracks) ? item.tracks : [];
+            var children = [];
+            ids.forEach(function (trackId) {
+                var slug = safeSlug(typeof trackId === "string" ? trackId : "");
+                if (!slug || seenTrack[slug] || !byId[slug]) return;
+                seenTrack[slug] = true;
+                children.push(byId[slug]);
+            });
+            if (!children.length) return;
+            seenTopic[id] = true;
+            grouped.push({ id: id, title: title, tracks: children });
+        });
+        return grouped;
+    }
+
+    function requestedParam(name) {
         var params;
         try {
             params = new URLSearchParams(window.location.search);
         } catch (err) {
             return "";
         }
-        if (params.has("track")) return (params.get("track") || "").trim();
+        return (params.get(name) || "").trim();
+    }
+
+    function requestedRaw() {
+        if (requestedParam("track")) return requestedParam("track");
         var hash = window.location.hash.replace(/^#/, "");
         if (!hash) return "";
         try {
@@ -131,6 +182,14 @@
         var i;
         for (i = 0; i < tracks.length; i++) {
             if (tracks[i].id === id) return tracks[i];
+        }
+        return null;
+    }
+
+    function findTopic(id) {
+        var i;
+        for (i = 0; i < topics.length; i++) {
+            if (topics[i].id === id) return topics[i];
         }
         return null;
     }
@@ -219,7 +278,7 @@
         if (lead) lead.hidden = !show;
     }
 
-    function placeBack(show) {
+    function placeBack(show, label) {
         var button = document.getElementById("tracks-back");
         if (!show) {
             if (button) button.hidden = true;
@@ -229,50 +288,148 @@
             button = el("button", "track-rail-back", "Back");
             button.id = "tracks-back";
             button.type = "button";
-            button.setAttribute("aria-label", "Back to all tracks");
             if (rail) rail.insertBefore(button, rail.firstChild);
         }
         button.hidden = false;
+        button.setAttribute("aria-label", label || "Back to all topics");
     }
 
-    function renderLanding(missingOn) {
-        clear(root);
-        placeBack(false);
-        setLeadVisible(true);
-        if (missing) missing.hidden = !missingOn;
-        document.title = "Guided Tracks - Project Viz";
-        currentId = "";
-        var visible = [];
-        tracks.forEach(function (track) {
-            if (track.steps.length && safeSlug(track.id)) visible.push(track);
+    function topicChoice(id, title, count, current) {
+        var item = el("li");
+        var link = el("a", "topic-choice");
+        link.href = id ? "tracks.html?topic=" + id : "tracks.html";
+        link.setAttribute("data-topic", id);
+        if (current) {
+            link.classList.add("is-current");
+            link.setAttribute("aria-current", "true");
+        }
+        link.appendChild(el("span", "track-choice-title", title));
+        link.appendChild(el("span", "track-choice-count", count));
+        item.appendChild(link);
+        return item;
+    }
+
+    function trackHref(track) {
+        var id = safeSlug(track.id);
+        if (!id) return "tracks.html";
+        if (currentTopicId) return "tracks.html?topic=" + currentTopicId + "&track=" + id;
+        return "tracks.html?track=" + id;
+    }
+
+    function overviewNode(className, href, title, count) {
+        var link = el("a", "overview-node " + className);
+        link.href = href;
+        link.appendChild(el("span", "overview-title", title));
+        if (count) link.appendChild(el("span", "overview-count", count));
+        return link;
+    }
+
+    function trackBranch(list) {
+        var branch = el("ul", "overview-branch");
+        list.forEach(function (track) {
+            var id = safeSlug(track.id);
+            if (!id) return;
+            var item = el("li");
+            var link = overviewNode("is-track", trackHref(track), track.title, stepCountLabel(track.steps.length));
+            link.setAttribute("data-track", id);
+            item.appendChild(link);
+            branch.appendChild(item);
         });
-        if (!visible.length) {
-            root.appendChild(el("p", "hub-quiet", "No tracks yet."));
+        return branch;
+    }
+
+    function buildTree(topic) {
+        var nav = el("nav", "overview-tree");
+        nav.setAttribute("aria-label", topic ? topic.title : "All topics");
+        if (topic) {
+            nav.appendChild(el("p", "overview-root is-current", topic.title));
+            nav.appendChild(trackBranch(topic.tracks));
+            return nav;
+        }
+        nav.appendChild(el("p", "overview-root", "Guided Tracks"));
+        var branch = el("ul", "overview-branch");
+        topics.forEach(function (item) {
+            var li = el("li");
+            var link = overviewNode(
+                "is-topic",
+                "tracks.html?topic=" + item.id,
+                item.title,
+                countLabel(item.tracks.length, "track", "tracks")
+            );
+            link.setAttribute("data-topic", item.id);
+            li.appendChild(link);
+            li.appendChild(trackBranch(item.tracks));
+            branch.appendChild(li);
+        });
+        nav.appendChild(branch);
+        return nav;
+    }
+
+    function hideOverview() {
+        if (!overview) return;
+        overview.hidden = true;
+        clear(overview);
+    }
+
+    function showOverview(topic) {
+        if (!overview) return;
+        clear(overview);
+        overview.hidden = document.body.classList.contains("is-demo-open");
+        overview.appendChild(buildTree(topic));
+    }
+
+    function renderBrowse(missingTrack, missingTopic, topic) {
+        clear(root);
+        var phone = isPhone();
+        placeBack(phone && !!topic, "Back to all topics");
+        setLeadVisible(true);
+        if (missing) {
+            missing.hidden = !missingTrack && !missingTopic;
+            if (missingTrack) missing.textContent = "That track was not found.";
+            else if (missingTopic) missing.textContent = "That topic was not found.";
+        }
+        currentId = "";
+        currentTopicId = topic ? topic.id : "";
+        document.title = topic ? topic.title + " - Guided Tracks" : "Guided Tracks - Project Viz";
+        if (!topics.length) {
+            root.appendChild(el("p", "hub-quiet", "No topics yet."));
+            hideOverview();
+            return;
+        }
+        if (phone) {
+            root.appendChild(buildTree(topic));
+            hideOverview();
             return;
         }
         var list = el("ul", "track-chooser");
-        list.setAttribute("aria-label", "Tracks");
-        visible.forEach(function (track) {
-            var id = safeSlug(track.id);
-            var item = el("li");
-            var link = el("a", "track-choice");
-            link.href = "tracks.html?track=" + id;
-            link.setAttribute("data-track", id);
-            link.appendChild(el("span", "track-choice-title", track.title));
-            link.appendChild(el("span", "track-choice-count", stepCountLabel(track.steps.length)));
-            item.appendChild(link);
-            list.appendChild(item);
+        list.setAttribute("aria-label", "Topics");
+        list.appendChild(topicChoice(
+            "",
+            "All topics",
+            countLabel(topics.length, "topic", "topics"),
+            !topic
+        ));
+        topics.forEach(function (item) {
+            list.appendChild(topicChoice(
+                item.id,
+                item.title,
+                countLabel(item.tracks.length, "track", "tracks"),
+                topic && topic.id === item.id
+            ));
         });
         root.appendChild(list);
+        showOverview(topic);
     }
 
-    function renderTrack(track) {
+    function renderTrack(track, topic) {
         clear(root);
-        placeBack(true);
+        currentId = safeSlug(track.id);
+        currentTopicId = topic ? topic.id : "";
+        placeBack(true, topic ? "Back to " + topic.title : "Back to all topics");
         setLeadVisible(false);
         if (missing) missing.hidden = true;
-        currentId = safeSlug(track.id);
         document.title = track.title + " - Guided Tracks";
+        hideOverview();
         var block = el("div", "track-block");
         block.appendChild(trackPlaylist(track));
         root.appendChild(block);
@@ -280,8 +437,8 @@
 
     function focusChoice(id) {
         id = safeSlug(id);
-        if (!id || !root) return;
-        var links = root.querySelectorAll("a.track-choice");
+        if (!id) return;
+        var links = document.querySelectorAll("a.overview-node.is-track");
         var i;
         for (i = 0; i < links.length; i++) {
             if (links[i].getAttribute("data-track") === id) {
@@ -291,30 +448,65 @@
         }
     }
 
+    function focusTopic(id) {
+        id = id ? safeSlug(id) : "";
+        if (!root) return;
+        var links = root.querySelectorAll("a.topic-choice, a.overview-node.is-topic");
+        var i;
+        for (i = 0; i < links.length; i++) {
+            if ((links[i].getAttribute("data-topic") || "") === id) {
+                links[i].focus();
+                return;
+            }
+        }
+    }
+
+    function stageTitle() {
+        if (currentId) return "Select a demonstration";
+        if (currentTopicId) {
+            var topic = findTopic(currentTopicId);
+            if (topic) return topic.title;
+        }
+        return "All topics";
+    }
+
     function sync(options) {
         options = options || {};
         if (!ready || failed) return currentId;
         var raw = requestedRaw();
         var id = safeSlug(raw);
         var found = id ? findTrack(id) : null;
-        var missingOn = !!raw && !found;
-        var key = (missingOn ? "missing:" : "ok:") + (found ? id : "");
+        var topicRaw = requestedParam("topic");
+        var topicId = safeSlug(topicRaw);
+        var topic = topicId ? findTopic(topicId) : null;
+        var missingTrack = !!raw && !found;
+        var missingTopic = !found && !!topicRaw && !topic;
+        var key = [
+            missingTrack ? "missing-track" : missingTopic ? "missing-topic" : "ok",
+            found ? id : "",
+            found ? (topic ? topic.id : "") : (topic ? topic.id : ""),
+            isPhone() ? "phone" : "desk"
+        ].join(":");
         if (key !== renderedKey) {
             renderedKey = key;
-            if (found) renderTrack(found);
-            else renderLanding(missingOn);
+            if (found) renderTrack(found, topic);
+            else renderBrowse(missingTrack, missingTopic, topic);
         }
         if (options.focus === "back") {
             var back = document.getElementById("tracks-back");
             if (back && !back.hidden) back.focus();
+        } else if (options.focusTopic != null) {
+            focusTopic(options.focusTopic);
         } else if (options.focusChoice) {
             focusChoice(options.focusChoice);
         }
+        document.dispatchEvent(new CustomEvent("projectviz:tracks-view"));
         return currentId;
     }
 
     function showError() {
         clear(root);
+        hideOverview();
         if (root) root.appendChild(el("p", "hub-quiet", "Guided tracks could not be loaded."));
     }
 
@@ -331,6 +523,7 @@
             return response.json();
         }).then(function (data) {
             tracks = normalizeTracks(data);
+            topics = normalizeTopics(data, tracks);
             ready = true;
             failed = false;
             sync();
@@ -346,12 +539,23 @@
     window.ProjectVizTracks = {
         sync: sync,
         trackForHref: trackForHref,
-        currentId: function () { return currentId; }
+        currentId: function () { return currentId; },
+        currentTopic: function () { return currentTopicId; },
+        hasTopic: function (id) { return !!findTopic(safeSlug(id)); },
+        browsing: function () { return ready && !failed && !currentId; },
+        stageTitle: stageTitle
     };
 
     window.addEventListener("hashchange", function () {
         sync();
     });
+
+    if (phoneQuery.addEventListener) {
+        phoneQuery.addEventListener("change", function () {
+            renderedKey = "";
+            sync();
+        });
+    }
 
     load();
 })();

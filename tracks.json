@@ -1,4 +1,40 @@
 {
+  "topics": [
+    {
+      "id": "describing-data",
+      "title": "Describing data",
+      "tracks": [
+        "center-and-spread",
+        "shape-and-pictures",
+        "same-summaries-different-graphs"
+      ]
+    },
+    {
+      "id": "probability-and-sampling",
+      "title": "Probability & sampling",
+      "tracks": [
+        "from-process-to-distribution",
+        "counts-arrivals-and-the-board",
+        "sampling-distributions-and-intervals"
+      ]
+    },
+    {
+      "id": "comparing-means",
+      "title": "Comparing means",
+      "tracks": [
+        "t-test",
+        "statistical-power",
+        "anova"
+      ]
+    },
+    {
+      "id": "association",
+      "title": "Association",
+      "tracks": [
+        "association"
+      ]
+    }
+  ],
   "tracks": [
     {
       "id": "center-and-spread",

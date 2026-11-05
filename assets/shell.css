@@ -241,7 +241,7 @@ button.catalog-rail-back:focus-visible {
     content: none !important;
 }
 
-.viz-rail a.track-choice {
+.viz-rail a.topic-choice {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -261,17 +261,26 @@ button.catalog-rail-back:focus-visible {
     text-decoration: none !important;
 }
 
-.viz-rail a.track-choice:hover,
-.viz-rail a.track-choice:focus-visible {
-    background: #000000 !important;
-    color: #ffffff !important;
+.viz-rail a.topic-choice.is-current {
+    background: #f6f6f6 !important;
+    box-shadow: inset 3px 0 0 #000000;
+    color: #000000 !important;
 }
 
-.viz-rail a.track-choice:focus {
+.viz-rail a.topic-choice:hover,
+.viz-rail a.topic-choice:focus-visible,
+.viz-rail a.topic-choice.is-current:hover,
+.viz-rail a.topic-choice.is-current:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+    box-shadow: none;
+}
+
+.viz-rail a.topic-choice:focus {
     outline: none;
 }
 
-.viz-rail a.track-choice:focus-visible {
+.viz-rail a.topic-choice:focus-visible {
     outline: 2px solid #000000;
     outline-offset: 2px;
 }
@@ -392,17 +401,16 @@ button.catalog-rail-back:focus-visible {
 .viz-rail a.catalog-demo.is-current {
     outline: 2px solid #000000;
     outline-offset: 2px;
-    background: #ffffff !important;
+    background: #f6f6f6 !important;
+    color: #000000 !important;
 }
 
 .viz-rail a.catalog-demo:hover,
-.viz-rail a.catalog-demo:focus-visible {
-    background: #000000 !important;
-    color: #ffffff !important;
-}
-
+.viz-rail a.catalog-demo:focus-visible,
 .viz-rail a.catalog-demo.is-current:hover,
 .viz-rail a.catalog-demo.is-current:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
     outline-color: #ffffff;
 }
 
@@ -486,14 +494,33 @@ button.catalog-rail-back:focus-visible {
 }
 
 .viz-rail a.demo-card.is-current {
-    background: var(--bg-subtle) !important;
+    background: #f6f6f6 !important;
+    color: #000000 !important;
     box-shadow: inset 3px 0 0 #000000;
+}
+
+.viz-rail a.demo-card.is-current:hover,
+.viz-rail a.demo-card.is-current:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+    box-shadow: none;
 }
 
 .viz-rail a.concept-node.is-current,
 .viz-rail a.playlist-connection-link.is-current {
     outline: 2px solid #000000;
     outline-offset: 2px;
+    background: #f6f6f6 !important;
+    color: #000000 !important;
+}
+
+.viz-rail a.concept-node.is-current:hover,
+.viz-rail a.concept-node.is-current:focus-visible,
+.viz-rail a.playlist-connection-link.is-current:hover,
+.viz-rail a.playlist-connection-link.is-current:focus-visible {
+    outline-color: #ffffff;
+    background: #000000 !important;
+    color: #ffffff !important;
 }
 
 .viz-pane {
@@ -589,6 +616,164 @@ button.viz-chrome-btn:disabled {
     padding: 1.2rem 1rem;
     color: #222222 !important;
     font-style: italic;
+}
+
+#viz-overview {
+    position: absolute;
+    inset: 0;
+    overflow: auto;
+    background: transparent;
+}
+
+#viz-overview[hidden] {
+    display: none !important;
+}
+
+.overview-tree {
+    max-width: 44rem;
+    margin: 0;
+    padding: 1.25rem 1.35rem 2.25rem;
+}
+
+.overview-tree ul,
+.overview-tree li {
+    list-style: none !important;
+}
+
+p.overview-root {
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #000000 !important;
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 1.3;
+}
+
+.overview-tree > p.overview-root::before {
+    content: "";
+    position: absolute;
+    left: 0.85rem;
+    top: 100%;
+    width: 2px;
+    height: 0.55rem;
+    background: #000000;
+}
+
+p.overview-root.is-current {
+    background: #f6f6f6;
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+ul.overview-branch {
+    margin: 0.45rem 0 0 0.85rem;
+    padding: 0;
+}
+
+ul.overview-branch > li {
+    position: relative;
+    margin: 0;
+    padding: 0.28rem 0 0.28rem 1.15rem;
+}
+
+ul.overview-branch > li::before,
+ul.overview-branch > li::after {
+    content: "" !important;
+    display: block !important;
+    position: absolute;
+    background: #000000;
+}
+
+ul.overview-branch > li::before {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    height: auto;
+}
+
+ul.overview-branch > li:last-child::before {
+    bottom: auto;
+    height: 1.15rem;
+}
+
+ul.overview-branch > li::after {
+    left: 0;
+    top: 1.12rem;
+    width: 1.05rem;
+    height: 2px;
+}
+
+a.overview-node {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.15rem 0.55rem;
+    max-width: 100%;
+    margin: 0;
+    padding: 0.48rem 0.72rem;
+    border: 1px solid #000000 !important;
+    border-radius: 4px;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    font-weight: bold;
+    line-height: 1.3;
+    text-align: left;
+    text-decoration: none !important;
+    vertical-align: top;
+}
+
+a.overview-node:hover,
+a.overview-node:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+a.overview-node:focus {
+    outline: none;
+}
+
+a.overview-node:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+.overview-title {
+    font-size: 0.95rem;
+    font-weight: bold;
+    line-height: 1.3;
+    color: inherit !important;
+}
+
+.overview-count {
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    font-size: 0.66rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: inherit !important;
+}
+
+@media screen and (max-width: 736px) {
+    .overview-tree {
+        max-width: none;
+        padding: 0.15rem 0 1.2rem;
+    }
+
+    a.overview-node {
+        display: flex;
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 2.75rem;
+    }
 }
 
 .viz-pane-stage iframe {
