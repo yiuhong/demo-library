@@ -386,6 +386,8 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                 problems.append(f"assets/concept-maps.js: do not show relation labels ({needle})")
     if tracks_js and "backboneLabel" in tracks_js:
         problems.append("assets/tracks-page.js: do not show a Backbone label")
+    if tracks_js and "ProjectVizOpened" in tracks_js:
+        problems.append("assets/tracks-page.js: do not mark opened boxes")
 
     for name in ("index.html", "catalog.html", "tracks.html", "cite.html", "license.html"):
         text = read_text(ROOT / name)
@@ -553,6 +555,8 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             problems.append("assets/shell.css: About Yiu Hong must not take the text-link underline")
         if ".viz-topbar a.about-yiu" not in shell_css or "border: 1px solid #000000 !important;" not in shell_css:
             problems.append("assets/shell.css: About Yiu Hong chip needs a full border")
+        if "is-opened" in shell_css:
+            problems.append("assets/shell.css: do not style an opened box")
 
     notebook_css = read_text(ROOT / "assets" / "notebook.css")
     if notebook_css is None:
@@ -951,8 +955,8 @@ def check_map_page(problems: list[str]) -> None:
         problems.append("assets/concept-maps.js: do not show an Opened tag")
     if sheet is None or "a.concept-node" not in sheet:
         problems.append("assets/concept-maps.css: concept-map links are missing")
-    elif "a.concept-node.is-opened" not in sheet:
-        problems.append("assets/concept-maps.css: opened boxes need the visited fill")
+    elif re.search(r"a\.concept-node\.is-opened", sheet):
+        problems.append("assets/concept-maps.css: do not fill an opened box")
     elif re.search(r"\.concept-stop\.is-backbone[^{]*\{[^}]*background\s*:", sheet):
         problems.append("assets/concept-maps.css: backbone must not paint its own fill")
     catalog_js = read_text(ROOT / "assets" / "catalog.js")
@@ -964,6 +968,8 @@ def check_map_page(problems: list[str]) -> None:
     tracks_js = read_text(ROOT / "assets" / "tracks-page.js")
     if tracks and "Choose a path" in tracks:
         problems.append("tracks.html: Choose a path does not belong on Guided Tracks")
+    if tracks and "assets/opened.js" in tracks:
+        problems.append("tracks.html: do not mark opened boxes")
     if tracks_js and "track-steps" in tracks_js:
         problems.append("assets/tracks-page.js: do not repeat track steps as a link list")
     if tracks_js and ("playlist-note" in tracks_js or "playlist-bridge" in tracks_js):
