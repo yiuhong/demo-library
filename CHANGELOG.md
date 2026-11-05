@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Catalog: with a demonstration open, Back to browse stays at the top of the left rail and the demo list scrolls in the space below it. The button is no longer sticky inside that list, so scrolling does not slide later rows underneath it.
 - Phone and coarse-pointer range sliders stay 44px tall. Their `touch-action` is `pan-y` with pinch-zoom, so a vertical finger scrolls the page and a horizontal finger still moves the control. If that gesture becomes a scroll, the value returns to where it was when the finger went down. The rule is in the shared statistics and neuroscience demo themes, and the value restore is in the shared demo footer script.
 - Fullscreen on Catalog and Guided Tracks uses the browser Fullscreen API on the demo pane (the bar and the open demonstration or connection). Exit and Escape leave it. A browser without that API leaves the page as it was.
 - Guided Tracks topic buttons, and the same Catalog category buttons, keep black text on `#f6f6f6` when selected. Hover and keyboard focus still fill the button black. The title follows that color, so it is white on the black fill. The selected inset bar is visible again.
