@@ -66,14 +66,14 @@ html.viz-embedded .connection-page .demo-topbar {
     display: none;
 }
 
-/* In the shell, a light connection is prose on the notebook sheet.
- * The parent pane lets that sheet show through. A neuroscience step
- * removes .connection-sheet and keeps the dark lab. The figure and
- * the formulae card keep their own white paper. */
+/* In the shell, a light connection is plain white prose. No graph
+ * paper. A neuroscience step removes .connection-sheet and keeps the
+ * dark lab. Opened on its own, the page keeps the gray demo chrome.
+ * The figure and the formulae card keep their own white paper. */
 
 html.viz-embedded.connection-sheet,
 html.viz-embedded.connection-sheet body.connection-page {
-    background-color: transparent !important;
+    background-color: #ffffff !important;
     background-image: none !important;
 }
 
