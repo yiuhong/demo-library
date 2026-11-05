@@ -10,9 +10,12 @@
  * Graph paper stays on the library chrome.
  * It does not enter a demonstration iframe, and it does not repaint a
  * featured plate (.home-frame), including the dark neuroscience plate.
- * Chrome paper is white. The plot stage stays #f6f6f6 and the iframe
- * stays #ffffff. An open neuroscience demonstration keeps a cooler
- * gray pane and a dark stage, with no grid inside the iframe.
+ * Chrome paper is white. The shell stage is plain white too: the
+ * topic overview, the empty stage, Catalog browse, and an embedded
+ * connection note. No graph paper, margin, or ruler on that stage.
+ * The demonstration iframe stays #ffffff, with no grid in the plot well.
+ * An open neuroscience demonstration keeps a cooler gray pane and a
+ * dark stage, with no grid inside the iframe.
  * A thin margin line stays on the home sheet and the left rail.
  * No binder holes, spiral, tape, or stains.
  */
@@ -36,7 +39,7 @@ html.viz-notebook {
 
 /* The personal-site stylesheet paints these surfaces solid white.
  * Leave them clear so one sheet shows through. Cards, buttons, the
- * plot well, and featured plates keep their own fills. */
+ * demonstration iframe, and featured plates keep their own fills. */
 
 html.viz-notebook body.viz-home,
 html.viz-notebook body.viz-home #wrapper,
@@ -153,10 +156,17 @@ html.viz-notebook body.viz-app .viz-pane-chrome::before {
     }
 }
 
+/* The stage is a plain white well: the topic tree, “Select a step.”,
+ * and the Catalog card grid. Cover the page sheet so no graph paper,
+ * margin, or ruler shows in that pane. */
+
 html.viz-notebook body.viz-app .viz-pane-stage {
-    background-color: #f6f6f6 !important;
+    background-color: #ffffff !important;
     background-image: none !important;
 }
+
+/* The iframe is the plot well, and an embedded connection note.
+ * Both stay plain white. No graph paper inside either. */
 
 html.viz-notebook body.viz-app .viz-pane-stage iframe {
     background-color: #ffffff !important;
@@ -165,7 +175,10 @@ html.viz-notebook body.viz-app .viz-pane-stage iframe {
 
 html.viz-notebook .catalog-panel,
 html.viz-notebook .viz-rail .sub-category-section,
-html.viz-notebook .viz-rail .category-section {
+html.viz-notebook .viz-rail .category-section,
+html.viz-notebook .catalog-message,
+html.viz-notebook .no-results,
+html.viz-notebook .sub-category-section {
     background-color: transparent !important;
     background-image: none !important;
 }
