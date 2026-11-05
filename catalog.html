@@ -5,7 +5,7 @@
     <title>Catalog - Project Viz</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Every demonstration in Project Viz, with search and category filters." />
+    <meta name="description" content="Every demonstration in Project Viz, by category." />
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
     <script>
         (function () {
@@ -61,52 +61,24 @@
         <aside class="viz-rail" id="viz-rail" aria-label="Catalog">
             <h1>Catalog</h1>
             <p class="page-lead">Every demonstration, in the order of the curriculum.</p>
-            <h2 id="catalog-heading" class="visually-hidden">Demonstrations</h2>
-            <label class="visually-hidden" for="searchInput">Search for a keyword</label>
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Search for a keyword">
+            <div id="catalog-rail" aria-live="polite">
+                <p id="catalog-status" class="catalog-message">Loading catalog…</p>
             </div>
-            <div class="library-toolbar" id="catalog-filters">
-                <p class="library-label" id="filter-label">Filter by category</p>
-                <div class="filter-chips" role="group" aria-labelledby="filter-label">
-                    <button type="button" class="filter-chip is-active" data-filter="all" aria-pressed="true">All</button>
-                    <button type="button" class="filter-chip" data-filter="cognitive" aria-pressed="false">Cognitive Psychology</button>
-                    <button type="button" class="filter-chip" data-filter="neuroscience" aria-pressed="false">Neuroscience</button>
-                    <button type="button" class="filter-chip" data-filter="statistics" aria-pressed="false">Statistics</button>
-                    <button type="button" class="filter-chip" data-filter="personality" aria-pressed="false">Personality Psychology</button>
-                </div>
-            </div>
-            <div id="noResults" class="no-results" role="status">
-                No demonstrations found. Try a different keyword or category.
-            </div>
-
-            <section class="catalog-panel" data-catalog-panel="style2">
-                <div id="catalog-mount-style2">
-                    <p id="catalog-status" class="catalog-message">Loading catalog…</p>
-                </div>
-                <noscript>
-                    <p class="catalog-message">The catalog needs JavaScript.</p>
-                </noscript>
-            </section>
-
-            <section class="catalog-panel is-pending" data-catalog-panel="style3">
-                <div id="catalog-mount-style3"></div>
-            </section>
-
-            <section class="catalog-panel is-pending" data-catalog-panel="style1">
-                <div id="catalog-mount-style1"></div>
-            </section>
+            <noscript>
+                <p class="catalog-message">The catalog needs JavaScript.</p>
+            </noscript>
         </aside>
 
         <section class="viz-pane" id="viz-pane" aria-label="Demonstration">
             <div class="viz-pane-chrome">
                 <button type="button" class="viz-chrome-btn viz-back" id="viz-back">Back</button>
-                <h2 id="viz-pane-title">Select a demonstration</h2>
+                <h2 id="viz-pane-title">Catalog</h2>
                 <button type="button" class="viz-chrome-btn" id="viz-fullscreen" aria-pressed="false" disabled>Fullscreen</button>
                 <button type="button" class="viz-chrome-btn" id="viz-exit" hidden>Exit</button>
             </div>
             <div class="viz-pane-stage">
-                <p id="viz-empty" class="viz-empty">Select a demonstration from the list.</p>
+                <div id="catalog-browse" hidden></div>
+                <p id="viz-empty" class="viz-empty" hidden>Select a demonstration.</p>
                 <iframe id="viz-frame" title="Demonstration" hidden></iframe>
             </div>
         </section>

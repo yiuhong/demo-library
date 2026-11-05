@@ -1,6 +1,6 @@
 /*
- * Catalog page: search, category chips, section cards' targets, and the
- * demonstration rows. Section cards themselves use curriculum-hub.css.
+ * Catalog page: category rail, the browse card grid, and the short
+ * demo list shown once a demonstration is open.
  */
 
 .library-label {
@@ -328,6 +328,61 @@ a.demo-card:focus-visible .demo-tag.is-draft {
 
 .page-lead {
     max-width: 40rem;
+}
+
+#catalog-browse {
+    position: absolute;
+    inset: 0;
+    overflow: auto;
+    padding: 1rem 1.15rem 1.75rem;
+}
+
+#catalog-browse[hidden] {
+    display: none !important;
+}
+
+.catalog-browse-head {
+    margin: 0 0 0.35rem;
+}
+
+.catalog-browse-kicker {
+    margin: 0 0 0.75rem;
+    font-size: 0.92rem;
+    line-height: 1.4;
+}
+
+#catalog-browse .search-container,
+.catalog-phone-list .search-container {
+    margin-bottom: 1rem;
+}
+
+.catalog-topic {
+    margin: 0 0 1.35rem;
+}
+
+.catalog-topic > h3,
+.catalog-group-title {
+    margin: 0 0 0.7rem;
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    line-height: 1.35;
+    text-transform: uppercase;
+}
+
+.catalog-group {
+    margin: 0 0 0.4rem;
+}
+
+.catalog-topic[hidden],
+.catalog-group[hidden],
+a.demo-card[hidden],
+.no-results[hidden] {
+    display: none !important;
+}
+
+.no-results:not([hidden]) {
+    display: block;
 }
 
 @media screen and (max-width: 736px) {
