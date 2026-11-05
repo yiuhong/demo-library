@@ -125,6 +125,19 @@ html.viz-notebook body.viz-app .viz-rail::before {
     border-right: 1px solid var(--notebook-margin);
 }
 
+/* The open Catalog rail is a column: the back button, then the list.
+ * The margin line is painted on the rail, not as a flex item. */
+
+@media screen and (min-width: 737px) {
+    html.viz-notebook body.viz-app[data-viz-page="catalog"].is-demo-open .viz-rail::before {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        height: auto;
+        margin-bottom: 0;
+    }
+}
+
 /* Quiet ticks on the pane's left edge, in the chrome bar only.
  * A narrow strip, not rules across the title. The stage under it
  * stays a plain plot well. */
