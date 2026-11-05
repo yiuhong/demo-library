@@ -195,6 +195,38 @@ button.catalog-rail-back {
     background: #ffffff !important;
 }
 
+/* While a Catalog demonstration is open, the rail keeps Back to browse
+ * in its own band and scrolls the demo list beneath it. A sticky button
+ * inside the same scrollport stays on top and covers later rows. */
+
+@media screen and (min-width: 737px) {
+    body.viz-app[data-viz-page="catalog"].is-demo-open .viz-rail {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        padding-bottom: 0.45rem;
+    }
+
+    body.viz-app[data-viz-page="catalog"].is-demo-open button.catalog-rail-back {
+        position: relative;
+        top: auto;
+        z-index: auto;
+        flex: 0 0 auto;
+    }
+
+    body.viz-app[data-viz-page="catalog"].is-demo-open #catalog-rail {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+        overscroll-behavior: contain;
+        padding-top: 0.15rem;
+        padding-bottom: 0.85rem;
+        scroll-padding-top: 0.35rem;
+        scroll-padding-bottom: 0.5rem;
+    }
+}
+
 button.track-rail-back::before,
 button.catalog-rail-back::before {
     content: "\2190";
@@ -873,6 +905,12 @@ body.viz-app #footer ul.menu > li {
 @media screen and (min-width: 737px) and (max-width: 1100px) {
     .viz-workspace {
         grid-template-columns: minmax(11.25rem, 24%) minmax(0, 1fr);
+    }
+
+    body.viz-app button.catalog-rail-back {
+        padding-left: 0.45rem !important;
+        padding-right: 0.45rem !important;
+        font-size: 0.8rem !important;
     }
 
     .viz-rail {
