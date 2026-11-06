@@ -6,9 +6,12 @@
  * in the address bar. step= is still that step's index. The rail lists
  * the connection before the demonstration. Fullscreen calls the browser
  * Fullscreen API on #viz-pane (the bar and the open demonstration).
- * Exit and Escape leave it. The control is hidden only under 480px.
- * Phone shows the rail, then the page. A wider phone shell still
- * offers Fullscreen.
+ * While that pane is fullscreen it is the scrollport: the iframe is
+ * laid out at the demonstration's content height, so a vertical swipe
+ * scrolls. Exit, Back, and Escape leave it. document.exitFullscreen()
+ * is not called for a scroll or a swipe. The enter control is hidden
+ * only under 480px. Phone shows the rail, then the page. A wider
+ * phone shell still offers Fullscreen.
  * On Guided Tracks the desktop rail lists topics and the pane
  * shows the topic tree until a track is open. Choosing a topic zooms
  * that subtree. Back from a demonstration returns to that track, and
@@ -31,6 +34,9 @@
         if ((frame.getAttribute("allow") || "").indexOf("fullscreen") === -1) {
             frame.setAttribute("allow", "fullscreen");
         }
+        frame.addEventListener("load", function () {
+            if (activeFullscreen() === document.getElementById("viz-pane")) syncFullscreenScroll();
+        });
     }
     var empty = document.getElementById("viz-empty");
     var titleNode = document.getElementById("viz-pane-title");
@@ -42,6 +48,10 @@
     var rail = document.getElementById("viz-rail");
     var currentHref = "";
     var currentLink = null;
+    var fsScrollObserver = null;
+    var fsScrollBody = null;
+    var fsScrollLock = false;
+    var fsScrollScheduled = false;
     var seeded = false;
     var railScroll = 0;
     var scoped = false;
@@ -356,6 +366,79 @@
         return Promise.resolve();
     }
 
+    function clearFullscreenScroll() {
+        if (fsScrollObserver) {
+            fsScrollObserver.disconnect();
+            fsScrollObserver = null;
+        }
+        fsScrollBody = null;
+        if (frame) frame.style.height = "";
+    }
+
+    function frameDocument() {
+        if (!frame) return null;
+        try {
+            return frame.contentDocument;
+        } catch (err) {
+            return null;
+        }
+    }
+
+    function watchFullscreenBody(body) {
+        if (!body || typeof ResizeObserver === "undefined") return;
+        if (fsScrollBody === body && fsScrollObserver) return;
+        if (fsScrollObserver) fsScrollObserver.disconnect();
+        fsScrollBody = body;
+        fsScrollObserver = new ResizeObserver(function () {
+            if (fsScrollLock) return;
+            scheduleFullscreenScroll();
+        });
+        fsScrollObserver.observe(body);
+    }
+
+    function scheduleFullscreenScroll() {
+        if (fsScrollScheduled) return;
+        fsScrollScheduled = true;
+        window.requestAnimationFrame(function () {
+            fsScrollScheduled = false;
+            syncFullscreenScroll();
+        });
+    }
+
+    /* The browser fullscreen element is #viz-pane. A vertical swipe
+     * scrolls that element only when it overflows. The demonstration
+     * scrolls inside the iframe, so the pane's own box does not, and
+     * the swipe is not a scroll (on some mobile browsers it leaves
+     * fullscreen). Size the iframe to the document while fullscreen.
+     * Exit, Back, and Escape still leave fullscreen. This does not. */
+    function syncFullscreenScroll() {
+        if (fsScrollLock) return;
+        var pane = document.getElementById("viz-pane");
+        if (!frame || !pane || activeFullscreen() !== pane) {
+            clearFullscreenScroll();
+            return;
+        }
+        var doc = frameDocument();
+        if (!doc || !doc.body) return;
+        var scrolling = doc.scrollingElement || doc.documentElement;
+        fsScrollLock = true;
+        try {
+            var overflow = scrolling.scrollHeight - scrolling.clientHeight;
+            if (overflow > 1) {
+                var next = Math.ceil(scrolling.scrollHeight) + "px";
+                if (frame.style.height !== next) frame.style.height = next;
+            } else if (!frame.style.height) {
+                var chrome = pane.querySelector(".viz-pane-chrome");
+                var chromeH = chrome ? chrome.getBoundingClientRect().height : 0;
+                var minH = Math.ceil(Math.max(0, pane.clientHeight - chromeH));
+                if (minH > 0) frame.style.height = minH + "px";
+            }
+            watchFullscreenBody(doc.body);
+        } finally {
+            fsScrollLock = false;
+        }
+    }
+
     function applyExpanded(on) {
         document.body.classList.toggle("is-expanded", !!on);
         if (fullscreenBtn) {
@@ -363,10 +446,13 @@
             fullscreenBtn.setAttribute("aria-pressed", on ? "true" : "false");
         }
         if (exitBtn) exitBtn.hidden = !on;
+        if (on) syncFullscreenScroll();
+        else clearFullscreenScroll();
     }
 
     function syncExpanded() {
         var on = !!activeFullscreen();
+        /* Narrow-phone guard and a closed demo. Not a scroll or a swipe. */
         if (on && (hidesFullscreen() || !currentHref)) {
             exitFullscreen().catch(function () {});
             on = false;
