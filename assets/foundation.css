@@ -1,0 +1,315 @@
+/*
+ * Local shell foundation for Home, Catalog, Guided Tracks, Cite & reuse,
+ * and Licenses. These pages do not load a personal-site stylesheet.
+ *
+ * This file owns the document reset, the type scale, the reading column,
+ * the footer menu, the catalog search field, and the load fade.
+ * Page layout stays in shell.css, home.css, catalog.css, and the cite
+ * and license pages. The notebook sheet stays in notebook.css.
+ *
+ * style1 and style1-alt remain on the markup as old panel hooks.
+ * They no longer paint a colour. wrapper stays: the footer script uses
+ * it to tell a library page from a demonstration.
+ */
+
+html {
+    box-sizing: border-box;
+    background: #ffffff;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+body {
+    margin: 0;
+    background: #ffffff;
+    color: #000000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16.5pt;
+    font-weight: normal;
+    line-height: 1.75;
+}
+
+@media screen and (max-width: 1680px) {
+    body {
+        font-size: 13pt;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    body {
+        font-size: 12pt;
+    }
+}
+
+@media screen and (max-width: 360px) {
+    body {
+        font-size: 11pt;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    html,
+    body {
+        min-width: 320px;
+    }
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+img {
+    border: 0;
+    max-width: 100%;
+    height: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0 0 0.5em;
+    color: #000000;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+h1 {
+    font-size: 2.75em;
+}
+
+h2 {
+    font-size: 1.75em;
+}
+
+h3 {
+    font-size: 1.1em;
+}
+
+h4 {
+    font-size: 1em;
+}
+
+h5,
+h6 {
+    font-size: 0.8em;
+}
+
+@media screen and (max-width: 736px) {
+    h1 {
+        font-size: 2em;
+    }
+
+    h2 {
+        font-size: 1.25em;
+    }
+
+    h3 {
+        font-size: 1em;
+    }
+}
+
+p {
+    margin: 0 0 2em;
+}
+
+#intro p {
+    font-size: 1.25em;
+}
+
+@media screen and (max-width: 736px) {
+    #intro p {
+        font-size: 1em;
+    }
+}
+
+a {
+    color: #000000;
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(0, 0, 0, 0.4);
+}
+
+a:hover {
+    color: #555555;
+    border-bottom-color: transparent;
+}
+
+strong,
+b {
+    font-weight: bold;
+}
+
+em,
+i {
+    font-style: italic;
+}
+
+sub {
+    font-size: 0.8em;
+    position: relative;
+    top: 0.5em;
+}
+
+sup {
+    font-size: 0.8em;
+    position: relative;
+    top: -0.5em;
+}
+
+code {
+    margin: 0 0.25em;
+    padding: 0.15em 0.4em;
+    border: 1px solid #000000;
+    border-radius: 0.2em;
+    background: #f5f5f5;
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    font-size: 0.9em;
+}
+
+ol {
+    margin: 0 0 2em;
+    padding-left: 1.25em;
+    list-style: decimal;
+}
+
+ul {
+    margin: 0 0 2em;
+    padding-left: 1em;
+    list-style: disc;
+}
+
+ul li {
+    padding-left: 0.25em;
+}
+
+.wrapper {
+    position: relative;
+    background: #ffffff;
+}
+
+.wrapper > .inner {
+    box-sizing: border-box;
+    width: 75em;
+    max-width: 100%;
+    padding: 5em 5em 3em;
+}
+
+@media screen and (max-width: 1680px) {
+    .wrapper > .inner {
+        padding: 4em 4em 2em;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .wrapper > .inner {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 736px) {
+    .wrapper > .inner {
+        padding: 3em 2em 1em;
+    }
+}
+
+#footer {
+    background: #ffffff;
+    color: #000000;
+}
+
+#footer ul.menu {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.8em;
+    line-height: 1.65;
+}
+
+#footer ul.menu > li {
+    display: inline-block;
+    margin: 0 0 0.35em 1.25em;
+    padding: 0;
+    list-style: none;
+}
+
+#footer ul.menu > li:first-child {
+    margin-left: 0;
+}
+
+@media screen and (max-width: 480px) {
+    #footer ul.menu > li {
+        display: block;
+        margin: 0.5em 0 0;
+    }
+
+    #footer ul.menu > li:first-child {
+        margin-top: 0;
+    }
+}
+
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+select,
+textarea {
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 0.45em 0.75em;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #000000;
+    font: inherit;
+    line-height: 1.4;
+}
+
+input[type="search"] {
+    width: 100%;
+    min-height: 2.75em;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/*
+ * Load fade. body.is-preload hides the intro, then site-meta.js
+ * removes that class after the page has loaded. Without JavaScript
+ * the noscript sheet shows the intro immediately.
+ */
+
+.wrapper.fade-up > .inner {
+    transform: translateY(0);
+    opacity: 1;
+    transition: opacity 1s ease, transform 1s ease;
+}
+
+body.is-preload .wrapper.fade-up > .inner {
+    transform: translateY(1em);
+    opacity: 0;
+}
+
+body.is-preload *,
+body.is-preload *::before,
+body.is-preload *::after {
+    animation: none !important;
+    transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wrapper.fade-up > .inner,
+    body.is-preload .wrapper.fade-up > .inner {
+        transform: none;
+        opacity: 1;
+        transition: none;
+    }
+}

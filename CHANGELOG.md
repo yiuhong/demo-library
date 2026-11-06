@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Home, Catalog, Guided Tracks, Cite & reuse, and Licenses no longer load the personal-site stylesheet or its scripts. Type, the reading column, the footer menu, and the load fade live in `assets/foundation.css`. The favicon and the About Yiu Hong link are unchanged.
+- The notebook sheet is white paper, black UI ink, a faint blue grid, and a thin muted red margin (plus the rule above the home colophon). Statistics demonstrations use a quieter version of that sheet on the page. Plots, canvases, Catalog browse, the empty stage, the topic overview, and connection notes stay plain. Neuroscience stays the dark lab.
+
 - Fullscreen stays available on a tablet. It had been hidden, and the Fullscreen API refused, at `max-width: 736px` — the same cutoff as the one-step phone shell, just under an iPad (744px mini, 768px classic). A coarse pointer did not hide it. The control is now hidden only under 480px, so a narrow phone keeps the title readable, and a tablet still in that one-step shell can enter fullscreen on the demo pane. The embedded demonstration is allowed into that fullscreen. Exit and Escape still leave it.
 - Catalog: with a demonstration open, Back to browse stays at the top of the left rail and the demo list scrolls in the space below it. The button is no longer sticky inside that list, so scrolling does not slide later rows underneath it.
 - Phone and coarse-pointer range sliders stay 44px tall. Their `touch-action` is `pan-y` with pinch-zoom, so a vertical finger scrolls the page and a horizontal finger still moves the control. If that gesture becomes a scroll, the value returns to where it was when the finger went down. The rule is in the shared statistics and neuroscience demo themes, and the value restore is in the shared demo footer script.
