@@ -296,48 +296,37 @@
       pointer-events: none;
     }
 
-    .sub-pill-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5px;
+    .layer-hint {
+      font-size: 11.5px;
+      line-height: 1.35;
+      color: var(--text-muted);
     }
 
-    .sub-pill {
+    /* Squares and distances are independent. Both can be on, or both off. */
+    .err-options {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .err-option {
+      align-items: flex-start;
+      min-width: 0;
       padding: 4px 6px;
-      font-size: 11.5px;
-      font-weight: 600;
       border-radius: 5px;
       border: 1px solid var(--border-strong);
       background: var(--demo-card);
-      cursor: pointer;
-      user-select: none;
-      transition: all 0.12s ease;
+      font-weight: 600;
+      line-height: 1.25;
     }
 
-    .sub-pill input[type="radio"] {
-      display: none;
+    .err-option span:last-child {
+      min-width: 0;
     }
 
-    .sub-pill.active-cand-err {
-      background: var(--viz-group-c-soft);
-      border-color: var(--viz-group-c);
-      color: var(--viz-group-c);
-    }
-
-    .sub-pill.active-ols-err {
-      background: var(--viz-residual-soft);
-      border-color: var(--viz-residual);
-      color: var(--viz-residual);
-    }
-
-    .sub-pill.active-null-err {
-      background: var(--viz-total-soft);
-      border-color: var(--viz-total);
-      color: var(--viz-total);
+    .err-option input {
+      flex-shrink: 0;
+      margin-top: 1px;
     }
 
     /* CHALLENGE SCORE BOX */
@@ -683,8 +672,13 @@
       .svg-container { height: 360px; min-height: 280px; }
       .kpi-row { grid-template-columns: 1fr 1fr; }
       .plot-instructions { flex-direction: column; }
-      .demo-btn, .mode-pill, .sub-pill, .tab-btn { min-height: 44px; }
+      .demo-btn, .mode-pill, .tab-btn, .err-option { min-height: 44px; }
+      .err-option { align-items: center; }
       input[type="range"] { min-height: 44px; }
+    }
+
+    @media (pointer: coarse) {
+      .err-option { min-height: 44px; align-items: center; }
     }
   </style>
 </head>
@@ -777,6 +771,7 @@
         <!-- Packaged Visual Layers (Matched to Tab B: SS Area Comparator Colors) -->
         <div class="control-section">
           <div class="section-label">Geometric Visual Layers (Color-Matched to B)</div>
+          <p class="layer-hint">Squares and distances are separate. Clear both to leave the line and the points.</p>
 
           <!-- Candidate line and its residuals (group C) -->
           <div class="layer-package pkg-cand">
@@ -785,15 +780,15 @@
               <span class="swatch" style="background:var(--col-cand);"></span>
               <span>Candidate Line ($\tilde{Y} = b_0 + b_1 X$) &amp; Residuals</span>
             </label>
-            <div id="candSubOptions" class="sub-options">
-              <div class="sub-pill-group">
-                <label class="sub-pill active-cand-err" id="lblCandSquares">
-                  <input type="radio" name="candErrMode" value="squares" checked />
+            <div id="candSubOptions" class="sub-options" role="group" aria-label="Candidate line squares and distances">
+              <div class="err-options">
+                <label class="checkbox-item err-option" id="lblCandSquares">
+                  <input type="checkbox" id="chkCandSquares" checked />
                   <span class="swatch" style="background:var(--col-cand-fill); border:1px solid var(--col-cand);"></span>
                   <span>Squares ($e_i^2$)</span>
                 </label>
-                <label class="sub-pill" id="lblCandDistances">
-                  <input type="radio" name="candErrMode" value="distances" />
+                <label class="checkbox-item err-option" id="lblCandDistances">
+                  <input type="checkbox" id="chkCandDistances" />
                   <span class="swatch" style="background:var(--col-cand);"></span>
                   <span>Distances ($|e_i|$)</span>
                 </label>
@@ -808,15 +803,15 @@
               <span class="swatch" style="background:var(--col-ols);"></span>
               <span>Analytical OLS Line ($\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X$) &amp; Errors</span>
             </label>
-            <div id="olsSubOptions" class="sub-options disabled">
-              <div class="sub-pill-group">
-                <label class="sub-pill active-ols-err" id="lblOlsSquares">
-                  <input type="radio" name="olsErrMode" value="squares" checked />
+            <div id="olsSubOptions" class="sub-options disabled" role="group" aria-label="OLS line squares and distances">
+              <div class="err-options">
+                <label class="checkbox-item err-option" id="lblOlsSquares">
+                  <input type="checkbox" id="chkOlsSquares" checked disabled />
                   <span class="swatch" style="background:var(--col-sse-fill); border:1px solid var(--col-sse);"></span>
                   <span>Squares ($\hat{e}_i^2$)</span>
                 </label>
-                <label class="sub-pill" id="lblOlsDistances">
-                  <input type="radio" name="olsErrMode" value="distances" />
+                <label class="checkbox-item err-option" id="lblOlsDistances">
+                  <input type="checkbox" id="chkOlsDistances" disabled />
                   <span class="swatch" style="background:var(--col-sse);"></span>
                   <span>Distances ($|\hat{e}_i|$)</span>
                 </label>
@@ -831,15 +826,15 @@
               <span class="swatch" style="background:var(--col-sst);"></span>
               <span>Null Model ($\bar{Y}$) &amp; $(\bar{X}, \bar{Y})$</span>
             </label>
-            <div id="nullSubOptions" class="sub-options">
-              <div class="sub-pill-group">
-                <label class="sub-pill" id="lblNullSquares" title="Click to toggle SST squares">
-                  <input type="radio" name="nullErrMode" value="squares" />
+            <div id="nullSubOptions" class="sub-options" role="group" aria-label="Null model squares and distances">
+              <div class="err-options">
+                <label class="checkbox-item err-option" id="lblNullSquares">
+                  <input type="checkbox" id="chkNullSquares" />
                   <span class="swatch" style="background:var(--col-sst-fill); border:1px solid var(--col-sst);"></span>
                   <span>Squares ($(Y_i - \bar{Y})^2$)</span>
                 </label>
-                <label class="sub-pill" id="lblNullDistances" title="Click to toggle SST distances">
-                  <input type="radio" name="nullErrMode" value="distances" />
+                <label class="checkbox-item err-option" id="lblNullDistances">
+                  <input type="checkbox" id="chkNullDistances" />
                   <span class="swatch" style="background:var(--col-sst);"></span>
                   <span>Distances ($|Y_i - \bar{Y}|$)</span>
                 </label>
@@ -1202,11 +1197,6 @@
         pinToCentroid: false,
         challengeMode: false,
 
-        // Packaged Error Representation Modes ('squares' | 'distances' | 'none' for null)
-        candErrMode: "squares",
-        olsErrMode: "squares",
-        nullErrMode: "none",
-
         hoveredIndex: null,
         draggingPointIndex: null,
         draggingHandle: null, // 'left' or 'right'
@@ -1511,23 +1501,31 @@
         return el;
       }
 
+      function appendMarked(parent, tag, attrs, layer, kind) {
+        const el = createSvgEl(tag, attrs);
+        el.setAttribute("data-error-layer", layer);
+        el.setAttribute("data-error-kind", kind);
+        parent.appendChild(el);
+        return el;
+      }
+
+      function setErrorOptionsEnabled(id, enabled) {
+        const root = document.getElementById(id);
+        root.classList.toggle("disabled", !enabled);
+        root.setAttribute("aria-disabled", enabled ? "false" : "true");
+        root.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+          input.disabled = !enabled;
+        });
+      }
+
       function syncLayerControlStates() {
         const showCand = document.getElementById("chkShowCandLine").checked;
         const showOLS = document.getElementById("chkShowOLSLine").checked && !state.challengeMode;
         const showNull = document.getElementById("chkShowNullLine").checked;
 
-        document.getElementById("candSubOptions").classList.toggle("disabled", !showCand);
-        document.getElementById("olsSubOptions").classList.toggle("disabled", !showOLS);
-        document.getElementById("nullSubOptions").classList.toggle("disabled", !showNull);
-
-        document.getElementById("lblCandSquares").classList.toggle("active-cand-err", state.candErrMode === "squares");
-        document.getElementById("lblCandDistances").classList.toggle("active-cand-err", state.candErrMode === "distances");
-
-        document.getElementById("lblOlsSquares").classList.toggle("active-ols-err", state.olsErrMode === "squares");
-        document.getElementById("lblOlsDistances").classList.toggle("active-ols-err", state.olsErrMode === "distances");
-
-        document.getElementById("lblNullSquares").classList.toggle("active-null-err", state.nullErrMode === "squares");
-        document.getElementById("lblNullDistances").classList.toggle("active-null-err", state.nullErrMode === "distances");
+        setErrorOptionsEnabled("candSubOptions", showCand);
+        setErrorOptionsEnabled("olsSubOptions", showOLS);
+        setErrorOptionsEnabled("nullSubOptions", showNull);
       }
 
       function renderScatterPlot() {
@@ -1541,6 +1539,12 @@
         const showNull = document.getElementById("chkShowNullLine").checked;
         const showCI = document.getElementById("chkShowCIBand").checked && !state.challengeMode;
         const showLev = document.getElementById("chkShowLeverage").checked;
+        const showCandSquares = document.getElementById("chkCandSquares").checked;
+        const showCandDistances = document.getElementById("chkCandDistances").checked;
+        const showOlsSquares = document.getElementById("chkOlsSquares").checked;
+        const showOlsDistances = document.getElementById("chkOlsDistances").checked;
+        const showNullSquares = document.getElementById("chkNullSquares").checked;
+        const showNullDistances = document.getElementById("chkNullDistances").checked;
 
         // Clip path for plot area
         const defs = createSvgEl("defs", {});
@@ -1651,11 +1655,13 @@
         if (showNull) {
           const pyMean = yToPx(st.meanY);
           const pxMean = xToPx(st.meanX);
-          clipped.appendChild(createSvgEl("line", {
+          const nullLine = createSvgEl("line", {
             x1: PLOT.marginL, y1: pyMean,
             x2: PLOT.marginL + PLOT.width, y2: pyMean,
             stroke: PAL.sst, "stroke-width": 1.6, "stroke-dasharray": "6,4"
-          }));
+          });
+          nullLine.setAttribute("data-geom", "null-line");
+          clipped.appendChild(nullLine);
           clipped.appendChild(createSvgEl("line", {
             x1: pxMean, y1: PLOT.marginT,
             x2: pxMean, y2: PLOT.marginT + PLOT.height,
@@ -1672,8 +1678,8 @@
           nullLbl.textContent = `Null Model Mean Y = ${st.meanY.toFixed(2)} (SST)`;
           clipped.appendChild(nullLbl);
 
-          // SST Geometric Squares (Y_i - Y_bar)^2 in Tab B Indigo (#6366f1)
-          if (state.nullErrMode === "squares") {
+          // SST squares and distances are independent. Both off leaves the mean line.
+          if (showNullSquares) {
             st.pointDiagnostics.forEach((d, idx) => {
               const px = xToPx(d.x);
               const py = yToPx(d.y);
@@ -1689,7 +1695,7 @@
               const drawLeft = preferLeft || (px + sidePx > PLOT.marginL + PLOT.width - 5);
               const leftX = drawLeft ? (px - sidePx) : px;
 
-              clipped.appendChild(createSvgEl("rect", {
+              appendMarked(clipped, "rect", {
                 x: leftX,
                 y: topY,
                 width: sidePx,
@@ -1697,17 +1703,17 @@
                 fill: fillCol,
                 stroke: strokeCol,
                 "stroke-width": isHov ? 1.8 : 1.1
-              }));
+              }, "null", "squares");
 
-              clipped.appendChild(createSvgEl("line", {
+              appendMarked(clipped, "line", {
                 x1: px, y1: py, x2: px, y2: pyMean,
                 stroke: strokeCol,
                 "stroke-width": isHov ? 2.5 : 1.8,
                 "stroke-dasharray": "4,3"
-              }));
+              }, "null", "squares");
 
               if (sidePx > 26) {
-                const sqTxt = createSvgEl("text", {
+                const sqTxt = appendMarked(clipped, "text", {
                   x: leftX + sidePx / 2,
                   y: topY + sidePx / 2 + 4,
                   "text-anchor": "middle",
@@ -1715,50 +1721,57 @@
                   "font-size": "10px",
                   "font-family": "var(--font-mono)",
                   "font-weight": "700"
-                });
+                }, "null", "squares");
                 sqTxt.textContent = (d.devSST * d.devSST).toFixed(1);
-                clipped.appendChild(sqTxt);
               }
             });
-          } else if (state.nullErrMode === "distances") {
-            // SST Vertical Distances |Y_i - Y_bar| in Tab B Indigo (#6366f1)
-            const xOffset = (showCand || showOLS) ? -5 : 0;
+          }
+          if (showNullDistances) {
+            // SST vertical distances. Same placement as before when squares are off.
             st.pointDiagnostics.forEach((d, idx) => {
-              const px = xToPx(d.x) + xOffset;
+              const basePx = xToPx(d.x);
               const py = yToPx(d.y);
               const distPx = Math.abs(py - pyMean);
               if (distPx < 1) return;
+
+              let xOffset = (showCand || showOLS) ? -5 : 0;
+              if (showNullSquares) {
+                const preferLeft = (showCand || showOLS) && (basePx - distPx >= PLOT.marginL + 4);
+                const drawLeft = preferLeft || (basePx + distPx > PLOT.marginL + PLOT.width - 5);
+                xOffset = drawLeft ? 7 : -7;
+              }
+              const px = basePx + xOffset;
 
               const isHov = state.hoveredIndex === idx;
               const col = isHov ? PAL.hover : PAL.sst;
 
               if (xOffset !== 0) {
-                clipped.appendChild(createSvgEl("line", {
-                  x1: xToPx(d.x), y1: py, x2: px, y2: py,
+                appendMarked(clipped, "line", {
+                  x1: basePx, y1: py, x2: px, y2: py,
                   stroke: col, "stroke-width": 1, "stroke-dasharray": "2,2"
-                }));
+                }, "null", "distances");
               }
 
-              clipped.appendChild(createSvgEl("line", {
+              appendMarked(clipped, "line", {
                 x1: px, y1: py, x2: px, y2: pyMean,
                 stroke: col,
                 "stroke-width": isHov ? 2.8 : 2.0,
                 "stroke-dasharray": "2,2"
-              }));
+              }, "null", "distances");
 
               const capW = 3.8;
-              clipped.appendChild(createSvgEl("line", {
+              appendMarked(clipped, "line", {
                 x1: px - capW, y1: py, x2: px + capW, y2: py,
                 stroke: col, "stroke-width": 1.6
-              }));
-              clipped.appendChild(createSvgEl("line", {
+              }, "null", "distances");
+              appendMarked(clipped, "line", {
                 x1: px - capW, y1: pyMean, x2: px + capW, y2: pyMean,
                 stroke: col, "stroke-width": 1.6
-              }));
+              }, "null", "distances");
 
               if (distPx > 18) {
                 const midY = (py + pyMean) / 2;
-                const distTxt = createSvgEl("text", {
+                const distTxt = appendMarked(clipped, "text", {
                   x: px - 5,
                   y: midY + 3,
                   "text-anchor": "end",
@@ -1769,9 +1782,8 @@
                   stroke: PAL.white,
                   "stroke-width": "2.4",
                   "paint-order": "stroke"
-                });
+                }, "null", "distances");
                 distTxt.textContent = Math.abs(d.devSST).toFixed(2);
-                clipped.appendChild(distTxt);
               }
             });
           }
@@ -1790,13 +1802,13 @@
             const strokeCol = isHov ? PAL.hover : PAL.sse;
             const fillCol = isHov ? PAL.hoverFill : PAL.sseFill;
 
-            if (state.olsErrMode === "squares") {
+            if (showOlsSquares) {
               const topY = Math.min(py, pyOls);
               const preferLeft = showCand && (px - sidePx >= PLOT.marginL + 4);
               const drawLeft = preferLeft || (px + sidePx > PLOT.marginL + PLOT.width - 5);
               const leftX = drawLeft ? (px - sidePx) : px;
 
-              clipped.appendChild(createSvgEl("rect", {
+              appendMarked(clipped, "rect", {
                 x: leftX,
                 y: topY,
                 width: sidePx,
@@ -1804,17 +1816,17 @@
                 fill: fillCol,
                 stroke: strokeCol,
                 "stroke-width": isHov ? 1.8 : 1.1
-              }));
+              }, "ols", "squares");
 
-              clipped.appendChild(createSvgEl("line", {
+              appendMarked(clipped, "line", {
                 x1: px, y1: py, x2: px, y2: pyOls,
                 stroke: strokeCol,
                 "stroke-width": isHov ? 2.5 : 1.8,
                 "stroke-dasharray": "4,3"
-              }));
+              }, "ols", "squares");
 
               if (sidePx > 26) {
-                const sqTxt = createSvgEl("text", {
+                const sqTxt = appendMarked(clipped, "text", {
                   x: leftX + sidePx / 2,
                   y: topY + sidePx / 2 + 4,
                   "text-anchor": "middle",
@@ -1822,29 +1834,34 @@
                   "font-size": "10px",
                   "font-family": "var(--font-mono)",
                   "font-weight": "700"
-                });
+                }, "ols", "squares");
                 sqTxt.textContent = (d.eOls * d.eOls).toFixed(1);
-                clipped.appendChild(sqTxt);
               }
-            } else if (state.olsErrMode === "distances") {
-              const xOff = showCand ? 3.5 : 0;
+            }
+            if (showOlsDistances) {
+              let xOff = showCand ? 3.5 : 0;
+              if (showOlsSquares) {
+                const preferLeft = showCand && (px - sidePx >= PLOT.marginL + 4);
+                const drawLeft = preferLeft || (px + sidePx > PLOT.marginL + PLOT.width - 5);
+                xOff = drawLeft ? 7 : -7;
+              }
               const barX = px + xOff;
 
-              clipped.appendChild(createSvgEl("line", {
+              appendMarked(clipped, "line", {
                 x1: barX, y1: py, x2: barX, y2: pyOls,
                 stroke: strokeCol,
                 "stroke-width": isHov ? 3.0 : 2.3
-              }));
+              }, "ols", "distances");
 
               const capW = 4.2;
-              clipped.appendChild(createSvgEl("line", {
+              appendMarked(clipped, "line", {
                 x1: barX - capW, y1: py, x2: barX + capW, y2: py,
                 stroke: strokeCol, "stroke-width": 1.7
-              }));
-              clipped.appendChild(createSvgEl("line", {
+              }, "ols", "distances");
+              appendMarked(clipped, "line", {
                 x1: barX - capW, y1: pyOls, x2: barX + capW, y2: pyOls,
                 stroke: strokeCol, "stroke-width": 1.7
-              }));
+              }, "ols", "distances");
 
               if (sidePx > 15) {
                 const midY = (py + pyOls) / 2;
@@ -1852,7 +1869,7 @@
                 const labelX = placeLeft ? (barX - 6) : (barX + 6);
                 const anchor = placeLeft ? "end" : "start";
 
-                const distTxt = createSvgEl("text", {
+                const distTxt = appendMarked(clipped, "text", {
                   x: labelX,
                   y: midY + 3.5,
                   "text-anchor": anchor,
@@ -1863,9 +1880,8 @@
                   stroke: PAL.white,
                   "stroke-width": "2.5",
                   "paint-order": "stroke"
-                });
+                }, "ols", "distances");
                 distTxt.textContent = `|e_OLS|=${Math.abs(d.eOls).toFixed(2)}`;
-                clipped.appendChild(distTxt);
               }
             }
           });
@@ -1884,12 +1900,12 @@
             const strokeCol = isHov ? PAL.hover : PAL.cand;
             const fillCol = isHov ? PAL.hoverFill : PAL.candFill;
 
-            if (state.candErrMode === "squares") {
+            if (showCandSquares) {
               const topY = Math.min(py, pyFit);
               const drawLeft = (px + sidePx > PLOT.marginL + PLOT.width - 5);
               const leftX = drawLeft ? (px - sidePx) : px;
 
-              clipped.appendChild(createSvgEl("rect", {
+              appendMarked(clipped, "rect", {
                 x: leftX,
                 y: topY,
                 width: sidePx,
@@ -1897,17 +1913,17 @@
                 fill: fillCol,
                 stroke: strokeCol,
                 "stroke-width": isHov ? 1.8 : 1.1
-              }));
+              }, "cand", "squares");
 
-              clipped.appendChild(createSvgEl("line", {
+              appendMarked(clipped, "line", {
                 x1: px, y1: py, x2: px, y2: pyFit,
                 stroke: strokeCol,
                 "stroke-width": isHov ? 2.5 : 1.8,
                 "stroke-dasharray": "4,3"
-              }));
+              }, "cand", "squares");
 
               if (sidePx > 26) {
-                const sqTxt = createSvgEl("text", {
+                const sqTxt = appendMarked(clipped, "text", {
                   x: leftX + sidePx / 2,
                   y: topY + sidePx / 2 + 4,
                   "text-anchor": "middle",
@@ -1915,34 +1931,45 @@
                   "font-size": "10px",
                   "font-family": "var(--font-mono)",
                   "font-weight": "700"
-                });
+                }, "cand", "squares");
                 sqTxt.textContent = (d.eCand * d.eCand).toFixed(1);
-                clipped.appendChild(sqTxt);
               }
-            } else if (state.candErrMode === "distances") {
-              clipped.appendChild(createSvgEl("line", {
-                x1: px, y1: py, x2: px, y2: pyFit,
+            }
+            if (showCandDistances) {
+              const drawLeft = (px + sidePx > PLOT.marginL + PLOT.width - 5);
+              const xOff = showCandSquares ? (drawLeft ? 7 : -7) : 0;
+              const barX = px + xOff;
+
+              if (xOff !== 0) {
+                appendMarked(clipped, "line", {
+                  x1: px, y1: py, x2: barX, y2: py,
+                  stroke: strokeCol, "stroke-width": 1, "stroke-dasharray": "2,2"
+                }, "cand", "distances");
+              }
+
+              appendMarked(clipped, "line", {
+                x1: barX, y1: py, x2: barX, y2: pyFit,
                 stroke: strokeCol,
                 "stroke-width": isHov ? 3.2 : 2.4
-              }));
+              }, "cand", "distances");
 
               const capW = 4.5;
-              clipped.appendChild(createSvgEl("line", {
-                x1: px - capW, y1: py, x2: px + capW, y2: py,
+              appendMarked(clipped, "line", {
+                x1: barX - capW, y1: py, x2: barX + capW, y2: py,
                 stroke: strokeCol, "stroke-width": 1.8
-              }));
-              clipped.appendChild(createSvgEl("line", {
-                x1: px - capW, y1: pyFit, x2: px + capW, y2: pyFit,
+              }, "cand", "distances");
+              appendMarked(clipped, "line", {
+                x1: barX - capW, y1: pyFit, x2: barX + capW, y2: pyFit,
                 stroke: strokeCol, "stroke-width": 1.8
-              }));
+              }, "cand", "distances");
 
               if (sidePx > 14) {
                 const midY = (py + pyFit) / 2;
-                const placeLeft = (px > PLOT.marginL + PLOT.width - 42);
-                const labelX = placeLeft ? (px - 7) : (px + 7);
+                const placeLeft = (barX > PLOT.marginL + PLOT.width - 42);
+                const labelX = placeLeft ? (barX - 7) : (barX + 7);
                 const anchor = placeLeft ? "end" : "start";
 
-                const distTxt = createSvgEl("text", {
+                const distTxt = appendMarked(clipped, "text", {
                   x: labelX,
                   y: midY + 3.5,
                   "text-anchor": anchor,
@@ -1953,9 +1980,8 @@
                   stroke: PAL.white,
                   "stroke-width": "2.5",
                   "paint-order": "stroke"
-                });
+                }, "cand", "distances");
                 distTxt.textContent = `|e|=${Math.abs(d.eCand).toFixed(2)}`;
-                clipped.appendChild(distTxt);
               }
             }
           });
@@ -1968,25 +1994,29 @@
         if (showOLS) {
           const y1 = st.beta0 + st.beta1 * PLOT.xMin;
           const y2 = st.beta0 + st.beta1 * PLOT.xMax;
-          clipped.appendChild(createSvgEl("line", {
+          const olsLine = createSvgEl("line", {
             x1: xToPx(PLOT.xMin), y1: yToPx(y1),
             x2: xToPx(PLOT.xMax), y2: yToPx(y2),
             stroke: PAL.ols,
             "stroke-width": 2.7
-          }));
+          });
+          olsLine.setAttribute("data-geom", "ols-line");
+          clipped.appendChild(olsLine);
         }
 
         // 6. Candidate User Line + Direct Drag Handles (#d97706 Amber matching Tab B)
         if (showCand) {
           const y1 = state.b0 + state.b1 * PLOT.xMin;
           const y2 = state.b0 + state.b1 * PLOT.xMax;
-          clipped.appendChild(createSvgEl("line", {
+          const candLine = createSvgEl("line", {
             x1: xToPx(PLOT.xMin), y1: yToPx(y1),
             x2: xToPx(PLOT.xMax), y2: yToPx(y2),
             stroke: PAL.cand,
             "stroke-width": isAtOLS && showOLS ? 2.0 : 2.7,
             "stroke-dasharray": isAtOLS && showOLS ? "6,4" : "none"
-          }));
+          });
+          candLine.setAttribute("data-geom", "cand-line");
+          clipped.appendChild(candLine);
 
           // Two interactive handles on the candidate line at X = 2.5 and X = 13.5
           if (!state.lockedToOLS) {
@@ -3191,40 +3221,15 @@
         performOneGradientDescentStep();
       });
 
-      // Packaged Error Mode Radio Buttons for Candidate Line, Analytical OLS Line & Null Model
-      document.querySelectorAll('input[name="candErrMode"]').forEach(rad => {
-        rad.addEventListener("change", (ev) => {
-          state.candErrMode = ev.target.value;
-          updateAll();
-        });
-      });
-
-      document.querySelectorAll('input[name="olsErrMode"]').forEach(rad => {
-        rad.addEventListener("change", (ev) => {
-          state.olsErrMode = ev.target.value;
-          updateAll();
-        });
-      });
-
-      // Null model error mode pills (click to select Squares or Distances; click active pill to toggle off)
-      document.querySelectorAll('input[name="nullErrMode"]').forEach(rad => {
-        rad.addEventListener("click", (ev) => {
-          const val = ev.target.value;
-          if (state.nullErrMode === val) {
-            state.nullErrMode = "none";
-            ev.target.checked = false;
-          } else {
-            state.nullErrMode = val;
-          }
-          updateAll();
-        });
-      });
-
-      // Layer checkboxes
+      // Line layers, plus independent square and distance checkboxes.
+      // Both error boxes off leaves that line and the points, with no error marks.
       [
         "chkShowCandLine", "chkShowOLSLine",
         "chkShowNullLine",
-        "chkShowCIBand", "chkShowLeverage"
+        "chkShowCIBand", "chkShowLeverage",
+        "chkCandSquares", "chkCandDistances",
+        "chkOlsSquares", "chkOlsDistances",
+        "chkNullSquares", "chkNullDistances"
       ].forEach(id => {
         document.getElementById(id).addEventListener("change", updateAll);
       });
