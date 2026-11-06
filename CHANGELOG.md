@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Ordinary Least Squares: squares and distances are separate checkboxes on the candidate line, the OLS line, and the null model. Either, both, or neither can be on. Clearing both leaves that line and the points, with no error squares or distance marks. The page still opens with candidate squares on and candidate distances off, the OLS line off (its squares checkbox stays selected), and the null model on with both of its error checkboxes off.
 - Home, Catalog, Guided Tracks, Cite & reuse, and Licenses no longer load the personal-site stylesheet or its scripts. Type, the reading column, the footer menu, and the load fade live in `assets/foundation.css`. The favicon and the About Yiu Hong link are unchanged.
 - The notebook sheet is white paper, black UI ink, a faint blue grid, and a thin muted red margin (plus the rule above the home colophon). Statistics demonstrations use a quieter version of that sheet on the page. Plots, canvases, Catalog browse, the empty stage, the topic overview, and connection notes stay plain. Neuroscience stays the dark lab.
 
