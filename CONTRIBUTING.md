@@ -16,6 +16,10 @@ Pull requests are welcome. Opening a pull request is not a guarantee of merge.
 
 Small corrections — a wrong label, a broken link, a clearer sentence — are the easiest to review. Keep teaching text, explanations, and figures under CC BY 4.0, and source code under MIT, as [LICENSE](LICENSE) and [LICENSE-CODE](LICENSE-CODE) describe. [license.html](license.html) lists that split.
 
+## Shell
+
+Home, Catalog, Guided Tracks, Cite & reuse, and Licenses load [`assets/foundation.css`](assets/foundation.css). Do not link a stylesheet or a script from the personal site. The notebook sheet ([`assets/notebook.css`](assets/notebook.css)) is only on Home, Catalog, and Guided Tracks: white paper, black UI ink, a faint blue grid, and a thin muted red margin. Cite & reuse and Licenses stay plain. Statistics pages take a quieter version of that sheet from [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). Do not paint the grid over a plot, a canvas, or a connection note. Neuroscience stays the dark lab.
+
 ## Range sliders
 
 The 44px phone and coarse-pointer range target is the standing standard for every new demonstration. Do not reinvent a thin `appearance: none` track.

@@ -1,0 +1,11 @@
+/*
+ * Home, Cite & reuse, and Licenses start with body.is-preload, which
+ * holds the intro at opacity 0 until the load fade. With JavaScript
+ * off, show that intro immediately. Catalog and Guided Tracks do not
+ * use the fade.
+ */
+
+.wrapper.fade-up > .inner {
+    transform: none !important;
+    opacity: 1 !important;
+}

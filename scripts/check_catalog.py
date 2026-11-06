@@ -514,6 +514,16 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         for banned in ("HTML5 UP", "html5up.net", "Hyperspace"):
             if banned in text:
                 problems.append(f"{name}: do not credit {banned}")
+        for banned_src in (
+            "yiuhong.github.io/assets/css/",
+            "yiuhong.github.io/assets/js/",
+        ):
+            if banned_src in text:
+                problems.append(
+                    f"{name}: do not load a personal-site stylesheet or script ({banned_src})"
+                )
+        if "assets/foundation.css" not in text:
+            problems.append(f"{name}: missing the local shell foundation")
         if name in ("index.html", "cite.html"):
             required.append(CITATION_TITLE)
         if name == "index.html":

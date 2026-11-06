@@ -60,4 +60,17 @@
     };
 
     global.DEMO_LIBRARY = meta;
+
+    /* Home, Cite, and Licenses start as body.is-preload. Drop that class
+       after load so the intro can fade in. Pages without the class are unchanged. */
+    if (typeof document !== "undefined" && typeof window !== "undefined") {
+        var revealShell = function () {
+            if (!document.body || !document.body.classList.contains("is-preload")) return;
+            window.setTimeout(function () {
+                document.body.classList.remove("is-preload");
+            }, 100);
+        };
+        if (document.readyState === "complete") revealShell();
+        else window.addEventListener("load", revealShell);
+    }
 })(typeof window !== "undefined" ? window : globalThis);

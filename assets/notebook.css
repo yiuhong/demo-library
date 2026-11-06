@@ -7,24 +7,25 @@
  * assets/notebook.js applies the address-bar override.
  * Cite & reuse, Licenses, and demonstration files do not load this file.
  *
+ * White paper. UI ink stays black. The grid is a faint blue.
+ * The margin, and the rule above the home colophon, are a thin muted red.
  * Graph paper stays on the library chrome.
  * It does not enter a demonstration iframe, and it does not repaint a
  * featured plate (.home-frame), including the dark neuroscience plate.
- * Chrome paper is white. The shell stage is plain white too: the
- * topic overview, the empty stage, Catalog browse, and an embedded
- * connection note. No graph paper, margin, or ruler on that stage.
+ * The shell stage is plain white: the topic overview, the empty stage,
+ * Catalog browse, and an embedded connection note. No graph paper,
+ * margin, or ruler on that stage.
  * The demonstration iframe stays #ffffff, with no grid in the plot well.
  * An open neuroscience demonstration keeps a cooler gray pane and a
  * dark stage, with no grid inside the iframe.
- * A thin margin line stays on the home sheet and the left rail.
- * No binder holes, spiral, tape, or stains.
+ * No binder holes, spiral, tape, stains, or handwriting.
  */
 
 html.viz-notebook {
     --notebook-paper: #ffffff;
-    --notebook-ink: rgba(17, 17, 17, 0.065);
+    --notebook-ink: rgba(62, 108, 168, 0.18);
     --notebook-cell: 28px;
-    --notebook-margin: rgba(17, 17, 17, 0.38);
+    --notebook-margin: rgba(146, 72, 72, 0.72);
     --notebook-tick: rgba(17, 17, 17, 0.22);
     --notebook-tick-strong: rgba(17, 17, 17, 0.45);
     --notebook-rule: 1.55rem;
@@ -37,9 +38,9 @@ html.viz-notebook {
     background-attachment: fixed;
 }
 
-/* The personal-site stylesheet paints these surfaces solid white.
- * Leave them clear so one sheet shows through. Cards, buttons, the
- * demonstration iframe, and featured plates keep their own fills. */
+/* The shell paints these surfaces solid white. Leave them clear so
+ * one sheet shows through. Cards, buttons, the demonstration iframe,
+ * and featured plates keep their own fills. */
 
 html.viz-notebook body.viz-home,
 html.viz-notebook body.viz-home #wrapper,
@@ -103,6 +104,10 @@ html.viz-notebook body.viz-home #footer::before {
     width: var(--notebook-rule);
     pointer-events: none;
     border-right: 1px solid var(--notebook-margin);
+}
+
+html.viz-notebook body.viz-home #colophon {
+    border-top: 1px solid var(--notebook-margin);
 }
 
 html.viz-notebook body.viz-app .viz-rail {
@@ -255,6 +260,7 @@ html.viz-notebook body.viz-app .viz-pane:-webkit-full-screen .viz-pane-chrome {
 @media (prefers-contrast: more) {
     html.viz-notebook {
         --notebook-ink: transparent;
+        --notebook-margin: #6e2e2e;
         background-image: none !important;
     }
 
@@ -277,5 +283,9 @@ html.viz-notebook body.viz-app .viz-pane:-webkit-full-screen .viz-pane-chrome {
     html.viz-notebook body.viz-home #footer::before,
     html.viz-notebook body.viz-app .viz-rail::before {
         display: none;
+    }
+
+    html.viz-notebook body.viz-home #colophon {
+        border-top-color: CanvasText;
     }
 }

@@ -1,8 +1,9 @@
 /*
  * Shared chrome theme for statistics teaching demos.
- * Matches the monochrome Hyperspace library used by yiuhong.github.io
- * and this repo's index (panels #f6f6f6, white cards, black borders,
- * black/white pills, Arial/Helvetica UI type).
+ * Light UI: panels #f6f6f6, white cards, black borders, black/white
+ * pills, Arial/Helvetica. The page itself is white paper with a very
+ * faint blue grid and a thin muted red edge. That grid does not enter
+ * a plot, a canvas, or a connection note.
  *
  * Chart and data-encoding colours stay local to each demo.
  * Do not put series colours, histogram fills, mean/median/mode markers,
@@ -362,4 +363,50 @@ html.viz-embedded .katex-mathml {
     border: 0 !important;
     overflow: hidden !important;
     clip: rect(1px, 1px, 1px, 1px) !important;
+}
+
+/*
+ * Notebook on the light page only. Connection notes stay plain.
+ * Plot wells and canvases get a flat fill so the page grid cannot
+ * show through a transparent drawing surface. Icon svgs have no id
+ * and keep a clear background. A chart svg with an id is a plot.
+ */
+
+body.demo-page:not(.connection-page) {
+    background-color: #ffffff !important;
+    background-image:
+        linear-gradient(to right, rgba(62, 108, 168, 0.12) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(62, 108, 168, 0.12) 1px, transparent 1px) !important;
+    background-size: 28px 28px;
+    background-attachment: fixed;
+    box-shadow: inset 1px 0 0 rgba(146, 72, 72, 0.55);
+}
+
+body.demo-page :is(canvas, svg[id], .demo-plot, .canvas-wrap, .canvas-container, .kde-canvas) {
+    background-image: none !important;
+}
+
+body.demo-page canvas,
+body.demo-page svg[id] {
+    background-color: #ffffff;
+}
+
+@media (prefers-contrast: more) {
+    body.demo-page:not(.connection-page) {
+        background-image: none !important;
+        box-shadow: inset 1px 0 0 #6e2e2e;
+    }
+}
+
+@media (forced-colors: active) {
+    body.demo-page:not(.connection-page) {
+        background-color: Canvas !important;
+        background-image: none !important;
+        box-shadow: none;
+    }
+
+    body.demo-page canvas,
+    body.demo-page svg[id] {
+        background-color: Canvas;
+    }
 }
