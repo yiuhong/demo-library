@@ -7,9 +7,11 @@
  * The bar stays pinned while those pages scroll.
  * Fullscreen uses the browser Fullscreen API on the demo pane
  * (#viz-pane): the chrome bar and the open demonstration.
- * Exit and Escape leave it. Those controls stay hidden only
- * under 480px. The one-step phone shell is still 736px, and
- * a tablet in that shell keeps Fullscreen.
+ * That pane scrolls while it is fullscreen. Exit and Escape
+ * leave it. The enter control stays hidden only under 480px.
+ * Exit stays reachable while fullscreen is on. The one-step
+ * phone shell is still 736px, and a tablet in that shell
+ * keeps Fullscreen.
  */
 
 .viz-app {
@@ -572,7 +574,16 @@ button.catalog-rail-back:focus-visible {
     background: var(--bg-subtle) !important;
 }
 
-/* Vendor fullscreen pseudos must stay in separate rules.
+/* The fullscreen element has to be the thing that scrolls. A vertical
+ * swipe on a fullscreen element that does not overflow is taken by the
+ * browser, and on some phones and tablets that gesture leaves fullscreen.
+ * The demonstration document lives in the iframe, so while :fullscreen
+ * is on, the iframe is in normal flow at its content height and this
+ * pane scrolls. overscroll-behavior stays contained so the scroll does
+ * not chain out of the pane. touch-action is not set here: range targets
+ * keep pan-y and pinch-zoom, and a vertical pan of this pane stays the
+ * browser default. Exit stays sticky so it does not scroll away.
+ * Vendor fullscreen pseudos must stay in separate rules.
  * One unknown pseudo in a group drops the whole rule. */
 
 .viz-pane:fullscreen {
@@ -582,6 +593,8 @@ button.catalog-rail-back:focus-visible {
     width: 100%;
     height: 100%;
     max-height: none;
+    overflow: auto;
+    overscroll-behavior: contain;
     background-color: #ffffff !important;
     background-image: none !important;
 }
@@ -593,8 +606,62 @@ button.catalog-rail-back:focus-visible {
     width: 100%;
     height: 100%;
     max-height: none;
+    overflow: auto;
+    overscroll-behavior: contain;
     background-color: #ffffff !important;
     background-image: none !important;
+}
+
+/* notebook.css sets .viz-pane-chrome to position: relative (the tick
+ * strip). That rule is more specific than a bare fullscreen descendant,
+ * so Exit would scroll away. These two match the notebook selector
+ * and only add sticky while the pane is fullscreen. The paper color
+ * and the ticks stay in notebook.css. */
+
+html.viz-notebook body.viz-app .viz-pane:fullscreen .viz-pane-chrome,
+.viz-pane:fullscreen .viz-pane-chrome {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    align-self: flex-start;
+    width: 100%;
+}
+
+html.viz-notebook body.viz-app .viz-pane:-webkit-full-screen .viz-pane-chrome,
+.viz-pane:-webkit-full-screen .viz-pane-chrome {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    align-self: flex-start;
+    width: 100%;
+}
+
+.viz-pane:fullscreen .viz-pane-stage {
+    flex: 1 0 auto;
+    overflow: visible;
+}
+
+.viz-pane:-webkit-full-screen .viz-pane-stage {
+    flex: 1 0 auto;
+    overflow: visible;
+}
+
+.viz-pane:fullscreen .viz-pane-stage iframe {
+    position: relative;
+    inset: auto;
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+}
+
+.viz-pane:-webkit-full-screen .viz-pane-stage iframe {
+    position: relative;
+    inset: auto;
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100%;
 }
 
 .viz-pane-chrome {
@@ -998,12 +1065,14 @@ body.viz-app #footer ul.menu > li {
 /* The phone shell (max-width: 736px) used to hide Fullscreen too.
  * That cutoff is just under an iPad (744px mini, 768px classic), so a
  * tablet width, a zoomed iPad, or a split view lost the control.
- * Hide it only on a narrow phone, where Back, Previous, and Next
- * already fill the bar. A coarse pointer does not hide it. */
+ * Hide the enter control only on a narrow phone, where Back, Previous,
+ * and Next already fill the bar. Exit stays available while fullscreen
+ * is actually on (the hidden attribute hides it otherwise), so a
+ * session at this width still has a way out. A coarse pointer does
+ * not hide either control. */
 
 @media screen and (max-width: 479px) {
-    #viz-fullscreen,
-    #viz-exit {
+    #viz-fullscreen {
         display: none !important;
     }
 }
