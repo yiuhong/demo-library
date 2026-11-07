@@ -2,7 +2,9 @@
  * Shared chrome theme for statistics teaching demos.
  * Light UI: panels #f6f6f6, white cards, black borders, black/white
  * pills, Arial/Helvetica. The page itself is white paper with a very
- * faint blue grid and a thin muted red edge. That grid does not enter
+ * faint blue grid and a thin red edge, the same red as the library
+ * margin and a little brighter than the first sheet, at a lower
+ * opacity so the demo page stays quieter. That grid does not enter
  * a plot, a canvas, or a connection note.
  *
  * Chart and data-encoding colours stay local to each demo.
@@ -379,7 +381,7 @@ body.demo-page:not(.connection-page) {
         linear-gradient(to bottom, rgba(62, 108, 168, 0.12) 1px, transparent 1px) !important;
     background-size: 28px 28px;
     background-attachment: fixed;
-    box-shadow: inset 1px 0 0 rgba(146, 72, 72, 0.55);
+    box-shadow: inset 1px 0 0 rgba(176, 62, 62, 0.68);
 }
 
 body.demo-page :is(canvas, svg[id], .demo-plot, .canvas-wrap, .canvas-container, .kde-canvas) {

@@ -8,7 +8,8 @@
  * Cite & reuse, Licenses, and demonstration files do not load this file.
  *
  * White paper. UI ink stays black. The grid is a faint blue.
- * The margin, and the rule above the home colophon, are a thin muted red.
+ * The margin, and the rule above the home colophon, are a thin red,
+ * a little brighter than the first sheet. Still a quiet rule, not a marker.
  * Graph paper stays on the library chrome.
  * It does not enter a demonstration iframe, and it does not repaint a
  * featured plate (.home-frame), including the dark neuroscience plate.
@@ -25,7 +26,7 @@ html.viz-notebook {
     --notebook-paper: #ffffff;
     --notebook-ink: rgba(62, 108, 168, 0.18);
     --notebook-cell: 28px;
-    --notebook-margin: rgba(146, 72, 72, 0.72);
+    --notebook-margin: rgba(176, 62, 62, 0.82);
     --notebook-tick: rgba(17, 17, 17, 0.22);
     --notebook-tick-strong: rgba(17, 17, 17, 0.45);
     --notebook-rule: 1.55rem;
