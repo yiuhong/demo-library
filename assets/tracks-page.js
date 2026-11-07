@@ -1,8 +1,11 @@
 /*
  * Guided Tracks page.
  * Topics come from tracks.json. The desktop rail lists All topics and
- * each topic. The right pane draws one tree: Guided Tracks, the topics,
- * and the tracks under them. Choosing a topic zooms that subtree.
+ * each topic. The right pane draws one tree. All topics shows Guided
+ * Tracks and the topics only: no track children on that overview.
+ * Choosing a topic zooms that subtree, and the tracks appear there.
+ * Each topic has a small animated plate on that overview, and again
+ * above its own tree.
  * Choosing a track replaces the rail with the playlist: when a step has
  * a note, formulae, or figure, its connectionTitle is a link immediately
  * before that demonstration. The link opens tracks/connection.html, which
@@ -338,10 +341,33 @@
         return branch;
     }
 
+    /* Static plates. One drawing per topic id. Not catalog data. */
+    var PLATES = {
+        "describing-data": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="18" y1="100" x2="302" y2="100" stroke="#111111" stroke-width="1.4"/><g fill="#111111"><circle cx="42" cy="90" r="3.15"/><circle cx="58" cy="86" r="3.15"/><circle cx="72" cy="82" r="3.15"/><circle cx="86" cy="76" r="3.15"/><circle cx="98" cy="80" r="3.15"/><circle cx="108" cy="72" r="3.15"/><circle cx="118" cy="78" r="3.15"/><circle cx="130" cy="74" r="3.15"/><circle cx="142" cy="70" r="3.15"/><circle cx="156" cy="76" r="3.15"/><circle cx="170" cy="68" r="3.15"/><circle cx="186" cy="72" r="3.15"/><circle cx="204" cy="64" r="3.15"/><circle cx="224" cy="70" r="3.15"/><circle cx="246" cy="58" r="3.15"/><circle cx="268" cy="66" r="3.15"/><circle cx="286" cy="54" r="3.15"/></g><line class="tp-dd-mode" x1="108" y1="100" x2="108" y2="34" stroke="#111111" stroke-width="1.5" stroke-dasharray="2 3"/><line class="tp-dd-median" x1="156" y1="100" x2="156" y2="34" stroke="#111111" stroke-width="1.6" stroke-dasharray="6 3.5"/><line class="tp-dd-mean" x1="196" y1="100" x2="196" y2="34" stroke="#111111" stroke-width="2.2"/></svg>',
+        "probability-and-sampling": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="24" y1="104" x2="296" y2="104" stroke="#111111" stroke-width="1.4"/><path class="tp-ps-curve" pathLength="100" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" d="M24 104 C60 104 82 98 110 74 C132 54 150 36 168 36 C186 36 204 54 226 76 C252 100 272 104 296 104"/><g class="tp-ps-bars" fill="#111111"><rect x="78" y="90" width="16" height="14"/><rect x="112" y="68" width="16" height="36"/><rect x="146" y="46" width="16" height="58"/><rect x="180" y="58" width="16" height="46"/><rect x="214" y="78" width="16" height="26"/></g></svg>',
+        "comparing-means": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="20" y1="104" x2="300" y2="104" stroke="#111111" stroke-width="1.4"/><g class="tp-cm-a" fill="#111111"><circle cx="62" cy="78" r="3.3"/><circle cx="78" cy="70" r="3.3"/><circle cx="92" cy="84" r="3.3"/><circle cx="104" cy="66" r="3.3"/><circle cx="118" cy="76" r="3.3"/><circle cx="132" cy="72" r="3.3"/></g><line class="tp-cm-ma" x1="96" y1="104" x2="96" y2="42" stroke="#111111" stroke-width="1.8"/><g class="tp-cm-near" fill="none" stroke="#111111" stroke-width="1.6"><circle cx="70" cy="86" r="3.3"/><circle cx="86" cy="74" r="3.3"/><circle cx="100" cy="90" r="3.3"/><circle cx="114" cy="68" r="3.3"/><circle cx="128" cy="82" r="3.3"/><line x1="108" y1="104" x2="108" y2="42" stroke="#111111" stroke-width="1.8"/></g><g class="tp-cm-far" fill="none" stroke="#111111" stroke-width="1.6"><circle cx="176" cy="86" r="3.3"/><circle cx="192" cy="74" r="3.3"/><circle cx="206" cy="90" r="3.3"/><circle cx="220" cy="68" r="3.3"/><circle cx="234" cy="82" r="3.3"/><line x1="214" y1="104" x2="214" y2="42" stroke="#111111" stroke-width="1.8"/></g></svg>',
+        "association": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="28" y1="16" x2="28" y2="108" stroke="#111111" stroke-width="1.4"/><line x1="28" y1="108" x2="292" y2="108" stroke="#111111" stroke-width="1.4"/><g class="tp-as-loose" fill="#111111"><circle cx="70" cy="40" r="3.15"/><circle cx="98" cy="96" r="3.15"/><circle cx="124" cy="36" r="3.15"/><circle cx="150" cy="88" r="3.15"/><circle cx="178" cy="44" r="3.15"/><circle cx="206" cy="90" r="3.15"/><circle cx="232" cy="48" r="3.15"/><circle cx="112" cy="60" r="3.15"/><circle cx="190" cy="70" r="3.15"/></g><g class="tp-as-tight" fill="#111111"><circle cx="72" cy="92" r="3.15"/><circle cx="104" cy="74" r="3.15"/><circle cx="136" cy="72" r="3.15"/><circle cx="168" cy="54" r="3.15"/><circle cx="204" cy="52" r="3.15"/><circle cx="236" cy="34" r="3.15"/><circle cx="252" cy="42" r="3.15"/></g><line class="tp-as-fit" pathLength="100" x1="48" y1="96" x2="268" y2="28" stroke="#111111" stroke-width="2"/></svg>'
+    };
+
+    function topicPlate(id) {
+        var markup = PLATES[id];
+        if (!markup) return null;
+        var plate = el("figure", "topic-plate");
+        plate.setAttribute("data-topic-plate", id);
+        plate.setAttribute("aria-hidden", "true");
+        /* Static markup, parsed as HTML so the svg stays in the SVG namespace. */
+        plate.innerHTML = markup;
+        var svg = plate.querySelector("svg");
+        if (!svg || svg.namespaceURI !== "http://www.w3.org/2000/svg") return null;
+        return plate;
+    }
+
     function buildTree(topic) {
         var nav = el("nav", "overview-tree");
         nav.setAttribute("aria-label", topic ? topic.title : "All topics");
         if (topic) {
+            var focused = topicPlate(topic.id);
+            if (focused) nav.appendChild(focused);
             nav.appendChild(el("p", "overview-root is-current", topic.title));
             nav.appendChild(trackBranch(topic.tracks));
             return nav;
@@ -358,7 +384,11 @@
             );
             link.setAttribute("data-topic", item.id);
             li.appendChild(link);
-            li.appendChild(trackBranch(item.tracks));
+            var plate = topicPlate(item.id);
+            if (plate) {
+                li.className = "has-plate";
+                li.appendChild(plate);
+            }
             branch.appendChild(li);
         });
         nav.appendChild(branch);

@@ -1,0 +1,211 @@
+/*
+ * Topic plates on Guided Tracks.
+ * Hand-drawn SVG, CSS keyframes, same idea as the home plates.
+ * Light notebook ink on a quiet dot grid. No dark lab: these four
+ * topics are statistics. The shell pane stays plain white; the grid
+ * here belongs to the plate, as it does on a home frame.
+ * Reduced motion holds the settled drawing.
+ */
+
+.topic-plate {
+    margin: 0;
+    padding: 0.4rem 0.5rem 0.35rem;
+    border: 1px solid #dedede;
+    border-radius: 2px;
+    background-color: #fbfbfb;
+    background-image: radial-gradient(#e4e4e4 1px, transparent 1px);
+    background-size: 14px 14px;
+    pointer-events: none;
+}
+
+.topic-plate svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 320 / 128;
+}
+
+.overview-tree > .topic-plate {
+    width: min(100%, 22rem);
+    margin: 0 0 0.95rem;
+}
+
+.overview-tree li.has-plate {
+    line-height: 0;
+}
+
+.overview-tree li.has-plate > a.overview-node {
+    vertical-align: top;
+}
+
+.overview-tree li.has-plate > .topic-plate {
+    display: inline-block;
+    width: 12.75rem;
+    margin: 0.28rem 0 0.28rem 0.7rem;
+    vertical-align: top;
+}
+
+.tp-dd-mode,
+.tp-dd-median,
+.tp-dd-mean {
+    opacity: 0;
+    animation: tp-dd-in 4.4s ease-in-out infinite;
+}
+
+.tp-dd-median {
+    animation-delay: 0.28s;
+}
+
+.tp-dd-mean {
+    animation-delay: 0.56s;
+}
+
+.tp-ps-curve {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: tp-ps-draw 4.8s ease-in-out infinite;
+}
+
+.tp-ps-bars rect {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    transform: scaleY(0);
+    animation: tp-ps-rise 4.8s ease-in-out infinite;
+}
+
+.tp-ps-bars rect:nth-child(1) { animation-delay: 0.12s; }
+.tp-ps-bars rect:nth-child(2) { animation-delay: 0.22s; }
+.tp-ps-bars rect:nth-child(3) { animation-delay: 0.32s; }
+.tp-ps-bars rect:nth-child(4) { animation-delay: 0.42s; }
+.tp-ps-bars rect:nth-child(5) { animation-delay: 0.52s; }
+
+.tp-cm-near {
+    animation: tp-cm-near 5.2s ease-in-out infinite;
+}
+
+.tp-cm-far {
+    opacity: 0;
+    animation: tp-cm-far 5.2s ease-in-out infinite;
+}
+
+.tp-as-loose {
+    animation: tp-as-loose 5.4s ease-in-out infinite;
+}
+
+.tp-as-tight {
+    opacity: 0;
+    animation: tp-as-tight 5.4s ease-in-out infinite;
+}
+
+.tp-as-fit {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: tp-as-draw 5.4s ease-in-out infinite;
+}
+
+@keyframes tp-dd-in {
+    0%, 6% { opacity: 0; }
+    22%, 78% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes tp-ps-draw {
+    0% { stroke-dashoffset: 100; }
+    42%, 82% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: 100; }
+}
+
+@keyframes tp-ps-rise {
+    0%, 28% { transform: scaleY(0); }
+    55%, 82% { transform: scaleY(1); }
+    100% { transform: scaleY(0); }
+}
+
+@keyframes tp-cm-near {
+    0%, 18% { opacity: 1; }
+    42%, 72% { opacity: 0; }
+    92%, 100% { opacity: 1; }
+}
+
+@keyframes tp-cm-far {
+    0%, 18% { opacity: 0; }
+    42%, 72% { opacity: 1; }
+    92%, 100% { opacity: 0; }
+}
+
+@keyframes tp-as-loose {
+    0%, 16% { opacity: 1; }
+    40%, 72% { opacity: 0; }
+    94%, 100% { opacity: 1; }
+}
+
+@keyframes tp-as-tight {
+    0%, 16% { opacity: 0; }
+    40%, 72% { opacity: 1; }
+    94%, 100% { opacity: 0; }
+}
+
+@keyframes tp-as-draw {
+    0%, 28% { stroke-dashoffset: 100; }
+    55%, 78% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: 100; }
+}
+
+@media screen and (max-width: 736px) {
+    .overview-tree li.has-plate > .topic-plate,
+    .overview-tree > .topic-plate {
+        display: block;
+        width: 100%;
+        max-width: 22rem;
+        margin: 0.45rem 0 0.15rem;
+    }
+
+    .overview-tree > .topic-plate {
+        margin-bottom: 0.85rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce), (forced-colors: active) {
+    .tp-dd-mode,
+    .tp-dd-median,
+    .tp-dd-mean,
+    .tp-ps-curve,
+    .tp-ps-bars rect,
+    .tp-cm-near,
+    .tp-cm-far,
+    .tp-as-loose,
+    .tp-as-tight,
+    .tp-as-fit {
+        animation: none;
+    }
+
+    .tp-dd-mode,
+    .tp-dd-median,
+    .tp-dd-mean,
+    .tp-cm-far,
+    .tp-as-tight {
+        opacity: 1;
+    }
+
+    .tp-cm-near,
+    .tp-as-loose {
+        opacity: 0;
+    }
+
+    .tp-ps-curve,
+    .tp-as-fit {
+        stroke-dashoffset: 0;
+    }
+
+    .tp-ps-bars rect {
+        transform: scaleY(1);
+    }
+}
+
+@media (forced-colors: active) {
+    .topic-plate {
+        background: Canvas;
+        background-image: none;
+        border-color: CanvasText;
+    }
+}

@@ -791,7 +791,11 @@ p.overview-root {
 .overview-tree > p.overview-root::before {
     content: "";
     position: absolute;
-    left: 0.85rem;
+    /* left is measured from the padding edge. The 1px border sits
+       outside that edge, and the branch spine is measured from the
+       border edge (the ul's margin). Pull the stem back by the border
+       so the first vertical segment shares the spine. */
+    left: calc(0.85rem - 1px);
     top: 100%;
     width: 2px;
     height: 0.55rem;
