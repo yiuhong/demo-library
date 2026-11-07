@@ -2,9 +2,10 @@
  * About Yiu Hong chip for Project Viz.
  *
  * Home, Catalog, Guided Tracks, Cite & reuse, and Licenses put the chip
- * in the shared top bar (shell.css .viz-topbar). The footer uses the
- * same chip. This file styles it so it does not pick up the uppercase
- * personal-site nav treatment.
+ * in the shared top bar (shell.css .viz-topbar). The home colophon and
+ * the cite page use it too. The bottom bar does not. This file styles
+ * the chip so it does not pick up the uppercase personal-site nav
+ * treatment.
  */
 
 a.about-yiu {
@@ -40,11 +41,4 @@ a.about-yiu:focus {
 a.about-yiu:focus-visible {
     outline: 2px solid #000000;
     outline-offset: 3px;
-}
-
-/* Footer menu is already 0.8em, so the chip matches that text size. */
-#footer a.about-yiu {
-    font-size: 1em;
-    padding: 0.35em 0.8em;
-    vertical-align: 0.08em;
 }
