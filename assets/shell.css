@@ -597,6 +597,11 @@ button.catalog-rail-back:focus-visible {
     overscroll-behavior: contain;
     background-color: #ffffff !important;
     background-image: none !important;
+    /* Landscape fullscreen can sit under a notch or the home indicator.
+       Zero when the browser does not expose a safe area. */
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .viz-pane:-webkit-full-screen {
@@ -610,6 +615,9 @@ button.catalog-rail-back:focus-visible {
     overscroll-behavior: contain;
     background-color: #ffffff !important;
     background-image: none !important;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* notebook.css sets .viz-pane-chrome to position: relative (the tick
@@ -625,6 +633,7 @@ html.viz-notebook body.viz-app .viz-pane:fullscreen .viz-pane-chrome,
     z-index: 5;
     align-self: flex-start;
     width: 100%;
+    padding-top: max(0.4rem, env(safe-area-inset-top, 0px));
 }
 
 html.viz-notebook body.viz-app .viz-pane:-webkit-full-screen .viz-pane-chrome,
@@ -634,6 +643,7 @@ html.viz-notebook body.viz-app .viz-pane:-webkit-full-screen .viz-pane-chrome,
     z-index: 5;
     align-self: flex-start;
     width: 100%;
+    padding-top: max(0.4rem, env(safe-area-inset-top, 0px));
 }
 
 .viz-pane:fullscreen .viz-pane-stage {

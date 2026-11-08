@@ -410,7 +410,17 @@
      * scrolls inside the iframe, so the pane's own box does not, and
      * the swipe is not a scroll (on some mobile browsers it leaves
      * fullscreen). Size the iframe to the document while fullscreen.
-     * Exit, Back, and Escape still leave fullscreen. This does not. */
+     * Exit, Back, and Escape still leave fullscreen. This does not.
+     * Orientation is not locked. Rotating drops a stale iframe height
+     * and measures again, so a tablet turned to landscape still scrolls. */
+    var fsViewportW = 0;
+    var fsViewportH = 0;
+
+    function rememberFullscreenViewport() {
+        fsViewportW = window.innerWidth;
+        fsViewportH = window.innerHeight;
+    }
+
     function syncFullscreenScroll() {
         if (fsScrollLock) return;
         var pane = document.getElementById("viz-pane");
@@ -446,8 +456,23 @@
             fullscreenBtn.setAttribute("aria-pressed", on ? "true" : "false");
         }
         if (exitBtn) exitBtn.hidden = !on;
-        if (on) syncFullscreenScroll();
-        else clearFullscreenScroll();
+        if (on) {
+            rememberFullscreenViewport();
+            syncFullscreenScroll();
+        } else clearFullscreenScroll();
+    }
+
+    /* A rotate changes the pane and the demonstration together.
+       The pinned iframe height is from the previous orientation, so
+       clear it and measure. A narrow phone still leaves fullscreen
+       through the 480px guard. This does not enter fullscreen. */
+    function resyncFullscreenViewport() {
+        var pane = document.getElementById("viz-pane");
+        if (!frame || !pane || activeFullscreen() !== pane || hidesFullscreen()) return;
+        if (window.innerWidth === fsViewportW && window.innerHeight === fsViewportH) return;
+        rememberFullscreenViewport();
+        frame.style.height = "";
+        syncFullscreenScroll();
     }
 
     function syncExpanded() {
@@ -1242,4 +1267,8 @@
             if (hidesFullscreen()) setExpanded(false);
         });
     }
+    window.addEventListener("resize", resyncFullscreenViewport);
+    window.addEventListener("orientationchange", function () {
+        window.requestAnimationFrame(resyncFullscreenViewport);
+    });
 })();
