@@ -1,5 +1,5 @@
 /*
- * Home page. Cycles the featured plates and marks opened demos.
+ * Home page. Cycles the featured plates.
  * Plate copy starts in the HTML and is refreshed from demos.json.
  */
 (function () {
@@ -85,11 +85,6 @@
         if (node && text) node.textContent = text;
     }
 
-    function refreshOpened() {
-        if (!window.ProjectVizOpened) return;
-        window.ProjectVizOpened.mark("a.home-open");
-    }
-
     function applyCatalog(data) {
         var byHref = {};
         var seen = {};
@@ -119,7 +114,6 @@
             setText(slide.querySelector(".home-slide-title"), hit.title);
             setText(slide.querySelector(".home-hook"), hit.description);
         });
-        refreshOpened();
     }
 
     document.addEventListener("click", function (event) {
@@ -136,11 +130,6 @@
 
     show(0, false);
     start();
-
-    window.addEventListener("pageshow", refreshOpened);
-    window.addEventListener("storage", function (event) {
-        if (event.key === "project-viz-opened") refreshOpened();
-    });
 
     var catalogUrl = new URL("demos.json", window.location.href);
     catalogUrl.search = "";

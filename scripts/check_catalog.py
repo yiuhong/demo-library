@@ -398,7 +398,6 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             'target = "_blank"',
             "noopener noreferrer",
             "cite.html?demo=",
-            "project-viz-opened",
         ):
             if needle not in footer_js:
                 problems.append(f"assets/site-oer-footer.js: missing {needle}")
@@ -416,15 +415,27 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                 problems.append(
                     f"assets/site-oer-footer.js: in-demo strip should not include {banned}"
                 )
+        if "project-viz-opened" in footer_js or "localStorage" in footer_js:
+            problems.append("assets/site-oer-footer.js: do not store which demos were opened")
     cite_js = read_text(ROOT / "assets" / "cite-page.js")
     if cite_js is None or '.get("demo")' not in cite_js:
         problems.append("assets/cite-page.js: per-demo cite query is missing")
 
-    opened_js = read_text(ROOT / "assets" / "opened.js")
-    if opened_js is None:
-        problems.append("assets/opened.js: file not found")
-    elif "project-viz-opened" not in opened_js:
-        problems.append("assets/opened.js: missing project-viz-opened")
+    if (ROOT / "assets" / "opened.js").exists():
+        problems.append("assets/opened.js: home no longer marks opened demos")
+    home_js = read_text(ROOT / "assets" / "home.js")
+    if home_js is None:
+        problems.append("assets/home.js: file not found")
+    elif any(
+        needle in home_js
+        for needle in ("ProjectVizOpened", "project-viz-opened", "hub-opened", "is-opened")
+    ):
+        problems.append("assets/home.js: do not mark an opened demo")
+    home_css = read_text(ROOT / "assets" / "home.css")
+    if home_css is None:
+        problems.append("assets/home.css: file not found")
+    elif any(needle in home_css for needle in ("home-fig", "home-plate-index", "hub-opened")):
+        problems.append("assets/home.css: do not style figure captions or an opened label")
 
     maps_js = read_text(ROOT / "assets" / "concept-maps.js")
     tracks_js = read_text(ROOT / "assets" / "tracks-page.js")
@@ -537,11 +548,24 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                     'id="colophon"',
                     "Browse the catalog",
                     "catalog.html",
-                    "FIG_VE",
-                    "FIG_R",
-                    "FIG_ERP",
+                    "Open the demo",
                 )
             )
+            for banned in (
+                "FIG_VE",
+                "FIG_R",
+                "FIG_ERP",
+                "home-fig",
+                "home-plate-index",
+                "Plate 1 of 3",
+                "Plate 2 of 3",
+                "Plate 3 of 3",
+                "hub-opened",
+                "assets/opened.js",
+                ">Opened<",
+            ):
+                if banned in text:
+                    problems.append(f"index.html: {banned} does not belong on the home plate")
             if "Choose a path" in text:
                 problems.append("index.html: Choose a path does not belong on the home page")
             about = element_text(text, "library-about")
