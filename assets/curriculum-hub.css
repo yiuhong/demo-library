@@ -230,8 +230,7 @@ a.hub-plate.is-neuro p.hub-plate-hook {
     color: #f1f5f9 !important;
 }
 
-a.hub-plate.is-neuro .hub-plate-kicker,
-a.hub-plate.is-neuro .hub-opened {
+a.hub-plate.is-neuro .hub-plate-kicker {
     color: #a5b4fc !important;
 }
 
@@ -258,9 +257,7 @@ a.hub-plate.is-neuro:focus-visible p.hub-plate-hook {
 }
 
 a.hub-plate.is-neuro:hover .hub-plate-kicker,
-a.hub-plate.is-neuro:hover .hub-opened,
-a.hub-plate.is-neuro:focus-visible .hub-plate-kicker,
-a.hub-plate.is-neuro:focus-visible .hub-opened {
+a.hub-plate.is-neuro:focus-visible .hub-plate-kicker {
     color: #c7d2fe !important;
 }
 
@@ -337,21 +334,6 @@ a.hub-track-card:hover .hub-track-count,
 a.hub-track-card:focus-visible .hub-track-title,
 a.hub-track-card:focus-visible .hub-track-count {
     color: #ffffff !important;
-}
-
-.hub-opened {
-    display: none;
-    font-size: 0.68rem;
-    font-weight: bold;
-    letter-spacing: 0.08em;
-    line-height: 1.3;
-    text-transform: uppercase;
-    color: #000000 !important;
-}
-
-a.is-opened > .hub-opened,
-a.is-opened .hub-opened {
-    display: inline;
 }
 
 #hub-plates-section[hidden] {

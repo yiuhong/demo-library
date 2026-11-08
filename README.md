@@ -30,7 +30,7 @@ Home, Catalog, and Guided Tracks wear a notebook sheet: class `viz-notebook` on 
 
 Statistics demonstrations use the same idea, more quietly, in [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css): white paper, a fainter blue grid, and a one-pixel muted red edge. The grid does not cover a plot, a canvas, or a connection note. Neuroscience demonstrations stay the dark lab.
 
-Featured plates are the three `href`s in `index.html` (`FIG_VE`, `FIG_R`, `FIG_ERP`); titles and sentences come from `demos.json`. Those figure labels are only on the home plate. Concept maps are a separate list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration is stored in this browser (`localStorage` key `project-viz-opened`). The home featured plate can show Opened from that list. Guided Tracks and the catalog do not paint an opened box.
+Featured plates are the three `href`s in `index.html`; titles and sentences come from `demos.json`. The plates do not print figure or plate captions. Concept maps are a separate list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration does not mark the home plate, Guided Tracks, or the catalog.
 
 * `📁 /cognitive_psychology`
 * `📁 /neuroscience`
