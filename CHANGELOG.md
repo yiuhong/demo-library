@@ -44,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Home featured-plate captions (`FIG_VE`, `FIG_R`, `FIG_ERP`, and Plate 1 of 3). The drawings still loop, and they hold still when motion is reduced. Chart marks inside a drawing, such as `r = .18` and `P3`, stay.
+- The Opened label on the home “Open the demo” control. That control looks the same every time. The library no longer stores which demonstrations were opened.
 - The HTML5 UP design credit from the library footers on Home, Catalog, Guided Tracks, Cite, and Licenses. Those pages no longer name HTML5 UP, and the license table no longer lists a template credit.
 - Variance and Correlation and covariance from the Guided Tracks menu. Those titles were concept-map strips from `families.json`. The file stays, and those families are not playlists. Real tracks keep their connection titles.
 - Guided Tracks rail copy that did not navigate: the “Concept maps” heading, “Related demonstrations along a path.”, the “Concept map” kicker, the backbone sentence under a concept map, and the summary paragraph under a playlist. Section titles and demonstration titles stay.
