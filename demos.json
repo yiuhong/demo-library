@@ -420,7 +420,7 @@
             },
             {
               "href": "statistics/multiple_regression_sst_ssm_sse.html",
-              "title": "Multiple Regression: SST = SSM + SSE",
+              "title": "Multiple Regression",
               "description": "A 3D partition of the total sum of squares into the part a regression plane explains and the part left as error.",
               "keywords": "Multiple regression SST SSM SSE sum of squares R-squared regression plane two predictors OLS residuals explained error",
               "tags": [
