@@ -478,7 +478,7 @@
     {
       "id": "association",
       "title": "Association",
-      "summary": "This path is for how two variables move together, from shared movement to the straight line that minimizes squared error, and then to a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference.",
+      "summary": "This path is for how variables move together, from shared movement to the straight line that minimizes squared error, then to the plane that splits the same total into model and error, and then to a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference.",
       "steps": [
         {
           "href": "statistics/covariance_and_correlation.html",
@@ -506,6 +506,22 @@
           ],
           "image": "tracks/images/association/02-ols.png",
           "imageAlt": "Scatter of 36 points with a solid least-squares line and dotted vertical residuals. A label reads SSE minimized, SST = SSR + SSE."
+        },
+        {
+          "href": "statistics/multiple_regression_sst_ssm_sse.html",
+          "title": "Multiple Regression: SST = SSM + SSE",
+          "connectionTitle": "From a line to a plane",
+          "note": "Ordinary least squares on one predictor draws a line and splits the total sum of squares into the part that line accounts for and the part left over: SST = SSR + SSE. With two predictors the fitted surface is a plane, and the same split is written SST = SSM + SSE. SSM is the sum of squared distances from the fitted values to the mean of Y, and SSE is the sum of squared vertical gaps the plane does not close. R² is the share SSM takes of SST.",
+          "formulae": [
+            "Ŷ = b₀ + b₁X₁ + b₂X₂",
+            "SST = Σ (Yᵢ − Ȳ)²",
+            "SSM = Σ (Ŷᵢ − Ȳ)²",
+            "SSE = Σ (Yᵢ − Ŷᵢ)²",
+            "SST = SSM + SSE",
+            "R² = SSM / SST"
+          ],
+          "image": "tracks/images/association/02b-multiple-regression.png",
+          "imageAlt": "Isometric view of a green regression plane above a grey mean plane. Blue spheres are observed outcomes and green diamonds are fitted values. Slate, green, and rose rods mark SST, SSM, and SSE. The side panel reads SST 51.75, SSM 49.22, SSE 2.53, and R² = 0.951."
         },
         {
           "href": "statistics/variance_explained.html",

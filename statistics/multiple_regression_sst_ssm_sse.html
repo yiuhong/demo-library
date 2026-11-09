@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+  <title>Multiple Regression: SST = SSM + SSE</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+  <script src="../assets/stats-viz-theme.js"></script>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    :root {
+      --bg-main: var(--demo-bg);
+      --bg-subtle: var(--demo-panel);
+      --panel-bg: var(--demo-card);
+      --panel-section-bg: var(--demo-panel);
+      --panel-border: var(--demo-border);
+      --panel-border-strong: var(--demo-border);
+      --text-main: var(--demo-text);
+      --text-secondary: var(--demo-text);
+      --text-muted: var(--viz-reference);
+      --accent: #000000;
+      --accent-hover: #ffffff;
+      --accent-soft: var(--demo-panel);
+
+      /* Association roles from assets/stats-viz-theme.css, same split as OLS.
+         SST = total. SSM, the fitted plane, and predicted values = explained.
+         SSE = residual. Observed points = sample. Predictor axes = groups A and B.
+         The mean plane is the reference baseline. */
+      --col-sst: var(--viz-total);
+      --col-ssm: var(--viz-explained);
+      --col-sse: var(--viz-residual);
+      --col-plane: var(--viz-explained);
+      --col-obs: var(--viz-sample);
+      --col-pred: var(--viz-explained);
+      --col-mean: var(--viz-reference);
+      --col-x1: var(--viz-group-a);
+      --col-x2: var(--viz-group-b);
+      --col-highlight: var(--viz-highlight);
+      --col-y-axis: #000000;
+
+      --radius: var(--demo-radius);
+      --font-sans: var(--demo-font);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+      grid-template-rows: minmax(0, 1fr);
+    }
+
+    body > .site-oer-strip {
+      grid-column: 1 / -1;
+    }
+
+    /* Mathematical Subscripts & Typography */
+    sub, sup {
+      font-size: 0.72em;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline;
+    }
+    sub { bottom: -0.22em; }
+    sup { top: -0.45em; }
+
+    .math-var {
+      font-family: 'Cambria Math', 'Times New Roman', Georgia, serif;
+      font-style: italic;
+    }
+
+    /* Left 3D Viewport Area */
+    #viewport-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    #three-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Top Story Stepper Overlay */
+    .top-overlay {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .stepper-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: #ffffff;
+      padding: 6px;
+      border-radius: var(--radius);
+      border: 1px solid var(--panel-border);
+      pointer-events: auto;
+      width: fit-content;
+      box-shadow: none;
+    }
+
+    .step-btn {
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .step-btn:hover {
+      color: #ffffff;
+      background: #000000;
+    }
+
+    .step-btn.active {
+      background: #000000;
+      color: #ffffff;
+      box-shadow: none;
+    }
+
+    .story-banner {
+      background: #ffffff;
+      border-left: 4px solid #000000;
+      padding: 10px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      max-width: 660px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      pointer-events: auto;
+      border-top: 1px solid var(--panel-border);
+      border-right: 1px solid var(--panel-border);
+      border-bottom: 1px solid var(--panel-border);
+      box-shadow: none;
+    }
+
+    /* Camera Snap Bar (Bottom Left) */
+    .camera-bar {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: #ffffff;
+      padding: 6px;
+      border-radius: var(--radius);
+      border: 1px solid var(--panel-border);
+      box-shadow: none;
+      z-index: 10;
+      max-width: calc(100% - 32px);
+    }
+
+    .cam-btn {
+      background: #ffffff;
+      color: #000000;
+      border: 1px solid #000000;
+      padding: 6px 11px;
+      border-radius: 3em;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font-sans);
+    }
+
+    .cam-btn:hover {
+      background: #000000;
+      color: #ffffff;
+    }
+
+    /* Point Inspector Floating Card */
+    #inspector-card {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      width: min(305px, calc(100% - 32px));
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      padding: 14px;
+      z-index: 10;
+      box-shadow: none;
+      display: none;
+    }
+
+    #inspector-card.visible {
+      display: block;
+    }
+
+    .inspector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .inspector-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .inspector-close:hover {
+      color: var(--text-main);
+    }
+
+    .inspector-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 5px;
+      font-size: 12px;
+    }
+
+    .math-pill {
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--text-main);
+    }
+
+    /* Right Sidebar */
+    #sidebar {
+      background-color: var(--panel-bg);
+      border-left: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 16px;
+      gap: 16px;
+    }
+
+    .panel-section {
+      background: var(--panel-section-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 12.5px;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--text-main);
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Dataset & Toggles */
+    select {
+      width: 100%;
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1px solid var(--panel-border);
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      font-weight: 500;
+      font-family: var(--font-sans);
+      outline: none;
+      cursor: pointer;
+    }
+
+    select:focus {
+      outline: 2px solid #000000;
+      outline-offset: 2px;
+    }
+
+    .marker-legend {
+      display: flex;
+      gap: 12px;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      background: #ffffff;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--panel-border);
+      align-items: center;
+      justify-content: space-around;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .shape-sphere {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--col-obs);
+      display: inline-block;
+    }
+
+    .shape-diamond {
+      width: 9px;
+      height: 9px;
+      background: var(--col-pred);
+      transform: rotate(45deg);
+      display: inline-block;
+    }
+
+    .layer-toggles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .toggle-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      background: #ffffff;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--panel-border);
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.15s;
+    }
+
+    .toggle-item:hover {
+      border-color: var(--panel-border-strong);
+    }
+
+    .toggle-item input {
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    /* Sliders */
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .slider-val {
+      font-family: ui-monospace, Consolas, "Courier New", monospace;
+      color: #000000;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #000000;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #000000;
+      color: #ffffff;
+      border: 1px solid #000000;
+      padding: 6px 12px;
+      border-radius: 3em;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary:hover {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    /* Orthogonality Badge */
+    .ols-badge {
+      font-size: 11px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.2s;
+      line-height: 1.4;
+    }
+
+    .ols-badge.optimal {
+      background: var(--viz-explained-soft);
+      color: var(--viz-explained);
+      border: 1px solid var(--viz-explained);
+    }
+
+    .ols-badge.suboptimal {
+      background: var(--viz-group-c-soft);
+      color: var(--viz-group-c);
+      border: 1px solid var(--viz-group-c);
+    }
+
+    /* Variance Decomposition Bars & HUD */
+    .metrics-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .metric-box {
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      padding: 8px;
+      text-align: center;
+      box-shadow: none;
+    }
+
+    .metric-box .label {
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .metric-box .value {
+      font-family: monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .metric-box .sub {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .stacked-bar-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bar-track {
+      height: 22px;
+      width: 100%;
+      background: var(--demo-panel);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      border: 1px solid var(--panel-border);
+    }
+
+    .bar-seg-ssm {
+      background: var(--col-ssm);
+      height: 100%;
+      transition: width 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    .bar-seg-sse {
+      background: var(--col-sse);
+      height: 100%;
+      transition: width 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    .r2-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--panel-border);
+      font-size: 12px;
+    }
+
+    /* Individual Point Squared Contributions Mini-Chart */
+    #point-squares-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 65px;
+      padding-top: 10px;
+      border-bottom: 1px solid var(--panel-border-strong);
+    }
+
+    .pt-bar-col {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 1px;
+      cursor: pointer;
+      opacity: 0.82;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .pt-bar-col:hover, .pt-bar-col.active {
+      opacity: 1;
+      transform: scaleY(1.06);
+    }
+
+    .pt-sq-e {
+      background: var(--col-sse);
+      width: 100%;
+      border-radius: 2px 2px 0 0;
+    }
+
+    .pt-sq-m {
+      background: var(--col-ssm);
+      width: 100%;
+    }
+
+    /* 3D Axis & Tick Floating Labels */
+    .axis-label {
+      position: absolute;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: var(--radius);
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1px solid var(--panel-border);
+      box-shadow: none;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      white-space: nowrap;
+    }
+
+    .tick-label {
+      position: absolute;
+      font-size: 9.5px;
+      font-weight: 600;
+      font-family: ui-monospace, Consolas, "Courier New", monospace;
+      color: var(--viz-reference);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1px 4px;
+      border-radius: 3px;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 4;
+    }
+
+    .formula-chip {
+      font-size: 11.5px;
+      background: #ffffff;
+      color: #000000;
+      border: 1px solid #000000;
+      padding: 3px 9px;
+      border-radius: 3em;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 960px) {
+      body.demo-page {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #viewport-container {
+        height: 70vh;
+        min-height: 420px;
+        flex: 0 0 auto;
+      }
+
+      #sidebar {
+        height: auto;
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--panel-border);
+      }
+
+      .top-overlay {
+        left: 10px;
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body class="demo-page">
+
+  <!-- LEFT: 3D VIEWPORT -->
+  <div id="viewport-container">
+    <canvas id="three-canvas"></canvas>
+
+    <!-- 3D Axis Labels projected from 3D coordinates -->
+    <div id="lbl-x1" class="axis-label" style="border-left: 3px solid var(--col-x1);"><span class="math-var">X</span><sub>1</sub> (Predictor 1)</div>
+    <div id="lbl-x2" class="axis-label" style="border-left: 3px solid var(--col-x2);"><span class="math-var">X</span><sub>2</sub> (Predictor 2)</div>
+    <div id="lbl-y" class="axis-label" style="border-left: 3px solid var(--col-y-axis);"><span class="math-var">Y</span> (Outcome)</div>
+
+    <!-- Container for dynamic 3D numeric tick labels -->
+    <div id="ticks-overlay"></div>
+
+    <!-- Top Guided Stepper -->
+    <div class="top-overlay">
+      <div class="stepper-bar">
+        <button class="step-btn" data-step="1">1. Total Variation (<span class="math-var">SS</span><sub>T</sub>)</button>
+        <button class="step-btn" data-step="2">2. Unexplained Error (<span class="math-var">SS</span><sub>E</sub>)</button>
+        <button class="step-btn" data-step="3">3. Model Explained (<span class="math-var">SS</span><sub>M</sub>)</button>
+        <button class="step-btn active" data-step="4">4. Full Synthesis (<span class="math-var">SS</span><sub>T</sub> = <span class="math-var">SS</span><sub>M</sub> + <span class="math-var">SS</span><sub>E</sub>)</button>
+      </div>
+      <div id="story-text" class="story-banner">
+        <strong>Full Synthesis:</strong> For every observation, the total deviation from the grand mean <span style="color:var(--col-sst);font-weight:700;">(<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>)</span> splits into the model's explained deviation <span style="color:var(--col-ssm);font-weight:700;">(<span class="math-var">&#374;</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>)</span> plus the residual error <span style="color:var(--col-sse);font-weight:700;">(<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">&#374;</span><sub>i</sub>)</span>. The highlighted line is where <span class="math-var">&#374;</span> = <span class="math-var">Y&#772;</span>.
+      </div>
+    </div>
+
+    <!-- Bottom Left Camera Presets -->
+    <div class="camera-bar">
+      <button class="cam-btn" id="cam-iso">3D Isometric</button>
+      <button class="cam-btn" id="cam-x1">Front (<span class="math-var">Y</span> vs <span class="math-var">X</span><sub>1</sub>)</button>
+      <button class="cam-btn" id="cam-x2">Side (<span class="math-var">Y</span> vs <span class="math-var">X</span><sub>2</sub>)</button>
+      <button class="cam-btn" id="cam-top">Top (<span class="math-var">X</span><sub>1</sub> vs <span class="math-var">X</span><sub>2</sub>)</button>
+    </div>
+
+    <!-- Bottom Right Single-Point Inspector -->
+    <div id="inspector-card">
+      <div class="inspector-header">
+        <span id="insp-title">Point #1 Breakdown</span>
+        <button class="inspector-close" id="insp-close" title="Clear selection">&#10005;</button>
+      </div>
+      <div class="inspector-grid">
+        <span style="color:var(--text-muted)">Coordinates (<span class="math-var">X</span><sub>1</sub>, <span class="math-var">X</span><sub>2</sub>, <span class="math-var">Y</span>):</span>
+        <span id="insp-coords" class="math-pill">--</span>
+
+        <span style="color:var(--text-muted)">Grand Mean (<span class="math-var">Y&#772;</span>):</span>
+        <span id="insp-ybar" class="math-pill">--</span>
+
+        <span style="color:var(--col-pred)">Model Prediction (<span class="math-var">&#374;</span><sub>i</sub>):</span>
+        <span id="insp-yhat" class="math-pill" style="color:var(--col-pred)">--</span>
+
+        <span style="color:var(--col-sst)">Total Dev (<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>):</span>
+        <span id="insp-dev-t" class="math-pill" style="color:var(--col-sst)">--</span>
+
+        <span style="color:var(--col-ssm)">Model Dev (<span class="math-var">&#374;</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>):</span>
+        <span id="insp-dev-m" class="math-pill" style="color:var(--col-ssm)">--</span>
+
+        <span style="color:var(--col-sse)">Error Residual (<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">&#374;</span><sub>i</sub>):</span>
+        <span id="insp-dev-e" class="math-pill" style="color:var(--col-sse)">--</span>
+      </div>
+      <div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--panel-border-strong); font-size:11px; color:var(--text-secondary);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Adjust Point <span class="math-var">Y</span><sub>i</sub> (Outlier Test):</span>
+          <span id="insp-y-slider-val" style="font-family:ui-monospace, Consolas, monospace; font-weight:700; color:#000;">--</span>
+        </div>
+        <input type="range" id="insp-y-slider" min="0" max="10" step="0.1" style="margin-top:4px;" />
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: CONTROL & HUD SIDEBAR -->
+  <aside id="sidebar">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h1 style="font-size:17px; font-weight:800; letter-spacing:-0.02em; color:var(--text-main);">Multiple Regression</h1>
+      <span class="formula-chip">
+        <span class="math-var">&#374;</span> = <span class="math-var">b</span><sub>0</sub> + <span class="math-var">b</span><sub>1</sub><span class="math-var">X</span><sub>1</sub> + <span class="math-var">b</span><sub>2</sub><span class="math-var">X</span><sub>2</sub>
+      </span>
+    </div>
+
+    <!-- Section 1: Dataset & Visual Layers -->
+    <div class="panel-section">
+      <div class="section-title">
+        <span>1. Dataset &amp; 3D Geometric Layers</span>
+      </div>
+      <select id="dataset-select">
+        <option value="high_r2">Preset 1: High R&sup2; (~0.88) &mdash; Strong Dual Predictors</option>
+        <option value="single_pred">Preset 2: Single Active Predictor (b&#8321; &gt; 0, b&#8322; &approx; 0)</option>
+        <option value="low_r2">Preset 3: Low R&sup2; (~0.14) &mdash; High Noise / Weak Fit</option>
+        <option value="outlier">Preset 4: High Leverage Outlier (Click point to drag Y)</option>
+      </select>
+
+      <div class="marker-legend">
+        <div class="legend-item">
+          <span class="shape-sphere"></span>
+          <span>Observed (<span class="math-var">Y</span><sub>i</sub> Sphere)</span>
+        </div>
+        <div class="legend-item">
+          <span class="shape-diamond"></span>
+          <span>Predicted (<span class="math-var">&#374;</span><sub>i</sub> Diamond)</span>
+        </div>
+      </div>
+
+      <div class="layer-toggles">
+        <label class="toggle-item">
+          <input type="checkbox" id="tog-mean" checked />
+          <span class="dot" style="background:var(--col-mean)"></span>
+          <span>Mean Plane (<span class="math-var">Y&#772;</span>)</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="tog-reg" checked />
+          <span class="dot" style="background:var(--col-plane)"></span>
+          <span>Model Plane (<span class="math-var">&#374;</span>)</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="tog-sst" checked />
+          <span class="dot" style="background:var(--col-sst)"></span>
+          <span><span class="math-var">SS</span><sub>T</sub> Vectors</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="tog-ssm" checked />
+          <span class="dot" style="background:var(--col-ssm)"></span>
+          <span><span class="math-var">SS</span><sub>M</sub> Vectors</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="tog-sse" checked />
+          <span class="dot" style="background:var(--col-sse)"></span>
+          <span><span class="math-var">SS</span><sub>E</sub> Vectors</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="tog-squares" />
+          <span class="dot" style="background:#000000; border-radius:2px;"></span>
+          <span>3D Squared Areas</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Section 2: Plane Parameters (OLS vs Manual Sandbox) -->
+    <div class="panel-section">
+      <div class="section-title">
+        <span>2. Regression Plane Parameters</span>
+        <button id="btn-fit-ols" class="btn-primary" style="padding:4px 10px; font-size:11px;">&#9889; Snap to OLS Best Fit</button>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>Intercept (<span class="math-var">b</span><sub>0</sub>)</span>
+          <span id="val-b0" class="slider-val">2.00</span>
+        </div>
+        <input type="range" id="sl-b0" min="-4" max="10" step="0.05" value="2" />
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>Slope <span class="math-var">X</span><sub>1</sub> (<span class="math-var">b</span><sub>1</sub>)</span>
+          <span id="val-b1" class="slider-val">0.50</span>
+        </div>
+        <input type="range" id="sl-b1" min="-1.5" max="1.5" step="0.02" value="0.5" />
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>Slope <span class="math-var">X</span><sub>2</sub> (<span class="math-var">b</span><sub>2</sub>)</span>
+          <span id="val-b2" class="slider-val">0.50</span>
+        </div>
+        <input type="range" id="sl-b2" min="-1.5" max="1.5" step="0.02" value="0.5" />
+      </div>
+
+      <div id="ols-status" class="ols-badge optimal">
+        &#10003; OLS Optimal Solution: Residuals are orthogonal; <span class="math-var">SS</span><sub>T</sub> = <span class="math-var">SS</span><sub>M</sub> + <span class="math-var">SS</span><sub>E</sub> holds!
+      </div>
+    </div>
+
+    <!-- Section 3: Live ANOVA Sum of Squares Decomposition -->
+    <div class="panel-section" style="flex:1;">
+      <div class="section-title">
+        <span>3. ANOVA Sum of Squares Decomposition</span>
+      </div>
+
+      <div class="metrics-cards">
+        <div class="metric-box" style="border-top: 3px solid var(--col-sst);">
+          <div class="label" style="color:var(--col-sst);"><span class="math-var">SS</span><sub>T</sub> (Total)</div>
+          <div class="value" id="hud-sst">0.00</div>
+          <div class="sub">&sum;(<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>)<sup>2</sup></div>
+        </div>
+        <div class="metric-box" style="border-top: 3px solid var(--col-ssm);">
+          <div class="label" style="color:var(--col-ssm);"><span class="math-var">SS</span><sub>M</sub> (Model)</div>
+          <div class="value" id="hud-ssm">0.00</div>
+          <div class="sub">&sum;(<span class="math-var">&#374;</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>)<sup>2</sup></div>
+        </div>
+        <div class="metric-box" style="border-top: 3px solid var(--col-sse);">
+          <div class="label" style="color:var(--col-sse);"><span class="math-var">SS</span><sub>E</sub> (Error)</div>
+          <div class="value" id="hud-sse">0.00</div>
+          <div class="sub">&sum;(<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">&#374;</span><sub>i</sub>)<sup>2</sup></div>
+        </div>
+      </div>
+
+      <div class="stacked-bar-wrapper">
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted);">
+          <span>Proportion of Variance (<span class="math-var">SS</span><sub>M</sub> vs <span class="math-var">SS</span><sub>E</sub>)</span>
+          <span id="hud-sum-check"><span class="math-var">SS</span><sub>M</sub> + <span class="math-var">SS</span><sub>E</sub> = 0.00</span>
+        </div>
+        <div class="bar-track">
+          <div id="bar-ssm" class="bar-seg-ssm" style="width: 75%;">75%</div>
+          <div id="bar-sse" class="bar-seg-sse" style="width: 25%;">25%</div>
+        </div>
+      </div>
+
+      <div class="r2-banner">
+        <div>
+          <strong style="color:var(--text-main);">Coefficient of Determination (<span class="math-var">R</span><sup>2</sup>):</strong>
+          <div style="font-size:10.5px; color:var(--text-muted);">1 &minus; (<span class="math-var">SS</span><sub>E</sub> / <span class="math-var">SS</span><sub>T</sub>)</div>
+        </div>
+        <div id="hud-r2" style="font-family:ui-monospace, Consolas, monospace; font-size:18px; font-weight:800; color:var(--col-ssm);">0.850</div>
+      </div>
+
+      <div style="margin-top:4px;">
+        <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between;">
+          <span>Per-Point Squared Contributions (Click bar):</span>
+          <span><b style="color:var(--col-ssm)">&#9632;</b> (<span class="math-var">&#374;</span><sub>i</sub>&minus;<span class="math-var">Y&#772;</span>)<sup>2</sup> &nbsp;<b style="color:var(--col-sse)">&#9632;</b> (<span class="math-var">Y</span><sub>i</sub>&minus;<span class="math-var">&#374;</span><sub>i</sub>)<sup>2</sup></span>
+        </div>
+        <div id="point-squares-chart"></div>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    // ============================================================================
+    // 1. SYNTHETIC DATASETS (15 points each on a clean 0..10 coordinate grid)
+    // ============================================================================
+    const PRESET_DATASETS = {
+      high_r2: [
+        { x1: 1.2, x2: 1.5, y: 2.3 }, { x1: 2.0, x2: 4.2, y: 4.1 },
+        { x1: 2.8, x2: 8.0, y: 5.5 }, { x1: 3.5, x2: 2.2, y: 4.2 },
+        { x1: 4.2, x2: 5.5, y: 4.9 }, { x1: 4.8, x2: 8.8, y: 7.4 },
+        { x1: 5.5, x2: 1.5, y: 4.3 }, { x1: 6.0, x2: 4.8, y: 6.8 },
+        { x1: 6.5, x2: 7.5, y: 7.1 }, { x1: 7.2, x2: 2.8, y: 6.5 },
+        { x1: 7.8, x2: 6.2, y: 7.9 }, { x1: 8.4, x2: 9.0, y: 9.6 },
+        { x1: 8.8, x2: 1.8, y: 6.1 }, { x1: 9.2, x2: 5.0, y: 8.5 },
+        { x1: 3.0, x2: 6.0, y: 5.8 }
+      ],
+      single_pred: [
+        { x1: 1.0, x2: 1.5, y: 2.2 }, { x1: 1.5, x2: 8.5, y: 2.5 },
+        { x1: 2.5, x2: 3.0, y: 3.4 }, { x1: 3.0, x2: 7.5, y: 3.1 },
+        { x1: 4.0, x2: 2.0, y: 4.5 }, { x1: 4.5, x2: 8.8, y: 4.8 },
+        { x1: 5.2, x2: 5.0, y: 5.0 }, { x1: 6.0, x2: 1.8, y: 6.3 },
+        { x1: 6.5, x2: 8.2, y: 6.0 }, { x1: 7.2, x2: 4.2, y: 7.1 },
+        { x1: 8.0, x2: 2.2, y: 7.8 }, { x1: 8.5, x2: 8.5, y: 8.1 },
+        { x1: 9.2, x2: 5.5, y: 8.9 }, { x1: 2.2, x2: 5.8, y: 2.9 },
+        { x1: 7.5, x2: 6.5, y: 7.4 }
+      ],
+      low_r2: [
+        { x1: 1.5, x2: 2.0, y: 6.8 }, { x1: 2.0, x2: 8.0, y: 2.5 },
+        { x1: 2.8, x2: 4.5, y: 8.1 }, { x1: 3.5, x2: 1.5, y: 3.0 },
+        { x1: 4.2, x2: 7.2, y: 7.5 }, { x1: 5.0, x2: 5.0, y: 2.2 },
+        { x1: 5.5, x2: 8.8, y: 6.4 }, { x1: 6.2, x2: 2.5, y: 7.9 },
+        { x1: 6.8, x2: 6.0, y: 3.5 }, { x1: 7.5, x2: 1.8, y: 5.2 },
+        { x1: 8.0, x2: 8.5, y: 8.6 }, { x1: 8.8, x2: 4.0, y: 3.8 },
+        { x1: 9.2, x2: 7.0, y: 6.9 }, { x1: 3.2, x2: 8.2, y: 4.9 },
+        { x1: 7.0, x2: 4.5, y: 8.4 }
+      ],
+      outlier: [
+        { x1: 1.5, x2: 2.0, y: 2.4 }, { x1: 2.2, x2: 5.0, y: 3.5 },
+        { x1: 2.8, x2: 8.0, y: 4.6 }, { x1: 3.8, x2: 2.5, y: 3.3 },
+        { x1: 4.5, x2: 5.5, y: 4.5 }, { x1: 5.2, x2: 8.5, y: 5.6 },
+        { x1: 6.0, x2: 2.0, y: 4.1 }, { x1: 6.8, x2: 5.2, y: 5.3 },
+        { x1: 7.4, x2: 8.2, y: 6.4 }, { x1: 8.2, x2: 2.5, y: 5.0 },
+        { x1: 8.8, x2: 5.8, y: 6.2 }, { x1: 9.2, x2: 8.8, y: 1.2 }, // Extreme Outlier (#12)
+        { x1: 3.2, x2: 4.0, y: 3.6 }, { x1: 5.8, x2: 6.8, y: 5.4 },
+        { x1: 7.8, x2: 4.0, y: 5.3 }
+      ]
+    };
+
+    // App State
+    let points = [];
+    let yBar = 5.0;
+    let olsParams = { b0: 1, b1: 0.5, b2: 0.5 };
+    let currentParams = { b0: 1, b1: 0.5, b2: 0.5 };
+    let selectedIndex = -1;
+
+    // Layer Visibility State
+    const layers = {
+      meanPlane: true,
+      regPlane: true,
+      sst: true,
+      ssm: true,
+      sse: true,
+      squares: false
+    };
+
+    // ============================================================================
+    // 2. ORDINARY LEAST SQUARES (OLS) SOLVER FOR 2 PREDICTORS
+    // ============================================================================
+    function computeOLS(data) {
+      const n = data.length;
+      let sx1 = 0, sx2 = 0, sy = 0;
+      for (const p of data) {
+        sx1 += p.x1;
+        sx2 += p.x2;
+        sy += p.y;
+      }
+      const mx1 = sx1 / n;
+      const mx2 = sx2 / n;
+      const my = sy / n;
+
+      let s11 = 0, s22 = 0, s12 = 0, s1y = 0, s2y = 0;
+      for (const p of data) {
+        const dx1 = p.x1 - mx1;
+        const dx2 = p.x2 - mx2;
+        const dy = p.y - my;
+        s11 += dx1 * dx1;
+        s22 += dx2 * dx2;
+        s12 += dx1 * dx2;
+        s1y += dx1 * dy;
+        s2y += dx2 * dy;
+      }
+
+      const denom = s11 * s22 - s12 * s12;
+      let b1 = 0, b2 = 0;
+      if (Math.abs(denom) > 1e-8) {
+        b1 = (s22 * s1y - s12 * s2y) / denom;
+        b2 = (s11 * s2y - s12 * s1y) / denom;
+      }
+      const b0 = my - b1 * mx1 - b2 * mx2;
+      return { b0, b1, b2, yBar: my };
+    }
+
+    // ============================================================================
+    // 3. STUDIO THREE.JS SCENE INITIALIZATION (PBR + Soft Shadows + ToneMapping)
+    // ============================================================================
+    function vizChannels(token) {
+      const value = statsViz.color(token).replace(/\s+/g, "");
+      const hex = value.match(/^#([0-9a-f]{6})$/i);
+      if (hex) {
+        const packed = parseInt(hex[1], 16);
+        return [(packed >> 16) & 255, (packed >> 8) & 255, packed & 255];
+      }
+      const short = value.match(/^#([0-9a-f]{3})$/i);
+      if (short) {
+        const h = short[1];
+        return [
+          parseInt(h[0] + h[0], 16),
+          parseInt(h[1] + h[1], 16),
+          parseInt(h[2] + h[2], 16)
+        ];
+      }
+      const rgb = value.match(/^rgba?\((\d+),(\d+),(\d+)/i);
+      if (rgb) return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])];
+      throw new Error("Cannot parse viz color " + value);
+    }
+
+    function vizHex(token) {
+      const channels = vizChannels(token);
+      return (channels[0] << 16) + (channels[1] << 8) + channels[2];
+    }
+
+    function vizHexScale(token, factor) {
+      const channels = vizChannels(token);
+      const scale = (channel) => Math.max(0, Math.min(255, Math.round(channel * factor)));
+      return (scale(channels[0]) << 16) + (scale(channels[1]) << 8) + scale(channels[2]);
+    }
+
+    // Same Association roles as the stylesheet tokens above.
+    const COL = {
+      sst: vizHex("--viz-total"),
+      ssm: vizHex("--viz-explained"),
+      sse: vizHex("--viz-residual"),
+      plane: vizHex("--viz-explained"),
+      obs: vizHex("--viz-sample"),
+      pred: vizHex("--viz-explained"),
+      mean: vizHex("--viz-reference"),
+      x1: vizHex("--viz-group-a"),
+      x2: vizHex("--viz-group-b"),
+      yAxis: 0x000000,
+      highlight: vizHex("--viz-highlight"),
+      drop: vizHex("--viz-reference"),
+      planeEmissive: vizHexScale("--viz-explained", 0.35),
+      highlightEmissive: vizHexScale("--viz-highlight", 0.45)
+    };
+
+    const container = document.getElementById('viewport-container');
+    const canvas = document.getElementById('three-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    renderer.outputEncoding = THREE.sRGBEncoding;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
+    camera.position.set(18.5, 13.5, 19.5);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target.set(5, 4.8, 5);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.maxPolarAngle = Math.PI / 2 + 0.12;
+
+    // Studio 3-Point + Hemisphere Lighting Rig
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xe2e8f0, 0.75);
+    hemiLight.position.set(0, 25, 0);
+    scene.add(hemiLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.85);
+    keyLight.position.set(14, 26, 18);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.width = 2048;
+    keyLight.shadow.mapSize.height = 2048;
+    keyLight.shadow.camera.near = 5;
+    keyLight.shadow.camera.far = 55;
+    const d = 11;
+    keyLight.shadow.camera.left = -d;
+    keyLight.shadow.camera.right = d;
+    keyLight.shadow.camera.top = d;
+    keyLight.shadow.camera.bottom = -d;
+    keyLight.shadow.bias = -0.0005;
+    keyLight.target.position.set(5, 3, 5);
+    scene.add(keyLight);
+    scene.add(keyLight.target);
+
+    const fillLight = new THREE.DirectionalLight(0xf4f4f4, 0.45);
+    fillLight.position.set(-15, 12, -10);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0xf8fafc, 0.35);
+    rimLight.position.set(5, -10, -15);
+    scene.add(rimLight);
+
+    // Coordinate Box, Shadow Floor & 3D Cylindrical Axes
+    const axesGroup = new THREE.Group();
+    scene.add(axesGroup);
+
+    const tickAnchors = [];
+    const ticksOverlay = document.getElementById('ticks-overlay');
+
+    function create3DAxisArrow(start, end, colorHex) {
+      const group = new THREE.Group();
+      const dir = new THREE.Vector3().subVectors(end, start);
+      const len = dir.length();
+
+      const shaftGeo = new THREE.CylinderGeometry(0.042, 0.042, len, 16);
+      const mat = new THREE.MeshStandardMaterial({
+        color: colorHex,
+        roughness: 0.35,
+        metalness: 0.15
+      });
+      const shaft = new THREE.Mesh(shaftGeo, mat);
+      shaft.position.copy(start).add(end).multiplyScalar(0.5);
+      shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+      group.add(shaft);
+
+      const coneGeo = new THREE.ConeGeometry(0.13, 0.36, 20);
+      const cone = new THREE.Mesh(coneGeo, mat);
+      cone.position.copy(end);
+      cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+      group.add(cone);
+
+      return group;
+    }
+
+    function buildCoordinateRoom() {
+      // Soft matte baseplate under floor grid to catch soft shadows
+      const baseGeo = new THREE.PlaneGeometry(10.4, 10.4);
+      baseGeo.rotateX(-Math.PI / 2);
+      const baseMat = new THREE.MeshStandardMaterial({
+        color: 0xf8fafc,
+        roughness: 0.9,
+        metalness: 0.0
+      });
+      const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+      baseMesh.position.set(5, -0.02, 5);
+      baseMesh.receiveShadow = true;
+      axesGroup.add(baseMesh);
+
+      // Crisp Floor Grid (X1 vs X2)
+      const gridFloor = new THREE.GridHelper(10, 10, 0x94a3b8, 0xcbd5e1);
+      gridFloor.position.set(5, 0, 5);
+      axesGroup.add(gridFloor);
+
+      // Subtle Back & Side Reference Grids for true 3D room depth
+      const gridBack = new THREE.GridHelper(10, 10, 0xe2e8f0, 0xf1f5f9);
+      gridBack.rotation.x = Math.PI / 2;
+      gridBack.position.set(5, 5, 0);
+      axesGroup.add(gridBack);
+
+      const gridSide = new THREE.GridHelper(10, 10, 0xe2e8f0, 0xf1f5f9);
+      gridSide.rotation.z = Math.PI / 2;
+      gridSide.position.set(0, 5, 5);
+      axesGroup.add(gridSide);
+
+      // Sleek 3D Cylinder + Cone Axes
+      axesGroup.add(create3DAxisArrow(new THREE.Vector3(0, 0, 0), new THREE.Vector3(10.65, 0, 0), COL.x1)); // X1
+      axesGroup.add(create3DAxisArrow(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 10.65, 0), COL.yAxis)); // Y
+      axesGroup.add(create3DAxisArrow(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 10.65), COL.x2)); // X2
+
+      // Origin sphere cap
+      const origGeo = new THREE.SphereGeometry(0.08, 16, 16);
+      const origMat = new THREE.MeshStandardMaterial({ color: COL.yAxis, roughness: 0.3 });
+      axesGroup.add(new THREE.Mesh(origGeo, origMat));
+
+      // Numeric Tick Marks at 2, 4, 6, 8, 10 along X1, X2, Y
+      const tickVals = [2, 4, 6, 8, 10];
+      const tickMat = new THREE.MeshBasicMaterial({ color: COL.mean });
+
+      tickVals.forEach(v => {
+        // X1 ticks
+        const tX1 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.18, 8), tickMat);
+        tX1.rotation.x = Math.PI / 2;
+        tX1.position.set(v, 0, 0);
+        axesGroup.add(tX1);
+        addTickLabel(String(v), new THREE.Vector3(v, -0.35, 0));
+
+        // X2 ticks
+        const tX2 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.18, 8), tickMat);
+        tX2.rotation.z = Math.PI / 2;
+        tX2.position.set(0, 0, v);
+        axesGroup.add(tX2);
+        addTickLabel(String(v), new THREE.Vector3(0, -0.35, v));
+
+        // Y ticks
+        const tY = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.18, 8), tickMat);
+        tY.rotation.z = Math.PI / 2;
+        tY.position.set(0, v, 0);
+        axesGroup.add(tY);
+        addTickLabel(String(v), new THREE.Vector3(-0.38, v, 0));
+      });
+    }
+
+    function addTickLabel(text, vec3) {
+      const el = document.createElement('div');
+      el.className = 'tick-label';
+      el.textContent = text;
+      ticksOverlay.appendChild(el);
+      tickAnchors.push({ el, vec: vec3 });
+    }
+
+    buildCoordinateRoom();
+
+    // ============================================================================
+    // 4. DYNAMIC 3D REGRESSION OBJECTS (PBR Planes, Intersection Line, Cylinders)
+    // ============================================================================
+    const dynamicGroup = new THREE.Group();
+    scene.add(dynamicGroup);
+
+    let pointMeshes = [];
+
+    // Upgraded Studio PBR Materials
+    const matMeanPlane = new THREE.MeshPhysicalMaterial({
+      color: COL.mean,
+      roughness: 0.35,
+      metalness: 0.05,
+      transparent: true,
+      opacity: 0.16,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+
+    const matRegPlane = new THREE.MeshPhysicalMaterial({
+      color: COL.plane,
+      emissive: COL.planeEmissive,
+      emissiveIntensity: 0.12,
+      roughness: 0.2,
+      metalness: 0.08,
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.2,
+      transparent: true,
+      opacity: 0.26,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+
+    // Create 3D cylinder with end-cap rings between two 3D points
+    function createSegmentCylinder(p1, p2, radius, colorHex, opacity = 1.0) {
+      const dir = new THREE.Vector3().subVectors(p2, p1);
+      const len = dir.length();
+      if (len < 0.005) return null;
+
+      const geo = new THREE.CylinderGeometry(radius, radius, len, 18);
+      const mat = new THREE.MeshStandardMaterial({
+        color: colorHex,
+        roughness: 0.28,
+        metalness: 0.12,
+        transparent: opacity < 1.0,
+        opacity: opacity
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.copy(p1).add(p2).multiplyScalar(0.5);
+      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+      mesh.castShadow = opacity > 0.5;
+      return mesh;
+    }
+
+    // Create literal 3D square plane with thick 3D border frame attached to a vertical segment
+    function createVerticalSquare(x, z, yStart, yEnd, colorHex, dirSign, opacity = 0.24) {
+      const side = Math.abs(yEnd - yStart);
+      if (side < 0.05) return null;
+      const yMid = (yStart + yEnd) / 2;
+
+      const geo = new THREE.PlaneGeometry(side, side);
+      const mat = new THREE.MeshPhysicalMaterial({
+        color: colorHex,
+        roughness: 0.3,
+        transparent: true,
+        opacity: opacity,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(x + dirSign * (side / 2), yMid, z);
+
+      const edges = new THREE.EdgesGeometry(geo);
+      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({
+        color: colorHex,
+        transparent: true,
+        opacity: Math.min(1, opacity + 0.5)
+      }));
+      mesh.add(line);
+      return mesh;
+    }
+
+    // Compute and render the 3D intersection line where the Regression Plane meets the Grand Mean Plane (Y_hat = yBar)
+    function buildPlaneIntersectionLine() {
+      const b0 = currentParams.b0;
+      const b1 = currentParams.b1;
+      const b2 = currentParams.b2;
+
+      if (Math.abs(b1) < 1e-5 && Math.abs(b2) < 1e-5) return null;
+
+      // Line equation in (x1, x2) on [0, 10] x [0, 10]: b1*x1 + b2*x2 = rhs
+      const rhs = yBar - b0;
+      const hits = [];
+
+      // Intersect with x1 = 0 and x1 = 10
+      if (Math.abs(b2) > 1e-5) {
+        const x2_at_0 = rhs / b2;
+        if (x2_at_0 >= 0 && x2_at_0 <= 10) hits.push(new THREE.Vector3(0, yBar, x2_at_0));
+        const x2_at_10 = (rhs - 10 * b1) / b2;
+        if (x2_at_10 >= 0 && x2_at_10 <= 10) hits.push(new THREE.Vector3(10, yBar, x2_at_10));
+      }
+
+      // Intersect with x2 = 0 and x2 = 10
+      if (Math.abs(b1) > 1e-5) {
+        const x1_at_0 = rhs / b1;
+        if (x1_at_0 > 0 && x1_at_0 < 10) hits.push(new THREE.Vector3(x1_at_0, yBar, 0));
+        const x1_at_10 = (rhs - 10 * b2) / b1;
+        if (x1_at_10 > 0 && x1_at_10 < 10) hits.push(new THREE.Vector3(x1_at_10, yBar, 10));
+      }
+
+      if (hits.length < 2) return null;
+      return createSegmentCylinder(hits[0], hits[1], 0.042, COL.highlight, 0.9);
+    }
+
+    // Rebuild or Update 3D Scene Geometry
+    function rebuildSceneGeometry() {
+      while (dynamicGroup.children.length > 0) {
+        const obj = dynamicGroup.children[0];
+        dynamicGroup.remove(obj);
+      }
+      pointMeshes = [];
+
+      // 1. Grand Mean Plane (Y = yBar)
+      if (layers.meanPlane) {
+        const meanGeo = new THREE.PlaneGeometry(10, 10);
+        meanGeo.rotateX(-Math.PI / 2);
+        const meanPlaneMesh = new THREE.Mesh(meanGeo, matMeanPlane);
+        meanPlaneMesh.position.set(5, yBar, 5);
+        dynamicGroup.add(meanPlaneMesh);
+
+        // Crisp 3D Cylinder Frame around Grand Mean Plane
+        const c = [
+          new THREE.Vector3(0, yBar, 0),
+          new THREE.Vector3(10, yBar, 0),
+          new THREE.Vector3(10, yBar, 10),
+          new THREE.Vector3(0, yBar, 10)
+        ];
+        for (let i = 0; i < 4; i++) {
+          const edgeCyl = createSegmentCylinder(c[i], c[(i + 1) % 4], 0.026, COL.mean, 0.75);
+          if (edgeCyl) dynamicGroup.add(edgeCyl);
+        }
+      }
+
+      // 2. Tilted Regression Plane: Y_hat = b0 + b1*X1 + b2*X2
+      if (layers.regPlane) {
+        const segs = 10;
+        const regGeo = new THREE.BufferGeometry();
+        const vertices = [];
+        const indices = [];
+
+        for (let i = 0; i <= segs; i++) {
+          const x1 = (i / segs) * 10;
+          for (let j = 0; j <= segs; j++) {
+            const x2 = (j / segs) * 10;
+            const yhat = currentParams.b0 + currentParams.b1 * x1 + currentParams.b2 * x2;
+            vertices.push(x1, yhat, x2);
+          }
+        }
+
+        for (let i = 0; i < segs; i++) {
+          for (let j = 0; j < segs; j++) {
+            const a = i * (segs + 1) + j;
+            const b = i * (segs + 1) + (j + 1);
+            const c = (i + 1) * (segs + 1) + (j + 1);
+            const d = (i + 1) * (segs + 1) + j;
+            indices.push(a, b, d);
+            indices.push(b, c, d);
+          }
+        }
+
+        regGeo.setIndex(indices);
+        regGeo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        regGeo.computeVertexNormals();
+
+        const regPlaneMesh = new THREE.Mesh(regGeo, matRegPlane);
+        dynamicGroup.add(regPlaneMesh);
+
+        // Clean quad grid lines on the regression plane (instead of diagonal triangle wireframe)
+        const gridPoints = [];
+        for (let i = 0; i <= segs; i++) {
+          const u = (i / segs) * 10;
+          const yA0 = currentParams.b0 + currentParams.b1 * u + currentParams.b2 * 0;
+          const yA1 = currentParams.b0 + currentParams.b1 * u + currentParams.b2 * 10;
+          gridPoints.push(new THREE.Vector3(u, yA0, 0), new THREE.Vector3(u, yA1, 10));
+
+          const yB0 = currentParams.b0 + currentParams.b1 * 0 + currentParams.b2 * u;
+          const yB1 = currentParams.b0 + currentParams.b1 * 10 + currentParams.b2 * u;
+          gridPoints.push(new THREE.Vector3(0, yB0, u), new THREE.Vector3(10, yB1, u));
+        }
+        const quadGridGeo = new THREE.BufferGeometry().setFromPoints(gridPoints);
+        const regPlaneGrid = new THREE.LineSegments(
+          quadGridGeo,
+          new THREE.LineBasicMaterial({ color: COL.plane, transparent: true, opacity: 0.32 })
+        );
+        dynamicGroup.add(regPlaneGrid);
+
+        // Crisp 3D Cylinder Border around Regression Plane
+        const rc = [
+          new THREE.Vector3(0, currentParams.b0, 0),
+          new THREE.Vector3(10, currentParams.b0 + 10 * currentParams.b1, 0),
+          new THREE.Vector3(10, currentParams.b0 + 10 * currentParams.b1 + 10 * currentParams.b2, 10),
+          new THREE.Vector3(0, currentParams.b0 + 10 * currentParams.b2, 10)
+        ];
+        for (let i = 0; i < 4; i++) {
+          const edgeCyl = createSegmentCylinder(rc[i], rc[(i + 1) % 4], 0.032, COL.plane, 0.85);
+          if (edgeCyl) dynamicGroup.add(edgeCyl);
+        }
+      }
+
+      // 2b. Glowing Intersection Line where Regression Plane meets Grand Mean Plane (Y_hat = yBar)
+      if (layers.meanPlane && layers.regPlane) {
+        const intersectCyl = buildPlaneIntersectionLine();
+        if (intersectCyl) dynamicGroup.add(intersectCyl);
+      }
+
+      // Check if we need horizontal offsets to prevent overlapping cylinders
+      const bothTotalAndParts = layers.sst && (layers.ssm || layers.sse);
+      const offsetDist = bothTotalAndParts ? 0.12 : 0.0;
+
+      // 3. Data Points, Predicted Diamonds, Floor Drop-lines, and Variance Vectors
+      points.forEach((pt, idx) => {
+        const isSelected = selectedIndex === idx;
+        const isDimmed = selectedIndex !== -1 && !isSelected;
+        const alpha = isDimmed ? 0.18 : 1.0;
+
+        const x = pt.x1;
+        const z = pt.x2;
+        const y = pt.y;
+        const yhat = currentParams.b0 + currentParams.b1 * x + currentParams.b2 * z;
+
+        // Floor contact bullseye pad + drop-line
+        const padGeo = new THREE.RingGeometry(0.06, 0.14, 20);
+        padGeo.rotateX(-Math.PI / 2);
+        const padMat = new THREE.MeshBasicMaterial({
+          color: isSelected ? COL.highlight : COL.drop,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: isDimmed ? 0.15 : 0.65
+        });
+        const pad = new THREE.Mesh(padGeo, padMat);
+        pad.position.set(x, 0.01, z);
+        dynamicGroup.add(pad);
+
+        const dropGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(x, 0, z),
+          new THREE.Vector3(x, Math.min(y, yhat, yBar), z)
+        ]);
+        const dropLine = new THREE.Line(
+          dropGeo,
+          new THREE.LineDashedMaterial({
+            color: COL.drop,
+            dashSize: 0.15,
+            gapSize: 0.15,
+            transparent: true,
+            opacity: isDimmed ? 0.15 : 0.65
+          })
+        );
+        dropLine.computeLineDistances();
+        dynamicGroup.add(dropLine);
+
+        // Observed Data Sphere (Y_i) with Glossy Ceramic PBR Finish
+        const sphereRadius = isSelected ? 0.28 : 0.19;
+        const sphereGeo = new THREE.SphereGeometry(sphereRadius, 32, 32);
+        const sphereMat = new THREE.MeshPhysicalMaterial({
+          color: isSelected ? COL.highlight : COL.obs,
+          emissive: isSelected ? COL.highlightEmissive : 0x000000,
+          emissiveIntensity: isSelected ? 0.35 : 0,
+          roughness: 0.18,
+          metalness: 0.1,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.1,
+          transparent: isDimmed,
+          opacity: alpha
+        });
+        const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+        sphere.position.set(x, y, z);
+        sphere.castShadow = !isDimmed;
+        sphere.userData = { pointIndex: idx };
+        dynamicGroup.add(sphere);
+        pointMeshes.push(sphere);
+
+        // Selection Halo Ring around selected sphere
+        if (isSelected) {
+          const haloGeo = new THREE.TorusGeometry(0.38, 0.028, 12, 32);
+          haloGeo.rotateX(Math.PI / 2);
+          const haloMat = new THREE.MeshBasicMaterial({ color: COL.highlight });
+          const halo = new THREE.Mesh(haloGeo, haloMat);
+          halo.position.set(x, y, z);
+          dynamicGroup.add(halo);
+        }
+
+        // Distinct 3D Faceted Diamond (Octahedron) on the regression plane for Predicted Value (Y_hat_i)
+        if (layers.regPlane) {
+          const diamondRadius = isSelected ? 0.23 : 0.16;
+          const diamondGeo = new THREE.OctahedronGeometry(diamondRadius, 0);
+          const diamondMat = new THREE.MeshPhysicalMaterial({
+            color: isSelected ? COL.highlight : COL.pred,
+            emissive: isSelected ? COL.highlightEmissive : COL.planeEmissive,
+            emissiveIntensity: 0.22,
+            roughness: 0.15,
+            metalness: 0.2,
+            flatShading: true,
+            transparent: true,
+            opacity: alpha * 0.96
+          });
+          const diamond = new THREE.Mesh(diamondGeo, diamondMat);
+          diamond.position.set(x, yhat, z);
+          diamond.castShadow = !isDimmed;
+
+          const diamondEdges = new THREE.EdgesGeometry(diamondGeo);
+          const diamondWire = new THREE.LineSegments(
+            diamondEdges,
+            new THREE.LineBasicMaterial({
+              color: 0xffffff,
+              transparent: true,
+              opacity: alpha * 0.9
+            })
+          );
+          diamond.add(diamondWire);
+          dynamicGroup.add(diamond);
+        }
+
+        const cylRadius = isSelected ? 0.08 : 0.052;
+
+        // SS_T Vector: Y_i to yBar (total)
+        if (layers.sst) {
+          const xT = x - offsetDist;
+          const pTop = new THREE.Vector3(xT, y, z);
+          const pBot = new THREE.Vector3(xT, yBar, z);
+          const cylSST = createSegmentCylinder(pTop, pBot, cylRadius, COL.sst, alpha);
+          if (cylSST) dynamicGroup.add(cylSST);
+
+          if (bothTotalAndParts) {
+            const cTop = createSegmentCylinder(new THREE.Vector3(x, y, z), new THREE.Vector3(xT, y, z), 0.022, COL.sst, alpha * 0.85);
+            const cBot = createSegmentCylinder(new THREE.Vector3(x, yBar, z), new THREE.Vector3(xT, yBar, z), 0.022, COL.sst, alpha * 0.85);
+            if (cTop) dynamicGroup.add(cTop);
+            if (cBot) dynamicGroup.add(cBot);
+          }
+
+          if (layers.squares && (!(layers.ssm || layers.sse) || isSelected)) {
+            const sqT = createVerticalSquare(xT, z, yBar, y, COL.sst, -1, isDimmed ? 0.05 : 0.22);
+            if (sqT) dynamicGroup.add(sqT);
+          }
+        }
+
+        // SS_M Vector: Y_hat_i to yBar (explained)
+        if (layers.ssm) {
+          const xM = x + offsetDist;
+          const pTop = new THREE.Vector3(xM, yhat, z);
+          const pBot = new THREE.Vector3(xM, yBar, z);
+          const cylSSM = createSegmentCylinder(pTop, pBot, cylRadius, COL.ssm, alpha);
+          if (cylSSM) dynamicGroup.add(cylSSM);
+
+          if (layers.squares) {
+            const sqM = createVerticalSquare(xM, z, yBar, yhat, COL.ssm, 1, isDimmed ? 0.05 : 0.24);
+            if (sqM) dynamicGroup.add(sqM);
+          }
+        }
+
+        // SS_E Vector: Y_i to Y_hat_i (residual)
+        if (layers.sse) {
+          const zE = (layers.ssm && ((yhat > y && yhat > yBar) || (yhat < y && yhat < yBar))) ? z + 0.095 : z;
+          const xE = x + offsetDist;
+          const pTop = new THREE.Vector3(xE, y, zE);
+          const pBot = new THREE.Vector3(xE, yhat, zE);
+          const cylSSE = createSegmentCylinder(pTop, pBot, cylRadius, COL.sse, alpha);
+          if (cylSSE) dynamicGroup.add(cylSSE);
+
+          if (layers.squares) {
+            const sqE = createVerticalSquare(xE, zE, yhat, y, COL.sse, 1, isDimmed ? 0.05 : 0.26);
+            if (sqE) dynamicGroup.add(sqE);
+          }
+        }
+      });
+
+      updateHUDAndCharts();
+    }
+
+    // ============================================================================
+    // 5. LIVE HUD, BAR CHARTS & INSPECTOR UPDATES
+    // ============================================================================
+    function updateHUDAndCharts() {
+      let sst = 0, ssm = 0, sse = 0;
+      const pointMetrics = [];
+
+      points.forEach((pt) => {
+        const yhat = currentParams.b0 + currentParams.b1 * pt.x1 + currentParams.b2 * pt.x2;
+        const devT = pt.y - yBar;
+        const devM = yhat - yBar;
+        const devE = pt.y - yhat;
+
+        const sqT = devT * devT;
+        const sqM = devM * devM;
+        const sqE = devE * devE;
+
+        sst += sqT;
+        ssm += sqM;
+        sse += sqE;
+
+        pointMetrics.push({ yhat, devT, devM, devE, sqT, sqM, sqE });
+      });
+
+      // Update numeric readouts
+      document.getElementById('hud-sst').textContent = sst.toFixed(2);
+      document.getElementById('hud-ssm').textContent = ssm.toFixed(2);
+      document.getElementById('hud-sse').textContent = sse.toFixed(2);
+
+      const sumME = ssm + sse;
+      document.getElementById('hud-sum-check').innerHTML = `<span class="math-var">SS</span><sub>M</sub> + <span class="math-var">SS</span><sub>E</sub> = ${sumME.toFixed(2)}`;
+
+      // Stacked Bar Chart Percentages
+      const pctM = sumME > 1e-6 ? Math.max(0, Math.min(100, (ssm / sumME) * 100)) : 50;
+      const pctE = 100 - pctM;
+
+      const barM = document.getElementById('bar-ssm');
+      const barE = document.getElementById('bar-sse');
+      barM.style.width = `${pctM}%`;
+      barE.style.width = `${pctE}%`;
+      barM.textContent = pctM >= 12 ? `${pctM.toFixed(0)}%` : '';
+      barE.textContent = pctE >= 12 ? `${pctE.toFixed(0)}%` : '';
+
+      // R^2 = 1 - SSE/SST
+      const r2 = sst > 1e-6 ? 1 - (sse / sst) : 0;
+      const r2El = document.getElementById('hud-r2');
+      r2El.textContent = r2.toFixed(3);
+      r2El.style.color = r2 >= 0.5
+        ? statsViz.color("--viz-assoc-high")
+        : (r2 >= 0.2
+          ? statsViz.color("--viz-assoc-mid")
+          : (r2 >= 0 ? statsViz.color("--viz-assoc-low") : statsViz.color("--viz-residual")));
+
+      // Check OLS Optimality (whether SST == SSM + SSE)
+      const diffFromOLS =
+        Math.abs(currentParams.b0 - olsParams.b0) +
+        Math.abs(currentParams.b1 - olsParams.b1) +
+        Math.abs(currentParams.b2 - olsParams.b2);
+
+      const statusBadge = document.getElementById('ols-status');
+      if (diffFromOLS < 0.04) {
+        statusBadge.className = 'ols-badge optimal';
+        statusBadge.innerHTML = '&#10003; OLS Optimal Plane: Residuals orthogonal to <span class="math-var">X</span><sub>1</sub>, <span class="math-var">X</span><sub>2</sub> &rarr; <span class="math-var">SS</span><sub>T</sub> = <span class="math-var">SS</span><sub>M</sub> + <span class="math-var">SS</span><sub>E</sub> holds!';
+      } else {
+        statusBadge.className = 'ols-badge suboptimal';
+        const crossTerm = (sst - sumME).toFixed(2);
+        statusBadge.innerHTML = `&#9888; Non-OLS Plane: <span class="math-var">SS</span><sub>E</sub> increased! Cross-product discrepancy = ${crossTerm}`;
+      }
+
+      // Render Per-Point Mini Squared Bars
+      const chartContainer = document.getElementById('point-squares-chart');
+      chartContainer.innerHTML = '';
+      const maxSq = Math.max(...pointMetrics.map(m => m.sqM + m.sqE), 1);
+
+      pointMetrics.forEach((m, idx) => {
+        const col = document.createElement('div');
+        col.className = 'pt-bar-col' + (selectedIndex === idx ? ' active' : '');
+        col.title = `Point #${idx + 1}: (Ŷᵢ − Ȳ)² = ${m.sqM.toFixed(2)}, (Yᵢ − Ŷᵢ)² = ${m.sqE.toFixed(2)}`;
+
+        const hE = Math.max(2, (m.sqE / maxSq) * 52);
+        const hM = Math.max(2, (m.sqM / maxSq) * 52);
+
+        const divE = document.createElement('div');
+        divE.className = 'pt-sq-e';
+        divE.style.height = `${hE}px`;
+
+        const divM = document.createElement('div');
+        divM.className = 'pt-sq-m';
+        divM.style.height = `${hM}px`;
+
+        col.appendChild(divE);
+        col.appendChild(divM);
+
+        col.addEventListener('click', () => {
+          selectPoint(selectedIndex === idx ? -1 : idx);
+        });
+
+        chartContainer.appendChild(col);
+      });
+
+      // Update Inspector Card if a point is selected
+      const inspCard = document.getElementById('inspector-card');
+      if (selectedIndex !== -1 && points[selectedIndex]) {
+        const pt = points[selectedIndex];
+        const m = pointMetrics[selectedIndex];
+        inspCard.classList.add('visible');
+        document.getElementById('insp-title').textContent = `Point #${selectedIndex + 1} Geometric Breakdown`;
+        document.getElementById('insp-coords').textContent = `(${pt.x1.toFixed(1)}, ${pt.x2.toFixed(1)}, ${pt.y.toFixed(2)})`;
+        document.getElementById('insp-ybar').textContent = yBar.toFixed(2);
+        document.getElementById('insp-yhat').textContent = m.yhat.toFixed(2);
+        document.getElementById('insp-dev-t').textContent = `${m.devT >= 0 ? '+' : ''}${m.devT.toFixed(2)}  [sq: ${m.sqT.toFixed(2)}]`;
+        document.getElementById('insp-dev-m').textContent = `${m.devM >= 0 ? '+' : ''}${m.devM.toFixed(2)}  [sq: ${m.sqM.toFixed(2)}]`;
+        document.getElementById('insp-dev-e').textContent = `${m.devE >= 0 ? '+' : ''}${m.devE.toFixed(2)}  [sq: ${m.sqE.toFixed(2)}]`;
+
+        const ySlider = document.getElementById('insp-y-slider');
+        ySlider.value = pt.y;
+        document.getElementById('insp-y-slider-val').textContent = pt.y.toFixed(2);
+      } else {
+        inspCard.classList.remove('visible');
+      }
+    }
+
+    // ============================================================================
+    // 6. INTERACTION CONTROLLERS (Dataset Load, Sliders, Raycasting, Camera)
+    // ============================================================================
+    function loadDataset(key) {
+      points = JSON.parse(JSON.stringify(PRESET_DATASETS[key]));
+      selectedIndex = key === 'outlier' ? 11 : -1;
+      recalculateAndSnapOLS();
+    }
+
+    function recalculateAndSnapOLS() {
+      const res = computeOLS(points);
+      yBar = res.yBar;
+      olsParams = { b0: res.b0, b1: res.b1, b2: res.b2 };
+      currentParams = { ...olsParams };
+      syncSlidersToParams();
+      rebuildSceneGeometry();
+    }
+
+    function syncSlidersToParams() {
+      document.getElementById('sl-b0').value = currentParams.b0;
+      document.getElementById('sl-b1').value = currentParams.b1;
+      document.getElementById('sl-b2').value = currentParams.b2;
+      document.getElementById('val-b0').textContent = currentParams.b0.toFixed(2);
+      document.getElementById('val-b1').textContent = currentParams.b1.toFixed(2);
+      document.getElementById('val-b2').textContent = currentParams.b2.toFixed(2);
+    }
+
+    function selectPoint(idx) {
+      selectedIndex = idx;
+      rebuildSceneGeometry();
+    }
+
+    // Slider Events
+    ['b0', 'b1', 'b2'].forEach(param => {
+      const slider = document.getElementById(`sl-${param}`);
+      slider.addEventListener('input', (e) => {
+        currentParams[param] = parseFloat(e.target.value);
+        document.getElementById(`val-${param}`).textContent = currentParams[param].toFixed(2);
+        rebuildSceneGeometry();
+      });
+    });
+
+    document.getElementById('btn-fit-ols').addEventListener('click', () => {
+      recalculateAndSnapOLS();
+    });
+
+    document.getElementById('dataset-select').addEventListener('change', (e) => {
+      loadDataset(e.target.value);
+    });
+
+    // Inspector Y-Value Outlier Dragging
+    document.getElementById('insp-y-slider').addEventListener('input', (e) => {
+      if (selectedIndex !== -1 && points[selectedIndex]) {
+        points[selectedIndex].y = parseFloat(e.target.value);
+        recalculateAndSnapOLS();
+      }
+    });
+
+    document.getElementById('insp-close').addEventListener('click', () => selectPoint(-1));
+
+    // Layer Checkboxes
+    const checkboxMap = {
+      'tog-mean': 'meanPlane',
+      'tog-reg': 'regPlane',
+      'tog-sst': 'sst',
+      'tog-ssm': 'ssm',
+      'tog-sse': 'sse',
+      'tog-squares': 'squares'
+    };
+
+    Object.entries(checkboxMap).forEach(([id, key]) => {
+      document.getElementById(id).addEventListener('change', (e) => {
+        layers[key] = e.target.checked;
+        rebuildSceneGeometry();
+      });
+    });
+
+    // Guided Story Mode Stepper
+    const STORY_STEPS = {
+      1: {
+        layers: { meanPlane: true, regPlane: false, sst: true, ssm: false, sse: false },
+        text: `<strong>Step 1 &mdash; Total Variation (<span class="math-var">SS</span><sub>T</sub>):</strong> Before fitting a regression model, our baseline guess for every observation is simply the flat Grand Mean Plane <span style="color:var(--col-mean);font-weight:700;"><span class="math-var">Y&#772;</span></span>. The <span style="color:var(--col-sst);font-weight:700;">slate cylinders (<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>)</span> show the total vertical variation we want to explain.`
+      },
+      2: {
+        layers: { meanPlane: false, regPlane: true, sst: false, ssm: false, sse: true },
+        text: `<strong>Step 2 &mdash; Unexplained Error (<span class="math-var">SS</span><sub>E</sub>):</strong> Now we fit the tilted Multiple Regression Plane <span style="color:var(--col-plane);font-weight:700;"><span class="math-var">&#374;</span> = <span class="math-var">b</span><sub>0</sub> + <span class="math-var">b</span><sub>1</sub><span class="math-var">X</span><sub>1</sub> + <span class="math-var">b</span><sub>2</sub><span class="math-var">X</span><sub>2</sub></span>. The <span style="color:var(--col-sse);font-weight:700;">rose cylinders (<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">&#374;</span><sub>i</sub>)</span> are the residual errors&mdash;the vertical distance between each actual data sphere and its predicted diamond on the plane.`
+      },
+      3: {
+        layers: { meanPlane: true, regPlane: true, sst: false, ssm: true, sse: false },
+        text: `<strong>Step 3 &mdash; Model Explained Variation (<span class="math-var">SS</span><sub>M</sub>):</strong> How much improvement did the tilted plane provide over the flat mean plane? The <span style="color:var(--col-ssm);font-weight:700;">green cylinders (<span class="math-var">&#374;</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>)</span> measure the distance from the Grand Mean Plane to the predicted diamond on the Regression Plane at each (<span class="math-var">X</span><sub>1</sub>, <span class="math-var">X</span><sub>2</sub>) coordinate.`
+      },
+      4: {
+        layers: { meanPlane: true, regPlane: true, sst: true, ssm: true, sse: true },
+        text: `<strong>Step 4 &mdash; Full Synthesis (<span class="math-var">SS</span><sub>T</sub> = <span class="math-var">SS</span><sub>M</sub> + <span class="math-var">SS</span><sub>E</sub>):</strong> Observing all vectors together shows how Total Variation <span style="color:var(--col-sst);font-weight:700;">(slate)</span> is partitioned into Explained Variation <span style="color:var(--col-ssm);font-weight:700;">(green)</span> and Residual Error <span style="color:var(--col-sse);font-weight:700;">(rose)</span>. The highlighted line is where <span class="math-var">&#374;</span> = <span class="math-var">Y&#772;</span>.`
+      }
+    };
+
+    document.querySelectorAll('.step-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const step = btn.getAttribute('data-step');
+        const cfg = STORY_STEPS[step];
+        Object.assign(layers, cfg.layers);
+
+        // Sync checkboxes
+        document.getElementById('tog-mean').checked = layers.meanPlane;
+        document.getElementById('tog-reg').checked = layers.regPlane;
+        document.getElementById('tog-sst').checked = layers.sst;
+        document.getElementById('tog-ssm').checked = layers.ssm;
+        document.getElementById('tog-sse').checked = layers.sse;
+
+        document.getElementById('story-text').innerHTML = cfg.text;
+        rebuildSceneGeometry();
+      });
+    });
+
+    // Camera Quick-Snap Views
+    let camTargetPos = null;
+    function snapCamera(x, y, z) {
+      camTargetPos = new THREE.Vector3(x, y, z);
+    }
+
+    document.getElementById('cam-iso').addEventListener('click', () => snapCamera(18.5, 13.5, 19.5));
+    document.getElementById('cam-x1').addEventListener('click', () => snapCamera(5, 5.2, 23.5));
+    document.getElementById('cam-x2').addEventListener('click', () => snapCamera(23.5, 5.2, 5));
+    document.getElementById('cam-top').addEventListener('click', () => snapCamera(5, 24.5, 5.01));
+
+    // Raycaster for Clicking 3D Data Points
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let pointerDownPos = { x: 0, y: 0 };
+
+    canvas.addEventListener('pointerdown', (e) => {
+      pointerDownPos = { x: e.clientX, y: e.clientY };
+    });
+
+    canvas.addEventListener('pointerup', (e) => {
+      const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+      if (moveDist > 5) return;
+
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(pointMeshes);
+
+      if (intersects.length > 0) {
+        const hitIdx = intersects[0].object.userData.pointIndex;
+        selectPoint(selectedIndex === hitIdx ? -1 : hitIdx);
+      } else {
+        selectPoint(-1);
+      }
+    });
+
+    // Project 3D Axis & Tick Anchor Coordinates to 2D Screen Labels
+    function updateAxisLabels() {
+      const anchors = [
+        { id: 'lbl-x1', vec: new THREE.Vector3(11.45, 0, 0) },
+        { id: 'lbl-x2', vec: new THREE.Vector3(0, 0, 11.45) },
+        { id: 'lbl-y',  vec: new THREE.Vector3(0, 11.35, 0) }
+      ];
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      anchors.forEach(a => {
+        const el = document.getElementById(a.id);
+        const proj = a.vec.clone().project(camera);
+        const x = (proj.x * 0.5 + 0.5) * width;
+        const y = (-(proj.y * 0.5) + 0.5) * height;
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+      });
+
+      tickAnchors.forEach(t => {
+        const proj = t.vec.clone().project(camera);
+        const x = (proj.x * 0.5 + 0.5) * width;
+        const y = (-(proj.y * 0.5) + 0.5) * height;
+        t.el.style.left = `${x}px`;
+        t.el.style.top = `${y}px`;
+      });
+    }
+
+    // Resize Handler
+    function onWindowResize() {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+    window.addEventListener('resize', onWindowResize);
+
+    // Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (camTargetPos) {
+        camera.position.lerp(camTargetPos, 0.12);
+        if (camera.position.distanceTo(camTargetPos) < 0.08) {
+          camTargetPos = null;
+        }
+      }
+
+      controls.update();
+      updateAxisLabels();
+      renderer.render(scene, camera);
+    }
+
+    // Initialize Application
+    onWindowResize();
+    loadDataset('high_r2');
+    animate();
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

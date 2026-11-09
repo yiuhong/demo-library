@@ -1,6 +1,6 @@
 # Association figures
 
-These PNGs are drawn by `generate_figures.py` with Matplotlib. They are black-on-white diagrams. Regenerate them from the repo root with `python3 tracks/images/association/generate_figures.py` (NumPy and Matplotlib).
+`01-correlation.png`, `02-ols.png`, `03-variance-explained.png`, and `04-additivity.png` are drawn by `generate_figures.py` with Matplotlib. They are black-on-white diagrams. Regenerate those four from the repo root with `python3 tracks/images/association/generate_figures.py` (NumPy and Matplotlib). `02b-multiple-regression.png` is a still of `statistics/multiple_regression_sst_ssm_sse.html` and is not redrawn by that script.
 
 ## Covariance and correlation
 
@@ -13,6 +13,10 @@ These PNGs are drawn by `generate_figures.py` with Matplotlib. They are black-on
 ## Ordinary least squares
 
 On the same cloud, the straight line is the ordinary least-squares fit: the intercept and slope that minimize the sum of squared vertical gaps. `SSE` is that minimum, `SSR` is the sum of squared distances from the fitted values to the mean of y, and `SST = SSR + SSE`. The figure is that line with the vertical gaps drawn. `statistics/ols_simple_linear_regression.html` is the same fit, with a candidate line you can move.
+
+## Multiple regression plane
+
+`statistics/multiple_regression_sst_ssm_sse.html` fits two predictors, so the surface is a plane `Ŷ = b₀ + b₁X₁ + b₂X₂` instead of a line. The total sum of squares still splits: `SST = SSM + SSE`, and `R² = SSM / SST`. `SSM` is the sum of squared distances from the fitted values to the mean of Y. `SSE` is the sum of squared vertical gaps from the observations to the plane. The still is the opening preset (high R²), with the plane, the observed points, the predicted points, and the three rods in view, plus the sum-of-squares panel.
 
 ## Variance explained
 

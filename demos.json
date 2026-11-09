@@ -419,6 +419,15 @@
               ]
             },
             {
+              "href": "statistics/multiple_regression_sst_ssm_sse.html",
+              "title": "Multiple Regression: SST = SSM + SSE",
+              "description": "A 3D partition of the total sum of squares into the part a regression plane explains and the part left as error.",
+              "keywords": "Multiple regression SST SSM SSE sum of squares R-squared regression plane two predictors OLS residuals explained error",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
               "href": "statistics/variance_explained.html",
               "title": "Variance Explained",
               "description": "How much of the variation is explained.",

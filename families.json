@@ -47,6 +47,10 @@
           "relation": "after"
         },
         {
+          "href": "statistics/multiple_regression_sst_ssm_sse.html",
+          "relation": "after"
+        },
+        {
           "href": "statistics/variance_explained.html",
           "relation": "after"
         },
