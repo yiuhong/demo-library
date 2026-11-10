@@ -2,8 +2,8 @@
  * One page for a Guided Tracks connection. Copy comes from tracks.json.
  * Stats demos use the light chrome. A neuroscience step swaps in the
  * dark demo theme before the note is shown.
- * Order under the title: note, Key points, formulae, what the
- * demonstration does, then the figure.
+ * Order under the title: note, Key points, formulae, In the next demo,
+ * what the demonstration does, then the figure.
  */
 
 .connection-wrap {
@@ -28,7 +28,8 @@
     line-height: 1.55;
 }
 
-.connection-key-points {
+.connection-key-points,
+.connection-next-demo {
     margin: 1.15rem 0 0;
     color: var(--demo-text, #000000);
     font-family: var(--demo-font, Arial, Helvetica, sans-serif);
@@ -57,7 +58,7 @@
 }
 
 .connection-demo {
-    margin: 0.9rem 0 0;
+    margin: 0.45rem 0 0;
     font-size: 1.02rem;
     line-height: 1.55;
 }
@@ -101,8 +102,8 @@ html.viz-embedded body.connection-page {
 
 /* A short shell pane (landscape tablet) keeps the whole figure, including
    axis labels, inside the iframe. The note scrolls inside the page when
-   the figure needs the remaining height. The Key points heading and the
-   demo line scroll with the note. */
+   the figure needs the remaining height. The Key points heading, the
+   In the next demo heading, and the demo line scroll with the note. */
 @media (max-height: 860px) {
     html.viz-embedded,
     html.viz-embedded body.connection-page {
@@ -136,7 +137,8 @@ html.viz-embedded body.connection-page {
         line-height: 1.45;
     }
 
-    html.viz-embedded .connection-key-points {
+    html.viz-embedded .connection-key-points,
+    html.viz-embedded .connection-next-demo {
         margin-top: 0.75rem;
         font-size: 1rem;
     }
