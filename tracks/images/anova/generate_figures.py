@@ -263,7 +263,7 @@ def draw_partition() -> None:
         linewidth=1.1,
         zorder=2,
     )
-    ax.text(df_a / 2.0, 0.48, "SS_A\ndf = 2", ha="center", va="bottom", fontsize=12)
+    ax.text(df_a / 2.0, 0.48, "$\\mathrm{SS}_{\\mathrm{A}}$\ndf = 2", ha="center", va="bottom", fontsize=12)
     ax.text(
         df_a + df_error / 2.0,
         0.48,
@@ -275,7 +275,7 @@ def draw_partition() -> None:
     ax.text(
         df_total / 2.0,
         -0.62,
-        "F = MS_A  /  MS of subjects within A",
+        "F = $\\mathrm{MS}_{\\mathrm{A}}$  /  MS of subjects within A",
         ha="center",
         va="top",
         fontsize=12,
@@ -841,7 +841,7 @@ def draw_paired_t_to_rm() -> None:
     for ax, stats in zip(axes, (weak, strong)):
         _paired_trajectories(ax, np.asarray(stats["pre"], dtype=float), np.asarray(stats["post"], dtype=float))
         ax.set_title(f"r = {float(stats['r']):.2f}")
-        ax.set_xlabel(f"s_D² = {_num(float(stats['s_d2']))}")
+        ax.set_xlabel("$\\mathrm{s}_{\\mathrm{D}}^{2}$ = " + _num(float(stats["s_d2"])))
     axes[0].set_ylabel("score")
     axes[1].tick_params(labelleft=False)
     for ax, stats in zip(bars, (weak, strong)):

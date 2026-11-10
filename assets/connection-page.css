@@ -57,6 +57,33 @@
     white-space: pre-wrap;
 }
 
+/* sub and sup stay on the line box. The shift is visual only, so a
+ * multi-letter subscript does not open a gap between formula rows. */
+.connection-note sub,
+.connection-note sup,
+.connection-formulae sub,
+.connection-formulae sup,
+.connection-demo sub,
+.connection-demo sup {
+    font-family: inherit;
+    font-size: 0.75em;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+.connection-note sub,
+.connection-formulae sub,
+.connection-demo sub {
+    top: 0.35em;
+}
+
+.connection-note sup,
+.connection-formulae sup,
+.connection-demo sup {
+    top: -0.55em;
+}
+
 .connection-demo {
     margin: 0.45rem 0 0;
     font-size: 1.02rem;

@@ -8,6 +8,9 @@
  * demonstration does. Key points shows only when formulae are present.
  * In the next demo shows only when the demo description is present.
  * The figure shows only when the image path and its alt text are both valid.
+ * A trailing _word, _word(note), _{word}, ^word, or ^{word} in the note,
+ * the formulae, or the demo description is drawn as sub or sup. The source
+ * stays plain text. Keep that grammar in step with check_catalog.py.
  */
 (function () {
     var root = document.getElementById("connection-root");
@@ -121,6 +124,110 @@
         return text;
     }
 
+    function isSubscriptChar(ch) {
+        if (ch === "×") return true;
+        var code = ch.charCodeAt(0);
+        if (code >= 48 && code <= 57) return true;
+        if (code >= 65 && code <= 90) return true;
+        if (code >= 97 && code <= 122) return true;
+        if (code >= 0x00C0 && code <= 0x024F) return true;
+        if (code >= 0x0370 && code <= 0x03FF) return true;
+        return false;
+    }
+
+    function isSuperscriptChar(ch) {
+        var code = ch.charCodeAt(0);
+        if (code >= 48 && code <= 57) return true;
+        if (code >= 65 && code <= 90) return true;
+        if (code >= 97 && code <= 122) return true;
+        if (code >= 0x00C0 && code <= 0x024F) return true;
+        if (code >= 0x0370 && code <= 0x03FF) return true;
+        return false;
+    }
+
+    function readBraced(text, open) {
+        var close = text.indexOf("}", open + 1);
+        if (close <= open + 1) return null;
+        return { body: text.slice(open + 1, close), next: close + 1 };
+    }
+
+    function readSubscript(text, start) {
+        var i = start;
+        var saw = false;
+        while (i < text.length) {
+            var ch = text.charAt(i);
+            if (ch === "(") {
+                var depth = 1;
+                var j = i + 1;
+                while (j < text.length && depth > 0) {
+                    var inner = text.charAt(j);
+                    if (inner === "(") depth += 1;
+                    else if (inner === ")") depth -= 1;
+                    j += 1;
+                }
+                if (depth !== 0) break;
+                i = j;
+                saw = true;
+                continue;
+            }
+            if (!isSubscriptChar(ch)) break;
+            i += 1;
+            saw = true;
+        }
+        if (!saw) return null;
+        return { body: text.slice(start, i), next: i };
+    }
+
+    function readSuperscript(text, start) {
+        var i = start;
+        while (i < text.length && isSuperscriptChar(text.charAt(i))) i += 1;
+        if (i === start) return null;
+        return { body: text.slice(start, i), next: i };
+    }
+
+    /* Plain text only. sub and sup are created here; their contents are
+     * text nodes, never parsed as markup. */
+    function appendNotation(parent, text) {
+        var i = 0;
+        while (i < text.length) {
+            var subAt = text.indexOf("_", i);
+            var supAt = text.indexOf("^", i);
+            var at = -1;
+            var kind = "";
+            if (subAt !== -1 && (supAt === -1 || subAt < supAt)) {
+                at = subAt;
+                kind = "sub";
+            } else if (supAt !== -1) {
+                at = supAt;
+                kind = "sup";
+            }
+            if (at === -1) {
+                if (i < text.length) parent.appendChild(document.createTextNode(text.slice(i)));
+                return;
+            }
+            if (at > i) parent.appendChild(document.createTextNode(text.slice(i, at)));
+            var marked = null;
+            if (text.charAt(at + 1) === "{") marked = readBraced(text, at + 1);
+            else if (kind === "sub") marked = readSubscript(text, at + 1);
+            else marked = readSuperscript(text, at + 1);
+            if (!marked) {
+                parent.appendChild(document.createTextNode(text.charAt(at)));
+                i = at + 1;
+                continue;
+            }
+            var node = document.createElement(kind === "sub" ? "sub" : "sup");
+            node.textContent = marked.body;
+            parent.appendChild(node);
+            i = marked.next;
+        }
+    }
+
+    function prose(tag, className, text) {
+        var node = el(tag, className);
+        appendNotation(node, text);
+        return node;
+    }
+
     function render(step) {
         var heading = connectionTitleOf(step.connectionTitle);
         var note = proseOf(step.note, 4000);
@@ -145,14 +252,14 @@
             root.appendChild(header);
         }
         var lead = el("div", "connection-lead");
-        if (note) lead.appendChild(el("p", "connection-note", note));
+        if (note) lead.appendChild(prose("p", "connection-note", note));
         if (formulae.length) {
             var points = el("h2", "connection-key-points", "Key points");
             points.id = "connection-key-points";
             var list = el("ul", "connection-formulae");
             list.setAttribute("aria-labelledby", "connection-key-points");
             formulae.forEach(function (formula) {
-                list.appendChild(el("li", null, formula));
+                list.appendChild(prose("li", null, formula));
             });
             lead.appendChild(points);
             lead.appendChild(list);
@@ -171,7 +278,7 @@
             var nextDemo = el("h2", "connection-next-demo", "In the next demo");
             nextDemo.id = "connection-next-demo";
             root.appendChild(nextDemo);
-            root.appendChild(el("p", "connection-demo", demo));
+            root.appendChild(prose("p", "connection-demo", demo));
         }
     }
 

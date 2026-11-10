@@ -2648,7 +2648,17 @@
           x: mL + w / 2, y: mT + h + 24, "text-anchor": "middle",
           fill: PAL.text, "font-size": "11px", "font-weight": "600"
         });
-        xLbl.textContent = "Predictor (X_i) vs. Candidate Residual (e_i)";
+        function appendAxisSub(parent, base, sub) {
+          parent.appendChild(document.createTextNode(base));
+          const mark = createSvgEl("tspan", { "baseline-shift": "sub", "font-size": "75%" });
+          mark.textContent = sub;
+          parent.appendChild(mark);
+        }
+        xLbl.appendChild(document.createTextNode("Predictor ("));
+        appendAxisSub(xLbl, "X", "i");
+        xLbl.appendChild(document.createTextNode(") vs. Candidate Residual ("));
+        appendAxisSub(xLbl, "e", "i");
+        xLbl.appendChild(document.createTextNode(")"));
         residSvg.appendChild(xLbl);
 
         const orthEl = document.getElementById("residOrthogStats");
