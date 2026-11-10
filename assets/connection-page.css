@@ -2,8 +2,8 @@
  * One page for a Guided Tracks connection. Copy comes from tracks.json.
  * Stats demos use the light chrome. A neuroscience step swaps in the
  * dark demo theme before the note is shown.
- * Order under the title: note, Key points, formulae, In the next demo,
- * what the demonstration does, then the figure.
+ * Order under the title: note, Key points, formulae, the figure,
+ * In the next demo, what the demonstration does.
  */
 
 .connection-wrap {
@@ -100,10 +100,11 @@ html.viz-embedded body.connection-page {
     overflow-x: clip;
 }
 
-/* A short shell pane (landscape tablet) keeps the whole figure, including
-   axis labels, inside the iframe. The note scrolls inside the page when
-   the figure needs the remaining height. The Key points heading, the
-   In the next demo heading, and the demo line scroll with the note. */
+/* A short shell pane scrolls as one column. The figure is not a flex item
+   that grows to fill leftover height: that growth had pushed In the next
+   demo below the pane, and a shrink-to-fit figure had covered the
+   formulae. The image scales down, axis labels included, and leaves room
+   under itself for that heading and the demo line. */
 @media (max-height: 860px) {
     html.viz-embedded,
     html.viz-embedded body.connection-page {
@@ -121,8 +122,6 @@ html.viz-embedded body.connection-page {
         width: 100%;
         max-width: none;
         overflow: auto;
-        display: flex;
-        flex-direction: column;
         padding: 0.7rem 0.85rem 0.8rem;
     }
 
@@ -144,10 +143,6 @@ html.viz-embedded body.connection-page {
     }
 
     html.viz-embedded .connection-figure {
-        flex: 1 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         margin-top: 0.65rem;
     }
 
@@ -155,8 +150,8 @@ html.viz-embedded body.connection-page {
         width: auto;
         max-width: 100%;
         height: auto;
-        max-height: calc(100vh - 5.5rem);
+        max-height: calc(100vh - 16rem);
         object-fit: contain;
-        object-position: center center;
+        object-position: center top;
     }
 }

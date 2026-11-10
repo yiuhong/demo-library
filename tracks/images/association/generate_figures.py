@@ -89,10 +89,10 @@ def _assert_text_readable(fig: plt.Figure) -> None:
                 raise SystemExit(f"overlapping text: {left!r} and {right!r}")
 
 
-def _save(fig: plt.Figure, name: str) -> None:
+def _save(fig: plt.Figure, name: str, dpi: float = 130) -> None:
     _assert_text_readable(fig)
     path = OUT / name
-    fig.savefig(path, dpi=130, bbox_inches="tight", pad_inches=0.22, facecolor="white")
+    fig.savefig(path, dpi=dpi, bbox_inches="tight", pad_inches=0.22, facecolor="white")
     plt.close(fig)
     print(f"wrote {name}")
 
@@ -211,6 +211,96 @@ def draw_ols() -> None:
     )
 
 
+def draw_multiple_regression() -> None:
+    """A fitted plane with vertical gaps. Not a still of the demonstration."""
+    rng = np.random.default_rng(21)
+    n = 18
+    x1 = rng.uniform(0.8, 7.2, n)
+    x2 = rng.uniform(0.8, 7.2, n)
+    # A different tilt from the demonstration's opening preset.
+    y = 2.2 + 0.32 * x1 + 0.55 * x2 + rng.normal(0.0, 0.62, n)
+    design = np.column_stack([np.ones(n), x1, x2])
+    coef, *_ = np.linalg.lstsq(design, y, rcond=None)
+    c0, c1, c2 = (float(value) for value in coef)
+    fitted = c0 + c1 * x1 + c2 * x2
+    sse = float(np.sum((y - fitted) ** 2))
+    if sse <= 0:
+        raise SystemExit(f"expected visible vertical gaps, got SSE {sse}")
+
+    fig = plt.figure(figsize=(8.2, 6.5))
+    ax = fig.add_subplot(111, projection="3d")
+    ax.computed_zorder = False
+
+    grid = np.linspace(0.0, 8.0, 7)
+    plane_x, plane_y = np.meshgrid(grid, grid)
+    plane_z = c0 + c1 * plane_x + c2 * plane_y
+    ax.plot_surface(
+        plane_x,
+        plane_y,
+        plane_z,
+        color="#efefef",
+        edgecolor="black",
+        linewidth=0.6,
+        shade=False,
+        alpha=1.0,
+        antialiased=True,
+        zorder=1,
+    )
+    for xv, zv, yv, yhat in zip(x1, x2, y, fitted):
+        ax.plot(
+            [xv, xv],
+            [zv, zv],
+            [min(yv, yhat), max(yv, yhat)],
+            color="black",
+            linewidth=0.75,
+            linestyle=(0, (0.8, 1.5)),
+            zorder=2,
+        )
+    ax.scatter(
+        x1,
+        x2,
+        y,
+        s=42,
+        facecolors="white",
+        edgecolors="black",
+        linewidths=1.0,
+        depthshade=False,
+        zorder=4,
+    )
+    ax.grid(False)
+    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+        axis.pane.set_facecolor((1, 1, 1, 0))
+        axis.pane.set_edgecolor("black")
+        axis.pane.set_alpha(0)
+        axis.line.set_color("black")
+    ax.tick_params(colors="black", labelsize=11, width=0.8, pad=2)
+    ax.set_xlim(0, 8)
+    ax.set_ylim(0, 8)
+    ax.set_zlim(2, 10)
+    ax.set_xticks([2, 4, 6])
+    ax.set_yticks([2, 4, 6])
+    ax.set_zticks([4, 6, 8, 10])
+    ax.set_xlabel("x₁", labelpad=8)
+    ax.set_ylabel("x₂", labelpad=8)
+    ax.set_zlabel("y", labelpad=8)
+    ax.set_title("Two predictors fit a plane", pad=6)
+    ax.view_init(elev=21, azim=-58)
+    ax.set_box_aspect((1.28, 1.22, 0.74), zoom=1.28)
+    ax.text2D(
+        0.0,
+        0.98,
+        "Ŷ = b₀ + b₁X₁ + b₂X₂",
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=12,
+        bbox={"facecolor": "white", "edgecolor": "black", "pad": 4},
+    )
+    fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=0.90)
+    _save(fig, "02b-multiple-regression.png", dpi=140)
+    print(f"  plane={c0:.3f}+{c1:.3f}*x1+{c2:.3f}*x2 sse={sse:.3f}")
+
+
 def draw_variance_explained() -> None:
     x, y = _cloud()
     stats = _association(x, y)
@@ -307,6 +397,7 @@ def main() -> None:
     _style()
     draw_correlation()
     draw_ols()
+    draw_multiple_regression()
     draw_variance_explained()
     draw_additivity()
     for stale in ("02-variance-explained.png", "03-additivity.png"):
