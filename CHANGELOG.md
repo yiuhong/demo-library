@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Guided Track connection notes and Key points typeset subscripts and superscripts. Pearson's r, the pooled and difference-score standard deviations, ANOVA mean squares and sums of squares, chi-square, and the Poisson count no longer show a raw underscore or `^{}`. The same notation on the paired-t figure labels is set as math text. The zero-spread note on Covariance and Correlation, and the residual-plot axis on Ordinary Least Squares, use the same subscript treatment. Meaning of each line is unchanged.
+
 ### Added
 
 - Multiple Regression, under Statistics → Association, with an Association track step after Ordinary Least Squares. Two predictors fit a plane, and the total sum of squares splits into model and error.

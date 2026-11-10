@@ -1390,7 +1390,11 @@
             if (!(sdX > 0) || !(sdY > 0)) {
                 const note = document.createElement("p");
                 note.className = "text-[11px] text-slate-500 text-center leading-relaxed";
-                note.textContent = "One variable has no spread, so there is no s_x s_y ceiling to divide by. r is shown as 0.";
+                note.append(document.createTextNode("One variable has no spread, so there is no "));
+                appendSdTerm(note, "x");
+                note.append(document.createTextNode(" "));
+                appendSdTerm(note, "y");
+                note.append(document.createTextNode(" ceiling to divide by. r is shown as 0."));
                 host.append(note);
                 placeStdTrack("std-fill-joint", "std-marker-joint", 0);
                 placeStdTrack("std-fill-r", "std-marker-r", 0);

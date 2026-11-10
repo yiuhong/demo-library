@@ -14,6 +14,7 @@ Reads ``demos.json``, ``tracks.json``, and ``families.json`` at the repo root:
 * the cite page has cite, license, reuse, credit, accessibility, and report sections, an ORCID link, and a per-demo example whose title matches demos.json
 * CITATION.cff matches the current version, and the cite page links the machine-readable citation
 * CHANGELOG.md and CONTRIBUTING.md are present, and the changelog names the current version
+* connection notes, formulae, and demo descriptions that use ``_`` or ``^`` are a subscript or superscript the connection page can draw, and that page builds ``sub`` / ``sup`` without ``innerHTML``
 
 Prints one line per problem and exits 1 when something is wrong. Exits 0 when
 every checked title and path is in place. GitHub Actions runs this on pull
@@ -81,6 +82,7 @@ def main(argv: list[str] | None = None) -> int:
             catalog_anchors(catalog),
         )
     check_map_page(problems)
+    check_connection_notation(problems)
 
     if problems:
         noun = "problem" if len(problems) == 1 else "problems"
@@ -1071,6 +1073,159 @@ def check_families(
             last = rank
         count += 1
     return count
+
+
+def _is_subscript_char(ch: str) -> bool:
+    if ch == "×":
+        return True
+    code = ord(ch)
+    if 48 <= code <= 57 or 65 <= code <= 90 or 97 <= code <= 122:
+        return True
+    if 0x00C0 <= code <= 0x024F or 0x0370 <= code <= 0x03FF:
+        return True
+    return False
+
+
+def _is_superscript_char(ch: str) -> bool:
+    code = ord(ch)
+    if 48 <= code <= 57 or 65 <= code <= 90 or 97 <= code <= 122:
+        return True
+    if 0x00C0 <= code <= 0x024F or 0x0370 <= code <= 0x03FF:
+        return True
+    return False
+
+
+def _read_braced(text: str, open_at: int) -> tuple[str, int] | None:
+    close = text.find("}", open_at + 1)
+    if close <= open_at + 1:
+        return None
+    return text[open_at + 1 : close], close + 1
+
+
+def _read_subscript(text: str, start: int) -> tuple[str, int] | None:
+    i = start
+    saw = False
+    while i < len(text):
+        ch = text[i]
+        if ch == "(":
+            depth = 1
+            j = i + 1
+            while j < len(text) and depth > 0:
+                if text[j] == "(":
+                    depth += 1
+                elif text[j] == ")":
+                    depth -= 1
+                j += 1
+            if depth != 0:
+                break
+            i = j
+            saw = True
+            continue
+        if not _is_subscript_char(ch):
+            break
+        i += 1
+        saw = True
+    if not saw:
+        return None
+    return text[start:i], i
+
+
+def _read_superscript(text: str, start: int) -> tuple[str, int] | None:
+    i = start
+    while i < len(text) and _is_superscript_char(text[i]):
+        i += 1
+    if i == start:
+        return None
+    return text[start:i], i
+
+
+def unparsed_notation(text: str) -> list[str]:
+    """Markers appendNotation would leave as a literal ``_`` or ``^``.
+
+    The grammar matches assets/connection-page.js. A well-formed
+    ``_word``, ``_word(note)``, ``_{word}``, ``^word``, or ``^{word}``
+    is not reported. This is not a snapshot of the formula text.
+    """
+    i = 0
+    bad: list[str] = []
+    while i < len(text):
+        sub_at = text.find("_", i)
+        sup_at = text.find("^", i)
+        if sub_at == -1 and sup_at == -1:
+            return bad
+        if sub_at != -1 and (sup_at == -1 or sub_at < sup_at):
+            at = sub_at
+            kind = "sub"
+        else:
+            at = sup_at
+            kind = "sup"
+        if text[at + 1 : at + 2] == "{":
+            marked = _read_braced(text, at + 1)
+        elif kind == "sub":
+            marked = _read_subscript(text, at + 1)
+        else:
+            marked = _read_superscript(text, at + 1)
+        if marked is None:
+            bad.append(text[max(0, at - 12) : at + 16])
+            i = at + 1
+            continue
+        i = marked[1]
+    return bad
+
+
+def check_connection_notation(problems: list[str]) -> None:
+    script = read_text(ROOT / "assets" / "connection-page.js")
+    if script is None:
+        problems.append("assets/connection-page.js: file not found")
+    else:
+        if "innerHTML" in script:
+            problems.append(
+                "assets/connection-page.js: do not assign connection copy with innerHTML"
+            )
+        for needle in (
+            "function appendNotation",
+            'createElement(kind === "sub" ? "sub" : "sup")',
+            'prose("p", "connection-note", note)',
+            'prose("li", null, formula)',
+            'prose("p", "connection-demo", demo)',
+        ):
+            if needle not in script:
+                problems.append(f"assets/connection-page.js: missing {needle}")
+    sheet = read_text(ROOT / "assets" / "connection-page.css")
+    if sheet is None or ".connection-formulae sub" not in sheet or ".connection-formulae sup" not in sheet:
+        problems.append("assets/connection-page.css: formula sub and sup need a line-box tweak")
+
+    tracks, error = load_json(TRACKS_PATH)
+    entries = None if error else track_entries(tracks)
+    if entries is None:
+        return
+    fields = ("note", "demoDescription")
+    for track in entries:
+        if not isinstance(track, dict):
+            continue
+        track_name = label(track.get("id")) or label(track.get("title")) or "track"
+        steps = track.get("steps")
+        if not isinstance(steps, list):
+            continue
+        for step_index, step in enumerate(steps, start=1):
+            if not isinstance(step, dict):
+                continue
+            place = f"tracks.json: track {track_name!r}: step {step_index}"
+            samples: list[tuple[str, str]] = []
+            for field in fields:
+                value = step.get(field)
+                if isinstance(value, str) and value:
+                    samples.append((field, value))
+            formulae = step.get("formulae")
+            if isinstance(formulae, list):
+                for item_index, item in enumerate(formulae, start=1):
+                    if isinstance(item, str) and item:
+                        samples.append((f"formulae[{item_index}]", item))
+            for field, text in samples:
+                for snippet in unparsed_notation(text):
+                    problems.append(
+                        f"{place}: {field} has an unparsed _ or ^ near {snippet!r}"
+                    )
 
 
 def check_map_page(problems: list[str]) -> None:
