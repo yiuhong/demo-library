@@ -5,7 +5,8 @@ Reads ``demos.json``, ``tracks.json``, and ``families.json`` at the repo root:
 
 * each demo has a non-empty title and href, and that href is a file in the repo
 * each track step has a non-empty title and href, and that href is a file in the repo
-* each track step with a note, formulae, or image has a short connectionTitle that is not the word Connection
+* each track step with a note, formulae, demo description, or image has a short connectionTitle that is not the word Connection
+* each connection page has a short demoDescription for what that demonstration does
 * each track step image, when set, is a file in the repo
 * each concept map names catalog demos by href (titles stay in demos.json), in before / backbone / after order, and opts into the tracks page (hub) or a real catalog section
 * LICENSE states CC BY 4.0 for content and MIT for code, and LICENSE-CODE is the MIT text
@@ -216,6 +217,7 @@ def check_tracks(data: object, problems: list[str]) -> tuple[int, int]:
                 if reason:
                     problems.append(f"{place}: href {href!r} {reason}")
             check_connection_title(step, place, problems)
+            check_demo_description(step, place, problems)
             if "image" not in step or step["image"] is None:
                 continue
             image_count += 1
@@ -236,14 +238,30 @@ CONNECTION_LABEL = re.compile(
 )
 
 
-def step_has_connection(step: dict) -> bool:
-    if label(step.get("note")):
-        return True
+DEMO_DESCRIPTION_LIMIT = 500
+
+
+def demo_text(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    return text or None
+
+
+def step_has_formulae(step: dict) -> bool:
     formulae = step.get("formulae")
-    if isinstance(formulae, list) and any(label(item) for item in formulae):
-        return True
+    return isinstance(formulae, list) and any(label(item) for item in formulae)
+
+
+def step_has_image(step: dict) -> bool:
     image = step.get("image")
     return isinstance(image, str) and bool(image.strip())
+
+
+def step_has_connection(step: dict) -> bool:
+    if label(step.get("note")) or demo_text(step.get("demoDescription")):
+        return True
+    return step_has_formulae(step) or step_has_image(step)
 
 
 def connection_title_problem(value: object) -> str | None:
@@ -270,7 +288,34 @@ def check_connection_title(step: dict, place: str, problems: list[str]) -> None:
         problems.append(f"{place}: {problem}")
     elif not has_content:
         problems.append(
-            f"{place}: connectionTitle is set but this step has no note, formulae, or image"
+            f"{place}: connectionTitle is set but this step has no note, formulae, demo description, or image"
+        )
+
+
+def connection_page(step: dict) -> bool:
+    """True when the step opens a connection page, even before its blurb is written."""
+    return bool(
+        label(step.get("note"))
+        or label(step.get("connectionTitle"))
+        or step_has_formulae(step)
+        or step_has_image(step)
+        or demo_text(step.get("demoDescription"))
+    )
+
+
+def check_demo_description(step: dict, place: str, problems: list[str]) -> None:
+    """The blurb after the formulae says what that step's demonstration does."""
+    if "demoDescription" not in step:
+        if connection_page(step):
+            problems.append(f"{place}: demoDescription is missing")
+        return
+    text = demo_text(step.get("demoDescription"))
+    if text is None:
+        problems.append(f"{place}: demoDescription is missing or empty")
+        return
+    if len(text) > DEMO_DESCRIPTION_LIMIT:
+        problems.append(
+            f"{place}: demoDescription is longer than {DEMO_DESCRIPTION_LIMIT} characters"
         )
 
 

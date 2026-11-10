@@ -2,6 +2,8 @@
  * One page for a Guided Tracks connection. Copy comes from tracks.json.
  * Stats demos use the light chrome. A neuroscience step swaps in the
  * dark demo theme before the note is shown.
+ * Order under the title: note, Key points, formulae, what the
+ * demonstration does, then the figure.
  */
 
 .connection-wrap {
@@ -26,9 +28,19 @@
     line-height: 1.55;
 }
 
+.connection-key-points {
+    margin: 1.15rem 0 0;
+    color: var(--demo-text, #000000);
+    font-family: var(--demo-font, Arial, Helvetica, sans-serif);
+    font-size: 1.12rem;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+}
+
 .connection-formulae {
     list-style: none;
-    margin: 1rem 0 0;
+    margin: 0.45rem 0 0;
     padding: 0.7rem 0.9rem;
     background: var(--demo-card, #ffffff);
     border: 1px solid var(--demo-border, #000000);
@@ -42,6 +54,12 @@
     font-size: 0.92rem;
     line-height: 1.45;
     white-space: pre-wrap;
+}
+
+.connection-demo {
+    margin: 0.9rem 0 0;
+    font-size: 1.02rem;
+    line-height: 1.55;
 }
 
 .connection-figure {
@@ -83,7 +101,8 @@ html.viz-embedded body.connection-page {
 
 /* A short shell pane (landscape tablet) keeps the whole figure, including
    axis labels, inside the iframe. The note scrolls inside the page when
-   the figure needs the remaining height. */
+   the figure needs the remaining height. The Key points heading and the
+   demo line scroll with the note. */
 @media (max-height: 860px) {
     html.viz-embedded,
     html.viz-embedded body.connection-page {
@@ -111,9 +130,15 @@ html.viz-embedded body.connection-page {
         padding: 0.75rem 0.95rem;
     }
 
-    html.viz-embedded .connection-note {
+    html.viz-embedded .connection-note,
+    html.viz-embedded .connection-demo {
         font-size: 0.95rem;
         line-height: 1.45;
+    }
+
+    html.viz-embedded .connection-key-points {
+        margin-top: 0.75rem;
+        font-size: 1rem;
     }
 
     html.viz-embedded .connection-figure {

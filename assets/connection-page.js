@@ -2,8 +2,10 @@
  * Renders one Guided Tracks connection from tracks.json.
  * Address: tracks/connection.html?track=<id>&step=<index>
  * step= is the zero-based index of the demonstration this page introduces.
- * The heading is that step's connectionTitle. The note, formulae, and
- * figure stay in tracks.json.
+ * The heading is that step's connectionTitle. The note, the Key points
+ * heading and formulae, the demo description, and the figure stay in
+ * tracks.json. Order: title, note, Key points, formulae, what the
+ * demonstration does, then the figure.
  */
 (function () {
     var root = document.getElementById("connection-root");
@@ -110,10 +112,17 @@
         return title;
     }
 
+    function proseOf(raw, limit) {
+        if (typeof raw !== "string") return "";
+        var text = raw.trim();
+        if (text.length > limit) text = text.slice(0, limit);
+        return text;
+    }
+
     function render(step) {
         var heading = connectionTitleOf(step.connectionTitle);
-        var note = typeof step.note === "string" ? step.note.trim() : "";
-        if (note.length > 4000) note = note.slice(0, 4000);
+        var note = proseOf(step.note, 4000);
+        var demo = proseOf(step.demoDescription, 500);
         var image = safeImagePath(step.image);
         var imageAlt = typeof step.imageAlt === "string" ? step.imageAlt.trim() : "";
         if (!image || !imageAlt) {
@@ -121,7 +130,7 @@
             imageAlt = "";
         }
         var formulae = formulaeOf(step.formulae);
-        if (!heading && !note && !image && !formulae.length) {
+        if (!heading && !note && !demo && !image && !formulae.length) {
             showStatus("This page was not found.");
             return;
         }
@@ -135,13 +144,17 @@
         }
         if (note) root.appendChild(el("p", "connection-note", note));
         if (formulae.length) {
+            var points = el("h2", "connection-key-points", "Key points");
+            points.id = "connection-key-points";
+            root.appendChild(points);
             var list = el("ul", "connection-formulae");
-            list.setAttribute("aria-label", "Formulae");
+            list.setAttribute("aria-labelledby", "connection-key-points");
             formulae.forEach(function (formula) {
                 list.appendChild(el("li", null, formula));
             });
             root.appendChild(list);
         }
+        if (demo) root.appendChild(el("p", "connection-demo", demo));
         if (image) {
             var figure = el("figure", "connection-figure");
             var img = document.createElement("img");
