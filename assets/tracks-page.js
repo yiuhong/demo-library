@@ -7,9 +7,10 @@
  * Each topic has a small animated plate on that overview, and again
  * above its own tree.
  * Choosing a track replaces the rail with the playlist: when a step has
- * a note, formulae, or figure, its connectionTitle is a link immediately
- * before that demonstration. The link opens tracks/connection.html, which
- * reads the same step from tracks.json. step= is that step's index.
+ * a note, formulae, a demo description, or a figure, its connectionTitle
+ * is a link immediately before that demonstration. The link opens
+ * tracks/connection.html, which reads the same step from tracks.json.
+ * step= is that step's index.
  * Back returns to the focused topic, or to the full overview.
  * A phone shows the tree in the rail first, then the playlist, then the
  * demonstration. Family concept maps stay in families.json and are not
@@ -88,6 +89,8 @@
         var href = window.ProjectVizMaps.safeHref(raw.href);
         if (!title || !href) return null;
         var note = typeof raw.note === "string" ? raw.note.trim() : "";
+        var demoDescription = typeof raw.demoDescription === "string" ? raw.demoDescription.trim() : "";
+        if (demoDescription.length > 500) demoDescription = demoDescription.slice(0, 500);
         var connectionTitle = connectionTitleOf(raw.connectionTitle);
         var image = safeImagePath(raw.image);
         var imageAlt = typeof raw.imageAlt === "string" ? raw.imageAlt.trim() : "";
@@ -100,6 +103,7 @@
             href: href,
             connectionTitle: connectionTitle,
             note: note,
+            demoDescription: demoDescription,
             image: image,
             imageAlt: imageAlt,
             formulae: normalizeFormulae(raw.formulae)
@@ -238,7 +242,7 @@
 
     function connectionItem(track, step, index) {
         if (!step.connectionTitle) return null;
-        if (!step.note && !step.image && !step.formulae.length) return null;
+        if (!step.note && !step.demoDescription && !step.image && !step.formulae.length) return null;
         var href = connectionHref(track, index);
         if (!href) return null;
         var item = el("li", "playlist-join");
