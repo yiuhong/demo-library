@@ -947,7 +947,7 @@ body.viz-app.is-expanded .viz-rail {
     display: none;
 }
 
-body.viz-app #footer.wrapper {
+body.viz-app #footer.viz-section {
     flex: 0 0 auto;
     margin: 0 !important;
     padding: 0 !important;
@@ -955,7 +955,7 @@ body.viz-app #footer.wrapper {
     background: var(--bg-base) !important;
 }
 
-body.viz-app #footer.wrapper > .inner {
+body.viz-app #footer.viz-section > .inner {
     width: 100% !important;
     max-width: none;
     padding: 0.35rem 0.85rem !important;

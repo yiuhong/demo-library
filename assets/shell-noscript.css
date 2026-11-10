@@ -5,7 +5,7 @@
  * use the fade.
  */
 
-.wrapper.fade-up > .inner {
+.viz-section.viz-fade-up > .inner {
     transform: none !important;
     opacity: 1 !important;
 }

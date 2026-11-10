@@ -47,13 +47,13 @@ html.viz-notebook body.viz-home,
 html.viz-notebook body.viz-home #wrapper,
 html.viz-notebook body.viz-home #intro,
 html.viz-notebook body.viz-home #colophon,
-html.viz-notebook body.viz-home .wrapper,
+html.viz-notebook body.viz-home .viz-section,
 html.viz-notebook body.viz-home .inner,
 html.viz-notebook body.viz-app,
 html.viz-notebook body.viz-app .viz-workspace,
 html.viz-notebook body.viz-app .viz-rail,
 html.viz-notebook body.viz-app .viz-pane,
-html.viz-notebook body.viz-app #footer.wrapper {
+html.viz-notebook body.viz-app #footer.viz-section {
     background-color: transparent !important;
     background-image: none !important;
 }
@@ -204,7 +204,7 @@ html.viz-notebook .sub-category-section {
 
 html.viz-notebook body.viz-home #footer,
 html.viz-notebook body.viz-home #footer .inner,
-html.viz-notebook body.viz-app #footer.wrapper,
+html.viz-notebook body.viz-app #footer.viz-section,
 html.viz-notebook body.viz-app #footer .inner {
     background-color: var(--notebook-paper) !important;
     background-image: none !important;

@@ -68,7 +68,9 @@
     });
 
     var libraryFooter = document.getElementById("footer");
-    if (libraryFooter && libraryFooter.classList.contains("wrapper")) return;
+    // Library pages mark #footer with viz-section. Demonstrations do not,
+    // so they receive the short cite strip.
+    if (libraryFooter && libraryFooter.classList.contains("viz-section")) return;
 
     if (assetsDir && !document.querySelector('link[href*="site-oer-footer.css"]')) {
         var sheet = document.createElement("link");
