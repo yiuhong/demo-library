@@ -1,6 +1,7 @@
 /*
  * Home page. A short hero and one featured plate. The plate cycles
- * three existing demonstrations. Motion stays in the figure.
+ * three existing demonstrations. Each plate reads title, description,
+ * figure, then Open the demo. Motion stays in the figure.
  * The menu is the shared .viz-topbar from shell.css. This page scrolls.
  * It is not the Catalog two-pane shell.
  */
@@ -103,7 +104,7 @@ a.home-cta:focus-visible {
 }
 
 .home-frame {
-    margin: 0 0 0.95rem 0;
+    margin: 0 0 0.85rem 0;
     padding: 0.85rem 0.95rem 0.75rem;
     border: 1px solid #dedede;
     border-radius: 2px;
@@ -127,7 +128,7 @@ a.home-cta:focus-visible {
 
 p.home-hook {
     max-width: 36rem;
-    margin: 0 0 0.85rem 0;
+    margin: 0 0 0.95rem 0;
     color: #222222 !important;
 }
 
