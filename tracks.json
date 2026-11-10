@@ -444,7 +444,9 @@
             "Within-conditions = Subjects + Residual",
             "SS Residual = (N − 1) s_D² / 2",
             "for k = 2, t² = F"
-          ]
+          ],
+          "image": "tracks/images/anova/01b-paired-t-to-rm-anova.png",
+          "imageAlt": "Two panels with the same six pre heights and the same six post heights. Filled circles mark pre and open circles mark post, and a short horizontal line marks each timepoint mean, 10 and 14. At r = 0.00 the lines cross, s_D² = 40.5, and a bar of within-conditions 202.5 splits into hatched subjects 101.25 and open residual 101.25. At r = 0.90 four lines are parallel and two cross, s_D² = 4.05, and that bar is subjects 192.375 with a thin residual of 10.125."
         },
         {
           "href": "statistics/partitioning_sum_of_squares_anova.html",

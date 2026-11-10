@@ -67,6 +67,25 @@ MIXED_U = np.array([-1.264911064, -0.632455532, 0.0, 0.632455532, 1.264911064])
 MIXED_VA = np.array([0.632455532, -1.264911064, 1.264911064, -0.632455532, 0.0])
 MIXED_VB = np.array([-0.632455532, 1.264911064, -1.264911064, 0.0, 0.632455532])
 
+# Paired t to repeated measures. N, the two timepoint means, and the
+# within-time SD are the k = 2 margins in statistics/paired_t_to_rm_anova.html.
+# The correlations are that page's zero and high-positive presets.
+PAIRED_N = 6
+PAIRED_MEAN_PRE = 10.0
+PAIRED_MEAN_POST = 14.0
+PAIRED_SD = 4.5
+PAIRED_R_WEAK = 0.0
+PAIRED_R_STRONG = 0.90
+# One set of deviations from a timepoint mean: sum 0, sum of squares 101.25,
+# so the sample SD is 4.5. Both panels use these same six heights. Only the
+# pairing changes. WEAK_PAIR is a crossing match (r = 0). STRONG_PAIR keeps
+# rank and swaps the two middle people (r = 0.90).
+PAIRED_DEV = np.array(
+    [-5.9276316101, -3.5773703665, -1.5791448239, 1.6028356914, 3.4551218223, 6.0261892868]
+)
+PAIRED_WEAK_PAIR = np.array([2, 4, 0, 5, 3, 1])
+PAIRED_STRONG_PAIR = np.array([0, 1, 3, 2, 4, 5])
+
 
 def _style() -> None:
     plt.rcParams.update(
@@ -621,9 +640,234 @@ def draw_assumptions() -> None:
     )
 
 
+def _min_gap(values: np.ndarray) -> float:
+    ordered = np.sort(np.asarray(values, dtype=float))
+    return float(np.min(np.diff(ordered)))
+
+
+def _crossings(pre: np.ndarray, post: np.ndarray) -> int:
+    count = 0
+    for i in range(len(pre)):
+        for j in range(i + 1, len(pre)):
+            if (pre[i] - pre[j]) * (post[i] - post[j]) < 0:
+                count += 1
+    return count
+
+
+def _paired_scores(correlation: float, order: np.ndarray) -> dict[str, float | np.ndarray]:
+    """Same six heights at pre and at post, paired by `order`.
+
+    post deviations are PAIRED_DEV[order], so the marginal scatter does not
+    depend on the correlation. `order` is a permutation of 0..5.
+    """
+    if sorted(int(i) for i in order) != list(range(PAIRED_N)):
+        raise SystemExit(f"pairing is not a permutation: {order}")
+    pre = PAIRED_MEAN_PRE + PAIRED_DEV
+    post = PAIRED_MEAN_POST + PAIRED_DEV[np.asarray(order, dtype=int)]
+    n = len(pre)
+    if n != PAIRED_N:
+        raise SystemExit(f"expected {PAIRED_N} subjects, got {n}")
+    mean_pre = float(pre.mean())
+    mean_post = float(post.mean())
+    s1 = float(pre.std(ddof=1))
+    s2 = float(post.std(ddof=1))
+    covariance = float(np.dot(pre - mean_pre, post - mean_post) / (n - 1))
+    r_hat = covariance / (s1 * s2)
+    diffs = post - pre
+    s_d2 = float(diffs.var(ddof=1))
+    formula_sd2 = s1**2 + s2**2 - 2.0 * r_hat * s1 * s2
+    grand = float(np.concatenate([pre, post]).mean())
+    subject_means = 0.5 * (pre + post)
+    ss_within = float(np.sum((pre - mean_pre) ** 2) + np.sum((post - mean_post) ** 2))
+    ss_subjects = float(2.0 * np.sum((subject_means - grand) ** 2))
+    ss_residual = ss_within - ss_subjects
+    ss_time = float(n * ((mean_pre - grand) ** 2 + (mean_post - grand) ** 2))
+    # k = 2: df_time = 1, df_residual = N − 1, df_within = 2(N − 1).
+    ms_time = ss_time / 1.0
+    ms_residual = ss_residual / (n - 1)
+    ms_within = ss_within / (2.0 * (n - 1))
+    f_rm = ms_time / ms_residual
+    f_indep = ms_time / ms_within
+    s_d = math.sqrt(s_d2)
+    t_stat = float(diffs.mean()) / (s_d / math.sqrt(n))
+    expected_sd2 = 2.0 * PAIRED_SD**2 * (1.0 - correlation)
+    expected_within = 2.0 * (n - 1) * PAIRED_SD**2
+    expected_subjects = (n - 1) * PAIRED_SD**2 * (1.0 + correlation)
+    expected_residual = (n - 1) * PAIRED_SD**2 * (1.0 - correlation)
+    checks = {
+        "mean_pre": (mean_pre, PAIRED_MEAN_PRE),
+        "mean_post": (mean_post, PAIRED_MEAN_POST),
+        "s1": (s1, PAIRED_SD),
+        "s2": (s2, PAIRED_SD),
+        "r": (r_hat, correlation),
+        "s_d2_formula": (s_d2, formula_sd2),
+        "s_d2": (s_d2, expected_sd2),
+        "ss_within": (ss_within, expected_within),
+        "ss_subjects": (ss_subjects, expected_subjects),
+        "ss_residual": (ss_residual, expected_residual),
+        "ss_partition": (ss_subjects + ss_residual, ss_within),
+        "ss_residual_from_sd": (ss_residual, (n - 1) * s_d2 / 2.0),
+        "ss_time": (ss_time, n * (PAIRED_MEAN_POST - PAIRED_MEAN_PRE) ** 2 / 2.0),
+        "t_squared": (t_stat**2, f_rm),
+    }
+    for name, (got, expected) in checks.items():
+        if abs(got - expected) > 1e-8:
+            raise SystemExit(f"paired {name}: got {got}, expected {expected}")
+    if float(pre.min()) < 2.0 or float(post.max()) > 22.0:
+        raise SystemExit(f"paired scores left the drawing range: {pre} {post}")
+    if _min_gap(pre) < 1.5 or _min_gap(post) < 1.5:
+        raise SystemExit("paired scores are too close to read as separate people")
+    if not np.allclose(np.sort(pre - PAIRED_MEAN_PRE), np.sort(post - PAIRED_MEAN_POST)):
+        raise SystemExit("pre and post should be the same six deviations")
+    # Keep the requested correlation. The sample value matches it, but a
+    # tiny negative residual would print as -0.00.
+    return {
+        "pre": pre,
+        "post": post,
+        "r": correlation,
+        "s_d2": s_d2,
+        "ss_within": ss_within,
+        "ss_subjects": ss_subjects,
+        "ss_residual": ss_residual,
+        "ss_time": ss_time,
+        "f_rm": f_rm,
+        "f_indep": f_indep,
+        "t": t_stat,
+    }
+
+
+def _num(value: float) -> str:
+    return f"{value:.4f}".rstrip("0").rstrip(".")
+
+
+def _paired_trajectories(ax: plt.Axes, pre: np.ndarray, post: np.ndarray) -> None:
+    for before, after in zip(pre, post):
+        ax.plot([0, 1], [before, after], color="black", linewidth=1.05, zorder=2)
+    ax.scatter(np.zeros(len(pre)), pre, s=28, c="black", zorder=3)
+    ax.scatter(
+        np.ones(len(post)),
+        post,
+        s=28,
+        facecolors="white",
+        edgecolors="black",
+        linewidths=0.9,
+        zorder=3,
+    )
+    for x, mean in ((0.0, PAIRED_MEAN_PRE), (1.0, PAIRED_MEAN_POST)):
+        ax.plot([x - 0.16, x + 0.16], [mean, mean], color="black", linewidth=1.7, zorder=4)
+    ax.set_xlim(-0.42, 1.42)
+    ax.set_xticks([0, 1], ["pre", "post"])
+    ax.set_ylim(0, 24)
+    ax.set_yticks([0, 5, 10, 15, 20])
+
+
+def _paired_bar(ax: plt.Axes, stats: dict[str, float | np.ndarray]) -> None:
+    within = float(stats["ss_within"])
+    subjects = float(stats["ss_subjects"])
+    residual = float(stats["ss_residual"])
+    if abs(subjects + residual - within) > 1e-8:
+        raise SystemExit("paired bar parts do not add to within-conditions")
+    ax.barh(
+        0,
+        subjects,
+        height=0.46,
+        facecolor="white",
+        edgecolor="black",
+        hatch="///",
+        linewidth=1.1,
+        zorder=2,
+    )
+    ax.barh(
+        0,
+        residual,
+        left=subjects,
+        height=0.46,
+        facecolor="white",
+        edgecolor="black",
+        linewidth=1.1,
+        zorder=2,
+    )
+    ax.text(subjects / 2.0, 0.40, f"subjects\n{_num(subjects)}", ha="center", va="bottom", fontsize=12)
+    residual_mid = subjects + residual / 2.0
+    # The strong-correlation slice is 5% of the bar, too narrow for a centered label.
+    if residual / within < 0.2:
+        ax.text(within, 0.40, f"residual\n{_num(residual)}", ha="right", va="bottom", fontsize=12)
+    else:
+        ax.text(residual_mid, 0.40, f"residual\n{_num(residual)}", ha="center", va="bottom", fontsize=12)
+    ax.set_xlim(-28, 232)
+    ax.set_xticks([0, within])
+    ax.set_xticklabels(["0", _num(within)])
+    ax.set_ylim(-0.85, 1.55)
+    ax.set_yticks([])
+    ax.set_xlabel("sum of squares")
+    ax.set_title(f"Within-conditions = {_num(within)}")
+
+
+def draw_paired_t_to_rm() -> None:
+    """Weaker vs stronger pre–post correlation, same within-time scatter.
+
+    A positive correlation shrinks s_D and SS residual, and enlarges SS
+    subjects. The two bars have the same total because the margins match.
+    """
+    weak = _paired_scores(PAIRED_R_WEAK, PAIRED_WEAK_PAIR)
+    strong = _paired_scores(PAIRED_R_STRONG, PAIRED_STRONG_PAIR)
+    if _crossings(np.asarray(weak["pre"]), np.asarray(weak["post"])) < 6:
+        raise SystemExit("r = 0 panel should be a crossing match")
+    if _crossings(np.asarray(strong["pre"]), np.asarray(strong["post"])) != 1:
+        raise SystemExit("r = 0.90 panel should cross once, the two middle people")
+    strong_change = np.asarray(strong["post"]) - np.asarray(strong["pre"])
+    n_parallel = int(np.sum(np.abs(strong_change - (PAIRED_MEAN_POST - PAIRED_MEAN_PRE)) < 1e-6))
+    if n_parallel != 4:
+        raise SystemExit(f"expected 4 parallel changes on the strong panel, got {n_parallel}")
+    if abs(float(weak["ss_within"]) - float(strong["ss_within"])) > 1e-8:
+        raise SystemExit("within-conditions should not depend on r")
+    if abs(float(weak["f_rm"]) - float(weak["f_indep"])) > 1e-8:
+        raise SystemExit("at r = 0 the paired and independent F should match")
+    if float(strong["f_rm"]) <= float(strong["f_indep"]):
+        raise SystemExit("positive correlation should raise the paired F above the independent F")
+    if float(strong["ss_residual"]) >= float(weak["ss_residual"]):
+        raise SystemExit("positive correlation should shrink SS residual")
+    if float(strong["ss_subjects"]) <= float(weak["ss_subjects"]):
+        raise SystemExit("positive correlation should enlarge SS subjects")
+    if f"{float(weak['r']):.2f}" != "0.00" or f"{float(strong['r']):.2f}" != "0.90":
+        raise SystemExit("correlation titles drifted")
+
+    fig = plt.figure(figsize=(8.6, 5.7), constrained_layout=True)
+    grid = fig.add_gridspec(2, 2, height_ratios=[1.45, 1.0])
+    axes = [fig.add_subplot(grid[0, 0]), fig.add_subplot(grid[0, 1])]
+    bars = [fig.add_subplot(grid[1, 0]), fig.add_subplot(grid[1, 1])]
+    axes[1].sharey(axes[0])
+    bars[1].sharex(bars[0])
+    for ax, stats in zip(axes, (weak, strong)):
+        _paired_trajectories(ax, np.asarray(stats["pre"], dtype=float), np.asarray(stats["post"], dtype=float))
+        ax.set_title(f"r = {float(stats['r']):.2f}")
+        ax.set_xlabel(f"s_D² = {_num(float(stats['s_d2']))}")
+    axes[0].set_ylabel("score")
+    axes[1].tick_params(labelleft=False)
+    for ax, stats in zip(bars, (weak, strong)):
+        _paired_bar(ax, stats)
+    fig.suptitle("Same within-time scatter", fontsize=13)
+    _save(fig, "01b-paired-t-to-rm-anova.png")
+    for label, stats in (("weak", weak), ("strong", strong)):
+        print(
+            "  {label} r={r:.2f} sD2={sd:.4f} subjects={sub:.4f} residual={res:.4f} "
+            "t²={t2:.4f} F={frm:.4f} Findep={fin:.4f}".format(
+                label=label,
+                r=float(stats["r"]),
+                sd=float(stats["s_d2"]),
+                sub=float(stats["ss_subjects"]),
+                res=float(stats["ss_residual"]),
+                t2=float(stats["t"]) ** 2,
+                frm=float(stats["f_rm"]),
+                fin=float(stats["f_indep"]),
+            )
+        )
+
+
 def main() -> None:
     _style()
     draw_t_to_anova()
+    draw_paired_t_to_rm()
     draw_partition()
     draw_two_way()
     draw_mixed()
