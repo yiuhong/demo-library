@@ -2,10 +2,11 @@
  * Renders one Guided Tracks connection from tracks.json.
  * Address: tracks/connection.html?track=<id>&step=<index>
  * step= is the zero-based index of the demonstration this page introduces.
- * The heading is that step's connectionTitle. The note, the Key points
- * heading and formulae, the demo description, and the figure stay in
- * tracks.json. Order: title, note, Key points, formulae, what the
- * demonstration does, then the figure.
+ * The heading is that step's connectionTitle. The note, formulae, demo
+ * description, and figure stay in tracks.json. Order: title, note,
+ * Key points, formulae, In the next demo, what the demonstration does,
+ * then the figure. Key points shows only when formulae are present.
+ * In the next demo shows only when the demo description is present.
  */
 (function () {
     var root = document.getElementById("connection-root");
@@ -154,7 +155,12 @@
             });
             root.appendChild(list);
         }
-        if (demo) root.appendChild(el("p", "connection-demo", demo));
+        if (demo) {
+            var nextDemo = el("h2", "connection-next-demo", "In the next demo");
+            nextDemo.id = "connection-next-demo";
+            root.appendChild(nextDemo);
+            root.appendChild(el("p", "connection-demo", demo));
+        }
         if (image) {
             var figure = el("figure", "connection-figure");
             var img = document.createElement("img");
