@@ -7,9 +7,11 @@
  * Page layout stays in shell.css, home.css, catalog.css, and the cite
  * and license pages. The notebook sheet stays in notebook.css.
  *
- * style1 and style1-alt remain on the markup as old panel hooks.
- * They no longer paint a colour. wrapper stays: the footer script uses
- * it to tell a library page from a demonstration.
+ * viz-section is the reading column. viz-section--alt marks the
+ * colophon and the library footer; it does not paint a different
+ * colour. viz-fade-up is the load fade on the intro. The footer
+ * script uses viz-section on #footer to tell a library page from
+ * a demonstration.
  */
 
 html {
@@ -191,12 +193,12 @@ ul li {
     padding-left: 0.25em;
 }
 
-.wrapper {
+.viz-section {
     position: relative;
     background: #ffffff;
 }
 
-.wrapper > .inner {
+.viz-section > .inner {
     box-sizing: border-box;
     width: 75em;
     max-width: 100%;
@@ -204,19 +206,19 @@ ul li {
 }
 
 @media screen and (max-width: 1680px) {
-    .wrapper > .inner {
+    .viz-section > .inner {
         padding: 4em 4em 2em;
     }
 }
 
 @media screen and (max-width: 1280px) {
-    .wrapper > .inner {
+    .viz-section > .inner {
         width: 100%;
     }
 }
 
 @media screen and (max-width: 736px) {
-    .wrapper > .inner {
+    .viz-section > .inner {
         padding: 3em 2em 1em;
     }
 }
@@ -287,13 +289,13 @@ input[type="search"] {
  * the noscript sheet shows the intro immediately.
  */
 
-.wrapper.fade-up > .inner {
+.viz-section.viz-fade-up > .inner {
     transform: translateY(0);
     opacity: 1;
     transition: opacity 1s ease, transform 1s ease;
 }
 
-body.is-preload .wrapper.fade-up > .inner {
+body.is-preload .viz-section.viz-fade-up > .inner {
     transform: translateY(1em);
     opacity: 0;
 }
@@ -306,8 +308,8 @@ body.is-preload *::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .wrapper.fade-up > .inner,
-    body.is-preload .wrapper.fade-up > .inner {
+    .viz-section.viz-fade-up > .inner,
+    body.is-preload .viz-section.viz-fade-up > .inner {
         transform: none;
         opacity: 1;
         transition: none;
