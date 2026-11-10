@@ -554,7 +554,7 @@
             "R² = SSM / SST"
           ],
           "image": "tracks/images/association/02b-multiple-regression.png",
-          "imageAlt": "Isometric view of a green regression plane above a grey mean plane. Blue spheres are observed outcomes and green diamonds are fitted values. Slate, green, and rose rods mark SST, SSM, and SSE. The side panel reads SST 51.75, SSM 49.22, SSE 2.53, and R² = 0.951."
+          "imageAlt": "Three-dimensional scatter of 18 open circles around a light gray fitted plane. Dotted vertical lines mark the gaps from the points to the plane. Axes are labeled x₁, x₂, and y. A boxed label reads Ŷ = b₀ + b₁X₁ + b₂X₂. The title reads Two predictors fit a plane."
         },
         {
           "href": "statistics/variance_explained.html",

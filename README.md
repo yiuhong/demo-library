@@ -130,10 +130,10 @@ Each track has:
 * `summary` — short overview of the path, kept in the file. The rail does not show this paragraph.
 * `steps` — ordered list. Each step has `href` (path from the site root, the same kind of path as a demo card, such as `statistics/central_limit_theorem.html`), `title` (short label; it can match the card title), and an optional `note`.
 
-Optional fields on a step. When a note, formulae, demo description, or image is set, the step also needs `connectionTitle`. The connection page renders, in order, the note, a Key points heading and the formulae when any formulae are set, an In the next demo heading and the demo description when that line is set, and the figure:
+Optional fields on a step. When a note, formulae, demo description, or image is set, the step also needs `connectionTitle`. The connection page renders, in order, the note, a Key points heading and the formulae when any formulae are set, the figure when an image is set, and an In the next demo heading and the demo description when that line is set:
 
 * `connectionTitle` — a few words to one short phrase that introduces the upcoming demonstration. It is taken from the note. It is the rail button label and the heading on the connection page. Do not use the word Connection as that label.
-* `demoDescription` — one or two short sentences on what that demonstration does. Plain text, not HTML. The page labels that line In the next demo. It sits after the formulae box, or after the note when the step has no formulae. A connection page needs this line.
+* `demoDescription` — one or two short sentences on what that demonstration does. Plain text, not HTML. The page labels that line In the next demo. It sits after the figure, or after the formulae box when the step has no figure, or after the note when the step has neither. A connection page needs this line.
 * `formulae` — array of plain-text formula strings. They are inserted as text, not as HTML. The page labels them Key points.
 * `image` — relative path from the site root, such as `tracks/images/describing-data/01-mean-median-mode.png`.
 * `imageAlt` — text alternative. Required when `image` is set. If the alt text is missing, or the path is not a relative image path, the image is left out.

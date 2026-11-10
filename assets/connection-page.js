@@ -4,9 +4,10 @@
  * step= is the zero-based index of the demonstration this page introduces.
  * The heading is that step's connectionTitle. The note, formulae, demo
  * description, and figure stay in tracks.json. Order: title, note,
- * Key points, formulae, In the next demo, what the demonstration does,
- * then the figure. Key points shows only when formulae are present.
+ * Key points, formulae, the figure, In the next demo, what the
+ * demonstration does. Key points shows only when formulae are present.
  * In the next demo shows only when the demo description is present.
+ * The figure shows only when the image path and its alt text are both valid.
  */
 (function () {
     var root = document.getElementById("connection-root");
@@ -143,24 +144,20 @@
             header.appendChild(el("h1", null, heading));
             root.appendChild(header);
         }
-        if (note) root.appendChild(el("p", "connection-note", note));
+        var lead = el("div", "connection-lead");
+        if (note) lead.appendChild(el("p", "connection-note", note));
         if (formulae.length) {
             var points = el("h2", "connection-key-points", "Key points");
             points.id = "connection-key-points";
-            root.appendChild(points);
             var list = el("ul", "connection-formulae");
             list.setAttribute("aria-labelledby", "connection-key-points");
             formulae.forEach(function (formula) {
                 list.appendChild(el("li", null, formula));
             });
-            root.appendChild(list);
+            lead.appendChild(points);
+            lead.appendChild(list);
         }
-        if (demo) {
-            var nextDemo = el("h2", "connection-next-demo", "In the next demo");
-            nextDemo.id = "connection-next-demo";
-            root.appendChild(nextDemo);
-            root.appendChild(el("p", "connection-demo", demo));
-        }
+        if (lead.childNodes.length) root.appendChild(lead);
         if (image) {
             var figure = el("figure", "connection-figure");
             var img = document.createElement("img");
@@ -170,6 +167,17 @@
             figure.appendChild(img);
             root.appendChild(figure);
         }
+        if (demo) {
+            var nextDemo = el("h2", "connection-next-demo", "In the next demo");
+            nextDemo.id = "connection-next-demo";
+            root.appendChild(nextDemo);
+            root.appendChild(el("p", "connection-demo", demo));
+        }
+    }
+
+    function fullyVisible(node, view) {
+        var box = node.getBoundingClientRect();
+        return box.height > 0 && box.top >= -1 && box.bottom <= view + 1;
     }
 
     function revealFigure() {
@@ -177,7 +185,17 @@
         var img = root.querySelector(".connection-figure img");
         if (!img || !img.scrollIntoView) return;
         var view = window.innerHeight || document.documentElement.clientHeight || 0;
-        if (!view || img.getBoundingClientRect().height <= view * 0.45) return;
+        if (!view) return;
+        var tail = root.querySelector(".connection-demo");
+        if (tail && tail.scrollIntoView) {
+            if (fullyVisible(img, view) && fullyVisible(tail, view)) return;
+            tail.scrollIntoView({ block: "end", inline: "nearest" });
+            if (!fullyVisible(img, view)) {
+                img.scrollIntoView({ block: "nearest", inline: "nearest" });
+            }
+            return;
+        }
+        if (img.getBoundingClientRect().height <= view * 0.45) return;
         img.scrollIntoView({ block: "end", inline: "nearest" });
     }
 

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- A Guided Tracks connection page shows the figure after the formulae and before **In the next demo**. The heading and the demo description still follow the figure, including in a short embedded pane: the note and the formulae scroll above that block so the figure, including its axis labels, and the closing line stay in view. The Multiple Regression connection figure is a line drawing of a fitted plane with vertical gaps, in place of a still of the demonstration.
 - Hub pages name their bands `viz-section`, `viz-section--alt`, and `viz-fade-up`. The old `wrapper`, `style1`, `style1-alt`, and `fade-up` class names are gone from Home, Catalog, Guided Tracks, Cite & reuse, and Licenses. The reading column, the footer, and the load fade look the same.
 - A Guided Tracks connection page puts an **In the next demo** heading immediately before `demoDescription`, when that line is present. It follows the formulae, or the note when a step has no formulae.
 - A Guided Tracks connection page puts a **Key points** heading immediately before the formulae, when that step has any, and a short `demoDescription` immediately after the box. The line says what that step’s demonstration does. It still follows the note when a step has no formulae. Where a note ended in a demonstration instruction, that sentence moved into the new line. The title, the note, and the figure stay in their places.
