@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fullscreen on Catalog and Guided Tracks still calls the browser Fullscreen API on the demo pane. The pane’s scroll height is measured while the embedded page is the pane’s own height. A demonstration that sizes itself from the viewport (100vh, 100%, or a canvas that follows its wrapper) no longer makes that iframe grow without bound. Covariance and Correlation was already stable. The Noematachograph, the probability distributions map, and the chi-square distribution were not: each kept reporting a taller page after the iframe grew, and the figure ran off without a limit. The enter control stays hidden under 480px.
+
 - Guided Track connection notes and Key points typeset subscripts and superscripts. Pearson's r, the pooled and difference-score standard deviations, ANOVA mean squares and sums of squares, chi-square, and the Poisson count no longer show a raw underscore or `^{}`. The same notation on the paired-t figure labels is set as math text. The zero-spread note on Covariance and Correlation, and the residual-plot axis on Ordinary Least Squares, use the same subscript treatment. Meaning of each line is unchanged.
 
 ### Added

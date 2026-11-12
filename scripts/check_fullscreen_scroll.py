@@ -67,6 +67,10 @@ def main() -> int:
     else:
         if "exitFullscreen" in scroll_fn or "setExpanded" in scroll_fn:
             problems.append("shell.js: scroll sync must not leave fullscreen")
+        if "pane.clientHeight" not in scroll_fn and "paneFillHeight" not in scroll_fn:
+            problems.append("shell.js: measure the demonstration at the pane height")
+        if "fsCommitted" not in scroll_fn:
+            problems.append("shell.js: do not chase scrollHeight after the iframe is the measured content height")
 
     for name in ("touchstart", "touchmove", "touchend", "touchcancel", "wheel"):
         if re.search(r"addEventListener\(\s*['\"]" + name, shell_js):

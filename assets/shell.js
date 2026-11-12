@@ -7,9 +7,11 @@
  * the connection before the demonstration. Fullscreen calls the browser
  * Fullscreen API on #viz-pane (the bar and the open demonstration).
  * While that pane is fullscreen it is the scrollport: the iframe is
- * laid out at the demonstration's content height, so a vertical swipe
- * scrolls. Exit, Back, and Escape leave it. document.exitFullscreen()
- * is not called for a scroll or a swipe. The enter control is hidden
+ * laid out at the demonstration's content height, measured while the
+ * iframe is the pane's own height, so a viewport-sized page does not
+ * grow the iframe. A vertical swipe scrolls. Exit, Back, and Escape
+ * leave it. document.exitFullscreen() is not called for a scroll or a
+ * swipe. The enter control is hidden
  * only under 480px. Phone shows the rail, then the page. A wider
  * phone shell still offers Fullscreen.
  * On Guided Tracks the desktop rail lists topics and the pane
@@ -372,6 +374,9 @@
             fsScrollObserver = null;
         }
         fsScrollBody = null;
+        fsFill = 0;
+        fsCommitted = 0;
+        fsProbed = false;
         if (frame) frame.style.height = "";
     }
 
@@ -410,11 +415,27 @@
      * scrolls inside the iframe, so the pane's own box does not, and
      * the swipe is not a scroll (on some mobile browsers it leaves
      * fullscreen). Size the iframe to the document while fullscreen.
-     * Exit, Back, and Escape still leave fullscreen. This does not.
-     * Orientation is not locked. Rotating drops a stale iframe height
-     * and measures again, so a tablet turned to landscape still scrolls. */
+     * Measure that height while the iframe is the pane's height. A
+     * page sized with 100vh, 100%, or a canvas that follows its
+     * wrapper reports a taller scrollHeight once the iframe grows,
+     * and chasing that number grows without bound. One later pass
+     * picks up content that arrived after the first measure (math,
+     * images). A second overflow after that is the viewport feeding
+     * back, and it is not chased. Exit, Back, and Escape still leave
+     * fullscreen. This does not. Orientation is not locked. Rotating
+     * drops a stale iframe height and measures again, so a tablet
+     * turned to landscape still scrolls. */
     var fsViewportW = 0;
     var fsViewportH = 0;
+    var fsFill = 0;
+    var fsCommitted = 0;
+    var fsProbed = false;
+
+    function paneFillHeight(pane) {
+        var chrome = pane.querySelector(".viz-pane-chrome");
+        var chromeH = chrome ? chrome.getBoundingClientRect().height : 0;
+        return Math.ceil(Math.max(0, pane.clientHeight - chromeH));
+    }
 
     function rememberFullscreenViewport() {
         fsViewportW = window.innerWidth;
@@ -431,18 +452,41 @@
         var doc = frameDocument();
         if (!doc || !doc.body) return;
         var scrolling = doc.scrollingElement || doc.documentElement;
+        var fill = paneFillHeight(pane);
+        if (fill < 1) return;
         fsScrollLock = true;
         try {
-            var overflow = scrolling.scrollHeight - scrolling.clientHeight;
-            if (overflow > 1) {
-                var next = Math.ceil(scrolling.scrollHeight) + "px";
-                if (frame.style.height !== next) frame.style.height = next;
-            } else if (!frame.style.height) {
-                var chrome = pane.querySelector(".viz-pane-chrome");
-                var chromeH = chrome ? chrome.getBoundingClientRect().height : 0;
-                var minH = Math.ceil(Math.max(0, pane.clientHeight - chromeH));
-                if (minH > 0) frame.style.height = minH + "px";
+            var current = Math.round(frame.getBoundingClientRect().height);
+            if (fill !== fsFill) {
+                fsFill = fill;
+                fsCommitted = 0;
+                fsProbed = false;
             }
+            if (fsCommitted && Math.abs(current - fsCommitted) <= 1) {
+                var extra = scrolling.scrollHeight - scrolling.clientHeight;
+                if (extra <= 1 || fsProbed) {
+                    if (frame.style.height !== fsCommitted + "px") frame.style.height = fsCommitted + "px";
+                    watchFullscreenBody(doc.body);
+                    return;
+                }
+                /* Content sticks out of the height we already chose.
+                   Measure it again at the pane height. If that passes
+                   the same number back, the rest is the viewport
+                   growing with the iframe, and the probe flag stops it. */
+                fsProbed = true;
+                fsCommitted = 0;
+                frame.style.height = fill + "px";
+                scheduleFullscreenScroll();
+                return;
+            }
+            if (Math.abs(current - fill) > 1) {
+                frame.style.height = fill + "px";
+                scheduleFullscreenScroll();
+                return;
+            }
+            var overflow = scrolling.scrollHeight - scrolling.clientHeight;
+            fsCommitted = overflow > 1 ? Math.ceil(scrolling.scrollHeight) : fill;
+            frame.style.height = fsCommitted + "px";
             watchFullscreenBody(doc.body);
         } finally {
             fsScrollLock = false;
@@ -471,6 +515,9 @@
         if (!frame || !pane || activeFullscreen() !== pane || hidesFullscreen()) return;
         if (window.innerWidth === fsViewportW && window.innerHeight === fsViewportH) return;
         rememberFullscreenViewport();
+        fsFill = 0;
+        fsCommitted = 0;
+        fsProbed = false;
         frame.style.height = "";
         syncFullscreenScroll();
     }
