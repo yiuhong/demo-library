@@ -1,0 +1,3052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+  <title>Multiple Regression and ANOVA Equivalence</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+  <script src="../assets/stats-viz-theme.js"></script>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    :root {
+      --ink-intercept: var(--viz-group-c);
+      --ink-x1: var(--viz-group-a);
+      --ink-x2: var(--viz-group-b);
+      --ink-interaction: var(--viz-median);
+      --ink-model: var(--viz-explained);
+      --ink-error: var(--viz-residual);
+      --ink-total: var(--viz-total);
+      --ink-reference: var(--viz-reference);
+      /* Role names kept for the stage markup. Each one is a palette token. */
+      --gold: var(--ink-intercept);
+      --cyan: var(--ink-x1);
+      --coral: var(--ink-x2);
+      --purple: var(--ink-interaction);
+      --emerald: var(--ink-model);
+      --crimson: var(--ink-error);
+      --text-main: var(--demo-text);
+      --text-muted: var(--ink-reference);
+      --border: var(--demo-border);
+      --radius: var(--demo-radius);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body.demo-page {
+      margin: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      color: #000000;
+    }
+
+    sub, sup {
+      font-size: 0.72em;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline;
+    }
+    sub { bottom: -0.22em; }
+    sup { top: -0.45em; }
+
+    .math-var {
+      font-family: "Cambria Math", "Times New Roman", Georgia, serif;
+      font-style: italic;
+    }
+    .math-up { font-style: normal; }
+    .math-display { display: inline; }
+
+    .ink-intercept { color: var(--ink-intercept); }
+    .ink-x1 { color: var(--ink-x1); }
+    .ink-x2 { color: var(--ink-x2); }
+    .ink-interaction { color: var(--ink-interaction); }
+    .ink-model { color: var(--ink-model); }
+    .ink-error { color: var(--ink-error); }
+    .ink-total { color: var(--ink-total); }
+    .ink-reference { color: var(--ink-reference); }
+    .ink-ink { color: #000000; }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    header {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+      padding: 8px 12px;
+      background: #ffffff;
+      background-image: none !important;
+      border-bottom: 1px solid #000000;
+      z-index: 5;
+    }
+
+    .brand {
+      margin: 0;
+      flex: 1 1 16rem;
+      font-size: 15px;
+      line-height: 1.3;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .stepper, .camera-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      background: #ffffff;
+      padding: 0;
+      border: none;
+    }
+
+    .step-btn, .cam-btn, .action-btn, .radio-pill {
+      background: #ffffff;
+      color: #000000;
+      border: 1px solid #000000;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    .step-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #000000;
+      color: #ffffff;
+      font-size: 11px;
+    }
+
+    .step-btn.active, .cam-btn.active, .action-btn.active, .radio-pill.active,
+    .step-btn:hover, .cam-btn:hover, .action-btn:hover, .radio-pill:hover {
+      background: #000000;
+      color: #ffffff;
+      border-color: #000000;
+    }
+
+    .step-btn.active .step-num {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .radio-pill.active, .radio-pill.active .math-var { color: #ffffff !important; }
+
+    button:focus-visible {
+      outline: 2px solid #000000;
+      outline-offset: 2px;
+    }
+
+    .workspace {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .viewport-container {
+      position: relative;
+      flex: 1 1 auto;
+      min-width: 0;
+      min-height: 0;
+      background: #ffffff !important;
+      background-image: none !important;
+      overflow: hidden;
+    }
+
+    #webgl-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #labels-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .label-3d {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #ffffff;
+      background-image: none !important;
+      border: 1px solid #000000;
+      border-left-width: 3px;
+      color: #000000;
+      white-space: nowrap;
+      box-shadow: none;
+    }
+
+    .hud-top-left, .hud-legend {
+      position: absolute;
+      z-index: 6;
+      background: #ffffff;
+      background-image: none !important;
+      border: 1px solid #000000;
+      color: #000000;
+    }
+
+    .hud-top-left {
+      top: 12px;
+      left: 12px;
+      max-width: min(520px, calc(100% - 24px));
+      max-height: 38%;
+      overflow: auto;
+      border-left-width: 4px;
+      border-radius: 0 4px 4px 0;
+      padding: 10px 12px;
+    }
+
+    .hud-stage-tag {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: none;
+      margin-bottom: 3px;
+    }
+
+    .hud-title {
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.35;
+      margin-bottom: 4px;
+    }
+
+    .hud-desc {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #000000;
+    }
+
+    .hud-legend {
+      left: 12px;
+      bottom: 12px;
+      max-width: calc(100% - 24px);
+      border-radius: 4px;
+      padding: 8px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      border: 1px solid #000000;
+      display: inline-block;
+      flex: 0 0 auto;
+    }
+
+    .sidebar {
+      flex: 0 0 clamp(280px, 34%, 380px);
+      width: clamp(280px, 34%, 380px);
+      min-height: 0;
+      overflow: auto;
+      overscroll-behavior: contain;
+      background: #ffffff;
+      background-image: none !important;
+      border-left: 1px solid #000000;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .card {
+      background: #ffffff;
+      background-image: none !important;
+      border: 1px solid #000000;
+      border-radius: 4px;
+      padding: 12px;
+      max-width: 100%;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #000000;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: none;
+      color: #000000;
+    }
+
+    .formula-box {
+      background: #ffffff;
+      border: 1px solid #000000;
+      border-radius: 4px;
+      padding: 10px 12px;
+      text-align: center;
+      margin-bottom: 8px;
+      overflow-x: auto;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
+    .param-grid { display: grid; gap: 6px; }
+    .param-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      background: var(--demo-panel);
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: 1px solid #000000;
+      border-left-width: 4px;
+    }
+    .param-row.gold { border-left-color: var(--ink-intercept); }
+    .param-row.cyan { border-left-color: var(--ink-x1); }
+    .param-row.coral { border-left-color: var(--ink-x2); }
+    .param-row.purple { border-left-color: var(--ink-interaction); }
+    .param-val {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .control-group { margin-bottom: 10px; }
+    .control-group:last-child { margin-bottom: 0; }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    body.demo-page input.slider-gold { accent-color: var(--ink-intercept) !important; }
+    body.demo-page input.slider-cyan { accent-color: var(--ink-x1) !important; }
+    body.demo-page input.slider-coral { accent-color: var(--ink-x2) !important; }
+    body.demo-page input.slider-purple { accent-color: var(--ink-interaction) !important; }
+    body.demo-page input.slider-emerald { accent-color: var(--ink-model) !important; }
+
+    .paired-sliders { display: flex; gap: 8px; }
+    .paired-sliders input[type="range"] { flex: 1 1 0; min-width: 0; }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .action-btn { flex: 1 1 8rem; }
+
+    .interaction-box, .morph-box {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      background: #ffffff;
+      border: 1px solid #000000;
+    }
+    .interaction-box { border-left: 4px solid var(--ink-interaction); }
+    .morph-box { border-left: 4px solid var(--ink-model); margin-top: 10px; }
+    .interaction-box-title, .morph-box-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: none;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .interaction-box-title { color: var(--ink-interaction); }
+    .morph-box-title { color: var(--ink-model); }
+
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .radio-pill { flex: 1 1 7rem; }
+
+    .ss-bar-outer {
+      width: 100%;
+      height: 22px;
+      display: flex;
+      border: 1px solid #000000;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+      background: #ffffff;
+    }
+    .ss-bar-model, .ss-bar-error {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #ffffff;
+      overflow: hidden;
+    }
+    .ss-bar-model { background: var(--viz-explained); }
+    .ss-bar-error { background: var(--viz-residual); }
+
+    table.stat-table, table.dummy-matrix {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    table.stat-table th, table.stat-table td,
+    table.dummy-matrix th, table.dummy-matrix td {
+      padding: 5px 6px;
+      text-align: right;
+      border-bottom: 1px solid #000000;
+      font-variant-numeric: tabular-nums;
+    }
+    table.stat-table th:first-child, table.stat-table td:first-child,
+    table.dummy-matrix th, table.dummy-matrix td { text-align: center; }
+    table.stat-table th:first-child, table.stat-table td:first-child { text-align: left; }
+    table.stat-table th, table.dummy-matrix th {
+      background: var(--demo-panel);
+      font-weight: 800;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .card { overflow-x: auto; }
+
+    .invariant-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #000000;
+      border: 1px solid #000000;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .impossible-row {
+      background: var(--viz-residual-soft);
+      color: var(--viz-null);
+      font-weight: 800;
+    }
+
+    .mismatch-banner {
+      display: none;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #000000;
+      background: var(--viz-group-c-soft);
+      border: 1px solid var(--ink-intercept);
+      padding: 8px;
+      border-radius: 4px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 960px) {
+      body.demo-page {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+      }
+      .workspace {
+        display: block;
+        height: auto;
+        overflow: visible;
+      }
+      .viewport-container {
+        height: 68vh;
+        min-height: 280px;
+        flex: none;
+      }
+      .sidebar {
+        width: 100%;
+        max-width: none;
+        flex: none;
+        height: auto;
+        overflow: visible;
+        border-left: none;
+        border-top: 1px solid #000000;
+      }
+    }
+
+    @media (max-width: 960px) and (max-height: 500px) {
+      .viewport-container {
+        height: 240px;
+        min-height: 200px;
+      }
+      .hud-desc { display: none; }
+      .hud-top-left { max-height: none; }
+      .hud-legend {
+        max-height: 4.2rem;
+        overflow: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .paired-sliders { flex-direction: column; }
+      .brand { flex-basis: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ss-bar-model, .ss-bar-error, .step-btn, .cam-btn, .action-btn, .radio-pill, .label-3d {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body class="demo-page">
+
+  <!-- TOP NAVIGATION BAR (4 CORE STAGES) -->
+  <header>
+    <h1 class="brand">Multiple Regression and ANOVA Equivalence</h1>
+
+    <div class="stepper">
+      <button class="step-btn active" onclick="setPage(1)" id="step-1">
+        <span class="step-num">1</span> Both Continuous
+      </button>
+      <button class="step-btn" onclick="setPage(2)" id="step-2">
+        <span class="step-num">2</span> 1 Cont + 1 Binary (ANCOVA)
+      </button>
+      <button class="step-btn" onclick="setPage(3)" id="step-3">
+        <span class="step-num">3</span> <span class="math-tex">Both Binary ($2 \times 2$ ANOVA)</span>
+      </button>
+      <button class="step-btn" onclick="setPage(4)" id="step-4">
+        <span class="step-num">4</span> Dummy Coding (One-Way ANOVA)
+      </button>
+    </div>
+
+    <div class="camera-bar">
+      <button class="cam-btn" onclick="animateCameraPreset('iso')" title="3D Isometric Orbit">3D Orbit</button>
+      <button class="cam-btn math-tex" onclick="animateCameraPreset('front')" title="Front Elevation (Y vs X1)">Front ($Y\text{--}X_1$)</button>
+      <button class="cam-btn math-tex" onclick="animateCameraPreset('side')" title="Side Elevation (Y vs X2)">Side ($Y\text{--}X_2$)</button>
+      <button class="cam-btn math-tex" onclick="animateCameraPreset('top')" title="Floor Plan (X1 vs X2)">Floor ($X_1\text{--}X_2$)</button>
+      <button class="cam-btn" id="proj-toggle-btn" onclick="toggleProjection()">Perspective</button>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <div class="workspace">
+    <!-- 3D WEBGL VIEWPORT -->
+    <div class="viewport-container demo-plot" id="viewport">
+      <canvas id="webgl-canvas"></canvas>
+      <div id="labels-container"></div>
+
+      <!-- Top-Left Pedagogical HUD -->
+      <div class="hud-top-left">
+        <div class="hud-stage-tag" id="hud-stage">STAGE 1 OF 4 | MULTIPLE REGRESSION</div>
+        <div class="hud-title" id="hud-title">Continuous Predictors: $X_1 \in [0, 1], X_2 \in [0, 1]$</div>
+        <div class="hud-desc" id="hud-desc">
+          Ordinary Least Squares (OLS) fits a surface through the 3D point cloud. Adjust the interaction effect $b_3$ and move the Cross-Section Slicer along $X_2$ to inspect how the conditional slope along $X_1$ ($\hat{b}_1 + \hat{b}_3 X_2$) behaves.
+        </div>
+      </div>
+
+      <!-- Bottom-Left Color Legend -->
+      <div class="hud-legend math-tex">
+        <div class="legend-item"><span class="swatch" style="background:var(--gold)"></span>Intercept ($\hat{b}_0$ / Mean $X_2$)</div>
+        <div class="legend-item"><span class="swatch" style="background:var(--cyan)"></span>$X_1$ / $D_1$ / Low $X_2$</div>
+        <div class="legend-item"><span class="swatch" style="background:var(--coral)"></span>$X_2$ / $D_2$ / High $X_2$</div>
+        <div class="legend-item"><span class="swatch" style="background:var(--purple)"></span>Interaction ($\hat{b}_3 X_1 X_2$)</div>
+        <div class="legend-item"><span class="swatch" style="background:var(--emerald)"></span>Fitted Model ($SS_{\text{Model}}$)</div>
+        <div class="legend-item"><span class="swatch" style="background:var(--crimson)"></span>Residuals ($SS_{\text{Error}}$)</div>
+      </div>
+    </div>
+
+    <!-- RIGHT MATHEMATICAL INSPECTOR SIDEBAR -->
+    <aside class="sidebar">
+      <!-- 1. DYNAMIC ALGEBRAIC FORMULA & ESTIMATES -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">1. Fitted OLS Algebraic Model</span>
+          <span id="model-badge" class="invariant-badge">OLS Surface</span>
+        </div>
+        <div class="formula-box" id="live-formula"></div>
+        <div class="param-grid" id="param-meanings"></div>
+      </div>
+
+      <!-- 2. STAGE-SPECIFIC INTERACTIVE CONTROLS -->
+      <div class="card" id="stage-specific-card">
+        <div class="card-header">
+          <span class="card-title" id="stage-ctrl-title">2. Stage 1 Interactive Controls</span>
+        </div>
+
+        <!-- Shared Interaction Term Block for Stages 1, 2, and 3 -->
+        <div id="shared-interaction-block" class="interaction-box">
+          <div class="interaction-box-title">
+            <span class="math-tex">Interaction Term ($+ b_3 X_1 X_2$)</span>
+            <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-size:0.71rem; color:var(--text-main); text-transform:none;">
+              <input type="checkbox" id="interaction-toggle" onchange="onInteractionToggle()" />
+              Fit in OLS
+            </label>
+          </div>
+
+          <div class="control-group">
+            <div class="slider-header">
+              <span class="math-tex">True Interaction Effect ($b_3$)</span>
+              <span id="val-b3" style="color:var(--purple); font-family:monospace;">0.00</span>
+            </div>
+            <input type="range" id="slider-b3" class="slider-purple" min="-3.5" max="3.5" step="0.1" value="0.0" oninput="onSliderB3Change()" />
+            <div class="btn-row" style="margin-top:6px;">
+              <button class="action-btn math-tex" onclick="setInteractionPreset(0.0)" title="Additive / Parallel Slopes ($b_3 = 0$)">Parallel ($b_3 = 0$)</button>
+              <button class="action-btn math-tex" onclick="setInteractionPreset(-1.6)" title="Non-parallel / Fan Effect ($b_3 = -1.6$)">Ordinal ($b_3 = -1.6$)</button>
+              <button class="action-btn math-tex" onclick="setInteractionPreset(-3.2)" title="Crossing Simple Slopes ($b_3 = -3.2$)">Crossover ($b_3 = -3.2$)</button>
+            </div>
+          </div>
+
+          <div id="additive-mismatch-note" class="mismatch-banner">
+            <strong>Misspecification Note:</strong> OLS Interaction Term is unchecked, forcing the solid fitted surface/lines to be additive ($\hat{b}_3 = 0$). Dashed lines show the true non-parallel conditional slopes!
+          </div>
+        </div>
+
+        <!-- Stage 1 Controls -->
+        <div id="ctrl-page-1">
+          <div class="control-group">
+            <div class="slider-header">
+              <span id="slicer-label-hdr">Cross-Section Slicer Plane ($X_2 = 0.50$)</span>
+              <input type="checkbox" id="slicer-toggle" checked onchange="onStageControlChange()" />
+            </div>
+            <input type="range" id="slicer-slider" class="slider-coral" min="0" max="1" step="0.01" value="0.50" oninput="onStageControlChange()" />
+          </div>
+
+          <div class="control-group">
+            <div class="slider-header">
+              <span id="slicer-tol-hdr">Slice Bandwidth ($\pm \Delta X_2 = 0.08$)</span>
+              <span id="slice-count-badge" class="invariant-badge">0 pts on slice</span>
+            </div>
+            <input type="range" id="slicer-tol-slider" class="slider-gold" min="0.02" max="0.25" step="0.01" value="0.08" oninput="onStageControlChange()" />
+          </div>
+
+          <div class="control-group" style="margin-top:6px;">
+            <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; margin-bottom:4px;">
+              Off-Slice Data Points Display:
+            </div>
+            <div class="radio-group">
+              <button type="button" class="radio-pill active" id="slice-mode-dim" onclick="setSliceFilterMode('dim')">
+                Highlight Slice &amp; Dim Others
+              </button>
+              <button type="button" class="radio-pill" id="slice-mode-hide" onclick="setSliceFilterMode('hide')">
+                Show Slice Points Only
+              </button>
+            </div>
+          </div>
+
+          <div style="font-size:0.73rem; color:var(--text-muted); margin-top:6px;">
+            <span id="slice-eq-header">Conditional Line at $X_2 = 0.50$:</span>
+            <strong id="slice-eq-text" style="color:var(--cyan); display:block; margin-top:3px;"></strong>
+          </div>
+
+          <!-- Stage 1 3D Surface <-> 2D Simple Slopes Morph Box -->
+          <div class="morph-box">
+            <div class="morph-box-title">
+              <span class="math-tex">3D Surface $\leftrightarrow$ 2D Simple Slopes Morph</span>
+              <span id="unfold-val-1" style="color:var(--emerald)">0%</span>
+            </div>
+            <div class="math-tex" style="font-size:0.71rem; color:var(--text-muted); margin-bottom:6px;">
+              Collapse the continuous $X_2$ depth axis onto the front $Y\text{--}X_1$ plane to view the 2D Simple Slopes fan (points colored from <strong style="color:var(--cyan)">Low $X_2$</strong> $\to$ <strong style="color:var(--gold)">Mean $X_2$</strong> $\to$ <strong style="color:var(--coral)">High $X_2$</strong>).
+            </div>
+            <input type="range" id="unfold-slider-1" class="slider-emerald" min="0" max="1" step="0.01" value="0" oninput="onUnfoldChange(this.value)" />
+            <div class="btn-row">
+              <button class="action-btn active" id="btn-p1-3d" onclick="animateUnfoldTo(0)">3D Surface View (0%)</button>
+              <button class="action-btn" id="btn-p1-2d" onclick="animateUnfoldTo(1)">2D Simple Slopes Plot (100%)</button>
+            </div>
+            <div class="control-group" style="margin-top:8px;">
+              <label class="math-tex" style="font-size:0.72rem; display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--text-main);">
+                <input type="checkbox" id="spotlight-slopes-toggle" checked onchange="onSpotlightSlopesToggle()" />
+                Show 3 Spotlight Simple-Slope Lines (Low $X_2 = 0.15$, Mean $X_2 = 0.50$, High $X_2 = 0.85$)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 2 Controls (ANCOVA + 3D-to-2D Morph) -->
+        <div id="ctrl-page-2" style="display:none;">
+          <div class="math-tex" style="font-size:0.74rem; color:var(--text-muted); margin-bottom:6px;">
+            All points snap to <strong style="color:var(--cyan)">$X_2 = 0$ (Group 0)</strong> or <strong style="color:var(--coral)">$X_2 = 1$ (Group 1)</strong>. Morph the 3D surface into a 2D ANCOVA plot to compare Group 0's slope ($\hat{b}_1$) with Group 1's slope ($\hat{b}_1 + \hat{b}_3$).
+          </div>
+
+          <div class="morph-box">
+            <div class="morph-box-title">
+              <span class="math-tex">3D Surface $\leftrightarrow$ 2D ANCOVA Morph</span>
+              <span id="unfold-val-2" style="color:var(--emerald)">0%</span>
+            </div>
+            <input type="range" id="unfold-slider-2" class="slider-emerald" min="0" max="1" step="0.01" value="0" oninput="onUnfoldChange(this.value)" />
+            <div class="btn-row">
+              <button class="action-btn active" id="btn-p2-3d" onclick="animateUnfoldTo(0)">3D Surface View (0%)</button>
+              <button class="action-btn" id="btn-p2-2d" onclick="animateUnfoldTo(1)">Morph to 2D ANCOVA (100%)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 3 Controls (2x2 Factorial + 3D-to-2D Interaction Plot Morph) -->
+        <div id="ctrl-page-3" style="display:none;">
+          <div class="control-group" style="margin-top:2px;">
+            <label style="font-size:0.74rem; display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" id="jitter-toggle" checked onchange="updateSceneTargets(350)" />
+              Apply visual horizontal jitter around pillars
+            </label>
+          </div>
+
+          <div class="morph-box">
+            <div class="morph-box-title">
+              <span class="math-tex">3D Pillars $\leftrightarrow$ 2D Interaction Plot Morph</span>
+              <span id="unfold-val-3" style="color:var(--emerald)">0%</span>
+            </div>
+            <div class="math-tex" style="font-size:0.71rem; color:var(--text-muted); margin-bottom:6px;">
+              Collapse the $X_2$ depth axis to view the classic 2D Two-Way ANOVA Interaction Plot (parallel lines when $b_3 = 0$; non-parallel or crossing lines when $b_3 \neq 0$).
+            </div>
+            <input type="range" id="unfold-slider-3" class="slider-emerald" min="0" max="1" step="0.01" value="0" oninput="onUnfoldChange(this.value)" />
+            <div class="btn-row">
+              <button class="action-btn active" id="btn-p3-3d" onclick="animateUnfoldTo(0)">3D Pillars (0%)</button>
+              <button class="action-btn" id="btn-p3-2d" onclick="animateUnfoldTo(1)">2D Interaction Plot (100%)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 4 Controls (Dummy Coding + Integrated 3D-to-2D One-Way ANOVA Morph) -->
+        <div id="ctrl-page-4" style="display:none;">
+          <div class="math-tex" style="font-size:0.73rem; font-weight:700; margin-bottom:4px; color:var(--text-muted);">
+            Reference Group Switcher (Origin $D_1 = 0, D_2 = 0$):
+          </div>
+          <div class="radio-group" style="margin-bottom:8px;">
+            <button type="button" class="radio-pill active" id="ref-A" onclick="setReferenceGroup('A')">Ref = Group A</button>
+            <button type="button" class="radio-pill" id="ref-B" onclick="setReferenceGroup('B')">Ref = Group B</button>
+            <button type="button" class="radio-pill" id="ref-C" onclick="setReferenceGroup('C')">Ref = Group C</button>
+          </div>
+
+          <table class="dummy-matrix">
+            <thead>
+              <tr class="math-tex">
+                <th>Group</th>
+                <th>Role</th>
+                <th style="color:var(--cyan)">$D_1$</th>
+                <th style="color:var(--coral)">$D_2$</th>
+                <th>Mean $\bar{Y}_k$</th>
+              </tr>
+            </thead>
+            <tbody id="dummy-matrix-body"></tbody>
+          </table>
+
+          <!-- Integrated 3D-to-2D One-Way ANOVA Morph Controls -->
+          <div class="morph-box">
+            <div class="morph-box-title">
+              <span class="math-tex">3D Dummy Plane $\leftrightarrow$ 2D ANOVA Morph</span>
+              <span id="unfold-val-4" style="color:var(--emerald)">0%</span>
+            </div>
+            <div class="math-tex" style="font-size:0.71rem; color:var(--text-muted); margin-bottom:6px;">
+              Unfold the 3D dummy-coded plane $(D_1, D_2)$ onto a single horizontal categorical axis to show that dummy regression and one-way ANOVA are the same fit.
+            </div>
+            <input type="range" id="unfold-slider-4" class="slider-emerald" min="0" max="1" step="0.01" value="0" oninput="onUnfoldChange(this.value)" />
+            <div class="btn-row">
+              <button class="action-btn active" id="btn-p4-3d" onclick="animateUnfoldTo(0)">3D Dummy Plane (0%)</button>
+              <button class="action-btn" id="btn-p4-2d" onclick="animateUnfoldTo(1)">Morph to 2D ANOVA (100%)</button>
+            </div>
+
+            <div style="margin-top:8px;">
+              <div style="font-size:0.71rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
+                2D Horizontal Axis Group Ordering:
+              </div>
+              <div class="radio-group math-tex">
+                <button type="button" class="radio-pill active" id="order-alpha" onclick="setAnovaOrder('alpha')">
+                  Fixed ($A, B, C$)
+                </button>
+                <button type="button" class="radio-pill" id="order-role" onclick="setAnovaOrder('role')">
+                  By Role ($D_2, \text{Ref}, D_1$)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. DATA GENERATION & VISUALIZATION PARAMETERS -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">3. True Population Parameters &amp; Lines</span>
+          <button class="cam-btn math-tex" style="padding:2px 7px; font-size:0.68rem;" onclick="regenerateNoise()">Resample $\epsilon$</button>
+        </div>
+
+        <div class="control-group">
+          <div class="slider-header">
+            <span class="math-tex" style="color:var(--gold)">True Intercept ($b_0$ / $\mu_A$)</span>
+            <span id="val-b0">3.00</span>
+          </div>
+          <input type="range" id="slider-b0" class="slider-gold" min="1.0" max="6.0" step="0.1" value="3.0" oninput="onParamChange()" />
+        </div>
+
+        <div class="control-group">
+          <div class="slider-header">
+            <span class="math-tex" style="color:var(--cyan)">True $X_1$ / $D_1$ Effect ($b_1$)</span>
+            <span id="val-b1">2.40</span>
+          </div>
+          <input type="range" id="slider-b1" class="slider-cyan" min="-3.0" max="4.0" step="0.1" value="2.4" oninput="onParamChange()" />
+        </div>
+
+        <div class="control-group">
+          <div class="slider-header">
+            <span class="math-tex" style="color:var(--coral)">True $X_2$ / $D_2$ Effect ($b_2$)</span>
+            <span id="val-b2">1.80</span>
+          </div>
+          <input type="range" id="slider-b2" class="slider-coral" min="-3.0" max="4.0" step="0.1" value="1.8" oninput="onParamChange()" />
+        </div>
+
+        <div class="control-group">
+          <div class="slider-header">
+            <span id="sigma-n-hdr">Error SD ($\sigma$) &amp; Sample Size ($N = 60$)</span>
+            <span id="val-sigma">0.75</span>
+          </div>
+          <div class="paired-sliders">
+            <input type="range" id="slider-sigma" min="0.10" max="2.20" step="0.05" value="0.75" oninput="onParamChange()" title="Residual Error SD" />
+            <input type="range" id="slider-n" min="24" max="120" step="6" value="60" oninput="onSampleSizeChange()" title="Sample Size N" />
+          </div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; margin-bottom:4px;">
+            Vertical Deviation Lines Selector:
+          </div>
+          <div class="radio-group math-tex">
+            <button type="button" class="radio-pill active" id="res-mode-error" onclick="setResidualMode('error')" style="color:var(--crimson)">
+              Within ($Y_i - \hat{Y}_i$)
+            </button>
+            <button type="button" class="radio-pill" id="res-mode-model" onclick="setResidualMode('model')" style="color:var(--emerald)">
+              Between ($\hat{Y}_i - \bar{Y}$)
+            </button>
+            <button type="button" class="radio-pill" id="res-mode-total" onclick="setResidualMode('total')" style="color:var(--text-main)">
+              Total ($Y_i - \bar{Y}$)
+            </button>
+            <button type="button" class="radio-pill" id="res-mode-none" onclick="setResidualMode('none')">
+              Off
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. VARIANCE PARTITIONING & EQUIVALENCE TABLE -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">4. Variance Partitioning &amp; Equivalence</span>
+          <span class="invariant-badge" id="r2-badge">$R^2 = \eta^2 = 0.000$</span>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; font-size:0.73rem; font-weight:700;">
+          <span style="color:var(--emerald)"><span class="math-tex">$SS_{\text{Model}}$</span>: <span id="ss-model-txt">0.00</span></span>
+          <span style="color:var(--crimson)"><span class="math-tex">$SS_{\text{Error}}$</span>: <span id="ss-error-txt">0.00</span></span>
+        </div>
+
+        <div class="ss-bar-outer">
+          <div class="ss-bar-model" id="ss-bar-model" style="width:50%">50%</div>
+          <div class="ss-bar-error" id="ss-bar-error" style="width:50%">50%</div>
+        </div>
+
+        <table class="stat-table">
+          <thead>
+            <tr class="math-tex">
+              <th>Source (Reg / ANOVA)</th>
+              <th>$SS$</th>
+              <th>$df$</th>
+              <th>$MS$</th>
+              <th>$F$</th>
+              <th>$p\text{-val}$</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--emerald)">Model / Between</td>
+              <td id="tbl-ss-m">0.00</td>
+              <td id="tbl-df-m">2</td>
+              <td id="tbl-ms-m">0.00</td>
+              <td id="tbl-f" style="font-weight:800; color:var(--emerald)">0.00</td>
+              <td id="tbl-p" style="color:var(--cyan)">.000</td>
+            </tr>
+            <tr>
+              <td style="color:var(--crimson)">Error / Within</td>
+              <td id="tbl-ss-e">0.00</td>
+              <td id="tbl-df-e">57</td>
+              <td id="tbl-ms-e">0.00</td>
+              <td>--</td>
+              <td>--</td>
+            </tr>
+            <tr style="border-top:1px solid #000000; font-weight:700;">
+              <td class="math-tex">Total ($SS_{\text{Total}}$)</td>
+              <td id="tbl-ss-t">0.00</td>
+              <td id="tbl-df-t">59</td>
+              <td>--</td>
+              <td colspan="2" style="text-align:right; color:var(--gold)" id="tbl-ybar">$\bar{Y} = 0.00$</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+
+    
+    function escMath(value) {
+      return String(value).replace(/[&<>]/g, function (ch) {
+        if (ch === "&") return "&amp;";
+        if (ch === "<") return "&lt;";
+        return "&gt;";
+      });
+    }
+
+    function renderTex(src) {
+      var i = 0;
+      var greek = {
+        sigma: "σ", epsilon: "ε", mu: "μ", alpha: "α", eta: "η", Delta: "Δ"
+      };
+      var symbols = {
+        in: "∈", times: "×", cdot: "·", pm: "±", to: "→",
+        equiv: "≡", leftrightarrow: "↔", neq: "≠", quad: "\u2003"
+      };
+      var texColor = {
+        "#f59e0b": "ink-intercept",
+        "#38bdf8": "ink-x1",
+        "#fb7185": "ink-x2",
+        "#a78bfa": "ink-interaction",
+        "#34d399": "ink-model",
+        "#10b981": "ink-model",
+        "#f87171": "ink-error",
+        "#ef4444": "ink-error"
+      };
+
+      function parseSeq(stop) {
+        var html = "";
+        while (i < src.length && src[i] !== stop) {
+          if (src[i] === " ") {
+            html += " ";
+            i += 1;
+            continue;
+          }
+          html += parseScripts(parseAtom());
+        }
+        return html;
+      }
+
+      function parseGroup() {
+        if (src[i] !== "{") return parseAtom();
+        i += 1;
+        var html = parseSeq("}");
+        if (src[i] === "}") i += 1;
+        return html;
+      }
+
+      function readRawGroup() {
+        if (src[i] !== "{") return "";
+        i += 1;
+        var depth = 1;
+        var raw = "";
+        while (i < src.length && depth > 0) {
+          if (src[i] === "\\" && i + 1 < src.length) {
+            raw += src[i] + src[i + 1];
+            i += 2;
+            continue;
+          }
+          if (src[i] === "{") depth += 1;
+          else if (src[i] === "}") {
+            depth -= 1;
+            if (depth === 0) {
+              i += 1;
+              break;
+            }
+          }
+          raw += src[i];
+          i += 1;
+        }
+        return raw;
+      }
+
+      function withMark(inner, mark) {
+        if (/>[^<]*<\/span>\s*$/.test(inner)) {
+          return inner.replace(/>([^<]*)<\/span>\s*$/, function (_m, text) {
+            return ">" + text + mark + "</span>";
+          });
+        }
+        return inner + mark;
+      }
+
+      function readCommand() {
+        i += 1;
+        if (i >= src.length) return "";
+        if (!/[A-Za-z]/.test(src[i])) {
+          var punct = src[i];
+          i += 1;
+          if (punct === "," || punct === ";" || punct === " ") return " ";
+          return escMath(punct);
+        }
+        var name = "";
+        while (i < src.length && /[A-Za-z]/.test(src[i])) {
+          name += src[i];
+          i += 1;
+        }
+        if (greek[name]) return '<span class="math-var">' + greek[name] + "</span>";
+        if (symbols[name]) return symbols[name];
+        if (name === "text") return '<span class="math-up">' + escMath(readRawGroup()) + "</span>";
+        if (name === "color") {
+          var spec = readRawGroup().trim().toLowerCase();
+          var inner = parseGroup();
+          var cls = texColor[spec] || "ink-ink";
+          return '<span class="' + cls + '">' + inner + "</span>";
+        }
+        if (name === "hat" || name === "bar") {
+          var body = parseGroup();
+          if (name === "hat" && body === '<span class="math-var">Y</span>') {
+            return '<span class="math-var">&#374;</span>';
+          }
+          if (name === "hat" && body === '<span class="math-var">y</span>') {
+            return '<span class="math-var">&#375;</span>';
+          }
+          return withMark(body, name === "hat" ? "&#770;" : "&#772;");
+        }
+        if (name === "left" || name === "right") return "";
+        return '<span class="math-up">' + escMath(name) + "</span>";
+      }
+
+      function parseAtom() {
+        if (i >= src.length) return "";
+        if (src[i] === "{") return parseGroup();
+        if (src[i] === "\\") return readCommand();
+        if (/[0-9.]/.test(src[i])) {
+          var num = "";
+          while (i < src.length && /[0-9.]/.test(src[i])) {
+            num += src[i];
+            i += 1;
+          }
+          return escMath(num);
+        }
+        if (/[A-Za-z]/.test(src[i])) {
+          var letter = src[i];
+          i += 1;
+          return '<span class="math-var">' + escMath(letter) + "</span>";
+        }
+        var ch = src[i];
+        i += 1;
+        if (ch === "-") return "&minus;";
+        return escMath(ch);
+      }
+
+      function parseScripts(base) {
+        var html = base;
+        while (i < src.length && (src[i] === "_" || src[i] === "^")) {
+          var tag = src[i] === "_" ? "sub" : "sup";
+          i += 1;
+          var atom = src[i] === "{" ? parseGroup() : parseAtom();
+          var plain = String(atom).replace(/<[^>]+>/g, "");
+          html += "<" + tag + ">" + plain + "</" + tag + ">";
+        }
+        return html;
+      }
+
+      return parseSeq("\0");
+    }
+
+    function renderMathString(input) {
+      var out = "";
+      var i = 0;
+      while (i < input.length) {
+        if (input.startsWith("$$", i)) {
+          var displayEnd = input.indexOf("$$", i + 2);
+          if (displayEnd === -1) {
+            out += input.slice(i);
+            break;
+          }
+          out += '<span class="math math-display">' + renderTex(input.slice(i + 2, displayEnd)) + "</span>";
+          i = displayEnd + 2;
+          continue;
+        }
+        if (input[i] === "$") {
+          var inlineEnd = input.indexOf("$", i + 1);
+          if (inlineEnd === -1) {
+            out += input.slice(i);
+            break;
+          }
+          out += '<span class="math">' + renderTex(input.slice(i + 1, inlineEnd)) + "</span>";
+          i = inlineEnd + 1;
+          continue;
+        }
+        out += input[i];
+        i += 1;
+      }
+      return out;
+    }
+
+    function renderMath(el) {
+      if (!el) return;
+      el.innerHTML = renderMathString(el.innerHTML);
+    }
+
+    function setMathHTML(elOrId, htmlStr) {
+      var el = typeof elOrId === "string" ? document.getElementById(elOrId) : elOrId;
+      if (!el) return;
+      if (el.dataset.lastMath === htmlStr) return;
+      el.dataset.lastMath = htmlStr;
+      el.innerHTML = renderMathString(htmlStr);
+    }
+
+    function vizChannels(token) {
+      var value = statsViz.color(token).replace(/\s+/g, "");
+      var hex = value.match(/^#([0-9a-f]{6})$/i);
+      if (hex) {
+        var packed = parseInt(hex[1], 16);
+        return [(packed >> 16) & 255, (packed >> 8) & 255, packed & 255];
+      }
+      var rgb = value.match(/^rgba?\((\d+),(\d+),(\d+)/i);
+      if (rgb) return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])];
+      throw new Error("Cannot parse viz color " + value);
+    }
+
+    function vizHex(token) {
+      var channels = vizChannels(token);
+      return (channels[0] << 16) + (channels[1] << 8) + channels[2];
+    }
+
+    var INK = {
+      x1: vizHex("--viz-group-a"),
+      x2: vizHex("--viz-group-b"),
+      intercept: vizHex("--viz-group-c"),
+      interaction: vizHex("--viz-median"),
+      model: vizHex("--viz-explained"),
+      error: vizHex("--viz-residual"),
+      total: vizHex("--viz-total"),
+      reference: vizHex("--viz-reference"),
+      nullTone: vizHex("--viz-null"),
+      ink: 0x000000
+    };
+    var INK_CSS = {
+      x1: statsViz.color("--viz-group-a"),
+      x2: statsViz.color("--viz-group-b"),
+      intercept: statsViz.color("--viz-group-c"),
+      interaction: statsViz.color("--viz-median"),
+      model: statsViz.color("--viz-explained"),
+      error: statsViz.color("--viz-residual"),
+      total: statsViz.color("--viz-total"),
+      reference: statsViz.color("--viz-reference"),
+      ink: "#000000"
+    };
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/*************************************************************************
+     * 1. APPLICATION STATE & STATISTICAL ENGINE
+     *************************************************************************/
+    const STATE = {
+      page: 1,                  // 1: Cont-Cont, 2: ANCOVA, 3: 2x2 Binary (2-Way ANOVA), 4: Dummy Coding (One-Way ANOVA)
+      N: 60,
+      b0: 3.0,
+      b1: 2.4,
+      b2: 1.8,
+      b3: 0.0,                  // Interaction effect (+ b3 * X1 * X2) active on Stages 1, 2, and 3
+      sigma: 0.75,
+      fitInteraction: true,     // Whether OLS design matrix includes X1 * X2 on Stages 1, 2, and 3
+      jitter: true,
+      slicerActive: true,
+      slicerX2: 0.50,
+      slicerTol: 0.08,          // Half-bandwidth around slicerX2 to highlight/isolate slice points
+      sliceFilterMode: 'dim',   // 'dim' (highlight slice & dim off-slice) or 'hide' (show only slice points)
+      showSpotlightSlopes: true,// Whether to show the 3 spotlight simple-slope lines on Stage 1 (X2 = 0.15, 0.50, 0.85)
+      refGroup: 'A',            // 'A', 'B', or 'C' on Page 4
+      unfold: 0.0,              // 0 = 3D view, 1 = 2D morphed view (used on Pages 1, 2, 3, and 4)
+      anovaOrder: 'alpha',      // 'alpha' (Group A, B, C) or 'role' (D2, Ref, D1) on Page 4
+      residualMode: 'error',    // 'error', 'model', 'total', 'none'
+      isOrtho: false,
+      rawPoints: [],            // Underlying latent uniform coordinates + unit noise
+      activeStats: null
+    };
+
+    // World coordinate scaling:
+    function x1ToWorld(x1) { return (x1 - 0.5) * 6.0; }
+    function x2ToWorld(x2) { return (0.5 - x2) * 6.0; }
+    function yToWorld(y)   { return (y - 4.0) * 0.85; }
+
+    // Continuous X2 moderator color gradient for Stage 1:
+    // Interpolates from Cyan (#38bdf8) at X2 = 0 -> Gold (#f59e0b) at X2 = 0.5 -> Coral (#fb7185) at X2 = 1.0
+    const COLOR_CYAN  = new THREE.Color(INK.x1);
+    const COLOR_GOLD  = new THREE.Color(INK.intercept);
+    const COLOR_CORAL = new THREE.Color(INK.x2);
+
+    function getContinuousX2Color(x2, targetColor) {
+      const clamped = Math.max(0, Math.min(1, x2));
+      if (clamped <= 0.5) {
+        const t = clamped / 0.5;
+        targetColor.copy(COLOR_CYAN).lerp(COLOR_GOLD, t);
+      } else {
+        const t = (clamped - 0.5) / 0.5;
+        targetColor.copy(COLOR_GOLD).lerp(COLOR_CORAL, t);
+      }
+      return targetColor;
+    }
+
+    // Helper for Page 4 2D ANOVA X1 target coordinates (in normalized [0, 1] space)
+    function get2DTargetX1(group, d1, d2) {
+      if (STATE.anovaOrder === 'alpha') {
+        if (group === 'A') return 0.12;
+        if (group === 'B') return 0.50;
+        return 0.88;
+      } else {
+        if (d2 === 1) return 0.12;
+        if (d1 === 0 && d2 === 0) return 0.50;
+        return 0.88;
+      }
+    }
+
+    // Helper for Page 3 2D Interaction Plot X1 coordinates
+    function getPage3TargetX1(x1, x2) {
+      const base = x1 < 0.5 ? 0.16 : 0.84;
+      const dodge = x2 < 0.5 ? -0.035 : +0.035;
+      return (1 - STATE.unfold) * x1 + STATE.unfold * (base + dodge);
+    }
+
+    // Seeded Box-Muller normal generator
+    let rngSeed = 1337;
+    function randUniform() {
+      rngSeed = (rngSeed * 16807) % 2147483647;
+      return (rngSeed - 1) / 2147483646;
+    }
+    function randNormal() {
+      const u1 = Math.max(1e-7, randUniform());
+      const u2 = randUniform();
+      return Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+    }
+
+    function generateLatentPoints(N) {
+      STATE.rawPoints = [];
+      for (let i = 0; i < N; i++) {
+        const cellIdx = i % 4;
+        const u1Raw = randUniform();
+        const u2Raw = randUniform();
+        const u1 = (cellIdx % 2 === 0) ? (u1Raw * 0.48) : (0.52 + u1Raw * 0.48);
+        const u2 = (cellIdx < 2)       ? (u2Raw * 0.48) : (0.52 + u2Raw * 0.48);
+
+        const zNoise = randNormal();
+        const jAngle = randUniform() * Math.PI * 2;
+        const jRad = 0.025 + randUniform() * 0.035;
+        const groupIdx = i % 3;
+        const groupCode = groupIdx === 0 ? 'A' : (groupIdx === 1 ? 'B' : 'C');
+        STATE.rawPoints.push({
+          u1,
+          u2,
+          zNoise,
+          jDx: Math.cos(jAngle) * jRad,
+          jDz: Math.sin(jAngle) * jRad,
+          group: groupCode
+        });
+      }
+    }
+
+    // Exact F-distribution p-value via Regularized Incomplete Beta function
+    function computeFPValue(F, df1, df2) {
+      if (F <= 0 || df1 <= 0 || df2 <= 0) return 1.0;
+      const x = (df1 * F) / (df1 * F + df2);
+      return 1.0 - regularizedIncompleteBeta(x, df1 / 2, df2 / 2);
+    }
+
+    function lnGamma(z) {
+      const c = [
+        76.18009172947146, -86.50532032941677,
+        24.01409824083091, -1.231739572450155,
+        0.001208650973866179, -0.000005395239384953
+      ];
+      let x = z, y = z;
+      let tmp = x + 5.5;
+      tmp -= (x + 0.5) * Math.log(tmp);
+      let ser = 1.000000000190015;
+      for (let j = 0; j < 6; j++) ser += c[j] / ++y;
+      return -tmp + Math.log(2.5066282746310005 * ser / x);
+    }
+
+    function betaCF(x, a, b) {
+      const maxIter = 100, eps = 3e-7, fpmin = 1e-30;
+      const qab = a + b, qap = a + 1, qam = a - 1;
+      let c = 1, d = 1 - qab * x / qap;
+      if (Math.abs(d) < fpmin) d = fpmin;
+      d = 1 / d;
+      let h = d;
+      for (let m = 1; m <= maxIter; m++) {
+        let m2 = 2 * m;
+        let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+        d = 1 + aa * d;
+        if (Math.abs(d) < fpmin) d = fpmin;
+        c = 1 + aa / c;
+        if (Math.abs(c) < fpmin) c = fpmin;
+        d = 1 / d;
+        h *= d * c;
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+        d = 1 + aa * d;
+        if (Math.abs(d) < fpmin) d = fpmin;
+        c = 1 + aa / c;
+        if (Math.abs(c) < fpmin) c = fpmin;
+        d = 1 / d;
+        const del = d * c;
+        h *= del;
+        if (Math.abs(del - 1.0) < eps) break;
+      }
+      return h;
+    }
+
+    function regularizedIncompleteBeta(x, a, b) {
+      if (x <= 0) return 0;
+      if (x >= 1) return 1;
+      const bt = Math.exp(lnGamma(a + b) - lnGamma(a) - lnGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+      if (x < (a + 1) / (a + b + 2)) {
+        return bt * betaCF(x, a, b) / a;
+      } else {
+        return 1.0 - bt * betaCF(1 - x, b, a) / b;
+      }
+    }
+
+    // Solve k x k linear system via Gaussian elimination with partial pivoting
+    function solveLinearSystem(A, B) {
+      const n = B.length;
+      const M = A.map((row, i) => [...row, B[i]]);
+      for (let i = 0; i < n; i++) {
+        let maxRow = i;
+        for (let k = i + 1; k < n; k++) {
+          if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) maxRow = k;
+        }
+        [M[i], M[maxRow]] = [M[maxRow], M[i]];
+        const pivot = M[i][i];
+        if (Math.abs(pivot) < 1e-10) continue;
+        for (let j = i; j <= n; j++) M[i][j] /= pivot;
+        for (let k = 0; k < n; k++) {
+          if (k !== i) {
+            const factor = M[k][i];
+            for (let j = i; j <= n; j++) M[k][j] -= factor * M[i][j];
+          }
+        }
+      }
+      return M.map(row => row[n]);
+    }
+
+    // Build active dataset & compute exact OLS estimates for the current page
+    function computeDatasetAndOLS() {
+      const N = STATE.rawPoints.length;
+      const data = [];
+
+      // Group population means for Page 4 so true data stays invariant when switching Ref Group
+      const muA = STATE.b0;
+      const muB = STATE.b0 + STATE.b1;
+      const muC = STATE.b0 + STATE.b2;
+
+      for (let i = 0; i < N; i++) {
+        const pt = STATE.rawPoints[i];
+        let x1, x2, yTrue, visX1, visX2;
+
+        if (STATE.page === 1) {
+          x1 = pt.u1;
+          x2 = pt.u2;
+          visX1 = x1;
+          visX2 = (1 - STATE.unfold) * x2;
+          yTrue = STATE.b0 + STATE.b1 * x1 + STATE.b2 * x2 + STATE.b3 * (x1 * x2);
+        } else if (STATE.page === 2) {
+          x1 = pt.u1;
+          x2 = pt.u2 < 0.5 ? 0 : 1;
+          const morphedX2 = (1 - STATE.unfold) * x2;
+          visX1 = x1;
+          visX2 = morphedX2 + (STATE.jitter ? pt.jDz * 0.25 * (1 - 0.9 * STATE.unfold) : 0);
+          yTrue = STATE.b0 + STATE.b1 * x1 + STATE.b2 * x2 + STATE.b3 * (x1 * x2);
+        } else if (STATE.page === 3) {
+          x1 = pt.u1 < 0.5 ? 0 : 1;
+          x2 = pt.u2 < 0.5 ? 0 : 1;
+          const baseX1 = getPage3TargetX1(x1, x2);
+          const baseX2 = (1 - STATE.unfold) * x2;
+          visX1 = baseX1 + (STATE.jitter ? pt.jDx * (1 - 0.35 * STATE.unfold) : 0);
+          visX2 = baseX2 + (STATE.jitter ? pt.jDz * (1 - 0.92 * STATE.unfold) : 0);
+          yTrue = STATE.b0 + STATE.b1 * x1 + STATE.b2 * x2 + STATE.b3 * (x1 * x2);
+        } else {
+          // Page 4: Dummy Coding of 3 Groups (A, B, C) + 3D-to-2D One-Way ANOVA Morph
+          const g = pt.group;
+          let d1 = 0, d2 = 0;
+          if (STATE.refGroup === 'A') {
+            d1 = (g === 'B') ? 1 : 0;
+            d2 = (g === 'C') ? 1 : 0;
+          } else if (STATE.refGroup === 'B') {
+            d1 = (g === 'A') ? 1 : 0;
+            d2 = (g === 'C') ? 1 : 0;
+          } else if (STATE.refGroup === 'C') {
+            d1 = (g === 'A') ? 1 : 0;
+            d2 = (g === 'B') ? 1 : 0;
+          }
+          x1 = d1;
+          x2 = d2;
+
+          const target2DX1 = get2DTargetX1(g, d1, d2);
+          const target2DX2 = 0.0;
+          const baseX1 = (1 - STATE.unfold) * d1 + STATE.unfold * target2DX1;
+          const baseX2 = (1 - STATE.unfold) * d2 + STATE.unfold * target2DX2;
+
+          visX1 = baseX1 + (STATE.jitter ? pt.jDx * (1 + 0.35 * STATE.unfold) : 0);
+          visX2 = baseX2 + (STATE.jitter ? pt.jDz * (1 - 0.92 * STATE.unfold) : 0);
+          yTrue = (g === 'A') ? muA : (g === 'B' ? muB : muC);
+        }
+
+        const y = yTrue + STATE.sigma * pt.zNoise;
+        data.push({ x1, x2, visX1, visX2, y, group: pt.group });
+      }
+
+      // Design matrix X: [1, x1, x2] or [1, x1, x2, x1*x2] on Stages 1, 2, and 3
+      const useInt = (STATE.page <= 3 && STATE.fitInteraction);
+      const p = useInt ? 4 : 3;
+      const XtX = Array.from({ length: p }, () => Array(p).fill(0));
+      const XtY = Array(p).fill(0);
+
+      // Also compute full 4-parameter saturated OLS fit for reference when interaction is unchecked
+      const XtX4 = Array.from({ length: 4 }, () => Array(4).fill(0));
+      const XtY4 = Array(4).fill(0);
+
+      let sumY = 0;
+      for (let i = 0; i < N; i++) {
+        const d = data[i];
+        sumY += d.y;
+        const row = useInt ? [1, d.x1, d.x2, d.x1 * d.x2] : [1, d.x1, d.x2];
+        for (let r = 0; r < p; r++) {
+          XtY[r] += row[r] * d.y;
+          for (let c = 0; c < p; c++) {
+            XtX[r][c] += row[r] * row[c];
+          }
+        }
+        if (STATE.page <= 3) {
+          const row4 = [1, d.x1, d.x2, d.x1 * d.x2];
+          for (let r = 0; r < 4; r++) {
+            XtY4[r] += row4[r] * d.y;
+            for (let c = 0; c < 4; c++) {
+              XtX4[r][c] += row4[r] * row4[c];
+            }
+          }
+        }
+      }
+
+      const betas = solveLinearSystem(XtX, XtY);
+      const b0Hat = betas[0] || 0;
+      const b1Hat = betas[1] || 0;
+      const b2Hat = betas[2] || 0;
+      const b3Hat = useInt ? (betas[3] || 0) : 0;
+
+      const fullBetas = STATE.page <= 3 ? solveLinearSystem(XtX4, XtY4) : [b0Hat, b1Hat, b2Hat, 0];
+
+      const yBar = sumY / N;
+      let ssModel = 0, ssError = 0, ssTotal = 0;
+
+      const cellSums = { '00': 0, '10': 0, '01': 0, '11': 0 };
+      const cellCounts = { '00': 0, '10': 0, '01': 0, '11': 0 };
+      const grpSums = { A: 0, B: 0, C: 0 };
+      const grpCounts = { A: 0, B: 0, C: 0 };
+
+      for (let i = 0; i < N; i++) {
+        const d = data[i];
+        d.yHat = b0Hat + b1Hat * d.x1 + b2Hat * d.x2 + b3Hat * (d.x1 * d.x2);
+        ssModel += Math.pow(d.yHat - yBar, 2);
+        ssError += Math.pow(d.y - d.yHat, 2);
+        ssTotal += Math.pow(d.y - yBar, 2);
+
+        if (STATE.page >= 3) {
+          const key = `${Math.round(d.x1)}${Math.round(d.x2)}`;
+          if (cellCounts[key] !== undefined) {
+            cellSums[key] += d.y;
+            cellCounts[key]++;
+          }
+        }
+        grpSums[d.group] += d.y;
+        grpCounts[d.group]++;
+      }
+
+      const dfModel = p - 1;
+      const dfError = N - p;
+      const dfTotal = N - 1;
+      const msModel = ssModel / dfModel;
+      const msError = ssError / Math.max(1, dfError);
+      const F = msError > 1e-10 ? msModel / msError : 0;
+      const R2 = ssTotal > 1e-10 ? ssModel / ssTotal : 0;
+      const pVal = computeFPValue(F, dfModel, dfError);
+
+      const cellMeans = {};
+      for (const k of ['00', '10', '01', '11']) {
+        cellMeans[k] = cellCounts[k] > 0 ? cellSums[k] / cellCounts[k] : 0;
+      }
+      const groupMeans = {
+        A: grpCounts.A > 0 ? grpSums.A / grpCounts.A : 0,
+        B: grpCounts.B > 0 ? grpSums.B / grpCounts.B : 0,
+        C: grpCounts.C > 0 ? grpSums.C / grpCounts.C : 0
+      };
+
+      STATE.activeStats = {
+        data, N, b0Hat, b1Hat, b2Hat, b3Hat, fullBetas, yBar,
+        ssModel, ssError, ssTotal,
+        dfModel, dfError, dfTotal,
+        msModel, msError, F, R2, pVal,
+        cellMeans, groupMeans
+      };
+    }
+
+    /*************************************************************************
+     * 2. THREE.JS 3D SCENE SETUP & GEOMETRY OBJECTS
+     *************************************************************************/
+    const viewportEl = document.getElementById('viewport');
+    const canvasEl = document.getElementById('webgl-canvas');
+    const labelsContainer = document.getElementById('labels-container');
+
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+
+    // Cameras (Perspective & Orthographic)
+    const aspect = (viewportEl.clientWidth > 1 && viewportEl.clientHeight > 1)
+      ? viewportEl.clientWidth / viewportEl.clientHeight
+      : 1;
+    const perspCam = new THREE.PerspectiveCamera(42, aspect, 0.1, 100);
+    perspCam.position.set(8.2, 5.6, 9.2);
+
+    const orthoSize = 5.4;
+    const orthoCam = new THREE.OrthographicCamera(
+      -orthoSize * aspect, orthoSize * aspect, orthoSize, -orthoSize, -50, 100
+    );
+    orthoCam.position.copy(perspCam.position);
+
+    let activeCamera = perspCam;
+    const controls = new THREE.OrbitControls(activeCamera, renderer.domElement);
+    controls.enableDamping = !reduceMotion;
+    controls.dampingFactor = 0.07;
+    controls.target.set(0, 0.2, 0);
+
+    // Lighting
+    scene.add(new THREE.AmbientLight(0xffffff, 0.78));
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.65);
+    dirLight1.position.set(10, 18, 12);
+    scene.add(dirLight1);
+    const dirLight2 = new THREE.DirectionalLight(0xf4f4f4, 0.4);
+    dirLight2.position.set(-10, -8, -10);
+    scene.add(dirLight2);
+
+    // Floor Grid & Axes Box
+    const axesGroup = new THREE.Group();
+    scene.add(axesGroup);
+
+    const floorY = yToWorld(0); // -3.4
+    const gridHelper = new THREE.GridHelper(6.0, 10, 0xb6c0cc, 0xd5dde6);
+    gridHelper.position.y = floorY;
+    axesGroup.add(gridHelper);
+
+    // Helper for lines
+    function makeLine(pts, color, opacity = 1.0, dashed = false) {
+      const geom = new THREE.BufferGeometry().setFromPoints(pts);
+      const mat = dashed
+        ? new THREE.LineDashedMaterial({ color, transparent: true, opacity, dashSize: 0.18, gapSize: 0.12 })
+        : new THREE.LineBasicMaterial({ color, transparent: true, opacity });
+      const line = new THREE.Line(geom, mat);
+      if (dashed) line.computeLineDistances();
+      return line;
+    }
+
+    // X1 Axis (Front edge: Z = +3.0, X from -3 to +3)
+    const x1AxisLine = makeLine([
+      new THREE.Vector3(-3, floorY, 3),
+      new THREE.Vector3(3, floorY, 3)
+    ], INK.x1, 0.9);
+    axesGroup.add(x1AxisLine);
+
+    // X2 Axis (Left edge: X = -3.0, Z from +3 to -3)
+    const x2AxisLine = makeLine([
+      new THREE.Vector3(-3, floorY, 3),
+      new THREE.Vector3(-3, floorY, -3)
+    ], INK.x2, 0.9);
+    axesGroup.add(x2AxisLine);
+
+    // Vertical Y Axis at (X1=0, X2=0) -> (-3, floorY to +4.2, +3)
+    const yAxisLine = makeLine([
+      new THREE.Vector3(-3, floorY, 3),
+      new THREE.Vector3(-3, yToWorld(9.0), 3)
+    ], INK.ink, 0.9);
+    axesGroup.add(yAxisLine);
+
+    // 2D Background Vertical & Horizontal Guide Lines
+    const anova2DGuides = new THREE.Group();
+    for (const u of [0.12, 0.50, 0.88]) {
+      const gx = x1ToWorld(u);
+      anova2DGuides.add(makeLine([
+        new THREE.Vector3(gx, floorY, 3.0),
+        new THREE.Vector3(gx, yToWorld(8.6), 3.0)
+      ], 0x94a3b8, 0.55, true));
+    }
+    for (let yTick = 2; yTick <= 8; yTick += 2) {
+      const gy = yToWorld(yTick);
+      anova2DGuides.add(makeLine([
+        new THREE.Vector3(-3.0, gy, 3.0),
+        new THREE.Vector3(3.0, gy, 3.0)
+      ], 0xcbd5e1, 0.9));
+    }
+    anova2DGuides.visible = false;
+    scene.add(anova2DGuides);
+
+    // Page 4 Mutually Exclusive (D1=1, D2=1) Forbidden Quadrant on Floor
+    const forbiddenGroup = new THREE.Group();
+    const forbGeo = new THREE.PlaneGeometry(2.9, 2.9);
+    forbGeo.rotateX(-Math.PI / 2);
+    const forbMat = new THREE.MeshBasicMaterial({
+      color: INK.error,
+      transparent: true,
+      opacity: 0.18,
+      side: THREE.DoubleSide
+    });
+    const forbMesh = new THREE.Mesh(forbGeo, forbMat);
+    forbMesh.position.set(1.55, floorY + 0.01, -1.55);
+    forbiddenGroup.add(forbMesh);
+
+    const forbBorder = makeLine([
+      new THREE.Vector3(0.1, floorY + 0.02, -0.1),
+      new THREE.Vector3(3.0, floorY + 0.02, -0.1),
+      new THREE.Vector3(3.0, floorY + 0.02, -3.0),
+      new THREE.Vector3(0.1, floorY + 0.02, -3.0),
+      new THREE.Vector3(0.1, floorY + 0.02, -0.1)
+    ], INK.error, 0.85, true);
+    forbiddenGroup.add(forbBorder);
+    forbiddenGroup.visible = false;
+    scene.add(forbiddenGroup);
+
+    // 1. Fitted Regression Surface Mesh (20x20 grid)
+    const SEG = 20;
+    const surfaceGeo = new THREE.BufferGeometry();
+    const surfPositions = new Float32Array((SEG + 1) * (SEG + 1) * 3);
+    const surfIndices = [];
+    for (let iz = 0; iz < SEG; iz++) {
+      for (let ix = 0; ix < SEG; ix++) {
+        const a = iz * (SEG + 1) + ix;
+        const b = iz * (SEG + 1) + (ix + 1);
+        const c = (iz + 1) * (SEG + 1) + ix;
+        const d = (iz + 1) * (SEG + 1) + (ix + 1);
+        surfIndices.push(a, b, d, a, d, c);
+      }
+    }
+    surfaceGeo.setIndex(surfIndices);
+    surfaceGeo.setAttribute('position', new THREE.BufferAttribute(surfPositions, 3));
+
+    const surfaceMat = new THREE.MeshPhongMaterial({
+      color: INK.model,
+      transparent: true,
+      opacity: 0.34,
+      side: THREE.DoubleSide,
+      shininess: 40,
+      depthWrite: false
+    });
+    const surfaceMesh = new THREE.Mesh(surfaceGeo, surfaceMat);
+    scene.add(surfaceMesh);
+
+    const surfaceWireMat = new THREE.MeshBasicMaterial({
+      color: INK.model,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.18
+    });
+    const surfaceWire = new THREE.Mesh(surfaceGeo, surfaceWireMat);
+    scene.add(surfaceWire);
+
+    // Grand Mean Plane & 2D Grand Mean Line
+    const grandPlaneGeo = new THREE.PlaneGeometry(6.6, 6.6);
+    grandPlaneGeo.rotateX(-Math.PI / 2);
+    const grandPlaneMat = new THREE.MeshBasicMaterial({
+      color: INK.reference,
+      transparent: true,
+      opacity: 0.28,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    const grandPlaneMesh = new THREE.Mesh(grandPlaneGeo, grandPlaneMat);
+    grandPlaneMesh.visible = false;
+    scene.add(grandPlaneMesh);
+
+    const grandLine = makeLine([new THREE.Vector3(-3.2, 0, 3), new THREE.Vector3(3.2, 0, 3)], INK.ink, 0.95, true);
+    grandLine.visible = false;
+    scene.add(grandLine);
+
+    // Bold Slope Edge Lines:
+    const cyanSlopeLine = makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.x1, 1.0);
+    scene.add(cyanSlopeLine);
+
+    const backSlopeLine = makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.x2, 1.0);
+    scene.add(backSlopeLine);
+
+    const coralSlopeLine = makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.x2, 1.0);
+    scene.add(coralSlopeLine);
+
+    const rightEdgeSlopeLine = makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.interaction, 0.85, true);
+    rightEdgeSlopeLine.visible = false;
+    scene.add(rightEdgeSlopeLine);
+
+    // Stage 1 Spotlight Simple-Slope Lines (Low X2 = 0.15, Mean X2 = 0.50, High X2 = 0.85)
+    const SPOTLIGHT_X2_LEVELS = [0.15, 0.50, 0.85];
+    const spotlightSlopeLines = [
+      makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.x1, 0.96), // Low X2 = 0.15 (Cyan)
+      makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.intercept, 0.96), // Mean X2 = 0.50 (Gold)
+      makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.x2, 0.96)  // High X2 = 0.85 (Coral)
+    ];
+    spotlightSlopeLines.forEach(line => {
+      line.visible = false;
+      scene.add(line);
+    });
+
+    // Dashed Reference Lines when additive model is fitted to data with true interaction (Pages 1, 2, 3)
+    const empCellLineX2_0 = makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.x1, 0.85, true);
+    empCellLineX2_0.visible = false;
+    scene.add(empCellLineX2_0);
+
+    const empCellLineX2_1 = makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.interaction, 0.9, true);
+    empCellLineX2_1.visible = false;
+    scene.add(empCellLineX2_1);
+
+    // Page 2 ANCOVA vertical elevation caliper showing conditional difference at X1 = 0.5
+    const ancovaCaliperLine = makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.x2, 1.0, true);
+    ancovaCaliperLine.visible = false;
+    scene.add(ancovaCaliperLine);
+
+    // Page 4 2D ANOVA Between-Group Deviation Calipers
+    const anovaBetweenCalipers = [
+      makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.intercept, 0.95, true),
+      makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.x1, 0.95, true),
+      makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.x2, 0.95, true)
+    ];
+    anovaBetweenCalipers.forEach(c => {
+      c.visible = false;
+      scene.add(c);
+    });
+
+    // Page 1 Cross-Section Slicer Plane & Intersection Line
+    const slicerGroup = new THREE.Group();
+    const slicerPlaneGeo = new THREE.PlaneGeometry(6.2, 6.2);
+    const slicerPlaneMat = new THREE.MeshBasicMaterial({
+      color: INK.x2,
+      transparent: true,
+      opacity: 0.13,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    const slicerPlaneMesh = new THREE.Mesh(slicerPlaneGeo, slicerPlaneMat);
+    slicerPlaneMesh.position.y = 0.2;
+    slicerGroup.add(slicerPlaneMesh);
+
+    const slicerCutLine = makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.model, 1.0);
+    slicerGroup.add(slicerCutLine);
+    scene.add(slicerGroup);
+
+    // Glowing Gold Sphere at Intercept (0, 0, b0Hat)
+    const interceptSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.19, 24, 24),
+      new THREE.MeshBasicMaterial({ color: INK.intercept })
+    );
+    scene.add(interceptSphere);
+
+    // Cell / Group Mean Discs (4 pillars on Page 3, 3 pillars on Page 4)
+    const meanDiscs = [];
+    const discColors = [INK.intercept, INK.x1, INK.x2, INK.interaction];
+    for (let i = 0; i < 4; i++) {
+      const disc = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.36, 0.36, 0.08, 28),
+        new THREE.MeshBasicMaterial({ color: discColors[i], transparent: true, opacity: 0.92 })
+      );
+      disc.visible = false;
+      scene.add(disc);
+      meanDiscs.push(disc);
+    }
+
+    // Data Points Pool & Vertical Residual Lines Pool (up to 120 points)
+    const MAX_PTS = 120;
+    const pointMeshes = [];
+    const resLines = [];
+    const sphereGeo = new THREE.SphereGeometry(0.105, 16, 16);
+
+    for (let i = 0; i < MAX_PTS; i++) {
+      const mat = new THREE.MeshPhongMaterial({
+        color: INK.x1,
+        shininess: 60,
+        transparent: true,
+        opacity: 1.0
+      });
+      const mesh = new THREE.Mesh(sphereGeo, mat);
+      mesh.visible = false;
+      scene.add(mesh);
+      pointMeshes.push(mesh);
+
+      const rLine = makeLine([new THREE.Vector3(), new THREE.Vector3()], INK.error, 0.72);
+      rLine.visible = false;
+      scene.add(rLine);
+      resLines.push(rLine);
+    }
+
+    /*************************************************************************
+     * 3. 3D FLOATING HTML LABELS
+     *************************************************************************/
+    const labelDefs = {
+      axisX1:      { text: '$X_1 \\; (0 \\to 1)$', color: INK_CSS.x1, pos: new THREE.Vector3(0, floorY - 0.38, 3.35) },
+      axisX2:      { text: '$X_2 \\; (0 \\to 1)$', color: INK_CSS.x2, pos: new THREE.Vector3(-3.55, floorY - 0.35, 0) },
+      axisY:       { text: 'Outcome $Y$',  color: INK_CSS.ink, pos: new THREE.Vector3(-3.4, yToWorld(8.8), 3.0) },
+      b0Label:     { text: '$\\hat{b}_0$', color: INK_CSS.intercept, pos: new THREE.Vector3() },
+      b1Label:     { text: 'Slope $\\hat{b}_1$', color: INK_CSS.x1, pos: new THREE.Vector3() },
+      b2Label:     { text: 'Slope $\\hat{b}_2$', color: INK_CSS.x2, pos: new THREE.Vector3() },
+      grandLbl:    { text: 'Grand Mean $\\bar{Y}$', color: INK_CSS.ink, pos: new THREE.Vector3(), visible: false },
+      forbLabel:   { text: 'Mutually Exclusive ($D_1=1, D_2=1$ Impossible)', color: INK_CSS.error, pos: new THREE.Vector3(1.55, floorY + 0.25, -1.55), visible: false },
+      grpALabel:   { text: 'Group A',    color: INK_CSS.intercept, pos: new THREE.Vector3(), visible: false },
+      grpBLabel:   { text: 'Group B',    color: INK_CSS.x1, pos: new THREE.Vector3(), visible: false },
+      grpCLabel:   { text: 'Group C',    color: INK_CSS.x2, pos: new THREE.Vector3(), visible: false },
+      slopeLowLbl: { text: 'Low $X_2 = 0.15$',  color: INK_CSS.x1, pos: new THREE.Vector3(), visible: false },
+      slopeMeanLbl:{ text: 'Mean $X_2 = 0.50$', color: INK_CSS.intercept, pos: new THREE.Vector3(), visible: false },
+      slopeHighLbl:{ text: 'High $X_2 = 0.85$', color: INK_CSS.x2, pos: new THREE.Vector3(), visible: false }
+    };
+
+    for (const key in labelDefs) {
+      const el = document.createElement('div');
+      el.className = 'label-3d';
+      el.style.color = '#000000';
+      el.style.borderLeftColor = labelDefs[key].color;
+      labelsContainer.appendChild(el);
+      labelDefs[key].el = el;
+      setMathHTML(el, labelDefs[key].text);
+    }
+
+    function updateFloatingLabels() {
+      const w = viewportEl.clientWidth;
+      const h = viewportEl.clientHeight;
+      for (const key in labelDefs) {
+        const item = labelDefs[key];
+        if (item.visible === false) {
+          item.el.style.display = 'none';
+          continue;
+        }
+        const v = item.pos.clone().project(activeCamera);
+        if (v.z > 1 || v.z < -1) {
+          item.el.style.display = 'none';
+          continue;
+        }
+        const x = (v.x * 0.5 + 0.5) * w;
+        const y = (-(v.y * 0.5) + 0.5) * h;
+        item.el.style.display = 'block';
+        item.el.style.left = `${x}px`;
+        item.el.style.top = `${y}px`;
+      }
+    }
+
+    /*************************************************************************
+     * 4. SMOOTH INTERPOLATION ENGINE FOR POINTS, SURFACE, & CAMERA
+     *************************************************************************/
+    const animState = {
+      startTime: 0,
+      duration: 600,
+      active: false,
+      fromPts: [],
+      toPts: [],
+      currPts: [],
+      fromSurf: new Float32Array((SEG + 1) * (SEG + 1) * 3),
+      toSurf: new Float32Array((SEG + 1) * (SEG + 1) * 3)
+    };
+
+    for (let i = 0; i < MAX_PTS; i++) {
+      animState.fromPts.push({ x: 0, y: 0, z: 0, rY0: 0, rY1: 0, color: new THREE.Color(INK.x1) });
+      animState.toPts.push({ x: 0, y: 0, z: 0, rY0: 0, rY1: 0, color: new THREE.Color(INK.x1) });
+      animState.currPts.push({ x: 0, y: 0, z: 0, rY0: 0, rY1: 0, color: new THREE.Color(INK.x1) });
+    }
+
+    // Apply Stage 1 Cross-Section Slicer highlighting / filtering to points and residual lines
+    function applyStage1SliceHighlight() {
+      const st = STATE.activeStats;
+      if (!st) return;
+
+      const sliceFilterActive = (STATE.page === 1 && STATE.slicerActive);
+      let onSliceCount = 0;
+
+      for (let i = 0; i < st.N; i++) {
+        const d = st.data[i];
+        const mesh = pointMeshes[i];
+        const rLine = resLines[i];
+
+        if (!sliceFilterActive) {
+          mesh.visible = true;
+          mesh.scale.set(1, 1, 1);
+          mesh.material.opacity = 1.0;
+          mesh.material.color.copy(animState.currPts[i].color);
+          rLine.visible = (STATE.residualMode !== 'none');
+          rLine.material.opacity = 0.72;
+          continue;
+        }
+
+        const dist = Math.abs(d.x2 - STATE.slicerX2);
+        const isOnSlice = dist <= STATE.slicerTol;
+
+        if (isOnSlice) {
+          onSliceCount++;
+          mesh.visible = true;
+          mesh.scale.set(1.38, 1.38, 1.38);
+          mesh.material.opacity = 1.0;
+          mesh.material.color.copy(animState.currPts[i].color);
+          rLine.visible = (STATE.residualMode !== 'none');
+          rLine.material.opacity = 0.92;
+        } else {
+          if (STATE.sliceFilterMode === 'hide') {
+            mesh.visible = false;
+          } else {
+            mesh.visible = true;
+            mesh.scale.set(0.75, 0.75, 0.75);
+            mesh.material.opacity = 0.16;
+            mesh.material.color.copy(animState.currPts[i].color);
+          }
+          rLine.visible = false;
+        }
+      }
+
+      const badgeEl = document.getElementById('slice-count-badge');
+      if (badgeEl) {
+        badgeEl.textContent = sliceFilterActive
+          ? `${onSliceCount} / ${st.N} pts on slice`
+          : `${st.N} pts visible`;
+      }
+    }
+
+    function computeTargetSurfaceVertices(stats) {
+      const arr = new Float32Array((SEG + 1) * (SEG + 1) * 3);
+      let ptr = 0;
+
+      const refGrp = STATE.refGroup;
+      const d1Grp = refGrp === 'A' ? 'B' : 'A';
+      const d2Grp = refGrp === 'C' ? 'B' : 'C';
+
+      const x2D_00 = get2DTargetX1(refGrp, 0, 0);
+      const x2D_10 = get2DTargetX1(d1Grp, 1, 0);
+      const x2D_01 = get2DTargetX1(d2Grp, 0, 1);
+
+      for (let iz = 0; iz <= SEG; iz++) {
+        const u2 = iz / SEG;
+        for (let ix = 0; ix <= SEG; ix++) {
+          const u1 = ix / SEG;
+          let x1 = u1;
+          let x2 = u2;
+
+          if (STATE.page === 4 && (u1 + u2 > 1.0)) {
+            const sum = u1 + u2;
+            x1 = u1 / sum;
+            x2 = u2 / sum;
+          }
+
+          const yHat = stats.b0Hat + stats.b1Hat * x1 + stats.b2Hat * x2 + stats.b3Hat * (x1 * x2);
+
+          let worldX1 = x1;
+          let worldX2 = x2;
+
+          if ((STATE.page === 1 || STATE.page === 2) && STATE.unfold > 0) {
+            worldX1 = x1;
+            worldX2 = (1 - STATE.unfold) * x2;
+          } else if (STATE.page === 3 && STATE.unfold > 0) {
+            const leftX = (1 - x2) * getPage3TargetX1(0, 0) + x2 * getPage3TargetX1(0, 1);
+            const rightX = (1 - x2) * getPage3TargetX1(1, 0) + x2 * getPage3TargetX1(1, 1);
+            worldX1 = (1 - x1) * leftX + x1 * rightX;
+            worldX2 = (1 - STATE.unfold) * x2;
+          } else if (STATE.page === 4 && STATE.unfold > 0) {
+            const w00 = Math.max(0, 1 - x1 - x2);
+            const w10 = x1;
+            const w01 = x2;
+            const unfoldedX1 = w00 * x2D_00 + w10 * x2D_10 + w01 * x2D_01;
+            const unfoldedX2 = 0.0;
+            worldX1 = (1 - STATE.unfold) * x1 + STATE.unfold * unfoldedX1;
+            worldX2 = (1 - STATE.unfold) * x2 + STATE.unfold * unfoldedX2;
+          }
+
+          arr[ptr++] = x1ToWorld(worldX1);
+          arr[ptr++] = yToWorld(yHat);
+          arr[ptr++] = x2ToWorld(worldX2);
+        }
+      }
+      return arr;
+    }
+
+    function updateSceneTargets(duration = 550) {
+      computeDatasetAndOLS();
+      const st = STATE.activeStats;
+
+      for (let i = 0; i < MAX_PTS; i++) {
+        animState.fromPts[i].x = animState.currPts[i].x;
+        animState.fromPts[i].y = animState.currPts[i].y;
+        animState.fromPts[i].z = animState.currPts[i].z;
+        animState.fromPts[i].rY0 = animState.currPts[i].rY0;
+        animState.fromPts[i].rY1 = animState.currPts[i].rY1;
+        animState.fromPts[i].color.copy(animState.currPts[i].color);
+      }
+      animState.fromSurf.set(surfaceGeo.attributes.position.array);
+
+      for (let i = 0; i < st.N; i++) {
+        const d = st.data[i];
+        const wx = x1ToWorld(d.visX1);
+        const wy = yToWorld(d.y);
+        const wz = x2ToWorld(d.visX2);
+        const wyHat = yToWorld(d.yHat);
+        const wyBar = yToWorld(st.yBar);
+
+        animState.toPts[i].x = wx;
+        animState.toPts[i].y = wy;
+        animState.toPts[i].z = wz;
+
+        if (STATE.residualMode === 'error') {
+          animState.toPts[i].rY0 = wy;
+          animState.toPts[i].rY1 = wyHat;
+        } else if (STATE.residualMode === 'model') {
+          animState.toPts[i].rY0 = wyHat;
+          animState.toPts[i].rY1 = wyBar;
+        } else {
+          animState.toPts[i].rY0 = wy;
+          animState.toPts[i].rY1 = wyBar;
+        }
+
+        if (STATE.page === 1) {
+          getContinuousX2Color(d.x2, animState.toPts[i].color);
+        } else if (STATE.page === 2) {
+          animState.toPts[i].color.setHex(d.x2 < 0.5 ? INK.x1 : INK.x2);
+        } else if (STATE.page === 3) {
+          const idx = (d.x1 > 0.5 ? 1 : 0) + (d.x2 > 0.5 ? 2 : 0);
+          animState.toPts[i].color.setHex(discColors[idx]);
+        } else {
+          if (d.x1 === 0 && d.x2 === 0) animState.toPts[i].color.setHex(INK.intercept);
+          else if (d.x1 === 1) animState.toPts[i].color.setHex(INK.x1);
+          else animState.toPts[i].color.setHex(INK.x2);
+        }
+        pointMeshes[i].visible = true;
+        resLines[i].visible = (STATE.residualMode !== 'none');
+      }
+
+      for (let i = st.N; i < MAX_PTS; i++) {
+        pointMeshes[i].visible = false;
+        resLines[i].visible = false;
+      }
+
+      animState.toSurf = computeTargetSurfaceVertices(st);
+
+      animState.startTime = performance.now();
+      animState.duration = duration;
+      animState.active = true;
+
+      if (duration <= 0) {
+        applyInterpolationStep(1.0);
+        animState.active = false;
+      }
+
+      updateDecorationsAndUI();
+    }
+
+    function applyInterpolationStep(t) {
+      const st = STATE.activeStats;
+      const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+      const resColor = STATE.residualMode === 'error' ? INK.error : (STATE.residualMode === 'model' ? INK.model : INK.total);
+      for (let i = 0; i < st.N; i++) {
+        const fp = animState.fromPts[i];
+        const tp = animState.toPts[i];
+        const cp = animState.currPts[i];
+
+        cp.x = fp.x + (tp.x - fp.x) * ease;
+        cp.y = fp.y + (tp.y - fp.y) * ease;
+        cp.z = fp.z + (tp.z - fp.z) * ease;
+        cp.rY0 = fp.rY0 + (tp.rY0 - fp.rY0) * ease;
+        cp.rY1 = fp.rY1 + (tp.rY1 - fp.rY1) * ease;
+        cp.color.copy(fp.color).lerp(tp.color, ease);
+
+        pointMeshes[i].position.set(cp.x, cp.y, cp.z);
+        pointMeshes[i].material.color.copy(cp.color);
+
+        const posArr = resLines[i].geometry.attributes.position.array;
+        posArr[0] = cp.x; posArr[1] = cp.rY0; posArr[2] = cp.z;
+        posArr[3] = cp.x; posArr[4] = cp.rY1; posArr[5] = cp.z;
+        resLines[i].geometry.attributes.position.needsUpdate = true;
+        resLines[i].material.color.setHex(resColor);
+      }
+
+      applyStage1SliceHighlight();
+
+      const surfArr = surfaceGeo.attributes.position.array;
+      for (let j = 0; j < surfArr.length; j++) {
+        surfArr[j] = animState.fromSurf[j] + (animState.toSurf[j] - animState.fromSurf[j]) * ease;
+      }
+      surfaceGeo.attributes.position.needsUpdate = true;
+      surfaceGeo.computeVertexNormals();
+    }
+
+    /*************************************************************************
+     * 5. SCENE DECORATIONS & SIDEBAR INSPECTOR UPDATES
+     *************************************************************************/
+    function setLineEndpoints(lineObj, v1, v2) {
+      const arr = lineObj.geometry.attributes.position.array;
+      arr[0] = v1.x; arr[1] = v1.y; arr[2] = v1.z;
+      arr[3] = v2.x; arr[4] = v2.y; arr[5] = v2.z;
+      lineObj.geometry.attributes.position.needsUpdate = true;
+      if (lineObj.material.isLineDashedMaterial) lineObj.computeLineDistances();
+    }
+
+    function updateDecorationsAndUI() {
+      const st = STATE.activeStats;
+      if (!st) return;
+
+      const refGrp = STATE.refGroup;
+      const d1Grp = refGrp === 'A' ? 'B' : 'A';
+      const d2Grp = refGrp === 'C' ? 'B' : 'C';
+
+      // Corner positions for (0,0), (1,0), (0,1), and (1,1)
+      let x00 = 0, z00 = 0;
+      let x10 = 1, z10 = 0;
+      let x01 = 0, z01 = 1;
+      let x11 = 1, z11 = 1;
+
+      if ((STATE.page === 1 || STATE.page === 2) && STATE.unfold > 0) {
+        z01 = (1 - STATE.unfold) * 1;
+        z11 = (1 - STATE.unfold) * 1;
+      } else if (STATE.page === 3 && STATE.unfold > 0) {
+        x00 = getPage3TargetX1(0, 0);
+        z00 = 0;
+        x10 = getPage3TargetX1(1, 0);
+        z10 = 0;
+        x01 = getPage3TargetX1(0, 1);
+        z01 = (1 - STATE.unfold) * 1;
+        x11 = getPage3TargetX1(1, 1);
+        z11 = (1 - STATE.unfold) * 1;
+      } else if (STATE.page === 4 && STATE.unfold > 0) {
+        const u00 = get2DTargetX1(refGrp, 0, 0);
+        const u10 = get2DTargetX1(d1Grp, 1, 0);
+        const u01 = get2DTargetX1(d2Grp, 0, 1);
+
+        x00 = (1 - STATE.unfold) * 0 + STATE.unfold * u00;
+        z00 = (1 - STATE.unfold) * 0;
+
+        x10 = (1 - STATE.unfold) * 1 + STATE.unfold * u10;
+        z10 = (1 - STATE.unfold) * 0;
+
+        x01 = (1 - STATE.unfold) * 0 + STATE.unfold * u01;
+        z01 = (1 - STATE.unfold) * 1;
+      }
+
+      const p00 = new THREE.Vector3(x1ToWorld(x00), yToWorld(st.b0Hat), x2ToWorld(z00));
+      const p10 = new THREE.Vector3(x1ToWorld(x10), yToWorld(st.b0Hat + st.b1Hat), x2ToWorld(z10));
+      const p01 = new THREE.Vector3(x1ToWorld(x01), yToWorld(st.b0Hat + st.b2Hat), x2ToWorld(z01));
+      const p11 = new THREE.Vector3(x1ToWorld(x11), yToWorld(st.b0Hat + st.b1Hat + st.b2Hat + st.b3Hat), x2ToWorld(z11));
+
+      interceptSphere.position.copy(p00);
+      setLineEndpoints(cyanSlopeLine, p00, p10);
+      setLineEndpoints(coralSlopeLine, p00, p01);
+
+      const is2DMorph = (STATE.unfold > 0.5);
+      gridHelper.visible = !(STATE.unfold > 0.85);
+      x2AxisLine.visible = !(STATE.unfold > 0.85);
+      anova2DGuides.visible = (STATE.unfold > 0.35);
+
+      const hasInteractionEffect = (Math.abs(STATE.b3) > 0.05 || Math.abs(st.b3Hat) > 0.05);
+      const showStage1Spotlights = (STATE.page === 1 && STATE.showSpotlightSlopes);
+
+      // Hide boundary X2=0 / X2=1 edge lines on Stage 1 when morphed to 2D with spotlight simple slopes active
+      cyanSlopeLine.visible = !(showStage1Spotlights && STATE.unfold > 0.5);
+      backSlopeLine.visible = (
+        STATE.page === 2 ||
+        STATE.page === 3 ||
+        (STATE.page === 1 && hasInteractionEffect && !(showStage1Spotlights && STATE.unfold > 0.5))
+      );
+      ancovaCaliperLine.visible = (STATE.page === 2);
+      coralSlopeLine.visible = !((STATE.page === 1 || STATE.page === 2 || STATE.page === 3) && STATE.unfold > 0.65);
+      rightEdgeSlopeLine.visible = ((STATE.page <= 3 && hasInteractionEffect) && STATE.unfold <= 0.65);
+
+      // Stage 1 Spotlight Simple-Slope Lines (Low X2 = 0.15, Mean X2 = 0.50, High X2 = 0.85)
+      const spotLblKeys = ['slopeLowLbl', 'slopeMeanLbl', 'slopeHighLbl'];
+      const spotNames = ['Low $X_2=0.15$', 'Mean $X_2=0.50$', 'High $X_2=0.85$'];
+      const spotX1Fracs = [0.22, 0.50, 0.78];
+
+      for (let sIdx = 0; sIdx < 3; sIdx++) {
+        const lineObj = spotlightSlopeLines[sIdx];
+        const lblDef = labelDefs[spotLblKeys[sIdx]];
+        lineObj.visible = showStage1Spotlights;
+
+        if (showStage1Spotlights) {
+          const x2Val = SPOTLIGHT_X2_LEVELS[sIdx];
+          const visZ = x2ToWorld((1 - STATE.unfold) * x2Val);
+          const yInt = st.b0Hat + st.b2Hat * x2Val;
+          const condSlope = st.b1Hat + st.b3Hat * x2Val;
+          const yEnd = yInt + condSlope;
+
+          const vStart = new THREE.Vector3(x1ToWorld(0), yToWorld(yInt), visZ);
+          const vEnd   = new THREE.Vector3(x1ToWorld(1), yToWorld(yEnd), visZ);
+          setLineEndpoints(lineObj, vStart, vEnd);
+
+          // Show floating simple-slope KaTeX labels when morphed to 2D (unfold > 0.5)
+          lblDef.visible = (STATE.unfold > 0.5);
+          if (lblDef.visible) {
+            const frac = spotX1Fracs[sIdx];
+            const yAtFrac = yInt + condSlope * frac;
+            lblDef.pos.set(x1ToWorld(frac), yToWorld(yAtFrac) + 0.30, visZ);
+            const signStr = condSlope >= 0 ? '+' : '-';
+            setMathHTML(
+              lblDef.el,
+              `${spotNames[sIdx]}: $\\text{Slope} = ${signStr}${Math.abs(condSlope).toFixed(2)}$`
+            );
+          }
+        } else {
+          lblDef.visible = false;
+        }
+      }
+
+      // Show dashed empirical/saturated lines on Stages 1, 2, or 3 if fitInteraction is unchecked while true b3 != 0
+      const showMismatchLines = (STATE.page <= 3 && !STATE.fitInteraction && Math.abs(STATE.b3) > 0.05);
+      empCellLineX2_0.visible = showMismatchLines;
+      empCellLineX2_1.visible = showMismatchLines;
+      const mismatchNote = document.getElementById('additive-mismatch-note');
+      if (mismatchNote) mismatchNote.style.display = showMismatchLines ? 'block' : 'none';
+
+      if (showMismatchLines) {
+        const fb = st.fullBetas;
+        const y00 = STATE.page === 3 ? st.cellMeans['00'] : fb[0];
+        const y10 = STATE.page === 3 ? st.cellMeans['10'] : (fb[0] + fb[1]);
+        const y01 = STATE.page === 3 ? st.cellMeans['01'] : (fb[0] + fb[2]);
+        const y11 = STATE.page === 3 ? st.cellMeans['11'] : (fb[0] + fb[1] + fb[2] + fb[3]);
+
+        const c00 = new THREE.Vector3(x1ToWorld(x00), yToWorld(y00), x2ToWorld(z00));
+        const c10 = new THREE.Vector3(x1ToWorld(x10), yToWorld(y10), x2ToWorld(z10));
+        const c01 = new THREE.Vector3(x1ToWorld(x01), yToWorld(y01), x2ToWorld(z01));
+        const c11 = new THREE.Vector3(x1ToWorld(x11), yToWorld(y11), x2ToWorld(z11));
+        setLineEndpoints(empCellLineX2_0, c00, c10);
+        setLineEndpoints(empCellLineX2_1, c01, c11);
+      }
+
+      if (STATE.page === 1) {
+        setLineEndpoints(backSlopeLine, p01, p11);
+        setLineEndpoints(rightEdgeSlopeLine, p10, p11);
+        surfaceMat.opacity = 0.5 * (1 - 0.90 * STATE.unfold);
+        surfaceWireMat.opacity = 0.18 * (1 - 0.90 * STATE.unfold);
+      } else if (STATE.page === 2) {
+        setLineEndpoints(backSlopeLine, p01, p11);
+        setLineEndpoints(rightEdgeSlopeLine, p10, p11);
+        const midZ = (1 - STATE.unfold) * 1;
+        const midFront = new THREE.Vector3(x1ToWorld(0.5), yToWorld(st.b0Hat + 0.5 * st.b1Hat), x2ToWorld(0));
+        const midBack  = new THREE.Vector3(x1ToWorld(0.5), yToWorld(st.b0Hat + 0.5 * st.b1Hat + st.b2Hat + 0.5 * st.b3Hat), x2ToWorld(midZ));
+        setLineEndpoints(ancovaCaliperLine, midFront, midBack);
+        surfaceMat.opacity = 0.28 * (1 - 0.85 * STATE.unfold);
+        surfaceWireMat.opacity = 0.28 * (1 - 0.85 * STATE.unfold);
+      } else if (STATE.page === 3) {
+        setLineEndpoints(backSlopeLine, p01, p11);
+        setLineEndpoints(rightEdgeSlopeLine, p10, p11);
+        surfaceMat.opacity = 0.45 * (1 - 0.88 * STATE.unfold);
+        surfaceWireMat.opacity = 0.20 * (1 - 0.88 * STATE.unfold);
+      } else if (STATE.page === 4) {
+        surfaceMat.opacity = 0.5 * (1 - 0.82 * STATE.unfold);
+        surfaceWireMat.opacity = 0.20 * (1 - 0.82 * STATE.unfold);
+      }
+
+      // Page 1 Cross-Section Slicer (works seamlessly in both 3D and 2D Simple Slopes view)
+      slicerGroup.visible = (STATE.page === 1 && STATE.slicerActive);
+      setMathHTML('slicer-label-hdr', `Cross-Section Slicer Plane ($X_2 = ${STATE.slicerX2.toFixed(2)}$)`);
+      setMathHTML('slicer-tol-hdr', `Slice Bandwidth ($\\pm \\Delta X_2 = ${STATE.slicerTol.toFixed(2)}$)`);
+
+      if (slicerGroup.visible) {
+        const morphedSliceX2 = (1 - STATE.unfold) * STATE.slicerX2;
+        const wz = x2ToWorld(morphedSliceX2);
+        slicerPlaneMesh.position.z = wz;
+        slicerPlaneMat.opacity = 0.22 * (1 - 0.90 * STATE.unfold);
+        slicerPlaneMesh.visible = (STATE.unfold < 0.88);
+
+        const ySlice0 = st.b0Hat + st.b2Hat * STATE.slicerX2;
+        const condSlopeX1 = st.b1Hat + st.b3Hat * STATE.slicerX2;
+        const ySlice1 = ySlice0 + condSlopeX1;
+
+        const sStart = new THREE.Vector3(x1ToWorld(0), yToWorld(ySlice0), wz + 0.01);
+        const sEnd   = new THREE.Vector3(x1ToWorld(1), yToWorld(ySlice1), wz + 0.01);
+        setLineEndpoints(slicerCutLine, sStart, sEnd);
+
+        const condIntStr = ySlice0.toFixed(2);
+        const slopeSign = condSlopeX1 >= 0 ? '+' : '-';
+        const slopeNote = Math.abs(st.b3Hat) > 0.01
+          ? `(\\text{Slope } \\hat{b}_1 + \\hat{b}_3 X_2 \\text{ varies with } X_2!)`
+          : `(\\text{Slope } \\hat{b}_1 \\text{ constant across } X_2)`;
+
+        setMathHTML('slice-eq-header', `Conditional Line at $X_2 = ${STATE.slicerX2.toFixed(2)}$:`);
+        setMathHTML('slice-eq-text',
+          `$\\hat{Y} = ${condIntStr} ${slopeSign} ${Math.abs(condSlopeX1).toFixed(2)}X_1 \\quad ${slopeNote}$`
+        );
+      }
+
+      applyStage1SliceHighlight();
+
+      // Grand Mean Plane & 2D Grand Mean Line
+      const showGrand = (STATE.residualMode === 'model' || STATE.residualMode === 'total' || (STATE.page === 4 && STATE.unfold > 0.2));
+      grandPlaneMesh.visible = showGrand && (STATE.unfold < 0.75);
+      grandPlaneMesh.position.y = yToWorld(st.yBar);
+
+      grandLine.visible = (STATE.page === 4 && STATE.unfold > 0.2);
+      labelDefs.grandLbl.visible = grandLine.visible;
+
+      // Page 4 Between-Group Calipers
+      const showCalipers = (STATE.page === 4 && STATE.unfold > 0.45);
+      const cornerPts = [p00, p10, p01];
+      for (let cIdx = 0; cIdx < 3; cIdx++) {
+        anovaBetweenCalipers[cIdx].visible = showCalipers;
+        if (showCalipers) {
+          const topPt = cornerPts[cIdx].clone();
+          const botPt = new THREE.Vector3(topPt.x, yToWorld(st.yBar), topPt.z);
+          setLineEndpoints(anovaBetweenCalipers[cIdx], topPt, botPt);
+        }
+      }
+
+      // Mean Discs on Page 3 & Page 4
+      forbiddenGroup.visible = (STATE.page === 4 && STATE.unfold < 0.35);
+      labelDefs.forbLabel.visible = forbiddenGroup.visible;
+
+      if (STATE.page === 3) {
+        const coords = [
+          [x00, z00, st.cellMeans['00']],
+          [x10, z10, st.cellMeans['10']],
+          [x01, z01, st.cellMeans['01']],
+          [x11, z11, st.cellMeans['11']]
+        ];
+        for (let i = 0; i < 4; i++) {
+          meanDiscs[i].visible = true;
+          meanDiscs[i].scale.set(1, 1, 1);
+          meanDiscs[i].position.set(x1ToWorld(coords[i][0]), yToWorld(coords[i][2]), x2ToWorld(coords[i][1]));
+        }
+      } else if (STATE.page === 4) {
+        const discScaleX = 1.0 + 0.45 * STATE.unfold;
+        meanDiscs[0].visible = true;
+        meanDiscs[0].scale.set(discScaleX, 1, 1);
+        meanDiscs[0].position.copy(p00);
+
+        meanDiscs[1].visible = true;
+        meanDiscs[1].scale.set(discScaleX, 1, 1);
+        meanDiscs[1].position.copy(p10);
+
+        meanDiscs[2].visible = true;
+        meanDiscs[2].scale.set(discScaleX, 1, 1);
+        meanDiscs[2].position.copy(p01);
+
+        meanDiscs[3].visible = false;
+      } else {
+        for (let i = 0; i < 4; i++) meanDiscs[i].visible = false;
+      }
+
+      // Floating 3D Labels Update
+      const hideStage1EdgeLabels = (STATE.page === 1 && STATE.showSpotlightSlopes && STATE.unfold > 0.5);
+      labelDefs.b0Label.visible = !hideStage1EdgeLabels;
+      labelDefs.b1Label.visible = !hideStage1EdgeLabels;
+      labelDefs.b2Label.visible = !hideStage1EdgeLabels;
+
+      labelDefs.b0Label.pos.copy(p00).add(new THREE.Vector3(0, 0.42, 0.15));
+      setMathHTML(
+        labelDefs.b0Label.el,
+        STATE.page === 4
+          ? `$\\hat{b}_0 = \\bar{Y}_{${STATE.refGroup}} = ${st.b0Hat.toFixed(2)}$`
+          : `$\\hat{b}_0 = ${st.b0Hat.toFixed(2)}$`
+      );
+
+      labelDefs.b1Label.pos.copy(p00).lerp(p10, 0.52).add(new THREE.Vector3(0, 0.34, 0.15));
+      if (STATE.page === 4 && STATE.unfold > 0.7) {
+        setMathHTML(
+          labelDefs.b1Label.el,
+          `$\\hat{b}_1 = \\bar{Y}_{${d1Grp}} - \\bar{Y}_{${refGrp}} = ${st.b1Hat >= 0 ? '+' : ''}${st.b1Hat.toFixed(2)}$`
+        );
+      } else if (STATE.page === 3) {
+        setMathHTML(
+          labelDefs.b1Label.el,
+          `$X_2=0 \\text{ Line (Slope } \\hat{b}_1 = ${st.b1Hat >= 0 ? '+' : ''}${st.b1Hat.toFixed(2)})$`
+        );
+      } else if (STATE.page === 2 && (STATE.unfold > 0.5 || hasInteractionEffect)) {
+        setMathHTML(
+          labelDefs.b1Label.el,
+          `$\\text{Group 0 Slope } \\hat{b}_1 = ${st.b1Hat >= 0 ? '+' : ''}${st.b1Hat.toFixed(2)}$`
+        );
+      } else {
+        setMathHTML(
+          labelDefs.b1Label.el,
+          `$\\hat{b}_1 = ${st.b1Hat >= 0 ? '+' : ''}${st.b1Hat.toFixed(2)}$`
+        );
+      }
+
+      const s2Slope = st.b1Hat + st.b3Hat;
+      if (STATE.page === 1 && hasInteractionEffect) {
+        labelDefs.b2Label.pos.copy(p01).lerp(p11, 0.52).add(new THREE.Vector3(0, 0.36, 0.15));
+        setMathHTML(
+          labelDefs.b2Label.el,
+          `$X_2=1 \\text{ Slope } (\\hat{b}_1+\\hat{b}_3 = ${s2Slope >= 0 ? '+' : ''}${s2Slope.toFixed(2)})$`
+        );
+      } else if (STATE.page === 2 && (STATE.unfold > 0.5 || hasInteractionEffect)) {
+        labelDefs.b2Label.pos.copy(p01).lerp(p11, 0.52).add(new THREE.Vector3(0, 0.36, 0.15));
+        if (Math.abs(st.b3Hat) > 0.01) {
+          setMathHTML(
+            labelDefs.b2Label.el,
+            `$\\text{Group 1 Slope } (\\hat{b}_1+\\hat{b}_3 = ${s2Slope >= 0 ? '+' : ''}${s2Slope.toFixed(2)})$`
+          );
+        } else {
+          setMathHTML(
+            labelDefs.b2Label.el,
+            `$\\text{Group 1 Shift } \\hat{b}_2 = ${st.b2Hat >= 0 ? '+' : ''}${st.b2Hat.toFixed(2)}$`
+          );
+        }
+      } else if (STATE.page === 3) {
+        labelDefs.b2Label.pos.copy(p01).lerp(p11, 0.52).add(new THREE.Vector3(0, 0.36, 0.15));
+        setMathHTML(
+          labelDefs.b2Label.el,
+          `$X_2=1 \\text{ Line (Slope } \\hat{b}_1+\\hat{b}_3 = ${s2Slope >= 0 ? '+' : ''}${s2Slope.toFixed(2)})$`
+        );
+      } else {
+        labelDefs.b2Label.pos.copy(p00).lerp(p01, 0.52).add(new THREE.Vector3(-0.2, 0.34, 0));
+        setMathHTML(
+          labelDefs.b2Label.el,
+          STATE.page === 4 && STATE.unfold > 0.7
+            ? `$\\hat{b}_2 = \\bar{Y}_{${d2Grp}} - \\bar{Y}_{${refGrp}} = ${st.b2Hat >= 0 ? '+' : ''}${st.b2Hat.toFixed(2)}$`
+            : `$\\hat{b}_2 = ${st.b2Hat >= 0 ? '+' : ''}${st.b2Hat.toFixed(2)}$`
+        );
+      }
+
+      // Axis & Group Pillar Labels across Stages
+      if (STATE.page === 4) {
+        if (is2DMorph) {
+          setMathHTML(labelDefs.axisX1.el, 'Categorical Factor: Group ($k = 3$ Levels)');
+          labelDefs.axisX2.visible = false;
+        } else {
+          setMathHTML(labelDefs.axisX1.el, 'Dummy $D_1 \\; (0 \\to 1)$');
+          setMathHTML(labelDefs.axisX2.el, 'Dummy $D_2 \\; (0 \\to 1)$');
+          labelDefs.axisX2.visible = true;
+        }
+
+        const roleMap = getPage4RoleMap();
+        labelDefs.grpALabel.visible = true;
+        labelDefs.grpBLabel.visible = true;
+        labelDefs.grpCLabel.visible = true;
+
+        const posForCorner = (corner) => {
+          const base = corner === '00' ? p00 : (corner === '10' ? p10 : p01);
+          if (is2DMorph) {
+            return new THREE.Vector3(base.x, floorY + 0.28, 3.0);
+          }
+          return base.clone().add(new THREE.Vector3(0, -0.45, 0.35));
+        };
+
+        labelDefs.grpALabel.pos.copy(posForCorner(roleMap.A.corner));
+        setMathHTML(labelDefs.grpALabel.el, `Group A ($\\bar{Y}_A=${st.groupMeans.A.toFixed(2)}$)`);
+        labelDefs.grpBLabel.pos.copy(posForCorner(roleMap.B.corner));
+        setMathHTML(labelDefs.grpBLabel.el, `Group B ($\\bar{Y}_B=${st.groupMeans.B.toFixed(2)}$)`);
+        labelDefs.grpCLabel.pos.copy(posForCorner(roleMap.C.corner));
+        setMathHTML(labelDefs.grpCLabel.el, `Group C ($\\bar{Y}_C=${st.groupMeans.C.toFixed(2)}$)`);
+      } else if (STATE.page === 3) {
+        setMathHTML(labelDefs.axisX1.el, is2DMorph ? 'Factor $X_1$ (Level 0 vs. Level 1)' : 'Factor $X_1 \\; (0 \\text{ vs. } 1)$');
+        setMathHTML(labelDefs.axisX2.el, 'Factor $X_2 \\; (0 \\text{ vs. } 1)$');
+        labelDefs.axisX2.visible = !is2DMorph;
+        labelDefs.grpALabel.visible = false;
+        labelDefs.grpBLabel.visible = false;
+        labelDefs.grpCLabel.visible = false;
+      } else if (STATE.page === 2) {
+        setMathHTML(labelDefs.axisX1.el, 'Continuous Covariate $X_1 \\; (0 \\to 1)$');
+        setMathHTML(labelDefs.axisX2.el, 'Binary Group $X_2 \\; (0 \\text{ vs. } 1)$');
+        labelDefs.axisX2.visible = !is2DMorph;
+        labelDefs.grpALabel.visible = false;
+        labelDefs.grpBLabel.visible = false;
+        labelDefs.grpCLabel.visible = false;
+      } else {
+        setMathHTML(labelDefs.axisX1.el, is2DMorph ? 'Focal Predictor $X_1 \\; (0 \\to 1)$' : '$X_1 \\; (0 \\to 1)$');
+        setMathHTML(labelDefs.axisX2.el, '$X_2 \\; (0 \\to 1)$');
+        labelDefs.axisX2.visible = !is2DMorph;
+        labelDefs.grpALabel.visible = false;
+        labelDefs.grpBLabel.visible = false;
+        labelDefs.grpCLabel.visible = false;
+      }
+
+      // Position Grand Mean Line & Label with collision avoidance against active labels/pillars
+      if (grandLine.visible) {
+        const yLine = yToWorld(st.yBar);
+        const gLeft = new THREE.Vector3(-3.0, yLine, 3.0);
+        const gRight = new THREE.Vector3(3.0, yLine, 3.0);
+        setLineEndpoints(grandLine, gLeft, gRight);
+
+        const obstacles = [
+          labelDefs.b0Label.pos,
+          labelDefs.b1Label.pos,
+          labelDefs.b2Label.pos,
+          p00, p10, p01,
+          labelDefs.grpALabel.pos,
+          labelDefs.grpBLabel.pos,
+          labelDefs.grpCLabel.pos
+        ];
+        const grandCandidates = [
+          new THREE.Vector3( 2.35, yLine - 0.34, 3.0),
+          new THREE.Vector3(-2.35, yLine + 0.34, 3.0),
+          new THREE.Vector3(-2.35, yLine - 0.34, 3.0),
+          new THREE.Vector3( 2.35, yLine + 0.34, 3.0)
+        ];
+        let bestCand = grandCandidates[0];
+        let bestMinClearance = -Infinity;
+        for (const cand of grandCandidates) {
+          let minClearance = Infinity;
+          for (const obs of obstacles) {
+            const clearance = Math.hypot((cand.x - obs.x) / 1.85, (cand.y - obs.y) / 0.45);
+            if (clearance < minClearance) minClearance = clearance;
+          }
+          if (minClearance > bestMinClearance) {
+            bestMinClearance = minClearance;
+            bestCand = cand;
+          }
+        }
+        labelDefs.grandLbl.pos.copy(bestCand);
+        setMathHTML(labelDefs.grandLbl.el, `Grand Mean $\\bar{Y} = ${st.yBar.toFixed(2)}$`);
+      }
+
+      updateSidebarInspector(st);
+    }
+
+    function getPage4RoleMap() {
+      if (STATE.refGroup === 'A') {
+        return {
+          A: { role: 'Reference $(0,0)$', d1: 0, d2: 0, corner: '00' },
+          B: { role: '$D_1$ Contrast $(1,0)$', d1: 1, d2: 0, corner: '10' },
+          C: { role: '$D_2$ Contrast $(0,1)$', d1: 0, d2: 1, corner: '01' }
+        };
+      } else if (STATE.refGroup === 'B') {
+        return {
+          B: { role: 'Reference $(0,0)$', d1: 0, d2: 0, corner: '00' },
+          A: { role: '$D_1$ Contrast $(1,0)$', d1: 1, d2: 0, corner: '10' },
+          C: { role: '$D_2$ Contrast $(0,1)$', d1: 0, d2: 1, corner: '01' }
+        };
+      } else {
+        return {
+          C: { role: 'Reference $(0,0)$', d1: 0, d2: 0, corner: '00' },
+          A: { role: '$D_1$ Contrast $(1,0)$', d1: 1, d2: 0, corner: '10' },
+          B: { role: '$D_2$ Contrast $(0,1)$', d1: 0, d2: 1, corner: '01' }
+        };
+      }
+    }
+
+    function updateSidebarInspector(st) {
+      const s1 = st.b1Hat >= 0 ? '+' : '-';
+      const s2 = st.b2Hat >= 0 ? '+' : '-';
+      const s3 = st.b3Hat >= 0 ? '+' : '-';
+      const useInt = (STATE.page <= 3 && STATE.fitInteraction);
+
+      // Update dynamic badge
+      const badgeEl = document.getElementById('model-badge');
+      if (STATE.page === 1) {
+        if (STATE.unfold > 0.5) {
+          badgeEl.textContent = (useInt && Math.abs(st.b3Hat) > 0.01) ? '2D Simple Slopes Fan' : '2D Parallel Slopes';
+        } else {
+          badgeEl.textContent = (useInt && Math.abs(st.b3Hat) > 0.01) ? 'Warped Saddle' : 'Additive Plane';
+        }
+      } else if (STATE.page === 2) {
+        badgeEl.textContent = (useInt && Math.abs(st.b3Hat) > 0.01) ? 'Non-Parallel Slopes' : 'Parallel Lines';
+      } else if (STATE.page === 3) {
+        badgeEl.textContent = '2x2 Factorial';
+      } else {
+        badgeEl.textContent = 'Dummy = ANOVA';
+      }
+
+      if (STATE.page === 1) {
+        const intStr = useInt ? ` ${s3} \\color{#a78bfa}{${Math.abs(st.b3Hat).toFixed(2)}X_1 X_2}` : '';
+        const slopeAtX2_1 = st.b1Hat + st.b3Hat;
+        setMathHTML(
+          'live-formula',
+          `$$\\hat{Y} = \\color{#f59e0b}{${st.b0Hat.toFixed(2)}} ${s1} \\color{#38bdf8}{${Math.abs(st.b1Hat).toFixed(2)}X_1} ${s2} \\color{#fb7185}{${Math.abs(st.b2Hat).toFixed(2)}X_2}${intStr}$$`
+        );
+        setMathHTML(
+          'param-meanings',
+          `
+          <div class="param-row gold"><span>$\\hat{b}_0$ (Intercept at $X_1=0, X_2=0$)</span><span class="param-val" style="color:var(--gold)">${st.b0Hat.toFixed(2)}</span></div>
+          <div class="param-row cyan"><span>$\\hat{b}_1$ (Simple Slope of $X_1$ at $X_2=0$)</span><span class="param-val" style="color:var(--cyan)">${st.b1Hat.toFixed(2)}</span></div>
+          <div class="param-row coral"><span>$\\hat{b}_2$ (Simple Slope of $X_2$ at $X_1=0$)</span><span class="param-val" style="color:var(--coral)">${st.b2Hat.toFixed(2)}</span></div>
+          ${useInt
+            ? `<div class="param-row purple"><span>$\\hat{b}_3$ (Moderation: $\\Delta$ Slope of $X_1$ per unit $X_2$; at $X_2=1$: ${slopeAtX2_1.toFixed(2)})</span><span class="param-val" style="color:var(--purple)">${st.b3Hat.toFixed(2)}</span></div>`
+            : `<div class="param-row purple"><span>$\\hat{b}_3$ Constrained to $0$ (Additive Plane Fit)</span><span class="param-val" style="color:var(--text-muted)">0.00</span></div>`
+          }
+          `
+        );
+      } else if (STATE.page === 2) {
+        const intStr = useInt ? ` ${s3} \\color{#a78bfa}{${Math.abs(st.b3Hat).toFixed(2)}(X_1 \\cdot \\text{Group})}` : '';
+        const grp1Slope = st.b1Hat + st.b3Hat;
+        setMathHTML(
+          'live-formula',
+          `$$\\hat{Y} = \\color{#f59e0b}{${st.b0Hat.toFixed(2)}} ${s1} \\color{#38bdf8}{${Math.abs(st.b1Hat).toFixed(2)}X_1} ${s2} \\color{#fb7185}{${Math.abs(st.b2Hat).toFixed(2)}\\text{Group}}${intStr}$$`
+        );
+        setMathHTML(
+          'param-meanings',
+          `
+          <div class="param-row gold"><span>$\\hat{b}_0$ (Group 0 Intercept at $X_1=0$)</span><span class="param-val" style="color:var(--gold)">${st.b0Hat.toFixed(2)}</span></div>
+          <div class="param-row cyan"><span>$\\hat{b}_1$ (Group 0 Regression Slope on $X_1$)</span><span class="param-val" style="color:var(--cyan)">${st.b1Hat.toFixed(2)}</span></div>
+          <div class="param-row coral"><span>$\\hat{b}_2$ (Group 1 $-$ Group 0 Shift at $X_1=0$)</span><span class="param-val" style="color:var(--coral)">${st.b2Hat.toFixed(2)}</span></div>
+          ${useInt
+            ? `<div class="param-row purple"><span>$\\hat{b}_3$ (Slope Diff: Group 1 Slope ${grp1Slope.toFixed(2)} $-$ Group 0 Slope ${st.b1Hat.toFixed(2)})</span><span class="param-val" style="color:var(--purple)">${st.b3Hat.toFixed(2)}</span></div>`
+            : `<div class="param-row purple"><span>$\\hat{b}_3$ Constrained to $0$ (Homogeneous Parallel Slopes)</span><span class="param-val" style="color:var(--text-muted)">0.00</span></div>`
+          }
+          `
+        );
+      } else if (STATE.page === 3) {
+        const intStr = useInt ? ` ${s3} \\color{#a78bfa}{${Math.abs(st.b3Hat).toFixed(2)}X_1 X_2}` : '';
+        const slopeX2_1 = st.b1Hat + st.b3Hat;
+        setMathHTML(
+          'live-formula',
+          `$$\\hat{Y} = \\color{#f59e0b}{${st.b0Hat.toFixed(2)}} ${s1} \\color{#38bdf8}{${Math.abs(st.b1Hat).toFixed(2)}X_1} ${s2} \\color{#fb7185}{${Math.abs(st.b2Hat).toFixed(2)}X_2}${intStr}$$`
+        );
+        setMathHTML(
+          'param-meanings',
+          `
+          <div class="param-row gold"><span>$\\hat{b}_0$ (Cell $[0,0]$ Baseline Mean)</span><span class="param-val" style="color:var(--gold)">${st.b0Hat.toFixed(2)}</span></div>
+          <div class="param-row cyan"><span>$\\hat{b}_1$ (Simple Effect of $X_1$ when $X_2 = 0$)</span><span class="param-val" style="color:var(--cyan)">${st.b1Hat.toFixed(2)}</span></div>
+          <div class="param-row coral"><span>$\\hat{b}_1 + \\hat{b}_3$ (Simple Effect of $X_1$ when $X_2 = 1$)</span><span class="param-val" style="color:var(--coral)">${slopeX2_1.toFixed(2)}</span></div>
+          ${useInt
+            ? `<div class="param-row purple"><span>$\\hat{b}_3$ (Interaction = Slope Diff: ${slopeX2_1.toFixed(2)} $-$ ${st.b1Hat.toFixed(2)})</span><span class="param-val" style="color:var(--purple)">${st.b3Hat.toFixed(2)}</span></div>`
+            : `<div class="param-row purple"><span>$\\hat{b}_3$ Constrained to $0$ (Parallel Additive Fit)</span><span class="param-val" style="color:var(--text-muted)">0.00</span></div>`
+          }
+          `
+        );
+      } else {
+        // Page 4: Dummy Coding === One-Way ANOVA
+        const ref = STATE.refGroup;
+        const c1 = ref === 'A' ? 'B' : 'A';
+        const c2 = ref === 'C' ? 'B' : 'C';
+
+        if (STATE.unfold > 0.5) {
+          const aA = st.groupMeans.A - st.yBar;
+          const aB = st.groupMeans.B - st.yBar;
+          const aC = st.groupMeans.C - st.yBar;
+          setMathHTML(
+            'live-formula',
+            `
+            <div style="font-size:0.84rem; color:var(--text-muted); margin-bottom:2px;">Dummy Regression: $\\hat{Y} = \\color{#f59e0b}{${st.b0Hat.toFixed(2)}} ${s1} \\color{#38bdf8}{${Math.abs(st.b1Hat).toFixed(2)}D_1} ${s2} \\color{#fb7185}{${Math.abs(st.b2Hat).toFixed(2)}D_2}$</div>
+            <div style="color:var(--emerald)">2D ANOVA: $\\hat{Y}_{ik} = \\bar{Y} \\text{ (${st.yBar.toFixed(2)})} + \\hat{\\alpha}_k \\; (\\bar{Y}_k - \\bar{Y})$</div>
+            `
+          );
+          setMathHTML(
+            'param-meanings',
+            `
+            <div class="param-row gold"><span>$\\hat{b}_0 = \\bar{Y}_{${ref}}$ (Ref Mean) | $\\hat{\\alpha}_A = ${aA >= 0 ? '+' : ''}${aA.toFixed(2)}$</span><span class="param-val" style="color:var(--gold)">${st.b0Hat.toFixed(2)}</span></div>
+            <div class="param-row cyan"><span>$\\hat{b}_1 = \\bar{Y}_{${c1}} - \\bar{Y}_{${ref}}$ | $\\hat{\\alpha}_B = ${aB >= 0 ? '+' : ''}${aB.toFixed(2)}$</span><span class="param-val" style="color:var(--cyan)">${st.b1Hat.toFixed(2)}</span></div>
+            <div class="param-row coral"><span>$\\hat{b}_2 = \\bar{Y}_{${c2}} - \\bar{Y}_{${ref}}$ | $\\hat{\\alpha}_C = ${aC >= 0 ? '+' : ''}${aC.toFixed(2)}$</span><span class="param-val" style="color:var(--coral)">${st.b2Hat.toFixed(2)}</span></div>
+            `
+          );
+        } else {
+          setMathHTML(
+            'live-formula',
+            `$$\\hat{Y} = \\color{#f59e0b}{${st.b0Hat.toFixed(2)}} ${s1} \\color{#38bdf8}{${Math.abs(st.b1Hat).toFixed(2)}D_1} ${s2} \\color{#fb7185}{${Math.abs(st.b2Hat).toFixed(2)}D_2}$$`
+          );
+          setMathHTML(
+            'param-meanings',
+            `
+            <div class="param-row gold"><span>$\\hat{b}_0 = \\bar{Y}_{${ref}}$ (Reference Group ${ref} Mean)</span><span class="param-val" style="color:var(--gold)">${st.b0Hat.toFixed(2)}</span></div>
+            <div class="param-row cyan"><span>$\\hat{b}_1 = \\bar{Y}_{${c1}} - \\bar{Y}_{${ref}}$ (Group ${c1} vs. Ref ${ref})</span><span class="param-val" style="color:var(--cyan)">${st.b1Hat.toFixed(2)}</span></div>
+            <div class="param-row coral"><span>$\\hat{b}_2 = \\bar{Y}_{${c2}} - \\bar{Y}_{${ref}}$ (Group ${c2} vs. Ref ${ref})</span><span class="param-val" style="color:var(--coral)">${st.b2Hat.toFixed(2)}</span></div>
+            `
+          );
+        }
+
+        // Populate Dummy Matrix Table
+        const rMap = getPage4RoleMap();
+        const tbodyHtml = ['A', 'B', 'C'].map(g => `
+          <tr>
+            <td style="font-weight:700;">Group ${g}</td>
+            <td style="font-size:0.68rem; color:var(--text-muted)">${rMap[g].role}</td>
+            <td style="color:var(--cyan); font-weight:700;">${rMap[g].d1}</td>
+            <td style="color:var(--coral); font-weight:700;">${rMap[g].d2}</td>
+            <td style="font-family:monospace; font-weight:700;">${st.groupMeans[g].toFixed(2)}</td>
+          </tr>
+        `).join('') + `
+          <tr class="impossible-row">
+            <td>Corner $(1,1)$</td>
+            <td>Mutually Exclusive</td>
+            <td>1</td>
+            <td>1</td>
+            <td>Impossible</td>
+          </tr>
+        `;
+        setMathHTML('dummy-matrix-body', tbodyHtml);
+      }
+
+      // Variance Partitioning Bar & Equivalence Table
+      const pctModel = (st.R2 * 100);
+      const pctError = 100 - pctModel;
+      setMathHTML('r2-badge', `$R^2 = \\eta^2 = ${st.R2.toFixed(3)}$`);
+      document.getElementById('ss-model-txt').textContent = st.ssModel.toFixed(2);
+      document.getElementById('ss-error-txt').textContent = st.ssError.toFixed(2);
+
+      const barM = document.getElementById('ss-bar-model');
+      const barE = document.getElementById('ss-bar-error');
+      barM.style.width = `${Math.max(4, pctModel)}%`;
+      barE.style.width = `${Math.max(4, pctError)}%`;
+      barM.textContent = pctModel >= 12 ? `${pctModel.toFixed(1)}%` : '';
+      barE.textContent = pctError >= 12 ? `${pctError.toFixed(1)}%` : '';
+
+      document.getElementById('tbl-ss-m').textContent = st.ssModel.toFixed(2);
+      document.getElementById('tbl-df-m').textContent = st.dfModel;
+      document.getElementById('tbl-ms-m').textContent = st.msModel.toFixed(2);
+      document.getElementById('tbl-f').textContent = st.F.toFixed(2);
+      document.getElementById('tbl-p').textContent = st.pVal < 0.001 ? '< .001' : st.pVal.toFixed(3);
+
+      document.getElementById('tbl-ss-e').textContent = st.ssError.toFixed(2);
+      document.getElementById('tbl-df-e').textContent = st.dfError;
+      document.getElementById('tbl-ms-e').textContent = st.msError.toFixed(2);
+
+      document.getElementById('tbl-ss-t').textContent = st.ssTotal.toFixed(2);
+      document.getElementById('tbl-df-t').textContent = st.dfTotal;
+      setMathHTML('tbl-ybar', `$\\bar{Y} = ${st.yBar.toFixed(2)}$`);
+    }
+
+    /*************************************************************************
+     * 6. UI EVENT HANDLERS & STAGE NAVIGATION
+     *************************************************************************/
+
+    const STAGE_META = {
+      1: {
+        tag: 'Stage 1 of 4. Two continuous predictors',
+        title: 'Both continuous: $X_1 \\in [0, 1],\\ X_2 \\in [0, 1]$',
+        desc: 'When $b_3 = 0$, ordinary least squares fits a plane, and the slope along $X_1$ ($\\hat{b}_1$) is the same at every $X_2$. Move $b_3$ away from zero and the surface bends: the slope of $X_1$ depends on $X_2$. Slide the cross-section along $X_2$, or morph the surface into the 2D simple-slopes plot.',
+        ctrlTitle: '2. Interaction, slice, and 2D morph'
+      },
+      2: {
+        tag: 'Stage 2 of 4. One continuous predictor and one binary predictor',
+        title: 'ANCOVA: $X_1 \\in [0, 1],\\ X_2 \\in \\{0, 1\\}$',
+        desc: 'Points sit on $X_2 = 0$ (group 0) or $X_2 = 1$ (group 1). When $b_3 = 0$, the two groups share one slope ($\\hat{b}_1$). When $b_3 \\neq 0$, the slopes differ. Morph the surface into the 2D ANCOVA plot to compare them.',
+        ctrlTitle: '2. Interaction and the 2D ANCOVA morph'
+      },
+      3: {
+        tag: 'Stage 3 of 4. Two binary predictors',
+        title: '$2 \\times 2$ ANOVA: $X_1 \\in \\{0, 1\\},\\ X_2 \\in \\{0, 1\\}$',
+        desc: 'Points sit on the four corners $(0,0)$, $(1,0)$, $(0,1)$, and $(1,1)$. The product $b_3 X_1 X_2$ is the interaction. Morph the pillars into the classic 2D interaction plot: parallel lines when $b_3 = 0$, and non-parallel lines when $b_3 \\neq 0$.',
+        ctrlTitle: '2. Two-way ANOVA and the 2D morph'
+      },
+      4: {
+        tag: 'Stage 4 of 4. Dummy codes for three groups',
+        title: 'One-way ANOVA: groups coded with $(D_1, D_2)$',
+        desc: 'Three groups use only three corners, $(0,0)$, $(1,0)$, and $(0,1)$. Those three means define a plane. The corner $(1,1)$ is empty, because a case cannot be in two groups at once. Morph the plane onto one categorical axis. The fit is the same as a one-way ANOVA: the intercept is the reference mean, and each coefficient is a difference from that mean.',
+        ctrlTitle: '2. Dummy coding and the 2D ANOVA morph'
+      }
+    };
+
+    function syncMorphUI(val) {
+      const pct = `${Math.round(val * 100)}%`;
+      [1, 2, 3, 4].forEach(p => {
+        const sEl = document.getElementById(`unfold-slider-${p}`);
+        const vEl = document.getElementById(`unfold-val-${p}`);
+        const b3d = document.getElementById(`btn-p${p}-3d`);
+        const b2d = document.getElementById(`btn-p${p}-2d`);
+        if (sEl) sEl.value = val;
+        if (vEl) vEl.textContent = pct;
+        if (b3d) b3d.classList.toggle('active', val < 0.15);
+        if (b2d) b2d.classList.toggle('active', val > 0.85);
+      });
+    }
+
+    function setPage(pageNum) {
+      if (unfoldAnimId) {
+        cancelAnimationFrame(unfoldAnimId);
+        unfoldAnimId = null;
+      }
+      STATE.page = pageNum;
+      STATE.unfold = 0.0;
+      syncMorphUI(0.0);
+
+      // Show shared interaction controls on Stages 1, 2, and 3; hide on Stage 4
+      const sharedIntBlock = document.getElementById('shared-interaction-block');
+      if (sharedIntBlock) {
+        sharedIntBlock.style.display = (pageNum <= 3) ? 'block' : 'none';
+      }
+
+      if (pageNum <= 3) {
+        document.getElementById('interaction-toggle').checked = STATE.fitInteraction;
+        document.getElementById('slider-b3').value = STATE.b3;
+        document.getElementById('val-b3').textContent = STATE.b3.toFixed(2);
+      }
+
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`step-${i}`).classList.toggle('active', i === pageNum);
+        document.getElementById(`ctrl-page-${i}`).style.display = (i === pageNum) ? 'block' : 'none';
+      }
+
+      const meta = STAGE_META[pageNum];
+      document.getElementById('hud-stage').textContent = meta.tag;
+      setMathHTML('hud-title', meta.title);
+      setMathHTML('hud-desc', meta.desc);
+      document.getElementById('stage-ctrl-title').textContent = meta.ctrlTitle;
+
+      if (STATE.isOrtho) animateCameraPreset('iso', false);
+      updateSceneTargets(650);
+    }
+
+    function onParamChange() {
+      STATE.b0 = parseFloat(document.getElementById('slider-b0').value);
+      STATE.b1 = parseFloat(document.getElementById('slider-b1').value);
+      STATE.b2 = parseFloat(document.getElementById('slider-b2').value);
+      STATE.b3 = parseFloat(document.getElementById('slider-b3').value);
+      STATE.sigma = parseFloat(document.getElementById('slider-sigma').value);
+
+      document.getElementById('val-b0').textContent = STATE.b0.toFixed(2);
+      document.getElementById('val-b1').textContent = STATE.b1.toFixed(2);
+      document.getElementById('val-b2').textContent = STATE.b2.toFixed(2);
+      document.getElementById('val-b3').textContent = STATE.b3.toFixed(2);
+      document.getElementById('val-sigma').textContent = STATE.sigma.toFixed(2);
+
+      updateSceneTargets(0);
+    }
+
+    function onSliderB3Change() {
+      STATE.b3 = parseFloat(document.getElementById('slider-b3').value);
+      document.getElementById('val-b3').textContent = STATE.b3.toFixed(2);
+      if (Math.abs(STATE.b3) > 0.01 && !STATE.fitInteraction) {
+        STATE.fitInteraction = true;
+        document.getElementById('interaction-toggle').checked = true;
+      }
+      updateSceneTargets(0);
+    }
+
+    function setInteractionPreset(b3Val) {
+      STATE.b3 = b3Val;
+      if (Math.abs(b3Val) > 0.01) {
+        STATE.fitInteraction = true;
+        document.getElementById('interaction-toggle').checked = true;
+      }
+      document.getElementById('slider-b3').value = b3Val;
+      document.getElementById('val-b3').textContent = b3Val.toFixed(2);
+      updateSceneTargets(400);
+    }
+
+    function onSampleSizeChange() {
+      STATE.N = parseInt(document.getElementById('slider-n').value, 10);
+      setMathHTML('sigma-n-hdr', `Error SD ($\\sigma$) &amp; Sample Size ($N = ${STATE.N}$)`);
+      generateLatentPoints(STATE.N);
+      updateSceneTargets(300);
+    }
+
+    function regenerateNoise() {
+      generateLatentPoints(STATE.N);
+      updateSceneTargets(450);
+    }
+
+    function onStageControlChange() {
+      STATE.slicerActive = document.getElementById('slicer-toggle').checked;
+      STATE.slicerX2 = parseFloat(document.getElementById('slicer-slider').value);
+      STATE.slicerTol = parseFloat(document.getElementById('slicer-tol-slider').value);
+      updateDecorationsAndUI();
+    }
+
+    function onSpotlightSlopesToggle() {
+      const el = document.getElementById('spotlight-slopes-toggle');
+      STATE.showSpotlightSlopes = el ? el.checked : true;
+      updateDecorationsAndUI();
+    }
+
+    function setSliceFilterMode(mode) {
+      STATE.sliceFilterMode = mode;
+      document.getElementById('slice-mode-dim').classList.toggle('active', mode === 'dim');
+      document.getElementById('slice-mode-hide').classList.toggle('active', mode === 'hide');
+      applyStage1SliceHighlight();
+    }
+
+    function onInteractionToggle() {
+      STATE.fitInteraction = document.getElementById('interaction-toggle').checked;
+      updateSceneTargets(450);
+    }
+
+    document.getElementById('jitter-toggle').addEventListener('change', (e) => {
+      STATE.jitter = e.target.checked;
+      updateSceneTargets(350);
+    });
+
+    function setReferenceGroup(grp) {
+      STATE.refGroup = grp;
+      ['A', 'B', 'C'].forEach(g => {
+        document.getElementById(`ref-${g}`).classList.toggle('active', g === grp);
+      });
+      updateSceneTargets(600);
+    }
+
+    function setAnovaOrder(orderMode) {
+      STATE.anovaOrder = orderMode;
+      document.getElementById('order-alpha').classList.toggle('active', orderMode === 'alpha');
+      document.getElementById('order-role').classList.toggle('active', orderMode === 'role');
+      updateSceneTargets(550);
+    }
+
+    function setResidualMode(mode) {
+      STATE.residualMode = mode;
+      ['error', 'model', 'total', 'none'].forEach(m => {
+        document.getElementById(`res-mode-${m}`).classList.toggle('active', m === mode);
+      });
+      updateSceneTargets(350);
+    }
+
+    function onUnfoldChange(val) {
+      STATE.unfold = parseFloat(val);
+      syncMorphUI(STATE.unfold);
+      updateSceneTargets(0);
+    }
+
+    let unfoldAnimId = null;
+    function animateUnfoldTo(targetVal) {
+      if (unfoldAnimId) cancelAnimationFrame(unfoldAnimId);
+      const startVal = STATE.unfold;
+      const startTime = performance.now();
+      const dur = 750;
+
+      if (targetVal > 0.5) {
+        animateCameraPreset('front', true);
+      } else {
+        animateCameraPreset('iso', false);
+      }
+
+      function step(now) {
+        const t = Math.min(1, (now - startTime) / dur);
+        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        STATE.unfold = startVal + (targetVal - startVal) * ease;
+        syncMorphUI(STATE.unfold);
+        updateSceneTargets(0);
+        if (t < 1) {
+          unfoldAnimId = requestAnimationFrame(step);
+        } else {
+          unfoldAnimId = null;
+        }
+      }
+      unfoldAnimId = requestAnimationFrame(step);
+    }
+
+    /*************************************************************************
+     * 7. CAMERA PRESETS & ORTHOGRAPHIC / PERSPECTIVE TOGGLE
+     *************************************************************************/
+    let camAnim = null;
+
+    function toggleProjection(forceOrtho = null) {
+      const nextOrtho = forceOrtho !== null ? forceOrtho : !STATE.isOrtho;
+      if (nextOrtho === STATE.isOrtho) return;
+      STATE.isOrtho = nextOrtho;
+
+      const prevCam = activeCamera;
+      activeCamera = STATE.isOrtho ? orthoCam : perspCam;
+      activeCamera.position.copy(prevCam.position);
+      activeCamera.quaternion.copy(prevCam.quaternion);
+
+      controls.object = activeCamera;
+      controls.update();
+
+      const btn = document.getElementById('proj-toggle-btn');
+      btn.textContent = STATE.isOrtho ? 'Orthographic' : 'Perspective';
+      btn.classList.toggle('active', STATE.isOrtho);
+    }
+
+    function animateCameraPreset(preset, switchOrtho = null) {
+      if (switchOrtho !== null) toggleProjection(switchOrtho);
+
+      const targetPos = new THREE.Vector3();
+      const targetLook = new THREE.Vector3(0, 0.2, 0);
+
+      if (preset === 'iso') {
+        targetPos.set(8.2, 5.6, 9.2);
+      } else if (preset === 'front') {
+        targetPos.set(0, 0.4, 12.5);
+        targetLook.set(0, 0.4, 0);
+      } else if (preset === 'side') {
+        targetPos.set(-12.5, 0.4, 0);
+        targetLook.set(0, 0.4, 0);
+      } else if (preset === 'top') {
+        targetPos.set(0, 13.5, 0.01);
+        targetLook.set(0, 0, 0);
+      }
+
+      if (reduceMotion) {
+        activeCamera.position.copy(targetPos);
+        controls.target.copy(targetLook);
+        camAnim = null;
+        return;
+      }
+
+      const startPos = activeCamera.position.clone();
+      const startLook = controls.target.clone();
+      const startTime = performance.now();
+      const duration = 650;
+
+      camAnim = { startPos, targetPos, startLook, targetLook, startTime, duration };
+    }
+
+    /*************************************************************************
+     * 8. MAIN RENDER LOOP & RESIZE HANDLER
+     *************************************************************************/
+    function onWindowResize() {
+      const w = viewportEl.clientWidth;
+      const h = viewportEl.clientHeight;
+      if (!(w > 1 && h > 1)) return;
+      const asp = w / h;
+
+      perspCam.aspect = asp;
+      perspCam.updateProjectionMatrix();
+
+      orthoCam.left = -orthoSize * asp;
+      orthoCam.right = orthoSize * asp;
+      orthoCam.top = orthoSize;
+      orthoCam.bottom = -orthoSize;
+      orthoCam.updateProjectionMatrix();
+
+      renderer.setSize(w, h);
+    }
+    window.addEventListener('resize', onWindowResize);
+    if (typeof ResizeObserver === 'function') {
+      const viewportObserver = new ResizeObserver(onWindowResize);
+      viewportObserver.observe(viewportEl);
+    }
+
+    function animate(now) {
+      requestAnimationFrame(animate);
+
+      if (animState.active) {
+        const elapsed = now - animState.startTime;
+        const t = Math.min(1.0, elapsed / Math.max(1, animState.duration));
+        applyInterpolationStep(t);
+        if (t >= 1.0) animState.active = false;
+      }
+
+      if (camAnim) {
+        const t = Math.min(1.0, (now - camAnim.startTime) / camAnim.duration);
+        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        activeCamera.position.lerpVectors(camAnim.startPos, camAnim.targetPos, ease);
+        controls.target.lerpVectors(camAnim.startLook, camAnim.targetLook, ease);
+        if (t >= 1.0) camAnim = null;
+      }
+
+      controls.update();
+      renderer.render(scene, activeCamera);
+      updateFloatingLabels();
+    }
+
+    // Initialize Application & Render Static Math
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.math-tex').forEach(el => renderMath(el));
+      document.getElementById('interaction-toggle').checked = STATE.fitInteraction;
+      onWindowResize();
+      generateLatentPoints(STATE.N);
+      setPage(1);
+      requestAnimationFrame(animate);
+    });
+  
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

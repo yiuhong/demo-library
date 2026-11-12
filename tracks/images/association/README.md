@@ -1,6 +1,6 @@
 # Association figures
 
-`01-correlation.png`, `02-ols.png`, `02b-multiple-regression.png`, `03-variance-explained.png`, and `04-additivity.png` are drawn by `generate_figures.py` with Matplotlib. They are black-on-white diagrams. Regenerate them from the repo root with `python3 tracks/images/association/generate_figures.py` (NumPy and Matplotlib).
+`01-correlation.png`, `02-ols.png`, `02b-multiple-regression.png`, `02c-regression-anova-equivalence.png`, `03-variance-explained.png`, and `04-additivity.png` are drawn by `generate_figures.py` with Matplotlib. They are black-on-white diagrams. Regenerate them from the repo root with `python3 tracks/images/association/generate_figures.py` (NumPy and Matplotlib).
 
 ## Covariance and correlation
 
@@ -19,6 +19,10 @@ On the same cloud, the straight line is the ordinary least-squares fit: the inte
 `statistics/multiple_regression_sst_ssm_sse.html` fits two predictors, so the surface is a plane `Ŷ = b₀ + b₁X₁ + b₂X₂` instead of a line. The total sum of squares still splits: `SST = SSM + SSE`, and `R² = SSM / SST`. `SSM` is the sum of squared distances from the fitted values to the mean of Y. `SSE` is the sum of squared vertical gaps from the observations to the plane.
 
 The figure is a separate scatter, not a still of that page. Eighteen points (NumPy seed 21) sit near a plane, with dotted vertical gaps down to the fitted surface. The label is the plane equation. It does not repeat the demonstration’s presets, sliders, or sum-of-squares readout.
+
+## Regression and ANOVA, same line
+
+`statistics/multiple_regression_anova_equivalence.html` keeps that linear model and changes how the predictors are coded. The figure is three drawings of the same idea, not a still of the page. Left: two continuous predictors sit on a plane. Middle: one predictor is coded 0 or 1, so the plane becomes two parallel lines. Right: three groups, drawn as means on one categorical axis, which is what two dummy codes fit. It does not repeat the demonstration’s sliders, morph control, or ANOVA table.
 
 ## Variance explained
 
