@@ -510,7 +510,7 @@
     {
       "id": "association",
       "title": "Association",
-      "summary": "This path is for how variables move together, from shared movement to the straight line that minimizes squared error, then to the plane that splits the same total into model and error, and then to a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference.",
+      "summary": "This path is for how variables move together, from shared movement to the straight line that minimizes squared error, then to the plane that splits the same total into model and error. Coding a predictor as 0 or 1 turns that same linear model into an analysis of covariance, a 2×2 ANOVA, or a one-way ANOVA. The path then turns a correlation into a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference.",
       "steps": [
         {
           "href": "statistics/covariance_and_correlation.html",
@@ -559,10 +559,25 @@
           "imageAlt": "Three-dimensional scatter of 18 open circles around a light gray fitted plane. Dotted vertical lines mark the gaps from the points to the plane. Axes are labeled x₁, x₂, and y. A boxed label reads Ŷ = b₀ + b₁X₁ + b₂X₂. The title reads Two predictors fit a plane."
         },
         {
+          "href": "statistics/multiple_regression_anova_equivalence.html",
+          "title": "Multiple Regression and ANOVA Equivalence",
+          "connectionTitle": "The same line, with a 0 and a 1",
+          "note": "A plane fitted to two continuous predictors is still ordinary least squares: Ŷ = b₀ + b₁X₁ + b₂X₂, and a product term b₃X₁X₂ bends that plane when the slope of one predictor depends on the other. Coding one predictor as 0 or 1 turns the same equation into an analysis of covariance: one slope for each group, and b₃ is the difference between those slopes. Coding both predictors as 0 or 1 is a 2×2 ANOVA, and the same product is the interaction. Dummy codes for three groups use two 0/1 predictors and no product term. That fit is a one-way ANOVA: the intercept is the reference mean, and each coefficient is a difference between a group mean and that reference.",
+          "demoDescription": "Move from two continuous predictors to one binary predictor, then to two binary factors, then to dummy codes for three groups, and morph each 3D fit into the matching 2D plot.",
+          "formulae": [
+            "Ŷ = b₀ + b₁X₁ + b₂X₂ + b₃X₁X₂",
+            "X₂ is 0 or 1, and b₃ is the difference in slopes",
+            "both predictors are 0 or 1: a 2×2 ANOVA",
+            "Ŷ = b₀ + b₁D₁ + b₂D₂"
+          ],
+          "image": "tracks/images/association/02c-regression-anova-equivalence.png",
+          "imageAlt": "Three line drawings. Left: a plane above axes X₁, X₂, and Y. Middle: two parallel lines of Y against X₁, solid for X₂ = 0 and dashed for X₂ = 1. Right: three group means, A, B, and C, as open circles on a categorical axis."
+        },
+        {
           "href": "statistics/variance_explained.html",
           "title": "Variance Explained",
           "connectionTitle": "A correlation turned into a share",
-          "note": "A correlation says how strongly two variables line up; squaring it turns that strength into a share of variance. That square is the proportion of variance in one variable that a straight-line relationship with the other accounts for. The last step stays with variance and asks what happens when sources do not share anything.",
+          "note": "A correlation says how strongly two variables line up; squaring it turns that strength into a share of variance. That square is the same kind of share the linear model calls R²: the proportion of variance in one variable that a straight-line relationship with the other accounts for. The last step stays with variance and asks what happens when sources do not share anything.",
           "demoDescription": "Square a correlation and see that share of variance as the part a straight-line relationship accounts for.",
           "formulae": [
             "R² = r²",

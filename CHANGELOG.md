@@ -88,6 +88,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Cards toggle is gone. A remembered Cards choice opens the catalog.
 - Statistics headings match Guided Track titles. Describing data is split into Center and spread, Shape and pictures, and Same summaries, different graphs. Statistical reasoning is split into From process to distribution, Counts, arrivals, and the board, and Sampling distributions and intervals. t-test, Statistical power, ANOVA, and Association are unchanged.
 
+## [0.1.5] - 2026-11-13
+
+### Added
+
+- Multiple Regression and ANOVA Equivalence, under Statistics → Association, with an Association track step after Multiple Regression. The same linear model runs from two continuous predictors through ANCOVA and a 2×2 ANOVA to dummy-coded one-way ANOVA.
+
 ## [0.1.4] - 2026-11-01
 
 ### Added

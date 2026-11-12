@@ -393,11 +393,96 @@ def draw_additivity() -> None:
     print(f"  var x={VAR_X} var y={VAR_Y} total={total}")
 
 
+def draw_regression_anova() -> None:
+    """Same linear model under three codings. Not a still of the demonstration."""
+    fig, axes = plt.subplots(1, 3, figsize=(10.4, 4.35), constrained_layout=True)
+
+    ax = axes[0]
+    ax.set_aspect("equal")
+    ax.axis("off")
+    ax.set_title("Two continuous predictors")
+
+    def iso(x: float, z: float, y: float) -> tuple[float, float]:
+        return (x + 0.42 * z, y + 0.26 * z)
+
+    def plane_y(x: float, z: float) -> float:
+        return 0.42 + 0.62 * x + 0.38 * z
+
+    xs = np.linspace(0.0, 1.0, 5)
+    zs = np.linspace(0.0, 1.0, 5)
+    for z in zs:
+        pts = [iso(x, z, plane_y(x, z)) for x in xs]
+        ax.plot([p[0] for p in pts], [p[1] for p in pts], color="black", linewidth=0.8, zorder=2)
+    for x in xs:
+        pts = [iso(x, z, plane_y(x, z)) for z in zs]
+        ax.plot([p[0] for p in pts], [p[1] for p in pts], color="black", linewidth=0.8, zorder=2)
+
+    origin = iso(0.0, 0.0, 0.0)
+    x_end = iso(1.42, 0.0, 0.0)
+    z_end = iso(0.0, 1.55, 0.0)
+    y_end = iso(0.0, 0.0, 1.85)
+    ax.plot([origin[0], x_end[0]], [origin[1], x_end[1]], color="black", linewidth=1.15, zorder=3)
+    ax.plot([origin[0], z_end[0]], [origin[1], z_end[1]], color="black", linewidth=1.15, zorder=3)
+    ax.plot([origin[0], y_end[0]], [origin[1], y_end[1]], color="black", linewidth=1.15, zorder=3)
+    ax.text(x_end[0] + 0.06, x_end[1] - 0.02, "X₁", ha="left", va="top", fontsize=12)
+    ax.text(z_end[0] + 0.02, z_end[1] - 0.16, "X₂", ha="left", va="top", fontsize=12)
+    ax.text(y_end[0] - 0.08, y_end[1] + 0.02, "Y", ha="right", va="bottom", fontsize=12)
+    ax.set_xlim(-0.45, 2.05)
+    ax.set_ylim(-0.42, 2.15)
+
+    ax = axes[1]
+    x = np.array([0.0, 1.0])
+    y0 = 1.15 + 1.35 * x
+    y1 = 2.15 + 1.35 * x
+    ax.plot(x, y0, color="black", linewidth=1.6, zorder=2)
+    ax.plot(x, y1, color="black", linewidth=1.6, linestyle=(0, (4, 2.2)), zorder=2)
+    ax.text(1.06, float(y0[1]), "X₂ = 0", ha="left", va="center", fontsize=12)
+    ax.text(1.06, float(y1[1]), "X₂ = 1", ha="left", va="center", fontsize=12)
+    ax.set_xlim(-0.08, 1.78)
+    ax.set_ylim(0.7, 4.15)
+    ax.set_xticks([0, 1])
+    ax.set_yticks([1, 2, 3, 4])
+    ax.set_xlabel("X₁")
+    ax.set_ylabel("Y")
+    ax.set_title("One predictor coded 0 or 1")
+
+    ax = axes[2]
+    means = [2.15, 3.45, 2.75]
+    for index, mean in enumerate(means):
+        ax.plot(
+            [index, index],
+            [0.95, mean],
+            color="black",
+            linewidth=0.75,
+            linestyle=(0, (1.0, 1.3)),
+            zorder=1,
+        )
+    ax.scatter(
+        [0, 1, 2],
+        means,
+        s=54,
+        facecolors="white",
+        edgecolors="black",
+        linewidths=1.15,
+        zorder=3,
+    )
+    ax.set_xlim(-0.55, 2.55)
+    ax.set_ylim(0.7, 4.15)
+    ax.set_xticks([0, 1, 2], ["A", "B", "C"])
+    ax.set_yticks([1, 2, 3, 4])
+    ax.set_xlabel("group")
+    ax.set_ylabel("mean")
+    ax.set_title("Three groups, two dummies")
+
+    _save(fig, "02c-regression-anova-equivalence.png")
+
+
 def main() -> None:
     _style()
     draw_correlation()
     draw_ols()
     draw_multiple_regression()
+    draw_regression_anova()
     draw_variance_explained()
     draw_additivity()
     for stale in ("02-variance-explained.png", "03-additivity.png"):

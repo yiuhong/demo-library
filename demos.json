@@ -428,6 +428,15 @@
               ]
             },
             {
+              "href": "statistics/multiple_regression_anova_equivalence.html",
+              "title": "Multiple Regression and ANOVA Equivalence",
+              "description": "The same linear model, from two continuous predictors through ANCOVA and a 2×2 ANOVA to dummy-coded one-way ANOVA.",
+              "keywords": "Multiple regression ANOVA equivalence ANCOVA interaction dummy coding one-way two-way moderation simple slopes OLS",
+              "tags": [
+                "Walkthrough"
+              ]
+            },
+            {
               "href": "statistics/variance_explained.html",
               "title": "Variance Explained",
               "description": "How much of the variation is explained.",
