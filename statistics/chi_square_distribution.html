@@ -43,18 +43,89 @@
         #btn-toggle-dist.mode-x { background-color: var(--viz-group-c); }
         #toggle-label.mode-z { color: var(--viz-group-a); }
         #toggle-label.mode-x { color: var(--viz-group-c); }
+
+        /* Narrow (below this page's lg stack) or short. A locked column
+           here is the top bar, two chart headers, the bridge, and two
+           plots: below about 920px the upper chart's density scale
+           collapses once both headers and the bridge are in. The page
+           scrolls. Both charts and the bridge stay in the column, and
+           the bridge grows instead of keeping its own vertical scroller.
+           Chart slots are fixed lengths so they do not follow the iframe.
+           A taller wide window keeps both charts on screen: the formula
+           column may scroll, and the charts do not. */
+        @media (max-width: 1023px), (max-height: 920px) {
+            body.demo-page > .chi-shell {
+                height: auto;
+                min-height: 0;
+            }
+            body.demo-page .chi-layout {
+                flex: none;
+                min-height: 0;
+            }
+            body.demo-page .chi-aside {
+                overflow: visible;
+                max-height: none;
+            }
+            body.demo-page .chi-main {
+                overflow: visible;
+                height: auto;
+            }
+            body.demo-page .chi-plot {
+                flex: none;
+                min-height: 0;
+                height: auto;
+            }
+            body.demo-page .chi-slot {
+                flex: none;
+                height: 14rem;
+                min-height: 14rem;
+            }
+            body.demo-page .chi-slot-out {
+                height: 20rem;
+                min-height: 20rem;
+            }
+            body.demo-page .chi-bridge {
+                height: auto;
+                min-height: 11rem;
+                overflow: visible;
+            }
+            body.demo-page #bridge-container {
+                flex: none;
+                height: auto;
+                overflow: visible;
+            }
+        }
+        @media (min-width: 1024px) and (max-height: 920px) {
+            body.demo-page .chi-layout {
+                align-items: flex-start;
+            }
+            body.demo-page .chi-main {
+                width: 75%;
+                min-width: 0;
+            }
+        }
+        @media (min-width: 1024px) and (min-height: 921px) {
+            body.demo-page {
+                height: 100vh;
+                overflow: hidden;
+            }
+            body.demo-page > .chi-shell {
+                height: 100%;
+                min-height: 0;
+            }
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
 <body class="demo-page text-gray-900 min-h-screen">
-    <div class="max-w-[1400px] mx-auto p-4 flex flex-col h-screen">
+    <div class="chi-shell max-w-[1400px] mx-auto p-4 flex flex-col h-screen">
         <div class="demo-topbar shrink-0">
             <a class="demo-back" href="../index.html">← Project Viz</a>
         </div>
-        <div class="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
+        <div class="chi-layout flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
         
         <!-- Sidebar / Control Panel -->
-        <aside class="demo-card w-full lg:w-1/4 p-6 flex flex-col gap-6 overflow-y-auto">
+        <aside class="chi-aside demo-card w-full lg:w-1/4 p-6 flex flex-col gap-6 overflow-y-auto">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800 mb-2">The <span class="viz-ink-group-a font-serif">$\chi^2$</span> Distribution</h1>
                 <p class="text-sm text-gray-600 leading-relaxed">
@@ -118,10 +189,10 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="w-full lg:w-3/4 flex flex-col gap-4 overflow-hidden h-full pb-4">
+        <main class="chi-main w-full lg:w-3/4 flex flex-col gap-4 overflow-hidden h-full pb-4">
             
             <!-- Chart 1: Standard Normal -->
-            <div class="demo-card p-4 flex-[1] flex flex-col min-h-0">
+            <div class="chi-plot demo-card p-4 flex-[1] flex flex-col min-h-0">
                 <div class="flex justify-between items-end mb-2">
                     <div>
                         <h2 id="chart1-title" class="font-bold text-gray-800">1. Draw Values</h2>
@@ -136,13 +207,13 @@
                         <span id="toggle-label" class="mode-z text-xs font-semibold select-none w-32">Standard Z ~ N(0,1)</span>
                     </div>
                 </div>
-                <div class="flex-1 w-full relative">
+                <div class="chi-slot flex-1 w-full relative">
                     <div id="chart-normal" class="chart-container"></div>
                 </div>
             </div>
 
             <!-- Interactive Bridge: Transformation -->
-            <div class="viz-soft-group-a rounded-xl shadow-sm p-4 border viz-border-group-a h-44 flex-none relative overflow-hidden flex flex-col">
+            <div class="chi-bridge viz-soft-group-a rounded-xl shadow-sm p-4 border viz-border-group-a h-44 flex-none relative overflow-hidden flex flex-col">
                 <div class="absolute top-2 left-4 text-xs font-bold viz-ink-group-a uppercase tracking-wider z-10 viz-soft-group-a pr-2 pb-1 rounded-br">2. Square and Sum</div>
                 <div id="bridge-container" class="w-full flex-1 flex flex-wrap content-start justify-center items-center gap-x-2 gap-y-3 font-serif text-lg overflow-y-auto scrollbar-thin pt-6 pb-2">
                     <span class="viz-ink-group-a italic font-sans text-base h-full flex items-center">Click "Draw 1 Sample" to observe transformation...</span>
@@ -150,7 +221,7 @@
             </div>
 
             <!-- Chart 2: Chi-Square -->
-            <div class="demo-card p-4 flex-[1.5] flex flex-col min-h-0">
+            <div class="chi-plot demo-card p-4 flex-[1.5] flex flex-col min-h-0">
                 <div class="flex justify-between items-end mb-2">
                     <div>
                         <h2 class="font-bold text-gray-800">3. The Chi-Square Distribution</h2>
@@ -161,7 +232,7 @@
                         <span class="flex items-center gap-1"><span class="w-3 h-3 viz-mid-group-a rounded-sm"></span> Empirical Histogram</span>
                     </div>
                 </div>
-                <div class="flex-1 w-full relative">
+                <div class="chi-slot chi-slot-out flex-1 w-full relative">
                     <div id="chart-chi" class="chart-container"></div>
                 </div>
             </div>

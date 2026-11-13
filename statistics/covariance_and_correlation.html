@@ -394,6 +394,52 @@
             font-variant-numeric: tabular-nums;
             line-height: 1.2;
         }
+
+        /* Narrow (below this page's md stack) or short. The phone layout
+           was a 40% inner scroller beside a locked scatter. Under about
+           580px a side-by-side lock leaves a short plot and traps the
+           toggles and the live formulae. The page scrolls. The formulae
+           stay in the card. The scatter has its own height and does not
+           scroll. A tall wide window keeps the lock: that card may scroll,
+           and the plot does not. Lengths are not viewport heights, so an
+           iframe does not grow with the figure. */
+        @media (max-width: 767px), (max-height: 580px) {
+            body.demo-page {
+                height: auto;
+                width: auto;
+                max-width: 100%;
+                min-height: 0;
+                overflow-y: visible;
+            }
+            body.demo-page .cov-row {
+                flex: none;
+                min-height: 0;
+            }
+            body.demo-page .cov-side {
+                height: auto;
+                max-height: none;
+                overflow: visible;
+            }
+        }
+        @media (max-width: 767px) {
+            body.demo-page #chart-wrapper {
+                flex: none;
+                height: 86vw;
+                min-height: 16rem;
+                max-height: 28rem;
+            }
+        }
+        @media (min-width: 768px) and (max-height: 580px) {
+            body.demo-page .cov-row {
+                align-items: flex-start;
+            }
+            body.demo-page #chart-wrapper {
+                flex: 1 1 auto;
+                height: 22rem;
+                min-height: 16rem;
+                min-width: 0;
+            }
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
@@ -403,9 +449,9 @@
         <a class="demo-back" href="../index.html">← Project Viz</a>
     </div>
 
-    <div class="flex-1 min-h-0 flex flex-col md:flex-row gap-3 px-3 pb-3 md:px-4 md:pb-4">
+    <div class="cov-row flex-1 min-h-0 flex flex-col md:flex-row gap-3 px-3 pb-3 md:px-4 md:pb-4">
     <!-- Sidebar / Controls -->
-    <div class="demo-card w-full md:w-80 lg:w-96 flex flex-col z-10 h-2/5 md:h-full overflow-y-auto shrink-0">
+    <div class="cov-side demo-card w-full md:w-80 lg:w-96 flex flex-col z-10 h-2/5 md:h-full overflow-y-auto shrink-0">
         <div class="demo-header">
             <h1 class="text-xl font-bold flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>

@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Chi-Square Distribution, Covariance and Correlation, Building the Normal Distribution, and Target Analogy of Confidence Intervals unlock page scroll on a narrow or short window, so the live controls and the figures are not trapped in an inner scroller. On a tall desktop the side column may still scroll, and the plots do not. Chi-square keeps both charts and the bridge in the column. The target keeps both figures together. The step maths and the live formulae stay open. Plot math, copy, and the shared theme are unchanged.
+
 - Boxplot and Outliers and From Paired t-Test to RM-ANOVA keep `body.demo-page`, so the shared statistics theme applies, including the 44px phone and coarse-pointer range target. On From Paired t-Test to RM-ANOVA the 6px range height applies only outside `(max-width: 768px), (pointer: coarse)`. Inside that query, `body.demo-page input[type="range"]` supplies the 44px hit box and `touch-action: pan-y pinch-zoom`. Plots, copy, and calculations are unchanged.
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) states the refined demonstration chrome rules. Load the matching shared theme and keep `body.demo-page`, run the `embed=shell` hook, keep one vertical scroller, leave live controls next to the figure, and size the page for the catalog iframe. Multiple Regression and ANOVA Equivalence keeps its own tabs, breakpoints, plot height, and preference key. No demonstration files changed.
