@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Neuroscience demonstrations embedded in Catalog or Guided Tracks clip sideways overflow, the same way the statistics theme already does. A wide table or a hidden formula no longer opens a horizontal scrollbar that grows the catalog iframe. The dark lab look is unchanged. A page opened on its own is unchanged.
+
 - Chi-Square Distribution, Covariance and Correlation, Building the Normal Distribution, and Target Analogy of Confidence Intervals unlock page scroll on a narrow or short window, so the live controls and the figures are not trapped in an inner scroller. On a tall desktop the side column may still scroll, and the plots do not. Chi-square keeps both charts and the bridge in the column. The target keeps both figures together. The step maths and the live formulae stay open. Plot math, copy, and the shared theme are unchanged.
 
 - Boxplot and Outliers and From Paired t-Test to RM-ANOVA keep `body.demo-page`, so the shared statistics theme applies, including the 44px phone and coarse-pointer range target. On From Paired t-Test to RM-ANOVA the 6px range height applies only outside `(max-width: 768px), (pointer: coarse)`. Inside that query, `body.demo-page input[type="range"]` supplies the 44px hit box and `touch-action: pan-y pinch-zoom`. Plots, copy, and calculations are unchanged.
