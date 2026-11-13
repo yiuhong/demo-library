@@ -65,30 +65,38 @@
     },
     "three": {
       "package": "three",
-      "version": "0.128.0",
-      "revision": "r128",
+      "version": "0.187.0",
+      "revision": "r187",
       "global": "THREE",
       "order": 50,
       "assets": [
         {
           "kind": "script",
-          "src": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js",
-          "integrity": "sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu"
+          "format": "esm",
+          "src": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.core.js",
+          "integrity": "sha384-drH6BueSlcvoXCwAqWkNJvXwu2Ax3mnGOmZnIXaomedIw+uXSP9Bf/XIUINgLUW+"
+        },
+        {
+          "kind": "script",
+          "format": "esm",
+          "src": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+          "integrity": "sha384-T/E3B9AvPtLn5PKD7aTSFqizQcA4kHDfU0lub7u0fvM4w9BMGcSb3yI7r5LqMAMn"
         }
       ]
     },
     "orbit-controls": {
       "package": "three",
-      "version": "0.128.0",
-      "revision": "r128",
+      "version": "0.187.0",
+      "revision": "r187",
       "global": "THREE.OrbitControls",
       "order": 60,
       "after": ["three"],
       "assets": [
         {
           "kind": "script",
-          "src": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js",
-          "integrity": "sha384-wagZhIFgY4hD+7awjQjR4e2E294y6J2HSnd8eTNc15ZubTeQeVRZwhQJ+W6hnBsf"
+          "format": "esm",
+          "src": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/controls/OrbitControls.js",
+          "integrity": "sha384-ZVBN/wmVxgX0mUGjFJXakzzdZrAF4g4aHfKyusbjoF0WsVXSoGpeM/qRaVnXtaFo"
         }
       ]
     }

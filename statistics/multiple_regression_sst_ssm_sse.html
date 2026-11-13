@@ -1298,13 +1298,17 @@
 
     const container = document.getElementById('viewport-container');
     const canvas = document.getElementById('three-canvas');
+    // r128 stored a hex color as written. r187 converts it unless this is off.
+    THREE.ColorManagement.enabled = false;
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // r187 removed PCFSoftShadowMap and falls back to PCF.
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
-    renderer.outputEncoding = THREE.sRGBEncoding;
+    // outputEncoding / sRGBEncoding are gone. This is the sRGB output the page set on r128.
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
@@ -1318,8 +1322,9 @@
     controls.dampingFactor = 0.08;
     controls.maxPolarAngle = Math.PI / 2 + 0.12;
 
-    // Studio 3-Point + Hemisphere Lighting Rig
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xe2e8f0, 0.75);
+    // Studio 3-Point + Hemisphere Lighting Rig.
+    // r187 dropped the legacy π on hemisphere irradiance. Put it back so this fill matches r128.
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xe2e8f0, 0.75 * Math.PI);
     hemiLight.position.set(0, 25, 0);
     scene.add(hemiLight);
 

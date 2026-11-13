@@ -30,6 +30,8 @@ New work loads a library from the registry. The tag is a normal blocking script,
 
 Order is fixed by the registry. KaTeX is CSS, then `katex.min.js`, then auto-render. OrbitControls comes after Three.js even if the attribute lists them the other way around. Do not add `defer` or `async` to the loader. Do not copy a versioned URL into the page.
 
+Three.js r187 has no classic file. The `three` assets are `build/three.core.js` and then `build/three.module.js`. `orbit-controls` is `examples/jsm/controls/OrbitControls.js`. Each one is an ES module. The loader checks the sha384 pin and evaluates it, so a later classic script still sees `THREE` and `THREE.OrbitControls`. Core has to stay before the module entry. D3, Chart.js, jStat, and KaTeX are still ordinary script tags.
+
 Pages that typeset on their own call `renderMathInElement` and leave `data-katex-auto` off. Two older pages need the loader to typeset once the document is parsed, because that used to be the script's `onload`:
 
 - `data-katex-auto="default"` uses KaTeX's own delimiters (Moments as Averages).
@@ -47,7 +49,7 @@ Checked against the package registries on 13 November 2026.
 | Chart.js | 4.6.1 | Current 4.x, and the file an unpinned `npm/chart.js` URL was already serving. One page had named 4.4.1. The releases between them are bugfixes, pie and doughnut spacing, and an optional scale-title stroke. The hierarchy chart sets its own colors. |
 | KaTeX | 0.19.1 | Current release, pinned 13 November 2026, up from 0.16.9. Later 0.16 patches (the line ended at 0.16.47) can change spacing and fonts. From 0.18, internal CSS classes are prefixed with `katex-`: `.base` is `.katex-base`, and the same prefix applies to strut, rule, sizing, and the other short names in the KaTeX migration guide. 0.19.0 reports a missing character metric through `strict`. A later upgrade has to recheck selectors and formula spacing, not only the hash. |
 | jStat | 1.9.6 | Still the latest release. `jstat@latest` was this same file. Do not put `@latest` back. |
-| Three.js | 0.128.0 (r128) | Not upgraded. The cdnjs `three.js/r128/three.min.js` file is the same bytes as `three@0.128.0/build/three.min.js`. OrbitControls stays the `examples/js` build from `three@0.128.0`, which attaches `THREE.OrbitControls`. |
+| Three.js | 0.187.0 (r187) | Current release, pinned 13 November 2026, up from 0.128.0 (r128). r160 removed `build/three.min.js`. r147 removed `examples/js`, so OrbitControls is now `examples/jsm/controls/OrbitControls.js` and imports from `three`. The loader evaluates `build/three.core.js`, then `build/three.module.js`, then that OrbitControls file, all from jsDelivr `npm/three@0.187.0`, and still attaches `THREE` and `THREE.OrbitControls`. This is a major API jump. `outputEncoding` and `sRGBEncoding` are gone, replaced by `outputColorSpace`. Lighting is physically based, so the legacy π on ambient and hemisphere irradiance is gone. Color management is on by default and would reinterpret hex colors. The two planes turn that conversion off, put π back on the ambient or hemisphere light, keep sRGB output on Multiple Regression, and keep linear output on ANOVA Equivalence. r187 also removed `PCFSoftShadowMap`, so Multiple Regression uses `PCFShadowMap`. |
 
 Each script and stylesheet URL in the registry carries a sha384 integrity hash taken from the file that URL returned. The loader adds `crossorigin="anonymous"`, which the hash requires.
 
@@ -56,7 +58,7 @@ Each script and stylesheet URL in the registry carries a sha384 integrity hash t
 - Pin an exact version. Never `@latest`. Never a package URL with no version, such as `npm/chart.js`.
 - New mathematics uses KaTeX. Do not add MathJax.
 - Do not add the Tailwind Play CDN (`https://cdn.tailwindcss.com`). Use the shared theme sheet the page already should load: [`assets/stats-demo-theme.css`](../assets/stats-demo-theme.css) or [`assets/neuroscience-demo-theme.css`](../assets/neuroscience-demo-theme.css).
-- Three.js stays on r128 until a deliberate upgrade of its own. Do not bump it while changing a plot.
+- Do not bump Three.js while changing a plot. A Three.js upgrade is its own change, and it has to smoke both regression planes.
 - Name the axis, the legend, and the readout by the quantity (sample mean, SSE, frequency), not by a generic y or value.
 - Keep a formula on screen when the formula is the lesson. A reference formula may sit in a disclosure. [Demo interface](../CONTRIBUTING.md#demo-interface) is the rest of that rule.
 - Use the light statistics theme or the dark neuroscience lab. Do not invent a third chrome theme. Personality and cognitive pages may keep their own look, as [Demo interface](../CONTRIBUTING.md#demo-interface) already says.
@@ -65,7 +67,7 @@ Each script and stylesheet URL in the registry carries a sha384 integrity hash t
 
 ## How to upgrade a library later
 
-1. Edit [`assets/vendor.json`](../assets/vendor.json): the version, the URL, and the integrity hash. Do not edit the demonstration pages. The HTML already asks for the library by name.
+1. Edit [`assets/vendor.json`](../assets/vendor.json): the version, the URL, and the integrity hash. The HTML asks for the library by name. A breaking API, which the r128 to r187 Three.js jump was, can still require a page change.
 2. Download the file and recompute the hash. Do not invent one. If you cannot verify a hash, omit `integrity` rather than guess. `python3 scripts/check_vendor.py --fetch` downloads every pinned URL and reports the hash it actually got when one does not match.
 3. Run `python3 scripts/check_vendor.py` and `python3 scripts/check_catalog.py`.
 4. Open every page in the `smoke` list below, on a local server or on GitHub Pages. The loader reads `vendor.json` from the same origin. Opening a demonstration as a `file://` URL will not.
@@ -143,6 +145,6 @@ These are allowed to remain. Do not copy them onto a new page.
 - `statistics/variance_explained.html`
 - `statistics/z_distribution_vs_t_distribution.html`
 
-**Three.js r128.** Both regression planes load r128 / 0.128.0 through the registry. That pin is deliberate. A newer Three.js is a separate change, with its own smoke of both planes, not a side effect of editing `vendor.json` for something else.
+**Three.js.** Both regression planes load 0.187.0 (r187) through the registry, as in the versions table above. A newer Three.js is still its own change, with its own smoke of both planes, not a side effect of editing `vendor.json` for something else.
 
 Two tags are not plot or math libraries, so they are not in the registry and this pass does not pin them: Lucide (`unpkg.com/lucide@latest`) on the ERP demonstration, and compromise on NLP in Psychotherapy.
