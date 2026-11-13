@@ -8,28 +8,10 @@
     <title>Statistical Power Curve Explorer</title>
     
     <!-- Load Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
     <script src="../assets/vendor-loader.js" data-libs="chart,jstat,katex"></script>
-    
-
-    <!-- Configure Tailwind theme for consistency -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: 'var(--viz-group-a)'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <!-- Add Inter font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -60,6 +42,11 @@
         }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <link rel="stylesheet" href="../assets/tailwind.css">
+    <style>
+        /* The old tailwind.config set fontFamily.sans to Inter. Preflight applies that stack to html. */
+        html { font-family: Inter, sans-serif; }
+    </style>
 </head>
 <body class="demo-page min-h-screen p-4 md:p-8 flex flex-col items-center">
 

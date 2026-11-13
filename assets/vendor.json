@@ -1,5 +1,5 @@
 {
-  "readme": "Pinned plot and math libraries for Project Viz. Edit this file to upgrade a library, then run python3 scripts/check_vendor.py --fetch and open every path in smoke. See docs/plotting-conventions.md. Do not add Tailwind, MathJax, or a new plot library here.",
+  "readme": "Pinned plot and math libraries for Project Viz. Edit this file to upgrade a library, then run python3 scripts/check_vendor.py --fetch and open every path in smoke. See docs/plotting-conventions.md. Do not add MathJax, the Tailwind Play CDN, or a new plot library here. Tailwind utilities are the compiled sheet assets/tailwind.css.",
   "libraries": {
     "d3": {
       "package": "d3",

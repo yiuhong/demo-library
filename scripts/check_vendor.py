@@ -4,6 +4,8 @@
 Confirms ``assets/vendor.json`` names exact versions, that demonstration
 pages load those libraries through ``assets/vendor-loader.js``, and that
 no page still carries its own D3, Chart.js, KaTeX, jStat, or Three.js URL.
+It also rejects the Tailwind Play CDN. Utilities load from
+``assets/tailwind.css``.
 
 ``--fetch`` downloads each pinned file and checks the integrity hash.
 Run that after editing a URL. The check without ``--fetch`` stays offline.
@@ -30,8 +32,9 @@ CONVENTIONS_PATH = ROOT / "docs" / "plotting-conventions.md"
 REQUIRED = ("d3", "chart", "jstat", "katex", "three", "orbit-controls")
 FORBIDDEN_IDS = ("tailwind", "mathjax", "plotly", "vega", "vega-lite", "observable")
 
-# Ad-hoc tags this registry replaces. MathJax, the Tailwind Play CDN,
-# Lucide, and compromise are outside this check.
+# Ad-hoc tags this registry replaces. MathJax, Lucide, and compromise
+# are outside this check. The Tailwind Play CDN is not allowed.
+# Utilities come from assets/tailwind.css.
 FORBIDDEN_HTML = (
     re.compile(r"d3js\.org/d3", re.I),
     re.compile(r"cdn\.jsdelivr\.net/npm/d3@", re.I),
@@ -52,6 +55,48 @@ USAGE = (
     ("katex", re.compile(r"\bkatex\s*\.|\brenderMathInElement\s*\(")),
     ("three", re.compile(r"\bTHREE\s*\.")),
     ("orbit-controls", re.compile(r"\bOrbitControls\b")),
+)
+
+PLAY_CDN_RE = re.compile(r"cdn\.tailwindcss\.com", re.I)
+TAILWIND_CONFIG_RE = re.compile(r"tailwind\.config\s*=")
+TAILWIND_LINK_RE = re.compile(
+    r"<link\b([^>]*\bhref=[\"']([^\"']*tailwind\.css)[\"'][^>]*)>",
+    re.I,
+)
+TAILWIND_HEADER = "/* Project Viz Tailwind utilities. tailwindcss 3.4.17."
+TAILWIND_PAGES = (
+    "neuroscience/EEG_signal_decomposition.html",
+    "neuroscience/eeg_illustration.html",
+    "neuroscience/erp_demo.html",
+    "neuroscience/fnirs_mechanism.html",
+    "personality_psychology/lexical_approach.html",
+    "personality_psychology/nlp_psychotherapy.html",
+    "statistics/additivity_of_variance.html",
+    "statistics/anova_assumptions.html",
+    "statistics/bessels_correction_simulation.html",
+    "statistics/boxplot_histogram.html",
+    "statistics/building_normal_distribution.html",
+    "statistics/central_limit_theorem.html",
+    "statistics/chi_square_distribution.html",
+    "statistics/covariance_and_correlation.html",
+    "statistics/galton_board.html",
+    "statistics/horowitz_1974_simulation_CLT.html",
+    "statistics/independent_t_test_simulation.html",
+    "statistics/kde_plots.html",
+    "statistics/limitations_of_summary_statistics.html",
+    "statistics/mean_mode_median_dot_plot.html",
+    "statistics/moments_as_averages.html",
+    "statistics/paired_t_test_simulation.html",
+    "statistics/power_curve.html",
+    "statistics/q_q_plot.html",
+    "statistics/skewed_distribution.html",
+    "statistics/statistical_power.html",
+    "statistics/stats_conceptual_hierarchy.html",
+    "statistics/t_test_to_anova.html",
+    "statistics/target_analogy_confidence_intervals.html",
+    "statistics/two_way_anova.html",
+    "statistics/variance_explained.html",
+    "statistics/z_distribution_vs_t_distribution.html",
 )
 
 LOADER_RE = re.compile(
@@ -86,6 +131,7 @@ def main(argv: list[str] | None = None) -> int:
         if conventions is not None:
             check_smoke(registry, conventions, problems)
         check_pages(registry, problems)
+        check_tailwind(problems)
         if fetch and not any(item.startswith("assets/vendor.json") for item in problems):
             check_hashes(registry, problems)
 
@@ -228,6 +274,38 @@ def check_smoke(data: dict, conventions: str, problems: list[str]) -> None:
         file_part = item.split("?", 1)[0]
         if not (ROOT / file_part).is_file():
             problems.append(f"assets/vendor.json: smoke path {item} is not a file")
+
+
+def check_tailwind(problems: list[str]) -> None:
+    sheet = ROOT / "assets" / "tailwind.css"
+    text = read(sheet)
+    if text is None:
+        problems.append("assets/tailwind.css: file not found")
+    elif not text.startswith(TAILWIND_HEADER):
+        problems.append("assets/tailwind.css: expected the tailwindcss 3.4.17 header")
+    linked = 0
+    for path in sorted(ROOT.rglob("*.html")):
+        page = path.read_text(encoding="utf-8")
+        rel = path.relative_to(ROOT).as_posix()
+        if PLAY_CDN_RE.search(page):
+            problems.append(f"{rel}: loads the Tailwind Play CDN")
+        if TAILWIND_CONFIG_RE.search(page):
+            problems.append(f"{rel}: still has a tailwind.config block")
+        links = list(TAILWIND_LINK_RE.finditer(page))
+        if len(links) > 1:
+            problems.append(f"{rel}: more than one Tailwind sheet")
+        if len(links) == 1:
+            linked += 1
+            href = links[0].group(2)
+            expected = expected_src(path).rsplit("/", 1)[0] + "/tailwind.css"
+            if href != expected:
+                problems.append(f"{rel}: Tailwind sheet should be {expected}")
+        elif rel in TAILWIND_PAGES:
+            problems.append(f"{rel}: expected the Tailwind sheet")
+    if linked != len(TAILWIND_PAGES):
+        problems.append(
+            f"assets/tailwind.css: expected {len(TAILWIND_PAGES)} pages to load it, found {linked}"
+        )
 
 
 def check_pages(data: dict, problems: list[str]) -> None:
