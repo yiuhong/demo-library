@@ -407,7 +407,8 @@
         function katexInk(katex) {
             let left = Infinity;
             let right = -Infinity;
-            katex.querySelectorAll('.katex-html .base').forEach((base) => {
+            // KaTeX 0.18 renamed this line box from .base to .katex-base.
+            katex.querySelectorAll('.katex-html .katex-base').forEach((base) => {
                 const rect = base.getBoundingClientRect();
                 if (rect.width < 0.5 || rect.height < 0.5) return;
                 left = Math.min(left, rect.left);

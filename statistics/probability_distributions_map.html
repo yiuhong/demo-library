@@ -91,6 +91,8 @@
 
     .edge-legend-items { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
     .edge-legend-item { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+    .edge-legend-item .katex,
+    .stat-card .stat-name .katex { text-transform: none; }
     .edge-legend-item.disabled { opacity: 0.35; }
 
     .line-sample { width: 24px; height: 3px; background: var(--edge-special); }
@@ -1342,6 +1344,22 @@
       }
     }
 
+    // Legend and moment captions are static $...$ in the HTML. The inspector
+    // values are rendered separately by renderMath, so this stays on these nodes.
+    function typesetStaticCaptions() {
+      if (typeof window.renderMathInElement !== 'function') return;
+      const options = {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false }
+        ],
+        throwOnError: false
+      };
+      document.querySelectorAll('.edge-legend-item span, .stat-name').forEach((el) => {
+        window.renderMathInElement(el, options);
+      });
+    }
+
     // =========================================================================
     // 7. MATHEMATICAL PDF / PMF EVALUATOR & SVG PLOTTER
     // =========================================================================
@@ -1804,6 +1822,7 @@
       paintArrowMarkers();
       renderMap();
       fitMapFrame();
+      typesetStaticCaptions();
       // Wait briefly for KaTeX script if deferred
       setTimeout(() => selectDistribution('normal'), 60);
     });
