@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Three.js is pinned at 0.187.0 (r187) in [`assets/vendor.json`](assets/vendor.json), up from 0.128.0 (r128). The classic build and `examples/js` OrbitControls are gone, so the vendor loader reads the jsDelivr `three@0.187.0` modules (`build/three.core.js`, `build/three.module.js`, and `examples/jsm/controls/OrbitControls.js`), checks their sha384 pins, and still attaches `THREE` and `THREE.OrbitControls` before the page script. The two regression planes keep their scenes. Hemisphere and ambient intensities are multiplied by π so the r187 light model matches the r128 legacy brightness, and hex colors stay unconverted. Multiple Regression uses PCF shadows, because r187 removed the soft PCF filter, and still encodes output as sRGB. ANOVA Equivalence keeps linear output. KaTeX, D3, Chart.js, jStat, Tailwind Play CDN tags, and MathJax tags are unchanged. The citation version is unchanged.
+
 - KaTeX is pinned at 0.19.1 in [`assets/vendor.json`](assets/vendor.json), up from 0.16.9. The CSS, `katex.min.js`, and auto-render still load through the vendor loader. The Galton board measures formula ink on `.katex-base`, the class KaTeX 0.18 gave the old `.base` line box. Three.js, Tailwind Play CDN tags, and MathJax tags are unchanged. The citation version is unchanged.
 
 - Probability Distributions Map typesets the arrow legend and the Mean and Variance captions with that same KaTeX pin. Those lines no longer show raw `$...$`.

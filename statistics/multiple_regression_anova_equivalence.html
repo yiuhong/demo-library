@@ -1485,6 +1485,8 @@
 
     // Continuous X2 moderator color gradient for Stage 1:
     // Interpolates from Cyan (#38bdf8) at X2 = 0 -> Gold (#f59e0b) at X2 = 0.5 -> Coral (#fb7185) at X2 = 1.0
+    // r128 stored a hex color as written. r187 converts it unless this is off.
+    THREE.ColorManagement.enabled = false;
     const COLOR_CYAN  = new THREE.Color(INK.x1);
     const COLOR_GOLD  = new THREE.Color(INK.intercept);
     const COLOR_CORAL = new THREE.Color(INK.x2);
@@ -1811,6 +1813,8 @@
 
     const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // r128 left output linear. r187 defaults to sRGB.
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
@@ -1834,8 +1838,8 @@
     controls.dampingFactor = 0.07;
     controls.target.set(0, 0.2, 0);
 
-    // Lighting
-    scene.add(new THREE.AmbientLight(0xffffff, 0.78));
+    // Lighting. r187 dropped the legacy π on ambient irradiance.
+    scene.add(new THREE.AmbientLight(0xffffff, 0.78 * Math.PI));
     const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.65);
     dirLight1.position.set(10, 18, 12);
     scene.add(dirLight1);
