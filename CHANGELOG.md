@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [CONTRIBUTING.md](CONTRIBUTING.md) states the refined demonstration chrome rules. Load the matching shared theme and keep `body.demo-page`, run the `embed=shell` hook, keep one vertical scroller, leave live controls next to the figure, and size the page for the catalog iframe. Multiple Regression and ANOVA Equivalence keeps its own tabs, breakpoints, plot height, and preference key. No demonstration files changed.
+
 - A Guided Tracks connection page shows the figure after the formulae and before **In the next demo**. The heading and the demo description still follow the figure, including in a short embedded pane: the note and the formulae scroll above that block so the figure, including its axis labels, and the closing line stay in view. The Multiple Regression connection figure is a line drawing of a fitted plane with vertical gaps, in place of a still of the demonstration.
 - Hub pages name their bands `viz-section`, `viz-section--alt`, and `viz-fade-up`. The old `wrapper`, `style1`, `style1-alt`, and `fade-up` class names are gone from Home, Catalog, Guided Tracks, Cite & reuse, and Licenses. The reading column, the footer, and the load fade look the same.
 - A Guided Tracks connection page puts an **In the next demo** heading immediately before `demoDescription`, when that line is present. It follows the formulae, or the note when a step has no formulae.

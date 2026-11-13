@@ -32,6 +32,44 @@ A new demonstration must:
 
 Page-specific thumb colors are fine. Do not override that hit box back to a thin track.
 
+## Demo interface
+
+These are general chrome rules, not a strict template. Do not rebuild an existing demonstration so it looks like Multiple Regression and ANOVA Equivalence. Apply the rules on new work, and when you next touch an existing demonstration.
+
+[Shell](#shell) covers the notebook grid and the two shared looks. [Range sliders](#range-sliders) is the 44px standard. That section is also where a new demonstration loads the matching shared theme and keeps `class="demo-page"` on `body`.
+
+A statistics page loads [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). A neuroscience page loads [`assets/neuroscience-demo-theme.css`](assets/neuroscience-demo-theme.css). A personality or cognitive page may keep its own look. It still needs the embed hook and an embedding contract: when `html` has `viz-embedded`, hide the return link and keep the shell pane free of a page-level horizontal scrollbar. Do not invent a third library-chrome theme. Do not force those pages onto the statistics light sheet or the neuroscience dark lab.
+
+Catalog and Guided Tracks open a demonstration with `embed=shell`. Run the existing hook so that query adds `viz-embedded` on `html`. Fullscreen and iframe sizing in the shell depend on it. Copy the one-liner the other demonstrations already use:
+
+```html
+<script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+```
+
+Do not stack competing vertical scrollports that hide controls, clip the figure, or paint a scrollbar over a canvas. On a stacked phone or a narrow window, the page should usually be the only vertical scroller. A desktop inspector may still scroll when the page is locked to the viewport, provided the plot is not also a vertical scroller. A locked-viewport animation page may use `overflow: hidden`. It then needs a stacked-narrow fallback that unlocks page scroll.
+
+Live controls stay beside the figure or immediately above it. Do not put them under a long formula, a block of prose, or a table in the same column. No particular grid, sidebar, or tab strip is required. A short shared control bar above several plots that must be seen together is fine.
+
+A formula or a table may recede into a tab or a disclosure only when it is reference material. When the live equation, the plug-in arithmetic, or the sum-of-squares partition is the lesson, it stays on screen next to the figure. Variance Explained, Covariance and Correlation, and Moments keep that material in view.
+
+Optional extra stage narrative may have a Show/Hide control at every size. It may start closed when the window is tight if the visitor has no saved choice. A saved preference is allowed. It is not required, and it is not forbidden. Do not auto-collapse text that is the only instructional content. Do not add this chrome to a demonstration that has no stage narrative.
+
+Size the page for the catalog iframe. Avoid a page-level horizontal scrollbar. Never put a scrollbar over a canvas, especially WebGL. In Chrome that scrollbar can paint as a black band. Prefer wrapping, or a non-scrolling overlay. `height: 100vh` plus `overflow: hidden` on `body`, with no stacked fallback, is not safe in an iframe or on a phone.
+
+For a plot-plus-inspector or a locked-viewport explorer, a stacked narrow view puts a shorter plot in the page flow, lets the page be the only vertical scroller, and wraps or locally scrolls formulae so the demonstration does not open a page-level horizontal scrollbar. On Multiple Regression and ANOVA Equivalence, a 960px stacked layout and a plot height of `min(52vh, 90vw)` are a proven example. They are not a mandatory size. A simple document-flow page does not need that media block.
+
+A Plot / Inspector toggle, or a Plot / Controls toggle, is only for a short landscape view of one main plot plus a dense inspector. Do not force it onto a simple one-column page, a multi-plot lesson whose figures must be seen together, a map or a conceptual dashboard, or a document-like step tour.
+
+Plot design, the statistical engine, and the theme stay with the demonstration. [Shell](#shell) keeps statistics on the light notebook and neuroscience on the dark lab. A page may keep a distinct look, as the Noematachograph does.
+
+The equivalence demonstration’s Controls / Model / Fit tabs, its exact 960px, 500px, and 900px breakpoints, the `min(52vh, 90vw)` plot height, and the `demo-library-regression-anova-step-description` preference key are that demonstration’s chrome. They are not a library template.
+
+When you next touch an older demonstration, the notes below are the gaps in that file. They are guidance for later work, not a list of pages to rebuild. A page that does not look like the equivalence demonstration is not a defect.
+
+Noematachograph, NLP in Psychotherapy, and Lexical Approach lack `demo-page`, a shared theme, and the `embed=shell` hook. Add the hook without flattening their look. Boxplot and Outliers and From Paired t-Test to RM-ANOVA load the statistics theme but omit `body.demo-page`. From Paired t-Test to RM-ANOVA also forces a 6px range and does not restore the 44px target in [Range sliders](#range-sliders).
+
+If you are already laying the page out again, ease a locked or competing scroll area on EEG Signal Decomposition, Chi-Square Distribution, Covariance and Correlation, Building the Normal Distribution, and Target Analogy of Confidence Intervals. When you next edit the theme sheets, align the embedded `overflow-x: clip` in [`assets/neuroscience-demo-theme.css`](assets/neuroscience-demo-theme.css) with [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css) (`html.viz-embedded body.demo-page`). Do that in the sheets. Do not touch every neuroscience HTML file for it.
+
 ## Catalog
 
 Demo cards live in [`demos.json`](demos.json). Concept maps live in [`families.json`](families.json). Guided Tracks live in [`tracks.json`](tracks.json). The README lists the fields. Before you open a pull request, run:
