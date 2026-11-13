@@ -9,15 +9,7 @@
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
-    <script src="../assets/vendor-loader.js" data-libs="d3"></script>
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
-            }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../assets/vendor-loader.js" data-libs="d3,katex" data-katex-auto="dollars"></script>
     <style>
         .container-box {
             border: 1px solid var(--demo-border);
@@ -290,6 +282,19 @@
         const varianceToggle = document.getElementById('variance-toggle');
         const samplesizeToggle = document.getElementById('samplesize-toggle');
         
+        function typesetMath(root) {
+            if (typeof window.renderMathInElement !== "function") return;
+            window.renderMathInElement(root, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError: false
+            });
+        }
+
         function updateDescriptions() {
             document.getElementById('pop1-params').innerHTML = `$\\mu_1 = 50, \\sigma_1 = ${POP1_SD}, n_1 = ${SAMPLE_SIZE_1}$`;
             document.getElementById('pop2-params').innerHTML = `$\\mu_2 = 60, \\sigma_2 = ${POP2_SD}, n_2 = ${SAMPLE_SIZE_2}$`;
@@ -313,7 +318,7 @@
                 }
             }
             
-            if(window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise();
+            typesetMath(document.body);
         }
 
         // --- Math Functions for t-distribution ---

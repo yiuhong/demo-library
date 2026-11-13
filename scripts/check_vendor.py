@@ -4,8 +4,8 @@
 Confirms ``assets/vendor.json`` names exact versions, that demonstration
 pages load those libraries through ``assets/vendor-loader.js``, and that
 no page still carries its own D3, Chart.js, KaTeX, jStat, or Three.js URL.
-It also rejects the Tailwind Play CDN. Utilities load from
-``assets/tailwind.css``.
+It also rejects the Tailwind Play CDN and any MathJax load. Utilities
+load from ``assets/tailwind.css``. Mathematics is the pinned KaTeX.
 
 ``--fetch`` downloads each pinned file and checks the integrity hash.
 Run that after editing a URL. The check without ``--fetch`` stays offline.
@@ -32,9 +32,9 @@ CONVENTIONS_PATH = ROOT / "docs" / "plotting-conventions.md"
 REQUIRED = ("d3", "chart", "jstat", "katex", "three", "orbit-controls")
 FORBIDDEN_IDS = ("tailwind", "mathjax", "plotly", "vega", "vega-lite", "observable")
 
-# Ad-hoc tags this registry replaces. MathJax, Lucide, and compromise
-# are outside this check. The Tailwind Play CDN is not allowed.
-# Utilities come from assets/tailwind.css.
+# Ad-hoc tags this registry does not pin. Lucide and compromise are
+# outside this check. The Tailwind Play CDN is not allowed.
+# Utilities come from assets/tailwind.css. MathJax is not a dependency.
 FORBIDDEN_HTML = (
     re.compile(r"d3js\.org/d3", re.I),
     re.compile(r"cdn\.jsdelivr\.net/npm/d3@", re.I),
@@ -46,6 +46,7 @@ FORBIDDEN_HTML = (
     re.compile(r"cdn\.jsdelivr\.net/npm/three@", re.I),
     re.compile(r"cdnjs\.cloudflare\.com/ajax/libs/three\.js/", re.I),
     re.compile(r"OrbitControls\.js", re.I),
+    re.compile(r"mathjax", re.I),
 )
 
 USAGE = (
