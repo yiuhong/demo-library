@@ -101,11 +101,61 @@
             border-color: #000000;
             box-shadow: none;
         }
+
+        /* Narrow (below this page's lg stack) or short. The locked page
+           keeps the step cards in an inner scroller and clips the two
+           figures once the header and their 400px minimum no longer fit.
+           Under about 680px the page scrolls. Both figures stay on the
+           page together. The step cards stay open. A tall wide window
+           keeps the lock: the step column may scroll, and neither figure
+           is a vertical scroller. Figure heights are lengths, not a share
+           of the viewport, so an iframe does not grow with them. */
+        @media (max-width: 1023px), (max-height: 680px) {
+            body.demo-page {
+                height: auto;
+                min-height: 0;
+                overflow-y: visible;
+            }
+            body.demo-page .target-shell {
+                height: auto;
+            }
+            body.demo-page .target-grid {
+                flex: none;
+                height: auto;
+                min-height: 0;
+            }
+            body.demo-page .target-steps {
+                overflow: visible;
+                max-height: none;
+            }
+        }
+        @media (max-width: 1023px) {
+            body.demo-page .target-fig {
+                height: 24rem;
+                min-height: 18rem;
+            }
+        }
+        @media (min-width: 1024px) and (max-height: 680px) {
+            body.demo-page .target-fig {
+                height: 22rem;
+                min-height: 18rem;
+                align-self: start;
+            }
+        }
+        /* Tall lock: the shell fills the padded page, so the pinned cite
+           strip does not cover the two figures. */
+        @media (min-width: 1024px) and (min-height: 681px) {
+            body.demo-page .target-shell {
+                flex: 1 1 auto;
+                height: auto;
+                min-height: 0;
+            }
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
-<body class="demo-page p-4 md:p-6 h-screen flex flex-col">
-<div class="max-w-[1600px] mx-auto w-full h-full flex flex-col">
+<body class="demo-page p-4 md:p-6 h-screen flex flex-col overflow-hidden">
+<div class="target-shell max-w-[1600px] mx-auto w-full h-full flex flex-col">
     <div class="demo-topbar shrink-0">
         <a class="demo-back" href="../index.html">← Project Viz</a>
     </div>
@@ -122,10 +172,10 @@
         </div>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-grow min-h-0">
+    <div class="target-grid grid grid-cols-1 lg:grid-cols-12 gap-4 flex-grow min-h-0">
         
         <!-- PANEL 1: Controls & Story (Left) -->
-        <div class="lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-1 pb-4">
+        <div class="target-steps lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-1 pb-4">
             
             <div class="viz-soft-se rounded-xl p-3 border viz-border-se">
                 <h3 class="font-bold viz-ink-se mb-1 text-sm">Shooter Skill (Standard Error)</h3>
@@ -179,7 +229,7 @@
         </div>
 
         <!-- PANEL 2: 2D Target Analogy (Middle) -->
-        <div class="lg:col-span-4 demo-card flex flex-col h-full min-h-[400px] overflow-hidden relative">
+        <div class="target-fig lg:col-span-4 demo-card flex flex-col h-full min-h-[400px] overflow-hidden relative">
             
             <!-- Target Header & Floating Stats -->
             <div class="bg-slate-50 border-b border-slate-200 p-2 text-center z-10 shrink-0 flex justify-between items-center px-4">
@@ -195,7 +245,7 @@
         </div>
 
         <!-- PANEL 3: 1D Confidence Intervals (Right) -->
-        <div class="lg:col-span-5 demo-card flex flex-col h-full min-h-[400px] overflow-hidden relative">
+        <div class="target-fig lg:col-span-5 demo-card flex flex-col h-full min-h-[400px] overflow-hidden relative">
             
             <!-- CI Header -->
             <div class="bg-slate-50 border-b border-slate-200 p-2 text-center z-10 shrink-0">
