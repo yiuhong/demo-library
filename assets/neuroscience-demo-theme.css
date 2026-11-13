@@ -409,3 +409,9 @@ html {
 html.viz-embedded .demo-back {
     display: none !important;
 }
+
+/* The shell pane is the viewport. Keep wide tables and hidden MathML
+   from opening a horizontal scrollbar across the demonstration. */
+html.viz-embedded body.demo-page {
+    overflow-x: clip;
+}
