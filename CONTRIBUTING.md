@@ -72,7 +72,7 @@ If you are already laying the page out again, ease a locked or competing scroll 
 
 ## Plotting
 
-Which drawing tool to use, which version to load, and how to upgrade one later are recorded in [docs/plotting-conventions.md](docs/plotting-conventions.md). The pins themselves are [`assets/vendor.json`](assets/vendor.json). A demonstration asks for a library with [`assets/vendor-loader.js`](assets/vendor-loader.js). Do not paste a CDN address for D3, Chart.js, KaTeX, jStat, or Three.js. Do not add Plotly, Vega-Lite, Observable Plot, or another plotting library. Labels, formulae, the shared theme, scroll, and the 44px range target stay in [Demo interface](#demo-interface) and [Range sliders](#range-sliders).
+Which drawing tool to use, which version to load, and how to upgrade one later are recorded in [docs/plotting-conventions.md](docs/plotting-conventions.md). The pins themselves are [`assets/vendor.json`](assets/vendor.json). A demonstration asks for a library with [`assets/vendor-loader.js`](assets/vendor-loader.js). Do not paste a CDN address for D3, Chart.js, KaTeX, jStat, or Three.js. Do not add Plotly, Vega-Lite, Observable Plot, or another plotting library. Do not load the Tailwind Play CDN (`https://cdn.tailwindcss.com`). Utilities come from [`assets/tailwind.css`](assets/tailwind.css), built with Tailwind CSS 3.4.17. Rebuild that sheet when a page needs a utility it does not already contain. The shared theme sheets stay as they are. Labels, formulae, the shared theme, scroll, and the 44px range target stay in [Demo interface](#demo-interface) and [Range sliders](#range-sliders).
 
 ## Catalog
 

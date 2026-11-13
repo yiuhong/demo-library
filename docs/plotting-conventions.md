@@ -57,7 +57,7 @@ Each script and stylesheet URL in the registry carries a sha384 integrity hash t
 
 - Pin an exact version. Never `@latest`. Never a package URL with no version, such as `npm/chart.js`.
 - New mathematics uses KaTeX. Do not add MathJax.
-- Do not add the Tailwind Play CDN (`https://cdn.tailwindcss.com`). Use the shared theme sheet the page already should load: [`assets/stats-demo-theme.css`](../assets/stats-demo-theme.css) or [`assets/neuroscience-demo-theme.css`](../assets/neuroscience-demo-theme.css).
+- Do not add the Tailwind Play CDN (`https://cdn.tailwindcss.com`). Layout utilities come from [`assets/tailwind.css`](../assets/tailwind.css). Load that sheet with the shared theme the page already should use: [`assets/stats-demo-theme.css`](../assets/stats-demo-theme.css) or [`assets/neuroscience-demo-theme.css`](../assets/neuroscience-demo-theme.css). A class that is not already in the sheet does nothing until you rebuild it. [Tailwind](#tailwind) is that rule.
 - Do not bump Three.js while changing a plot. A Three.js upgrade is its own change, and it has to smoke both regression planes.
 - Name the axis, the legend, and the readout by the quantity (sample mean, SSE, frequency), not by a generic y or value.
 - Keep a formula on screen when the formula is the lesson. A reference formula may sit in a disclosure. [Demo interface](../CONTRIBUTING.md#demo-interface) is the rest of that rule.
@@ -96,21 +96,38 @@ The short list, also stored as `smoke` in the registry:
 
 On a Three.js page, drag the plane. On a KaTeX page, the formula has to be set, not left as raw TeX. On the boxplot page, nothing about the loader should appear.
 
-## Legacy tags that stay
+## Tailwind
 
-These are allowed to remain. Do not copy them onto a new page.
+The Play CDN (`https://cdn.tailwindcss.com`) is not allowed on a demonstration, a catalog page, or a docs page. Tailwind does not recommend that script for production. It is a browser compiler, and it is not a pinned file in [`assets/vendor.json`](../assets/vendor.json). The registry only pins `https` plot and math files with a sha384 hash. Tailwind does not publish one production CSS file that already contains these pages' utilities and the two old `tailwind.config` blocks, so the compiled sheet lives in the repo.
 
-**MathJax 3.** Older pages typeset with MathJax. New mathematics uses KaTeX. This pass does not convert the MathJax pages:
+[`assets/tailwind.css`](../assets/tailwind.css) is that sheet. It was built with Tailwind CSS 3.4.17 on 13 November 2026. That is the compiler the Play CDN served (`https://cdn.tailwindcss.com/3.4.17`). The file's sha384 is `sha384-Ju9izHYQ0M3/6cpf6wddrym/E9zSRCNr6GY0Zbj3rr49txjfHRPzQUyomxWoCii3`, taken from the committed bytes, header included. A page loads it next to the shared theme:
 
-- `neuroscience/eeg_illustration.html`
-- `statistics/additivity_of_variance.html`
-- `statistics/bessels_correction_simulation.html`
-- `statistics/covariance_and_correlation.html`
-- `statistics/horowitz_1974_simulation_CLT.html`
-- `statistics/independent_t_test_simulation.html`
-- `statistics/paired_t_test_simulation.html`
+```html
+<link rel="stylesheet" href="../assets/tailwind.css">
+```
 
-**The Tailwind Play CDN.** Many demonstrations still load `https://cdn.tailwindcss.com`. Removing it would restyle the page. This pass leaves every existing tag in place. A new page uses the shared theme sheet and does not add the Play CDN. The pages that still have the tag are:
+The path is relative, the same way the vendor loader is. Put the link at the end of `head`, after the shared theme and after the page's own style block. The Play CDN appended its style at the end of `head` once the page had been parsed, so a utility won a tie with the theme. A rule that has to beat a utility comes after the link. Power Curve's Inter stack on `html` is that kind of rule. Do not paste a Tailwind URL. Do not add `defer` or `async`. A page that does not use these utilities does not load the sheet.
+
+The build reads the demonstration HTML, including class names assigned in scripts, and writes only the utilities those files use, plus Preflight. Source and config:
+
+- [`assets/tailwind.input.css`](../assets/tailwind.input.css)
+- [`assets/tailwind.config.js`](../assets/tailwind.config.js)
+- `python3 scripts/build_tailwind.py`
+
+Two pages used to set `tailwind.config` in the browser. Those settings are kept.
+
+- Power Curve sets `primary` to `var(--viz-group-a)`. `text-primary` still uses that token. The same config set `fontFamily.sans` to Inter. Putting that in the shared sheet would change Preflight on every page, so Power Curve sets `html { font-family: Inter, sans-serif }` itself. `body.demo-page` still forces Arial.
+- The ERP page set `darkMode: 'class'` and the colors `brand` (50, 100, 500, 600, 700, 900) and `eggplant` (`#2e1065`). No `dark:`, `brand-*`, or `eggplant` utility is used, so the sheet does not emit those rules. `darkMode` stays `class`, so a later `dark:` utility follows `html.dark` on that page rather than the operating system.
+
+To upgrade Tailwind, or to add a utility that is not in the sheet yet:
+
+1. Edit the version in [`scripts/build_tailwind.py`](../scripts/build_tailwind.py) if the compiler changes. Edit [`assets/tailwind.config.js`](../assets/tailwind.config.js) only when a real theme value changes.
+2. Run `python3 scripts/build_tailwind.py`, then `python3 scripts/build_tailwind.py --check`. Do not edit `assets/tailwind.css` by hand. Do not invent the hash. The build prints the sha384 of the file it wrote.
+3. Run `python3 scripts/check_vendor.py` and `python3 scripts/check_catalog.py`.
+4. Open the pages listed below. A new class has to be a whole token in the HTML (`bg-slate-800`, not `bg-` plus a variable) or the scanner will miss it.
+5. Open a draft pull request. Do not bump the citation version in [`assets/site-meta.js`](../assets/site-meta.js) for a rebuild. A syllabus does not need a new citation when the teaching content did not change.
+
+These pages load the sheet:
 
 - `neuroscience/EEG_signal_decomposition.html`
 - `neuroscience/eeg_illustration.html`
@@ -144,6 +161,20 @@ These are allowed to remain. Do not copy them onto a new page.
 - `statistics/two_way_anova.html`
 - `statistics/variance_explained.html`
 - `statistics/z_distribution_vs_t_distribution.html`
+
+## Legacy tags that stay
+
+These are allowed to remain. Do not copy them onto a new page.
+
+**MathJax 3.** Older pages typeset with MathJax. New mathematics uses KaTeX. This pass does not convert the MathJax pages:
+
+- `neuroscience/eeg_illustration.html`
+- `statistics/additivity_of_variance.html`
+- `statistics/bessels_correction_simulation.html`
+- `statistics/covariance_and_correlation.html`
+- `statistics/horowitz_1974_simulation_CLT.html`
+- `statistics/independent_t_test_simulation.html`
+- `statistics/paired_t_test_simulation.html`
 
 **Three.js.** Both regression planes load 0.187.0 (r187) through the registry, as in the versions table above. A newer Three.js is still its own change, with its own smoke of both planes, not a side effect of editing `vendor.json` for something else.
 

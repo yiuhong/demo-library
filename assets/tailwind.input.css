@@ -1,0 +1,4 @@
+/* Source for assets/tailwind.css. Rebuild with python3 scripts/build_tailwind.py. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
