@@ -73,6 +73,58 @@
       grid-column: 1 / -1;
     }
 
+    /* Plot column. The header overlays this box on a tall screen and
+       becomes a compact bar above the plot on a short landscape phone. */
+    #stage-column {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      height: 100%;
+    }
+
+    .plot-chrome {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+      gap: 10px;
+    }
+
+    .plot-chrome .stepper-bar,
+    .plot-chrome .camera-bar,
+    .plot-chrome .pane-toggle {
+      pointer-events: auto;
+    }
+
+    .pane-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      color: #000000;
+      border: 1px solid #000000;
+      border-radius: 3em;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .pane-toggle:hover {
+      background: #000000;
+      color: #ffffff;
+    }
+
+    .sidebar-landscape-bar {
+      display: none;
+    }
+
     /* Mathematical Subscripts & Typography */
     sub, sup {
       font-size: 0.72em;
@@ -108,7 +160,8 @@
     /* Top Story Stepper Overlay */
     .top-overlay {
       position: absolute;
-      top: 16px;
+      /* Sits under the stepper. --story-offset tracks that bar's height. */
+      top: calc(16px + var(--story-offset, 52px));
       left: 16px;
       right: 16px;
       display: flex;
@@ -128,6 +181,8 @@
       border: 1px solid var(--panel-border);
       pointer-events: auto;
       width: fit-content;
+      max-width: 100%;
+      align-self: flex-start;
       box-shadow: none;
     }
 
@@ -173,11 +228,8 @@
       box-shadow: none;
     }
 
-    /* Camera Snap Bar (Bottom Left) */
+    /* Camera Snap Bar (Bottom Left on a tall screen) */
     .camera-bar {
-      position: absolute;
-      bottom: 16px;
-      left: 16px;
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
@@ -186,8 +238,8 @@
       border-radius: var(--radius);
       border: 1px solid var(--panel-border);
       box-shadow: none;
-      z-index: 10;
-      max-width: calc(100% - 32px);
+      align-self: flex-start;
+      max-width: 100%;
     }
 
     .cam-btn {
@@ -217,13 +269,21 @@
       border: 1px solid var(--panel-border);
       border-radius: var(--radius);
       padding: 14px;
-      z-index: 10;
+      z-index: 30;
       box-shadow: none;
       display: none;
     }
 
     #inspector-card.visible {
       display: block;
+    }
+
+    .inspector-y {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--panel-border-strong);
+      font-size: 11px;
+      color: var(--text-secondary);
     }
 
     .inspector-header {
@@ -634,6 +694,12 @@
       white-space: nowrap;
     }
 
+    /*
+     * Stacked layout (portrait phone, portrait tablet, a narrow window).
+     * The page is the only vertical scroller. This block does not apply
+     * to a short landscape phone: that query below overrides the 70vh
+     * and min-height 420px plot.
+     */
     @media (max-width: 960px) {
       body.demo-page {
         height: auto;
@@ -643,10 +709,15 @@
         flex-direction: column;
       }
 
-      #viewport-container {
+      #stage-column {
         height: 70vh;
         min-height: 420px;
         flex: 0 0 auto;
+      }
+
+      #viewport-container {
+        height: 100%;
+        min-height: 0;
       }
 
       #sidebar {
@@ -656,9 +727,187 @@
         border-top: 1px solid var(--panel-border);
       }
 
+      .plot-chrome {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
       .top-overlay {
         left: 10px;
         right: 10px;
+      }
+    }
+
+    /*
+     * Short landscape, such as a phone on its side (about 844×390).
+     * The plot fills the screen under a compact header. Stage and
+     * camera bars scroll sideways, above the canvas. Controls opens
+     * the sidebar in the page scroll, instead of leaving it under a
+     * full-screen plot. The canvas still follows its box.
+     * A scrollport over the WebGL canvas paints a black band in Chrome,
+     * so the plot box stays overflow hidden and the story and point
+     * card grow instead of scrolling.
+     */
+    @media (max-width: 960px) and (max-height: 500px) {
+      body.demo-page:not(.controls-open) {
+        height: 100svh;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      body.demo-page.controls-open {
+        height: auto;
+        min-height: 100svh;
+        overflow-x: clip;
+        overflow-y: auto;
+      }
+
+      #stage-column {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 0;
+        flex: 1 1 auto;
+      }
+
+      body.demo-page.controls-open #stage-column {
+        display: none;
+      }
+
+      .plot-chrome {
+        position: static;
+        inset: auto;
+        z-index: 5;
+        pointer-events: auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+          "stepper stepper"
+          "camera toggle";
+        align-items: center;
+        justify-content: stretch;
+        gap: 4px 8px;
+        padding: 4px 8px;
+        padding-left: max(8px, env(safe-area-inset-left, 0px));
+        padding-right: max(8px, env(safe-area-inset-right, 0px));
+        background: #ffffff;
+        border-bottom: 1px solid var(--panel-border);
+        flex: 0 0 auto;
+      }
+
+      .stepper-bar {
+        grid-area: stepper;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scrollbar-width: thin;
+        width: auto;
+        min-width: 0;
+        max-width: 100%;
+        align-self: stretch;
+      }
+
+      .camera-bar {
+        grid-area: camera;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scrollbar-width: thin;
+        width: auto;
+        min-width: 0;
+        max-width: 100%;
+        align-self: stretch;
+      }
+
+      .step-btn,
+      .cam-btn {
+        flex: 0 0 auto;
+      }
+
+      .pane-toggle {
+        display: inline-flex;
+        grid-area: toggle;
+        justify-self: end;
+        min-height: 44px;
+      }
+
+      .step-btn,
+      .cam-btn,
+      .btn-primary {
+        min-height: 44px;
+      }
+
+      /* Overrides the stacked 70vh / min-height 420px plot, which is
+         taller than this window. The cite strip is pinned by the locked
+         page, and this box takes the space under the header. */
+      #viewport-container {
+        height: auto;
+        min-height: 0;
+        flex: 1 1 auto;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .top-overlay {
+        top: 8px;
+        left: max(8px, env(safe-area-inset-left, 0px));
+        right: max(8px, env(safe-area-inset-right, 0px));
+        overflow: visible;
+      }
+
+      .story-banner {
+        /* Grow on the plot. Do not turn this card into a scrollport. */
+        overflow: visible;
+        max-height: none;
+        max-width: min(28rem, calc(100% - 18rem));
+        padding: 8px 10px;
+      }
+
+      #inspector-card {
+        /* Same rule: visible, not a scrollbar over the canvas. */
+        overflow: visible;
+        max-height: none;
+        bottom: max(8px, env(safe-area-inset-bottom, 0px));
+        right: max(8px, env(safe-area-inset-right, 0px));
+        width: min(280px, calc(100% - 16px));
+        padding: 8px 10px;
+      }
+
+      #inspector-card .inspector-header {
+        margin-bottom: 4px;
+        padding-bottom: 4px;
+      }
+
+      #inspector-card .inspector-grid {
+        gap: 2px 6px;
+        font-size: 11px;
+      }
+
+      #inspector-card .inspector-y {
+        margin-top: 4px;
+        padding-top: 4px;
+      }
+
+      body.demo-page:not(.controls-open) #sidebar {
+        display: none;
+      }
+
+      body.demo-page.controls-open #sidebar {
+        display: flex;
+        height: auto;
+        width: 100%;
+        max-width: 100%;
+        overflow: visible;
+        border-left: none;
+        border-top: none;
+        flex: none;
+      }
+
+      body.demo-page.controls-open .sidebar-landscape-bar {
+        display: flex;
+        justify-content: flex-start;
       }
     }
   </style>
@@ -666,6 +915,22 @@
 <body class="demo-page">
 
   <!-- LEFT: 3D VIEWPORT -->
+  <div id="stage-column">
+    <header class="plot-chrome" id="plot-chrome">
+      <div class="stepper-bar">
+        <button class="step-btn" data-step="1">1. Total Variation (<span class="math-var">SS</span><sub>T</sub>)</button>
+        <button class="step-btn" data-step="2">2. Unexplained Error (<span class="math-var">SS</span><sub>E</sub>)</button>
+        <button class="step-btn" data-step="3">3. Model Explained (<span class="math-var">SS</span><sub>M</sub>)</button>
+        <button class="step-btn active" data-step="4">4. Full Synthesis (<span class="math-var">SS</span><sub>T</sub> = <span class="math-var">SS</span><sub>M</sub> + <span class="math-var">SS</span><sub>E</sub>)</button>
+      </div>
+      <div class="camera-bar">
+        <button class="cam-btn" id="cam-iso">3D Isometric</button>
+        <button class="cam-btn" id="cam-x1">Front (<span class="math-var">Y</span> vs <span class="math-var">X</span><sub>1</sub>)</button>
+        <button class="cam-btn" id="cam-x2">Side (<span class="math-var">Y</span> vs <span class="math-var">X</span><sub>2</sub>)</button>
+        <button class="cam-btn" id="cam-top">Top (<span class="math-var">X</span><sub>1</sub> vs <span class="math-var">X</span><sub>2</sub>)</button>
+      </div>
+      <button type="button" class="pane-toggle" id="pane-toggle" aria-pressed="false">Controls</button>
+    </header>
   <div id="viewport-container">
     <canvas id="three-canvas"></canvas>
 
@@ -677,25 +942,11 @@
     <!-- Container for dynamic 3D numeric tick labels -->
     <div id="ticks-overlay"></div>
 
-    <!-- Top Guided Stepper -->
+    <!-- Step narrative. The stepper itself lives in the header above. -->
     <div class="top-overlay">
-      <div class="stepper-bar">
-        <button class="step-btn" data-step="1">1. Total Variation (<span class="math-var">SS</span><sub>T</sub>)</button>
-        <button class="step-btn" data-step="2">2. Unexplained Error (<span class="math-var">SS</span><sub>E</sub>)</button>
-        <button class="step-btn" data-step="3">3. Model Explained (<span class="math-var">SS</span><sub>M</sub>)</button>
-        <button class="step-btn active" data-step="4">4. Full Synthesis (<span class="math-var">SS</span><sub>T</sub> = <span class="math-var">SS</span><sub>M</sub> + <span class="math-var">SS</span><sub>E</sub>)</button>
-      </div>
       <div id="story-text" class="story-banner">
         <strong>Full Synthesis:</strong> For every observation, the total deviation from the grand mean <span style="color:var(--col-sst);font-weight:700;">(<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>)</span> splits into the model's explained deviation <span style="color:var(--col-ssm);font-weight:700;">(<span class="math-var">&#374;</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>)</span> plus the residual error <span style="color:var(--col-sse);font-weight:700;">(<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">&#374;</span><sub>i</sub>)</span>. The highlighted line is where <span class="math-var">&#374;</span> = <span class="math-var">Y&#772;</span>.
       </div>
-    </div>
-
-    <!-- Bottom Left Camera Presets -->
-    <div class="camera-bar">
-      <button class="cam-btn" id="cam-iso">3D Isometric</button>
-      <button class="cam-btn" id="cam-x1">Front (<span class="math-var">Y</span> vs <span class="math-var">X</span><sub>1</sub>)</button>
-      <button class="cam-btn" id="cam-x2">Side (<span class="math-var">Y</span> vs <span class="math-var">X</span><sub>2</sub>)</button>
-      <button class="cam-btn" id="cam-top">Top (<span class="math-var">X</span><sub>1</sub> vs <span class="math-var">X</span><sub>2</sub>)</button>
     </div>
 
     <!-- Bottom Right Single-Point Inspector -->
@@ -723,7 +974,7 @@
         <span style="color:var(--col-sse)">Error Residual (<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">&#374;</span><sub>i</sub>):</span>
         <span id="insp-dev-e" class="math-pill" style="color:var(--col-sse)">--</span>
       </div>
-      <div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--panel-border-strong); font-size:11px; color:var(--text-secondary);">
+      <div class="inspector-y">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span>Adjust Point <span class="math-var">Y</span><sub>i</sub> (Outlier Test):</span>
           <span id="insp-y-slider-val" style="font-family:ui-monospace, Consolas, monospace; font-weight:700; color:#000;">--</span>
@@ -732,9 +983,13 @@
       </div>
     </div>
   </div>
+  </div>
 
   <!-- RIGHT: CONTROL & HUD SIDEBAR -->
   <aside id="sidebar">
+    <div class="sidebar-landscape-bar">
+      <button type="button" class="pane-toggle" id="pane-toggle-side">Plot</button>
+    </div>
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <h1 style="font-size:17px; font-weight:800; letter-spacing:-0.02em; color:var(--text-main);">Multiple Regression</h1>
       <span class="formula-chip">
@@ -1818,6 +2073,7 @@
 
         document.getElementById('story-text').innerHTML = cfg.text;
         rebuildSceneGeometry();
+        revealActiveStep();
       });
     });
 
@@ -1888,15 +2144,86 @@
       });
     }
 
-    // Resize Handler
+    // Resize Handler. The canvas follows #viewport-container. Skip a
+    // zero box (the plot is hidden while Controls is open).
     function onWindowResize() {
       const w = container.clientWidth;
       const h = container.clientHeight;
+      if (!(w > 1 && h > 1)) return;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     }
     window.addEventListener('resize', onWindowResize);
+
+    const shortLandscapeQuery = window.matchMedia("(max-width: 960px) and (max-height: 500px)");
+
+    function revealActiveStep() {
+      if (!shortLandscapeQuery.matches) return;
+      const bar = document.querySelector(".stepper-bar");
+      const active = bar && bar.querySelector(".step-btn.active");
+      if (!bar || !active) return;
+      const left = active.offsetLeft;
+      const right = left + active.offsetWidth;
+      if (left < bar.scrollLeft) bar.scrollLeft = left;
+      else if (right > bar.scrollLeft + bar.clientWidth) {
+        bar.scrollLeft = right - bar.clientWidth;
+      }
+    }
+
+    function syncChromeOffsets() {
+      const stepper = document.querySelector(".stepper-bar");
+      if (stepper) {
+        const offset = shortLandscapeQuery.matches ? 0 : stepper.offsetHeight + 10;
+        document.documentElement.style.setProperty("--story-offset", offset + "px");
+      }
+      revealActiveStep();
+    }
+
+    function syncPaneToggle() {
+      const open = document.body.classList.contains("controls-open");
+      document.querySelectorAll(".pane-toggle").forEach((btn) => {
+        const showPlot = open || btn.id === "pane-toggle-side";
+        btn.textContent = showPlot ? "Plot" : "Controls";
+        btn.setAttribute("aria-pressed", open ? "true" : "false");
+        btn.title = open ? "Show the plot" : "Show the controls";
+      });
+    }
+
+    function setLandscapeControls(open) {
+      document.body.classList.toggle("controls-open", open);
+      syncPaneToggle();
+      if (open) window.scrollTo(0, 0);
+      syncChromeOffsets();
+      window.dispatchEvent(new Event("resize"));
+    }
+
+    document.querySelectorAll(".pane-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setLandscapeControls(!document.body.classList.contains("controls-open"));
+      });
+    });
+
+    function onShortLandscapeChange() {
+      if (!shortLandscapeQuery.matches) {
+        document.body.classList.remove("controls-open");
+        syncPaneToggle();
+      }
+      syncChromeOffsets();
+      window.dispatchEvent(new Event("resize"));
+    }
+
+    if (typeof shortLandscapeQuery.addEventListener === "function") {
+      shortLandscapeQuery.addEventListener("change", onShortLandscapeChange);
+    }
+    syncPaneToggle();
+    syncChromeOffsets();
+    if (typeof ResizeObserver === "function") {
+      const viewportObserver = new ResizeObserver(onWindowResize);
+      viewportObserver.observe(container);
+      const stepperEl = document.querySelector(".stepper-bar");
+      if (stepperEl) new ResizeObserver(syncChromeOffsets).observe(stepperEl);
+    }
 
     // Animation Loop
     function animate() {
