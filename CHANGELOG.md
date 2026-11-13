@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Multiple Regression on a short landscape phone. The plot fills the screen under a compact header, and the stage and camera bars scroll sideways, so a scrollbar is not painted over the WebGL canvas. Controls opens the sidebar in the page scroll; Plot returns to the figure. A stacked portrait window (at most 960px wide, and taller than that short window) still scrolls the page, with the plot at 70vh. The model, the scene, and the shared 44px range target are unchanged.
+
 - EEG Signal Decomposition unlocks page scroll on a narrow or short window, so the live controls and the traces are not trapped in two inner scrollers. On a phone the page is the only vertical scroller. On a tall desktop the side column may still scroll, and the traces do not. The raw signal, the five bands, and the power spectrum stay together. The signal math, the colors, and the dark lab are unchanged.
 
 - Noematachograph, NLP in Psychotherapy, and Lexical Approach use the same Catalog and Guided Tracks Fullscreen hook as the other demonstrations. Noematachograph loads the dark-lab theme. The two personality pages load the light statistics theme. Each page keeps its own layout, colors, and type.
