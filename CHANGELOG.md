@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- KaTeX is pinned at 0.19.1 in [`assets/vendor.json`](assets/vendor.json), up from 0.16.9. The CSS, `katex.min.js`, and auto-render still load through the vendor loader. The Galton board measures formula ink on `.katex-base`, the class KaTeX 0.18 gave the old `.base` line box. Three.js, Tailwind Play CDN tags, and MathJax tags are unchanged. The citation version is unchanged.
+
 - Multiple Regression on a short landscape phone. The plot fills the screen under a compact header, and the stage and camera bars scroll sideways, so a scrollbar is not painted over the WebGL canvas. Controls opens the sidebar in the page scroll; Plot returns to the figure. A stacked portrait window (at most 960px wide, and taller than that short window) still scrolls the page, with the plot at 70vh. The model, the scene, and the shared 44px range target are unchanged.
 
 - EEG Signal Decomposition unlocks page scroll on a narrow or short window, so the live controls and the traces are not trapped in two inner scrollers. On a phone the page is the only vertical scroller. On a tall desktop the side column may still scroll, and the traces do not. The raw signal, the five bands, and the power spectrum stay together. The signal math, the colors, and the dark lab are unchanged.

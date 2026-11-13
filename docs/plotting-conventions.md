@@ -45,7 +45,7 @@ Checked against the package registries on 13 November 2026.
 | --- | --- | --- |
 | D3 | 7.9.2 | Current 7.x. `https://d3js.org/d3.v7.min.js` was this exact file. Two pages had been on the cdnjs 7.8.5 build. 7.9.0 adds a color scheme and changes geo precision. These demos do not use geo. |
 | Chart.js | 4.6.1 | Current 4.x, and the file an unpinned `npm/chart.js` URL was already serving. One page had named 4.4.1. The releases between them are bugfixes, pie and doughnut spacing, and an optional scale-title stroke. The hierarchy chart sets its own colors. |
-| KaTeX | 0.16.9 | The patch already used on the newer demos. 0.16.9 adds bold Fraktur and does not restyle the formulas already on the 0.16.8 pages. The 0.16 line later continued (0.16.47 was the last 0.16 patch on this date) and current KaTeX is 0.19.1. Those later releases change spacing, fonts, and, from 0.18, CSS class names. They are not this pin. |
+| KaTeX | 0.19.1 | Current release, pinned 13 November 2026, up from 0.16.9. Later 0.16 patches (the line ended at 0.16.47) can change spacing and fonts. From 0.18, internal CSS classes are prefixed with `katex-`: `.base` is `.katex-base`, and the same prefix applies to strut, rule, sizing, and the other short names in the KaTeX migration guide. 0.19.0 reports a missing character metric through `strict`. A later upgrade has to recheck selectors and formula spacing, not only the hash. |
 | jStat | 1.9.6 | Still the latest release. `jstat@latest` was this same file. Do not put `@latest` back. |
 | Three.js | 0.128.0 (r128) | Not upgraded. The cdnjs `three.js/r128/three.min.js` file is the same bytes as `three@0.128.0/build/three.min.js`. OrbitControls stays the `examples/js` build from `three@0.128.0`, which attaches `THREE.OrbitControls`. |
 
