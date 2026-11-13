@@ -77,7 +77,11 @@
     .r-readout { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--col-subjects-bg); color: var(--col-subjects); border: 1px solid var(--viz-subjects-line); }
     
     .slider-row { display: flex; align-items: center; gap: 0.75rem; }
-    input[type="range"] { flex: 1; accent-color: var(--col-subjects); height: 6px; background: #cbd5e1; border-radius: 4px; cursor: pointer; }
+    input[type="range"] { flex: 1; accent-color: var(--col-subjects); background: #cbd5e1; border-radius: 4px; cursor: pointer; }
+    /* 6px track only outside the shared phone and coarse-pointer range query. */
+    @media not ((max-width: 768px) or (pointer: coarse)) {
+      input[type="range"] { height: 6px; }
+    }
     
     .preset-group { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .preset-btn { font-size: 0.75rem; font-weight: 600; padding: 0.32rem 0.65rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-muted); cursor: pointer; transition: all 0.15s; font-family: inherit; }
@@ -195,7 +199,7 @@
   </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
-<body>
+<body class="demo-page">
 
 <div id="pedagogical-tooltip"></div>
 

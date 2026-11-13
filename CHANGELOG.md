@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Boxplot and Outliers and From Paired t-Test to RM-ANOVA keep `body.demo-page`, so the shared statistics theme applies, including the 44px phone and coarse-pointer range target. On From Paired t-Test to RM-ANOVA the 6px range height applies only outside `(max-width: 768px), (pointer: coarse)`. Inside that query, `body.demo-page input[type="range"]` supplies the 44px hit box and `touch-action: pan-y pinch-zoom`. Plots, copy, and calculations are unchanged.
+
 - [CONTRIBUTING.md](CONTRIBUTING.md) states the refined demonstration chrome rules. Load the matching shared theme and keep `body.demo-page`, run the `embed=shell` hook, keep one vertical scroller, leave live controls next to the figure, and size the page for the catalog iframe. Multiple Regression and ANOVA Equivalence keeps its own tabs, breakpoints, plot height, and preference key. No demonstration files changed.
 
 - A Guided Tracks connection page shows the figure after the formulae and before **In the next demo**. The heading and the demo description still follow the figure, including in a short embedded pane: the note and the formulae scroll above that block so the figure, including its axis labels, and the closing line stay in view. The Multiple Regression connection figure is a line drawing of a fitted plane with vertical gaps, in place of a still of the demonstration.
