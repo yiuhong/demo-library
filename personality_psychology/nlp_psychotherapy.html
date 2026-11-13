@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
     <title>AI in Therapy: Transcript Analysis</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     
     <!-- Load Tailwind CSS for beautiful, responsive styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -43,10 +45,18 @@
         .fade-in-up {
             animation: fadeIn 0.4s ease-out forwards;
         }
+
+        /* The light sheet supplies the embed contract. This page keeps its own surface. */
+        body.demo-page:not(.connection-page) {
+            background-color: #f3f4f6 !important;
+            background-image: none !important;
+            box-shadow: none !important;
+            font-family: 'Inter', sans-serif !important;
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
-<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
+<body class="demo-page min-h-screen p-4 md:p-8 flex flex-col items-center">
 
     <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
         

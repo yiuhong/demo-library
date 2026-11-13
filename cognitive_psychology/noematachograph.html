@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
     <title>Franciscus Donders’ Noematachograph</title>
+    <link rel="stylesheet" href="../assets/neuroscience-demo-theme.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
@@ -319,10 +321,18 @@
             }
         }
 
+        /* The dark-lab sheet supplies the embed contract. This page keeps its own surface. */
+        body.demo-page {
+            background-color: var(--bg-dark) !important;
+            background-image: none !important;
+            color: #dcdcdc !important;
+            font-family: 'Crimson Text', serif !important;
+        }
+
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
-<body>
+<body class="demo-page">
 
     <div class="environment-bg"></div>
     <div class="vignette"></div>
