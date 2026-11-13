@@ -5,14 +5,15 @@
   <script>
     (function () {
       var open = true;
-      var query = "(max-width: 960px) and (max-height: 500px)";
+      /* No saved choice: closed on a stacked layout or a short laptop. */
+      var tight = "(max-width: 960px), (max-height: 900px)";
       try {
         var saved = localStorage.getItem("demo-library-regression-anova-step-description");
         if (saved === "open") open = true;
         else if (saved === "closed") open = false;
-        else open = !window.matchMedia(query).matches;
+        else open = !window.matchMedia(tight).matches;
       } catch (err) {
-        open = !window.matchMedia(query).matches;
+        open = !window.matchMedia(tight).matches;
       }
       if (!open) document.documentElement.classList.add("step-desc-collapsed");
     })();
@@ -126,7 +127,7 @@
       border: none;
     }
 
-    .step-btn, .cam-btn, .action-btn, .radio-pill, .desc-toggle {
+    .step-btn, .cam-btn, .action-btn, .radio-pill, .desc-toggle, .inspector-tab, .pane-toggle {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -161,8 +162,9 @@
     }
 
     .step-btn.active, .cam-btn.active, .action-btn.active, .radio-pill.active,
+    .inspector-tab.active, .pane-toggle.active,
     .step-btn:hover, .cam-btn:hover, .action-btn:hover, .radio-pill:hover,
-    .desc-toggle:hover {
+    .desc-toggle:hover, .inspector-tab:hover, .pane-toggle:hover {
       background: #000000;
       color: #ffffff;
       border-color: #000000;
@@ -181,6 +183,7 @@
     }
 
     .workspace {
+      position: relative;
       flex: 1 1 auto;
       min-height: 0;
       display: flex;
@@ -239,9 +242,11 @@
     .hud-top-left {
       top: 12px;
       left: 12px;
-      max-width: min(520px, calc(100% - 24px));
-      max-height: 38%;
-      overflow: auto;
+      /* Stay on the plot. The sidebar is the other column of this workspace. */
+      max-width: min(520px, calc(100% - clamp(280px, 34%, 380px) - 36px));
+      /* A scrollport over the canvas paints a black band in Chrome.
+         The card grows with the description instead of scrolling. */
+      overflow: visible;
       border-left-width: 4px;
       border-radius: 0 4px 4px 0;
       padding: 10px 12px;
@@ -265,9 +270,12 @@
       margin-bottom: 0;
     }
 
-    .desc-toggle {
+    .desc-toggle,
+    .pane-toggle {
       flex: 0 0 auto;
     }
+
+    .pane-toggle { display: none; }
 
     .hud-title {
       font-size: 15px;
@@ -315,8 +323,7 @@
       flex: 0 0 clamp(280px, 34%, 380px);
       width: clamp(280px, 34%, 380px);
       min-height: 0;
-      overflow: auto;
-      overscroll-behavior: contain;
+      overflow: hidden;
       background: #ffffff;
       background-image: none !important;
       border-left: 1px solid #000000;
@@ -327,6 +334,31 @@
       font-size: 14px;
       line-height: 1.45;
     }
+
+    .inspector-tabs {
+      flex: 0 0 auto;
+      display: flex;
+      gap: 4px;
+    }
+
+    .inspector-tab { flex: 1 1 0; }
+
+    .inspector-panels {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      overscroll-behavior: contain;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .inspector-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .inspector-panel[hidden] { display: none !important; }
 
     .card {
       background: #ffffff;
@@ -363,9 +395,10 @@
       padding: 10px 12px;
       text-align: center;
       margin-bottom: 8px;
-      overflow-x: auto;
+      overflow-x: visible;
+      overflow-wrap: anywhere;
       line-height: 1.5;
-      white-space: nowrap;
+      white-space: normal;
     }
 
     .param-grid { display: grid; gap: 6px; }
@@ -374,12 +407,14 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 8px;
+      min-width: 0;
       background: var(--demo-panel);
       padding: 6px 8px;
       border-radius: 4px;
       border: 1px solid #000000;
       border-left-width: 4px;
     }
+    .param-row > span:first-child { min-width: 0; }
     .param-row.gold { border-left-color: var(--ink-intercept); }
     .param-row.cyan { border-left-color: var(--ink-x1); }
     .param-row.coral { border-left-color: var(--ink-x2); }
@@ -489,7 +524,7 @@
       text-transform: none;
       letter-spacing: 0;
     }
-    .card { overflow-x: auto; }
+    .card { overflow: visible; max-width: 100%; }
 
     .invariant-badge {
       display: inline-block;
@@ -521,6 +556,13 @@
       margin-top: 6px;
     }
 
+    /*
+     * Stacked layout (portrait phone, portrait tablet, a narrow window).
+     * The page is the only vertical scroller. The plot stays short enough
+     * that the stage card and the controls follow it on the same scroll.
+     * This block does not apply to a short landscape phone: that query
+     * below keeps the full-plot layout.
+     */
     @media (max-width: 960px) {
       body.demo-page {
         height: auto;
@@ -528,15 +570,42 @@
         overflow: auto;
       }
       .workspace {
-        display: block;
+        display: flex;
+        flex-direction: column;
         height: auto;
         overflow: visible;
       }
       .viewport-container {
-        height: 68vh;
-        min-height: 280px;
+        height: min(52vh, 90vw);
+        min-height: 220px;
         flex: none;
+        width: 100%;
       }
+      .hud-top-left {
+        position: static;
+        top: auto;
+        left: auto;
+        width: 100%;
+        max-width: none;
+        border-radius: 0;
+      }
+      .stepper,
+      .camera-bar {
+        flex: 1 1 100%;
+        min-width: 0;
+        max-width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scrollbar-width: thin;
+      }
+
+      .stepper .step-btn,
+      .camera-bar .cam-btn {
+        flex: 0 0 auto;
+      }
+
       .sidebar {
         width: 100%;
         max-width: none;
@@ -546,20 +615,29 @@
         border-left: none;
         border-top: 1px solid #000000;
       }
+      .inspector-panels {
+        overflow: visible;
+        flex: none;
+        min-height: auto;
+      }
+      table.stat-table,
+      table.dummy-matrix {
+        font-size: 11px;
+      }
+      table.stat-table th, table.stat-table td,
+      table.dummy-matrix th, table.dummy-matrix td {
+        padding: 4px 3px;
+        overflow-wrap: anywhere;
+      }
     }
 
     /*
      * Short landscape, such as a phone on its side (about 844×390).
-     * Measured before this rule: the header was 114px, the plot was capped
-     * at 240px, and the stage card plus a two-row legend left about 99px
-     * of scene. The 240px cap was part of it. The rest was the title on
-     * its own row and the overlays on that short plot.
-     * Title and camera share one row. Stage and camera bars scroll sideways
-     * instead of wrapping into more rows. The plot fills the screen under
-     * the header. Its canvas still follows this box (ResizeObserver).
-     * Step text is not hidden here. The disclosure buttons do that, and
-     * they can open it again. On this size they start closed when the
-     * browser has no saved choice.
+     * The plot fills the screen under the compact header. Stage and
+     * camera bars scroll sideways. The legend wraps on the plot.
+     * Inspector opens the same controls in the page scroll, instead of
+     * leaving them under a full-screen canvas. The canvas still follows
+     * its box (ResizeObserver).
      */
     @media (max-width: 960px) and (max-height: 500px) {
       header {
@@ -612,20 +690,72 @@
         flex: 0 0 auto;
       }
 
-      .viewport-container {
-        height: calc(100svh - var(--demo-header-h, 6.5rem));
-        min-height: 10rem;
+      /* The plot fills the screen under the header. The cite strip stays
+         in the page flow, just past that plot, so it is not pinned over
+         the legend. Body overflow stays auto: pinning the strip (overflow
+         hidden) covered the bottom of the figure. */
+      body.demo-page {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100svh;
+        overflow: auto;
       }
 
+      .workspace {
+        display: block;
+        flex: none;
+        height: auto;
+        overflow: visible;
+      }
+
+      .viewport-container {
+        height: calc(100svh - var(--demo-header-h, 6.5rem));
+        min-height: 8rem;
+        width: 100%;
+      }
+
+      .pane-toggle { display: inline-flex; }
+
+      body.demo-page:not(.inspector-open) .sidebar { display: none; }
+
       .hud-top-left {
+        position: absolute;
         top: 8px;
         left: max(8px, env(safe-area-inset-left, 0px));
+        width: fit-content;
+        max-width: calc(100% - max(8px, env(safe-area-inset-left, 0px)) - max(8px, env(safe-area-inset-right, 0px)));
+        border-radius: 0 4px 4px 0;
         /* A scrollport over the canvas paints a black band in Chrome.
            The card grows with the description instead of scrolling. */
-        max-height: none;
         overflow: visible;
         padding: 8px 10px;
       }
+
+      body.demo-page.inspector-open {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100svh;
+        overflow: auto;
+      }
+
+      body.demo-page.inspector-open .viewport-container { display: none; }
+
+      body.demo-page.inspector-open .workspace {
+        display: flex;
+        flex-direction: column;
+        overflow: visible;
+      }
+
+      /* The stage card already sits on the plot. In the inspector it
+         only pushed the sliders past the fold. Plot is on the tab row. */
+      body.demo-page.inspector-open .hud-top-left { display: none; }
+
+      body.demo-page.inspector-open .inspector-tabs .pane-toggle {
+        display: inline-flex;
+        flex: 0 0 auto;
+      }
+
+      body.demo-page.inspector-open .sidebar { display: flex; }
 
       .hud-legend {
         left: max(8px, env(safe-area-inset-left, 0px));
@@ -653,7 +783,7 @@
      * screen keeps the compact padding above.
      */
     @media (max-width: 768px), (pointer: coarse) {
-      .step-btn, .cam-btn, .action-btn, .radio-pill, .desc-toggle {
+      .step-btn, .cam-btn, .action-btn, .radio-pill, .desc-toggle, .inspector-tab, .pane-toggle {
         min-height: 44px;
       }
 
@@ -713,18 +843,6 @@
       <canvas id="webgl-canvas"></canvas>
       <div id="labels-container"></div>
 
-      <!-- Top-Left Pedagogical HUD -->
-      <div class="hud-top-left" id="hud-card">
-        <div class="hud-toolbar">
-          <div class="hud-stage-tag" id="hud-stage">Stage 1 of 4. Two continuous predictors</div>
-          <button type="button" class="desc-toggle" id="desc-toggle" aria-expanded="true" aria-controls="hud-desc step-note-1 step-note-2 step-note-3 step-note-4">Hide description</button>
-        </div>
-        <div class="hud-title" id="hud-title">Both continuous: $X_1 \in [0, 1], X_2 \in [0, 1]$</div>
-        <div class="hud-desc" id="hud-desc">
-          When $b_3 = 0$, ordinary least squares fits a plane, and the slope along $X_1$ is the same at every $X_2$. Move $b_3$ away from zero and the surface bends: the slope of $X_1$ depends on $X_2$. Slide the cross-section along $X_2$, or morph the surface into the 2D simple-slopes plot.
-        </div>
-      </div>
-
       <!-- Bottom-Left Color Legend -->
       <div class="hud-legend math-tex">
         <div class="legend-item"><span class="swatch" style="background:var(--gold)"></span>Intercept ($\hat{b}_0$ / Mean $X_2$)</div>
@@ -736,22 +854,32 @@
       </div>
     </div>
 
-    <!-- RIGHT MATHEMATICAL INSPECTOR SIDEBAR -->
-    <aside class="sidebar">
-      <!-- 1. DYNAMIC ALGEBRAIC FORMULA & ESTIMATES -->
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">1. Fitted OLS Algebraic Model</span>
-          <span id="model-badge" class="invariant-badge">OLS Surface</span>
+      <!-- Top-Left Pedagogical HUD -->
+      <div class="hud-top-left" id="hud-card">
+        <div class="hud-toolbar">
+          <div class="hud-stage-tag" id="hud-stage">Stage 1 of 4. Two continuous predictors</div>
+          <button type="button" class="desc-toggle" id="desc-toggle" aria-expanded="true" aria-controls="hud-desc step-note-1 step-note-2 step-note-3 step-note-4">Hide description</button>
+          <button type="button" class="pane-toggle" id="pane-toggle" aria-pressed="false">Inspector</button>
         </div>
-        <div class="formula-box" id="live-formula"></div>
-        <div class="param-grid" id="param-meanings"></div>
+        <div class="hud-title" id="hud-title">Both continuous: $X_1 \in [0, 1], X_2 \in [0, 1]$</div>
+        <div class="hud-desc" id="hud-desc">
+          When $b_3 = 0$, ordinary least squares fits a plane, and the slope along $X_1$ is the same at every $X_2$. Move $b_3$ away from zero and the surface bends: the slope of $X_1$ depends on $X_2$. Slide the cross-section along $X_2$, or morph the surface into the 2D simple-slopes plot.
+        </div>
       </div>
 
+    <!-- RIGHT MATHEMATICAL INSPECTOR SIDEBAR -->
+    <aside class="sidebar">
+      <div class="inspector-tabs">
+        <button type="button" class="inspector-tab active" id="tab-controls" aria-pressed="true">Controls</button>
+        <button type="button" class="inspector-tab" id="tab-model" aria-pressed="false">Model / Fit</button>
+        <button type="button" class="pane-toggle" id="pane-toggle-side">Plot</button>
+      </div>
+      <div class="inspector-panels">
+        <div class="inspector-panel" id="panel-controls">
       <!-- 2. STAGE-SPECIFIC INTERACTIVE CONTROLS -->
       <div class="card" id="stage-specific-card">
         <div class="card-header">
-          <span class="card-title" id="stage-ctrl-title">2. Stage 1 Interactive Controls</span>
+          <span class="card-title" id="stage-ctrl-title">Interaction, slice, and 2D morph</span>
           <button type="button" class="desc-toggle" id="desc-toggle-side" aria-expanded="true" aria-controls="hud-desc step-note-1 step-note-2 step-note-3 step-note-4">Hide description</button>
         </div>
 
@@ -943,10 +1071,22 @@
         </div>
       </div>
 
+        </div>
+        <div class="inspector-panel" id="panel-model" hidden>
+      <!-- 1. DYNAMIC ALGEBRAIC FORMULA & ESTIMATES -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Fitted OLS Algebraic Model</span>
+          <span id="model-badge" class="invariant-badge">OLS Surface</span>
+        </div>
+        <div class="formula-box" id="live-formula"></div>
+        <div class="param-grid" id="param-meanings"></div>
+      </div>
+
       <!-- 3. DATA GENERATION & VISUALIZATION PARAMETERS -->
       <div class="card">
         <div class="card-header">
-          <span class="card-title">3. True Population Parameters &amp; Lines</span>
+          <span class="card-title">True Population Parameters &amp; Lines</span>
           <button class="cam-btn math-tex" type="button" onclick="regenerateNoise()">Resample $\epsilon$</button>
         </div>
 
@@ -1009,7 +1149,7 @@
       <!-- 4. VARIANCE PARTITIONING & EQUIVALENCE TABLE -->
       <div class="card">
         <div class="card-header">
-          <span class="card-title">4. Variance Partitioning &amp; Equivalence</span>
+          <span class="card-title">Variance Partitioning &amp; Equivalence</span>
           <span class="invariant-badge" id="r2-badge">$R^2 = \eta^2 = 0.000$</span>
         </div>
 
@@ -1060,6 +1200,8 @@
             </tr>
           </tbody>
         </table>
+      </div>
+        </div>
       </div>
     </aside>
   </div>
@@ -2869,25 +3011,25 @@
         tag: 'Stage 1 of 4. Two continuous predictors',
         title: 'Both continuous: $X_1 \\in [0, 1],\\ X_2 \\in [0, 1]$',
         desc: 'When $b_3 = 0$, ordinary least squares fits a plane, and the slope along $X_1$ ($\\hat{b}_1$) is the same at every $X_2$. Move $b_3$ away from zero and the surface bends: the slope of $X_1$ depends on $X_2$. Slide the cross-section along $X_2$, or morph the surface into the 2D simple-slopes plot.',
-        ctrlTitle: '2. Interaction, slice, and 2D morph'
+        ctrlTitle: 'Interaction, slice, and 2D morph'
       },
       2: {
         tag: 'Stage 2 of 4. One continuous predictor and one binary predictor',
         title: 'ANCOVA: $X_1 \\in [0, 1],\\ X_2 \\in \\{0, 1\\}$',
         desc: 'Points sit on $X_2 = 0$ (group 0) or $X_2 = 1$ (group 1). When $b_3 = 0$, the two groups share one slope ($\\hat{b}_1$). When $b_3 \\neq 0$, the slopes differ. Morph the surface into the 2D ANCOVA plot to compare them.',
-        ctrlTitle: '2. Interaction and the 2D ANCOVA morph'
+        ctrlTitle: 'Interaction and the 2D ANCOVA morph'
       },
       3: {
         tag: 'Stage 3 of 4. Two binary predictors',
         title: '$2 \\times 2$ ANOVA: $X_1 \\in \\{0, 1\\},\\ X_2 \\in \\{0, 1\\}$',
         desc: 'Points sit on the four corners $(0,0)$, $(1,0)$, $(0,1)$, and $(1,1)$. The product $b_3 X_1 X_2$ is the interaction. Morph the pillars into the classic 2D interaction plot: parallel lines when $b_3 = 0$, and non-parallel lines when $b_3 \\neq 0$.',
-        ctrlTitle: '2. Two-way ANOVA and the 2D morph'
+        ctrlTitle: 'Two-way ANOVA and the 2D morph'
       },
       4: {
         tag: 'Stage 4 of 4. Dummy codes for three groups',
         title: 'One-way ANOVA: groups coded with $(D_1, D_2)$',
         desc: 'Three groups use only three corners, $(0,0)$, $(1,0)$, and $(0,1)$. Those three means define a plane. The corner $(1,1)$ is empty, because a case cannot be in two groups at once. Morph the plane onto one categorical axis. The fit is the same as a one-way ANOVA: the intercept is the reference mean, and each coefficient is a difference from that mean.',
-        ctrlTitle: '2. Dummy coding and the 2D ANOVA morph'
+        ctrlTitle: 'Dummy coding and the 2D ANOVA morph'
       }
     };
 
@@ -2906,7 +3048,7 @@
     }
 
     const DESC_PREF_KEY = "demo-library-regression-anova-step-description";
-    const shortLandscapeQuery = window.matchMedia("(max-width: 960px) and (max-height: 500px)");
+    const tightLayoutQuery = window.matchMedia("(max-width: 960px), (max-height: 900px)");
 
     function readDescPref() {
       try {
@@ -2920,7 +3062,7 @@
       const saved = readDescPref();
       if (saved === "open") return true;
       if (saved === "closed") return false;
-      return !shortLandscapeQuery.matches;
+      return !tightLayoutQuery.matches;
     }
 
     function setStepDescriptionsOpen(open, persist) {
@@ -2945,12 +3087,30 @@
       btn.addEventListener("click", onDescToggle);
     });
 
-    if (typeof shortLandscapeQuery.addEventListener === "function") {
-      shortLandscapeQuery.addEventListener("change", () => {
+    if (typeof tightLayoutQuery.addEventListener === "function") {
+      tightLayoutQuery.addEventListener("change", () => {
         if (readDescPref() !== null) return;
-        setStepDescriptionsOpen(!shortLandscapeQuery.matches, false);
+        setStepDescriptionsOpen(!tightLayoutQuery.matches, false);
       });
     }
+
+    function setInspectorTab(which) {
+      const controls = which !== "model";
+      const panelControls = document.getElementById("panel-controls");
+      const panelModel = document.getElementById("panel-model");
+      const tabControls = document.getElementById("tab-controls");
+      const tabModel = document.getElementById("tab-model");
+      if (!panelControls || !panelModel || !tabControls || !tabModel) return;
+      panelControls.hidden = !controls;
+      panelModel.hidden = controls;
+      tabControls.classList.toggle("active", controls);
+      tabModel.classList.toggle("active", !controls);
+      tabControls.setAttribute("aria-pressed", controls ? "true" : "false");
+      tabModel.setAttribute("aria-pressed", controls ? "false" : "true");
+    }
+
+    document.getElementById("tab-controls").addEventListener("click", () => setInspectorTab("controls"));
+    document.getElementById("tab-model").addEventListener("click", () => setInspectorTab("model"));
 
     setStepDescriptionsOpen(descriptionsShouldOpen(), false);
 
@@ -3221,6 +3381,46 @@
     }
     syncHeaderOffset();
     window.addEventListener('resize', onWindowResize);
+
+    const shortLandscapeQuery = window.matchMedia("(max-width: 960px) and (max-height: 500px)");
+
+    function syncPaneToggle() {
+      const open = document.body.classList.contains("inspector-open");
+      document.querySelectorAll(".pane-toggle").forEach((btn) => {
+        const showPlot = open || btn.id === "pane-toggle-side";
+        btn.textContent = showPlot ? "Plot" : "Inspector";
+        btn.setAttribute("aria-pressed", open ? "true" : "false");
+        btn.title = open ? "Show the plot" : "Show the controls";
+      });
+    }
+
+    function setLandscapeInspector(open) {
+      document.body.classList.toggle("inspector-open", open);
+      syncPaneToggle();
+      if (open) window.scrollTo(0, 0);
+      syncHeaderOffset();
+      window.dispatchEvent(new Event("resize"));
+    }
+
+    document.querySelectorAll(".pane-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setLandscapeInspector(!document.body.classList.contains("inspector-open"));
+      });
+    });
+
+    function onShortLandscapeChange() {
+      if (!shortLandscapeQuery.matches) {
+        document.body.classList.remove("inspector-open");
+        syncPaneToggle();
+      }
+      syncHeaderOffset();
+      window.dispatchEvent(new Event("resize"));
+    }
+
+    if (typeof shortLandscapeQuery.addEventListener === "function") {
+      shortLandscapeQuery.addEventListener("change", onShortLandscapeChange);
+    }
+    syncPaneToggle();
     if (typeof ResizeObserver === 'function') {
       const viewportObserver = new ResizeObserver(onWindowResize);
       viewportObserver.observe(viewportEl);
