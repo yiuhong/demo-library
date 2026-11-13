@@ -11,12 +11,7 @@
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
-    <!-- Load Chart.js for visualizations -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Load jStat for statistical functions (PDF calculations) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.6/jstat.min.js"></script>
-    <!-- Load KaTeX for math rendering -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="../assets/vendor-loader.js" data-libs="chart,jstat,katex" data-katex-auto="dollars"></script>
     
     <style>
         ::-webkit-scrollbar {
@@ -175,15 +170,6 @@
     </div>
     </div>
 
-    <!-- KaTeX Scripts for rendering math formulas -->
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" 
-        onload="renderMathInElement(document.body, {
-          delimiters: [
-              {left: '$$', right: '$$', display: true},
-              {left: '$', right: '$', display: false}
-          ]
-        });"></script>
 
     <script>
         // UI Elements

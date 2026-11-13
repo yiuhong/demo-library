@@ -70,6 +70,10 @@ Noematachograph, NLP in Psychotherapy, and Lexical Approach lack `demo-page`, a 
 
 If you are already laying the page out again, ease a locked or competing scroll area on EEG Signal Decomposition, Chi-Square Distribution, Covariance and Correlation, Building the Normal Distribution, and Target Analogy of Confidence Intervals. When you next edit the theme sheets, align the embedded `overflow-x: clip` in [`assets/neuroscience-demo-theme.css`](assets/neuroscience-demo-theme.css) with [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css) (`html.viz-embedded body.demo-page`). Do that in the sheets. Do not touch every neuroscience HTML file for it.
 
+## Plotting
+
+Which drawing tool to use, which version to load, and how to upgrade one later are recorded in [docs/plotting-conventions.md](docs/plotting-conventions.md). The pins themselves are [`assets/vendor.json`](assets/vendor.json). A demonstration asks for a library with [`assets/vendor-loader.js`](assets/vendor-loader.js). Do not paste a CDN address for D3, Chart.js, KaTeX, jStat, or Three.js. Do not add Plotly, Vega-Lite, Observable Plot, or another plotting library. Labels, formulae, the shared theme, scroll, and the 44px range target stay in [Demo interface](#demo-interface) and [Range sliders](#range-sliders).
+
 ## Catalog
 
 Demo cards live in [`demos.json`](demos.json). Concept maps live in [`families.json`](families.json). Guided Tracks live in [`tracks.json`](tracks.json). The README lists the fields. Before you open a pull request, run:

@@ -1,0 +1,116 @@
+{
+  "readme": "Pinned plot and math libraries for Project Viz. Edit this file to upgrade a library, then run python3 scripts/check_vendor.py --fetch and open every path in smoke. See docs/plotting-conventions.md. Do not add Tailwind, MathJax, or a new plot library here.",
+  "libraries": {
+    "d3": {
+      "package": "d3",
+      "version": "7.9.2",
+      "global": "d3",
+      "order": 10,
+      "assets": [
+        {
+          "kind": "script",
+          "src": "https://cdn.jsdelivr.net/npm/d3@7.9.2/dist/d3.min.js",
+          "integrity": "sha384-LxfWGZyh6PaLjBRPf7NWiEYs9Mn0UQ6ZmqbLLZhxlOBBNWF2a2K0Pfc5efkrNnhQ"
+        }
+      ]
+    },
+    "chart": {
+      "package": "chart.js",
+      "version": "4.6.1",
+      "global": "Chart",
+      "order": 20,
+      "assets": [
+        {
+          "kind": "script",
+          "src": "https://cdn.jsdelivr.net/npm/chart.js@4.6.1/dist/chart.umd.min.js",
+          "integrity": "sha384-Emf5ZVIUiarAdhkgtqK+5/Z5qIvM6QoVrS+qAVtfyZVuD5lIHrac0me485+Antp0"
+        }
+      ]
+    },
+    "jstat": {
+      "package": "jstat",
+      "version": "1.9.6",
+      "global": "jStat",
+      "order": 30,
+      "assets": [
+        {
+          "kind": "script",
+          "src": "https://cdn.jsdelivr.net/npm/jstat@1.9.6/dist/jstat.min.js",
+          "integrity": "sha384-7uGOMhLhjroTamet5l69PR8EGxKUyWZlZOFFDRymtVqIfsh4Hj7uZRctW67ZCdkD"
+        }
+      ]
+    },
+    "katex": {
+      "package": "katex",
+      "version": "0.16.9",
+      "global": "katex",
+      "order": 40,
+      "assets": [
+        {
+          "kind": "style",
+          "href": "https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css",
+          "integrity": "sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV"
+        },
+        {
+          "kind": "script",
+          "src": "https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js",
+          "integrity": "sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8"
+        },
+        {
+          "kind": "script",
+          "src": "https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js",
+          "integrity": "sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05"
+        }
+      ]
+    },
+    "three": {
+      "package": "three",
+      "version": "0.128.0",
+      "revision": "r128",
+      "global": "THREE",
+      "order": 50,
+      "assets": [
+        {
+          "kind": "script",
+          "src": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js",
+          "integrity": "sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu"
+        }
+      ]
+    },
+    "orbit-controls": {
+      "package": "three",
+      "version": "0.128.0",
+      "revision": "r128",
+      "global": "THREE.OrbitControls",
+      "order": 60,
+      "after": ["three"],
+      "assets": [
+        {
+          "kind": "script",
+          "src": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js",
+          "integrity": "sha384-wagZhIFgY4hD+7awjQjR4e2E294y6J2HSnd8eTNc15ZubTeQeVRZwhQJ+W6hnBsf"
+        }
+      ]
+    }
+  },
+  "smoke": [
+    "statistics/kde_plots.html",
+    "statistics/target_analogy_confidence_intervals.html",
+    "personality_psychology/lexical_approach.html",
+    "statistics/stats_conceptual_hierarchy.html",
+    "statistics/z_distribution_vs_t_distribution.html",
+    "statistics/power_curve.html",
+    "neuroscience/fnirs_mechanism.html",
+    "statistics/central_limit_theorem.html",
+    "statistics/ols_simple_linear_regression.html",
+    "statistics/galton_board.html",
+    "statistics/two_way_anova.html",
+    "statistics/statistical_power.html",
+    "statistics/multiple_regression_sst_ssm_sse.html",
+    "statistics/multiple_regression_anova_equivalence.html",
+    "statistics/covariance_and_correlation.html",
+    "statistics/boxplot_outliers.html",
+    "neuroscience/eeg_illustration.html",
+    "catalog.html?demo=statistics/kde_plots.html"
+  ]
+}
