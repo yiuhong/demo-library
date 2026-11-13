@@ -16,5 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check catalog and track links
         run: python3 scripts/check_catalog.py
+      - name: Check vendor pins
+        run: python3 scripts/check_vendor.py
       - name: Check fullscreen scroll
         run: python3 scripts/check_fullscreen_scroll.py
