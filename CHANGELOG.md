@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- EEG Signal Decomposition unlocks page scroll on a narrow or short window, so the live controls and the traces are not trapped in two inner scrollers. On a phone the page is the only vertical scroller. On a tall desktop the side column may still scroll, and the traces do not. The raw signal, the five bands, and the power spectrum stay together. The signal math, the colors, and the dark lab are unchanged.
+
 - Noematachograph, NLP in Psychotherapy, and Lexical Approach use the same Catalog and Guided Tracks Fullscreen hook as the other demonstrations. Noematachograph loads the dark-lab theme. The two personality pages load the light statistics theme. Each page keeps its own layout, colors, and type.
 
 - Neuroscience demonstrations embedded in Catalog or Guided Tracks clip sideways overflow, the same way the statistics theme already does. A wide table or a hidden formula no longer opens a horizontal scrollbar that grows the catalog iframe. The dark lab look is unchanged. A page opened on its own is unchanged.
