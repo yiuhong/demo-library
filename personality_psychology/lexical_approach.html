@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
     <title>The Lexical Hypothesis: Uncovering Personality</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
@@ -79,10 +81,19 @@
             stroke: #cbd5e1;
             stroke-opacity: 0.6;
         }
+
+        /* The light sheet supplies the embed contract. This page keeps its own surface. */
+        body.demo-page:not(.connection-page) {
+            background-color: #f8fafc !important;
+            background-image: none !important;
+            box-shadow: none !important;
+            color: #1e293b !important;
+            font-family: 'Inter', sans-serif !important;
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="demo-page min-h-screen flex flex-col">
 
     <header class="bg-indigo-700 text-white shadow-md py-4 px-4 md:px-8 sticky top-0 z-50">
         <div class="max-w-5xl mx-auto flex justify-between items-center">

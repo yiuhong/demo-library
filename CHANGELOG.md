@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Noematachograph, NLP in Psychotherapy, and Lexical Approach use the same Catalog and Guided Tracks Fullscreen hook as the other demonstrations. Noematachograph loads the dark-lab theme. The two personality pages load the light statistics theme. Each page keeps its own layout, colors, and type.
+
 - Neuroscience demonstrations embedded in Catalog or Guided Tracks clip sideways overflow, the same way the statistics theme already does. A wide table or a hidden formula no longer opens a horizontal scrollbar that grows the catalog iframe. The dark lab look is unchanged. A page opened on its own is unchanged.
 
 - Chi-Square Distribution, Covariance and Correlation, Building the Normal Distribution, and Target Analogy of Confidence Intervals unlock page scroll on a narrow or short window, so the live controls and the figures are not trapped in an inner scroller. On a tall desktop the side column may still scroll, and the plots do not. Chi-square keeps both charts and the bridge in the column. The target keeps both figures together. The step maths and the live formulae stay open. Plot math, copy, and the shared theme are unchanged.
