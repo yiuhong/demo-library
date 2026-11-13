@@ -1,5 +1,5 @@
 {
-  "readme": "Pinned plot and math libraries for Project Viz. Edit this file to upgrade a library, then run python3 scripts/check_vendor.py --fetch and open every path in smoke. See docs/plotting-conventions.md. Do not add MathJax, the Tailwind Play CDN, or a new plot library here. Tailwind utilities are the compiled sheet assets/tailwind.css.",
+  "readme": "Pinned plot and math libraries for Project Viz. The only math renderer is KaTeX 0.19.1. Edit this file to upgrade a library, then run python3 scripts/check_vendor.py --fetch and open every path in smoke. See docs/plotting-conventions.md. Do not add MathJax, the Tailwind Play CDN, or a new plot library here. Tailwind utilities are the compiled sheet assets/tailwind.css.",
   "libraries": {
     "d3": {
       "package": "d3",
@@ -112,6 +112,11 @@
     "statistics/central_limit_theorem.html",
     "statistics/ols_simple_linear_regression.html",
     "statistics/galton_board.html",
+    "statistics/bessels_correction_simulation.html",
+    "statistics/horowitz_1974_simulation_CLT.html",
+    "statistics/independent_t_test_simulation.html",
+    "statistics/paired_t_test_simulation.html",
+    "statistics/additivity_of_variance.html",
     "statistics/two_way_anova.html",
     "statistics/statistical_power.html",
     "statistics/multiple_regression_sst_ssm_sse.html",
@@ -119,6 +124,7 @@
     "statistics/covariance_and_correlation.html",
     "statistics/boxplot_outliers.html",
     "neuroscience/eeg_illustration.html",
-    "catalog.html?demo=statistics/kde_plots.html"
+    "catalog.html?demo=statistics/kde_plots.html",
+    "catalog.html?demo=statistics/covariance_and_correlation.html"
   ]
 }

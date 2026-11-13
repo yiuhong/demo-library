@@ -9,20 +9,8 @@
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
-    <script src="../assets/vendor-loader.js" data-libs="d3"></script>
+    <script src="../assets/vendor-loader.js" data-libs="d3,katex" data-katex-auto="dollars"></script>
     <script src="../assets/press-readout.js"></script>
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            },
-            startup: {
-                typeset: true
-            }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
     <style>
         .controls-container {
             background: var(--demo-card);
@@ -224,7 +212,7 @@
         <div class="lg:col-span-2 flex flex-col items-center">
             <div class="demo-card p-4 w-full overflow-hidden">
                 <div id="vis-container" class="relative w-full aspect-square max-w-[620px] mx-auto">
-                    <!-- Pre-rendered MathJax Tooltip DOM Structure -->
+                    <!-- Tooltip labels. Dollar math is typeset once; the value nodes stay plain text. -->
                     <div id="tooltip" class="tooltip">
                         <div class="font-bold text-slate-800 border-b border-slate-100 pb-1 mb-1">
                             Observation #<span id="tt-obs-id">1</span>
@@ -268,6 +256,31 @@
     </div>
 
     <script>
+        function typesetMath(root) {
+            if (typeof window.renderMathInElement !== "function") return;
+            window.renderMathInElement(root, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError: false
+            });
+        }
+
+        // Hidden sum/difference labels are display:none on first paint. Lift that
+        // class for the typeset pass so KaTeX measures them, then put it back.
+        function typesetIncludingHidden(root) {
+            const hidden = Array.from(root.querySelectorAll(".hidden"));
+            hidden.forEach((el) => el.classList.remove("hidden"));
+            try {
+                typesetMath(root);
+            } finally {
+                hidden.forEach((el) => el.classList.add("hidden"));
+            }
+        }
+
         // Constants and Margins
         const container = document.getElementById('vis-container');
         const margin = { top: 45, right: 45, bottom: 45, left: 45 };
@@ -330,7 +343,7 @@
                 btnSum.className = "demo-chip flex-1";
             }
 
-            // Toggle Explanation & Pre-typeset MathJax Formulas
+            // Toggle the sum and difference explanations. Both are already typeset.
             document.getElementById('explanation-sum').classList.toggle('hidden', !isSum);
             document.getElementById('explanation-diff').classList.toggle('hidden', isSum);
             document.getElementById('formula-sum').classList.toggle('hidden', !isSum);
@@ -344,7 +357,7 @@
             document.getElementById('legend-sqdev-sum').classList.toggle('hidden', !isSum);
             document.getElementById('legend-sqdev-diff').classList.toggle('hidden', isSum);
 
-            // Toggle Variance & SS Partition MathJax Labels
+            // Toggle the variance and sum-of-squares labels.
             document.getElementById('calc-var-label-sum').classList.toggle('hidden', !isSum);
             document.getElementById('calc-var-label-diff').classList.toggle('hidden', isSum);
             document.getElementById('calc-var-other-sum').classList.toggle('hidden', !isSum);
@@ -363,6 +376,7 @@
                 : "Show Lines of Constant Difference";
 
             updateVis();
+            typesetMath(document.body);
         }
 
         function initVis() {
@@ -901,7 +915,7 @@
 
                     const modeVal = isSum ? d.sum : d.diff;
 
-                    // Update pre-rendered MathJax tooltip value nodes
+                    // Update the plain-text tooltip values. The labels stay typeset.
                     document.getElementById('tt-obs-id').textContent = d.id + 1;
                     document.getElementById('tt-xy').textContent = `${d.x.toFixed(2)}, ${d.y.toFixed(2)}`;
                     document.getElementById('tt-mode-val').textContent = modeVal.toFixed(2);
@@ -984,6 +998,7 @@
         initBaseNormals();
         initVis();
         updateVis();
+        typesetIncludingHidden(document.body);
     </script>
 <script src="../assets/site-meta.js"></script>
 <script src="../assets/site-oer-footer.js"></script>

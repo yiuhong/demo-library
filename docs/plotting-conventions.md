@@ -32,10 +32,12 @@ Order is fixed by the registry. KaTeX is CSS, then `katex.min.js`, then auto-ren
 
 Three.js r187 has no classic file. The `three` assets are `build/three.core.js` and then `build/three.module.js`. `orbit-controls` is `examples/jsm/controls/OrbitControls.js`. Each one is an ES module. The loader checks the sha384 pin and evaluates it, so a later classic script still sees `THREE` and `THREE.OrbitControls`. Core has to stay before the module entry. D3, Chart.js, jStat, and KaTeX are still ordinary script tags.
 
-Pages that typeset on their own call `renderMathInElement` and leave `data-katex-auto` off. Two older pages need the loader to typeset once the document is parsed, because that used to be the script's `onload`:
+Pages that typeset on their own call `renderMathInElement` and leave `data-katex-auto` off. Other pages ask the loader to typeset once the document is parsed:
 
 - `data-katex-auto="default"` uses KaTeX's own delimiters (Moments as Averages).
-- `data-katex-auto="dollars"` also typesets `$...$` and `$$...$$` (the central limit theorem, and z against t).
+- `data-katex-auto="dollars"` also typesets `$...$` and `$$...$$`. That is the central limit theorem, z against t, Bessel's correction, covariance and correlation, the Horowitz (1974) simulation, the independent t-test, the paired t-test, additivity of variance, and the EEG illustration.
+
+A page that replaces a caption or a formula after that pass calls `renderMathInElement` on the new text. Bessel's correction does that for the latest sample. The independent t-test does it when the explanation changes. Additivity of variance typesets the sum and difference labels, including the ones that start hidden, and again when the mode switches. The EEG illustration does it when the inspector text changes.
 
 A page that does not use these libraries does not load the script.
 
@@ -56,7 +58,7 @@ Each script and stylesheet URL in the registry carries a sha384 integrity hash t
 ## Rules for a new page
 
 - Pin an exact version. Never `@latest`. Never a package URL with no version, such as `npm/chart.js`.
-- New mathematics uses KaTeX. Do not add MathJax.
+- Mathematics uses KaTeX. Do not add MathJax.
 - Do not add the Tailwind Play CDN (`https://cdn.tailwindcss.com`). Layout utilities come from [`assets/tailwind.css`](../assets/tailwind.css). Load that sheet with the shared theme the page already should use: [`assets/stats-demo-theme.css`](../assets/stats-demo-theme.css) or [`assets/neuroscience-demo-theme.css`](../assets/neuroscience-demo-theme.css). A class that is not already in the sheet does nothing until you rebuild it. [Tailwind](#tailwind) is that rule.
 - Do not bump Three.js while changing a plot. A Three.js upgrade is its own change, and it has to smoke both regression planes.
 - Name the axis, the legend, and the readout by the quantity (sample mean, SSE, frequency), not by a generic y or value.
@@ -85,14 +87,20 @@ The short list, also stored as `smoke` in the registry:
 - `statistics/central_limit_theorem.html` — KaTeX, including `$...$`
 - `statistics/ols_simple_linear_regression.html` — KaTeX
 - `statistics/galton_board.html` — KaTeX on a canvas board
+- `statistics/bessels_correction_simulation.html` — Chart.js and KaTeX. The sample card is typeset again after each draw.
+- `statistics/horowitz_1974_simulation_CLT.html` — D3 and KaTeX
+- `statistics/independent_t_test_simulation.html` — D3 and KaTeX. The explanation is typeset again when the test changes.
+- `statistics/paired_t_test_simulation.html` — D3 and KaTeX
+- `statistics/additivity_of_variance.html` — D3 and KaTeX. Sum and difference captions, including the ones that start hidden, are typeset.
 - `statistics/two_way_anova.html` — D3 and jStat
 - `statistics/statistical_power.html` — D3 and jStat
 - `statistics/multiple_regression_sst_ssm_sse.html` — Three.js and OrbitControls
 - `statistics/multiple_regression_anova_equivalence.html` — Three.js and OrbitControls
-- `statistics/covariance_and_correlation.html` — D3, with a MathJax tag that stays
+- `statistics/covariance_and_correlation.html` — D3 and KaTeX
 - `statistics/boxplot_outliers.html` — custom figure, no vendor plot library
-- `neuroscience/eeg_illustration.html` — MathJax tag that stays, no vendor plot library
+- `neuroscience/eeg_illustration.html` — KaTeX, no vendor plot library. The inspector text is typeset again when the layer changes.
 - `catalog.html?demo=statistics/kde_plots.html` — the same D3 page inside the catalog iframe
+- `catalog.html?demo=statistics/covariance_and_correlation.html` — the covariance page inside the catalog iframe
 
 On a Three.js page, drag the plane. On a KaTeX page, the formula has to be set, not left as raw TeX. On the boxplot page, nothing about the loader should appear.
 
@@ -165,16 +173,6 @@ These pages load the sheet:
 ## Legacy tags that stay
 
 These are allowed to remain. Do not copy them onto a new page.
-
-**MathJax 3.** Older pages typeset with MathJax. New mathematics uses KaTeX. This pass does not convert the MathJax pages:
-
-- `neuroscience/eeg_illustration.html`
-- `statistics/additivity_of_variance.html`
-- `statistics/bessels_correction_simulation.html`
-- `statistics/covariance_and_correlation.html`
-- `statistics/horowitz_1974_simulation_CLT.html`
-- `statistics/independent_t_test_simulation.html`
-- `statistics/paired_t_test_simulation.html`
 
 **Three.js.** Both regression planes load 0.187.0 (r187) through the registry, as in the versions table above. A newer Three.js is still its own change, with its own smoke of both planes, not a side effect of editing `vendor.json` for something else.
 

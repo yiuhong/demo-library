@@ -9,17 +9,7 @@
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
-    <script src="../assets/vendor-loader.js" data-libs="chart"></script>
-    
-    <script>
-      window.MathJax = {
-        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-        startup: {
-            typeset: false // We will manually trigger typesetting to prevent rendering conflicts
-        }
-      };
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../assets/vendor-loader.js" data-libs="chart,katex" data-katex-auto="dollars"></script>
 
     <style>
         .canvas-container { position: relative; height: 350px; width: 100%; }
@@ -163,7 +153,18 @@
         let myChart;
         let parabolaChart;
 
-        let mathJaxQueue = Promise.resolve();
+        function typesetMath(root) {
+            if (typeof window.renderMathInElement !== "function") return;
+            window.renderMathInElement(root, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError: false
+            });
+        }
 
         // --- DOM Elements ---
         const sampleSizeInput = document.getElementById('sampleSize');
@@ -313,13 +314,8 @@
                 document.getElementById('parabolaContainer').style.display = 'block';
                 updateParabola(latestSample, latestStats.mean);
 
-                // Queue MathJax safely to prevent crash on rapid clicks
-                if (window.MathJax) {
-                    mathJaxQueue = mathJaxQueue.then(() => {
-                        MathJax.typesetClear([latestSampleDetails]);
-                        return MathJax.typesetPromise([latestSampleDetails]);
-                    }).catch((err) => console.log('MathJax error: ', err.message));
-                }
+                // The sample card is new text. Typeset it after that HTML is in place.
+                typesetMath(latestSampleDetails);
             }
         }
 
@@ -558,12 +554,6 @@
             document.getElementById('parabolaContainer').style.display = 'none';
 
             updateChart();
-            
-            if (window.MathJax) {
-                mathJaxQueue = mathJaxQueue.then(() => {
-                    return MathJax.typesetPromise();
-                });
-            }
         }
 
         // --- Event Listeners ---
@@ -583,10 +573,6 @@
         window.onload = () => {
             sampleSizeVal.innerText = sampleSizeInput.value;
             numSamplesVal.innerText = numSamplesInput.value;
-            
-            if (window.MathJax) {
-                 MathJax.typesetPromise();
-            }
 
             initChart();
             initParabolaChart();

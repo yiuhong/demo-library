@@ -10,18 +10,7 @@
     <link rel="stylesheet" href="../assets/neuroscience-demo-theme.css">
     <link rel="stylesheet" href="../assets/neuroscience-viz-theme.css">
     <script src="../assets/neuroscience-viz-theme.js"></script>
-    <!-- MathJax Configuration and Script for LaTeX rendering -->
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
-            },
-            options: {
-                enableMenu: false
-            }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../assets/vendor-loader.js" data-libs="katex" data-katex-auto="dollars"></script>
     <style>
         .code-font {
             font-family: 'JetBrains Mono', monospace;
@@ -657,9 +646,16 @@
             inspectorDesc.innerHTML = data.desc;
             inspectorFact.innerHTML = data.fact;
 
-            // Trigger MathJax rendering if it's initialized on the window object
-            if (window.MathJax && window.MathJax.typesetPromise) {
-                MathJax.typesetPromise([inspectorDesc]).catch((err) => console.log(err));
+            // Inspector copy is replaced after the first typeset pass.
+            if (typeof window.renderMathInElement === "function") {
+                const delimiters = [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ];
+                window.renderMathInElement(inspectorDesc, { delimiters, throwOnError: false });
+                window.renderMathInElement(inspectorFact, { delimiters, throwOnError: false });
             }
 
             // Change icon background temporarily
