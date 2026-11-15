@@ -521,6 +521,65 @@
             initChiChart();
         }
 
+        // Measure the panel-1 note and wrap it on spaces so a narrow slot
+        // keeps every word inside the plot, clear of the y-axis.
+        function layoutCurveNote(svg, text, maxWidth) {
+            const probe = svg.append('text')
+                .attr('class', 'text-[11px] viz-ink-group-a font-medium')
+                .attr('visibility', 'hidden')
+                .text(text);
+            const widthOf = (line) => {
+                probe.text(line);
+                return probe.node().getComputedTextLength();
+            };
+            let lines = [text];
+            if (widthOf(text) > maxWidth) {
+                const splitAt = text.indexOf(' when ');
+                if (splitAt > 0) {
+                    const first = text.slice(0, splitAt);
+                    const second = text.slice(splitAt + 1);
+                    if (widthOf(first) <= maxWidth && widthOf(second) <= maxWidth) {
+                        lines = [first, second];
+                    }
+                }
+                if (lines.length === 1) {
+                    lines = [];
+                    let current = '';
+                    text.split(' ').forEach((word) => {
+                        const next = current ? current + ' ' + word : word;
+                        if (current && widthOf(next) > maxWidth) {
+                            lines.push(current);
+                            current = word;
+                        } else {
+                            current = next;
+                        }
+                    });
+                    if (current) lines.push(current);
+                }
+            }
+            probe.text(lines[0]);
+            const box = probe.node().getBBox();
+            probe.remove();
+            return {
+                lines: lines,
+                ascent: Math.max(box.height * 0.8, -box.y),
+                height: Math.max(box.height, 11)
+            };
+        }
+
+        // Keep the bell's crest at or below crestFloor. The usual scale
+        // (peak × 1.1) already does that on a tall slot; a short slot
+        // needs a little more headroom so the note can sit above the ink.
+        function densityScale(peakY, plotTop, plotBottom, crestFloor) {
+            const naturalMax = peakY * 1.1;
+            const natural = d3.scaleLinear().domain([0, naturalMax]).range([plotBottom, plotTop]);
+            const inner = Math.max(1, plotBottom - plotTop);
+            const floor = Math.min(crestFloor, plotTop + inner * 0.45);
+            if (natural(peakY) >= floor) return natural;
+            const yMax = peakY * (plotTop - plotBottom) / (floor - plotBottom);
+            return d3.scaleLinear().domain([0, yMax]).range([plotBottom, plotTop]);
+        }
+
         function initNormalChart() {
             const nContainer = document.getElementById('chart-normal');
             d3.select('#chart-normal').selectAll('*').remove();
@@ -540,22 +599,26 @@
 
             const nx = d3.scaleLinear().domain([xMin, xMax]).range([margins.left, nW - margins.right]);
             const peakY = normalPdf(mu, mu, sigma);
-            const ny = d3.scaleLinear().domain([0, peakY * 1.1]).range([nH - margins.bottom, margins.top]);
+            const plotTop = margins.top;
+            const plotBottom = nH - margins.bottom;
+            const noteText = showStandardized
+                ? 'Values in [-1, 1] shrink toward 0 when squared'
+                : `Values in [${mu - sigma}, ${mu + sigma}] shrink toward 0 when standardized & squared`;
+            const maxNoteWidth = Math.max(48, (nW - margins.right) - margins.left - 8);
+            const note = layoutCurveNote(nSvg, noteText, maxNoteWidth);
+            const linePitch = note.height + 2;
+            const noteBlock = note.height + (note.lines.length - 1) * linePitch;
+            const gapAboveCurve = 10;
+            const padTop = 4;
+            const strokePad = 1;
+            const ny = densityScale(peakY, plotTop, plotBottom, padTop + noteBlock + gapAboveCurve + strokePad);
 
             nSvg.append('rect')
                 .attr('x', nx(mu - sigma))
-                .attr('y', margins.top)
+                .attr('y', plotTop)
                 .attr('width', nx(mu + sigma) - nx(mu - sigma))
-                .attr('height', nH - margins.top - margins.bottom)
+                .attr('height', plotBottom - plotTop)
                 .attr('fill', statsViz.color('--viz-group-a-soft'));
-
-            nSvg.append('text')
-                .attr('x', nx(mu))
-                .attr('y', margins.top + 20)
-                .attr('text-anchor', 'middle')
-                .attr('fill', 'currentColor')
-                .attr('class', 'text-[11px] viz-ink-group-a font-medium')
-                .text(showStandardized ? 'Values in [-1, 1] shrink toward 0 when squared' : `Values in [${mu - sigma}, ${mu + sigma}] shrink toward 0 when standardized & squared`);
 
             const lineNormal = d3.line()
                 .x(d => nx(d.x))
@@ -593,6 +656,19 @@
                 .attr('text-anchor', 'end')
                 .attr('class', 'text-[11px] fill-gray-500 font-semibold')
                 .text('Density');
+
+            const crestInk = ny(peakY) - strokePad;
+            let noteTop = crestInk - gapAboveCurve - noteBlock;
+            if (noteTop < padTop) noteTop = padTop;
+            note.lines.forEach((line, i) => {
+                nSvg.append('text')
+                    .attr('x', nx(mu))
+                    .attr('y', noteTop + note.ascent + i * linePitch)
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', 'currentColor')
+                    .attr('class', 'text-[11px] viz-ink-group-a font-medium curve-note')
+                    .text(line);
+            });
 
             normalChart = { svg: nSvg, x: nx, y: ny, w: nW, h: nH, xMin, xMax };
         }
