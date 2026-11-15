@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
+  <title>Pearson’s χ² Goodness-of-Fit Test</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+  <script src="../assets/stats-viz-theme.js"></script>
+  <script src="../assets/vendor-loader.js" data-libs="katex" data-katex-auto="dollars"></script>
+  <style>
+    body.demo-page {
+      margin: 0;
+      line-height: 1.45;
+      overflow-x: clip;
+    }
+
+    .page {
+      box-sizing: border-box;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 16px 32px;
+    }
+
+    .page *,
+    .page *::before,
+    .page *::after {
+      box-sizing: border-box;
+    }
+
+    .page-head {
+      margin: 0 0 14px;
+    }
+
+    .page-head h1 {
+      font-size: 1.55rem;
+      line-height: 1.25;
+      margin: 0 0 6px;
+    }
+
+    .lede {
+      margin: 0;
+      max-width: 46rem;
+      font-size: 0.95rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 22px;
+      align-items: flex-end;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+      flex: 1 1 18rem;
+    }
+
+    .field-alpha {
+      flex: 0 1 auto;
+    }
+
+    .field-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .demo-select {
+      max-width: 100%;
+    }
+
+    .demo-btn:disabled,
+    .demo-chip:disabled,
+    .demo-select:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .card {
+      padding: 14px 14px 16px;
+      min-width: 0;
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .card-head h2 {
+      font-size: 1rem;
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .card-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .pedagogy {
+      background: var(--viz-group-a-soft);
+      border: 1px solid var(--viz-group-a-line);
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 0.88rem;
+    }
+
+    .pedagogy-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .pedagogy-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .pedagogy p {
+      margin: 0;
+    }
+
+    .q1-body {
+      display: grid;
+      grid-template-columns: 228px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .wheel-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    #rouletteCanvas {
+      width: 220px;
+      height: 220px;
+      max-width: 100%;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .outcome {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .spin-buttons,
+    .mc-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .rigging-box {
+      padding: 10px 12px;
+    }
+
+    .rigging-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+    }
+
+    .sliders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .slider-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      min-width: 0;
+    }
+
+    .slider-label span:last-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      flex: 0 0 auto;
+      border: 1px solid rgba(0, 0, 0, 0.35);
+    }
+
+    .slider-row input[type="range"] {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .slider-prob {
+      font-variant-numeric: tabular-nums;
+      font-size: 0.75rem;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .slider-prob .null-note {
+      color: var(--viz-reference);
+    }
+
+    .plot-well {
+      height: 250px;
+      min-height: 220px;
+      border: 1px solid #000;
+      border-radius: 4px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .plot-well svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .card-plot {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .card-plot .plot-well {
+      flex: 0 0 auto;
+    }
+
+    .banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-size: 0.84rem;
+    }
+
+    .cochran-alert {
+      background: var(--viz-group-c-soft);
+      border: 1px solid var(--viz-group-c-line);
+      color: var(--viz-group-c);
+    }
+
+    .cochran-ok {
+      background: var(--viz-significant-soft);
+      border: 1px solid var(--viz-significant-line);
+      color: var(--viz-significant);
+    }
+
+    .decision-reject {
+      background: var(--viz-null-soft);
+      border: 1px solid var(--viz-null-line);
+      color: var(--viz-null);
+    }
+
+    .decision-retain {
+      background: var(--viz-significant-soft);
+      border: 1px solid var(--viz-significant-line);
+      color: var(--viz-significant);
+    }
+
+    .decision-neutral {
+      background: var(--demo-panel);
+      border: 1px solid #000;
+      color: #000;
+    }
+
+    .banner-readout {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .mc-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 0.82rem;
+    }
+
+    .mc-summary {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .formula-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+    }
+
+    .formula-rhs {
+      font-weight: 700;
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .term-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 8px 0 12px;
+    }
+
+    .term-pill {
+      padding: 8px;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      min-width: 0;
+    }
+
+    .term-pill strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .intuition {
+      margin: 0 0 8px;
+      font-size: 0.86rem;
+    }
+
+    .intuition q {
+      font-weight: 700;
+    }
+
+    .table-scroll {
+      max-width: 100%;
+      overflow-x: auto;
+      border: 1px solid #000;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    table.calc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    table.calc-table th,
+    table.calc-table td {
+      padding: 6px 8px;
+      text-align: right;
+      border-bottom: 1px solid #e5e5e5;
+      white-space: nowrap;
+    }
+
+    table.calc-table th:first-child,
+    table.calc-table td:first-child {
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    table.calc-table thead th {
+      background: #f6f6f6;
+      font-weight: 700;
+    }
+
+    table.calc-table tbody tr {
+      cursor: pointer;
+    }
+
+    table.calc-table tbody tr.row-highlight {
+      background: var(--viz-group-a-soft);
+    }
+
+    table.calc-table tfoot td {
+      background: #f6f6f6;
+      font-weight: 700;
+      border-bottom: none;
+      border-top: 1px solid #000;
+    }
+
+    .contrib-cell {
+      position: relative;
+      min-width: 7.5rem;
+    }
+
+    .contrib-bar {
+      position: absolute;
+      left: 0;
+      top: 3px;
+      bottom: 3px;
+      background: var(--viz-group-a-mid);
+      border-radius: 3px;
+      z-index: 0;
+    }
+
+    .contrib-text {
+      position: relative;
+      z-index: 1;
+    }
+
+    .is-high { color: var(--viz-residual); }
+    .is-low { color: var(--viz-group-a); }
+    .is-shifted { color: var(--viz-null); }
+    .is-muted { color: var(--viz-reference); }
+
+    .katex-display {
+      margin: 0.35em 0;
+    }
+
+    @media (min-width: 961px) {
+      .card-plot .plot-well {
+        flex: 1 1 auto;
+        height: auto;
+        min-height: 250px;
+        max-height: 440px;
+      }
+    }
+
+    @media (max-width: 960px) {
+      .stage {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .card-plot .plot-well {
+        height: 240px;
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .q1-body {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+      }
+
+      .sim-controls {
+        width: 100%;
+      }
+
+      .term-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .slider-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+
+      .slider-row input[type="range"] {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css">
+</head>
+<body class="demo-page">
+  <div class="page">
+    <div class="demo-topbar">
+      <a class="demo-back" href="../index.html">← Project Viz</a>
+    </div>
+
+    <header class="page-head">
+      <h1>Pearson’s $\chi^2$ goodness-of-fit test</h1>
+      <p class="lede">Spin a wheel, then compare the counts with the probabilities under $H_0$. The live $\chi^2$ sum stays beside the sampling distribution.</p>
+    </header>
+
+    <div class="toolbar demo-card">
+      <div class="field">
+        <label class="field-label" for="modeSelect">Roulette mode</label>
+        <select id="modeSelect" class="demo-select">
+          <option value="color_eu" selected>European casino wheel (18:18:1, k = 3)</option>
+          <option value="color_eq">Equal 3-color wheel (1:1:1, k = 3)</option>
+          <option value="quadrant">Graded tier wheel (4:3:2:1, k = 4)</option>
+          <option value="six_num">6-pocket number wheel (k = 6)</option>
+        </select>
+      </div>
+      <div class="field field-alpha">
+        <span class="field-label" id="alphaLabel">Significance ($\alpha$)</span>
+        <div class="demo-chip-group" role="group" aria-labelledby="alphaLabel">
+          <button type="button" class="demo-chip alpha-btn" data-alpha="0.10">.10</button>
+          <button type="button" class="demo-chip alpha-btn is-active" data-alpha="0.05">.05</button>
+          <button type="button" class="demo-chip alpha-btn" data-alpha="0.01">.01</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="stage">
+      <section class="card demo-card" aria-labelledby="wheelHeading">
+        <div class="card-head">
+          <h2 id="wheelHeading">Roulette wheel</h2>
+          <span class="demo-value" id="sampleSizeBadge">N = 0</span>
+        </div>
+
+        <div class="pedagogy">
+          <div class="pedagogy-head">
+            <span id="q1PedagogyTitle"></span>
+            <span class="pedagogy-tag" id="q1PedagogyTag"></span>
+          </div>
+          <p id="q1PedagogyDesc"></p>
+        </div>
+
+        <div class="q1-body">
+          <div class="wheel-container">
+            <canvas id="rouletteCanvas" width="480" height="480"></canvas>
+            <div class="outcome demo-panel" id="lastOutcomeBanner">Ready to spin.</div>
+          </div>
+
+          <div class="sim-controls">
+            <div class="spin-buttons">
+              <button type="button" class="demo-btn demo-btn-primary" id="btnSpin1">Spin once</button>
+              <button type="button" class="demo-btn" id="btnSpin10">+10 spins</button>
+              <button type="button" class="demo-btn" id="btnSpin100">+100 spins</button>
+              <button type="button" class="demo-btn" id="btnSpin1000">+1,000 spins</button>
+              <button type="button" class="demo-btn" id="btnReset">Reset counts</button>
+            </div>
+
+            <div class="rigging-box demo-panel">
+              <div class="rigging-head">
+                <strong>True wheel $\pi_i$ against null $p_i$</strong>
+                <div class="demo-chip-group">
+                  <button type="button" class="demo-chip is-active" id="btnFairPreset">Fair wheel (H₀ true)</button>
+                  <button type="button" class="demo-chip" id="btnBiasPreset">Rigged: Green 0 magnet</button>
+                </div>
+              </div>
+              <div class="sliders-list" id="slidersContainer"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card demo-card card-plot" aria-labelledby="countsHeading">
+        <div class="card-head">
+          <h2 id="countsHeading">Counts and residuals</h2>
+          <div class="card-tools" role="group" aria-label="Chart view">
+            <button type="button" class="demo-chip is-active" id="btnViewCounts">Observed $O_i$ vs expected $E_i$</button>
+            <button type="button" class="demo-chip" id="btnViewResiduals">Pearson residuals $r_i$</button>
+          </div>
+        </div>
+        <div class="plot-well">
+          <svg id="barChartSvg" viewBox="0 0 560 250" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Observed and expected counts"></svg>
+        </div>
+        <div class="banner cochran-alert" id="cochranBanner">
+          <span id="cochranText">Spin the wheel so every expected count $E_i$ is at least 5.</span>
+          <span class="banner-readout" id="minExpectedBadge">$\min(E_i) = 0.00$</span>
+        </div>
+      </section>
+
+      <section class="card demo-card" aria-labelledby="formulaHeading">
+        <div class="card-head">
+          <h2 id="formulaHeading">Live $\chi^2$ decomposition</h2>
+          <span class="demo-value" id="dfFormulaBadge">$df = k - 1 = 2$</span>
+        </div>
+
+        <div class="formula-banner demo-panel">
+          <div>$\chi^2 = \sum_i \dfrac{(O_i - E_i)^2}{E_i}$</div>
+          <div class="formula-rhs" id="liveSymbolicSum">$\chi^2 = 0.000$</div>
+        </div>
+
+        <p class="intuition">The term $\dfrac{(O - E)^2}{E}$ is squared error in units of the expected variance of a count. <q>How many units of ordinary random luck away from the expectation did this category land?</q></p>
+        <div class="term-grid">
+          <div class="term-pill demo-panel">
+            <strong>Numerator: $(O - E)^2$</strong>
+            Squared distance between the observed count and the expected count. Squaring keeps every miss positive and gives large misses extra weight.
+          </div>
+          <div class="term-pill demo-panel">
+            <strong>Denominator: $E$</strong>
+            Expected variance of a count of that size. A miss of 3 is unsurprising when $E$ is large and surprising when $E$ is small.
+          </div>
+          <div class="term-pill demo-panel">
+            <strong>Ratio: $(O - E)^2 / E$</strong>
+            One category’s contribution to $\chi^2$. The contributions add up to the test statistic.
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="calc-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Null $p_i$</th>
+                <th>True $\pi_i$</th>
+                <th>$O_i$</th>
+                <th>$E_i$</th>
+                <th>$O_i - E_i$</th>
+                <th>$(O_i - E_i)^2$</th>
+                <th>$(O_i - E_i)^2 / E_i$</th>
+              </tr>
+            </thead>
+            <tbody id="calcTableBody"></tbody>
+            <tfoot id="calcTableFoot"></tfoot>
+          </table>
+        </div>
+      </section>
+
+      <section class="card demo-card card-plot" aria-labelledby="pdfHeading">
+        <div class="card-head">
+          <h2 id="pdfHeading">$\chi^2$ sampling distribution</h2>
+          <span class="demo-value" id="critBadge">$\chi^2_{\mathrm{crit}} = 5.991$</span>
+        </div>
+        <div class="plot-well">
+          <svg id="pdfChartSvg" viewBox="0 0 560 250" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Chi-square density with critical region"></svg>
+        </div>
+        <div class="banner decision-neutral" id="decisionBanner">
+          <span id="decisionText">Spin the wheel to compute $\chi^2$ and the p-value.</span>
+          <span class="banner-readout" id="pValueBadge">p = —</span>
+        </div>
+        <div class="mc-bar">
+          <div class="mc-actions">
+            <button type="button" class="demo-btn" id="btnRunMC" title="Each experiment draws the current N. If N is still 0, it uses at least 100 spins, and enough to meet Cochran’s rule.">Simulate 500 experiments</button>
+            <button type="button" class="demo-btn" id="btnClearMC">Clear overlay</button>
+          </div>
+          <span class="mc-summary" id="mcSummaryText">Monte Carlo overlay: off</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    var StatMath = {
+      lnGamma: function (z) {
+        var g = 7;
+        var p = [
+          0.99999999999980993,
+          676.5203681218851,
+          -1259.1392167224028,
+          771.32342877765313,
+          -176.61502916214059,
+          12.507343278686905,
+          -0.13857109526572012,
+          9.9843695780195716e-6,
+          1.5056327351493116e-7
+        ];
+        if (z < 0.5) {
+          return Math.log(Math.PI) - Math.log(Math.sin(Math.PI * z)) - this.lnGamma(1 - z);
+        }
+        z -= 1;
+        var x = p[0];
+        var i;
+        for (i = 1; i < g + 2; i++) x += p[i] / (z + i);
+        var t = z + g + 0.5;
+        return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+      },
+
+      gammaPSeries: function (a, x) {
+        var EPS = 1e-12;
+        var MAX_ITER = 300;
+        if (x <= 0) return 0;
+        var ap = a;
+        var sum = 1 / a;
+        var del = sum;
+        var n;
+        for (n = 1; n <= MAX_ITER; n++) {
+          ap += 1;
+          del *= x / ap;
+          sum += del;
+          if (Math.abs(del) < Math.abs(sum) * EPS) break;
+        }
+        return sum * Math.exp(-x + a * Math.log(x) - this.lnGamma(a));
+      },
+
+      gammaQCF: function (a, x) {
+        var EPS = 1e-12;
+        var FPMIN = 1e-30;
+        var MAX_ITER = 300;
+        var b = x + 1 - a;
+        var c = 1 / FPMIN;
+        var d = 1 / b;
+        var h = d;
+        var i;
+        for (i = 1; i <= MAX_ITER; i++) {
+          var an = -i * (i - a);
+          b += 2;
+          d = an * d + b;
+          if (Math.abs(d) < FPMIN) d = FPMIN;
+          c = b + an / c;
+          if (Math.abs(c) < FPMIN) c = FPMIN;
+          d = 1 / d;
+          var delta = d * c;
+          h *= delta;
+          if (Math.abs(delta - 1) < EPS) break;
+        }
+        return Math.exp(-x + a * Math.log(x) - this.lnGamma(a)) * h;
+      },
+
+      chiSquarePValue: function (x, df) {
+        if (x <= 0) return 1;
+        var a = df / 2;
+        var halfX = x / 2;
+        var p = halfX < a + 1 ? 1 - this.gammaPSeries(a, halfX) : this.gammaQCF(a, halfX);
+        return Math.max(0, Math.min(1, p));
+      },
+
+      chiSquarePDF: function (x, df) {
+        if (x <= 0) return df === 2 ? 0.5 : 0;
+        var k2 = df / 2;
+        var logPdf = (k2 - 1) * Math.log(x) - x / 2 - k2 * Math.log(2) - this.lnGamma(k2);
+        return Math.exp(logPdf);
+      },
+
+      chiSquareInvUpper: function (alpha, df) {
+        var low = 0;
+        var high = Math.max(30, df + 12 * Math.sqrt(2 * df));
+        while (this.chiSquarePValue(high, df) > alpha) high *= 1.5;
+        var iter;
+        for (iter = 0; iter < 60; iter++) {
+          var mid = 0.5 * (low + high);
+          if (this.chiSquarePValue(mid, df) > alpha) low = mid;
+          else high = mid;
+        }
+        return 0.5 * (low + high);
+      }
+    };
+
+    var EUROPEAN_WHEEL_NUMBERS = [
+      0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10,
+      5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
+    ];
+
+    var RED_NUMBERS_SET = {
+      1: 1, 3: 1, 5: 1, 7: 1, 9: 1, 12: 1, 14: 1, 16: 1, 18: 1,
+      19: 1, 21: 1, 23: 1, 25: 1, 27: 1, 30: 1, 32: 1, 34: 1, 36: 1
+    };
+
+    var EUROPEAN_POCKETS = EUROPEAN_WHEEL_NUMBERS.map(function (num) {
+      if (num === 0) return { number: 0, catIdx: 2, color: "#15803d", text: "0" };
+      if (RED_NUMBERS_SET[num]) return { number: num, catIdx: 0, color: "#dc2626", text: String(num) };
+      return { number: num, catIdx: 1, color: "#18181b", text: String(num) };
+    });
+
+    var ROULETTE_MODES = {
+      color_eu: {
+        name: "European casino roulette",
+        rigButtonLabel: "Rigged: Green 0 magnet",
+        riggedWeights: [17, 17, 3],
+        pedagogyTitle: "European casino wheel (18:18:1)",
+        pedagogyTag: "k = 3, df = 2, min N = 185",
+        pedagogyDesc: "A fair European wheel has known probabilities ($p_i = 18/37$ red, $18/37$ black, $1/37$ green 0). Pearson’s $\\chi^2$ compares observed counts ($O_i$) with expected counts ($E_i = N \\cdot p_i$). The rare green pocket needs $N \\ge 185$ before every $E_i \\ge 5$ (Cochran’s rule), and a small excess there moves $\\chi^2$ a lot.",
+        categories: [
+          { label: "Red (18)", shortLabel: "Red", color: "#dc2626", nullWeight: 18 },
+          { label: "Black (18)", shortLabel: "Black", color: "#27272a", nullWeight: 18 },
+          { label: "Green 0 (1)", shortLabel: "Green 0", color: "#16a34a", nullWeight: 1 }
+        ]
+      },
+      color_eq: {
+        name: "Equal 3-color wheel",
+        rigButtonLabel: "Rigged: Red +48% bias",
+        riggedWeights: [48, 26, 26],
+        pedagogyTitle: "Equal 3-color wheel (1:1:1)",
+        pedagogyTag: "k = 3, df = 2, min N = 15",
+        pedagogyDesc: "A fair 3-color wheel gives each sector $p_i = 1/3$. The same test, still on $df = 2$, meets Cochran’s rule at $N = 15$. The null is uniform, and the reference curve is the same $\\chi^2$ distribution as the European wheel.",
+        categories: [
+          { label: "Red sector", shortLabel: "Red", color: "#dc2626", nullWeight: 1 },
+          { label: "Blue sector", shortLabel: "Blue", color: "#2563eb", nullWeight: 1 },
+          { label: "Emerald sector", shortLabel: "Emerald", color: "#16a34a", nullWeight: 1 }
+        ]
+      },
+      quadrant: {
+        name: "Graded tier wheel 4:3:2:1",
+        rigButtonLabel: "Rigged: flat 25% wheel",
+        riggedWeights: [25, 25, 25, 25],
+        pedagogyTitle: "Graded tier wheel (4:3:2:1)",
+        pedagogyTag: "k = 4, df = 3, min N = 50",
+        pedagogyDesc: "This fair wheel is not uniform: $p_i = 40\\%$, $30\\%$, $20\\%$, $10\\%$. Goodness-of-fit can test any hypothesized ratio, not only equal proportions. The diamond tier is $N/10$ of the spins, so Cochran’s rule needs $N \\ge 50$.",
+        categories: [
+          { label: "Tier 1: Bronze (40%)", shortLabel: "Bronze", color: "#e11d48", nullWeight: 4 },
+          { label: "Tier 2: Silver (30%)", shortLabel: "Silver", color: "#0284c7", nullWeight: 3 },
+          { label: "Tier 3: Gold (20%)", shortLabel: "Gold", color: "#d97706", nullWeight: 2 },
+          { label: "Tier 4: Diamond (10%)", shortLabel: "Diamond", color: "#7c3aed", nullWeight: 1 }
+        ]
+      },
+      six_num: {
+        name: "6-pocket number wheel",
+        rigButtonLabel: "Rigged: Pocket 4 spike",
+        riggedWeights: [14, 14, 14, 30, 14, 14],
+        pedagogyTitle: "6-pocket number wheel",
+        pedagogyTag: "k = 6, df = 5, min N = 30",
+        pedagogyDesc: "A fair 6-pocket wheel has $p_i = 1/6$. More categories raise the degrees of freedom ($df = 5$). The omnibus $\\chi^2$ says whether the set of counts fits; the Pearson residual $r_i = (O_i - E_i)/\\sqrt{E_i}$ shows which pocket carries the discrepancy. Cochran’s rule needs $N \\ge 30$.",
+        categories: [
+          { label: "Pocket 1", shortLabel: "1", color: "#dc2626", nullWeight: 1 },
+          { label: "Pocket 2", shortLabel: "2", color: "#ea580c", nullWeight: 1 },
+          { label: "Pocket 3", shortLabel: "3", color: "#ca8a04", nullWeight: 1 },
+          { label: "Pocket 4", shortLabel: "4", color: "#16a34a", nullWeight: 1 },
+          { label: "Pocket 5", shortLabel: "5", color: "#2563eb", nullWeight: 1 },
+          { label: "Pocket 6", shortLabel: "6", color: "#9333ea", nullWeight: 1 }
+        ]
+      }
+    };
+
+    var state = {
+      modeKey: "color_eu",
+      alpha: 0.05,
+      categories: [],
+      totalN: 0,
+      hoveredIndex: -1,
+      lastWinningPocketIdx: 0,
+      lastWinningNumber: null,
+      chartView: "counts",
+      isRigged: false,
+      wheelAngle: 0,
+      ballAngle: -Math.PI / 2,
+      ballRadiusRatio: 0.72,
+      isSpinning: false,
+      animFrameId: null,
+      mcSamples: []
+    };
+
+    function typeset(el) {
+      if (!el || typeof renderMathInElement !== "function") return;
+      renderMathInElement(el, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }
+        ],
+        throwOnError: false
+      });
+    }
+
+    function setMath(el, tex) {
+      el.textContent = tex;
+      typeset(el);
+    }
+
+    function setHTML(el, html) {
+      el.innerHTML = html;
+      typeset(el);
+    }
+
+    function ink() {
+      return {
+        text: statsViz.color("total"),
+        muted: statsViz.color("reference"),
+        grid: statsViz.rgba("reference", 0.4),
+        density: statsViz.color("density"),
+        nullC: statsViz.color("null"),
+        nullSoft: statsViz.rgba("null", 0.24),
+        tail: statsViz.rgba("group-a", 0.18),
+        good: statsViz.color("significant"),
+        residual: statsViz.color("residual"),
+        groupA: statsViz.color("group-a"),
+        mc: statsViz.rgba("se", 0.32),
+        mcStroke: statsViz.color("se"),
+        expectedFill: statsViz.rgba("reference", 0.14),
+        expectedStroke: statsViz.color("reference"),
+        hover: statsViz.rgba("highlight", 0.2),
+        paper: "#ffffff"
+      };
+    }
+
+    function esc(value) {
+      return String(value).replace(/[&<>"']/g, function (ch) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[ch];
+      });
+    }
+
+    function attachRangeGuard(el) {
+      var snapshot = null;
+      el.addEventListener("pointerdown", function (event) {
+        if (event.pointerType === "mouse") return;
+        snapshot = el.value;
+      });
+      el.addEventListener("pointercancel", function () {
+        if (snapshot == null) return;
+        var restore = snapshot;
+        snapshot = null;
+        if (el.value === restore) return;
+        el.value = restore;
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+      el.addEventListener("pointerup", function () {
+        snapshot = null;
+      });
+    }
+
+    function getWheelPockets() {
+      if (state.modeKey === "color_eu") {
+        var span = (Math.PI * 2) / 37;
+        return EUROPEAN_POCKETS.map(function (p, idx) {
+          return {
+            idx: idx,
+            number: p.number,
+            text: p.text,
+            catIdx: p.catIdx,
+            color: p.color,
+            startAngle: idx * span,
+            endAngle: (idx + 1) * span,
+            midAngle: (idx + 0.5) * span
+          };
+        });
+      }
+      var cur = 0;
+      return state.categories.map(function (cat, idx) {
+        var width = cat.trueProb * Math.PI * 2;
+        var pocket = {
+          idx: idx,
+          number: idx + 1,
+          text: cat.shortLabel,
+          catIdx: idx,
+          color: cat.color,
+          startAngle: cur,
+          endAngle: cur + width,
+          midAngle: cur + width / 2
+        };
+        cur += width;
+        return pocket;
+      });
+    }
+
+    function cancelOngoingAnimation() {
+      if (state.animFrameId !== null) {
+        cancelAnimationFrame(state.animFrameId);
+        state.animFrameId = null;
+      }
+      state.isSpinning = false;
+      setControlsDisabled(false);
+    }
+
+    function setControlsDisabled(disabled) {
+      ["modeSelect", "btnSpin1", "btnSpin10", "btnSpin100", "btnSpin1000", "btnReset", "btnFairPreset", "btnBiasPreset"].forEach(function (id) {
+        document.getElementById(id).disabled = disabled;
+      });
+      document.querySelectorAll("#slidersContainer input[type='range']").forEach(function (el) {
+        el.disabled = disabled;
+      });
+    }
+
+    function updatePedagogyBanner(spec) {
+      document.getElementById("q1PedagogyTitle").textContent = spec.pedagogyTitle;
+      document.getElementById("q1PedagogyTag").textContent = spec.pedagogyTag;
+      var desc = document.getElementById("q1PedagogyDesc");
+      desc.textContent = spec.pedagogyDesc;
+      typeset(desc);
+    }
+
+    function initMode(modeKey) {
+      cancelOngoingAnimation();
+      state.modeKey = modeKey;
+      var spec = ROULETTE_MODES[modeKey];
+      var totalNull = spec.categories.reduce(function (acc, c) { return acc + c.nullWeight; }, 0);
+      state.categories = spec.categories.map(function (c) {
+        var p = c.nullWeight / totalNull;
+        return {
+          label: c.label,
+          shortLabel: c.shortLabel,
+          color: c.color,
+          nullProb: p,
+          trueWeight: p * 100,
+          trueProb: p,
+          obs: 0
+        };
+      });
+      state.totalN = 0;
+      state.lastWinningPocketIdx = 0;
+      state.lastWinningNumber = null;
+      state.hoveredIndex = -1;
+      state.isRigged = false;
+      state.wheelAngle = 0;
+      state.ballAngle = -Math.PI / 2;
+      state.ballRadiusRatio = 0.72;
+      state.mcSamples = [];
+      document.getElementById("lastOutcomeBanner").textContent = "Ready to spin.";
+      document.getElementById("mcSummaryText").textContent = "Monte Carlo overlay: off";
+      document.getElementById("btnBiasPreset").textContent = spec.rigButtonLabel;
+      updatePedagogyBanner(spec);
+      updateRigButtonsUI();
+      buildSlidersUI();
+      updateAllVisuals();
+    }
+
+    function normalizeTrueWeights() {
+      var sumW = state.categories.reduce(function (acc, c) { return acc + c.trueWeight; }, 0);
+      if (sumW <= 0) {
+        var eq = 1 / state.categories.length;
+        state.categories.forEach(function (c) {
+          c.trueWeight = eq * 100;
+          c.trueProb = eq;
+        });
+      } else {
+        state.categories.forEach(function (c) {
+          c.trueProb = c.trueWeight / sumW;
+        });
+      }
+      var maxDiff = Math.max.apply(null, state.categories.map(function (c) {
+        return Math.abs(c.trueProb - c.nullProb);
+      }));
+      state.isRigged = maxDiff > 0.002;
+      updateRigButtonsUI();
+    }
+
+    function updateRigButtonsUI() {
+      document.getElementById("btnFairPreset").classList.toggle("is-active", !state.isRigged);
+      document.getElementById("btnBiasPreset").classList.toggle("is-active", state.isRigged);
+    }
+
+    function buildSlidersUI() {
+      var container = document.getElementById("slidersContainer");
+      container.replaceChildren();
+      state.categories.forEach(function (cat, idx) {
+        var row = document.createElement("div");
+        row.className = "slider-row";
+
+        var labelDiv = document.createElement("div");
+        labelDiv.className = "slider-label";
+        labelDiv.title = cat.label;
+        var dot = document.createElement("span");
+        dot.className = "color-dot";
+        dot.style.background = cat.color;
+        var name = document.createElement("span");
+        name.textContent = cat.label;
+        labelDiv.append(dot, name);
+
+        var slider = document.createElement("input");
+        slider.type = "range";
+        slider.min = "0.5";
+        slider.max = "100";
+        slider.step = "0.1";
+        slider.value = cat.trueWeight.toFixed(2);
+        slider.setAttribute("aria-label", cat.label + " true weight");
+        attachRangeGuard(slider);
+        slider.addEventListener("input", function (event) {
+          if (state.isSpinning) return;
+          state.categories[idx].trueWeight = parseFloat(event.target.value);
+          normalizeTrueWeights();
+          state.mcSamples = [];
+          document.getElementById("mcSummaryText").textContent = "Monte Carlo overlay: off";
+          refreshSlidersText();
+          updateAllVisuals();
+        });
+
+        var probText = document.createElement("div");
+        probText.className = "slider-prob";
+        probText.id = "sliderProbText_" + idx;
+
+        row.append(labelDiv, slider, probText);
+        container.appendChild(row);
+      });
+      refreshSlidersText();
+    }
+
+    function refreshSlidersText() {
+      var sliders = document.querySelectorAll("#slidersContainer input[type='range']");
+      state.categories.forEach(function (cat, idx) {
+        if (sliders[idx]) sliders[idx].value = cat.trueWeight.toFixed(2);
+        var txtEl = document.getElementById("sliderProbText_" + idx);
+        if (!txtEl) return;
+        txtEl.replaceChildren();
+        txtEl.append(document.createTextNode((cat.trueProb * 100).toFixed(1) + "% "));
+        var note = document.createElement("span");
+        note.className = "null-note";
+        note.textContent = "(H₀ " + (cat.nullProb * 100).toFixed(1) + "%)";
+        txtEl.appendChild(note);
+      });
+    }
+
+    function sampleSingleSpinWithPocket() {
+      var r = Math.random();
+      var cum = 0;
+      var winCatIdx = state.categories.length - 1;
+      var i;
+      for (i = 0; i < state.categories.length; i++) {
+        cum += state.categories[i].trueProb;
+        if (r <= cum) {
+          winCatIdx = i;
+          break;
+        }
+      }
+      if (state.modeKey === "color_eu") {
+        var matching = [];
+        EUROPEAN_POCKETS.forEach(function (p, idx) {
+          if (p.catIdx === winCatIdx) matching.push(idx);
+        });
+        var chosen = matching[Math.floor(Math.random() * matching.length)];
+        return {
+          catIdx: winCatIdx,
+          pocketIdx: chosen,
+          pocketNumber: EUROPEAN_POCKETS[chosen].number
+        };
+      }
+      return { catIdx: winCatIdx, pocketIdx: winCatIdx, pocketNumber: winCatIdx + 1 };
+    }
+
+    function paintOutcome(prefix, catIdx, pocketNum) {
+      var banner = document.getElementById("lastOutcomeBanner");
+      var winner = state.categories[catIdx];
+      banner.replaceChildren();
+      banner.append(document.createTextNode(prefix + ": "));
+      var strong = document.createElement("strong");
+      strong.style.color = winner.color === "#27272a" ? "#18181b" : winner.color;
+      if (state.modeKey === "color_eu" && pocketNum !== null && pocketNum !== undefined) {
+        strong.textContent = "pocket " + pocketNum + " (" + winner.shortLabel + ")";
+      } else {
+        strong.textContent = winner.label;
+      }
+      banner.appendChild(strong);
+    }
+
+    function performBatchSpins(count) {
+      if (state.isSpinning) return;
+      var lastOutcome = null;
+      var s;
+      for (s = 0; s < count; s++) {
+        lastOutcome = sampleSingleSpinWithPocket();
+        state.categories[lastOutcome.catIdx].obs += 1;
+      }
+      state.totalN += count;
+      state.lastWinningPocketIdx = lastOutcome.pocketIdx;
+      state.lastWinningNumber = lastOutcome.pocketNumber;
+      var pockets = getWheelPockets();
+      var targetPocket = pockets[state.lastWinningPocketIdx] || pockets[0];
+      state.wheelAngle = Math.random() * Math.PI * 2;
+      state.ballAngle = state.wheelAngle + targetPocket.midAngle;
+      state.ballRadiusRatio = 0.72;
+      paintOutcome("+" + count + " spins, latest", lastOutcome.catIdx, lastOutcome.pocketNumber);
+      updateAllVisuals();
+    }
+
+    function commitSingleOutcome(outcome) {
+      state.categories[outcome.catIdx].obs += 1;
+      state.totalN += 1;
+      state.lastWinningPocketIdx = outcome.pocketIdx;
+      state.lastWinningNumber = outcome.pocketNumber;
+      paintOutcome("Landed on", outcome.catIdx, outcome.pocketNumber);
+      updateAllVisuals();
+    }
+
+    function animateSingleSpin() {
+      if (state.isSpinning) return;
+      var outcome = sampleSingleSpinWithPocket();
+      var pockets = getWheelPockets();
+      var winPocket = pockets[outcome.pocketIdx];
+      var startWheelAngle = state.wheelAngle;
+      var wheelSpins = (3.5 + Math.random()) * Math.PI * 2;
+      var finalWheelAngle = startWheelAngle + wheelSpins;
+      var pocketRestWorldAngle = finalWheelAngle + winPocket.midAngle;
+      var startBallAngle = state.ballAngle;
+      var rawDiff = ((pocketRestWorldAngle - startBallAngle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+      var ballTotalDelta = rawDiff - (6 * Math.PI * 2);
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      function land() {
+        state.wheelAngle = finalWheelAngle % (Math.PI * 2);
+        state.ballAngle = (state.wheelAngle + winPocket.midAngle) % (Math.PI * 2);
+        state.ballRadiusRatio = 0.72;
+        state.isSpinning = false;
+        state.animFrameId = null;
+        setControlsDisabled(false);
+        commitSingleOutcome(outcome);
+      }
+
+      if (reduce) {
+        land();
+        return;
+      }
+
+      state.isSpinning = true;
+      setControlsDisabled(true);
+      document.getElementById("lastOutcomeBanner").textContent = "Wheel and ball spinning…";
+      var duration = 1550;
+      var startTime = performance.now();
+
+      function step(now) {
+        var t = Math.min(1, (now - startTime) / duration);
+        var wheelEase = 1 - Math.pow(1 - t, 3.2);
+        var ballEase = 1 - Math.pow(1 - t, 3.8);
+        state.wheelAngle = startWheelAngle + wheelSpins * wheelEase;
+        state.ballAngle = startBallAngle + ballTotalDelta * ballEase;
+        if (t < 0.62) {
+          state.ballRadiusRatio = 0.89;
+        } else {
+          var dropT = (t - 0.62) / 0.38;
+          var bounce = Math.sin(dropT * Math.PI * 3) * Math.exp(-dropT * 4) * 0.035;
+          state.ballRadiusRatio = 0.89 - (0.17 * Math.min(1, dropT * 1.35)) + Math.abs(bounce);
+        }
+        drawRouletteWheel();
+        if (t < 1) {
+          state.animFrameId = requestAnimationFrame(step);
+        } else {
+          land();
+        }
+      }
+
+      state.animFrameId = requestAnimationFrame(step);
+    }
+
+    function drawRouletteWheel() {
+      var canvas = document.getElementById("rouletteCanvas");
+      var ctx = canvas.getContext("2d");
+      var w = canvas.width;
+      var h = canvas.height;
+      var cx = w / 2;
+      var cy = h / 2;
+      var outerR = Math.min(cx, cy) - 8;
+      var spec = ROULETTE_MODES[state.modeKey];
+      canvas.setAttribute("role", "img");
+      canvas.setAttribute("aria-label", spec.name + " wheel, sample size " + state.totalN);
+      ctx.clearRect(0, 0, w, h);
+
+      var woodGrad = ctx.createRadialGradient(cx, cy, outerR * 0.78, cx, cy, outerR);
+      woodGrad.addColorStop(0, "#2a120a");
+      woodGrad.addColorStop(0.35, "#5c2414");
+      woodGrad.addColorStop(0.75, "#3d160b");
+      woodGrad.addColorStop(0.94, "#1e0a05");
+      woodGrad.addColorStop(1, "#d4af37");
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+      ctx.fillStyle = woodGrad;
+      ctx.fill();
+
+      var trackR = outerR * 0.89;
+      ctx.beginPath();
+      ctx.arc(cx, cy, trackR, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(212, 175, 55, 0.45)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      var d;
+      for (d = 0; d < 8; d++) {
+        var ang = (d * Math.PI) / 4;
+        ctx.save();
+        ctx.translate(cx + Math.cos(ang) * trackR, cy + Math.sin(ang) * trackR);
+        ctx.rotate(ang);
+        ctx.beginPath();
+        var isVert = d % 2 === 0;
+        var len = isVert ? 10 : 7;
+        var wid = isVert ? 4.5 : 6;
+        ctx.moveTo(0, -len);
+        ctx.lineTo(wid, 0);
+        ctx.lineTo(0, len);
+        ctx.lineTo(-wid, 0);
+        ctx.closePath();
+        ctx.fillStyle = "#e5c158";
+        ctx.fill();
+        ctx.strokeStyle = "#785816";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      var rotorR = outerR * 0.82;
+      var innerPocketR = outerR * 0.45;
+      var numberBandInnerR = outerR * 0.65;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rotorR + 3, 0, Math.PI * 2);
+      ctx.strokeStyle = "#d4af37";
+      ctx.lineWidth = 3.5;
+      ctx.stroke();
+
+      var pockets = getWheelPockets();
+      var isEu = state.modeKey === "color_eu";
+      var hoverFill = statsViz.rgba("highlight", 0.38);
+      pockets.forEach(function (p, idx) {
+        var startA = state.wheelAngle + p.startAngle;
+        var endA = state.wheelAngle + p.endAngle;
+        var midA = state.wheelAngle + p.midAngle;
+        var sliceSpan = p.endAngle - p.startAngle;
+        var isCategoryHovered = p.catIdx === state.hoveredIndex;
+        var isWinningPocket = !state.isSpinning && state.totalN > 0 && idx === state.lastWinningPocketIdx;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, rotorR, startA, endA);
+        ctx.arc(cx, cy, innerPocketR, endA, startA, true);
+        ctx.closePath();
+        ctx.fillStyle = p.color;
+        ctx.fill();
+
+        var pocketGrad = ctx.createRadialGradient(cx, cy, innerPocketR, cx, cy, rotorR);
+        pocketGrad.addColorStop(0, "rgba(0, 0, 0, 0.42)");
+        pocketGrad.addColorStop(0.55, "rgba(0, 0, 0, 0.05)");
+        pocketGrad.addColorStop(0.62, "rgba(255, 255, 255, 0.08)");
+        pocketGrad.addColorStop(1, "rgba(0, 0, 0, 0.22)");
+        ctx.fillStyle = pocketGrad;
+        ctx.fill();
+
+        if (isWinningPocket) {
+          ctx.fillStyle = "rgba(250, 204, 21, 0.28)";
+          ctx.fill();
+        } else if (isCategoryHovered) {
+          ctx.fillStyle = hoverFill;
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(startA) * innerPocketR, cy + Math.sin(startA) * innerPocketR);
+        ctx.lineTo(cx + Math.cos(startA) * rotorR, cy + Math.sin(startA) * rotorR);
+        ctx.strokeStyle = isWinningPocket ? "#fde047" : "#d4af37";
+        ctx.lineWidth = isEu ? 1.4 : 2.2;
+        ctx.stroke();
+
+        if (sliceSpan > 0.07) {
+          ctx.save();
+          var textR = isEu ? (rotorR + numberBandInnerR) * 0.505 : (rotorR + innerPocketR) * 0.56;
+          ctx.translate(cx + Math.cos(midA) * textR, cy + Math.sin(midA) * textR);
+          ctx.rotate(midA + Math.PI / 2);
+          ctx.fillStyle = isWinningPocket ? "#fef08a" : "#f8fafc";
+          ctx.font = isEu ? "bold 13px Arial, Helvetica, sans-serif" : "bold 15px Arial, Helvetica, sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(p.text, 0, 0);
+          ctx.restore();
+        }
+      });
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, numberBandInnerR, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(212, 175, 55, 0.75)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      if (!isEu && state.isRigged) {
+        var nullAngle = state.wheelAngle;
+        state.categories.forEach(function (cat) {
+          nullAngle += cat.nullProb * Math.PI * 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(nullAngle) * innerPocketR, cy + Math.sin(nullAngle) * innerPocketR);
+          ctx.lineTo(cx + Math.cos(nullAngle) * (rotorR + 6), cy + Math.sin(nullAngle) * (rotorR + 6));
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
+          ctx.setLineDash([6, 4]);
+          ctx.lineWidth = 2.4;
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.arc(cx + Math.cos(nullAngle) * (rotorR + 4), cy + Math.sin(nullAngle) * (rotorR + 4), 2.8, 0, Math.PI * 2);
+          ctx.fillStyle = "#f8fafc";
+          ctx.fill();
+          ctx.restore();
+        });
+      }
+
+      var coneGrad = ctx.createRadialGradient(cx, cy, outerR * 0.08, cx, cy, innerPocketR);
+      coneGrad.addColorStop(0, "#78531a");
+      coneGrad.addColorStop(0.45, "#421a0c");
+      coneGrad.addColorStop(0.88, "#290e06");
+      coneGrad.addColorStop(1, "#d4af37");
+      ctx.beginPath();
+      ctx.arc(cx, cy, innerPocketR, 0, Math.PI * 2);
+      ctx.fillStyle = coneGrad;
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "#d4af37";
+      ctx.stroke();
+
+      var s;
+      for (s = 0; s < 4; s++) {
+        var spokeA = state.wheelAngle + (s * Math.PI) / 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(spokeA) * (innerPocketR * 0.82), cy + Math.sin(spokeA) * (innerPocketR * 0.82));
+        ctx.strokeStyle = "#e5c158";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + Math.cos(spokeA) * (innerPocketR * 0.74), cy + Math.sin(spokeA) * (innerPocketR * 0.74), 5, 0, Math.PI * 2);
+        ctx.fillStyle = "#fef08a";
+        ctx.fill();
+        ctx.strokeStyle = "#78531a";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      var hubR = outerR * 0.23;
+      var hubGrad = ctx.createRadialGradient(cx - 5, cy - 5, 2, cx, cy, hubR);
+      hubGrad.addColorStop(0, "#44403c");
+      hubGrad.addColorStop(1, "#292524");
+      ctx.beginPath();
+      ctx.arc(cx, cy, hubR, 0, Math.PI * 2);
+      ctx.fillStyle = hubGrad;
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#e5c158";
+      ctx.stroke();
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "bold 17px Arial, Helvetica, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("N=" + state.totalN, cx, cy);
+
+      if (state.isSpinning || state.totalN > 0) {
+        var ballDist = outerR * (state.isSpinning ? state.ballRadiusRatio : 0.56);
+        var bx = cx + Math.cos(state.ballAngle) * ballDist;
+        var by = cy + Math.sin(state.ballAngle) * ballDist;
+        var ballR = 8.5;
+        ctx.beginPath();
+        ctx.arc(bx + 2, by + 3, ballR, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+        ctx.fill();
+        var ballGrad = ctx.createRadialGradient(bx - 3, by - 3, 1.5, bx, by, ballR);
+        ballGrad.addColorStop(0, "#ffffff");
+        ballGrad.addColorStop(0.55, "#f1f5f9");
+        ballGrad.addColorStop(1, "#94a3b8");
+        ctx.beginPath();
+        ctx.arc(bx, by, ballR, 0, Math.PI * 2);
+        ctx.fillStyle = ballGrad;
+        ctx.fill();
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+
+    function computeCurrentStats() {
+      var k = state.categories.length;
+      var df = k - 1;
+      var N = state.totalN;
+      var chiSq = 0;
+      var minE = Infinity;
+      var rows = state.categories.map(function (cat, idx) {
+        var O = cat.obs;
+        var E = N * cat.nullProb;
+        if (E < minE) minE = E;
+        var diff = O - E;
+        var diffSq = diff * diff;
+        var contrib = E > 0 ? diffSq / E : 0;
+        var residual = E > 0 ? diff / Math.sqrt(E) : 0;
+        chiSq += contrib;
+        return {
+          idx: idx,
+          label: cat.label,
+          shortLabel: cat.shortLabel,
+          color: cat.color,
+          nullProb: cat.nullProb,
+          trueProb: cat.trueProb,
+          O: O,
+          E: E,
+          diff: diff,
+          diffSq: diffSq,
+          contrib: contrib,
+          residual: residual
+        };
+      });
+      if (!isFinite(minE)) minE = 0;
+      return {
+        k: k,
+        df: df,
+        N: N,
+        chiSq: chiSq,
+        minE: minE,
+        critVal: StatMath.chiSquareInvUpper(state.alpha, df),
+        pValue: N > 0 ? StatMath.chiSquarePValue(chiSq, df) : 1,
+        rows: rows
+      };
+    }
+
+    function bindHover(el, idx) {
+      el.addEventListener("pointerenter", function () {
+        state.hoveredIndex = idx;
+        highlightSynchronizedViews();
+      });
+      el.addEventListener("pointerleave", function (event) {
+        if (event.pointerType === "touch") return;
+        if (state.hoveredIndex === idx) {
+          state.hoveredIndex = -1;
+          highlightSynchronizedViews();
+        }
+      });
+    }
+
+    function renderBarChart(stats) {
+      var svg = document.getElementById("barChartSvg");
+      var colors = ink();
+      var W = 560;
+      var H = 250;
+      var padL = 68;
+      var padR = 16;
+      var padT = 28;
+      var padB = 46;
+      var plotW = W - padL - padR;
+      var plotH = H - padT - padB;
+      var html = "";
+      var yName = state.chartView === "counts" ? "Count" : "Pearson residual";
+
+      html += '<text transform="translate(16 ' + (padT + plotH / 2) + ') rotate(-90)" fill="' + colors.text + '" font-size="12" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">' + yName + "</text>";
+
+      if (state.chartView === "counts") {
+        var peakCount = Math.max.apply(null, [0].concat(stats.rows.map(function (r) { return Math.max(r.O, r.E); })));
+        var rawMax = Math.max(5, peakCount * 1.18);
+        var rough = rawMax / 4;
+        var pow10 = Math.pow(10, Math.floor(Math.log10(rough)));
+        var err = rough / pow10;
+        var mult = err <= 1 ? 1 : err <= 2 ? 2 : err <= 5 ? 5 : 10;
+        var step = mult * pow10;
+        var tickCount = Math.max(2, Math.ceil(rawMax / step));
+        var maxVal = step * tickCount;
+        var g;
+        for (g = 0; g <= tickCount; g++) {
+          var val = step * g;
+          var y = padT + plotH - (val / maxVal) * plotH;
+          var tickText = step < 1 ? val.toFixed(1) : String(Math.round(val));
+          html += '<line x1="' + padL + '" y1="' + y + '" x2="' + (W - padR) + '" y2="' + y + '" stroke="' + colors.grid + '" stroke-dasharray="3 3"/>';
+          html += '<text x="' + (padL - 6) + '" y="' + (y + 4) + '" fill="' + colors.muted + '" font-size="11" font-family="Arial, Helvetica, sans-serif" text-anchor="end">' + tickText + "</text>";
+        }
+        var slotW = plotW / stats.k;
+        stats.rows.forEach(function (r, i) {
+          var groupX = padL + i * slotW;
+          var barW = Math.min(34, slotW * 0.32);
+          var obsX = groupX + slotW * 0.5 - barW - 3;
+          var expX = groupX + slotW * 0.5 + 3;
+          var obsH = (r.O / maxVal) * plotH;
+          var expH = (r.E / maxVal) * plotH;
+          var obsY = padT + plotH - obsH;
+          var expY = padT + plotH - expH;
+          var isHover = i === state.hoveredIndex;
+          html += '<g class="bar-group" data-idx="' + i + '">';
+          html += '<rect class="bar-hover-bg" data-idx="' + i + '" x="' + (groupX + 2) + '" y="' + padT + '" width="' + (slotW - 4) + '" height="' + plotH + '" fill="' + colors.hover + '" opacity="' + (isHover ? 1 : 0) + '"/>';
+          if (r.O > 0) {
+            html += '<rect x="' + obsX + '" y="' + obsY + '" width="' + barW + '" height="' + Math.max(1, obsH) + '" fill="' + r.color + '" rx="2"/>';
+            html += '<text x="' + (obsX + barW / 2) + '" y="' + Math.max(14, obsY - 4) + '" fill="' + colors.text + '" font-size="11" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">' + r.O + "</text>";
+          }
+          if (r.E > 0) {
+            html += '<rect x="' + expX + '" y="' + expY + '" width="' + barW + '" height="' + Math.max(1, expH) + '" fill="' + colors.expectedFill + '" stroke="' + colors.expectedStroke + '" stroke-width="1.5" stroke-dasharray="4 3" rx="2"/>';
+            html += '<text x="' + (expX + barW / 2) + '" y="' + Math.max(14, expY - 4) + '" fill="' + colors.muted + '" font-size="10" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">' + r.E.toFixed(1) + "</text>";
+          }
+          html += '<text x="' + (groupX + slotW / 2) + '" y="' + (H - 16) + '" fill="' + colors.text + '" font-size="12" font-weight="700" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">' + esc(r.shortLabel) + "</text>";
+          html += "</g>";
+        });
+        html += '<g transform="translate(' + padL + ', 8)">';
+        html += '<rect x="0" y="0" width="10" height="10" fill="' + colors.text + '" rx="1"/>';
+        html += '<text x="14" y="9" fill="' + colors.text + '" font-size="11" font-family="Arial, Helvetica, sans-serif">Observed count</text>';
+        html += '<rect x="112" y="0" width="10" height="10" fill="' + colors.expectedFill + '" stroke="' + colors.expectedStroke + '" stroke-dasharray="2 2" rx="1"/>';
+        html += '<text x="126" y="9" fill="' + colors.muted + '" font-size="11" font-family="Arial, Helvetica, sans-serif">Expected count</text>';
+        html += "</g>";
+        svg.setAttribute("aria-label", "Observed counts against expected counts under the null. Sample size " + stats.N + ".");
+      } else {
+        var peakRes = Math.max.apply(null, [0].concat(stats.rows.map(function (r) { return Math.abs(r.residual); })));
+        var maxAbsR = Math.max(3, peakRes * 1.25);
+        var zeroY = padT + plotH / 2;
+        var yPlus2 = zeroY - (1.96 / maxAbsR) * (plotH / 2);
+        var yMinus2 = zeroY + (1.96 / maxAbsR) * (plotH / 2);
+        html += '<line x1="' + padL + '" y1="' + zeroY + '" x2="' + (W - padR) + '" y2="' + zeroY + '" stroke="' + colors.muted + '" stroke-width="1.5"/>';
+        html += '<line x1="' + padL + '" y1="' + yPlus2 + '" x2="' + (W - padR) + '" y2="' + yPlus2 + '" stroke="' + colors.residual + '" stroke-dasharray="4 4"/>';
+        html += '<line x1="' + padL + '" y1="' + yMinus2 + '" x2="' + (W - padR) + '" y2="' + yMinus2 + '" stroke="' + colors.groupA + '" stroke-dasharray="4 4"/>';
+        html += '<text x="' + (padL - 6) + '" y="' + (zeroY + 4) + '" fill="' + colors.muted + '" font-size="11" font-family="Arial, Helvetica, sans-serif" text-anchor="end">0</text>';
+        html += '<text x="' + (padL - 6) + '" y="' + (yPlus2 + 4) + '" fill="' + colors.residual + '" font-size="10" font-family="Arial, Helvetica, sans-serif" text-anchor="end">+1.96</text>';
+        html += '<text x="' + (padL - 6) + '" y="' + (yMinus2 + 4) + '" fill="' + colors.groupA + '" font-size="10" font-family="Arial, Helvetica, sans-serif" text-anchor="end">−1.96</text>';
+        var slot = plotW / stats.k;
+        stats.rows.forEach(function (r, i) {
+          var groupX = padL + i * slot;
+          var barW = Math.min(44, slot * 0.45);
+          var barX = groupX + (slot - barW) / 2;
+          var barH = (Math.abs(r.residual) / maxAbsR) * (plotH / 2);
+          var barY = r.residual >= 0 ? zeroY - barH : zeroY;
+          var barColor = r.residual >= 0 ? colors.residual : colors.groupA;
+          var labelY = r.residual >= 0 ? Math.max(16, barY - 4) : Math.min(H - 28, barY + barH + 12);
+          var isHover = i === state.hoveredIndex;
+          html += '<g class="bar-group" data-idx="' + i + '">';
+          html += '<rect class="bar-hover-bg" data-idx="' + i + '" x="' + (groupX + 2) + '" y="' + padT + '" width="' + (slot - 4) + '" height="' + plotH + '" fill="' + colors.hover + '" opacity="' + (isHover ? 1 : 0) + '"/>';
+          html += '<rect x="' + barX + '" y="' + barY + '" width="' + barW + '" height="' + Math.max(1.5, barH) + '" fill="' + barColor + '" rx="2"/>';
+          html += '<text x="' + (barX + barW / 2) + '" y="' + labelY + '" fill="' + colors.text + '" font-size="11" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">' + (r.residual >= 0 ? "+" : "") + r.residual.toFixed(2) + "</text>";
+          html += '<text x="' + (groupX + slot / 2) + '" y="' + (H - 16) + '" fill="' + colors.text + '" font-size="12" font-weight="700" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">' + esc(r.shortLabel) + "</text>";
+          html += "</g>";
+        });
+        svg.setAttribute("aria-label", "Pearson residuals. Dashed lines mark plus and minus 1.96.");
+      }
+
+      svg.innerHTML = html;
+      svg.querySelectorAll(".bar-group").forEach(function (el) {
+        bindHover(el, parseInt(el.getAttribute("data-idx"), 10));
+      });
+
+      setMath(document.getElementById("minExpectedBadge"), "$\\min(E_i) = " + stats.minE.toFixed(2) + "$");
+      var cochranBanner = document.getElementById("cochranBanner");
+      var cochranText = document.getElementById("cochranText");
+      var minProb = Math.min.apply(null, state.categories.map(function (c) { return c.nullProb; }));
+      var minReqN = Math.ceil(5 / minProb);
+      if (stats.N === 0 || stats.minE < 5) {
+        cochranBanner.classList.remove("cochran-ok");
+        setHTML(cochranText, "<strong>Cochran’s rule:</strong> $\\min(E_i) &lt; 5$. This mode needs $N \\ge " + minReqN + "$ before every expected count is at least 5.");
+      } else {
+        cochranBanner.classList.add("cochran-ok");
+        setHTML(cochranText, "<strong>Cochran’s rule is met.</strong> Every $E_i \\ge 5$, so the continuous $\\chi^2(" + stats.df + ")$ reference is the usual approximation.");
+      }
+    }
+
+    function renderFormulaTable(stats) {
+      setMath(document.getElementById("dfFormulaBadge"), "$df = k - 1 = " + stats.df + "$");
+      if (stats.N === 0) {
+        setMath(document.getElementById("liveSymbolicSum"), "$\\chi^2 = 0.000$");
+      } else {
+        var terms = stats.rows.map(function (r) { return r.contrib.toFixed(2); }).join(" + ");
+        setMath(document.getElementById("liveSymbolicSum"), "$\\chi^2 = " + terms + " = " + stats.chiSq.toFixed(3) + "$");
+      }
+
+      var tbody = document.getElementById("calcTableBody");
+      tbody.replaceChildren();
+      stats.rows.forEach(function (r, i) {
+        var tr = document.createElement("tr");
+        if (i === state.hoveredIndex) tr.classList.add("row-highlight");
+        var pct = stats.chiSq > 0 ? (r.contrib / stats.chiSq) * 100 : 0;
+
+        function cell(text) {
+          var td = document.createElement("td");
+          td.textContent = text;
+          return td;
+        }
+
+        var name = document.createElement("td");
+        var dot = document.createElement("span");
+        dot.className = "color-dot";
+        dot.style.background = r.color;
+        var strong = document.createElement("strong");
+        strong.textContent = r.label;
+        name.append(dot, document.createTextNode(" "), strong);
+
+        var trueCell = cell((r.trueProb * 100).toFixed(2) + "%");
+        if (Math.abs(r.trueProb - r.nullProb) > 0.002) trueCell.classList.add("is-shifted");
+        else trueCell.classList.add("is-muted");
+
+        var diffCell = cell((r.diff >= 0 ? "+" : "") + r.diff.toFixed(2));
+        diffCell.classList.add(r.diff > 0 ? "is-high" : r.diff < 0 ? "is-low" : "is-muted");
+
+        var contrib = document.createElement("td");
+        contrib.className = "contrib-cell";
+        var bar = document.createElement("div");
+        bar.className = "contrib-bar";
+        bar.style.width = Math.max(0, Math.min(100, pct)).toFixed(1) + "%";
+        var text = document.createElement("span");
+        text.className = "contrib-text";
+        text.textContent = r.contrib.toFixed(3) + " (" + pct.toFixed(0) + "%)";
+        contrib.append(bar, text);
+
+        tr.append(
+          name,
+          cell((r.nullProb * 100).toFixed(2) + "%"),
+          trueCell,
+          cell(String(r.O)),
+          cell(r.E.toFixed(2)),
+          diffCell,
+          cell(r.diffSq.toFixed(2)),
+          contrib
+        );
+        bindHover(tr, i);
+        tbody.appendChild(tr);
+      });
+
+      var sumDiff = stats.rows.reduce(function (a, r) { return a + r.diff; }, 0);
+      var sumDiffSq = stats.rows.reduce(function (a, r) { return a + r.diffSq; }, 0);
+      var sumLabel = Math.abs(sumDiff) < 1e-8 ? "0.00" : sumDiff.toFixed(2);
+      setHTML(
+        document.getElementById("calcTableFoot"),
+        "<tr>" +
+          "<td>Total (k = " + stats.k + ")</td>" +
+          "<td>100%</td><td>100%</td>" +
+          "<td>N = " + stats.N + "</td>" +
+          "<td>" + stats.N.toFixed(1) + "</td>" +
+          '<td title="The raw deviations sum to zero.">' + sumLabel + "</td>" +
+          "<td>" + sumDiffSq.toFixed(2) + "</td>" +
+          "<td>$\\chi^2 = " + stats.chiSq.toFixed(3) + "$</td>" +
+        "</tr>"
+      );
+    }
+
+    function highlightSynchronizedViews() {
+      drawRouletteWheel();
+      document.querySelectorAll("#calcTableBody tr").forEach(function (tr, idx) {
+        tr.classList.toggle("row-highlight", idx === state.hoveredIndex);
+      });
+      document.querySelectorAll("#barChartSvg .bar-hover-bg").forEach(function (rect) {
+        var idx = parseInt(rect.getAttribute("data-idx"), 10);
+        rect.setAttribute("opacity", idx === state.hoveredIndex ? "1" : "0");
+      });
+    }
+
+    function renderChiSquareDistribution(stats) {
+      var svg = document.getElementById("pdfChartSvg");
+      var colors = ink();
+      var W = 560;
+      var H = 250;
+      var padL = 58;
+      var padR = 18;
+      var padT = 36;
+      var padB = 48;
+      var plotW = W - padL - padR;
+      var plotH = H - padT - padB;
+      var df = stats.df;
+      var critX = stats.critVal;
+      var obsX = stats.chiSq;
+      setMath(document.getElementById("critBadge"), "$\\chi^2_{\\mathrm{crit}} = " + critX.toFixed(3) + "$");
+
+      var maxMC = state.mcSamples.length ? Math.max.apply(null, state.mcSamples) : 0;
+      var xMax = Math.max(critX * 1.65, df + 4.5 * Math.sqrt(2 * df), Math.min(45, Math.max(obsX * 1.15, maxMC * 1.05)));
+      var numPts = 180;
+      var pts = [];
+      var yMax = 0;
+      var i;
+      for (i = 0; i <= numPts; i++) {
+        var x = (i / numPts) * xMax;
+        var y = StatMath.chiSquarePDF(Math.max(0.02, x), df);
+        if (y > yMax) yMax = y;
+        pts.push({ x: x, y: y });
+      }
+      yMax = Math.max(0.22, yMax * 1.15);
+
+      function sx(x) { return padL + Math.min(1, Math.max(0, x / xMax)) * plotW; }
+      function sy(y) { return padT + plotH - Math.min(1, Math.max(0, y / yMax)) * plotH; }
+
+      var html = "";
+      var baseY = padT + plotH;
+      html += '<text transform="translate(14 ' + (padT + plotH / 2) + ') rotate(-90)" fill="' + colors.text + '" font-size="12" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Density</text>';
+      html += '<line x1="' + padL + '" y1="' + baseY + '" x2="' + (W - padR) + '" y2="' + baseY + '" stroke="' + colors.text + '" stroke-width="1.4"/>';
+      var numTicks = 6;
+      var t;
+      for (t = 0; t <= numTicks; t++) {
+        var txVal = (t / numTicks) * xMax;
+        var tx = sx(txVal);
+        html += '<line x1="' + tx + '" y1="' + baseY + '" x2="' + tx + '" y2="' + (baseY + 5) + '" stroke="' + colors.muted + '"/>';
+        html += '<text x="' + tx + '" y="' + (H - 22) + '" fill="' + colors.muted + '" font-size="11" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">' + txVal.toFixed(1) + "</text>";
+      }
+      html += '<text x="' + (padL + plotW / 2) + '" y="' + (H - 6) + '" fill="' + colors.text + '" font-size="12" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">χ²</text>';
+
+      if (state.mcSamples.length) {
+        var numBins = 28;
+        var binWidth = xMax / numBins;
+        var bins = new Array(numBins).fill(0);
+        state.mcSamples.forEach(function (val) {
+          var bIdx = Math.floor(val / binWidth);
+          if (bIdx >= 0 && bIdx < numBins) bins[bIdx] += 1;
+        });
+        bins.forEach(function (count, b) {
+          if (!count) return;
+          var density = count / (state.mcSamples.length * binWidth);
+          var bx = sx(b * binWidth);
+          var bw = plotW / numBins - 1;
+          var by = sy(density);
+          html += '<rect x="' + bx + '" y="' + by + '" width="' + Math.max(1, bw) + '" height="' + (baseY - by) + '" fill="' + colors.mc + '" stroke="' + colors.mcStroke + '"/>';
+        });
+      }
+
+      var critPts = pts.filter(function (p) { return p.x >= critX; });
+      if (critPts.length > 1) {
+        var pathD = "M " + sx(critX) + " " + baseY + " L " + sx(critX) + " " + sy(StatMath.chiSquarePDF(Math.max(0.02, critX), df)) + " ";
+        critPts.forEach(function (p) { pathD += "L " + sx(p.x) + " " + sy(p.y) + " "; });
+        pathD += "L " + sx(xMax) + " " + baseY + " Z";
+        html += '<path d="' + pathD + '" fill="' + colors.nullSoft + '"/>';
+      }
+
+      if (stats.N > 0 && obsX < xMax) {
+        var pPts = pts.filter(function (p) { return p.x >= obsX; });
+        if (pPts.length > 1) {
+          var pPath = "M " + sx(obsX) + " " + baseY + " L " + sx(obsX) + " " + sy(StatMath.chiSquarePDF(Math.max(0.02, obsX), df)) + " ";
+          pPts.forEach(function (p) { pPath += "L " + sx(p.x) + " " + sy(p.y) + " "; });
+          pPath += "L " + sx(xMax) + " " + baseY + " Z";
+          html += '<path d="' + pPath + '" fill="' + colors.tail + '"/>';
+        }
+      }
+
+      var curveD = "";
+      pts.forEach(function (p, idx) {
+        curveD += (idx === 0 ? "M " : " L ") + sx(p.x) + " " + sy(p.y);
+      });
+      html += '<path d="' + curveD + '" fill="none" stroke="' + colors.density + '" stroke-width="2.4"/>';
+
+      var critScreenX = sx(critX);
+      var critAnchor = critScreenX > W - 160 ? "end" : "start";
+      var critDx = critScreenX > W - 160 ? -6 : 6;
+      html += '<line x1="' + critScreenX + '" y1="' + (padT - 8) + '" x2="' + critScreenX + '" y2="' + baseY + '" stroke="' + colors.nullC + '" stroke-width="2" stroke-dasharray="5 4"/>';
+      html += '<text x="' + (critScreenX + critDx) + '" y="' + (padT + 4) + '" fill="' + colors.nullC + '" font-size="12" font-weight="700" font-family="Arial, Helvetica, sans-serif" text-anchor="' + critAnchor + '">χ² crit = ' + critX.toFixed(2) + " (α = " + state.alpha + ")</text>";
+
+      if (stats.N > 0) {
+        var clamped = Math.min(xMax, obsX);
+        var obsScreenX = sx(clamped);
+        var isReject = obsX >= critX;
+        var pinColor = isReject ? colors.nullC : colors.good;
+        var anchor = obsScreenX > W - 150 ? "end" : "start";
+        var labelOffset = obsScreenX > W - 150 ? -6 : 6;
+        html += '<line x1="' + obsScreenX + '" y1="' + (padT + 18) + '" x2="' + obsScreenX + '" y2="' + baseY + '" stroke="' + pinColor + '" stroke-width="3"/>';
+        html += '<circle cx="' + obsScreenX + '" cy="' + (padT + 18) + '" r="4.5" fill="' + pinColor + '" stroke="#ffffff" stroke-width="1.5"/>';
+        html += '<text x="' + (obsScreenX + labelOffset) + '" y="' + (padT + 22) + '" fill="' + pinColor + '" font-size="12" font-weight="700" font-family="Arial, Helvetica, sans-serif" text-anchor="' + anchor + '">χ² obs = ' + obsX.toFixed(2) + (obsX > xMax ? " (off scale)" : "") + "</text>";
+      }
+
+      svg.innerHTML = html;
+      svg.setAttribute("aria-label", "Chi-square density with " + df + " degrees of freedom. Critical value " + critX.toFixed(2) + " at alpha " + state.alpha + ". Observed chi-square " + (stats.N > 0 ? obsX.toFixed(2) : "not yet computed") + ".");
+
+      var banner = document.getElementById("decisionBanner");
+      var decText = document.getElementById("decisionText");
+      var pBadge = document.getElementById("pValueBadge");
+      banner.classList.remove("decision-reject", "decision-retain", "decision-neutral");
+      if (stats.N === 0) {
+        banner.classList.add("decision-neutral");
+        setHTML(decText, "Spin the wheel to compute $\\chi^2$ and the p-value.");
+        pBadge.textContent = "p = —";
+      } else {
+        var pStr = stats.pValue < 0.0001 ? "< .0001" : "= " + stats.pValue.toFixed(4);
+        setMath(pBadge, "$\\chi^2(" + df + ") = " + obsX.toFixed(2) + ",\\ p " + pStr + "$");
+        if (obsX >= critX) {
+          banner.classList.add("decision-reject");
+          setHTML(decText, "<strong>Reject $H_0$ ($p \\le " + state.alpha + "$).</strong> The counts depart from the expected frequencies.");
+        } else {
+          banner.classList.add("decision-retain");
+          setHTML(decText, "<strong>Do not reject $H_0$ ($p &gt; " + state.alpha + "$).</strong> These deviations are consistent with random sampling.");
+        }
+      }
+    }
+
+    function runMonteCarloSimulation() {
+      var minProb = Math.min.apply(null, state.categories.map(function (c) { return c.nullProb; }));
+      var minReqN = Math.ceil(5 / minProb);
+      var sampleN = state.totalN > 0 ? state.totalN : Math.max(100, minReqN);
+      var numExperiments = 500;
+      var k = state.categories.length;
+      var df = k - 1;
+      var critVal = StatMath.chiSquareInvUpper(state.alpha, df);
+      var results = [];
+      var rejectCount = 0;
+      var exp;
+      for (exp = 0; exp < numExperiments; exp++) {
+        var counts = new Array(k).fill(0);
+        var s;
+        for (s = 0; s < sampleN; s++) {
+          var r = Math.random();
+          var cum = 0;
+          var winIdx = k - 1;
+          var i;
+          for (i = 0; i < k; i++) {
+            cum += state.categories[i].trueProb;
+            if (r <= cum) {
+              winIdx = i;
+              break;
+            }
+          }
+          counts[winIdx] += 1;
+        }
+        var chi = 0;
+        for (i = 0; i < k; i++) {
+          var E = sampleN * state.categories[i].nullProb;
+          var diff = counts[i] - E;
+          chi += (diff * diff) / E;
+        }
+        results.push(chi);
+        if (chi >= critVal) rejectCount += 1;
+      }
+      state.mcSamples = results;
+      var rejectRate = ((rejectCount / numExperiments) * 100).toFixed(1);
+      var label = state.isRigged ? "Statistical power $(1-\\beta)$" : "Empirical Type I error";
+      setHTML(
+        document.getElementById("mcSummaryText"),
+        "500 experiments (N = " + sampleN + "): <strong>" + label + " = " + rejectRate + "%</strong> ($\\chi^2 \\ge \\chi^2_{\\mathrm{crit}}$)"
+      );
+      updateAllVisuals();
+    }
+
+    function updateAllVisuals() {
+      document.getElementById("sampleSizeBadge").textContent = "N = " + state.totalN;
+      drawRouletteWheel();
+      var stats = computeCurrentStats();
+      renderBarChart(stats);
+      renderFormulaTable(stats);
+      renderChiSquareDistribution(stats);
+    }
+
+    document.getElementById("modeSelect").addEventListener("change", function (event) {
+      initMode(event.target.value);
+    });
+
+    document.querySelectorAll(".alpha-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".alpha-btn").forEach(function (other) {
+          other.classList.remove("is-active");
+        });
+        btn.classList.add("is-active");
+        state.alpha = parseFloat(btn.getAttribute("data-alpha"));
+        if (state.mcSamples.length) runMonteCarloSimulation();
+        else updateAllVisuals();
+      });
+    });
+
+    document.getElementById("btnSpin1").addEventListener("click", animateSingleSpin);
+    document.getElementById("btnSpin10").addEventListener("click", function () { performBatchSpins(10); });
+    document.getElementById("btnSpin100").addEventListener("click", function () { performBatchSpins(100); });
+    document.getElementById("btnSpin1000").addEventListener("click", function () { performBatchSpins(1000); });
+    document.getElementById("btnReset").addEventListener("click", function () {
+      if (state.isSpinning) return;
+      state.categories.forEach(function (c) { c.obs = 0; });
+      state.totalN = 0;
+      state.lastWinningNumber = null;
+      state.mcSamples = [];
+      document.getElementById("lastOutcomeBanner").textContent = "Counts reset to 0.";
+      document.getElementById("mcSummaryText").textContent = "Monte Carlo overlay: off";
+      updateAllVisuals();
+    });
+
+    document.getElementById("btnFairPreset").addEventListener("click", function () {
+      if (state.isSpinning) return;
+      state.categories.forEach(function (c) {
+        c.trueWeight = c.nullProb * 100;
+        c.trueProb = c.nullProb;
+      });
+      state.isRigged = false;
+      state.mcSamples = [];
+      document.getElementById("mcSummaryText").textContent = "Monte Carlo overlay: off";
+      updateRigButtonsUI();
+      refreshSlidersText();
+      updateAllVisuals();
+    });
+
+    document.getElementById("btnBiasPreset").addEventListener("click", function () {
+      if (state.isSpinning) return;
+      var spec = ROULETTE_MODES[state.modeKey];
+      state.categories.forEach(function (c, idx) {
+        c.trueWeight = spec.riggedWeights[idx];
+      });
+      normalizeTrueWeights();
+      state.mcSamples = [];
+      document.getElementById("mcSummaryText").textContent = "Monte Carlo overlay: off";
+      refreshSlidersText();
+      updateAllVisuals();
+    });
+
+    document.getElementById("btnViewCounts").addEventListener("click", function () {
+      state.chartView = "counts";
+      document.getElementById("btnViewCounts").classList.add("is-active");
+      document.getElementById("btnViewResiduals").classList.remove("is-active");
+      updateAllVisuals();
+    });
+    document.getElementById("btnViewResiduals").addEventListener("click", function () {
+      state.chartView = "residuals";
+      document.getElementById("btnViewResiduals").classList.add("is-active");
+      document.getElementById("btnViewCounts").classList.remove("is-active");
+      updateAllVisuals();
+    });
+
+    document.getElementById("btnRunMC").addEventListener("click", runMonteCarloSimulation);
+    document.getElementById("btnClearMC").addEventListener("click", function () {
+      state.mcSamples = [];
+      document.getElementById("mcSummaryText").textContent = "Monte Carlo overlay: off";
+      updateAllVisuals();
+    });
+
+    initMode("color_eu");
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>
