@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
+  <title>Chi-Square as Squared Distance</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+  <script src="../assets/stats-viz-theme.js"></script>
+  <script src="../assets/vendor-loader.js" data-libs="katex"></script>
+  <style>
+    body.demo-page {
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    .page {
+      box-sizing: border-box;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 16px 32px;
+    }
+
+    .page *,
+    .page *::before,
+    .page *::after {
+      box-sizing: border-box;
+    }
+
+    .page-head {
+      margin: 0 0 14px;
+    }
+
+    .page-head h1 {
+      font-size: 1.55rem;
+      font-weight: bold;
+      line-height: 1.25;
+      margin: 0 0 6px;
+    }
+
+    .lede {
+      margin: 0;
+      max-width: 46rem;
+      font-size: 0.95rem;
+    }
+
+    .toolbar,
+    .lesson,
+    .panel {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      align-items: flex-end;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .mode-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex: 1 1 100%;
+    }
+
+    .mode-row .demo-chip {
+      flex: 1 1 14rem;
+      height: auto;
+      white-space: normal;
+      text-align: left;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 2px;
+      line-height: 1.3;
+    }
+
+    .mode-detail {
+      font-size: 0.75rem;
+      font-weight: normal;
+    }
+
+    .df-box {
+      flex: 1 1 16rem;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    .field-head span,
+    .sigma-head span {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .df-box .demo-chip-group .demo-chip {
+      white-space: normal;
+      height: auto;
+      line-height: 1.25;
+    }
+
+    .sigma {
+      flex: 1 1 9.5rem;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sigma.is-locked {
+      opacity: 0.45;
+    }
+
+    .sigma-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 4px 8px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    .sigma-head label {
+      min-width: 0;
+    }
+
+    .sigma input[type="range"] {
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+    }
+
+    .sigma-note {
+      margin: 0;
+      font-size: 0.75rem;
+      line-height: 1.3;
+    }
+
+    .norm-toggle {
+      flex: 1 1 12rem;
+      min-width: 0;
+      height: auto;
+      white-space: normal;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      line-height: 1.3;
+    }
+
+    .norm-sub {
+      font-size: 0.75rem;
+      font-weight: normal;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex: 1 1 18rem;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .actions .demo-btn {
+      white-space: normal;
+      height: auto;
+      text-align: center;
+    }
+
+    .actions .demo-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .lesson {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1.35fr);
+      gap: 12px;
+      align-items: stretch;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .formula-box,
+    .callout {
+      min-width: 0;
+      max-width: 100%;
+      background: var(--demo-panel);
+      border: 1px solid var(--demo-border);
+      border-radius: 4px;
+      padding: 8px 10px;
+    }
+
+    .formula-box {
+      border-left: 3px solid var(--viz-group-c);
+    }
+
+    .formula-box.pdf {
+      border-left-color: var(--viz-density);
+    }
+
+    .formula-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .formula-math {
+      min-width: 0;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .formula-math .katex {
+      font-size: 1em;
+      white-space: normal;
+    }
+
+    .callout {
+      font-size: 0.9rem;
+      line-height: 1.4;
+      background: var(--viz-group-a-soft);
+      border-color: var(--viz-group-a-line);
+    }
+
+    .callout p {
+      margin: 0;
+    }
+
+    .callout .katex {
+      font-size: 1em;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 12px 14px 14px;
+    }
+
+    .panel-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .panel-head h2 {
+      font-size: 1rem;
+      font-weight: bold;
+      line-height: 1.3;
+      margin: 0;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.75rem;
+    }
+
+    .legend li {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      flex: none;
+      border: 1px solid transparent;
+    }
+
+    .swatch.line {
+      height: 4px;
+      border: 0;
+    }
+
+    .swatch.ring {
+      background: transparent;
+      border-style: dashed;
+      border-width: 2px;
+    }
+
+    .plot-well {
+      position: relative;
+      height: 400px;
+      border: 1px solid #000;
+      border-radius: 4px;
+      background: #fff;
+      touch-action: pan-y pinch-zoom;
+    }
+
+    .plot-well canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hover-badge {
+      position: absolute;
+      z-index: 2;
+      display: none;
+      max-width: 14rem;
+      padding: 6px 8px;
+      background: #fff;
+      color: #000;
+      border: 1px solid #000;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      line-height: 1.35;
+      pointer-events: none;
+    }
+
+    .hover-badge strong {
+      color: var(--viz-highlight);
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      margin-top: 8px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+    }
+
+    .stat {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem 0.4rem;
+      align-items: baseline;
+      min-width: 0;
+    }
+
+    .stat-label {
+      color: #404040;
+    }
+
+    .stat-value {
+      font-weight: bold;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cap-note {
+      font-weight: bold;
+      color: var(--viz-null);
+    }
+
+    @media (max-width: 980px) {
+      .lesson,
+      .stage {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .plot-well {
+        height: 280px;
+      }
+    }
+
+    @media (max-width: 768px), (pointer: coarse) {
+      .mode-row .demo-chip,
+      .df-box .demo-chip,
+      .norm-toggle,
+      .actions .demo-btn {
+        min-height: 44px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css">
+  <link rel="stylesheet" href="../assets/tailwind.css">
+</head>
+<body class="demo-page">
+  <div class="page">
+    <div class="demo-topbar">
+      <a class="demo-back" href="../index.html">← Project Viz</a>
+    </div>
+
+    <header class="page-head">
+      <h1>Chi-Square as Squared Distance</h1>
+      <p class="lede">A dart from a Gaussian cloud. Squared distance from the bullseye is a generalized, scaled, or standard chi-square random variable, with one, two, or three free axes.</p>
+    </header>
+
+    <section class="toolbar demo-card" aria-label="Simulation controls">
+      <div class="mode-row" role="group" aria-label="Chi-square form">
+        <button type="button" class="demo-chip is-active" id="mode-1" aria-pressed="true">
+          <span>Generalized chi-square</span>
+          <span class="mode-detail">Unequal spreads, raw Q</span>
+        </button>
+        <button type="button" class="demo-chip" id="mode-2" aria-pressed="false">
+          <span>Scaled chi-square</span>
+          <span class="mode-detail">Equal spreads, raw Q</span>
+        </button>
+        <button type="button" class="demo-chip" id="mode-3" aria-pressed="false">
+          <span>Standard chi-square</span>
+          <span class="mode-detail">Normalized distance</span>
+        </button>
+      </div>
+
+      <div class="df-box">
+        <div class="field-head">
+          <span>Degrees of freedom (k)</span>
+          <span id="df-meaning">Board, x and y</span>
+        </div>
+        <div class="demo-chip-group" role="group" aria-label="Degrees of freedom">
+          <button type="button" class="demo-chip" id="df-btn-1" aria-pressed="false">1 · Rail</button>
+          <button type="button" class="demo-chip is-active" id="df-btn-2" aria-pressed="true">2 · Board</button>
+          <button type="button" class="demo-chip" id="df-btn-3" aria-pressed="false">3 · Space</button>
+        </div>
+      </div>
+
+      <div class="sigma" id="group-sx">
+        <div class="sigma-head">
+          <label for="slider-sx">Horizontal spread (σ<sub>x</sub>)</label>
+          <span id="val-sx" class="demo-value">2.00</span>
+        </div>
+        <input type="range" id="slider-sx" min="0.5" max="3" step="0.05" value="2" aria-valuemin="0.5" aria-valuemax="3" aria-valuenow="2">
+      </div>
+
+      <div class="sigma" id="group-sy">
+        <div class="sigma-head">
+          <label for="slider-sy">Vertical spread (σ<sub>y</sub>)</label>
+          <span id="val-sy" class="demo-value">1.00</span>
+        </div>
+        <input type="range" id="slider-sy" min="0.5" max="3" step="0.05" value="1" aria-valuemin="0.5" aria-valuemax="3" aria-valuenow="1">
+        <p class="sigma-note" id="note-sy" hidden>Locked at 0 on the rail.</p>
+      </div>
+
+      <div class="sigma is-locked" id="group-sz">
+        <div class="sigma-head">
+          <label for="slider-sz">Depth spread (σ<sub>z</sub>)</label>
+          <span id="val-sz" class="demo-value">1.20</span>
+        </div>
+        <input type="range" id="slider-sz" min="0.5" max="3" step="0.05" value="1.2" aria-valuemin="0.5" aria-valuemax="3" aria-valuenow="1.2" disabled>
+        <p class="sigma-note" id="note-sz">Locked at 0 on the rail and the board.</p>
+      </div>
+
+      <button type="button" class="demo-btn norm-toggle" id="norm-toggle" aria-pressed="false">
+        <span>Normalize axes</span>
+        <span class="norm-sub" id="norm-sub">Off. Q is raw squared distance.</span>
+      </button>
+
+      <div class="actions">
+        <button type="button" class="demo-btn demo-btn-primary" id="btn-throw-1">Throw 1</button>
+        <button type="button" class="demo-btn" id="btn-throw-100">Throw 100</button>
+        <button type="button" class="demo-btn" id="btn-auto" aria-pressed="false">Auto</button>
+        <button type="button" class="demo-btn" id="btn-reset">Reset</button>
+      </div>
+    </section>
+
+    <section class="lesson demo-card" aria-label="Live formula">
+      <div class="formula-box">
+        <span class="formula-label" id="formula-title">Squared distance Q</span>
+        <div class="formula-math" id="formula-display"></div>
+      </div>
+      <div class="formula-box pdf">
+        <span class="formula-label" id="pdf-title">Density f(Q)</span>
+        <div class="formula-math" id="pdf-formula-display"></div>
+      </div>
+      <div class="callout" id="educational-callout"></div>
+    </section>
+
+    <section class="stage">
+      <div class="panel demo-card">
+        <div class="panel-head">
+          <h2 id="board-panel-title">2D dartboard</h2>
+          <ul class="legend">
+            <li><span class="swatch" id="swatch-dart"></span> Dart</li>
+            <li><span class="swatch ring" id="swatch-spread"></span> 1σ and 2σ region</li>
+            <li><span class="swatch" id="swatch-hover"></span> Hovered dart</li>
+          </ul>
+        </div>
+        <div class="plot-well" id="board-well">
+          <canvas id="board-canvas" aria-label="Dartboard. Move over a dart to mark its squared distance. Click empty board to throw one dart."></canvas>
+          <div class="hover-badge" id="board-tooltip" role="status"></div>
+        </div>
+        <div class="stats demo-panel">
+          <div class="stat">
+            <span class="stat-label">Darts</span>
+            <span class="stat-value" id="stat-n">0 / 2,000</span>
+            <span class="cap-note" id="cap-note" hidden>Maximum of 2,000.</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Last throw</span>
+            <span class="stat-value" id="stat-last">—</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Free axes</span>
+            <span class="stat-value" id="stat-phys-hint">x and y. z = 0.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel demo-card">
+        <div class="panel-head">
+          <h2>Distribution of squared distance Q</h2>
+          <ul class="legend">
+            <li><span class="swatch" id="swatch-hist"></span> Histogram</li>
+            <li><span class="swatch line" id="swatch-pdf"></span> Density f(Q)</li>
+            <li><span class="swatch" id="swatch-bin"></span> Hovered bin</li>
+          </ul>
+        </div>
+        <div class="plot-well" id="hist-well">
+          <canvas id="hist-canvas" aria-label="Histogram of squared distance Q with the exact density."></canvas>
+        </div>
+        <div class="stats demo-panel" id="moment-strip">
+          <div class="stat">
+            <span class="stat-label">Theoretical mean of Q</span>
+            <span class="stat-value" id="stat-theo-mean">5.00</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Sample mean of Q</span>
+            <span class="stat-value" id="stat-emp-mean">—</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Theoretical SD of Q</span>
+            <span class="stat-value" id="stat-theo-sd">5.83</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Sample SD of Q</span>
+            <span class="stat-value" id="stat-emp-sd">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var MAX_DARTS = 2000;
+      var BOARD_MAX_UNITS = 6.5;
+      var START_DARTS = 150;
+
+      var state = {
+        df: 2,
+        sigmaX: 2.0,
+        sigmaY: 1.0,
+        sigmaZ: 1.2,
+        normalized: false,
+        visSigmaX: 2.0,
+        visSigmaY: 1.0,
+        visSigmaZ: 1.2,
+        visNormBlend: 0,
+        darts: [],
+        flyingDarts: [],
+        ripples: [],
+        hoveredDartIndex: -1,
+        autoThrowTimer: null,
+        burstRemaining: 0
+      };
+
+      /* Preset is the last explicit choice (a mode button, or a spread
+         slider). Degrees of freedom does not rewrite it. A one-axis rail
+         is always a scaled or standard chi-square on screen, but that
+         display must not force the locked axes to share σx. */
+      var preset = 1;
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      var boardCanvas = document.getElementById("board-canvas");
+      var boardCtx = boardCanvas.getContext("2d");
+      var histCanvas = document.getElementById("hist-canvas");
+      var histCtx = histCanvas.getContext("2d");
+      var tooltip = document.getElementById("board-tooltip");
+      var ink = null;
+      var touchStart = null;
+
+      function motionOn() {
+        return !reduceMotion.matches;
+      }
+
+      function colors() {
+        if (ink) return ink;
+        ink = {
+          sample: statsViz.color("sample"),
+          sampleSoft: statsViz.rgba("sample", 0.38),
+          sampleLine: statsViz.rgba("sample", 0.9),
+          density: statsViz.color("density"),
+          densitySoft: statsViz.rgba("density", 0.1),
+          highlight: statsViz.color("highlight"),
+          highlightSoft: statsViz.rgba("highlight", 0.78),
+          spread: statsViz.color("significant"),
+          spreadSoft: statsViz.rgba("significant", 0.55),
+          mean: statsViz.color("mean"),
+          meanSoft: statsViz.rgba("mean", 0.22),
+          reference: statsViz.color("reference"),
+          referenceFaint: statsViz.rgba("reference", 0.22),
+          referenceSoft: statsViz.rgba("reference", 0.45),
+          depth: statsViz.color("level-m"),
+          depthSoft: statsViz.rgba("level-m", 0.72),
+          paper: "#ffffff",
+          text: "#000000",
+          muted: "#404040",
+          grid: "rgba(0, 0, 0, 0.08)",
+          ring: "rgba(0, 0, 0, 0.045)"
+        };
+        document.getElementById("swatch-dart").style.background = ink.sample;
+        document.getElementById("swatch-spread").style.borderColor = ink.spread;
+        document.getElementById("swatch-hover").style.background = ink.highlight;
+        document.getElementById("swatch-hist").style.background = ink.sampleSoft;
+        document.getElementById("swatch-hist").style.borderColor = ink.sample;
+        document.getElementById("swatch-pdf").style.background = ink.density;
+        document.getElementById("swatch-bin").style.background = ink.highlight;
+        return ink;
+      }
+
+      /* Modified Bessel I0, Abramowitz and Stegun 9.8.1 / 9.8.2.
+         The stable product is e^{-a} I0(b), used by the two-axis density. */
+      function besselI0(x) {
+        var ax = Math.abs(x);
+        var y;
+        if (ax < 3.75) {
+          y = (x / 3.75) * (x / 3.75);
+          return 1.0 + y * (3.5156229 + y * (3.0899424 + y * (1.2067492
+            + y * (0.2659732 + y * (0.0360768 + y * 0.0045813)))));
+        }
+        y = 3.75 / ax;
+        return (Math.exp(ax) / Math.sqrt(ax)) * (0.39894228 + y * (0.01328592 + y * (0.00225319
+          + y * (-0.00157565 + y * (0.00916281 + y * (-0.02057706
+          + y * (0.02635537 + y * (-0.01647633 + y * 0.00392377))))))));
+      }
+
+      function expNegABesselI0(a, b) {
+        var ab = Math.abs(b);
+        var y;
+        if (ab < 3.75) return Math.exp(-a) * besselI0(ab);
+        y = 3.75 / ab;
+        return (Math.exp(ab - a) / Math.sqrt(ab)) * (0.39894228 + y * (0.01328592 + y * (0.00225319
+          + y * (-0.00157565 + y * (0.00916281 + y * (-0.02057706
+          + y * (0.02635537 + y * (-0.01647633 + y * 0.00392377))))))));
+      }
+
+      /* Q = sum w_i Z_i^2.
+         df 1: closed form, singular at 0.
+         df 2: exponential if the weights match, otherwise Bessel I0.
+         df 3: Maxwell–Boltzmann / Gamma if the weights match; otherwise the
+         2D density convolved with the third axis. u = Q sin^2(theta)
+         cancels the 1/sqrt(u) singularity before Simpson's rule. */
+      function pdf2D(q, w1, w2) {
+        var w;
+        var alpha;
+        var beta;
+        var coeff;
+        if (q < 0) return 0;
+        if (Math.abs(w1 - w2) < 1e-5) {
+          w = 0.5 * (w1 + w2);
+          return (1 / (2 * w)) * Math.exp(-q / (2 * w));
+        }
+        if (q === 0) return 1 / (2 * Math.sqrt(w1 * w2));
+        alpha = 0.25 * (1 / w1 + 1 / w2);
+        beta = 0.25 * Math.abs(1 / w1 - 1 / w2);
+        coeff = 1 / (2 * Math.sqrt(w1 * w2));
+        return coeff * expNegABesselI0(alpha * q, beta * q);
+      }
+
+      function theoreticalPDF(q, weights) {
+        var k = weights.length;
+        var w1;
+        var w;
+        var steps;
+        var dTheta;
+        var sum;
+        var pref;
+        var i;
+        var theta;
+        var s;
+        var c;
+        var u;
+        var rem;
+        var val;
+        var weight;
+        if (q <= 0) {
+          if (k === 1) return 0;
+          if (k === 2) return 1 / (2 * Math.sqrt(weights[0] * weights[1]));
+          return 0;
+        }
+        if (k === 1) {
+          w1 = weights[0];
+          return (1 / Math.sqrt(2 * Math.PI * w1 * q)) * Math.exp(-q / (2 * w1));
+        }
+        if (k === 2) return pdf2D(q, weights[0], weights[1]);
+        w1 = weights[0];
+        if (Math.abs(weights[0] - weights[1]) < 1e-4 && Math.abs(weights[1] - weights[2]) < 1e-4) {
+          w = (weights[0] + weights[1] + weights[2]) / 3;
+          return (Math.sqrt(q) / (Math.sqrt(2 * Math.PI) * Math.pow(w, 1.5))) * Math.exp(-q / (2 * w));
+        }
+        steps = 24;
+        dTheta = (0.5 * Math.PI) / steps;
+        sum = 0;
+        pref = Math.sqrt((2 * q) / (Math.PI * weights[2]));
+        for (i = 0; i <= steps; i += 1) {
+          theta = i * dTheta;
+          s = Math.sin(theta);
+          c = Math.cos(theta);
+          u = q * s * s;
+          rem = q * c * c;
+          val = pdf2D(rem, w1, weights[1]) * Math.exp(-u / (2 * weights[2])) * c;
+          weight = (i === 0 || i === steps) ? 1 : (i % 2 === 1 ? 4 : 2);
+          sum += weight * val;
+        }
+        return pref * (dTheta / 3) * sum;
+      }
+
+      function randn() {
+        var u = 0;
+        var v = 0;
+        while (u === 0) u = Math.random();
+        while (v === 0) v = Math.random();
+        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+      }
+
+      function effectiveSigma(raw, blend) {
+        return raw * (1 - blend) + blend;
+      }
+
+      function getActiveWeights(blend, sx, sy, sz) {
+        var useBlend = blend == null ? state.visNormBlend : blend;
+        var effX = effectiveSigma(sx == null ? state.visSigmaX : sx, useBlend);
+        var effY = effectiveSigma(sy == null ? state.visSigmaY : sy, useBlend);
+        var effZ = effectiveSigma(sz == null ? state.visSigmaZ : sz, useBlend);
+        if (state.df === 1) return [effX * effX];
+        if (state.df === 2) return [effX * effX, effY * effY];
+        return [effX * effX, effY * effY, effZ * effZ];
+      }
+
+      function getDartMetrics(dart, blend, sx, sy, sz) {
+        var useBlend = blend == null ? state.visNormBlend : blend;
+        var effSx = effectiveSigma(sx == null ? state.visSigmaX : sx, useBlend);
+        var effSy = effectiveSigma(sy == null ? state.visSigmaY : sy, useBlend);
+        var effSz = effectiveSigma(sz == null ? state.visSigmaZ : sz, useBlend);
+        var x = dart.zx * effSx;
+        var y = state.df >= 2 ? dart.zy * effSy : 0;
+        var z = state.df >= 3 ? dart.zz * effSz : 0;
+        return {
+          x: x,
+          y: y,
+          z: z,
+          q: x * x + y * y + z * z,
+          effSx: effSx,
+          effSy: effSy,
+          effSz: effSz
+        };
+      }
+
+      function spreadsMatch() {
+        if (state.df === 1) return true;
+        if (state.df === 2) return Math.abs(state.sigmaX - state.sigmaY) < 0.01;
+        return Math.abs(state.sigmaX - state.sigmaY) < 0.01 && Math.abs(state.sigmaY - state.sigmaZ) < 0.01;
+      }
+
+      function classifyMode() {
+        if (state.normalized) return 3;
+        if (spreadsMatch()) return 2;
+        return 1;
+      }
+
+      function typeset(el, lines) {
+        var size;
+        var guard;
+        var node;
+        el.style.fontSize = "1.02rem";
+        el.replaceChildren();
+        lines.forEach(function (tex) {
+          node = document.createElement("div");
+          katex.render(tex, node, { throwOnError: false, displayMode: false });
+          el.appendChild(node);
+        });
+        guard = 0;
+        size = 16.3;
+        while (el.scrollWidth > el.clientWidth + 1 && size > 12 && guard < 8) {
+          size -= 1;
+          el.style.fontSize = size + "px";
+          guard += 1;
+        }
+      }
+
+      function texNum(value) {
+        return Number(value).toFixed(2);
+      }
+
+      function addText(parent, text) {
+        parent.appendChild(document.createTextNode(text));
+      }
+
+      function addTex(parent, tex) {
+        var span = document.createElement("span");
+        katex.render(tex, span, { throwOnError: false, displayMode: false });
+        parent.appendChild(span);
+      }
+
+      function fillCallout(lead, parts) {
+        var box = document.getElementById("educational-callout");
+        var paragraph = document.createElement("p");
+        var strong = document.createElement("strong");
+        strong.textContent = lead;
+        paragraph.appendChild(strong);
+        addText(paragraph, " ");
+        parts.forEach(function (part) {
+          if (part.tex) addTex(paragraph, part.tex);
+          else addText(paragraph, part.text);
+        });
+        box.replaceChildren(paragraph);
+      }
+
+      function syncUIFromState() {
+        var k = state.df;
+        var vx = texNum(state.sigmaX * state.sigmaX);
+        var vy = texNum(state.sigmaY * state.sigmaY);
+        var vz = texNum(state.sigmaZ * state.sigmaZ);
+        var equal = spreadsMatch();
+        var qLines;
+        var pdfLines;
+        var lead;
+        var parts;
+        var intercept;
+        var meanSum;
+
+        var shown = classifyMode();
+        [1, 2, 3].forEach(function (mode) {
+          var button = document.getElementById("mode-" + mode);
+          var on = mode === shown;
+          button.classList.toggle("is-active", on);
+          button.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+
+        document.getElementById("val-sx").textContent = state.sigmaX.toFixed(2);
+        document.getElementById("val-sy").textContent = state.sigmaY.toFixed(2);
+        document.getElementById("val-sz").textContent = state.sigmaZ.toFixed(2);
+        document.getElementById("slider-sx").value = String(state.sigmaX);
+        document.getElementById("slider-sy").value = String(state.sigmaY);
+        document.getElementById("slider-sz").value = String(state.sigmaZ);
+        document.getElementById("slider-sx").setAttribute("aria-valuenow", state.sigmaX.toFixed(2));
+        document.getElementById("slider-sy").setAttribute("aria-valuenow", state.sigmaY.toFixed(2));
+        document.getElementById("slider-sz").setAttribute("aria-valuenow", state.sigmaZ.toFixed(2));
+
+        document.getElementById("group-sy").classList.toggle("is-locked", k < 2);
+        document.getElementById("group-sz").classList.toggle("is-locked", k < 3);
+        document.getElementById("slider-sy").disabled = k < 2;
+        document.getElementById("slider-sz").disabled = k < 3;
+        document.getElementById("note-sy").hidden = k >= 2;
+        document.getElementById("note-sz").hidden = k >= 3;
+
+        document.getElementById("norm-toggle").setAttribute("aria-pressed", state.normalized ? "true" : "false");
+        document.getElementById("norm-toggle").classList.toggle("demo-btn-primary", state.normalized);
+        document.getElementById("norm-sub").textContent = state.normalized
+          ? "On. Each axis is divided by its spread."
+          : (k === 1 ? "Off. Q is x squared." : k === 2 ? "Off. Q is x squared plus y squared." : "Off. Q is x squared plus y squared plus z squared.");
+
+        if (state.normalized) {
+          if (k === 1) {
+            qLines = ["Q = (x/\\sigma_x)^2 = Z_1^2 \\sim \\chi^2_1"];
+            pdfLines = ["f(Q) = \\dfrac{1}{\\sqrt{2\\pi Q}}\\, e^{-Q/2}"];
+            lead = "Standard chi-square, 1 degree of freedom.";
+            parts = [
+              { text: "The rail locks y and z at 0. Dividing the remaining coordinate by its spread makes Q one squared standard normal. " },
+              { tex: "f(Q)" },
+              { text: " grows like " },
+              { tex: "1/\\sqrt{Q}" },
+              { text: " and is unbounded as Q approaches 0." }
+            ];
+          } else if (k === 2) {
+            qLines = ["Q = (x/\\sigma_x)^2 + (y/\\sigma_y)^2 \\sim \\chi^2_2"];
+            pdfLines = ["f(Q) = \\tfrac{1}{2}\\, e^{-Q/2}"];
+            lead = "Standard chi-square, 2 degrees of freedom.";
+            parts = [
+              { text: "Q is squared Mahalanobis distance on the board. Rings of area " },
+              { tex: "2\\pi r\\,dr = \\pi\\,dQ" },
+              { text: " cancel the spike at the origin, so " },
+              { tex: "f(0) = 1/2" },
+              { text: ". The density is exponential with mean 2." }
+            ];
+          } else {
+            qLines = ["Q = (x/\\sigma_x)^2 + (y/\\sigma_y)^2 + (z/\\sigma_z)^2 \\sim \\chi^2_3"];
+            pdfLines = ["f(Q) = \\dfrac{\\sqrt{Q}}{\\sqrt{2\\pi}}\\, e^{-Q/2}"];
+            lead = "Standard chi-square, 3 degrees of freedom.";
+            parts = [
+              { text: "Q is squared Mahalanobis distance in the chamber. A shell at radius " },
+              { tex: "\\sqrt{Q}" },
+              { text: " has volume proportional to " },
+              { tex: "\\sqrt{Q}\\,dQ" },
+              { text: ". The shell at the bullseye has no volume, so " },
+              { tex: "f(0) = 0" },
+              { text: " and the density peaks at " },
+              { tex: "Q = k - 2 = 1" },
+              { text: "." }
+            ];
+          }
+        } else if (equal) {
+          if (k === 1) {
+            qLines = ["Q = x^2 \\sim " + vx + "\\,\\chi^2_1"];
+            pdfLines = ["f(Q) = \\dfrac{1}{\\sigma_x\\sqrt{2\\pi Q}}\\, e^{-Q/(2\\sigma_x^2)}"];
+            lead = "Scaled chi-square, 1 degree of freedom.";
+            parts = [
+              { text: "Only horizontal error is free, and x is normal with variance " + vx + ". Raw squared distance is that variance times a chi-square with 1 degree of freedom. The density is unbounded at 0, and the mean is " },
+              { tex: "\\sigma_x^2 = " + vx },
+              { text: "." }
+            ];
+          } else if (k === 2) {
+            intercept = (1 / (2 * state.sigmaX * state.sigmaX)).toFixed(3);
+            qLines = ["Q = x^2 + y^2 \\sim " + vx + "\\,\\chi^2_2"];
+            pdfLines = ["f(Q) = \\dfrac{1}{2\\sigma^2}\\, e^{-Q/(2\\sigma^2)}", "\\sigma^2 = " + vx];
+            lead = "Scaled chi-square, 2 degrees of freedom.";
+            parts = [
+              { text: "Equal spreads, both " + state.sigmaX.toFixed(2) + ", make circular contours. Q is " + vx + " times a chi-square with 2 degrees of freedom. The density at 0 is " },
+              { tex: "1/(2\\sigma^2) = " + intercept },
+              { text: "." }
+            ];
+          } else {
+            qLines = ["Q = x^2 + y^2 + z^2 \\sim " + vx + "\\,\\chi^2_3"];
+            pdfLines = ["f(Q) = \\dfrac{\\sqrt{Q}}{\\sigma^3\\sqrt{2\\pi}}\\, e^{-Q/(2\\sigma^2)}"];
+            lead = "Scaled chi-square, 3 degrees of freedom.";
+            parts = [
+              { text: "Equal spread on all three axes, " + state.sigmaX.toFixed(2) + ", makes spherical shells. Q is " + vx + " times a chi-square with 3 degrees of freedom, a squared Maxwell–Boltzmann law. " },
+              { tex: "f(0) = 0" },
+              { text: ", and the mode is at " },
+              { tex: "Q = \\sigma^2 = " + vx },
+              { text: "." }
+            ];
+          }
+        } else if (k === 2) {
+          qLines = ["Q = x^2 + y^2 \\sim " + vx + "\\,\\chi^2_1 + " + vy + "\\,\\chi^2_1"];
+          pdfLines = ["f(Q) = \\dfrac{1}{2\\sigma_x\\sigma_y}\\, e^{-\\alpha Q}\\, I_0(\\beta Q)"];
+          lead = "Generalized chi-square, 2 degrees of freedom.";
+          parts = [
+            { text: "Unequal spreads, σx = " + state.sigmaX.toFixed(2) + " and σy = " + state.sigmaY.toFixed(2) + ", weight two independent chi-square terms: " + vx + " Z₁² + " + vy + " Z₂². The density uses the modified Bessel function " },
+            { tex: "I_0(\\beta Q)" },
+            { text: ", with " },
+            { tex: "\\alpha,\\beta = \\tfrac{1}{4}(1/\\sigma_x^2 \\pm 1/\\sigma_y^2)" },
+            { text: "." }
+          ];
+        } else {
+          meanSum = (state.sigmaX * state.sigmaX + state.sigmaY * state.sigmaY + state.sigmaZ * state.sigmaZ).toFixed(2);
+          qLines = [
+            "Q = x^2 + y^2 + z^2",
+            "\\sim " + vx + "\\,\\chi^2_1 + " + vy + "\\,\\chi^2_1 + " + vz + "\\,\\chi^2_1"
+          ];
+          pdfLines = [
+            "f(Q) = (f_{x,y} * f_z)(Q)",
+            "= \\int_0^{Q} f_{x,y}(Q-u)\\, f_z(u)\\, du"
+          ];
+          lead = "Generalized chi-square, 3 degrees of freedom.";
+          parts = [
+            { text: "Three unequal variances, " + vx + ", " + vy + ", and " + vz + ", make an ellipsoidal cloud. The density is the two-axis Bessel density convolved with the third axis. " },
+            { tex: "f(0) = 0" },
+            { text: ", and the mean is the sum of the variances, " + meanSum + "." }
+          ];
+        }
+
+        typeset(document.getElementById("formula-display"), qLines);
+        typeset(document.getElementById("pdf-formula-display"), pdfLines);
+        fillCallout(lead, parts);
+        updateStatsStrip();
+        if (state.hoveredDartIndex >= 0 && state.hoveredDartIndex < state.darts.length) {
+          showTooltip(state.hoveredDartIndex);
+        }
+      }
+
+      function setDegreesOfFreedom(next) {
+        state.df = next;
+        [1, 2, 3].forEach(function (k) {
+          var button = document.getElementById("df-btn-" + k);
+          button.classList.toggle("is-active", k === next);
+          button.setAttribute("aria-pressed", k === next ? "true" : "false");
+        });
+        document.getElementById("df-meaning").textContent = next === 1
+          ? "Rail, x only"
+          : next === 2 ? "Board, x and y" : "Space, x, y, and z";
+        document.getElementById("board-panel-title").textContent = next === 1
+          ? "1D rail"
+          : next === 2 ? "2D dartboard" : "3D chamber";
+        document.getElementById("stat-phys-hint").textContent = next === 1
+          ? "x only. y and z stay at 0."
+          : next === 2 ? "x and y. z stays at 0." : "x, y, and depth z.";
+        if (preset === 2) {
+          state.sigmaY = state.sigmaX;
+          state.sigmaZ = state.sigmaX;
+        }
+        if (state.hoveredDartIndex >= state.darts.length) state.hoveredDartIndex = -1;
+        syncUIFromState();
+      }
+
+      function setPresetMode(mode) {
+        preset = mode;
+        if (mode === 1) {
+          if (state.df === 1) setDegreesOfFreedom(2);
+          state.sigmaX = 2.0;
+          state.sigmaY = 1.0;
+          state.sigmaZ = 1.2;
+          state.normalized = false;
+        } else if (mode === 2) {
+          state.sigmaX = 2.0;
+          state.sigmaY = 2.0;
+          state.sigmaZ = 2.0;
+          state.normalized = false;
+        } else {
+          state.normalized = true;
+        }
+        syncUIFromState();
+      }
+
+      function onSliderChange() {
+        state.sigmaX = parseFloat(document.getElementById("slider-sx").value);
+        state.sigmaY = parseFloat(document.getElementById("slider-sy").value);
+        state.sigmaZ = parseFloat(document.getElementById("slider-sz").value);
+        preset = classifyMode();
+        syncUIFromState();
+      }
+
+      function createDartObject() {
+        return { zx: randn(), zy: randn(), zz: randn() };
+      }
+
+      function totalCommittedDarts() {
+        return state.darts.length + state.flyingDarts.length;
+      }
+
+      function stopAutoThrow() {
+        if (!state.autoThrowTimer) return;
+        clearInterval(state.autoThrowTimer);
+        state.autoThrowTimer = null;
+        var button = document.getElementById("btn-auto");
+        button.classList.remove("demo-btn-primary");
+        button.setAttribute("aria-pressed", "false");
+        button.textContent = "Auto";
+      }
+
+      function rememberThrow(q) {
+        document.getElementById("stat-last").textContent = "Q = " + q.toFixed(2);
+      }
+
+      function landDart(dart, rippleRadius, rippleAlpha) {
+        if (state.darts.length >= MAX_DARTS) return false;
+        state.darts.push(dart);
+        if (motionOn()) {
+          state.ripples.push({ dart: dart, radius: rippleRadius, alpha: rippleAlpha });
+        }
+        rememberThrow(getDartMetrics(dart).q);
+        return true;
+      }
+
+      function throwSingleDart() {
+        if (totalCommittedDarts() >= MAX_DARTS) {
+          stopAutoThrow();
+          updateStatsStrip();
+          return;
+        }
+        var dart = createDartObject();
+        if (!motionOn()) {
+          landDart(dart, 4, 0.9);
+          updateStatsStrip();
+          return;
+        }
+        state.flyingDarts.push({
+          dart: dart,
+          progress: 0,
+          startX: (Math.random() - 0.5) * 8,
+          startY: state.df === 1 ? 0 : -7
+        });
+        updateStatsStrip();
+      }
+
+      function throwBurstDarts(count) {
+        var room = Math.max(0, MAX_DARTS - totalCommittedDarts() - state.burstRemaining);
+        state.burstRemaining += Math.min(count, room);
+        updateStatsStrip();
+      }
+
+      function toggleAutoThrow() {
+        var button = document.getElementById("btn-auto");
+        if (state.autoThrowTimer) {
+          stopAutoThrow();
+          return;
+        }
+        if (totalCommittedDarts() >= MAX_DARTS) return;
+        state.autoThrowTimer = window.setInterval(function () {
+          if (totalCommittedDarts() >= MAX_DARTS) {
+            stopAutoThrow();
+            updateStatsStrip();
+            return;
+          }
+          throwSingleDart();
+        }, 130);
+        button.classList.add("demo-btn-primary");
+        button.setAttribute("aria-pressed", "true");
+        button.textContent = "Stop";
+      }
+
+      function resetDarts() {
+        stopAutoThrow();
+        state.darts = [];
+        state.flyingDarts = [];
+        state.ripples = [];
+        state.burstRemaining = 0;
+        state.hoveredDartIndex = -1;
+        tooltip.style.display = "none";
+        document.getElementById("stat-last").textContent = "—";
+        updateStatsStrip();
+      }
+
+      function updateStatsStrip() {
+        var n = state.darts.length;
+        var atCap = n >= MAX_DARTS;
+        var targetBlend = state.normalized ? 1 : 0;
+        var weights = getActiveWeights(targetBlend, state.sigmaX, state.sigmaY, state.sigmaZ);
+        var theoMean = weights.reduce(function (a, b) { return a + b; }, 0);
+        var theoVar = weights.reduce(function (a, b) { return a + 2 * b * b; }, 0);
+        var sumQ = 0;
+        var sumQ2 = 0;
+        var i;
+        var q;
+        var empMean;
+        var empVar;
+
+        document.getElementById("stat-n").textContent = n.toLocaleString() + " / " + MAX_DARTS.toLocaleString();
+        document.getElementById("cap-note").hidden = !atCap;
+        document.getElementById("btn-throw-1").disabled = atCap;
+        document.getElementById("btn-throw-100").disabled = atCap;
+        document.getElementById("btn-auto").disabled = atCap && !state.autoThrowTimer;
+        document.getElementById("stat-theo-mean").textContent = theoMean.toFixed(2);
+        document.getElementById("stat-theo-sd").textContent = Math.sqrt(theoVar).toFixed(2);
+
+        if (n === 0) {
+          document.getElementById("stat-emp-mean").textContent = "—";
+          document.getElementById("stat-emp-sd").textContent = "—";
+          return;
+        }
+        for (i = 0; i < n; i += 1) {
+          q = getDartMetrics(state.darts[i], targetBlend, state.sigmaX, state.sigmaY, state.sigmaZ).q;
+          sumQ += q;
+          sumQ2 += q * q;
+        }
+        empMean = sumQ / n;
+        empVar = n > 1 ? Math.max(0, (sumQ2 - n * empMean * empMean) / (n - 1)) : 0;
+        document.getElementById("stat-emp-mean").textContent = empMean.toFixed(2);
+        document.getElementById("stat-emp-sd").textContent = Math.sqrt(empVar).toFixed(2);
+      }
+
+      function resizeCanvases() {
+        var dpr = window.devicePixelRatio || 1;
+        [boardCanvas, histCanvas].forEach(function (canvas) {
+          var host = canvas.parentElement;
+          var width = Math.max(1, host.clientWidth);
+          var height = Math.max(1, host.clientHeight);
+          canvas.width = Math.round(width * dpr);
+          canvas.height = Math.round(height * dpr);
+          canvas.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+        });
+      }
+
+      function getBoardTransform() {
+        var w = boardCanvas.clientWidth;
+        var h = boardCanvas.clientHeight;
+        var rightReserve = state.df === 3 ? Math.min(62, Math.max(44, w * 0.16)) : 0;
+        var cx = (w - rightReserve) / 2;
+        var cy = h / 2;
+        var scale = (Math.min(w - rightReserve, h) * 0.45) / BOARD_MAX_UNITS;
+        return { w: w, h: h, cx: cx, cy: cy, scale: scale, rightReserve: rightReserve };
+      }
+
+      function findDart(clientX, clientY, radius) {
+        var rect = boardCanvas.getBoundingClientRect();
+        var mx = clientX - rect.left;
+        var my = clientY - rect.top;
+        var board = getBoardTransform();
+        var closest = -1;
+        var minDist = radius;
+        var i;
+        var metrics;
+        var px;
+        var py;
+        var dist;
+        for (i = state.darts.length - 1; i >= 0; i -= 1) {
+          metrics = getDartMetrics(state.darts[i]);
+          px = board.cx + metrics.x * board.scale;
+          py = board.cy - metrics.y * board.scale;
+          dist = Math.hypot(mx - px, my - py);
+          if (dist < minDist) {
+            minDist = dist;
+            closest = i;
+          }
+        }
+        return closest;
+      }
+
+      function showTooltip(index) {
+        var board = getBoardTransform();
+        var metrics = getDartMetrics(state.darts[index]);
+        var px = board.cx + metrics.x * board.scale;
+        var py = board.cy - metrics.y * board.scale;
+        var coord;
+        var tx;
+        var ty;
+        if (state.df === 1) {
+          coord = (state.normalized ? "x/σx" : "x") + " = " + metrics.x.toFixed(2) + " (y = 0)";
+        } else if (state.df === 2) {
+          coord = (state.normalized ? "(x/σx, y/σy)" : "(x, y)") + " = (" + metrics.x.toFixed(2) + ", " + metrics.y.toFixed(2) + ")";
+        } else {
+          coord = (state.normalized ? "(x/σx, y/σy, z/σz)" : "(x, y, z)") + " = (" + metrics.x.toFixed(2) + ", " + metrics.y.toFixed(2) + ", " + metrics.z.toFixed(2) + ")";
+        }
+        tooltip.replaceChildren();
+        addText(tooltip, "Dart " + (index + 1) + ", df = " + state.df);
+        tooltip.appendChild(document.createElement("br"));
+        addText(tooltip, coord);
+        tooltip.appendChild(document.createElement("br"));
+        var qLine = document.createElement("strong");
+        qLine.textContent = "Q = " + metrics.q.toFixed(2);
+        tooltip.appendChild(qLine);
+        tooltip.style.display = "block";
+        tx = px + 14;
+        ty = py - 14;
+        if (tx + tooltip.offsetWidth > board.w - 4) tx = Math.max(4, px - tooltip.offsetWidth - 14);
+        if (ty < 4) ty = py + 14;
+        if (ty + tooltip.offsetHeight > board.h - 4) ty = Math.max(4, board.h - tooltip.offsetHeight - 4);
+        tooltip.style.left = tx + "px";
+        tooltip.style.top = ty + "px";
+      }
+
+      function clearHover() {
+        state.hoveredDartIndex = -1;
+        tooltip.style.display = "none";
+      }
+
+      function drawDartboard() {
+        var board = getBoardTransform();
+        var w = board.w;
+        var h = board.h;
+        var cx = board.cx;
+        var cy = board.cy;
+        var scale = board.scale;
+        var c = colors();
+        var effSx = effectiveSigma(state.visSigmaX, state.visNormBlend);
+        var effSy = effectiveSigma(state.visSigmaY, state.visNormBlend);
+        var effSz = effectiveSigma(state.visSigmaZ, state.visNormBlend);
+        var normalizedView = state.visNormBlend > 0.5;
+        var r;
+        var slitHalf;
+        var mult;
+        var rx;
+        var i;
+        var metrics;
+        var px;
+        var py;
+        var hovered;
+        var radius;
+        var gx;
+        var topY;
+        var botY;
+        var dz;
+        var pz;
+        var rip;
+        var fd;
+        var t;
+        var ease;
+        var target;
+        var curX;
+        var curY;
+
+        if (w < 2 || h < 2) return;
+        boardCtx.clearRect(0, 0, w, h);
+        boardCtx.fillStyle = c.paper;
+        boardCtx.fillRect(0, 0, w, h);
+
+        for (r = 6; r >= 1; r -= 1) {
+          boardCtx.beginPath();
+          boardCtx.arc(cx, cy, r * scale, 0, Math.PI * 2);
+          boardCtx.fillStyle = r % 2 === 0 ? c.ring : c.paper;
+          boardCtx.fill();
+          boardCtx.lineWidth = 1;
+          boardCtx.strokeStyle = state.df === 1 ? "rgba(0, 0, 0, 0.08)" : c.referenceFaint;
+          boardCtx.stroke();
+          boardCtx.fillStyle = c.muted;
+          boardCtx.font = "11px Arial, Helvetica, sans-serif";
+          boardCtx.textAlign = "left";
+          boardCtx.fillText(String(r), cx + r * scale + 3, cy + 12);
+        }
+
+        if (state.df === 1) {
+          slitHalf = 14;
+          boardCtx.fillStyle = "rgba(246, 246, 246, 0.9)";
+          boardCtx.fillRect(0, 0, w, cy - slitHalf);
+          boardCtx.fillRect(0, cy + slitHalf, w, h - (cy + slitHalf));
+          boardCtx.strokeStyle = c.reference;
+          boardCtx.lineWidth = 2;
+          boardCtx.beginPath();
+          boardCtx.moveTo(cx - BOARD_MAX_UNITS * scale, cy - slitHalf);
+          boardCtx.lineTo(cx + BOARD_MAX_UNITS * scale, cy - slitHalf);
+          boardCtx.moveTo(cx - BOARD_MAX_UNITS * scale, cy + slitHalf);
+          boardCtx.lineTo(cx + BOARD_MAX_UNITS * scale, cy + slitHalf);
+          boardCtx.stroke();
+          boardCtx.fillStyle = c.muted;
+          boardCtx.font = "600 11px Arial, Helvetica, sans-serif";
+          boardCtx.textAlign = "center";
+          boardCtx.fillText("y = 0 and z = 0", cx, cy - slitHalf - 6);
+          boardCtx.textAlign = "left";
+          [2, 1].forEach(function (band) {
+            rx = effSx * band * scale;
+            boardCtx.strokeStyle = band === 1 ? c.spread : c.spreadSoft;
+            boardCtx.lineWidth = band === 1 ? 2.2 : 1.5;
+            boardCtx.beginPath();
+            boardCtx.moveTo(cx - rx, cy - slitHalf + 2);
+            boardCtx.lineTo(cx - rx, cy + slitHalf - 2);
+            boardCtx.moveTo(cx + rx, cy - slitHalf + 2);
+            boardCtx.lineTo(cx + rx, cy + slitHalf - 2);
+            boardCtx.stroke();
+            boardCtx.fillStyle = band === 1 ? c.spread : c.spreadSoft;
+            boardCtx.font = "600 11px Arial, Helvetica, sans-serif";
+            boardCtx.fillText("±" + band + "σx", cx + rx - 16, cy + slitHalf + 14);
+          });
+        } else {
+          [2, 1].forEach(function (band) {
+            boardCtx.save();
+            boardCtx.beginPath();
+            boardCtx.ellipse(cx, cy, Math.max(0.5, effSx * band * scale), Math.max(0.5, effSy * band * scale), 0, 0, Math.PI * 2);
+            boardCtx.strokeStyle = band === 1 ? c.spread : c.spreadSoft;
+            boardCtx.lineWidth = band === 1 ? 2 : 1.4;
+            boardCtx.setLineDash(band === 1 ? [6, 4] : [3, 4]);
+            boardCtx.stroke();
+            boardCtx.restore();
+            boardCtx.fillStyle = band === 1 ? c.spread : c.spreadSoft;
+            boardCtx.font = "600 12px Arial, Helvetica, sans-serif";
+            boardCtx.textAlign = "left";
+            boardCtx.textBaseline = "alphabetic";
+            var labelX = cx + effSx * band * scale + 8;
+            if (labelX < w - board.rightReserve - 36) {
+              boardCtx.fillText(band + "σ", labelX, cy - 18);
+            }
+          });
+        }
+
+        boardCtx.beginPath();
+        boardCtx.arc(cx, cy, Math.max(3, 0.22 * scale), 0, Math.PI * 2);
+        boardCtx.fillStyle = c.meanSoft;
+        boardCtx.fill();
+        boardCtx.strokeStyle = c.mean;
+        boardCtx.lineWidth = 1.5;
+        boardCtx.setLineDash([]);
+        boardCtx.stroke();
+
+        boardCtx.beginPath();
+        boardCtx.moveTo(cx - BOARD_MAX_UNITS * scale, cy);
+        boardCtx.lineTo(cx + BOARD_MAX_UNITS * scale, cy);
+        if (state.df >= 2) {
+          boardCtx.moveTo(cx, cy - BOARD_MAX_UNITS * scale);
+          boardCtx.lineTo(cx, cy + BOARD_MAX_UNITS * scale);
+        }
+        boardCtx.strokeStyle = c.referenceFaint;
+        boardCtx.lineWidth = 1;
+        boardCtx.stroke();
+
+        boardCtx.fillStyle = c.muted;
+        boardCtx.font = "600 12px Arial, Helvetica, sans-serif";
+        boardCtx.textAlign = "left";
+        boardCtx.fillText(normalizedView ? "x/σx" : "x", cx + BOARD_MAX_UNITS * scale - 36, cy - 7);
+        if (state.df >= 2) {
+          boardCtx.fillText(normalizedView ? "y/σy" : "y", cx + 8, cy - BOARD_MAX_UNITS * scale + 14);
+        }
+
+        for (i = 0; i < state.darts.length; i += 1) {
+          metrics = getDartMetrics(state.darts[i]);
+          px = cx + metrics.x * scale;
+          py = cy - metrics.y * scale;
+          hovered = i === state.hoveredDartIndex;
+          if (hovered) {
+            boardCtx.save();
+            boardCtx.beginPath();
+            boardCtx.moveTo(cx, cy);
+            boardCtx.lineTo(px, py);
+            boardCtx.strokeStyle = c.highlight;
+            boardCtx.lineWidth = 2;
+            boardCtx.setLineDash([]);
+            boardCtx.stroke();
+            boardCtx.beginPath();
+            boardCtx.arc(cx, cy, Math.hypot(px - cx, py - cy), 0, Math.PI * 2);
+            boardCtx.strokeStyle = statsViz.rgba("highlight", 0.55);
+            boardCtx.lineWidth = 1.5;
+            boardCtx.setLineDash([4, 4]);
+            boardCtx.stroke();
+            boardCtx.restore();
+          }
+          radius = hovered ? 6.2 : 3.5;
+          if (state.df === 3 && !hovered) radius = Math.max(2, Math.min(5.5, 3.5 + metrics.z * 0.45));
+          boardCtx.beginPath();
+          boardCtx.arc(px, py, radius, 0, Math.PI * 2);
+          boardCtx.fillStyle = hovered ? c.highlight : statsViz.rgba("sample", 0.88);
+          boardCtx.fill();
+          boardCtx.lineWidth = hovered ? 2 : 1;
+          boardCtx.strokeStyle = hovered ? "#ffffff" : "rgba(255, 255, 255, 0.9)";
+          boardCtx.setLineDash([]);
+          boardCtx.stroke();
+        }
+
+        if (state.df === 3) {
+          gx = w - 28;
+          topY = cy - BOARD_MAX_UNITS * scale;
+          botY = cy + BOARD_MAX_UNITS * scale;
+          boardCtx.fillStyle = "rgba(246, 246, 246, 0.94)";
+          boardCtx.strokeStyle = c.reference;
+          boardCtx.lineWidth = 1;
+          boardCtx.setLineDash([]);
+          boardCtx.fillRect(gx - 18, topY - 16, 40, (botY - topY) + 32);
+          boardCtx.strokeRect(gx - 18, topY - 16, 40, (botY - topY) + 32);
+          boardCtx.beginPath();
+          boardCtx.moveTo(gx, topY);
+          boardCtx.lineTo(gx, botY);
+          boardCtx.moveTo(gx - 12, cy);
+          boardCtx.lineTo(gx + 12, cy);
+          boardCtx.strokeStyle = c.referenceFaint;
+          boardCtx.stroke();
+          [1, 2].forEach(function (band) {
+            dz = effSz * band * scale;
+            boardCtx.strokeStyle = band === 1 ? c.spread : c.spreadSoft;
+            boardCtx.beginPath();
+            boardCtx.moveTo(gx - 10, cy - dz);
+            boardCtx.lineTo(gx + 10, cy - dz);
+            boardCtx.moveTo(gx - 10, cy + dz);
+            boardCtx.lineTo(gx + 10, cy + dz);
+            boardCtx.stroke();
+          });
+          for (i = 0; i < state.darts.length; i += 1) {
+            metrics = getDartMetrics(state.darts[i]);
+            pz = cy - metrics.z * scale;
+            hovered = i === state.hoveredDartIndex;
+            if (pz < topY || pz > botY) continue;
+            boardCtx.beginPath();
+            boardCtx.arc(gx + ((i % 5) - 2) * 2.2, pz, hovered ? 4.5 : 2, 0, Math.PI * 2);
+            boardCtx.fillStyle = hovered ? c.highlight : c.depthSoft;
+            boardCtx.fill();
+          }
+          boardCtx.fillStyle = c.muted;
+          boardCtx.font = "600 11px Arial, Helvetica, sans-serif";
+          boardCtx.textAlign = "center";
+          boardCtx.fillText(normalizedView ? "z/σz" : "Depth z", gx, topY - 4);
+          boardCtx.textAlign = "left";
+        }
+
+        for (i = state.ripples.length - 1; i >= 0; i -= 1) {
+          rip = state.ripples[i];
+          metrics = getDartMetrics(rip.dart);
+          boardCtx.beginPath();
+          boardCtx.arc(cx + metrics.x * scale, cy - metrics.y * scale, rip.radius, 0, Math.PI * 2);
+          boardCtx.strokeStyle = statsViz.rgba("sample", Math.max(0, rip.alpha));
+          boardCtx.lineWidth = 2;
+          boardCtx.setLineDash([]);
+          boardCtx.stroke();
+          rip.radius += 1.2;
+          rip.alpha -= 0.04;
+          if (rip.alpha <= 0) state.ripples.splice(i, 1);
+        }
+
+        for (i = state.flyingDarts.length - 1; i >= 0; i -= 1) {
+          fd = state.flyingDarts[i];
+          fd.progress += 0.15;
+          t = Math.min(1, fd.progress);
+          ease = 1 - Math.pow(1 - t, 3);
+          target = getDartMetrics(fd.dart);
+          curX = fd.startX * (1 - ease) + target.x * ease;
+          curY = fd.startY * (1 - ease) + target.y * ease;
+          boardCtx.beginPath();
+          boardCtx.arc(cx + curX * scale, cy - curY * scale, 5.5 * (1.4 - 0.4 * ease), 0, Math.PI * 2);
+          boardCtx.fillStyle = c.highlight;
+          boardCtx.fill();
+          if (t >= 1) {
+            landDart(fd.dart, 4, 0.9);
+            state.flyingDarts.splice(i, 1);
+            updateStatsStrip();
+          }
+        }
+      }
+
+      function drawHistogram() {
+        var w = histCanvas.clientWidth;
+        var h = histCanvas.clientHeight;
+        var c = colors();
+        var pad = { top: 22, right: 16, bottom: 36, left: 48 };
+        var plotW;
+        var plotH;
+        var weights;
+        var meanQ;
+        var sdQ;
+        var maxQ;
+        var numBins = 28;
+        var binWidth;
+        var counts;
+        var hoveredBin = -1;
+        var n = state.darts.length;
+        var i;
+        var q;
+        var b;
+        var densities;
+        var maxTheoY = 0;
+        var pdfSamples = 200;
+        var pdfPoints = [];
+        var frac;
+        var qVal;
+        var dVal;
+        var maxEmpY;
+        var yMax;
+        var yTicks = 5;
+        var yVal;
+        var py;
+        var xTickStep;
+        var qv;
+        var px;
+        var barW;
+        var d;
+        var barH;
+        var bx;
+        var by;
+        var isHi;
+        var xTitle;
+
+        if (w < 2 || h < 2) return;
+        plotW = Math.max(1, w - pad.left - pad.right);
+        plotH = Math.max(1, h - pad.top - pad.bottom);
+        histCtx.clearRect(0, 0, w, h);
+        histCtx.fillStyle = c.paper;
+        histCtx.fillRect(0, 0, w, h);
+
+        weights = getActiveWeights();
+        meanQ = weights.reduce(function (a, b) { return a + b; }, 0);
+        sdQ = Math.sqrt(weights.reduce(function (a, b) { return a + 2 * b * b; }, 0));
+        maxQ = Math.max(8, Math.min(55, meanQ + 3.5 * sdQ));
+        binWidth = maxQ / numBins;
+        counts = new Array(numBins).fill(0);
+
+        for (i = 0; i < n; i += 1) {
+          q = getDartMetrics(state.darts[i]).q;
+          b = Math.floor(q / binWidth);
+          if (b >= 0 && b < numBins) counts[b] += 1;
+          if (i === state.hoveredDartIndex && b >= 0 && b < numBins) hoveredBin = b;
+        }
+        densities = counts.map(function (count) {
+          return n > 0 ? count / (n * binWidth) : 0;
+        });
+
+        for (i = 0; i <= pdfSamples; i += 1) {
+          frac = i === 0 && state.df === 1 ? 0.003 : i / pdfSamples;
+          qVal = frac * maxQ;
+          dVal = theoreticalPDF(qVal, weights);
+          if (i >= 2 && dVal > maxTheoY) maxTheoY = dVal;
+          pdfPoints.push({ q: qVal, d: dVal });
+        }
+        maxEmpY = densities.length ? Math.max.apply(null, densities) : 0;
+        yMax = Math.max(0.18, Math.min(1.6, Math.max(maxTheoY * 1.18, maxEmpY * 1.1)));
+
+        histCtx.strokeStyle = c.grid;
+        histCtx.lineWidth = 1;
+        histCtx.font = "11px Arial, Helvetica, sans-serif";
+        histCtx.fillStyle = c.muted;
+        histCtx.textAlign = "right";
+        for (i = 0; i <= yTicks; i += 1) {
+          yVal = (i / yTicks) * yMax;
+          py = pad.top + plotH - (yVal / yMax) * plotH;
+          histCtx.beginPath();
+          histCtx.moveTo(pad.left, py);
+          histCtx.lineTo(pad.left + plotW, py);
+          histCtx.stroke();
+          histCtx.fillText(yVal.toFixed(2), pad.left - 6, py + 3);
+        }
+
+        xTickStep = maxQ <= 14 ? 2 : maxQ <= 28 ? 4 : 5;
+        histCtx.textAlign = "center";
+        for (qv = 0; qv <= maxQ + 1e-9; qv += xTickStep) {
+          px = pad.left + (qv / maxQ) * plotW;
+          histCtx.beginPath();
+          histCtx.moveTo(px, pad.top);
+          histCtx.lineTo(px, pad.top + plotH);
+          histCtx.stroke();
+          histCtx.fillText(String(qv), px, pad.top + plotH + 14);
+        }
+
+        histCtx.fillStyle = c.text;
+        histCtx.font = "600 12px Arial, Helvetica, sans-serif";
+        xTitle = (state.visNormBlend > 0.5 ? "Normalized squared distance Q" : "Squared distance Q") + ", df = " + state.df;
+        histCtx.textAlign = "center";
+        histCtx.fillText(xTitle, pad.left + plotW / 2, h - 6);
+        histCtx.save();
+        histCtx.translate(14, pad.top + plotH / 2);
+        histCtx.rotate(-Math.PI / 2);
+        histCtx.fillText("Density f(Q)", 0, 0);
+        histCtx.restore();
+
+        barW = plotW / numBins;
+        for (b = 0; b < numBins; b += 1) {
+          d = densities[b];
+          barH = Math.min(plotH, (d / yMax) * plotH);
+          bx = pad.left + b * barW;
+          by = pad.top + plotH - barH;
+          isHi = b === hoveredBin;
+          histCtx.fillStyle = isHi ? c.highlightSoft : c.sampleSoft;
+          histCtx.fillRect(bx + 1, by, Math.max(1, barW - 2), barH);
+          histCtx.strokeStyle = isHi ? c.highlight : c.sampleLine;
+          histCtx.lineWidth = isHi ? 2 : 1;
+          histCtx.strokeRect(bx + 1, by, Math.max(1, barW - 2), barH);
+        }
+
+        if (state.hoveredDartIndex !== -1 && state.darts[state.hoveredDartIndex]) {
+          q = getDartMetrics(state.darts[state.hoveredDartIndex]).q;
+          if (q <= maxQ) {
+            px = pad.left + (q / maxQ) * plotW;
+            histCtx.save();
+            histCtx.beginPath();
+            histCtx.moveTo(px, pad.top);
+            histCtx.lineTo(px, pad.top + plotH);
+            histCtx.strokeStyle = c.highlight;
+            histCtx.lineWidth = 2;
+            histCtx.setLineDash([4, 3]);
+            histCtx.stroke();
+            histCtx.fillStyle = c.highlight;
+            histCtx.font = "700 12px Arial, Helvetica, sans-serif";
+            histCtx.textAlign = px > pad.left + plotW - 78 ? "right" : "left";
+            histCtx.fillText("Q = " + q.toFixed(2), px + (px > pad.left + plotW - 78 ? -6 : 6), pad.top + 14);
+            histCtx.restore();
+          }
+        }
+
+        histCtx.save();
+        histCtx.beginPath();
+        for (i = 0; i < pdfPoints.length; i += 1) {
+          px = pad.left + (pdfPoints[i].q / maxQ) * plotW;
+          py = pad.top + plotH - Math.min(plotH, (pdfPoints[i].d / yMax) * plotH);
+          if (i === 0) histCtx.moveTo(px, py);
+          else histCtx.lineTo(px, py);
+        }
+        histCtx.strokeStyle = c.density;
+        histCtx.lineWidth = 2.4;
+        histCtx.setLineDash([]);
+        histCtx.stroke();
+        histCtx.lineTo(pad.left + plotW, pad.top + plotH);
+        histCtx.lineTo(pad.left, pad.top + plotH);
+        histCtx.closePath();
+        histCtx.fillStyle = c.densitySoft;
+        histCtx.fill();
+        histCtx.restore();
+
+        histCtx.beginPath();
+        histCtx.moveTo(pad.left, pad.top);
+        histCtx.lineTo(pad.left, pad.top + plotH);
+        histCtx.lineTo(pad.left + plotW, pad.top + plotH);
+        histCtx.strokeStyle = c.reference;
+        histCtx.lineWidth = 1.5;
+        histCtx.setLineDash([]);
+        histCtx.stroke();
+
+        if (n === 0) {
+          histCtx.fillStyle = c.muted;
+          histCtx.font = "13px Arial, Helvetica, sans-serif";
+          histCtx.textAlign = "center";
+          histCtx.fillText("No darts yet. The curve is the exact density.", pad.left + plotW / 2, pad.top + 28);
+        }
+      }
+
+      function animate() {
+        var lerpRate = motionOn() ? 0.14 : 1;
+        var targetBlend = state.normalized ? 1 : 0;
+        var room;
+        var batch;
+        var i;
+        var dart;
+        state.visSigmaX += (state.sigmaX - state.visSigmaX) * lerpRate;
+        state.visSigmaY += (state.sigmaY - state.visSigmaY) * lerpRate;
+        state.visSigmaZ += (state.sigmaZ - state.visSigmaZ) * lerpRate;
+        state.visNormBlend += (targetBlend - state.visNormBlend) * lerpRate;
+        if (state.hoveredDartIndex >= 0 && state.hoveredDartIndex < state.darts.length) {
+          showTooltip(state.hoveredDartIndex);
+        }
+
+        if (state.burstRemaining > 0) {
+          room = Math.max(0, MAX_DARTS - state.darts.length);
+          batch = Math.min(motionOn() ? 5 : state.burstRemaining, state.burstRemaining, room);
+          for (i = 0; i < batch; i += 1) {
+            dart = createDartObject();
+            landDart(dart, 3, 0.65);
+          }
+          state.burstRemaining -= batch;
+          if (state.darts.length >= MAX_DARTS) {
+            state.burstRemaining = 0;
+            stopAutoThrow();
+          }
+          updateStatsStrip();
+        }
+
+        drawDartboard();
+        drawHistogram();
+        window.requestAnimationFrame(animate);
+      }
+
+      document.getElementById("mode-1").addEventListener("click", function () { setPresetMode(1); });
+      document.getElementById("mode-2").addEventListener("click", function () { setPresetMode(2); });
+      document.getElementById("mode-3").addEventListener("click", function () { setPresetMode(3); });
+      document.getElementById("df-btn-1").addEventListener("click", function () { setDegreesOfFreedom(1); });
+      document.getElementById("df-btn-2").addEventListener("click", function () { setDegreesOfFreedom(2); });
+      document.getElementById("df-btn-3").addEventListener("click", function () { setDegreesOfFreedom(3); });
+      document.getElementById("slider-sx").addEventListener("input", onSliderChange);
+      document.getElementById("slider-sy").addEventListener("input", onSliderChange);
+      document.getElementById("slider-sz").addEventListener("input", onSliderChange);
+      document.getElementById("norm-toggle").addEventListener("click", function () {
+        state.normalized = !state.normalized;
+        syncUIFromState();
+      });
+      document.getElementById("btn-throw-1").addEventListener("click", throwSingleDart);
+      document.getElementById("btn-throw-100").addEventListener("click", function () { throwBurstDarts(100); });
+      document.getElementById("btn-auto").addEventListener("click", toggleAutoThrow);
+      document.getElementById("btn-reset").addEventListener("click", resetDarts);
+
+      boardCanvas.addEventListener("pointermove", function (event) {
+        var hit;
+        if (event.pointerType === "touch") return;
+        hit = findDart(event.clientX, event.clientY, 12);
+        state.hoveredDartIndex = hit;
+        if (hit === -1) tooltip.style.display = "none";
+        else showTooltip(hit);
+      });
+      boardCanvas.addEventListener("pointerleave", function (event) {
+        if (event.pointerType === "touch") return;
+        clearHover();
+      });
+      boardCanvas.addEventListener("click", function (event) {
+        if (event.pointerType === "touch") return;
+        if (state.hoveredDartIndex === -1) throwSingleDart();
+      });
+      boardCanvas.addEventListener("pointerdown", function (event) {
+        if (event.pointerType !== "touch") return;
+        touchStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+      });
+      boardCanvas.addEventListener("pointerup", function (event) {
+        var hit;
+        if (event.pointerType !== "touch" || !touchStart) return;
+        if (Math.hypot(event.clientX - touchStart.x, event.clientY - touchStart.y) > 10) {
+          touchStart = null;
+          return;
+        }
+        hit = findDart(event.clientX, event.clientY, 22);
+        touchStart = null;
+        if (hit === -1) clearHover();
+        else {
+          state.hoveredDartIndex = hit;
+          showTooltip(hit);
+        }
+      });
+
+      window.addEventListener("resize", function () {
+        resizeCanvases();
+        syncUIFromState();
+      });
+      if (window.ResizeObserver) {
+        var observer = new ResizeObserver(function () { resizeCanvases(); });
+        observer.observe(document.getElementById("board-well"));
+        observer.observe(document.getElementById("hist-well"));
+      }
+
+      resizeCanvases();
+      setDegreesOfFreedom(2);
+      for (var seed = 0; seed < START_DARTS; seed += 1) state.darts.push(createDartObject());
+      updateStatsStrip();
+      window.requestAnimationFrame(animate);
+    }());
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

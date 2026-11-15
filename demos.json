@@ -273,6 +273,15 @@
               ]
             },
             {
+              "href": "statistics/chi_square_squared_distance.html",
+              "title": "Chi-Square as Squared Distance",
+              "description": "Squared distance of a Gaussian dart on a rail, a board, or in space, for generalized, scaled, and standard chi-square.",
+              "keywords": "Chi-Square squared distance dartboard Mahalanobis generalized scaled standard degrees of freedom Gaussian bullseye",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
               "href": "statistics/chi_square_goodness_of_fit.html",
               "title": "Pearson’s χ² Goodness-of-Fit",
               "description": "A roulette simulation of Pearson’s chi-square goodness-of-fit test.",
