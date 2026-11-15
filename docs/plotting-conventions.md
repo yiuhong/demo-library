@@ -150,6 +150,7 @@ These pages load the sheet:
 - `statistics/building_normal_distribution.html`
 - `statistics/central_limit_theorem.html`
 - `statistics/chi_square_distribution.html`
+- `statistics/chi_square_squared_distance.html`
 - `statistics/covariance_and_correlation.html`
 - `statistics/galton_board.html`
 - `statistics/horowitz_1974_simulation_CLT.html`

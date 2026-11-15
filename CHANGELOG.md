@@ -124,6 +124,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Cards toggle is gone. A remembered Cards choice opens the catalog.
 - Statistics headings match Guided Track titles. Describing data is split into Center and spread, Shape and pictures, and Same summaries, different graphs. Statistical reasoning is split into From process to distribution, Counts, arrivals, and the board, and Sampling distributions and intervals. t-test, Statistical power, ANOVA, and Association are unchanged.
 
+## [0.1.7] - 2026-11-15
+
+### Added
+
+- Chi-Square as Squared Distance, under Statistics → Sampling distributions and intervals, after Chi-Square Distribution and before Pearson’s χ² Goodness-of-Fit. A Gaussian dart lands on a 1D rail, a 2D board, or in a 3D chamber. Squared distance from the bullseye is a generalized chi-square when the axis spreads differ, a scaled chi-square when they are equal, and a standard chi-square when each axis is divided by its spread. The page opens on the 2D generalized case. Each dart keeps its latent standard normals, so degrees of freedom, spreads, and normalization stay consistent. Throws are capped at 2,000. The histogram uses the exact density, including the two-axis Bessel form and the singularity-safe convolution for three unequal axes. Chi-Square Distribution and Pearson’s χ² Goodness-of-Fit are unchanged. No Guided Track step.
+
 ## [0.1.6] - 2026-11-15
 
 ### Added
