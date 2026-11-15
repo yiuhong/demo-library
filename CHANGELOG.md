@@ -124,6 +124,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Cards toggle is gone. A remembered Cards choice opens the catalog.
 - Statistics headings match Guided Track titles. Describing data is split into Center and spread, Shape and pictures, and Same summaries, different graphs. Statistical reasoning is split into From process to distribution, Counts, arrivals, and the board, and Sampling distributions and intervals. t-test, Statistical power, ANOVA, and Association are unchanged.
 
+## [0.1.8] - 2026-11-15
+
+### Added
+
+- From Binomial Counts to Chi-Square, under Statistics → Sampling distributions and intervals, after Chi-Square as Squared Distance and before Pearson’s χ² Goodness-of-Fit. A coin (k = 2) or a die (k = 6) draws binomial or multinomial counts. The focused category is a marginal binomial: expected count n·pᵢ, raw error, and a normal approximation from the central limit theorem. Standardizing that error gives Zᵢ. Zᵢ² divides by Eᵢ(1 − pᵢ); each Pearson cell (Oᵢ − Eᵢ)² / Eᵢ divides by Eᵢ alone. Summing the cells yields χ² with k − 1 degrees of freedom. When k = 2, Z² equals χ². Cochran’s rule flags a minimum expected count below 5. Chi-Square Distribution, Chi-Square as Squared Distance, and Pearson’s χ² Goodness-of-Fit are unchanged. No Guided Track step.
+
 ## [0.1.7] - 2026-11-15
 
 ### Added

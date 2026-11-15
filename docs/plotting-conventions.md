@@ -146,6 +146,7 @@ These pages load the sheet:
 - `statistics/additivity_of_variance.html`
 - `statistics/anova_assumptions.html`
 - `statistics/bessels_correction_simulation.html`
+- `statistics/binomial_counts_to_chi_square.html`
 - `statistics/boxplot_histogram.html`
 - `statistics/building_normal_distribution.html`
 - `statistics/central_limit_theorem.html`

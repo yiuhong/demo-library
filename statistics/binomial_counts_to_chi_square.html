@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google" content="notranslate">
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
+  <title>From Binomial Counts to Chi-Square</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+  <script src="../assets/stats-viz-theme.js"></script>
+  <script src="../assets/vendor-loader.js" data-libs="katex" data-katex-auto="dollars"></script>
+  <style>
+    body.demo-page {
+      margin: 0;
+      line-height: 1.45;
+      overflow-x: clip;
+    }
+
+    .page {
+      box-sizing: border-box;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 16px 32px;
+    }
+
+    .page *,
+    .page *::before,
+    .page *::after {
+      box-sizing: border-box;
+    }
+
+    .page-head {
+      margin: 0 0 14px;
+    }
+
+    .page-head h1 {
+      font-size: 1.55rem;
+      font-weight: bold;
+      line-height: 1.25;
+      margin: 0 0 6px;
+    }
+
+    .lede {
+      margin: 0;
+      max-width: 46rem;
+      font-size: 0.95rem;
+    }
+
+    .toolbar,
+    .sample-panel,
+    .stage,
+    .math-panel,
+    .note,
+    .proof {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .rule {
+      margin: 0;
+      padding: 8px 12px;
+      border: 1px solid var(--viz-significant);
+      border-radius: 4px;
+      background: var(--viz-significant-soft);
+      color: var(--viz-significant);
+      font-size: 0.88rem;
+      font-weight: bold;
+      line-height: 1.35;
+    }
+
+    .rule.is-warn {
+      border-color: var(--viz-group-c);
+      background: var(--viz-group-c-soft);
+      color: var(--viz-group-c);
+    }
+
+    .rule.is-bad {
+      border-color: var(--viz-null);
+      background: var(--viz-null-soft);
+      color: var(--viz-null);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px 18px;
+      align-items: start;
+    }
+
+    .field {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 4px 10px;
+      font-size: 0.82rem;
+      font-weight: bold;
+    }
+
+    .field-head label,
+    .field-head span {
+      min-width: 0;
+    }
+
+    .field input[type="range"] {
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+    }
+
+    .caption {
+      margin: 0;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      color: var(--viz-total);
+    }
+
+    .choice-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .choice-row .demo-chip {
+      flex: 1 1 9rem;
+      height: auto;
+      min-height: 2.4rem;
+      white-space: normal;
+      text-align: left;
+      line-height: 1.3;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .actions .demo-btn {
+      height: auto;
+      white-space: normal;
+      text-align: center;
+    }
+
+    .actions .demo-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .sample-panel {
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .sample-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px 14px;
+      margin-bottom: 8px;
+    }
+
+    .sample-head h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.3;
+    }
+
+    .process {
+      margin: 0 0 8px;
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
+    .tip {
+      margin: 0 0 8px;
+      font-size: 0.8rem;
+      line-height: 1.35;
+      color: var(--viz-total);
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 10px;
+    }
+
+    .pill {
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: bold;
+      line-height: 1.3;
+      padding: 6px 12px;
+      border: 1px solid #000;
+      border-radius: 999px;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .pill.is-focused {
+      background: var(--viz-mean);
+      border-color: var(--viz-mean);
+      color: #fff;
+    }
+
+    .pill:focus-visible,
+    .cat-card:focus-visible {
+      outline: 2px solid #000;
+      outline-offset: 3px;
+    }
+
+    .tokens {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .token {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      border: 1px solid #000;
+      background: #fff;
+      color: #000;
+    }
+
+    .token.is-coin {
+      border-radius: 50%;
+    }
+
+    .token.is-die {
+      border-radius: 4px;
+    }
+
+    .token.is-focused {
+      background: var(--viz-mean);
+      border-color: var(--viz-mean);
+      color: #fff;
+    }
+
+    .icons-empty {
+      margin: 0;
+      font-size: 0.84rem;
+      color: var(--viz-total);
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      align-items: start;
+    }
+
+    .stage {
+      padding: 12px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .stage-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .stage-num {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+      display: grid;
+      place-items: center;
+      font-weight: bold;
+      font-size: 0.85rem;
+      color: #fff;
+      background: var(--viz-group-a);
+    }
+
+    .stage-2 .stage-num {
+      background: var(--viz-group-c);
+    }
+
+    .stage-3 .stage-num {
+      background: var(--viz-median);
+    }
+
+    .stage-head h2 {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.25;
+    }
+
+    .stage-head p {
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      line-height: 1.35;
+      color: var(--viz-total);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.75rem;
+      line-height: 1.3;
+      color: var(--viz-total);
+    }
+
+    .legend li {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      flex: 0 0 12px;
+      border: 1px solid var(--viz-group-a);
+      background: var(--viz-group-a-mid);
+    }
+
+    .swatch.is-expected {
+      background: var(--viz-density);
+      border-color: var(--viz-density);
+    }
+
+    .swatch.is-observed {
+      background: var(--viz-mean);
+      border-color: var(--viz-mean);
+    }
+
+    .swatch.is-observed-soft {
+      background: var(--viz-mean-soft);
+      border-color: var(--viz-mean);
+    }
+
+    .swatch.is-line {
+      width: 16px;
+      height: 3px;
+      border: none;
+      background: var(--viz-highlight);
+    }
+
+    .swatch.is-chi {
+      background: var(--viz-median-soft);
+      border-color: var(--viz-median);
+    }
+
+    .swatch.is-chi-line {
+      width: 16px;
+      height: 3px;
+      border: none;
+      background: var(--viz-median);
+    }
+
+    .mode-toggle {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mode-toggle .demo-chip {
+      flex: 1 1 10rem;
+      height: auto;
+      white-space: normal;
+      line-height: 1.25;
+    }
+
+    .plot-well {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      background: #fff;
+      border: 1px solid #000;
+    }
+
+    .plot-well.is-short {
+      height: 168px;
+    }
+
+    .plot-well canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .axis-note {
+      margin: 0;
+      font-size: 0.75rem;
+      line-height: 1.35;
+      color: var(--viz-total);
+    }
+
+    .math-panel {
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .math-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px 8px;
+      min-width: 0;
+    }
+
+    .math-row + .math-row {
+      padding-top: 6px;
+      border-top: 1px dashed #000;
+    }
+
+    .math-label {
+      font-size: 0.82rem;
+      min-width: 0;
+    }
+
+    .formula-math {
+      margin: 0;
+      min-width: 0;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      font-size: 0.86rem;
+    }
+
+    .lede .katex,
+    .rule .katex,
+    .caption .katex,
+    .process .katex,
+    .note .katex,
+    .stage-head .katex,
+    .choice-row .katex,
+    .formula-math .katex {
+      font-size: 1em;
+      white-space: nowrap;
+    }
+
+    .hl {
+      font-weight: bold;
+      font-variant-numeric: tabular-nums;
+      padding: 0 4px;
+      border-radius: 3px;
+    }
+
+    .hl-e {
+      background: var(--viz-group-a-soft);
+      color: var(--viz-density);
+    }
+
+    .hl-o {
+      background: var(--viz-mean-soft);
+      color: var(--viz-mean);
+    }
+
+    .hl-z {
+      background: var(--viz-group-c-soft);
+      color: var(--viz-group-c);
+    }
+
+    .hl-chi {
+      background: var(--viz-median-soft);
+      color: var(--viz-median);
+    }
+
+    .note {
+      margin: 0;
+      padding: 8px 10px;
+      border-left: 3px solid var(--viz-group-a);
+      background: var(--viz-group-a-soft);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .stage-2 .note {
+      border-left-color: var(--viz-group-c);
+      background: var(--viz-group-c-soft);
+    }
+
+    .stage-3 .note,
+    .proof {
+      border-left-color: var(--viz-median);
+    }
+
+    .proof {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--viz-median-soft);
+      border: 1px solid var(--viz-median);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .proof h3 {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .cat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .cat-card {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      width: 100%;
+      margin: 0;
+      padding: 8px;
+      border: 1px solid #000;
+      border-radius: 4px;
+      background: #fff;
+      color: #000;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .cat-card.is-focused {
+      background: var(--viz-mean-soft);
+      box-shadow: inset 3px 0 0 var(--viz-mean);
+    }
+
+    .cat-name {
+      font-weight: bold;
+      font-size: 0.82rem;
+      line-height: 1.3;
+    }
+
+    .cat-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(4.6rem, 1fr));
+      gap: 6px 8px;
+    }
+
+    .cat-field {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .cat-lab {
+      font-size: 0.68rem;
+      line-height: 1.2;
+      color: var(--viz-total);
+    }
+
+    .cat-num {
+      font-size: 0.82rem;
+      font-weight: bold;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .cat-total {
+      padding: 8px;
+      border: 1px solid var(--viz-median);
+      background: #fff;
+    }
+
+    .cat-total .cat-name {
+      color: var(--viz-median);
+    }
+
+    @media (max-width: 1100px) {
+      .pipeline {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .choice-row {
+        flex-direction: column;
+      }
+
+      .choice-row .demo-chip {
+        flex: 1 1 auto;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px), (pointer: coarse) {
+      .choice-row .demo-chip,
+      .mode-toggle .demo-chip,
+      .actions .demo-btn,
+      .pill,
+      .cat-card {
+        min-height: 44px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css">
+  <link rel="stylesheet" href="../assets/tailwind.css">
+</head>
+<body class="demo-page">
+  <div class="page">
+    <div class="demo-topbar">
+      <a class="demo-back" href="../index.html">← Project Viz</a>
+    </div>
+
+    <header class="page-head">
+      <h1>From Binomial Counts to Chi-Square</h1>
+      <p class="lede">Discrete binomial and multinomial counts. The central limit theorem approximates a category count by a normal curve. Summing squared residuals across $k$ categories yields $\chi^2$ with $k - 1$ degrees of freedom.</p>
+    </header>
+
+    <section class="toolbar demo-card" aria-label="Simulation controls">
+      <p id="ruleBadge" class="rule is-valid" aria-live="polite">Cochran’s rule: every $E_i \ge 5$. Minimum $E = 15.0$.</p>
+      <div class="controls">
+        <div class="field">
+          <div class="field-head">
+            <label for="sliderN">Number of trials ($n$)</label>
+            <span id="valN" class="demo-value">30</span>
+          </div>
+          <input type="range" id="sliderN" min="5" max="100" step="1" value="30">
+          <p class="caption" id="captionN">Moderate $n$ (30): the binomial bars sit close to the bell curve.</p>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="sliderP" id="labelSliderP">Category 1 probability, heads ($p_1$)</label>
+            <span id="valP" class="demo-value">0.50</span>
+          </div>
+          <input type="range" id="sliderP" min="0.05" max="0.95" step="0.01" value="0.50">
+          <p class="caption" id="captionP">This probability is near one half, so the count is nearly symmetric about its expectation.</p>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <span id="processLabel">Underlying process ($k$)</span>
+            <span id="valDf" class="demo-value">df = 1</span>
+          </div>
+          <div class="choice-row" role="group" aria-labelledby="processLabel">
+            <button type="button" class="demo-chip is-active" id="btnK2" aria-pressed="true">k = 2, coin (binomial)</button>
+            <button type="button" class="demo-chip" id="btnK6" aria-pressed="false">k = 6, die (multinomial)</button>
+          </div>
+          <p class="caption" id="captionK">Category 1 is heads, with probability $p_1$. Category 2 is tails, with probability $1 - p_1$.</p>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <span id="mcLabel">Monte Carlo</span>
+            <span id="valSimCount" class="demo-value" aria-live="polite">0 samples</span>
+          </div>
+          <div class="actions" role="group" aria-labelledby="mcLabel">
+            <button type="button" class="demo-btn demo-btn-primary" id="btnRun1">Run 1 sample</button>
+            <button type="button" class="demo-btn" id="btnRun1000">Run 1,000 samples</button>
+            <button type="button" class="demo-btn" id="btnReset">Reset</button>
+          </div>
+          <p class="caption">One draw, or 1,000 draws that build the chi-square histogram. Reset clears the draws and keeps $n$, $p_1$, and $k$.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sample-panel demo-card" aria-labelledby="sampleHeading">
+      <div class="sample-head">
+        <h2 id="sampleHeading">Latest sample ($n = 30$ coin flips)</h2>
+      </div>
+      <p class="process" id="processBadge">Binomial process: $O_1 \sim \mathrm{Binomial}(n, p_1)$, with $k = 2$ and $df = 1$.</p>
+      <p class="tip">Select a category pill or a table row to focus that category’s marginal binomial.</p>
+      <div class="pills" id="samplePills"></div>
+      <div id="iconsTray">
+        <p class="icons-empty">Run 1 sample, or run 1,000 samples, to see each flip or roll.</p>
+      </div>
+    </section>
+
+    <main class="pipeline">
+      <article class="stage stage-1 demo-card">
+        <div class="stage-head">
+          <div class="stage-num" aria-hidden="true">1</div>
+          <div>
+            <h2 id="st1Heading">Raw counts (marginal binomial)</h2>
+            <p id="st1Subtitle">Exact binomial probabilities for the focused category.</p>
+          </div>
+        </div>
+
+        <ul class="legend" id="st1Legend">
+          <li><span class="swatch" id="sw1"></span><span id="leg1">Probability of the focused count</span></li>
+          <li><span class="swatch is-expected" id="sw2"></span><span id="leg2">Expected count</span></li>
+          <li><span class="swatch is-observed" id="sw3"></span><span id="leg3">Observed count</span></li>
+        </ul>
+        <div class="mode-toggle" role="group" aria-label="Stage 1 view">
+          <button type="button" class="demo-chip is-active" id="btnModeBinom" aria-pressed="true">Marginal binomial</button>
+          <button type="button" class="demo-chip" id="btnModeMulti" aria-pressed="false">Joint multinomial</button>
+        </div>
+
+        <div class="plot-well demo-plot">
+          <canvas id="canvasStage1" aria-label="Stage 1 count chart"></canvas>
+        </div>
+        <p class="axis-note" id="axis1">Horizontal axis: count of the focused category. Vertical axis: probability.</p>
+
+        <div class="math-panel demo-panel">
+          <div class="math-row">
+            <span class="math-label" id="st1ExpLabel">Expected count (heads)</span>
+            <span class="formula-math" id="st1EFormula">$E_1 = n \cdot p_1 =$</span>
+            <strong class="hl hl-e" id="st1E">15.00</strong>
+          </div>
+          <div class="math-row">
+            <span class="math-label">Marginal binomial standard deviation</span>
+            <span class="formula-math" id="st1SDFormula">$\mathrm{SD} = \sqrt{n\, p_i(1-p_i)} =$</span>
+            <strong class="hl hl-e" id="st1SD">2.74</strong>
+          </div>
+          <div class="math-row">
+            <span class="math-label" id="st1ObsLabel">Current sample (heads)</span>
+            <span class="formula-math" id="st1SampleFormula">$O_1 =$</span>
+            <strong class="hl hl-o" id="st1O">—</strong>
+            <span class="formula-math" id="st1ErrFormula">$O_1 - E_1 =$</span>
+            <strong class="hl hl-o" id="st1Err">—</strong>
+          </div>
+        </div>
+
+        <p class="note" id="st1Note">Each bar is the exact probability of $x$ outcomes in the focused category across $n$ trials.</p>
+      </article>
+
+      <article class="stage stage-2 demo-card">
+        <div class="stage-head">
+          <div class="stage-num" aria-hidden="true">2</div>
+          <div>
+            <h2>Standardization (normal approximation)</h2>
+            <p id="st2Subtitle">The central limit theorem, in standard units for the focused category.</p>
+          </div>
+        </div>
+
+        <ul class="legend">
+          <li><span class="swatch is-line"></span><span>Normal curve $N(np_i,\, np_i(1-p_i))$</span></li>
+          <li><span class="swatch is-observed"></span><span>Focused $Z_i$</span></li>
+        </ul>
+
+        <div class="plot-well is-short demo-plot">
+          <canvas id="canvasStage2Top" aria-label="Binomial probabilities with a normal curve"></canvas>
+        </div>
+        <p class="axis-note">Horizontal axis: count. Vertical axis: probability. The curve is the normal density on the same scale as the unit-width bars.</p>
+
+        <div class="plot-well is-short demo-plot">
+          <canvas id="canvasStage2Bot" aria-label="Standard normal curve with the focused z score"></canvas>
+        </div>
+        <p class="axis-note">Horizontal axis: standard deviations from the mean. Vertical axis: standard normal density.</p>
+
+        <div class="math-panel demo-panel">
+          <div class="math-row">
+            <span class="math-label" id="st2ZLabel">Marginal binomial $Z$ score</span>
+            <span class="formula-math" id="st2ZFormula">$Z_i = \frac{O_i - E_i}{\sqrt{n p_i(1-p_i)}} =$</span>
+            <strong class="hl hl-z" id="st2Z">—</strong>
+          </div>
+          <div class="math-row">
+            <span class="math-label">$Z_i^2$ against the Pearson cell</span>
+            <span class="formula-math">$Z_i^2 =$</span>
+            <strong class="hl hl-z" id="st2Z2">—</strong>
+            <span class="formula-math">$\frac{(O_i-E_i)^2}{E_i} =$</span>
+            <strong class="hl hl-chi" id="st2Pearson">—</strong>
+          </div>
+        </div>
+
+        <p class="note">Dividing the raw error $O_i - E_i$ by the binomial standard deviation $\sqrt{n p_i(1-p_i)}$ gives a standard normal $Z_i$. $Z_i^2$ divides by $E_i(1-p_i)$. Each Pearson cell $(O_i - E_i)^2 / E_i$ divides by $E_i$ alone, because stage 3 adds every category.</p>
+      </article>
+
+      <article class="stage stage-3 demo-card">
+        <div class="stage-head">
+          <div class="stage-num" aria-hidden="true">3</div>
+          <div>
+            <h2>Multinomial summation (chi-square)</h2>
+            <p>Simulated values against the $\chi^2$ density with $k - 1$ degrees of freedom.</p>
+          </div>
+        </div>
+
+        <ul class="legend">
+          <li><span class="swatch is-chi"></span><span>Simulated $\chi^2$ density</span></li>
+          <li><span class="swatch is-chi-line"></span><span>Theoretical $\chi^2$ (df = <span id="legDf">1</span>)</span></li>
+          <li><span class="swatch is-observed"></span><span>Current $\chi^2$</span></li>
+        </ul>
+
+        <div class="plot-well demo-plot">
+          <canvas id="canvasStage3" aria-label="Chi-square histogram and theoretical density"></canvas>
+        </div>
+        <p class="axis-note" id="chiStatus">Horizontal axis: chi-square statistic. Vertical axis: density. No samples yet. The curve is the theoretical chi-square density.</p>
+
+        <div class="proof">
+          <h3 id="proofHeader">When $k = 2$, $Z^2 = \chi^2$.</h3>
+          <p class="formula-math" id="proofIdentity">$Z^2 = \frac{(O_1-E_1)^2}{np(1-p)}$</p>
+          <p class="formula-math" id="proofIdentityB">$= \sum_i \frac{(O_i-E_i)^2}{E_i}$</p>
+          <p class="formula-math" id="proofNumeric"></p>
+          <ul class="cat-list" id="catList"></ul>
+        </div>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var KATEX_OPTS = {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }
+        ],
+        throwOnError: false
+      };
+
+      function typeset(el) {
+        if (!el || typeof renderMathInElement !== "function") return;
+        renderMathInElement(el, KATEX_OPTS);
+      }
+
+      function setTex(el, tex) {
+        if (!el) return;
+        el.textContent = tex;
+        typeset(el);
+      }
+
+      function categoryMeta(k) {
+        if (k === 2) {
+          return {
+            trialName: "coin flips",
+            shortNames: ["heads", "tails"],
+            labels: ["Heads", "Tails"]
+          };
+        }
+        var shortNames = [];
+        var labels = [];
+        for (var i = 0; i < 6; i++) {
+          shortNames.push("face " + (i + 1));
+          labels.push("Face " + (i + 1));
+        }
+        return {
+          trialName: "die rolls",
+          shortNames: shortNames,
+          labels: labels
+        };
+      }
+
+      var state = {
+        n: 30,
+        p1: 0.50,
+        k: 2,
+        focusedIdx: 0,
+        stage1Mode: "binomial",
+        probs: [0.5, 0.5],
+        expected: [15, 15],
+        lastObs: null,
+        lastRolls: null,
+        lastChiSq: null,
+        chiSqHistory: [],
+        animating: false,
+        animFrameId: null
+      };
+
+      var sliderN = document.getElementById("sliderN");
+      var sliderP = document.getElementById("sliderP");
+      var labelSliderP = document.getElementById("labelSliderP");
+      var valN = document.getElementById("valN");
+      var valP = document.getElementById("valP");
+      var valDf = document.getElementById("valDf");
+      var legDf = document.getElementById("legDf");
+      var valSimCount = document.getElementById("valSimCount");
+      var captionN = document.getElementById("captionN");
+      var captionP = document.getElementById("captionP");
+      var captionK = document.getElementById("captionK");
+      var btnK2 = document.getElementById("btnK2");
+      var btnK6 = document.getElementById("btnK6");
+      var btnModeBinom = document.getElementById("btnModeBinom");
+      var btnModeMulti = document.getElementById("btnModeMulti");
+      var btnRun1 = document.getElementById("btnRun1");
+      var btnRun1000 = document.getElementById("btnRun1000");
+      var btnReset = document.getElementById("btnReset");
+      var ruleBadge = document.getElementById("ruleBadge");
+      var sampleHeading = document.getElementById("sampleHeading");
+      var processBadge = document.getElementById("processBadge");
+      var samplePills = document.getElementById("samplePills");
+      var iconsTray = document.getElementById("iconsTray");
+      var st1Heading = document.getElementById("st1Heading");
+      var st1Subtitle = document.getElementById("st1Subtitle");
+      var sw1 = document.getElementById("sw1");
+      var sw2 = document.getElementById("sw2");
+      var sw3 = document.getElementById("sw3");
+      var leg1 = document.getElementById("leg1");
+      var leg2 = document.getElementById("leg2");
+      var leg3 = document.getElementById("leg3");
+      var axis1 = document.getElementById("axis1");
+      var st1ExpLabel = document.getElementById("st1ExpLabel");
+      var st1EFormula = document.getElementById("st1EFormula");
+      var st1SDFormula = document.getElementById("st1SDFormula");
+      var st1ObsLabel = document.getElementById("st1ObsLabel");
+      var st1SampleFormula = document.getElementById("st1SampleFormula");
+      var st1ErrFormula = document.getElementById("st1ErrFormula");
+      var st1E = document.getElementById("st1E");
+      var st1SD = document.getElementById("st1SD");
+      var st1O = document.getElementById("st1O");
+      var st1Err = document.getElementById("st1Err");
+      var st1Note = document.getElementById("st1Note");
+      var st2Subtitle = document.getElementById("st2Subtitle");
+      var st2ZLabel = document.getElementById("st2ZLabel");
+      var st2ZFormula = document.getElementById("st2ZFormula");
+      var st2Z = document.getElementById("st2Z");
+      var st2Z2 = document.getElementById("st2Z2");
+      var st2Pearson = document.getElementById("st2Pearson");
+      var chiStatus = document.getElementById("chiStatus");
+      var proofHeader = document.getElementById("proofHeader");
+      var proofIdentity = document.getElementById("proofIdentity");
+      var proofIdentityB = document.getElementById("proofIdentityB");
+      var proofNumeric = document.getElementById("proofNumeric");
+      var catList = document.getElementById("catList");
+      var canvas1 = document.getElementById("canvasStage1");
+      var canvas2Top = document.getElementById("canvasStage2Top");
+      var canvas2Bot = document.getElementById("canvasStage2Bot");
+      var canvas3 = document.getElementById("canvasStage3");
+
+      var logFact = new Float64Array(105);
+      logFact[0] = 0;
+      for (var fi = 1; fi <= 100; fi++) {
+        logFact[fi] = logFact[fi - 1] + Math.log(fi);
+      }
+
+      function binomialPMF(n, k, p) {
+        if (p <= 0) return k === 0 ? 1 : 0;
+        if (p >= 1) return k === n ? 1 : 0;
+        if (k < 0 || k > n) return 0;
+        var logProb = logFact[n] - logFact[k] - logFact[n - k] + k * Math.log(p) + (n - k) * Math.log(1 - p);
+        return Math.exp(logProb);
+      }
+
+      function normalPDF(x, mean, sd) {
+        if (sd <= 0) return 0;
+        var z = (x - mean) / sd;
+        return (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * z * z);
+      }
+
+      function chiSquarePDF(x, df) {
+        if (x <= 0) return 0;
+        if (df === 1) {
+          return (1 / Math.sqrt(2 * Math.PI * x)) * Math.exp(-0.5 * x);
+        }
+        if (df === 5) {
+          return (Math.pow(x, 1.5) / (3 * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * x);
+        }
+        return 0;
+      }
+
+      function subOf(idx) {
+        return String(idx + 1);
+      }
+
+      function getFocusedZ() {
+        if (state.lastObs === null) return null;
+        var idx = state.focusedIdx;
+        var p = state.probs[idx];
+        var E = state.expected[idx];
+        var O = state.lastObs[idx];
+        var sd = Math.sqrt(state.n * p * (1 - p));
+        return sd > 0 ? (O - E) / sd : 0;
+      }
+
+      function signNum(value, digits) {
+        var text = value.toFixed(digits);
+        return value >= 0 ? "+" + text : text;
+      }
+
+      function palette() {
+        return {
+          blue: statsViz.color("group-a"),
+          blueSoft: statsViz.rgba("group-a", 0.55),
+          blueFaint: statsViz.rgba("group-a", 0.38),
+          density: statsViz.color("density"),
+          red: statsViz.color("mean"),
+          redSoft: statsViz.rgba("mean", 0.45),
+          redWash: statsViz.rgba("mean", 0.16),
+          amber: statsViz.color("highlight"),
+          amberWash: statsViz.rgba("highlight", 0.16),
+          violet: statsViz.color("median"),
+          violetSoft: statsViz.rgba("median", 0.55),
+          grid: statsViz.rgba("reference", 0.4),
+          axis: statsViz.color("reference"),
+          ink: statsViz.color("total")
+        };
+      }
+
+      function setFocusedCategory(idx) {
+        if (idx >= 0 && idx < state.k) {
+          state.focusedIdx = idx;
+          updateDynamicCaptions();
+          updateReadouts();
+          renderSampleIcons();
+          renderAllCanvases();
+        }
+      }
+
+      function updateParameters(clearSims) {
+        if (state.animating && clearSims) {
+          cancelAnimationFrame(state.animFrameId);
+          state.animating = false;
+          btnRun1000.disabled = false;
+          btnRun1000.textContent = "Run 1,000 samples";
+        }
+
+        state.n = Math.min(100, Math.max(5, parseInt(sliderN.value, 10)));
+        state.p1 = parseFloat(sliderP.value);
+        if (state.focusedIdx >= state.k) state.focusedIdx = 0;
+
+        valN.textContent = String(state.n);
+        valP.textContent = state.p1.toFixed(2);
+        var df = state.k - 1;
+        valDf.textContent = "df = " + df;
+        legDf.textContent = String(df);
+
+        if (state.k === 2) {
+          state.probs = [state.p1, 1 - state.p1];
+        } else {
+          var rem = (1 - state.p1) / 5;
+          state.probs = [state.p1, rem, rem, rem, rem, rem];
+        }
+        state.expected = state.probs.map(function (p) { return state.n * p; });
+
+        if (clearSims) {
+          state.lastObs = null;
+          state.lastRolls = null;
+          state.lastChiSq = null;
+          state.chiSqHistory = [];
+        }
+
+        updateDynamicCaptions();
+        updateRuleBadge();
+        updateReadouts();
+        renderSampleIcons();
+        renderAllCanvases();
+      }
+
+      function updateDynamicCaptions() {
+        var n = state.n;
+        var k = state.k;
+        var focusedIdx = state.focusedIdx;
+        var stage1Mode = state.stage1Mode;
+        var probs = state.probs;
+        var meta = categoryMeta(k);
+        var sub = subOf(focusedIdx);
+        var focusedShort = meta.shortNames[focusedIdx];
+        var focusedP = probs[focusedIdx];
+
+        setTex(
+          labelSliderP,
+          k === 2
+            ? "Category 1 probability, heads ($p_1$)"
+            : "Category 1 probability, face 1 ($p_1$)"
+        );
+
+        setTex(
+          processBadge,
+          k === 2
+            ? "Binomial process: $O_1 \\sim \\mathrm{Binomial}(n, p_1)$, with $k = 2$ and $df = 1$."
+            : "Multinomial process: $(O_1,\\ldots,O_6) \\sim \\mathrm{Multinomial}(n; p_1,\\ldots,p_6)$. Each $O_i$ is marginally $\\mathrm{Binomial}(n, p_i)$."
+        );
+
+        if (stage1Mode === "binomial") {
+          st1Heading.textContent = "Raw counts (marginal binomial)";
+          setTex(st1Subtitle, "Exact $\\mathrm{Binomial}(n, p_{" + sub + "})$ probabilities for " + focusedShort + ".");
+          sw1.className = "swatch";
+          sw2.className = "swatch is-expected";
+          sw3.className = "swatch is-observed";
+          leg1.textContent = "Probability of the focused count";
+          leg2.textContent = "Expected count";
+          leg3.textContent = "Observed count";
+          axis1.textContent = "Horizontal axis: count of the focused category. Vertical axis: probability.";
+          setTex(
+            st1Note,
+            k === 2
+              ? "Each bar is the exact probability of $x$ outcomes in the focused category across $n$ trials."
+              : "One face against every other face is a binomial count. $O_{" + sub + "}$ follows $\\mathrm{Binomial}(n, p_{" + sub + "})$ with $p_{" + sub + "} = " + focusedP.toFixed(3) + "$. Joint multinomial shows all six faces at once."
+          );
+        } else {
+          st1Heading.textContent = "Joint counts (multinomial)";
+          setTex(st1Subtitle, "Expected $E_i = np_i$ and observed $O_i$. The counts sum to $n$.");
+          sw1.className = "swatch";
+          sw2.className = "swatch is-observed-soft";
+          sw3.className = "swatch is-observed";
+          leg1.textContent = "Expected count";
+          leg2.textContent = "Observed count";
+          leg3.textContent = "Focused category";
+          axis1.textContent = "Horizontal axis: category. Vertical axis: count.";
+          setTex(
+            st1Note,
+            "The $k = " + k + "$ categories share the same $n = " + n + "$ trials. If one count rises above $E_i$, another falls, so the errors sum to 0."
+          );
+        }
+
+        st1ExpLabel.textContent = "Expected count (" + focusedShort + ")";
+        setTex(st1EFormula, "$E_{" + sub + "} = n \\cdot p_{" + sub + "} =$");
+        setTex(st1SDFormula, "$\\mathrm{SD} = \\sqrt{n\\, p_{" + sub + "}(1-p_{" + sub + "})} =$");
+        st1ObsLabel.textContent = "Current sample (" + focusedShort + ")";
+        setTex(st1SampleFormula, "$O_{" + sub + "} =$");
+        setTex(st1ErrFormula, "$O_{" + sub + "} - E_{" + sub + "} =$");
+        setTex(st2Subtitle, "The central limit theorem, in standard units for " + focusedShort + ".");
+        setTex(st2ZLabel, focusedShort.charAt(0).toUpperCase() + focusedShort.slice(1) + ", binomial $Z_{" + sub + "}$");
+        setTex(st2ZFormula, "$Z_{" + sub + "} = \\frac{O_{" + sub + "} - E_{" + sub + "}}{\\sqrt{n p_{" + sub + "}(1-p_{" + sub + "})}} =$");
+
+        if (k === 2) {
+          setTex(captionK, "Category 1 is heads, with probability $p_1$. Category 2 is tails, with probability $1 - p_1$.");
+        } else {
+          var remP = ((1 - state.p1) / 5).toFixed(3);
+          setTex(captionK, "Face 1 has probability $p_1$. Faces 2–6 share the rest equally, $" + remP + "$ each. Select a face to focus its marginal binomial.");
+        }
+
+        if (n < 15) {
+          setTex(captionN, "Small $n$ (" + n + "): the steps are coarse, and the normal and $\\chi^2$ approximations are rough.");
+        } else if (n < 60) {
+          setTex(captionN, "Moderate $n$ (" + n + "): the binomial bars sit close to the bell curve.");
+        } else {
+          setTex(captionN, "Large $n$ (" + n + "): the central limit theorem pulls the count close to the normal curve.");
+        }
+
+        if (focusedP < 0.2 || focusedP > 0.8) {
+          setTex(captionP, "Focused $p_{" + sub + "} = " + focusedP.toFixed(2) + "$ is far from one half, so the count stays skewed until $n$ is large enough that every expected count is at least 5.");
+        } else {
+          setTex(captionP, "Focused $p_{" + sub + "} = " + focusedP.toFixed(2) + "$ is near one half, so the count is nearly symmetric about its expectation.");
+        }
+      }
+
+      function updateRuleBadge() {
+        var minE = Math.min.apply(null, state.expected);
+        var minText = minE.toFixed(2);
+        ruleBadge.className = "rule";
+        if (minE >= 5) {
+          ruleBadge.classList.add("is-valid");
+          setTex(ruleBadge, "Cochran’s rule: every $E_i \\ge 5$. Minimum $E = " + minText + "$.");
+        } else if (minE >= 2.5) {
+          ruleBadge.classList.add("is-warn");
+          setTex(ruleBadge, "Cochran’s rule: minimum $E = " + minText + "$, below 5. The normal and $\\chi^2$ approximations are distorted.");
+        } else {
+          ruleBadge.classList.add("is-bad");
+          setTex(ruleBadge, "Cochran’s rule: minimum $E = " + minText + "$, below 5. The normal and $\\chi^2$ approximations break down.");
+        }
+      }
+
+      function simulateOneTrial() {
+        var n = state.n;
+        var probs = state.probs;
+        var expected = state.expected;
+        var k = state.k;
+        var obs = new Array(k).fill(0);
+        var rolls = new Array(n);
+        var cdf = [];
+        var acc = 0;
+        for (var i = 0; i < k; i++) {
+          acc += probs[i];
+          cdf.push(acc);
+        }
+        for (var t = 0; t < n; t++) {
+          var r = Math.random();
+          for (var c = 0; c < k; c++) {
+            if (r <= cdf[c] || c === k - 1) {
+              obs[c] += 1;
+              rolls[t] = c;
+              break;
+            }
+          }
+        }
+        var chiSq = 0;
+        for (var j = 0; j < k; j++) {
+          if (expected[j] > 0) {
+            var diff = obs[j] - expected[j];
+            chiSq += (diff * diff) / expected[j];
+          }
+        }
+        state.lastObs = obs;
+        state.lastRolls = rolls;
+        state.lastChiSq = chiSq;
+        state.chiSqHistory.push(chiSq);
+      }
+
+      function runBatch1000() {
+        if (state.animating) return;
+        state.animating = true;
+        btnRun1000.disabled = true;
+        btnRun1000.textContent = "Running";
+        var remaining = 1000;
+        var perFrame = 40;
+
+        function step() {
+          var count = Math.min(perFrame, remaining);
+          for (var i = 0; i < count; i++) simulateOneTrial();
+          remaining -= count;
+          updateReadouts();
+          renderSampleIcons();
+          renderAllCanvases();
+          if (remaining > 0 && state.animating) {
+            state.animFrameId = requestAnimationFrame(step);
+          } else {
+            state.animating = false;
+            btnRun1000.disabled = false;
+            btnRun1000.textContent = "Run 1,000 samples";
+          }
+        }
+
+        state.animFrameId = requestAnimationFrame(step);
+      }
+
+      function renderSampleIcons() {
+        var n = state.n;
+        var k = state.k;
+        var focusedIdx = state.focusedIdx;
+        var lastObs = state.lastObs;
+        var lastRolls = state.lastRolls;
+        var drawn = state.chiSqHistory.length;
+        var meta = categoryMeta(k);
+        var heading = "Latest sample ($n = " + n + "$ " + meta.trialName + ")";
+        if (drawn > 0) heading += ", draw " + drawn.toLocaleString("en-US");
+        setTex(sampleHeading, heading);
+
+        samplePills.innerHTML = "";
+        for (var i = 0; i < k; i++) {
+          var pill = document.createElement("button");
+          pill.type = "button";
+          pill.className = "pill" + (i === focusedIdx ? " is-focused" : "");
+          pill.setAttribute("data-cat-idx", String(i));
+          pill.setAttribute("aria-pressed", i === focusedIdx ? "true" : "false");
+          var countText = lastObs ? String(lastObs[i]) : "—";
+          pill.textContent = meta.labels[i] + ": " + countText;
+          samplePills.appendChild(pill);
+        }
+
+        if (!lastObs || !lastRolls) {
+          iconsTray.innerHTML = "<p class=\"icons-empty\">Run 1 sample, or run 1,000 samples, to see each " + (k === 2 ? "flip" : "roll") + ".</p>";
+          return;
+        }
+
+        var list = document.createElement("ul");
+        list.className = "tokens";
+        for (var t = 0; t < lastRolls.length; t++) {
+          var outcome = lastRolls[t];
+          var item = document.createElement("li");
+          var token = document.createElement("span");
+          token.className = "token " + (k === 2 ? "is-coin" : "is-die") + (outcome === focusedIdx ? " is-focused" : "");
+          token.textContent = k === 2 ? (outcome === 0 ? "H" : "T") : String(outcome + 1);
+          token.title = "Trial " + (t + 1) + ": " + meta.labels[outcome];
+          item.appendChild(token);
+          list.appendChild(item);
+        }
+        iconsTray.innerHTML = "";
+        iconsTray.appendChild(list);
+      }
+
+      function fieldSpan(label, value) {
+        var field = document.createElement("span");
+        field.className = "cat-field";
+        var lab = document.createElement("span");
+        lab.className = "cat-lab";
+        lab.textContent = label;
+        var num = document.createElement("span");
+        num.className = "cat-num";
+        num.textContent = value;
+        field.appendChild(lab);
+        field.appendChild(num);
+        return field;
+      }
+
+      function updateReadouts() {
+        var n = state.n;
+        var expected = state.expected;
+        var lastObs = state.lastObs;
+        var lastChiSq = state.lastChiSq;
+        var k = state.k;
+        var probs = state.probs;
+        var focusedIdx = state.focusedIdx;
+        var meta = categoryMeta(k);
+        var sub = subOf(focusedIdx);
+        var pFocus = probs[focusedIdx];
+        var EFocus = expected[focusedIdx];
+        var sdFocus = Math.sqrt(n * pFocus * (1 - pFocus));
+        var zFocus = getFocusedZ();
+
+        st1E.textContent = EFocus.toFixed(2);
+        st1SD.textContent = sdFocus.toFixed(2);
+        var drawn = state.chiSqHistory.length;
+        valSimCount.textContent = drawn.toLocaleString("en-US") + (drawn === 1 ? " sample" : " samples");
+
+        if (lastObs !== null && zFocus !== null) {
+          var OFocus = lastObs[focusedIdx];
+          var err = OFocus - EFocus;
+          var pearsonCell = EFocus > 0 ? (err * err) / EFocus : 0;
+          st1O.textContent = String(OFocus);
+          st1Err.textContent = signNum(err, 2);
+          st2Z.textContent = signNum(zFocus, 3);
+          st2Z2.textContent = (zFocus * zFocus).toFixed(3);
+          st2Pearson.textContent = pearsonCell.toFixed(3);
+        } else {
+          st1O.textContent = "—";
+          st1Err.textContent = "—";
+          st2Z.textContent = "—";
+          st2Z2.textContent = "—";
+          st2Pearson.textContent = "—";
+        }
+
+        if (k === 2) {
+          setTex(proofHeader, "When $k = 2$, $Z^2 = \\chi^2$.");
+          setTex(proofIdentity, "$Z^2 = \\frac{(O_1-E_1)^2}{np(1-p)}$");
+          setTex(proofIdentityB, "$= \\sum_i \\frac{(O_i-E_i)^2}{E_i}$");
+          if (lastObs !== null && zFocus !== null) {
+            var term1 = Math.pow(lastObs[0] - expected[0], 2) / expected[0];
+            var term2 = Math.pow(lastObs[1] - expected[1], 2) / expected[1];
+            setTex(
+              proofNumeric,
+              "This draw: $Z_{" + sub + "}^2 = " + (zFocus * zFocus).toFixed(3) + "$, and $" + term1.toFixed(3) + " + " + term2.toFixed(3) + " = \\chi^2 = " + lastChiSq.toFixed(3) + "$."
+            );
+          } else {
+            setTex(
+              proofNumeric,
+              "Because $O_2 - E_2 = -(O_1 - E_1)$, the two Pearson cells add to the squared binomial $Z$."
+            );
+          }
+        } else {
+          setTex(proofHeader, "Six marginal binomials, one multinomial, $df = 5$.");
+          setTex(proofIdentity, "$\\chi^2 = \\sum_{i=1}^{6} \\frac{(O_i - E_i)^2}{E_i}$");
+          setTex(proofIdentityB, "");
+          if (lastObs !== null && zFocus !== null && EFocus > 0) {
+            var cellTerm = Math.pow(lastObs[focusedIdx] - EFocus, 2) / EFocus;
+            setTex(
+              proofNumeric,
+              "For " + meta.shortNames[focusedIdx] + ", $Z_{" + sub + "}^2 = " + (zFocus * zFocus).toFixed(3) + "$ divides by $E_{" + sub + "}(1-p_{" + sub + "})$. The Pearson term $" + cellTerm.toFixed(3) + "$ divides by $E_{" + sub + "}$ alone. The sum of all six cells is $\\chi^2 = " + lastChiSq.toFixed(3) + "$. Covariance of two distinct counts is $-np_i p_j$."
+            );
+          } else {
+            setTex(
+              proofNumeric,
+              "Each face count is marginally binomial. The counts are tied by errors that sum to 0 and $\\mathrm{Cov}(O_i, O_j) = -np_i p_j$, so $df = 5$."
+            );
+          }
+        }
+
+        catList.innerHTML = "";
+        for (var i = 0; i < k; i++) {
+          var li = document.createElement("li");
+          var card = document.createElement("button");
+          card.type = "button";
+          card.className = "cat-card" + (i === focusedIdx ? " is-focused" : "");
+          card.setAttribute("data-cat-idx", String(i));
+          card.setAttribute("aria-pressed", i === focusedIdx ? "true" : "false");
+          var name = document.createElement("span");
+          name.className = "cat-name";
+          name.textContent = (i === focusedIdx ? "Focused: " : "") + meta.labels[i];
+          var fields = document.createElement("span");
+          fields.className = "cat-fields";
+          var oVal = lastObs !== null ? String(lastObs[i]) : "—";
+          var errVal = lastObs !== null ? signNum(lastObs[i] - expected[i], 2) : "—";
+          var compVal = lastObs !== null && expected[i] > 0
+            ? (Math.pow(lastObs[i] - expected[i], 2) / expected[i]).toFixed(3)
+            : "—";
+          fields.appendChild(fieldSpan("pᵢ", probs[i].toFixed(3)));
+          fields.appendChild(fieldSpan("Eᵢ", expected[i].toFixed(2)));
+          fields.appendChild(fieldSpan("Oᵢ", oVal));
+          fields.appendChild(fieldSpan("Oᵢ − Eᵢ", errVal));
+          fields.appendChild(fieldSpan("Pearson term", compVal));
+          card.appendChild(name);
+          card.appendChild(fields);
+          li.appendChild(card);
+          catList.appendChild(li);
+        }
+        if (lastObs !== null) {
+          var totalLi = document.createElement("li");
+          var total = document.createElement("div");
+          total.className = "cat-total";
+          var totalName = document.createElement("span");
+          totalName.className = "cat-name";
+          totalName.textContent = "Total";
+          var totalFields = document.createElement("span");
+          totalFields.className = "cat-fields";
+          totalFields.appendChild(fieldSpan("Σ pᵢ", "1.000"));
+          totalFields.appendChild(fieldSpan("Σ Eᵢ", n.toFixed(2)));
+          totalFields.appendChild(fieldSpan("Σ Oᵢ", String(n)));
+          totalFields.appendChild(fieldSpan("Σ (Oᵢ − Eᵢ)", "0.00"));
+          totalFields.appendChild(fieldSpan("χ²", lastChiSq.toFixed(3)));
+          total.appendChild(totalName);
+          total.appendChild(totalFields);
+          totalLi.appendChild(total);
+          catList.appendChild(totalLi);
+        }
+
+        if (state.chiSqHistory.length === 0) {
+          chiStatus.textContent = "Horizontal axis: chi-square statistic. Vertical axis: density. No samples yet. The curve is the theoretical chi-square density.";
+        } else {
+          chiStatus.textContent = "Horizontal axis: chi-square statistic. Vertical axis: density. " +
+            state.chiSqHistory.length.toLocaleString("en-US") + " draws. Current χ² = " +
+            (lastChiSq === null ? "—" : lastChiSq.toFixed(3)) + ".";
+        }
+      }
+
+      function setupCanvas(canvas) {
+        var dpr = window.devicePixelRatio || 1;
+        var rect = canvas.getBoundingClientRect();
+        var w = rect.width;
+        var h = rect.height;
+        if (w < 2 || h < 2) return null;
+        var bw = Math.round(w * dpr);
+        var bh = Math.round(h * dpr);
+        if (canvas.width !== bw || canvas.height !== bh) {
+          canvas.width = bw;
+          canvas.height = bh;
+        }
+        var ctx = canvas.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx: ctx, w: w, h: h };
+      }
+
+      function renderMultinomialJointChart(canvas) {
+        var setup = setupCanvas(canvas);
+        if (!setup) return;
+        var ctx = setup.ctx;
+        var w = setup.w;
+        var h = setup.h;
+        var colors = palette();
+        ctx.clearRect(0, 0, w, h);
+
+        var k = state.k;
+        var expected = state.expected;
+        var lastObs = state.lastObs;
+        var focusedIdx = state.focusedIdx;
+        var n = state.n;
+        var pad = { top: 26, right: 16, bottom: 36, left: 42 };
+        var plotW = w - pad.left - pad.right;
+        var plotH = h - pad.top - pad.bottom;
+        var maxY = Math.max.apply(null, expected) * 1.45;
+        if (lastObs) maxY = Math.max(maxY, Math.max.apply(null, lastObs) * 1.2);
+        maxY = Math.max(maxY, 8);
+        function yToPx(y) { return pad.top + plotH - (y / maxY) * plotH; }
+
+        ctx.strokeStyle = colors.grid;
+        ctx.lineWidth = 1;
+        ctx.fillStyle = colors.axis;
+        ctx.font = "11px Arial, Helvetica, sans-serif";
+        ctx.textAlign = "right";
+        for (var tick = 0; tick <= 4; tick++) {
+          var val = (maxY / 4) * tick;
+          var py = yToPx(val);
+          ctx.beginPath();
+          ctx.moveTo(pad.left, py);
+          ctx.lineTo(w - pad.right, py);
+          ctx.stroke();
+          ctx.fillText(val.toFixed(0), pad.left - 6, py + 4);
+        }
+
+        var groupW = plotW / k;
+        var barW = Math.min(28, groupW * 0.34);
+        for (var i = 0; i < k; i++) {
+          var cx = pad.left + (i + 0.5) * groupW;
+          var isFocused = i === focusedIdx;
+          var expVal = expected[i];
+          var expY = yToPx(expVal);
+          var expH = pad.top + plotH - expY;
+          if (isFocused) {
+            ctx.fillStyle = colors.redWash;
+            ctx.fillRect(pad.left + i * groupW + 2, pad.top, groupW - 4, plotH);
+          }
+          ctx.fillStyle = colors.blueSoft;
+          ctx.strokeStyle = colors.density;
+          ctx.lineWidth = 1.2;
+          ctx.fillRect(cx - barW - 2, expY, barW, expH);
+          ctx.strokeRect(cx - barW - 2, expY, barW, expH);
+          if (lastObs !== null) {
+            var obsVal = lastObs[i];
+            var obsY = yToPx(obsVal);
+            var obsH = pad.top + plotH - obsY;
+            ctx.fillStyle = isFocused ? colors.red : colors.redSoft;
+            ctx.strokeStyle = colors.red;
+            ctx.fillRect(cx + 2, obsY, barW, obsH);
+            ctx.strokeRect(cx + 2, obsY, barW, obsH);
+            var diff = obsVal - expVal;
+            ctx.fillStyle = isFocused ? colors.red : colors.ink;
+            ctx.font = (isFocused ? "bold " : "") + "10px Arial, Helvetica, sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText((diff >= 0 ? "+" : "") + diff.toFixed(1), cx, Math.min(expY, obsY) - 5);
+          }
+          ctx.fillStyle = isFocused ? colors.red : colors.ink;
+          ctx.font = (isFocused ? "bold " : "") + "12px Arial, Helvetica, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(k === 2 ? (i === 0 ? "Heads" : "Tails") : String(i + 1), cx, h - 12);
+        }
+
+        ctx.fillStyle = colors.axis;
+        ctx.font = "bold 11px Arial, Helvetica, sans-serif";
+        ctx.textAlign = "right";
+        var banner = "Errors sum to 0";
+        if (ctx.measureText(banner).width < plotW) {
+          ctx.fillText(banner, w - pad.right, pad.top - 8);
+        }
+        canvas.setAttribute("aria-label", "Joint counts for " + k + " categories. Expected and observed. Sample size " + n + ".");
+      }
+
+      function renderBinomialChart(canvas, showNormalCurve) {
+        var setup = setupCanvas(canvas);
+        if (!setup) return;
+        var ctx = setup.ctx;
+        var w = setup.w;
+        var h = setup.h;
+        var colors = palette();
+        ctx.clearRect(0, 0, w, h);
+
+        var n = state.n;
+        var focusedIdx = state.focusedIdx;
+        var pFocus = state.probs[focusedIdx];
+        var EFocus = state.expected[focusedIdx];
+        var sdFocus = Math.sqrt(n * pFocus * (1 - pFocus));
+        var sub = subOf(focusedIdx);
+        var pad = { top: 32, right: 12, bottom: 28, left: 42 };
+        var plotW = w - pad.left - pad.right;
+        var plotH = h - pad.top - pad.bottom;
+        var xMin = 0;
+        var xMax = n;
+        if (n > 45) {
+          xMin = Math.max(0, Math.floor(EFocus - 4.5 * sdFocus));
+          xMax = Math.min(n, Math.ceil(EFocus + 4.5 * sdFocus));
+          if (state.lastObs !== null) {
+            xMin = Math.min(xMin, Math.max(0, state.lastObs[focusedIdx] - 2));
+            xMax = Math.max(xMax, Math.min(n, state.lastObs[focusedIdx] + 2));
+          }
+        }
+        var numBars = xMax - xMin + 1;
+        var maxY = 0;
+        var pmfVals = [];
+        for (var x = xMin; x <= xMax; x++) {
+          var prob = binomialPMF(n, x, pFocus);
+          pmfVals.push({ x: x, prob: prob });
+          if (prob > maxY) maxY = prob;
+        }
+        var peakNormal = normalPDF(EFocus, EFocus, sdFocus);
+        if (showNormalCurve && peakNormal > maxY) maxY = peakNormal;
+        maxY = Math.max(maxY * 1.15, 0.05);
+
+        function xToPx(xVal) { return pad.left + ((xVal - xMin + 0.5) / numBars) * plotW; }
+        function yToPx(yVal) { return pad.top + plotH - (yVal / maxY) * plotH; }
+        var barW = Math.max(2, Math.min(28, (plotW / numBars) * 0.78));
+
+        ctx.strokeStyle = colors.grid;
+        ctx.lineWidth = 1;
+        ctx.fillStyle = colors.axis;
+        ctx.font = "11px Arial, Helvetica, sans-serif";
+        ctx.textAlign = "right";
+        for (var tick = 0; tick <= 4; tick++) {
+          var val = (maxY / 4) * tick;
+          var py = yToPx(val);
+          ctx.beginPath();
+          ctx.moveTo(pad.left, py);
+          ctx.lineTo(w - pad.right, py);
+          ctx.stroke();
+          ctx.fillText(val.toFixed(2), pad.left - 6, py + 4);
+        }
+
+        var obsX = state.lastObs !== null ? state.lastObs[focusedIdx] : null;
+        var roundE = Math.round(EFocus);
+        for (var b = 0; b < pmfVals.length; b++) {
+          var item = pmfVals[b];
+          var cx = xToPx(item.x);
+          var barTop = yToPx(item.prob);
+          var bh = pad.top + plotH - barTop;
+          if (obsX !== null && item.x === obsX) {
+            ctx.fillStyle = colors.red;
+            ctx.strokeStyle = colors.red;
+          } else if (item.x === roundE) {
+            ctx.fillStyle = colors.density;
+            ctx.strokeStyle = colors.density;
+          } else {
+            ctx.fillStyle = showNormalCurve ? colors.blueFaint : colors.blueSoft;
+            ctx.strokeStyle = colors.blue;
+          }
+          ctx.fillRect(cx - barW / 2, barTop, barW, bh);
+          if (barW > 4) ctx.strokeRect(cx - barW / 2, barTop, barW, bh);
+        }
+
+        var exPx = xToPx(EFocus);
+        ctx.save();
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = colors.density;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(exPx, pad.top);
+        ctx.lineTo(exPx, pad.top + plotH);
+        ctx.stroke();
+        ctx.restore();
+
+        if (obsX !== null) {
+          var oxPx = xToPx(obsX);
+          var arrowY = 16;
+          ctx.strokeStyle = colors.red;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(exPx, arrowY);
+          ctx.lineTo(oxPx, arrowY);
+          ctx.stroke();
+          var err = obsX - EFocus;
+          var midX = Math.max(pad.left + 36, Math.min(w - pad.right - 36, (exPx + oxPx) / 2));
+          ctx.fillStyle = colors.red;
+          ctx.font = "bold 11px Arial, Helvetica, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("O" + sub + " − E" + sub + " = " + (err >= 0 ? "+" : "") + err.toFixed(1), midX, arrowY - 4);
+        }
+
+        if (showNormalCurve && sdFocus > 0) {
+          ctx.strokeStyle = colors.amber;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          var steps = 160;
+          for (var s = 0; s <= steps; s++) {
+            var xVal = (xMin - 0.5) + (s / steps) * numBars;
+            var yVal = normalPDF(xVal, EFocus, sdFocus);
+            var px = pad.left + (s / steps) * plotW;
+            var yPx = yToPx(yVal);
+            if (s === 0) ctx.moveTo(px, yPx);
+            else ctx.lineTo(px, yPx);
+          }
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = colors.axis;
+        ctx.font = "11px Arial, Helvetica, sans-serif";
+        ctx.textAlign = "center";
+        var stepX = Math.max(1, Math.ceil(numBars / 8));
+        for (var tickX = xMin; tickX <= xMax; tickX += stepX) {
+          ctx.fillText(String(tickX), xToPx(tickX), h - 8);
+        }
+        canvas.setAttribute(
+          "aria-label",
+          (showNormalCurve ? "Binomial probabilities with a normal curve" : "Binomial probabilities") +
+            " for category " + sub + ". Expectation " + EFocus.toFixed(2) + "."
+        );
+      }
+
+      function renderZChart() {
+        var setup = setupCanvas(canvas2Bot);
+        if (!setup) return;
+        var ctx = setup.ctx;
+        var w = setup.w;
+        var h = setup.h;
+        var colors = palette();
+        ctx.clearRect(0, 0, w, h);
+
+        var pad = { top: 24, right: 12, bottom: 26, left: 36 };
+        var plotW = w - pad.left - pad.right;
+        var plotH = h - pad.top - pad.bottom;
+        var zMin = -4;
+        var zMax = 4;
+        var maxY = 0.45;
+        function zToPx(z) { return pad.left + ((z - zMin) / (zMax - zMin)) * plotW; }
+        function yToPx(y) { return pad.top + plotH - (y / maxY) * plotH; }
+
+        ctx.strokeStyle = colors.grid;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, pad.top + plotH);
+        ctx.lineTo(w - pad.right, pad.top + plotH);
+        ctx.stroke();
+
+        ctx.beginPath();
+        var steps = 150;
+        for (var i = 0; i <= steps; i++) {
+          var z = zMin + (i / steps) * (zMax - zMin);
+          var y = normalPDF(z, 0, 1);
+          var px = zToPx(z);
+          var py = yToPx(y);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = colors.amber;
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+        ctx.lineTo(zToPx(zMax), pad.top + plotH);
+        ctx.lineTo(zToPx(zMin), pad.top + plotH);
+        ctx.closePath();
+        ctx.fillStyle = colors.amberWash;
+        ctx.fill();
+
+        var zeroPx = zToPx(0);
+        ctx.save();
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = colors.axis;
+        ctx.beginPath();
+        ctx.moveTo(zeroPx, pad.top);
+        ctx.lineTo(zeroPx, pad.top + plotH);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.fillStyle = colors.axis;
+        ctx.font = "11px Arial, Helvetica, sans-serif";
+        ctx.textAlign = "center";
+        for (var zt = -3; zt <= 3; zt++) ctx.fillText(String(zt), zToPx(zt), h - 8);
+
+        var sub = subOf(state.focusedIdx);
+        ctx.fillStyle = colors.ink;
+        ctx.textAlign = "left";
+        ctx.font = "bold 11px Arial, Helvetica, sans-serif";
+        ctx.fillText("Z" + sub + " ~ N(0, 1)", pad.left + 4, pad.top + 12);
+
+        var zFocus = getFocusedZ();
+        if (zFocus !== null) {
+          var clampedZ = Math.max(zMin, Math.min(zMax, zFocus));
+          var zx = zToPx(clampedZ);
+          var zy = yToPx(normalPDF(clampedZ, 0, 1));
+          ctx.strokeStyle = colors.red;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(zx, pad.top + plotH);
+          ctx.lineTo(zx, zy);
+          ctx.stroke();
+          ctx.fillStyle = colors.red;
+          ctx.beginPath();
+          ctx.arc(zx, zy, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.font = "bold 11px Arial, Helvetica, sans-serif";
+          ctx.textAlign = clampedZ > 2.2 ? "right" : (clampedZ < -2.2 ? "left" : "center");
+          ctx.fillText("Z" + sub + " = " + zFocus.toFixed(2), zx, Math.max(pad.top + 12, zy - 8));
+        }
+        canvas2Bot.setAttribute("aria-label", zFocus === null
+          ? "Standard normal curve. No sample yet."
+          : "Standard normal curve. Focused z score " + zFocus.toFixed(2) + ".");
+      }
+
+      function renderChiSquareChart() {
+        var setup = setupCanvas(canvas3);
+        if (!setup) return;
+        var ctx = setup.ctx;
+        var w = setup.w;
+        var h = setup.h;
+        var colors = palette();
+        ctx.clearRect(0, 0, w, h);
+
+        var df = state.k - 1;
+        var history = state.chiSqHistory;
+        var pad = { top: 22, right: 12, bottom: 28, left: 42 };
+        var plotW = w - pad.left - pad.right;
+        var plotH = h - pad.top - pad.bottom;
+        var xMax = df === 1 ? 10 : 18;
+        var numBins = 28;
+        var binWidth = xMax / numBins;
+        var bins = new Array(numBins).fill(0);
+        if (history.length > 0) {
+          for (var i = 0; i < history.length; i++) {
+            var sample = history[i];
+            if (sample >= 0 && sample < xMax) {
+              var idx = Math.min(numBins - 1, Math.floor(sample / binWidth));
+              bins[idx] += 1;
+            }
+          }
+        }
+        var densities = bins.map(function (count) {
+          return history.length > 0 ? count / (history.length * binWidth) : 0;
+        });
+        var maxY = df === 1 ? 0.9 : 0.25;
+        for (var d = 0; d < densities.length; d++) {
+          if (densities[d] > maxY) maxY = Math.min(1.4, densities[d] * 1.1);
+        }
+        function xToPx(x) { return pad.left + (x / xMax) * plotW; }
+        function yToPx(y) { return pad.top + plotH - (Math.min(y, maxY) / maxY) * plotH; }
+
+        ctx.strokeStyle = colors.grid;
+        ctx.lineWidth = 1;
+        ctx.fillStyle = colors.axis;
+        ctx.font = "11px Arial, Helvetica, sans-serif";
+        ctx.textAlign = "right";
+        for (var tick = 0; tick <= 4; tick++) {
+          var val = (maxY / 4) * tick;
+          var py = yToPx(val);
+          ctx.beginPath();
+          ctx.moveTo(pad.left, py);
+          ctx.lineTo(w - pad.right, py);
+          ctx.stroke();
+          ctx.fillText(val.toFixed(2), pad.left - 6, py + 4);
+        }
+
+        var pxBinW = plotW / numBins;
+        for (var b = 0; b < numBins; b++) {
+          if (densities[b] <= 0) continue;
+          var px = pad.left + b * pxBinW;
+          var barTop = yToPx(densities[b]);
+          var bh = pad.top + plotH - barTop;
+          ctx.fillStyle = colors.violetSoft;
+          ctx.strokeStyle = colors.violet;
+          ctx.lineWidth = 1;
+          ctx.fillRect(px + 1, barTop, Math.max(1, pxBinW - 2), bh);
+          ctx.strokeRect(px + 1, barTop, Math.max(1, pxBinW - 2), bh);
+        }
+
+        ctx.strokeStyle = colors.violet;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        var steps = 200;
+        var started = false;
+        for (var s = 1; s <= steps; s++) {
+          var x = (s / steps) * xMax;
+          var y = chiSquarePDF(x, df);
+          var lineX = xToPx(x);
+          var lineY = yToPx(y);
+          if (!started) {
+            ctx.moveTo(lineX, lineY);
+            started = true;
+          } else {
+            ctx.lineTo(lineX, lineY);
+          }
+        }
+        ctx.stroke();
+
+        if (state.lastChiSq !== null) {
+          var clampedChi = Math.min(xMax, state.lastChiSq);
+          var cx = xToPx(clampedChi);
+          ctx.strokeStyle = colors.red;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cx, pad.top + 16);
+          ctx.lineTo(cx, pad.top + plotH);
+          ctx.stroke();
+          ctx.fillStyle = colors.red;
+          ctx.beginPath();
+          ctx.arc(cx, pad.top + plotH - 4, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.font = "bold 11px Arial, Helvetica, sans-serif";
+          ctx.textAlign = clampedChi > xMax * 0.75 ? "right" : (clampedChi < xMax * 0.15 ? "left" : "center");
+          ctx.fillText("χ² = " + state.lastChiSq.toFixed(2), cx, pad.top + 12);
+        }
+
+        ctx.fillStyle = colors.axis;
+        ctx.font = "11px Arial, Helvetica, sans-serif";
+        ctx.textAlign = "center";
+        var xStep = df === 1 ? 2 : 3;
+        for (var xt = 0; xt <= xMax; xt += xStep) ctx.fillText(String(xt), xToPx(xt), h - 8);
+
+        canvas3.setAttribute(
+          "aria-label",
+          "Chi-square density with " + df + " degrees of freedom. " +
+            (history.length === 0
+              ? "No samples yet."
+              : history.length + " samples. Current chi-square " + state.lastChiSq.toFixed(2) + ".")
+        );
+      }
+
+      function renderAllCanvases() {
+        if (state.stage1Mode === "multinomial") renderMultinomialJointChart(canvas1);
+        else renderBinomialChart(canvas1, false);
+        renderBinomialChart(canvas2Top, true);
+        renderZChart();
+        renderChiSquareChart();
+      }
+
+      sliderN.addEventListener("input", function () { updateParameters(true); });
+      sliderP.addEventListener("input", function () { updateParameters(true); });
+
+      btnK2.addEventListener("click", function () {
+        if (state.k === 2) return;
+        state.k = 2;
+        state.focusedIdx = 0;
+        state.stage1Mode = "binomial";
+        btnModeBinom.classList.add("is-active");
+        btnModeMulti.classList.remove("is-active");
+        btnModeBinom.setAttribute("aria-pressed", "true");
+        btnModeMulti.setAttribute("aria-pressed", "false");
+        sliderP.value = "0.50";
+        btnK2.classList.add("is-active");
+        btnK6.classList.remove("is-active");
+        btnK2.setAttribute("aria-pressed", "true");
+        btnK6.setAttribute("aria-pressed", "false");
+        updateParameters(true);
+      });
+
+      btnK6.addEventListener("click", function () {
+        if (state.k === 6) return;
+        state.k = 6;
+        state.focusedIdx = 0;
+        sliderP.value = "0.17";
+        btnK6.classList.add("is-active");
+        btnK2.classList.remove("is-active");
+        btnK6.setAttribute("aria-pressed", "true");
+        btnK2.setAttribute("aria-pressed", "false");
+        updateParameters(true);
+      });
+
+      btnModeBinom.addEventListener("click", function () {
+        if (state.stage1Mode === "binomial") return;
+        state.stage1Mode = "binomial";
+        btnModeBinom.classList.add("is-active");
+        btnModeMulti.classList.remove("is-active");
+        btnModeBinom.setAttribute("aria-pressed", "true");
+        btnModeMulti.setAttribute("aria-pressed", "false");
+        updateDynamicCaptions();
+        renderAllCanvases();
+      });
+
+      btnModeMulti.addEventListener("click", function () {
+        if (state.stage1Mode === "multinomial") return;
+        state.stage1Mode = "multinomial";
+        btnModeMulti.classList.add("is-active");
+        btnModeBinom.classList.remove("is-active");
+        btnModeMulti.setAttribute("aria-pressed", "true");
+        btnModeBinom.setAttribute("aria-pressed", "false");
+        updateDynamicCaptions();
+        renderAllCanvases();
+      });
+
+      btnRun1.addEventListener("click", function () {
+        simulateOneTrial();
+        updateReadouts();
+        renderSampleIcons();
+        renderAllCanvases();
+      });
+      btnRun1000.addEventListener("click", runBatch1000);
+      btnReset.addEventListener("click", function () { updateParameters(true); });
+
+      samplePills.addEventListener("click", function (event) {
+        var pill = event.target.closest("[data-cat-idx]");
+        if (!pill) return;
+        setFocusedCategory(parseInt(pill.getAttribute("data-cat-idx"), 10));
+      });
+      catList.addEventListener("click", function (event) {
+        var card = event.target.closest("[data-cat-idx]");
+        if (!card) return;
+        setFocusedCategory(parseInt(card.getAttribute("data-cat-idx"), 10));
+      });
+
+      if (typeof ResizeObserver === "function") {
+        var observer = new ResizeObserver(function () { renderAllCanvases(); });
+        [canvas1, canvas2Top, canvas2Bot, canvas3].forEach(function (canvas) {
+          observer.observe(canvas.parentElement);
+        });
+      } else {
+        window.addEventListener("resize", renderAllCanvases);
+      }
+
+      updateParameters(true);
+    })();
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

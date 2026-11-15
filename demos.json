@@ -282,6 +282,15 @@
               ]
             },
             {
+              "href": "statistics/binomial_counts_to_chi_square.html",
+              "title": "From Binomial Counts to Chi-Square",
+              "description": "From binomial and multinomial counts, through the normal approximation, to Pearson’s chi-square goodness-of-fit.",
+              "keywords": "binomial multinomial chi-square goodness-of-fit Pearson Cochran central limit theorem expected counts Z-score",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
               "href": "statistics/chi_square_goodness_of_fit.html",
               "title": "Pearson’s χ² Goodness-of-Fit",
               "description": "A roulette simulation of Pearson’s chi-square goodness-of-fit test.",
