@@ -84,7 +84,7 @@ Each category has:
 * `domId` — optional element id. Current anchors: `cognitive-category`, `neuro-category`, `stats-category`, `personality-category`.
 * `subcategories` — ordered groups
 
-Each subcategory has `title`, `demos`, and an optional `group`. Subcategories with the same `group` render under one topic heading. Omit `group` for a normal subcategory. Statistics topics are flat headings with the same names as the Guided Tracks: Center and spread, Shape and pictures, Same summaries, different graphs, From process to distribution, Counts, arrivals, and the board, Sampling distributions and intervals, t-test, Statistical power, ANOVA, and Association.
+Each subcategory has `title`, `demos`, and an optional `group`. Subcategories with the same `group` render under one topic heading. Omit `group` for a normal subcategory. Statistics topics are flat headings. Their names match these Guided Tracks: Center and spread, Shape and pictures, Same summaries, different graphs, From process to distribution, Counts, arrivals, and the board, Sampling distributions and intervals, t-test, Statistical power, ANOVA, and Association. From chi-square to goodness-of-fit is a further playlist under Probability & sampling, and it is not a catalog heading.
 
 Each demo has:
 

@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- From chi-square to goodness-of-fit, a Guided Track under Probability & sampling, after Sampling distributions and intervals. The steps are Chi-Square Distribution, Chi-Square as Squared Distance, From Binomial Counts to Chi-Square, and Pearson’s χ² Goodness-of-Fit. Sampling distributions and intervals is unchanged, including its chi-square step, which still leads on to confidence intervals. The citation version is unchanged.
+
 - Chi-Square Distribution has a second case, observed and expected counts, beside the sum of squared standard normals. A fair coin (heads and tails, each expecting half the tosses) or a fair die (faces 1–6, each expecting one sixth of the rolls) draws a sample of counts. The default sample is 60 trials, so the die expects 10 on a face and the coin expects 30 on a side. The sum Σ (O − E)² / E is marked on the same χ² curve. Degrees of freedom are one less than the number of categories: 1 for the coin, 5 for the die. Repeated draws fill the histogram. The side column, the formula, and the bridge wrap, and the page is the scroller. Pearson’s χ² Goodness-of-Fit is unchanged. The citation version is unchanged.
 
 - Plotting conventions live in [`docs/plotting-conventions.md`](docs/plotting-conventions.md). D3, Chart.js, KaTeX, jStat, and Three.js load from the pins in [`assets/vendor.json`](assets/vendor.json) through [`assets/vendor-loader.js`](assets/vendor-loader.js). A later upgrade edits that registry and rechecks the short page list there. The Tailwind Play CDN and MathJax were still on older pages at that point. Three.js stays on r128.

@@ -15,7 +15,8 @@
       "tracks": [
         "from-process-to-distribution",
         "counts-arrivals-and-the-board",
-        "sampling-distributions-and-intervals"
+        "sampling-distributions-and-intervals",
+        "from-chi-square-to-goodness-of-fit"
       ]
     },
     {
@@ -330,6 +331,74 @@
           ],
           "image": "tracks/images/statistical-reasoning/07-confidence-intervals.png",
           "imageAlt": "Twenty horizontal intervals of equal width aimed at a dashed line, the true value. Nineteen solid intervals cross that line. The top interval is dotted, lies entirely to the right, and is labeled miss."
+        }
+      ]
+    },
+    {
+      "id": "from-chi-square-to-goodness-of-fit",
+      "title": "From chi-square to goodness-of-fit",
+      "summary": "This path is for the chi-square curve and the goodness-of-fit test that uses it. By the end you can read that curve as a sum of squared standard normals, see the sum as squared distance from a bullseye, follow a count from a z score to Pearson’s statistic, and test observed counts against the counts a model expects.",
+      "steps": [
+        {
+          "href": "statistics/chi_square_distribution.html",
+          "title": "Chi-Square Distribution",
+          "connectionTitle": "A sum of squares, and its curve",
+          "note": "Square independent standard normals and add them. The sum follows a chi-square curve, and the degrees of freedom are how many squares went in: one square spikes at zero, and further squares move the curve to the right. The same page can drop a sum of squared count residuals onto that curve. That mark is still one draw from the sampling distribution, not a test of a model. The next step draws those squares as distance from a point.",
+          "demoDescription": "Set the degrees of freedom and draw samples of squared standard normals. The counts case places a sum of squared count residuals on the same curve.",
+          "formulae": [
+            "χ²_ν = Z₁² + … + Z_ν²",
+            "Zᵢ ~ N(0, 1), independent",
+            "ν = number of squared normals"
+          ],
+          "image": "tracks/images/statistical-reasoning/06-chi-square.png",
+          "imageAlt": "Chi-square densities for 1, 3, and 5 degrees of freedom. The 1-df curve spikes at zero and runs off the top of the axes. The 3-df curve peaks near 1. The 5-df curve peaks near 3 and sits lower and further right."
+        },
+        {
+          "href": "statistics/chi_square_squared_distance.html",
+          "title": "Chi-Square as Squared Distance",
+          "connectionTitle": "Squared distance from a bullseye",
+          "note": "Give each of those normals a spread, and the sum of squares is squared distance from a bullseye. A dart from a Gaussian cloud lands on a rail, a board, or in a chamber. Unequal spreads stretch the cloud, and each axis keeps its own weight: a generalized chi-square. Equal spreads make circles, and the squared distance is one variance times a standard chi-square. Divide each axis by its spread and the squared distance is the standard chi-square from the previous step. The next step starts from counts instead of from a dart.",
+          "demoDescription": "Throw a Gaussian dart and read its squared distance from the bullseye as a generalized, scaled, or standard chi-square.",
+          "formulae": [
+            "Q = σ_1² Z_1² + … + σ_ν² Z_ν²",
+            "equal spreads: Q = σ² χ²_ν",
+            "divide each axis by its spread: Q = Z_1² + … + Z_ν²"
+          ],
+          "image": "tracks/images/statistical-reasoning/08-squared-distance.png",
+          "imageAlt": "Three panels of one dart whose standard normals are 1 and 1/2, so it sits between the one-spread and two-spread contours. A line joins the bullseye to the dart. Generalized: elliptical contours with σx = 2 and σy = 1, the dart at (2, 0.5), and Q = 4.25. Scaled: circular contours with σ = 2, the dart at (2, 1), and Q = 5.00. Standard: circular contours after dividing by the spreads, the dart at (1, 0.5), and Q = 1.25. A dotted curve is one spread and a dashed curve is two."
+        },
+        {
+          "href": "statistics/binomial_counts_to_chi_square.html",
+          "title": "From Binomial Counts to Chi-Square",
+          "connectionTitle": "A count, a z, then a chi-square",
+          "note": "A category from a coin or a die is a binomial count. The expected count is np, and the central limit theorem approximates that count with a normal curve. Dividing the error by the binomial standard deviation produces a z score. With two categories the errors are opposites, so the squared z equals Pearson’s chi-square and there is 1 degree of freedom. With more categories the counts are tied, so the degrees of freedom are k − 1, and one squared z is not that category’s Pearson cell: the squared z divides by E(1 − p), and the cell divides by E. The cells add to the chi-square. Cochran’s rule asks that every expected count be at least 5 before those curves are trusted. The last step uses the sum as a test of a model.",
+          "demoDescription": "Draw a coin or a die, standardize one category, and compare its squared z with the Pearson cell. Repeated draws fill the chi-square histogram.",
+          "formulae": [
+            "Eᵢ = n pᵢ",
+            "Zᵢ = (Oᵢ − Eᵢ) / √(n pᵢ (1 − pᵢ))",
+            "Pearson cell = (Oᵢ − Eᵢ)² / Eᵢ",
+            "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ,   df = k − 1",
+            "k = 2: Z² = χ²",
+            "k > 2: Z² divides by Eᵢ(1 − pᵢ)",
+            "Cochran: each Eᵢ ≥ 5"
+          ],
+          "image": "tracks/images/statistical-reasoning/09-counts-to-chi-square.png",
+          "imageAlt": "Two panels under a caption that each expected count is 10, which meets Cochran’s rule of at least 5. Left: a fair coin of 20 tosses. Expected bars are 10 for heads and 10 for tails. Observed bars are 14 heads and 6 tails. The title reads k = 2, Z² = χ² = 3.20. Right: one cell of a six-category draw. The Z² bar reaches 4.32 and is labeled ÷ E(1 − p). The Pearson cell reaches 3.60 and is labeled ÷ E. The shared numerator is 36."
+        },
+        {
+          "href": "statistics/chi_square_goodness_of_fit.html",
+          "title": "Pearson’s χ² Goodness-of-Fit",
+          "connectionTitle": "Counts tested against a model",
+          "note": "Pearson’s goodness-of-fit test compares observed counts with the counts a stated model expects. Each category contributes (O − E)² / E, the Pearson cell from the previous step, and the contributions add to a chi-square with k − 1 degrees of freedom. That statistic is one point on the sampling curve from the first step. Past the critical value, the counts are surprising if the model is true. Cochran’s rule still asks that each expected count be at least 5 before that curve is a fair reference.",
+          "demoDescription": "Spin a wheel, compare the observed counts with the expected counts, and place the chi-square on its sampling curve.",
+          "formulae": [
+            "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ",
+            "Eᵢ = n pᵢ under the model",
+            "df = k − 1",
+            "a large χ² falls past the critical value"
+          ],
+          "image": "tracks/images/statistical-reasoning/10-goodness-of-fit.png",
+          "imageAlt": "Two panels. Left: three categories under an equal model. Expected bars are 10. Observed bars are 18, 8, and 4. The title reads χ² = 10.4, df = 2. Right: a chi-square density with 2 degrees of freedom. A dashed line at 5.99 marks the 5% critical value, and a shaded band runs to the right of it. A solid line at 10.4 sits inside that band."
         }
       ]
     },
