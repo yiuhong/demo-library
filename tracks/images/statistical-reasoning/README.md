@@ -38,7 +38,23 @@ The Horowitz figure follows `statistics/horowitz_1974_simulation_CLT.html`: 96 s
 
 ## Chi-square
 
-`ν` is the degrees of freedom. The demonstration writes the same sum as `χ²_k = Σ Zᵢ²` and calls the count `k`. The curves are `ν = 1`, `3`, and `5`. The `ν = 1` density is unbounded at 0, so the axes cut it off.
+`ν` is the degrees of freedom. The demonstration writes the same sum as `χ²_k = Σ Zᵢ²` and calls the count `k`. The curves are `ν = 1`, `3`, and `5`. The `ν = 1` density is unbounded at 0, so the axes cut it off. The same figure is the first step of From chi-square to goodness-of-fit. The sampling-track step still uses it on the way to confidence intervals.
+
+## Chi-square playlist
+
+`08-squared-distance.png`, `09-counts-to-chi-square.png`, and `10-goodness-of-fit.png` are the later steps of that playlist. They do not replace `06-chi-square.png`.
+
+### Squared distance
+
+`statistics/chi_square_squared_distance.html` opens on a board with `σx = 2` and `σy = 1`. The scaled preset sets both spreads to 2. Dividing each axis by its spread is the standard form. The figure uses one dart, `Z₁ = 1` and `Z₂ = 1/2`, in all three panels, so `Z₁² + Z₂² = 1.25` and the dart sits between the one-spread and two-spread contours. Generalized: the dart is at `(2, 0.5)` and `Q = 4.25`. Scaled: the dart is at `(2, 1)` and `Q = 5`. Standard: the dart is at `(1, 0.5)` and `Q = 1.25`. A dotted contour is one spread from the bullseye. A dashed contour is two.
+
+### Counts to chi-square
+
+`09-counts-to-chi-square.png` is a schematic, not one draw from `statistics/binomial_counts_to_chi_square.html`. A fair coin of 20 tosses shows 14 heads and 6 tails, so each expected count is 10. `Z² = (14 − 10)² / 5 = 3.20`, and the two Pearson cells add to the same 3.20. One face of a fair die in 60 rolls shows 16. The expected count is 10 and the numerator is 36. `Z²` divides by `E(1 − p) = 50/6` and equals 4.32. The Pearson cell divides by `E = 10` and equals 3.60. Both expected counts meet Cochran’s rule of 5.
+
+### Goodness of fit
+
+`10-goodness-of-fit.png` is a schematic equal-probability model, not one spin of `statistics/chi_square_goodness_of_fit.html`. Three categories and `n = 30` give an expected count of 10. Observed counts are 18, 8, and 4, so `χ² = 10.4` on 2 degrees of freedom. For that chi-square law the 5% critical value is `−2 ln(0.05) = 5.99`. The observed line sits to the right of it.
 
 ## Confidence intervals
 

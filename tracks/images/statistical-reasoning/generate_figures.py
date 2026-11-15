@@ -1084,6 +1084,358 @@ def draw_chi_square() -> None:
     print(f"  chi2 mode df3={mode3:.3f} df5={mode5:.3f} peak3={curves[1].max():.3f}")
 
 
+# One latent dart for the squared-distance figure. The same standard normals
+# are scaled by the opening spreads in statistics/chi_square_squared_distance.html:
+# generalized σx = 2, σy = 1; scaled preset σ = 2 on both axes; standard form
+# divides each axis by its spread, which puts the dart back at (Z1, Z2).
+DART_Z1 = 1.0
+DART_Z2 = 0.5
+DART_SIGMA_X = 2.0
+DART_SIGMA_Y = 1.0
+DART_SIGMA_EQUAL = 2.0
+
+# Coin schematic for the counts-to-chi-square figure. n = 20, p = 1/2,
+# 14 heads. Then Z² equals Pearson's χ². The die face uses n = 60, p = 1/6,
+# 16 spots on the focused face, so Z² and the Pearson cell differ.
+COIN_N = 20
+COIN_HEADS = 14
+DIE_N = 60
+DIE_FACE = 16
+COCHRAN_MIN = 5
+
+# Schematic goodness-of-fit: three equally likely categories, n = 30.
+# Not a spin of the roulette page. α = 0.05, and df = 2 has a closed critical value.
+GOF_N = 30
+GOF_OBSERVED = (18, 8, 4)
+GOF_ALPHA = 0.05
+
+
+def _ellipse(ax: plt.Axes, sx: float, sy: float, radius: float, style: str | tuple) -> None:
+    theta = np.linspace(0.0, 2.0 * math.pi, 480)
+    ax.plot(
+        sx * radius * np.cos(theta),
+        sy * radius * np.sin(theta),
+        color="black",
+        linestyle=style,
+        linewidth=1.15,
+        zorder=2,
+    )
+
+
+def draw_squared_distance() -> None:
+    """Geometry of generalized, scaled, and standard chi-square on one dart.
+
+    All three panels use Z1 = 1 and Z2 = 1/2, so the Mahalanobis radius is
+    √1.25 and the dart sits between the one-spread and two-spread contours.
+    Q is raw squared distance in the first two panels and squared standardized
+    distance in the third. Spreads match the demonstration's presets.
+    """
+    z1, z2 = DART_Z1, DART_Z2
+    q_radius = math.hypot(z1, z2)
+    if abs(q_radius**2 - 1.25) > 1e-12:
+        raise SystemExit(f"dart radius drifted: {q_radius}")
+
+    panels = (
+        {
+            "sx": DART_SIGMA_X,
+            "sy": DART_SIGMA_Y,
+            "limit": 4.8,
+            "title": "Generalized,  Q = 4.25",
+            "xlabel": "x,   σx = 2,  σy = 1",
+            "ylabel": "y",
+        },
+        {
+            "sx": DART_SIGMA_EQUAL,
+            "sy": DART_SIGMA_EQUAL,
+            "limit": 4.8,
+            "title": "Scaled,  Q = 5.00",
+            "xlabel": "x,   σ = 2",
+            "ylabel": "y",
+        },
+        {
+            "sx": 1.0,
+            "sy": 1.0,
+            "limit": 3.15,
+            "title": "Standard,  Q = 1.25",
+            "xlabel": "x / σx",
+            "ylabel": "y / σy",
+        },
+    )
+    questions = []
+    for panel in panels:
+        q = (panel["sx"] * z1) ** 2 + (panel["sy"] * z2) ** 2
+        questions.append(q)
+    if not (
+        abs(questions[0] - 4.25) < 1e-12
+        and abs(questions[1] - 5.0) < 1e-12
+        and abs(questions[2] - 1.25) < 1e-12
+    ):
+        raise SystemExit(f"squared distances drifted: {questions}")
+
+    dotted = (0, (1.2, 1.2))
+    dashed = (0, (5, 2))
+    fig, axes = plt.subplots(1, 3, figsize=(9.9, 4.35), constrained_layout=True)
+    for ax, panel in zip(axes, panels):
+        _ellipse(ax, panel["sx"], panel["sy"], 1.0, dotted)
+        _ellipse(ax, panel["sx"], panel["sy"], 2.0, dashed)
+        x = panel["sx"] * z1
+        y = panel["sy"] * z2
+        ax.plot([0.0, x], [0.0, y], color="black", linewidth=1.05, zorder=3)
+        ax.scatter([0.0], [0.0], s=22, c="black", zorder=4)
+        ax.scatter(
+            [x],
+            [y],
+            s=58,
+            facecolors="white",
+            edgecolors="black",
+            linewidths=1.25,
+            zorder=5,
+        )
+        limit = panel["limit"]
+        ax.set_xlim(-limit, limit)
+        ax.set_ylim(-limit, limit)
+        ax.set_aspect("equal", adjustable="box")
+        ax.set_xticks([-2, 0, 2] if limit < 4 else [-4, -2, 0, 2, 4])
+        ax.set_yticks([-2, 0, 2] if limit < 4 else [-4, -2, 0, 2, 4])
+        ax.set_xlabel(panel["xlabel"])
+        ax.set_ylabel(panel["ylabel"])
+        ax.set_title(panel["title"])
+
+    # Below the panels, so the key does not sit on a contour.
+    fig.legend(
+        handles=[
+            Line2D([0], [0], color="black", linestyle=dotted, linewidth=1.15, label="1 spread"),
+            Line2D([0], [0], color="black", linestyle=dashed, linewidth=1.15, label="2 spreads"),
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                color="black",
+                markerfacecolor="white",
+                markeredgecolor="black",
+                linewidth=0,
+                markersize=7,
+                label="dart",
+            ),
+        ],
+        loc="outside lower center",
+        ncol=3,
+        frameon=True,
+        edgecolor="black",
+        fancybox=False,
+    )
+    _save(fig, "08-squared-distance.png")
+    print(f"  squared-distance Q={questions} radius={q_radius:.4f}")
+
+
+def _coin_chi_square() -> tuple[float, float]:
+    """Fair coin, 14 heads in 20 tosses. Z² and Pearson's χ² are the same number."""
+    expected = COIN_N / 2.0
+    heads_error = COIN_HEADS - expected
+    tails = COIN_N - COIN_HEADS
+    tails_error = tails - expected
+    variance = COIN_N * 0.5 * 0.5
+    z2 = heads_error**2 / variance
+    pearson = heads_error**2 / expected + tails_error**2 / expected
+    if abs(z2 - pearson) > 1e-12 or abs(z2 - 3.2) > 1e-12:
+        raise SystemExit(f"coin identity failed: Z2={z2}, chi2={pearson}")
+    if tails != 6 or expected != 10:
+        raise SystemExit(f"coin counts drifted: tails={tails}, E={expected}")
+    return z2, pearson
+
+
+def _die_face_terms() -> tuple[float, float, float]:
+    """One face of a fair die, 16 spots in 60 rolls. Z² and the Pearson cell differ."""
+    p = 1.0 / 6.0
+    expected = DIE_N * p
+    error = DIE_FACE - expected
+    variance = DIE_N * p * (1.0 - p)
+    z2 = error**2 / variance
+    cell = error**2 / expected
+    if abs(expected - 10.0) > 1e-12:
+        raise SystemExit(f"die expectation drifted: {expected}")
+    if abs(z2 - 4.32) > 1e-12 or abs(cell - 3.6) > 1e-12:
+        raise SystemExit(f"die terms drifted: Z2={z2}, cell={cell}")
+    if not (z2 > cell and expected >= COCHRAN_MIN):
+        raise SystemExit("die face should clear Cochran and separate Z² from the cell")
+    return z2, cell, variance
+
+
+def draw_counts_to_chi_square() -> None:
+    """Binomial counts to a z score, then to Pearson's χ².
+
+    Left: two categories, so Z² equals χ². Right: one cell of six, so the
+    squared z (divisor E(1−p)) is longer than the Pearson cell (divisor E).
+    Both expected counts are 10, which meets Cochran's rule of 5.
+    """
+    coin_z2, coin_chi = _coin_chi_square()
+    die_z2, die_cell, die_variance = _die_face_terms()
+    heads_e = COIN_N / 2.0
+    tails_o = COIN_N - COIN_HEADS
+
+    fig, (ax_coin, ax_die) = plt.subplots(1, 2, figsize=(8.8, 4.7), constrained_layout=True)
+
+    x = np.array([0.0, 1.0])
+    width = 0.36
+    ax_coin.bar(
+        x - width / 2.0,
+        [heads_e, heads_e],
+        width=width,
+        facecolor="white",
+        edgecolor="black",
+        linewidth=1.05,
+        zorder=2,
+    )
+    ax_coin.bar(
+        x + width / 2.0,
+        [COIN_HEADS, tails_o],
+        width=width,
+        facecolor="white",
+        edgecolor="black",
+        hatch="///",
+        linewidth=1.05,
+        zorder=2,
+    )
+    ax_coin.set_xlim(-0.55, 1.55)
+    ax_coin.set_ylim(0, 20)
+    ax_coin.set_xticks([0, 1])
+    ax_coin.set_xticklabels(["heads", "tails"])
+    ax_coin.set_yticks([0, 5, 10, 15])
+    ax_coin.set_ylabel("count")
+    ax_coin.set_xlabel("n = 20,  fair coin,  E = 10")
+    ax_coin.set_title(f"k = 2:  Z² = χ² = {coin_z2:.2f}")
+    _legend(
+        ax_coin,
+        [
+            Rectangle((0, 0), 1, 1, facecolor="white", edgecolor="black", label="expected"),
+            Rectangle((0, 0), 1, 1, facecolor="white", edgecolor="black", hatch="///", label="observed"),
+        ],
+        loc="upper right",
+    )
+
+    ax_die.barh(
+        [1, 0],
+        [die_z2, die_cell],
+        height=0.52,
+        facecolor="white",
+        edgecolor="black",
+        linewidth=1.05,
+        zorder=2,
+    )
+    ax_die.text(die_z2 + 0.15, 1, "÷ E(1 − p)", va="center", ha="left", fontsize=11)
+    ax_die.text(die_cell + 0.15, 0, "÷ E", va="center", ha="left", fontsize=11)
+    ax_die.set_xlim(0, 8.4)
+    ax_die.set_ylim(-0.7, 1.7)
+    ax_die.set_yticks([0, 1])
+    ax_die.set_yticklabels(["Pearson cell", "Z²"])
+    ax_die.set_xticks([0, 2, 4, 6])
+    ax_die.set_xlabel("squared residual,  numerator 36")
+    ax_die.set_title(f"k = 6:  Z² = {die_z2:.2f},  cell = {die_cell:.2f}")
+
+    fig.suptitle("Cochran’s rule: each expected count is 10, at least 5", fontsize=12)
+    _save(fig, "09-counts-to-chi-square.png")
+    print(
+        f"  counts coin Z2={coin_z2:.2f} chi2={coin_chi:.2f} "
+        f"die Z2={die_z2:.2f} cell={die_cell:.2f} var={die_variance:.4f}"
+    )
+
+
+def _gof_statistic() -> tuple[float, float, float]:
+    """Equal three-category model. Returns χ², df, and the α critical value."""
+    expected = GOF_N / 3.0
+    chi = sum((obs - expected) ** 2 / expected for obs in GOF_OBSERVED)
+    df = len(GOF_OBSERVED) - 1
+    # χ² with 2 degrees of freedom: P(X > c) = exp(−c/2).
+    crit = -2.0 * math.log(GOF_ALPHA)
+    if abs(expected - 10.0) > 1e-12 or abs(chi - 10.4) > 1e-12 or df != 2:
+        raise SystemExit(f"goodness-of-fit numbers drifted: E={expected}, chi={chi}, df={df}")
+    if not (chi > crit and expected >= COCHRAN_MIN):
+        raise SystemExit(f"statistic should pass the critical value: chi={chi}, crit={crit}")
+    return chi, float(df), crit
+
+
+def draw_goodness_of_fit() -> None:
+    """Observed counts against an equal model, then the statistic on the χ² curve.
+
+    The counts are a schematic, not one run of the roulette demonstration.
+    The shaded band is the 5% critical region of χ² with 2 degrees of freedom.
+    """
+    chi, df, crit = _gof_statistic()
+    expected = GOF_N / 3.0
+    observed = np.array(GOF_OBSERVED, dtype=float)
+
+    fig, (ax_counts, ax_curve) = plt.subplots(
+        1, 2, figsize=(8.8, 4.7), constrained_layout=True
+    )
+
+    x = np.arange(3, dtype=float)
+    width = 0.36
+    ax_counts.bar(
+        x - width / 2.0,
+        np.full(3, expected),
+        width=width,
+        facecolor="white",
+        edgecolor="black",
+        linewidth=1.05,
+        zorder=2,
+    )
+    ax_counts.bar(
+        x + width / 2.0,
+        observed,
+        width=width,
+        facecolor="white",
+        edgecolor="black",
+        hatch="///",
+        linewidth=1.05,
+        zorder=2,
+    )
+    ax_counts.set_xlim(-0.55, 2.55)
+    ax_counts.set_ylim(0, 26)
+    ax_counts.set_xticks(x)
+    ax_counts.set_xticklabels(["1", "2", "3"])
+    ax_counts.set_yticks([0, 5, 10, 15, 20])
+    ax_counts.set_xlabel("category,  equal model")
+    ax_counts.set_ylabel("count")
+    ax_counts.set_title(f"χ² = {chi:.1f},  df = {df:.0f}")
+    _legend(
+        ax_counts,
+        [
+            Rectangle((0, 0), 1, 1, facecolor="white", edgecolor="black", label="expected 10"),
+            Rectangle((0, 0), 1, 1, facecolor="white", edgecolor="black", hatch="///", label="observed"),
+        ],
+        loc="upper right",
+    )
+
+    xs = np.linspace(0.001, 16.0, 700)
+    ys = _chi2_pdf(xs, df)
+    if abs(float(ys.max()) - 0.5) > 0.01:
+        raise SystemExit(f"df = 2 density should peak near 1/2, got {float(ys.max())}")
+    ax_curve.axvspan(crit, 16.0, color="#f2f2f2", zorder=0)
+    ax_curve.plot(xs, ys, color="black", linewidth=1.7, zorder=2)
+    ax_curve.axvline(crit, color="black", linestyle="dashed", linewidth=1.15, zorder=3)
+    ax_curve.axvline(chi, color="black", linestyle="solid", linewidth=1.7, zorder=3)
+    ax_curve.set_xlim(0, 16)
+    ax_curve.set_ylim(0, 0.68)
+    ax_curve.set_xticks([0, 4, 8, 12, 16])
+    ax_curve.set_yticks([0, 0.2, 0.4, 0.6])
+    ax_curve.text(crit - 0.25, 0.22, f"{crit:.2f}", ha="right", va="bottom", fontsize=11)
+    ax_curve.text(chi + 0.25, 0.22, f"{chi:.1f}", ha="left", va="bottom", fontsize=11)
+    ax_curve.set_xlabel("chi-square")
+    ax_curve.set_ylabel("density")
+    ax_curve.set_title("df = 2,  α = 0.05")
+    _legend(
+        ax_curve,
+        [
+            Line2D([0], [0], color="black", linewidth=1.7, label="χ² curve"),
+            Line2D([0], [0], color="black", linestyle="dashed", linewidth=1.15, label="critical value"),
+            Rectangle((0, 0), 1, 1, facecolor="#f2f2f2", edgecolor="black", label="past critical"),
+        ],
+        loc="upper right",
+    )
+    _save(fig, "10-goodness-of-fit.png")
+    print(f"  gof chi={chi:.2f} df={df:.0f} crit={crit:.4f}")
+
+
 def draw_intervals() -> None:
     hits = np.linspace(-1.55, 1.55, 19)
     miss = np.array([2.55])
@@ -1140,7 +1492,11 @@ def main() -> None:
     draw_horowitz()
     draw_chi_square()
     draw_intervals()
-    # Step order is normal, CLT, binomial, Galton, Horowitz, chi-square, intervals.
+    # The chi-square playlist figures. They do not renumber 01–07.
+    draw_squared_distance()
+    draw_counts_to_chi_square()
+    draw_goodness_of_fit()
+    # Sampling-track order is normal, CLT, binomial, Galton, Horowitz, chi-square, intervals.
     for name in (
         "03-horowitz-clt.png",
         "03-galton-board.png",
