@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Pearson’s χ² Goodness-of-Fit is a step on the existing Guided Track Sampling distributions and intervals, after Chi-Square Distribution and before Target Analogy of Confidence Intervals. The connection figure is a line drawing of the same gap of 10 counts on a common category and a rare one, and of that sum on the chi-square curve. The chi-square note’s last sentence now points at that comparison. The new note keeps the question about what kind of interval a sampling distribution can support. The track’s “by the end” line names the count comparison. The demonstration page is unchanged. No new track. The citation version is unchanged.
+
 - Plotting conventions live in [`docs/plotting-conventions.md`](docs/plotting-conventions.md). D3, Chart.js, KaTeX, jStat, and Three.js load from the pins in [`assets/vendor.json`](assets/vendor.json) through [`assets/vendor-loader.js`](assets/vendor-loader.js). A later upgrade edits that registry and rechecks the short page list there. The Tailwind Play CDN and MathJax were still on older pages at that point. Three.js stays on r128.
 
 - Multiple Regression, under Statistics → Association, with an Association track step after Ordinary Least Squares. Two predictors fit a plane, and the total sum of squares splits into model and error.

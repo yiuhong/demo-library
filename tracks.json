@@ -278,7 +278,7 @@
     {
       "id": "sampling-distributions-and-intervals",
       "title": "Sampling distributions and intervals",
-      "summary": "This path is for what repeated samples do to a summary. By the end you can see sample means settle toward a normal curve, a chi-square as a sum of squared standard normals, and a confidence interval as long-run coverage, not a chance for one interval.",
+      "summary": "This path is for what repeated samples do to a summary. By the end you can see sample means settle toward a normal curve, a chi-square as a sum of squared standard normals, that curve used to compare counts with a hypothesized pattern, and a confidence interval as long-run coverage, not a chance for one interval.",
       "steps": [
         {
           "href": "statistics/central_limit_theorem.html",
@@ -309,7 +309,7 @@
           "href": "statistics/chi_square_distribution.html",
           "title": "Chi-Square Distribution",
           "connectionTitle": "Squared normals, added up",
-          "note": "Not every sampling story is about a mean. Square independent standard normal draws and add them up; the sum follows a chi-square distribution, the usual sampling model for a variance. With sampling distributions for means and for variances in view, you can ask what kind of interval claim a sampling distribution can support.",
+          "note": "Not every sampling story is about a mean. Square independent standard normal draws and add them up; the sum follows a chi-square distribution, the usual sampling model for a variance. The same curve is the reference when counts are compared with a hypothesized pattern.",
           "demoDescription": "Set the degrees of freedom and draw samples. Each draw squares that many standard normals and adds them.",
           "formulae": [
             "χ²_ν = Z₁² + … + Z_ν²",
@@ -317,6 +317,20 @@
           ],
           "image": "tracks/images/statistical-reasoning/06-chi-square.png",
           "imageAlt": "Chi-square densities for 1, 3, and 5 degrees of freedom. The 1-df curve spikes at zero and runs off the top of the axes. The 3-df curve peaks near 1. The 5-df curve peaks near 3 and sits lower and further right."
+        },
+        {
+          "href": "statistics/chi_square_goodness_of_fit.html",
+          "title": "Pearson’s χ² Goodness-of-Fit",
+          "connectionTitle": "Counts against a hypothesis",
+          "note": "The chi-square curve is a sum of squared standard normals. Pearson’s goodness-of-fit uses that curve for a different summary: the counts in a set of categories. Each category adds the squared gap between the observed count and the count the hypothesis expects, divided by the expected count, and a large sum is evidence against the hypothesis. When the probabilities are fixed in advance, the degrees of freedom are one less than the number of categories. The continuous curve is the usual reference once every expected count is at least 5. With sampling distributions for means, for variances, and for a pattern of counts in view, you can ask what kind of interval claim a sampling distribution can support.",
+          "demoDescription": "Spin a wheel and compare the counts with the probabilities under the hypothesis. The live chi-square sum sits beside its sampling distribution.",
+          "formulae": [
+            "χ² = Σ (O_i − E_i)^2 / E_i",
+            "E_i = N · p_i",
+            "df = k − 1"
+          ],
+          "image": "tracks/images/statistical-reasoning/06b-goodness-of-fit.png",
+          "imageAlt": "Left: contributions to Pearson’s chi-square for a European wheel, N = 185, expected counts 90, 90, and 5. Observed counts are 80, 90, and 15, so red and green each miss by 10. The bars are about 1.11, 0, and 20. Right: the chi-square density with 2 degrees of freedom. A dashed line marks the 5% critical value at 5.991, the upper tail beyond it is hatched, and a dotted line marks the sum 21.11 inside that tail."
         },
         {
           "href": "statistics/target_analogy_confidence_intervals.html",
