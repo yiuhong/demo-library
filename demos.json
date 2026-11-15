@@ -266,8 +266,8 @@
             {
               "href": "statistics/chi_square_distribution.html",
               "title": "Chi-Square Distribution",
-              "description": "A simulation of the chi-square distribution as the sum of squared standard normals.",
-              "keywords": "Chi-Square Distribution Chi Square χ2 χ²",
+              "description": "A simulation of the chi-square distribution from squared standard normals or from observed and expected counts.",
+              "keywords": "Chi-Square Distribution Chi Square χ2 χ² observed expected counts",
               "tags": [
                 "Simulation"
               ]

@@ -6,168 +6,227 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
     <title>χ2 Distribution</title>
-    
-    <!-- Tailwind CSS -->
+
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <link rel="stylesheet" href="../assets/stats-viz-theme.css">
     <script src="../assets/stats-viz-theme.js"></script>
-    
+
     <script src="../assets/vendor-loader.js" data-libs="d3,katex"></script>
-    
 
     <style>
-        .katex-display { margin: 0.5em 0; }
+        .katex-display { margin: 0.35em 0; }
         .chart-container { position: relative; width: 100%; height: 100%; min-height: 0; }
         .chart-container svg { position: absolute; top: 0; left: 0; overflow: visible; }
         .bar-hover:hover { opacity: 0.8; }
         .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
-        
-        /* Custom scrollbar for bridge to make it cleaner */
-        .scrollbar-thin::-webkit-scrollbar { height: 6px; width: 6px; }
-        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-        .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
-        
+
+        .is-hidden { display: none !important; }
+
+        /* The page is the only vertical scroller. The side column, the
+           formula, and the bridge wrap instead of opening an inner
+           scrollbar. Chart slots keep a fixed length so they do not
+           follow the iframe. */
+        body.demo-page .chi-shell {
+            height: auto;
+            min-height: 0;
+        }
+        body.demo-page .chi-aside,
+        body.demo-page .chi-main {
+            min-width: 0;
+            max-width: 100%;
+            overflow: visible;
+            height: auto;
+            max-height: none;
+        }
+        body.demo-page .chi-plot {
+            flex: none;
+            min-height: 0;
+            height: auto;
+            overflow: visible;
+        }
+        body.demo-page .chi-slot {
+            flex: none;
+            height: clamp(14rem, 28vh, 20rem);
+            min-height: 14rem;
+        }
+        body.demo-page .chi-slot-out {
+            height: clamp(16rem, 34vh, 26rem);
+            min-height: 16rem;
+        }
+        body.demo-page .chi-bridge,
+        body.demo-page #bridge-container,
+        body.demo-page #dynamic-formula {
+            height: auto;
+            max-height: none;
+            overflow: visible;
+        }
+        body.demo-page .chi-bridge {
+            min-height: 7.5rem;
+        }
+        @media (min-width: 1024px) {
+            body.demo-page .chi-layout {
+                align-items: flex-start;
+            }
+        }
+
+        .case-switch {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.45rem;
+        }
+        .case-switch .demo-chip {
+            width: 100%;
+            white-space: normal;
+            text-align: center;
+            height: auto;
+        }
+        #dynamic-formula .katex-display {
+            margin: 0.2em 0;
+        }
+        .count-terms {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .count-term {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.12rem;
+            flex: 1 1 7.5rem;
+            min-width: 0;
+            max-width: 100%;
+            text-align: center;
+            padding: 0.4rem 0.45rem;
+            background: var(--demo-panel);
+            border: 1px solid var(--demo-border);
+            border-radius: 4px;
+            font-family: var(--demo-font);
+            font-size: 0.78rem;
+            line-height: 1.25;
+        }
+        .count-term-name,
+        .count-term-value {
+            font-weight: bold;
+        }
+        .count-term-arith {
+            color: #404040;
+            overflow-wrap: anywhere;
+        }
+        .count-total {
+            flex: 1 0 100%;
+            text-align: center;
+            font-family: var(--demo-font);
+            font-size: 1.35rem;
+            font-weight: bold;
+            color: var(--viz-density);
+            padding-top: 0.15rem;
+        }
+        .case-note-link {
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; opacity: 0; }
+        @media (prefers-reduced-motion: reduce) {
+            .animate-fade-in {
+                animation: none;
+                opacity: 1;
+                transform: none;
+            }
+        }
 
         #btn-toggle-dist.mode-z { background-color: var(--viz-group-a); }
         #btn-toggle-dist.mode-x { background-color: var(--viz-group-c); }
         #toggle-label.mode-z { color: var(--viz-group-a); }
         #toggle-label.mode-x { color: var(--viz-group-c); }
-
-        /* Narrow (below this page's lg stack) or short. A locked column
-           here is the top bar, two chart headers, the bridge, and two
-           plots: below about 920px the upper chart's density scale
-           collapses once both headers and the bridge are in. The page
-           scrolls. Both charts and the bridge stay in the column, and
-           the bridge grows instead of keeping its own vertical scroller.
-           Chart slots are fixed lengths so they do not follow the iframe.
-           A taller wide window keeps both charts on screen: the formula
-           column may scroll, and the charts do not. */
-        @media (max-width: 1023px), (max-height: 920px) {
-            body.demo-page > .chi-shell {
-                height: auto;
-                min-height: 0;
-            }
-            body.demo-page .chi-layout {
-                flex: none;
-                min-height: 0;
-            }
-            body.demo-page .chi-aside {
-                overflow: visible;
-                max-height: none;
-            }
-            body.demo-page .chi-main {
-                overflow: visible;
-                height: auto;
-            }
-            body.demo-page .chi-plot {
-                flex: none;
-                min-height: 0;
-                height: auto;
-            }
-            body.demo-page .chi-slot {
-                flex: none;
-                height: 14rem;
-                min-height: 14rem;
-            }
-            body.demo-page .chi-slot-out {
-                height: 20rem;
-                min-height: 20rem;
-            }
-            body.demo-page .chi-bridge {
-                height: auto;
-                min-height: 11rem;
-                overflow: visible;
-            }
-            body.demo-page #bridge-container {
-                flex: none;
-                height: auto;
-                overflow: visible;
-            }
-        }
-        @media (min-width: 1024px) and (max-height: 920px) {
-            body.demo-page .chi-layout {
-                align-items: flex-start;
-            }
-            body.demo-page .chi-main {
-                width: 75%;
-                min-width: 0;
-            }
-        }
-        @media (min-width: 1024px) and (min-height: 921px) {
-            body.demo-page {
-                height: 100vh;
-                overflow: hidden;
-            }
-            body.demo-page > .chi-shell {
-                height: 100%;
-                min-height: 0;
-            }
-        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
     <link rel="stylesheet" href="../assets/tailwind.css">
 </head>
 <body class="demo-page text-gray-900 min-h-screen">
-    <div class="chi-shell max-w-[1400px] mx-auto p-4 flex flex-col h-screen">
+    <div class="chi-shell max-w-[1400px] mx-auto p-4 flex flex-col">
         <div class="demo-topbar shrink-0">
             <a class="demo-back" href="../index.html">← Project Viz</a>
         </div>
-        <div class="chi-layout flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
-        
-        <!-- Sidebar / Control Panel -->
-        <aside class="chi-aside demo-card w-full lg:w-1/4 p-6 flex flex-col gap-6 overflow-y-auto">
+        <div class="chi-layout flex flex-col lg:flex-row gap-4">
+
+        <aside class="chi-aside demo-card w-full lg:w-1/4 p-6 flex flex-col gap-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800 mb-2">The <span class="viz-ink-group-a font-serif">$\chi^2$</span> Distribution</h1>
-                <p class="text-sm text-gray-600 leading-relaxed">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Case</div>
+                <div class="case-switch" role="group" aria-label="Chi-square case">
+                    <button id="btn-case-normals" class="demo-chip is-active" type="button" aria-pressed="true">Squared normals</button>
+                    <button id="btn-case-counts" class="demo-chip" type="button" aria-pressed="false">Observed and expected counts</button>
+                </div>
+                <p id="case-blurb" class="text-sm text-gray-600 leading-relaxed mt-4">
                     Set the degrees of freedom and draw samples. Each draw squares that many standard normals and adds them; the histogram is those sums.
                 </p>
-                <!-- Dynamic KaTeX Container -->
-                <div id="dynamic-formula" class="mt-4 p-3 viz-soft-group-a viz-ink-group-a viz-border-group-a rounded-lg text-center font-semibold border overflow-x-auto">
-                    <!-- Initialized by JS -->
+                <div id="dynamic-formula" class="mt-4 p-3 viz-soft-group-a viz-ink-group-a viz-border-group-a rounded-lg text-center font-semibold border">
+                    <div id="formula-primary"></div>
+                    <div id="formula-secondary"></div>
                 </div>
             </div>
 
-            <!-- Controls -->
-            <div class="space-y-4">
+            <div id="controls-normals" class="space-y-4">
                 <div>
-                    <label class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                    <label for="k-slider" class="flex justify-between text-sm font-medium text-gray-700 mb-1">
                         <span>Degrees of Freedom ($k$)</span>
                         <span id="k-value-display" class="font-bold viz-ink-group-a">3</span>
                     </label>
                     <input type="range" id="k-slider" min="1" max="30" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                 </div>
-
-                <div class="flex flex-col gap-2 pt-2">
-                    <button id="btn-draw-1" class="demo-btn demo-btn-primary is-block" type="button">
-                        Draw 1 Sample (Animation)
-                    </button>
-                    <button id="btn-draw-10" class="demo-btn demo-btn-primary is-block" type="button">
-                        Draw 10 Samples (Fast)
-                    </button>
-                    <button id="btn-draw-1000" class="demo-btn demo-btn-primary is-block" type="button">
-                        Simulate 1,000 Samples (Fast)
-                    </button>
-                    <button id="btn-reset" class="demo-btn is-block" type="button">
-                        Reset Data
-                    </button>
-                </div>
             </div>
 
-            <!-- Stats Card -->
-            <div class="demo-panel p-4 mt-auto">
+            <div id="controls-counts" class="space-y-4 is-hidden">
+                <div class="demo-chip-group" role="group" aria-label="Count example">
+                    <button id="btn-example-coin" class="demo-chip" type="button" aria-pressed="false">Fair coin</button>
+                    <button id="btn-example-die" class="demo-chip is-active" type="button" aria-pressed="true">Fair die</button>
+                </div>
+                <div>
+                    <label for="n-slider" class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                        <span>Trials in one draw ($n$)</span>
+                        <span id="n-value-display" class="font-bold viz-ink-group-a">60</span>
+                    </label>
+                    <input type="range" id="n-slider" min="6" max="240" value="60" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+                <p id="expected-readout" class="text-sm text-gray-600 leading-relaxed"></p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <button id="btn-draw-1" class="demo-btn demo-btn-primary is-block" type="button">
+                    Draw 1 Sample (Animation)
+                </button>
+                <button id="btn-draw-10" class="demo-btn demo-btn-primary is-block" type="button">
+                    Draw 10 Samples (Fast)
+                </button>
+                <button id="btn-draw-1000" class="demo-btn demo-btn-primary is-block" type="button">
+                    Simulate 1,000 Samples (Fast)
+                </button>
+                <button id="btn-reset" class="demo-btn is-block" type="button">
+                    Reset Data
+                </button>
+            </div>
+
+            <div id="moments-card" class="demo-panel p-4">
                 <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">Theoretical Moments</h3>
                 <div class="grid grid-cols-2 gap-4 text-center">
                     <div>
-                        <div class="text-xs text-gray-500 mb-1">Mean ($k$)</div>
+                        <div id="stat-mean-label" class="text-xs text-gray-500 mb-1">Mean ($k$)</div>
                         <div class="font-serif text-xl font-medium text-gray-900" id="stat-mean">3</div>
                     </div>
                     <div>
-                        <div class="text-xs text-gray-500 mb-1">Variance ($2k$)</div>
+                        <div id="stat-variance-label" class="text-xs text-gray-500 mb-1">Variance ($2k$)</div>
                         <div class="font-serif text-xl font-medium text-gray-900" id="stat-variance">6</div>
                     </div>
                 </div>
@@ -175,20 +234,12 @@
                     Samples drawn: <span id="stat-samples" class="font-bold text-gray-900">0</span>
                 </div>
             </div>
-            
-            <div class="text-sm text-gray-600 space-y-2 pb-4">
-                <p><strong>1. Hard boundary at 0:</strong> Squaring any number yields $\ge 0$.</p>
-                <p><strong>2. Right-skew at low $k$:</strong> ~68% of $Z \in [-1, 1]$. When squared, these shrink toward 0 (e.g., $0.5^2 = 0.25$), stacking heavily near 0. Rare outliers explode outward.</p>
-                <p><strong>3. Central Limit Theorem:</strong> As $k$ increases, summing more independent variables pulls the shape toward a normal distribution. Because $\chi^2_k$ is exactly the sum of $k$ independent variables (the $Z_i^2$ terms), rare extreme high values are increasingly likely to be balanced out by the much more common values near zero as $k$ grows, guaranteeing their overall sum clusters symmetrically into a bell curve.</p>
-            </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="chi-main w-full lg:w-3/4 flex flex-col gap-4 overflow-hidden h-full pb-4">
-            
-            <!-- Chart 1: Standard Normal -->
-            <div class="chi-plot demo-card p-4 flex-[1] flex flex-col min-h-0">
-                <div class="flex justify-between items-end mb-2">
+        <main class="chi-main w-full lg:w-3/4 flex flex-col gap-4 pb-4">
+
+            <div class="chi-plot demo-card p-4 flex flex-col min-h-0">
+                <div class="flex flex-wrap justify-between items-end gap-2 mb-2">
                     <div>
                         <h2 id="chart1-title" class="font-bold text-gray-800">1. Draw Values</h2>
                         <div id="chart1-math" class="text-sm text-gray-500"></div>
@@ -201,34 +252,51 @@
                         </button>
                         <span id="toggle-label" class="mode-z text-xs font-semibold select-none w-32">Standard Z ~ N(0,1)</span>
                     </div>
+                    <div id="count-legend" class="is-hidden text-sm flex flex-wrap items-center gap-3">
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 viz-bg-group-b rounded-sm"></span> Expected</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 viz-bg-group-a rounded-sm"></span> Observed</span>
+                    </div>
                 </div>
-                <div class="chi-slot flex-1 w-full relative">
+                <div class="chi-slot w-full relative">
                     <div id="chart-normal" class="chart-container"></div>
                 </div>
             </div>
 
-            <!-- Interactive Bridge: Transformation -->
-            <div class="chi-bridge viz-soft-group-a rounded-xl shadow-sm p-4 border viz-border-group-a h-44 flex-none relative overflow-hidden flex flex-col">
-                <div class="absolute top-2 left-4 text-xs font-bold viz-ink-group-a uppercase tracking-wider z-10 viz-soft-group-a pr-2 pb-1 rounded-br">2. Square and Sum</div>
-                <div id="bridge-container" class="w-full flex-1 flex flex-wrap content-start justify-center items-center gap-x-2 gap-y-3 font-serif text-lg overflow-y-auto scrollbar-thin pt-6 pb-2">
-                    <span class="viz-ink-group-a italic font-sans text-base h-full flex items-center">Click "Draw 1 Sample" to observe transformation...</span>
+            <div class="chi-bridge viz-soft-group-a rounded-xl shadow-sm p-4 border viz-border-group-a relative flex flex-col">
+                <div id="bridge-label" class="absolute top-2 left-4 text-xs font-bold viz-ink-group-a uppercase tracking-wider z-10 viz-soft-group-a pr-2 pb-1 rounded-br">2. Square and Sum</div>
+                <div id="bridge-container" class="w-full flex flex-wrap content-start justify-center items-center gap-x-2 gap-y-3 font-serif text-lg pt-6 pb-2">
+                    <span class="viz-ink-group-a italic font-sans text-base">Click "Draw 1 Sample" to observe transformation...</span>
                 </div>
             </div>
 
-            <!-- Chart 2: Chi-Square -->
-            <div class="chi-plot demo-card p-4 flex-[1.5] flex flex-col min-h-0">
-                <div class="flex justify-between items-end mb-2">
+            <div class="chi-plot demo-card p-4 flex flex-col min-h-0">
+                <div class="flex flex-wrap justify-between items-end gap-2 mb-2">
                     <div>
                         <h2 class="font-bold text-gray-800">3. The Chi-Square Distribution</h2>
                         <div id="chart2-math" class="text-sm text-gray-500"></div>
                     </div>
-                    <div class="text-sm flex items-center gap-3">
+                    <div class="text-sm flex flex-wrap items-center gap-3">
                         <span class="flex items-center gap-1"><span class="w-3 h-3 viz-bg-density rounded-sm"></span> Exact PDF</span>
                         <span class="flex items-center gap-1"><span class="w-3 h-3 viz-mid-group-a rounded-sm"></span> Empirical Histogram</span>
+                        <span id="legend-latest" class="is-hidden flex items-center gap-1"><span class="w-3 h-3 viz-bg-group-c rounded-sm"></span> This draw</span>
                     </div>
                 </div>
-                <div class="chi-slot chi-slot-out flex-1 w-full relative">
+                <div class="chi-slot chi-slot-out w-full relative">
                     <div id="chart-chi" class="chart-container"></div>
+                </div>
+            </div>
+
+            <div class="demo-card p-4">
+                <div id="notes-normals" class="case-notes text-sm text-gray-600 space-y-2">
+                    <p><strong>1. Hard boundary at 0:</strong> Squaring any number yields $\ge 0$.</p>
+                    <p><strong>2. Right-skew at low $k$:</strong> ~68% of $Z \in [-1, 1]$. When squared, these shrink toward 0 (e.g., $0.5^2 = 0.25$), stacking heavily near 0. Rare outliers explode outward.</p>
+                    <p><strong>3. Central Limit Theorem:</strong> As $k$ increases, summing more independent variables pulls the shape toward a normal distribution. Because $\chi^2_k$ is exactly the sum of $k$ independent variables (the $Z_i^2$ terms), rare extreme high values are increasingly likely to be balanced out by the much more common values near zero as $k$ grows, guaranteeing their overall sum clusters symmetrically into a bell curve.</p>
+                </div>
+                <div id="notes-counts" class="case-notes text-sm text-gray-600 space-y-2 is-hidden">
+                    <p><strong>1. A squared residual.</strong> $(O_i - E_i)/\sqrt{E_i}$ measures a count in standard deviations from its expected value. Squaring those pieces and adding them is the same kind of sum as $\sum Z_i^2$.</p>
+                    <p><strong>2. One less degree of freedom.</strong> The observed counts add to $n$, and the expected counts add to $n$, so the pieces are tied together. A coin has 2 counts and $df = 1$. A die has 6 faces and $df = 5$.</p>
+                    <p><strong>3. The curve is the sampling distribution.</strong> One draw places a single statistic on the curve. Many draws fill the histogram. The match is closer when each expected count is not tiny.</p>
+                    <p><a class="case-note-link" href="chi_square_goodness_of_fit.html">Pearson’s χ² Goodness-of-Fit</a> runs one test on a roulette wheel. This case stays with the sampling distribution of the count statistic.</p>
                 </div>
             </div>
 
@@ -237,12 +305,10 @@
     </div>
 
     <script>
-        // --- Math Helpers ---
         function boxMuller() {
             let u = 0, v = 0;
-            // Prevent exactly 0 to avoid -Infinity log
-            while(u === 0) u = Math.random();
-            while(v === 0) v = Math.random();
+            while (u === 0) u = Math.random();
+            while (v === 0) v = Math.random();
             return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
         }
 
@@ -269,7 +335,7 @@
 
         function chiSquarePdf(x, k) {
             if (x < 0) return 0;
-            if (x === 0 && k < 2) return Infinity; // Spike at 0 for k=1
+            if (x === 0 && k < 2) return Infinity;
             if (x === 0 && k === 2) return 0.5;
             if (x === 0 && k > 2) return 0;
             const numerator = Math.pow(x, k / 2 - 1) * Math.exp(-x / 2);
@@ -277,45 +343,205 @@
             return numerator / denominator;
         }
 
-        // --- State ---
+        const COUNT_EXAMPLES = {
+            coin: {
+                id: 'coin',
+                names: ['Heads', 'Tails'],
+                ticks: ['Heads', 'Tails'],
+                axis: 'Outcome',
+                probs: [0.5, 0.5]
+            },
+            die: {
+                id: 'die',
+                names: ['Face 1', 'Face 2', 'Face 3', 'Face 4', 'Face 5', 'Face 6'],
+                ticks: ['1', '2', '3', '4', '5', '6'],
+                axis: 'Face',
+                probs: [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]
+            }
+        };
+
+        let caseId = 'normals';
+        let countExampleId = 'die';
+        let nTrials = 60;
         let k = 3;
         let samples = [];
+        let latestCounts = null;
+        let latestStat = null;
+        let showLatestMarker = false;
         let isAnimating = false;
-        
-        // Standardization State
+        let drawToken = 0;
+
         let showStandardized = true;
         const RAW_MU = 10;
         const RAW_SIGMA = 2;
-        
-        // --- D3 Chart Setup ---
+
         let normalChart, chiChart;
         const margins = { top: 15, right: 20, bottom: 40, left: 50 };
 
+        function currentExample() {
+            return COUNT_EXAMPLES[countExampleId];
+        }
+
+        function activeDf() {
+            if (caseId === 'counts') return currentExample().names.length - 1;
+            return k;
+        }
+
+        function formatCount(x) {
+            const rounded = Math.round(Number(x) * 100) / 100;
+            if (Math.abs(rounded - Math.round(rounded)) < 1e-8) return String(Math.round(rounded));
+            return rounded.toFixed(2);
+        }
+
+        function sampleMultinomial(n, probs) {
+            const counts = new Array(probs.length).fill(0);
+            const cdf = [];
+            let acc = 0;
+            for (let i = 0; i < probs.length; i++) {
+                acc += probs[i];
+                cdf.push(acc);
+            }
+            for (let t = 0; t < n; t++) {
+                const u = Math.random();
+                let i = 0;
+                while (u > cdf[i] && i < cdf.length - 1) i += 1;
+                counts[i] += 1;
+            }
+            return counts;
+        }
+
+        function drawCountExperiment() {
+            const example = currentExample();
+            const expected = example.probs.map(p => nTrials * p);
+            const observed = sampleMultinomial(nTrials, example.probs);
+            const terms = observed.map((o, i) => {
+                const diff = o - expected[i];
+                return (diff * diff) / expected[i];
+            });
+            const stat = terms.reduce((sum, term) => sum + term, 0);
+            return { observed, expected, terms, stat };
+        }
+
+        function chiXMax(df) {
+            let xMax = Math.max(10, df + 4 * Math.sqrt(2 * df));
+            if (caseId === 'counts' && latestStat != null && isFinite(latestStat)) {
+                xMax = Math.max(xMax, latestStat * 1.08);
+            }
+            return xMax;
+        }
+
+        function renderKatex(el, tex, display) {
+            katex.render(tex, el, { displayMode: !!display, throwOnError: false });
+        }
+
+        function setPressed(button, on) {
+            button.classList.toggle('is-active', on);
+            button.setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
+
+        function syncLatestLegend() {
+            const show = caseId === 'counts' && showLatestMarker && latestStat != null;
+            document.getElementById('legend-latest').classList.toggle('is-hidden', !show);
+        }
+
+        function setBridgePlaceholder() {
+            const text = caseId === 'counts'
+                ? 'Draw 1 sample to square each (O − E)² / E.'
+                : 'Click "Draw 1 Sample" to observe transformation...';
+            document.getElementById('bridge-container').innerHTML = '<span class="viz-ink-group-a italic font-sans text-base">' + text + '</span>';
+        }
+
+        function updateExpectedReadout() {
+            const example = currentExample();
+            const df = example.names.length - 1;
+            const each = formatCount(nTrials * example.probs[0]);
+            const el = document.getElementById('expected-readout');
+            if (example.id === 'coin') {
+                el.textContent = 'df = ' + df + ', one less than the 2 sides. Each side expects ' + each + '.';
+            } else {
+                el.textContent = 'df = ' + df + ', one less than the 6 faces. Each face expects ' + each + '.';
+            }
+        }
+
+        function updateMoments() {
+            const df = activeDf();
+            document.getElementById('stat-mean').textContent = String(df);
+            document.getElementById('stat-variance').textContent = String(2 * df);
+            const meanLabel = document.getElementById('stat-mean-label');
+            const varLabel = document.getElementById('stat-variance-label');
+            if (caseId === 'counts') {
+                meanLabel.innerHTML = 'Mean ($c-1$)';
+                varLabel.innerHTML = 'Variance ($2(c-1)$)';
+            } else {
+                meanLabel.innerHTML = 'Mean ($k$)';
+                varLabel.innerHTML = 'Variance ($2k$)';
+            }
+            if (typeof renderMathInElement === 'function') {
+                renderMathInElement(document.getElementById('moments-card'), {
+                    delimiters: [{ left: '$', right: '$', display: false }],
+                    throwOnError: false
+                });
+            }
+        }
+
+        function updateDynamicMath() {
+            const df = activeDf();
+            if (caseId === 'counts') {
+                const example = currentExample();
+                const c = example.names.length;
+                document.getElementById('case-blurb').textContent = 'Choose a fair coin or a fair die, and set how many trials are in one draw. Each draw compares observed counts with those expected counts. The sum of (O − E)² / E is marked on the chi-square curve, and the histogram is many such sums.';
+                renderKatex(document.getElementById('formula-primary'), `X^2=\\sum_{i=1}^{${c}}(O_i-E_i)^2/E_i`, true);
+                renderKatex(document.getElementById('formula-secondary'), `E_i=np_i\\quad df=c-1=${df}`, true);
+                document.getElementById('chart1-title').textContent = '1. Observed and expected counts';
+                const fraction = example.id === 'coin' ? 'n/2' : 'n/6';
+                const each = formatCount(nTrials * example.probs[0]);
+                renderKatex(document.getElementById('chart1-math'), `E_i=${fraction}=${each}`, false);
+                document.getElementById('bridge-label').textContent = '2. Each (O − E)² / E';
+                renderKatex(document.getElementById('chart2-math'), `X^2 \\approx \\chi^2_{${df}}`, false);
+            } else {
+                document.getElementById('case-blurb').textContent = 'Set the degrees of freedom and draw samples. Each draw squares that many standard normals and adds them; the histogram is those sums.';
+                renderKatex(document.getElementById('formula-primary'), `\\chi^2_{${k}}=\\sum_{i=1}^{${k}} Z_i^2`, true);
+                renderKatex(document.getElementById('formula-secondary'), 'Z_i=(X_i-\\mu)/\\sigma', true);
+                if (showStandardized) {
+                    renderKatex(document.getElementById('chart1-math'), 'Z_i \\sim \\mathcal{N}(0,1)', false);
+                    document.getElementById('chart1-title').textContent = `1. Draw ${k} Standard Normal Value${k > 1 ? 's' : ''}`;
+                } else {
+                    renderKatex(document.getElementById('chart1-math'), `X_i \\sim \\mathcal{N}(${RAW_MU}, ${RAW_SIGMA}^2) \\xrightarrow{\\text{standardize}} Z_i`, false);
+                    document.getElementById('chart1-title').textContent = `1. Draw ${k} Raw Normal Value${k > 1 ? 's' : ''}`;
+                }
+                document.getElementById('bridge-label').textContent = '2. Square and Sum';
+                renderKatex(document.getElementById('chart2-math'), `\\sum Z_i^2 \\sim \\chi^2_{${k}}`, false);
+            }
+            updateExpectedReadout();
+        }
+
         function initCharts() {
+            if (caseId === 'counts') initCountsChart();
+            else initNormalChart();
+            initChiChart();
+        }
+
+        function initNormalChart() {
             const nContainer = document.getElementById('chart-normal');
-            
-            // Empty container first to prevent resizing loops
             d3.select('#chart-normal').selectAll('*').remove();
-            
             const nW = nContainer.clientWidth;
             const nH = nContainer.clientHeight;
-            
+            if (nW < 10 || nH < 10) return;
+
             const nSvg = d3.select('#chart-normal')
                 .append('svg')
                 .attr('width', nW)
                 .attr('height', nH);
-                
+
             const mu = showStandardized ? 0 : RAW_MU;
             const sigma = showStandardized ? 1 : RAW_SIGMA;
             const xMin = mu - 4 * sigma;
             const xMax = mu + 4 * sigma;
 
             const nx = d3.scaleLinear().domain([xMin, xMax]).range([margins.left, nW - margins.right]);
-            
             const peakY = normalPdf(mu, mu, sigma);
             const ny = d3.scaleLinear().domain([0, peakY * 1.1]).range([nH - margins.bottom, margins.top]);
-            
-            // Shaded region [-1 sigma, 1 sigma]
+
             nSvg.append('rect')
                 .attr('x', nx(mu - sigma))
                 .attr('y', margins.top)
@@ -329,16 +555,15 @@
                 .attr('text-anchor', 'middle')
                 .attr('fill', 'currentColor')
                 .attr('class', 'text-[11px] viz-ink-group-a font-medium')
-                .text(showStandardized ? 'Values in [-1, 1] shrink toward 0 when squared' : `Values in [${mu-sigma}, ${mu+sigma}] shrink toward 0 when standardized & squared`);
+                .text(showStandardized ? 'Values in [-1, 1] shrink toward 0 when squared' : `Values in [${mu - sigma}, ${mu + sigma}] shrink toward 0 when standardized & squared`);
 
-            // Draw Normal PDF
             const lineNormal = d3.line()
                 .x(d => nx(d.x))
                 .y(d => ny(d.y))
                 .curve(d3.curveMonotoneX);
-                
-            const nData = d3.range(xMin, xMax, (xMax - xMin)/200).map(x => ({x: x, y: normalPdf(x, mu, sigma)}));
-            
+
+            const nData = d3.range(xMin, xMax, (xMax - xMin) / 200).map(x => ({ x: x, y: normalPdf(x, mu, sigma) }));
+
             nSvg.append('path')
                 .datum(nData)
                 .attr('fill', 'none')
@@ -349,12 +574,11 @@
             nSvg.append('g')
                 .attr('transform', `translate(0,${nH - margins.bottom})`)
                 .call(d3.axisBottom(nx));
-                
+
             nSvg.append('g')
                 .attr('transform', `translate(${margins.left},0)`)
                 .call(d3.axisLeft(ny).ticks(4));
 
-            // Add X-axis label
             nSvg.append('text')
                 .attr('x', nW - margins.right)
                 .attr('y', nH - 5)
@@ -362,7 +586,6 @@
                 .attr('class', 'text-[11px] fill-gray-500 font-semibold')
                 .text(showStandardized ? 'Value (Z)' : 'Value (X)');
 
-            // Add Y-axis label
             nSvg.append('text')
                 .attr('transform', 'rotate(-90)')
                 .attr('x', -margins.top)
@@ -372,70 +595,147 @@
                 .text('Density');
 
             normalChart = { svg: nSvg, x: nx, y: ny, w: nW, h: nH, xMin, xMax };
+        }
 
-            initChiChart();
+        function initCountsChart() {
+            const container = document.getElementById('chart-normal');
+            d3.select('#chart-normal').selectAll('*').remove();
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            if (w < 10 || h < 10) return;
+
+            const svg = d3.select('#chart-normal').append('svg').attr('width', w).attr('height', h);
+            const example = currentExample();
+            const expected = example.probs.map(p => nTrials * p);
+            const observed = latestCounts ? latestCounts.observed : null;
+            const series = observed ? ['Expected', 'Observed'] : ['Expected'];
+            const yMax = Math.max(1, ...expected, ...(observed || [])) * 1.18;
+            const x0 = d3.scaleBand().domain(example.ticks).range([margins.left, w - margins.right]).padding(0.18);
+            const x1 = d3.scaleBand().domain(series).range([0, x0.bandwidth()]).padding(0.12);
+            const y = d3.scaleLinear().domain([0, yMax]).range([h - margins.bottom, margins.top]);
+            const color = {
+                Expected: statsViz.color('--viz-group-b'),
+                Observed: statsViz.color('--viz-group-a')
+            };
+
+            example.ticks.forEach((tick, i) => {
+                series.forEach(kind => {
+                    const value = kind === 'Expected' ? expected[i] : observed[i];
+                    const shown = kind === 'Observed' ? String(value) : formatCount(value);
+                    const bar = svg.append('rect')
+                        .attr('x', x0(tick) + x1(kind))
+                        .attr('y', y(value))
+                        .attr('width', Math.max(0, x1.bandwidth()))
+                        .attr('height', Math.max(0, y(0) - y(value)))
+                        .attr('fill', color[kind]);
+                    bar.append('title').text(example.names[i] + ', ' + kind.toLowerCase() + ' count: ' + shown);
+                });
+            });
+
+            svg.append('g')
+                .attr('transform', `translate(0,${h - margins.bottom})`)
+                .call(d3.axisBottom(x0));
+
+            svg.append('g')
+                .attr('transform', `translate(${margins.left},0)`)
+                .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format('~g')));
+
+            svg.append('text')
+                .attr('x', w - margins.right)
+                .attr('y', h - 5)
+                .attr('text-anchor', 'end')
+                .attr('class', 'text-[11px] fill-gray-500 font-semibold')
+                .text(example.axis);
+
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -margins.top)
+                .attr('y', 15)
+                .attr('text-anchor', 'end')
+                .attr('class', 'text-[11px] fill-gray-500 font-semibold')
+                .text('Count');
+
+            normalChart = { svg, w, h };
         }
 
         function initChiChart() {
             const cContainer = document.getElementById('chart-chi');
-            
             d3.select('#chart-chi').selectAll('*').remove();
-            
             const cW = cContainer.clientWidth;
             const cH = cContainer.clientHeight;
-            
+            if (cW < 10 || cH < 10) return;
+
+            const df = activeDf();
             const cSvg = d3.select('#chart-chi')
                 .append('svg')
                 .attr('width', cW)
                 .attr('height', cH);
 
-            // X-axis max depends on k. Mean = k, Var = 2k. Approx max bounds formula
-            const xMax = Math.max(10, k + 4 * Math.sqrt(2 * k));
+            const xMax = chiXMax(df);
             const cx = d3.scaleLinear().domain([0, xMax]).range([margins.left, cW - margins.right]);
-            
-            // Y-axis theoretical peak (mode)
-            let mode = Math.max(k - 2, 0);
-            let yMax = chiSquarePdf(mode === 0 && k === 1 ? 0.1 : mode, k) * 1.2;
-            if (yMax > 1 || !isFinite(yMax)) yMax = 1; // Cap extreme infinity rendering for k=1
+
+            let mode = Math.max(df - 2, 0);
+            let yMax = chiSquarePdf(mode === 0 && df === 1 ? 0.1 : mode, df) * 1.2;
+            if (yMax > 1 || !isFinite(yMax)) yMax = 1;
 
             const cy = d3.scaleLinear().domain([0, yMax]).range([cH - margins.bottom, margins.top]);
 
-            // Draw exact PDF
             const lineChi = d3.line()
                 .x(d => cx(d.x))
-                .y(d => cy(Math.min(yMax, d.y))) // Prevent line escaping top bound
+                .y(d => cy(Math.min(yMax, d.y)))
                 .curve(d3.curveMonotoneX);
-                
-            const startX = k === 1 ? 0.05 : 0; // Avoid 0 spike evaluation for k=1
-            const cData = d3.range(startX, xMax, xMax / 200).map(x => ({x: x, y: chiSquarePdf(x, k)}));
-            
-            // Mean Line
+
+            const startX = df === 1 ? 0.05 : 0;
+            const cData = d3.range(startX, xMax, xMax / 200).map(x => ({ x: x, y: chiSquarePdf(x, df) }));
+
             cSvg.append('line')
-                .attr('x1', cx(k))
-                .attr('x2', cx(k))
+                .attr('x1', cx(df))
+                .attr('x2', cx(df))
                 .attr('y1', margins.top)
                 .attr('y2', cH - margins.bottom)
                 .attr('stroke', statsViz.color('--viz-mean'))
                 .attr('stroke-dasharray', '4,4')
                 .attr('stroke-width', 2);
-                
+
             cSvg.append('text')
-                .attr('x', cx(k) + 5)
+                .attr('x', cx(df) + 5)
                 .attr('y', margins.top + 10)
                 .attr('fill', 'currentColor')
                 .attr('class', 'text-xs viz-ink-mean font-bold')
-                .text(`Mean = ${k}`);
+                .text(`Mean = ${df}`);
 
-            // Histogram Group (drawn under line)
             cSvg.append('g').attr('id', 'chi-histogram');
 
-            // Exact PDF path
             cSvg.append('path')
                 .datum(cData)
                 .attr('fill', 'none')
                 .attr('stroke', statsViz.color('--viz-density'))
                 .attr('stroke-width', 3)
                 .attr('d', lineChi);
+
+            if (caseId === 'counts' && showLatestMarker && latestStat != null && isFinite(latestStat)) {
+                const x = cx(Math.max(0, Math.min(xMax, latestStat)));
+                const meanX = cx(df);
+                const close = Math.abs(x - meanX) < 96;
+                const roomOnLeft = x - margins.left > 118;
+                const nearRight = x > margins.left + (cW - margins.left - margins.right) * 0.72;
+                const placeLeft = roomOnLeft && (close || nearRight);
+                cSvg.append('line')
+                    .attr('x1', x)
+                    .attr('x2', x)
+                    .attr('y1', margins.top + 16)
+                    .attr('y2', cH - margins.bottom)
+                    .attr('stroke', statsViz.color('--viz-group-c'))
+                    .attr('stroke-width', 2);
+                cSvg.append('text')
+                    .attr('x', placeLeft ? x - 6 : x + 6)
+                    .attr('y', close && !placeLeft ? margins.top + 36 : margins.top + 28)
+                    .attr('text-anchor', placeLeft ? 'end' : 'start')
+                    .attr('fill', 'currentColor')
+                    .attr('class', 'text-xs font-bold')
+                    .style('fill', statsViz.color('--viz-group-c'))
+                    .text('This draw = ' + latestStat.toFixed(2));
+            }
 
             cSvg.append('g')
                 .attr('transform', `translate(0,${cH - margins.bottom})`)
@@ -445,15 +745,13 @@
                 .attr('transform', `translate(${margins.left},0)`)
                 .call(d3.axisLeft(cy).ticks(5));
 
-            // Add X-axis label
             cSvg.append('text')
                 .attr('x', cW - margins.right)
                 .attr('y', cH - 5)
                 .attr('text-anchor', 'end')
                 .attr('class', 'text-[11px] fill-gray-500 font-semibold')
-                .text('Sum of Squared Values (χ²)');
+                .text(caseId === 'counts' ? 'Σ (O − E)² / E' : 'Sum of Squared Values (χ²)');
 
-            // Add Y-axis label
             cSvg.append('text')
                 .attr('transform', 'rotate(-90)')
                 .attr('x', -margins.top)
@@ -468,11 +766,13 @@
 
         function updateHistogram() {
             if (!chiChart || samples.length === 0) return;
-            
+
             const { svg, x, y, h } = chiChart;
             const bins = d3.bin()
                 .domain(x.domain())
                 .thresholds(x.ticks(40))(samples);
+
+            if (!bins.length || !isFinite(bins[0].x1 - bins[0].x0) || bins[0].x1 === bins[0].x0) return;
 
             const binWidth = bins[0].x1 - bins[0].x0;
             const scaleFactor = samples.length * binWidth;
@@ -480,7 +780,6 @@
             const rects = svg.select('#chi-histogram').selectAll('rect').data(bins);
 
             rects.join('rect')
-                // Clamp Y bounds so histogram spike at 0 for k=1 doesn't escape the top of the chart
                 .attr('transform', d => `translate(${x(d.x0)}, ${Math.max(margins.top, y(d.length / scaleFactor))})`)
                 .attr('width', d => Math.max(0, x(d.x1) - x(d.x0) - 1))
                 .attr('height', d => Math.max(0, h - margins.bottom - Math.max(margins.top, y(d.length / scaleFactor))))
@@ -488,17 +787,59 @@
                 .attr('class', 'bar-hover transition-all');
         }
 
+        function renderCountBridge(experiment, animate) {
+            const example = currentExample();
+            const bridge = document.getElementById('bridge-container');
+            bridge.innerHTML = '';
+            const wrap = document.createElement('div');
+            wrap.className = 'count-terms';
+            experiment.terms.forEach((term, i) => {
+                const card = document.createElement('div');
+                card.className = 'count-term';
+                if (animate) {
+                    card.classList.add('animate-fade-in');
+                    card.style.animationDelay = Math.min(i * 60, 500) + 'ms';
+                }
+                const name = document.createElement('div');
+                name.className = 'count-term-name';
+                name.textContent = example.names[i];
+                name.style.color = statsViz.series(i);
+                const line1 = document.createElement('div');
+                line1.className = 'count-term-arith';
+                line1.textContent = '(' + experiment.observed[i] + ' − ' + formatCount(experiment.expected[i]) + ')²';
+                const line2 = document.createElement('div');
+                line2.className = 'count-term-arith';
+                line2.textContent = '÷ ' + formatCount(experiment.expected[i]);
+                const value = document.createElement('div');
+                value.className = 'count-term-value';
+                value.textContent = term.toFixed(2);
+                value.style.color = statsViz.series(i);
+                card.append(name, line1, line2, value);
+                wrap.appendChild(card);
+            });
+            const total = document.createElement('div');
+            total.className = 'count-total';
+            total.textContent = 'Sum = ' + experiment.stat.toFixed(2);
+            wrap.appendChild(total);
+            bridge.appendChild(wrap);
+        }
+
+        function invalidateDraw() {
+            drawToken += 1;
+            d3.selectAll('*').interrupt();
+            isAnimating = false;
+        }
+
         async function drawOneSample() {
             if (isAnimating) return;
             isAnimating = true;
+            const token = drawToken;
 
-            // Generate Zs and Xs
-            const Zs = Array.from({length: k}, boxMuller);
+            const Zs = Array.from({ length: k }, boxMuller);
             const Xs = Zs.map(z => z * RAW_SIGMA + RAW_MU);
-            const Z2s = Zs.map(z => z*z);
+            const Z2s = Zs.map(z => z * z);
             const sumZ2 = Z2s.reduce((a, b) => a + b, 0);
-            
-            // 1. Plot on Normal Chart (clamp to visual bounds)
+
             const plotVals = showStandardized ? Zs : Xs;
             const nPts = normalChart.svg.selectAll('.z-point').data(plotVals);
             nPts.join('circle')
@@ -511,22 +852,19 @@
                 .attr('stroke-width', 1)
                 .transition().duration(400)
                 .attr('r', 6)
-                .attr('cy', d => normalChart.y(0) - 15 - Math.random()*20); // Jitter upwards
+                .attr('cy', d => normalChart.y(0) - 15 - Math.random() * 20);
 
-            // 2. Build Bridge Equation
             const bridge = d3.select('#bridge-container');
             bridge.html('');
-            
-            // Flexible layout block with truncation for high k
-            let htmlStr = ``;
-            const maxVisible = 8; 
-            
-            for(let i=0; i<k; i++) {
-                // Truncate middle terms if k is too large
+
+            let htmlStr = '';
+            const maxVisible = 8;
+
+            for (let i = 0; i < k; i++) {
                 if (k > maxVisible && i >= 4 && i < k - 2) {
                     if (i === 4) {
-                        htmlStr += `<div class="flex flex-col items-center justify-center mx-2 text-gray-400 font-bold tracking-widest h-full pb-2">...</div>`;
-                        htmlStr += `<span class="text-gray-400 self-end pb-1">+</span>`;
+                        htmlStr += '<div class="flex flex-col items-center justify-center mx-2 text-gray-400 font-bold tracking-widest pb-2">...</div>';
+                        htmlStr += '<span class="text-gray-400 self-end pb-1">+</span>';
                     }
                     continue;
                 }
@@ -534,40 +872,37 @@
                 const zVal = Zs[i].toFixed(2);
                 const z2Val = Z2s[i].toFixed(2);
                 const color = statsViz.series(i);
-                
-                htmlStr += `<div class="flex flex-col items-center animate-fade-in" style="animation-delay: ${Math.min(i*50, 800)}ms">`;
-                
+
+                htmlStr += `<div class="flex flex-col items-center animate-fade-in" style="animation-delay: ${Math.min(i * 50, 800)}ms">`;
+
                 if (!showStandardized) {
                     const xVal = Xs[i].toFixed(1);
                     htmlStr += `<div class="text-sm viz-soft-group-c viz-ink-group-c viz-border-group-c border rounded-md px-2 py-1 mb-2 shadow-sm font-semibold tracking-wide">$\\dfrac{${xVal} - ${RAW_MU}}{${RAW_SIGMA}}$</div>`;
                 }
-                
+
                 htmlStr += `<span style="color:${color}" class="text-xs whitespace-nowrap">(${zVal})²</span>
                     <span class="text-xs text-gray-400">↓</span>
                     <span style="color:${color}" class="font-bold text-sm">${z2Val}</span>
                 </div>`;
-                if (i < k - 1) htmlStr += `<span class="text-gray-400 self-end pb-1">+</span>`;
+                if (i < k - 1) htmlStr += '<span class="text-gray-400 self-end pb-1">+</span>';
             }
-            htmlStr += `<span class="text-gray-800 mx-2 self-end pb-1">=</span><span class="text-2xl font-bold viz-ink-density animate-pulse self-end">${sumZ2.toFixed(2)}</span>`;
+            htmlStr += `<span class="text-gray-800 mx-2 self-end pb-1">=</span><span class="text-2xl font-bold viz-ink-density self-end">${sumZ2.toFixed(2)}</span>`;
             bridge.html(htmlStr);
-            
+
             if (!showStandardized) {
                 renderMathInElement(document.getElementById('bridge-container'), {
-                    delimiters: [{left: '$', right: '$', display: false}],
+                    delimiters: [{ left: '$', right: '$', display: false }],
                     throwOnError: false
                 });
             }
 
-            // Wait for bridge animation
-            await new Promise(r => setTimeout(r, Math.min(1500, k*50 + 500)));
+            await new Promise(r => setTimeout(r, Math.min(1500, k * 50 + 500)));
 
-            if (!isAnimating) return; // Means interrupted via reset/slider
+            if (!isAnimating || token !== drawToken) return;
 
-            // 3. Add to Chi-Square Chart
             samples.push(sumZ2);
-            document.getElementById('stat-samples').innerText = samples.length;
+            document.getElementById('stat-samples').textContent = String(samples.length);
 
-            // Drop down animation for the point on Chi chart
             chiChart.svg.append('circle')
                 .attr('cx', chiChart.x(Math.max(0, Math.min(chiChart.x.domain()[1], sumZ2))))
                 .attr('cy', 0)
@@ -579,61 +914,103 @@
                 .attr('r', 0)
                 .remove()
                 .on('end', () => {
-                    if (!isAnimating) return; 
+                    if (!isAnimating || token !== drawToken) return;
                     updateHistogram();
                     normalChart.svg.selectAll('.z-point').transition().duration(300).attr('r', 0).remove();
                     isAnimating = false;
                 });
         }
 
+        async function drawOneCountSample() {
+            if (isAnimating) return;
+            isAnimating = true;
+            const token = drawToken;
+            const experiment = drawCountExperiment();
+            latestCounts = experiment;
+            latestStat = experiment.stat;
+            showLatestMarker = false;
+            initCountsChart();
+            renderCountBridge(experiment, true);
+            initChiChart();
+
+            await new Promise(r => setTimeout(r, 700));
+            if (!isAnimating || token !== drawToken) return;
+
+            const xMax = chiChart.x.domain()[1];
+            chiChart.svg.append('circle')
+                .attr('cx', chiChart.x(Math.max(0, Math.min(xMax, experiment.stat))))
+                .attr('cy', 0)
+                .attr('r', 6)
+                .attr('fill', statsViz.color('--viz-group-c'))
+                .transition().duration(600).ease(d3.easeBounce)
+                .attr('cy', chiChart.y(0))
+                .transition().duration(250)
+                .attr('r', 0)
+                .remove()
+                .on('end', () => {
+                    if (!isAnimating || token !== drawToken) return;
+                    samples.push(experiment.stat);
+                    showLatestMarker = true;
+                    document.getElementById('stat-samples').textContent = String(samples.length);
+                    syncLatestLegend();
+                    initChiChart();
+                    isAnimating = false;
+                });
+        }
+
         function simulateFast(n) {
-            d3.selectAll('*').interrupt();
-            isAnimating = false;
-            if (normalChart) normalChart.svg.selectAll('.z-point').remove();
-            
-            for(let j=0; j<n; j++) {
+            invalidateDraw();
+            if (normalChart && normalChart.svg) normalChart.svg.selectAll('.z-point').remove();
+
+            if (caseId === 'counts') {
+                let last = null;
+                for (let j = 0; j < n; j++) {
+                    last = drawCountExperiment();
+                    samples.push(last.stat);
+                }
+                latestCounts = last;
+                latestStat = last.stat;
+                showLatestMarker = true;
+                document.getElementById('stat-samples').textContent = String(samples.length);
+                syncLatestLegend();
+                initCountsChart();
+                renderCountBridge(last, false);
+                initChiChart();
+                return;
+            }
+
+            for (let j = 0; j < n; j++) {
                 let sum = 0;
-                for(let i=0; i<k; i++) sum += boxMuller() ** 2;
+                for (let i = 0; i < k; i++) sum += boxMuller() ** 2;
                 samples.push(sum);
             }
-            document.getElementById('stat-samples').innerText = samples.length;
+            document.getElementById('stat-samples').textContent = String(samples.length);
             updateHistogram();
         }
 
-        function updateDynamicMath() {
-            const formulaStr = `\\chi^2_{${k}} = \\sum_{i=1}^{${k}} \\left(\\frac{X_i - \\mu}{\\sigma}\\right)^2 = \\sum_{i=1}^{${k}} Z_i^2`;
-            katex.render(formulaStr, document.getElementById('dynamic-formula'), { displayMode: true, throwOnError: false });
-            
-            if (showStandardized) {
-                katex.render(`Z_i \\sim \\mathcal{N}(0,1)`, document.getElementById('chart1-math'), { throwOnError: false });
-                document.getElementById('chart1-title').innerText = `1. Draw ${k} Standard Normal Value${k > 1 ? 's' : ''}`;
-            } else {
-                katex.render(`X_i \\sim \\mathcal{N}(${RAW_MU}, ${RAW_SIGMA}^2) \\xrightarrow{\\text{standardize}} Z_i`, document.getElementById('chart1-math'), { throwOnError: false });
-                document.getElementById('chart1-title').innerText = `1. Draw ${k} Raw Normal Value${k > 1 ? 's' : ''}`;
-            }
-            
-            katex.render(`\\sum Z_i^2 \\sim \\chi^2_{${k}}`, document.getElementById('chart2-math'), { throwOnError: false });
+        function drawCurrent() {
+            if (caseId === 'counts') drawOneCountSample();
+            else drawOneSample();
         }
 
         function toggleDist() {
-            // Interrupt current animations to prevent bugs
-            d3.selectAll('*').interrupt();
-            isAnimating = false;
-            
+            invalidateDraw();
+            if (normalChart && normalChart.svg) normalChart.svg.selectAll('.z-point').remove();
+
             showStandardized = !showStandardized;
-            
+
             const btn = document.getElementById('btn-toggle-dist');
             const knob = document.getElementById('toggle-knob');
             const label = document.getElementById('toggle-label');
-            
+
             if (showStandardized) {
                 btn.classList.remove('mode-x');
                 btn.classList.add('mode-z');
                 btn.setAttribute('aria-checked', 'true');
                 knob.classList.remove('translate-x-0');
                 knob.classList.add('translate-x-5');
-                label.innerText = "Standard Z ~ N(0,1)";
-                label.className = "mode-z text-xs font-semibold select-none w-32 transition-colors";
+                label.innerText = 'Standard Z ~ N(0,1)';
+                label.className = 'mode-z text-xs font-semibold select-none w-32 transition-colors';
             } else {
                 btn.classList.remove('mode-z');
                 btn.classList.add('mode-x');
@@ -641,71 +1018,100 @@
                 knob.classList.remove('translate-x-5');
                 knob.classList.add('translate-x-0');
                 label.innerText = `Raw X ~ N(${RAW_MU}, ${RAW_SIGMA}²)`;
-                label.className = "mode-x text-xs font-semibold select-none w-32 transition-colors";
+                label.className = 'mode-x text-xs font-semibold select-none w-32 transition-colors';
             }
-            
+
             updateDynamicMath();
             resetData();
-            initCharts();
         }
 
         function handleKChange() {
-            // Cancel any current animations to avoid race conditions
-            d3.selectAll('*').interrupt();
-            isAnimating = false;
-            
-            k = parseInt(document.getElementById('k-slider').value);
-            document.getElementById('k-value-display').innerText = k;
-            document.getElementById('stat-mean').innerText = k;
-            document.getElementById('stat-variance').innerText = 2 * k;
-            
+            k = parseInt(document.getElementById('k-slider').value, 10);
+            document.getElementById('k-value-display').textContent = String(k);
+            updateDynamicMath();
+            updateMoments();
+            resetData();
+        }
+
+        function handleNChange() {
+            nTrials = parseInt(document.getElementById('n-slider').value, 10);
+            document.getElementById('n-value-display').textContent = String(nTrials);
             updateDynamicMath();
             resetData();
-            initCharts();
+        }
+
+        function setCountExample(id) {
+            if (!COUNT_EXAMPLES[id] || id === countExampleId) return;
+            countExampleId = id;
+            setPressed(document.getElementById('btn-example-coin'), id === 'coin');
+            setPressed(document.getElementById('btn-example-die'), id === 'die');
+            updateDynamicMath();
+            updateMoments();
+            resetData();
+        }
+
+        function setCase(next) {
+            if (next === caseId) return;
+            caseId = next;
+            setPressed(document.getElementById('btn-case-normals'), next === 'normals');
+            setPressed(document.getElementById('btn-case-counts'), next === 'counts');
+            document.getElementById('controls-normals').classList.toggle('is-hidden', next !== 'normals');
+            document.getElementById('controls-counts').classList.toggle('is-hidden', next !== 'counts');
+            document.getElementById('notes-normals').classList.toggle('is-hidden', next !== 'normals');
+            document.getElementById('notes-counts').classList.toggle('is-hidden', next !== 'counts');
+            document.getElementById('dist-toggle-container').classList.toggle('is-hidden', next !== 'normals');
+            document.getElementById('count-legend').classList.toggle('is-hidden', next !== 'counts');
+            updateDynamicMath();
+            updateMoments();
+            resetData();
         }
 
         function resetData() {
-            d3.selectAll('*').interrupt();
-            isAnimating = false;
+            invalidateDraw();
             samples = [];
-            document.getElementById('stat-samples').innerText = 0;
-            document.getElementById('bridge-container').innerHTML = '<span class="viz-ink-group-a italic font-sans text-base">Click "Draw 1 Sample" to observe transformation...</span>';
-            if (chiChart) chiChart.svg.select('#chi-histogram').selectAll('*').remove();
-            if (normalChart) normalChart.svg.selectAll('.z-point').remove();
+            latestCounts = null;
+            latestStat = null;
+            showLatestMarker = false;
+            document.getElementById('stat-samples').textContent = '0';
+            syncLatestLegend();
+            setBridgePlaceholder();
+            initCharts();
         }
 
-        // --- Init ---
         window.onload = () => {
-            // Render non-dynamic math 
             renderMathInElement(document.body, {
                 delimiters: [
-                    {left: '$$', right: '$$', display: true},
-                    {left: '$', right: '$', display: false}
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false }
                 ]
             });
-            
-            // Set dynamic parts initially
-            updateDynamicMath();
 
+            updateDynamicMath();
+            updateMoments();
             initCharts();
 
-            // Resize handling with debounce
             let resizeTimer;
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(() => {
+                    if (isAnimating) invalidateDraw();
                     initCharts();
-                    updateHistogram();
                 }, 150);
             });
 
-            // Event Listeners
             document.getElementById('k-slider').addEventListener('input', handleKChange);
-            document.getElementById('btn-draw-1').addEventListener('click', drawOneSample);
+            document.getElementById('n-slider').addEventListener('input', handleNChange);
+            document.getElementById('btn-draw-1').addEventListener('click', drawCurrent);
             document.getElementById('btn-draw-10').addEventListener('click', () => simulateFast(10));
             document.getElementById('btn-draw-1000').addEventListener('click', () => simulateFast(1000));
             document.getElementById('btn-reset').addEventListener('click', resetData);
-            document.getElementById('dist-toggle-container').addEventListener('click', toggleDist);
+            document.getElementById('dist-toggle-container').addEventListener('click', () => {
+                if (caseId === 'normals') toggleDist();
+            });
+            document.getElementById('btn-case-normals').addEventListener('click', () => setCase('normals'));
+            document.getElementById('btn-case-counts').addEventListener('click', () => setCase('counts'));
+            document.getElementById('btn-example-coin').addEventListener('click', () => setCountExample('coin'));
+            document.getElementById('btn-example-die').addEventListener('click', () => setCountExample('die'));
         };
     </script>
 <script src="../assets/site-meta.js"></script>
