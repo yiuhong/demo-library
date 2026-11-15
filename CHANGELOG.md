@@ -120,6 +120,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Cards toggle is gone. A remembered Cards choice opens the catalog.
 - Statistics headings match Guided Track titles. Describing data is split into Center and spread, Shape and pictures, and Same summaries, different graphs. Statistical reasoning is split into From process to distribution, Counts, arrivals, and the board, and Sampling distributions and intervals. t-test, Statistical power, ANOVA, and Association are unchanged.
 
+## [0.1.6] - 2026-11-15
+
+### Added
+
+- Pearson’s χ² Goodness-of-Fit, under Statistics → Sampling distributions and intervals, after Chi-Square Distribution. A roulette wheel compares observed counts with Pearson’s goodness-of-fit test: a European 18:18:1 color wheel, an equal 3-color wheel, a graded 4:3:2:1 tier wheel, and a 6-pocket number wheel; fair and rigged weights; animated and batch spins; observed versus expected bars and Pearson residuals; the live χ² decomposition; the χ² sampling distribution with an α critical region and a p-value; Cochran’s rule (Eᵢ ≥ 5); and an optional Monte Carlo overlay of 500 experiments. The Chi-Square Distribution demonstration is unchanged. No Guided Track step: that playlist moves from the chi-square curve, as a sum of squared normals, on to confidence intervals, and the counts playlist is about generating counts rather than testing them.
+
 ## [0.1.5] - 2026-11-13
 
 ### Added

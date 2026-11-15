@@ -273,6 +273,15 @@
               ]
             },
             {
+              "href": "statistics/chi_square_goodness_of_fit.html",
+              "title": "Pearson’s χ² Goodness-of-Fit",
+              "description": "A roulette simulation of Pearson’s chi-square goodness-of-fit test.",
+              "keywords": "Pearson chi-square goodness-of-fit goodness of fit roulette Cochran residual Monte Carlo categorical expected frequency",
+              "tags": [
+                "Simulation"
+              ]
+            },
+            {
               "href": "statistics/target_analogy_confidence_intervals.html",
               "title": "Target Analogy of Confidence Intervals",
               "description": "A target analogy of confidence intervals.",
