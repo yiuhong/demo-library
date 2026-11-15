@@ -87,12 +87,14 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 16px;
-      align-items: stretch;
+      align-items: start;
     }
 
     .card {
       padding: 14px 14px 16px;
       min-width: 0;
+      container-type: inline-size;
+      container-name: panel;
     }
 
     .card-head {
@@ -108,6 +110,15 @@
       font-size: 1rem;
       line-height: 1.3;
       margin: 0;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .card-head .demo-value {
+      max-width: 100%;
+      height: auto;
+      white-space: normal;
+      flex-wrap: wrap;
     }
 
     .card-tools {
@@ -115,6 +126,19 @@
       flex-wrap: wrap;
       gap: 6px;
       justify-content: flex-end;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .card-tools .demo-chip,
+    .rigging-head .demo-chip,
+    .spin-buttons .demo-btn,
+    .mc-actions .demo-btn {
+      max-width: 100%;
+      height: auto;
+      white-space: normal;
+      flex-wrap: wrap;
+      text-align: center;
     }
 
     .pedagogy {
@@ -147,7 +171,7 @@
 
     .q1-body {
       display: grid;
-      grid-template-columns: 228px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 228px) minmax(0, 1fr);
       gap: 14px;
       align-items: start;
     }
@@ -170,9 +194,11 @@
 
     .outcome {
       width: 100%;
+      max-width: 100%;
       padding: 8px 10px;
       font-size: 0.82rem;
       text-align: center;
+      overflow-wrap: anywhere;
     }
 
     .sim-controls {
@@ -180,6 +206,7 @@
       flex-direction: column;
       gap: 10px;
       min-width: 0;
+      max-width: 100%;
     }
 
     .spin-buttons,
@@ -187,10 +214,14 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .rigging-box {
       padding: 10px 12px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .rigging-head {
@@ -201,6 +232,18 @@
       flex-wrap: wrap;
       margin-bottom: 8px;
       font-size: 0.82rem;
+      min-width: 0;
+    }
+
+    .rigging-head strong {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .rigging-head .demo-chip-group {
+      min-width: 0;
+      max-width: 100%;
+      flex: 1 1 12rem;
     }
 
     .sliders-list {
@@ -226,9 +269,8 @@
     }
 
     .slider-label span:last-child {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
 
     .color-dot {
@@ -248,8 +290,9 @@
     .slider-prob {
       font-variant-numeric: tabular-nums;
       font-size: 0.75rem;
+      line-height: 1.25;
       text-align: right;
-      white-space: nowrap;
+      min-width: 0;
     }
 
     .slider-prob .null-note {
@@ -262,7 +305,7 @@
       border: 1px solid #000;
       border-radius: 4px;
       background: #fff;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .plot-well svg {
@@ -291,6 +334,14 @@
       padding: 8px 10px;
       border-radius: 4px;
       font-size: 0.84rem;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .banner > span:not(.banner-readout) {
+      flex: 1 1 12rem;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .cochran-alert {
@@ -324,9 +375,11 @@
     }
 
     .banner-readout {
+      flex: 0 1 auto;
       font-variant-numeric: tabular-nums;
       font-weight: 700;
-      white-space: nowrap;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .mc-bar {
@@ -337,10 +390,16 @@
       flex-wrap: wrap;
       margin-top: 10px;
       font-size: 0.82rem;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .mc-summary {
+      flex: 1 1 12rem;
       font-variant-numeric: tabular-nums;
+      min-width: 0;
+      max-width: 100%;
+      overflow-wrap: anywhere;
     }
 
     .formula-banner {
@@ -351,20 +410,40 @@
       flex-wrap: wrap;
       padding: 8px 10px;
       margin-bottom: 10px;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .formula-banner > div:first-child {
+      flex: 0 1 auto;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .formula-rhs {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 0.12em 0.35em;
+      flex: 1 1 auto;
+      margin-left: auto;
       font-weight: 700;
-      min-width: 0;
+      min-width: min(100%, 16rem);
       max-width: 100%;
-      overflow-x: auto;
+    }
+
+    .formula-rhs .sum-term,
+    .formula-rhs .sum-op {
+      white-space: nowrap;
     }
 
     .term-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
       gap: 8px;
       margin: 8px 0 12px;
+      min-width: 0;
     }
 
     .term-pill {
@@ -388,68 +467,110 @@
       font-weight: 700;
     }
 
-    .table-scroll {
+    .calc-board {
       max-width: 100%;
-      overflow-x: auto;
       border: 1px solid #000;
       border-radius: 4px;
       background: #fff;
     }
 
-    table.calc-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.78rem;
-      font-variant-numeric: tabular-nums;
-    }
-
-    table.calc-table th,
-    table.calc-table td {
-      padding: 6px 8px;
-      text-align: right;
+    .calc-row {
+      padding: 6px 10px 7px;
       border-bottom: 1px solid #e5e5e5;
-      white-space: nowrap;
-    }
-
-    table.calc-table th:first-child,
-    table.calc-table td:first-child {
-      text-align: left;
-      white-space: nowrap;
-    }
-
-    table.calc-table thead th {
-      background: #f6f6f6;
-      font-weight: 700;
-    }
-
-    table.calc-table tbody tr {
       cursor: pointer;
     }
 
-    table.calc-table tbody tr.row-highlight {
+    .calc-row:last-child {
+      border-bottom: none;
+    }
+
+    .calc-row.row-highlight {
       background: var(--viz-group-a-soft);
     }
 
-    table.calc-table tfoot td {
+    .calc-total {
       background: #f6f6f6;
-      font-weight: 700;
-      border-bottom: none;
       border-top: 1px solid #000;
+      border-bottom: none;
+      cursor: default;
+      font-weight: 700;
     }
 
-    .contrib-cell {
+    .calc-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+      min-width: 0;
+    }
+
+    .calc-name strong {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .calc-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 2px 10px;
+      min-width: 0;
+    }
+
+    .metric {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: 0.35em;
+      min-width: 0;
+    }
+
+    .metric-contrib {
       position: relative;
-      min-width: 7.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: 0.35em;
+      grid-column: span 2;
+      padding-bottom: 5px;
+    }
+
+    .metric-label {
+      color: var(--viz-reference);
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .metric-label sub,
+    .metric-label sup,
+    .metric-value sub,
+    .metric-value sup {
+      font-size: 0.75em;
+      line-height: 0;
+    }
+
+    .metric-value {
+      position: relative;
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .metric-contrib .metric-value {
+      position: static;
     }
 
     .contrib-bar {
       position: absolute;
       left: 0;
-      top: 3px;
-      bottom: 3px;
+      bottom: 0;
+      height: 3px;
+      max-width: 100%;
       background: var(--viz-group-a-mid);
-      border-radius: 3px;
-      z-index: 0;
+      border-radius: 2px;
     }
 
     .contrib-text {
@@ -464,6 +585,47 @@
 
     .katex-display {
       margin: 0.35em 0;
+    }
+
+    @container panel (max-width: 36rem) {
+      .q1-body {
+        grid-template-columns: minmax(0, 168px) minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      #rouletteCanvas {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+      }
+
+      .slider-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 8px;
+      }
+
+      .slider-label {
+        flex: 1 1 7.5rem;
+      }
+
+      .slider-prob {
+        flex: 0 1 auto;
+        text-align: right;
+      }
+
+      .slider-row input[type="range"] {
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 0;
+      }
+    }
+
+    @container panel (max-width: 24rem) {
+      .calc-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     @media (min-width: 961px) {
@@ -496,18 +658,33 @@
         width: 100%;
       }
 
-      .term-grid {
-        grid-template-columns: minmax(0, 1fr);
+      #rouletteCanvas {
+        width: min(220px, 100%);
+        height: auto;
+        aspect-ratio: 1;
       }
     }
 
     @media (max-width: 560px) {
       .slider-row {
-        grid-template-columns: minmax(0, 1fr) auto;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 8px;
+      }
+
+      .slider-label {
+        flex: 1 1 7.5rem;
+      }
+
+      .slider-prob {
+        flex: 0 1 auto;
       }
 
       .slider-row input[type="range"] {
-        grid-column: 1 / -1;
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 0;
       }
     }
   </style>
@@ -632,24 +809,7 @@
           </div>
         </div>
 
-        <div class="table-scroll">
-          <table class="calc-table">
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Null $p_i$</th>
-                <th>True $\pi_i$</th>
-                <th>$O_i$</th>
-                <th>$E_i$</th>
-                <th>$O_i - E_i$</th>
-                <th>$(O_i - E_i)^2$</th>
-                <th>$(O_i - E_i)^2 / E_i$</th>
-              </tr>
-            </thead>
-            <tbody id="calcTableBody"></tbody>
-            <tfoot id="calcTableFoot"></tfoot>
-          </table>
-        </div>
+        <div class="calc-board" id="calcBoard" aria-label="Chi-square decomposition by category"></div>
       </section>
 
       <section class="card demo-card card-plot" aria-labelledby="pdfHeading">
@@ -1630,88 +1790,127 @@
       }
     }
 
+    var DECOMP_LABELS = [
+      "Null p<sub>i</sub>",
+      "True π<sub>i</sub>",
+      "O<sub>i</sub>",
+      "E<sub>i</sub>",
+      "O<sub>i</sub> − E<sub>i</sub>",
+      "(O<sub>i</sub> − E<sub>i</sub>)<sup>2</sup>",
+      "(O<sub>i</sub> − E<sub>i</sub>)<sup>2</sup> / E<sub>i</sub>"
+    ];
+
+    function decompositionMetric(labelHtml, valueNode, options) {
+      var opts = options || {};
+      var cell = document.createElement("div");
+      cell.className = "metric" + (opts.contrib ? " metric-contrib" : "");
+      var label = document.createElement("span");
+      label.className = "metric-label";
+      label.innerHTML = labelHtml;
+      var value = document.createElement("span");
+      value.className = "metric-value" + (opts.valueClass ? " " + opts.valueClass : "");
+      if (opts.title) value.title = opts.title;
+      if (typeof valueNode === "string") value.textContent = valueNode;
+      else value.append(valueNode);
+      cell.append(label, value);
+      return cell;
+    }
+
     function renderFormulaTable(stats) {
+      var sumEl = document.getElementById("liveSymbolicSum");
       setMath(document.getElementById("dfFormulaBadge"), "$df = k - 1 = " + stats.df + "$");
       if (stats.N === 0) {
-        setMath(document.getElementById("liveSymbolicSum"), "$\\chi^2 = 0.000$");
+        setMath(sumEl, "$\\chi^2 = 0.000$");
       } else {
-        var terms = stats.rows.map(function (r) { return r.contrib.toFixed(2); }).join(" + ");
-        setMath(document.getElementById("liveSymbolicSum"), "$\\chi^2 = " + terms + " = " + stats.chiSq.toFixed(3) + "$");
+        var sumHtml = '<span class="sum-term">$\\chi^2 =$</span>';
+        stats.rows.forEach(function (r, i) {
+          if (i) sumHtml += '<span class="sum-op">+</span>';
+          sumHtml += '<span class="sum-term">$' + r.contrib.toFixed(2) + '$</span>';
+        });
+        sumHtml += '<span class="sum-op">=</span>';
+        sumHtml += '<span class="sum-term">$' + stats.chiSq.toFixed(3) + '$</span>';
+        setHTML(sumEl, sumHtml);
       }
 
-      var tbody = document.getElementById("calcTableBody");
-      tbody.replaceChildren();
+      var board = document.getElementById("calcBoard");
+      board.replaceChildren();
       stats.rows.forEach(function (r, i) {
-        var tr = document.createElement("tr");
-        if (i === state.hoveredIndex) tr.classList.add("row-highlight");
+        var row = document.createElement("div");
+        row.className = "calc-row" + (i === state.hoveredIndex ? " row-highlight" : "");
+        row.setAttribute("data-idx", String(i));
         var pct = stats.chiSq > 0 ? (r.contrib / stats.chiSq) * 100 : 0;
 
-        function cell(text) {
-          var td = document.createElement("td");
-          td.textContent = text;
-          return td;
-        }
-
-        var name = document.createElement("td");
+        var name = document.createElement("div");
+        name.className = "calc-name";
         var dot = document.createElement("span");
         dot.className = "color-dot";
         dot.style.background = r.color;
         var strong = document.createElement("strong");
         strong.textContent = r.label;
-        name.append(dot, document.createTextNode(" "), strong);
+        name.append(dot, strong);
 
-        var trueCell = cell((r.trueProb * 100).toFixed(2) + "%");
-        if (Math.abs(r.trueProb - r.nullProb) > 0.002) trueCell.classList.add("is-shifted");
-        else trueCell.classList.add("is-muted");
-
-        var diffCell = cell((r.diff >= 0 ? "+" : "") + r.diff.toFixed(2));
-        diffCell.classList.add(r.diff > 0 ? "is-high" : r.diff < 0 ? "is-low" : "is-muted");
-
-        var contrib = document.createElement("td");
-        contrib.className = "contrib-cell";
-        var bar = document.createElement("div");
+        var trueClass = Math.abs(r.trueProb - r.nullProb) > 0.002 ? "is-shifted" : "is-muted";
+        var diffClass = r.diff > 0 ? "is-high" : r.diff < 0 ? "is-low" : "is-muted";
+        var contribBits = document.createDocumentFragment();
+        var bar = document.createElement("span");
         bar.className = "contrib-bar";
         bar.style.width = Math.max(0, Math.min(100, pct)).toFixed(1) + "%";
         var text = document.createElement("span");
         text.className = "contrib-text";
         text.textContent = r.contrib.toFixed(3) + " (" + pct.toFixed(0) + "%)";
-        contrib.append(bar, text);
+        contribBits.append(bar, text);
 
-        tr.append(
-          name,
-          cell((r.nullProb * 100).toFixed(2) + "%"),
-          trueCell,
-          cell(String(r.O)),
-          cell(r.E.toFixed(2)),
-          diffCell,
-          cell(r.diffSq.toFixed(2)),
-          contrib
+        var metrics = document.createElement("div");
+        metrics.className = "calc-metrics";
+        metrics.append(
+          decompositionMetric(DECOMP_LABELS[0], (r.nullProb * 100).toFixed(2) + "%"),
+          decompositionMetric(DECOMP_LABELS[1], (r.trueProb * 100).toFixed(2) + "%", { valueClass: trueClass }),
+          decompositionMetric(DECOMP_LABELS[2], String(r.O)),
+          decompositionMetric(DECOMP_LABELS[3], r.E.toFixed(2)),
+          decompositionMetric(DECOMP_LABELS[4], (r.diff >= 0 ? "+" : "") + r.diff.toFixed(2), { valueClass: diffClass }),
+          decompositionMetric(DECOMP_LABELS[5], r.diffSq.toFixed(2)),
+          decompositionMetric(DECOMP_LABELS[6], contribBits, { contrib: true })
         );
-        bindHover(tr, i);
-        tbody.appendChild(tr);
+        row.append(name, metrics);
+        bindHover(row, i);
+        board.appendChild(row);
       });
 
       var sumDiff = stats.rows.reduce(function (a, r) { return a + r.diff; }, 0);
       var sumDiffSq = stats.rows.reduce(function (a, r) { return a + r.diffSq; }, 0);
       var sumLabel = Math.abs(sumDiff) < 1e-8 ? "0.00" : sumDiff.toFixed(2);
-      setHTML(
-        document.getElementById("calcTableFoot"),
-        "<tr>" +
-          "<td>Total (k = " + stats.k + ")</td>" +
-          "<td>100%</td><td>100%</td>" +
-          "<td>N = " + stats.N + "</td>" +
-          "<td>" + stats.N.toFixed(1) + "</td>" +
-          '<td title="The raw deviations sum to zero.">' + sumLabel + "</td>" +
-          "<td>" + sumDiffSq.toFixed(2) + "</td>" +
-          "<td>$\\chi^2 = " + stats.chiSq.toFixed(3) + "$</td>" +
-        "</tr>"
+      var total = document.createElement("div");
+      total.className = "calc-row calc-total";
+      var totalName = document.createElement("div");
+      totalName.className = "calc-name";
+      var totalStrong = document.createElement("strong");
+      totalStrong.textContent = "Total (k = " + stats.k + ")";
+      totalName.appendChild(totalStrong);
+      var chiLabel = document.createElement("span");
+      chiLabel.append(document.createTextNode("χ"));
+      var chiSup = document.createElement("sup");
+      chiSup.textContent = "2";
+      chiLabel.append(chiSup, document.createTextNode(" = " + stats.chiSq.toFixed(3)));
+      var totalMetrics = document.createElement("div");
+      totalMetrics.className = "calc-metrics";
+      totalMetrics.append(
+        decompositionMetric(DECOMP_LABELS[0], "100%"),
+        decompositionMetric(DECOMP_LABELS[1], "100%"),
+        decompositionMetric(DECOMP_LABELS[2], "N = " + stats.N),
+        decompositionMetric(DECOMP_LABELS[3], stats.N.toFixed(1)),
+        decompositionMetric(DECOMP_LABELS[4], sumLabel, { valueClass: "is-muted", title: "The raw deviations sum to zero." }),
+        decompositionMetric(DECOMP_LABELS[5], sumDiffSq.toFixed(2)),
+        decompositionMetric(DECOMP_LABELS[6], chiLabel, { contrib: true })
       );
+      total.append(totalName, totalMetrics);
+      board.appendChild(total);
     }
 
     function highlightSynchronizedViews() {
       drawRouletteWheel();
-      document.querySelectorAll("#calcTableBody tr").forEach(function (tr, idx) {
-        tr.classList.toggle("row-highlight", idx === state.hoveredIndex);
+      document.querySelectorAll("#calcBoard .calc-row[data-idx]").forEach(function (row) {
+        var idx = parseInt(row.getAttribute("data-idx"), 10);
+        row.classList.toggle("row-highlight", idx === state.hoveredIndex);
       });
       document.querySelectorAll("#barChartSvg .bar-hover-bg").forEach(function (rect) {
         var idx = parseInt(rect.getAttribute("data-idx"), 10);
