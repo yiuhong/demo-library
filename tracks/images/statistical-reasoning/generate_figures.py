@@ -1084,6 +1084,139 @@ def draw_chi_square() -> None:
     print(f"  chi2 mode df3={mode3:.3f} df5={mode5:.3f} peak3={curves[1].max():.3f}")
 
 
+def draw_goodness_of_fit() -> None:
+    """Pearson’s goodness-of-fit, as a schematic of the opening wheel.
+
+    statistics/chi_square_goodness_of_fit.html opens on the European wheel,
+    probabilities 18/37, 18/37, and 1/37, and α = 0.05. Cochran’s rule on
+    that page wants every expected count at least 5, so the smallest such
+    sample is N = 185 and the expected counts are 90, 90, and 5. The bars
+    are not one spin. Observed counts are 80, 90, and 15: red and green
+    each miss by 10, and dividing by E turns the rare miss into most of
+    the sum. df = k − 1 = 2. For that chi-square, the upper 5% point is
+    −2 ln(0.05).
+    """
+    observed = (80, 90, 15)
+    expected = (90, 90, 5)
+    n = sum(expected)
+    if sum(observed) != n:
+        raise SystemExit(f"counts should add to N = {n}")
+    if n != 185 or expected != (90, 90, 5):
+        raise SystemExit("European-wheel expected counts drifted")
+    gaps = [abs(o - e) for o, e in zip(observed, expected)]
+    if gaps[0] != 10 or gaps[1] != 0 or gaps[2] != 10:
+        raise SystemExit(f"the schematic wants gaps 10, 0, 10, got {gaps}")
+    contributions = [(o - e) ** 2 / e for o, e in zip(observed, expected)]
+    stat = float(sum(contributions))
+    # χ² with 2 df has survival function exp(−x/2).
+    crit = -2.0 * math.log(0.05)
+    if abs(contributions[0] - 10.0 / 9.0) > 1e-12 or contributions[1] != 0.0:
+        raise SystemExit(f"contributions drifted: {contributions}")
+    if abs(contributions[2] - 20.0) > 1e-12 or abs(stat - 190.0 / 9.0) > 1e-12:
+        raise SystemExit(f"green contribution or sum drifted: {contributions} sum={stat}")
+    if not (stat > crit > 5.9):
+        raise SystemExit(f"the sum should fall past the critical value: sum={stat} crit={crit}")
+
+    fig, (ax_bars, ax_curve) = plt.subplots(
+        1,
+        2,
+        figsize=(8.2, 4.9),
+        constrained_layout=True,
+        gridspec_kw={"width_ratios": [1.05, 1.28]},
+    )
+
+    xs = np.arange(3)
+    ax_bars.bar(
+        xs,
+        contributions,
+        width=0.68,
+        facecolor="white",
+        edgecolor="black",
+        linewidth=1.0,
+        zorder=2,
+    )
+    # A perfect fit has no bar. The zero is the contribution, not a missing category.
+    ax_bars.text(1, 0.45, "0", ha="center", va="bottom", fontsize=12, color="black", zorder=3)
+    ax_bars.set_xlim(-0.55, 2.55)
+    ax_bars.set_xticks(xs)
+    ax_bars.set_xticklabels(["Red\n80 vs 90", "Black\n90 vs 90", "Green 0\n15 vs 5"])
+    ax_bars.set_ylim(0, 24)
+    ax_bars.set_yticks([0, 5, 10, 15, 20])
+    ax_bars.set_xlabel("observed vs expected count")
+    ax_bars.set_ylabel("contribution to χ²")
+    ax_bars.set_title("A gap of 10 counts, divided by E")
+
+    x_max = 32.0
+    x = np.linspace(0.0, x_max, 700)
+    # df = 2 density is (1/2) exp(−x/2), including at 0.
+    y = 0.5 * np.exp(-0.5 * x)
+    at_zero = float(y[0])
+    if abs(at_zero - 0.5) > 1e-12:
+        raise SystemExit(f"df = 2 density at 0 should be 1/2, got {at_zero}")
+    # Full-height band: under the curve the df = 2 tail is too thin to see.
+    span = ax_curve.axvspan(
+        crit,
+        x_max,
+        facecolor="#f2f2f2",
+        edgecolor="black",
+        hatch="///",
+        linewidth=0.0,
+        zorder=0,
+    )
+    span.set_edgecolor("black")
+    ax_curve.plot(x, y, color="black", linewidth=1.7, zorder=3)
+    ax_curve.axvline(crit, color="black", linestyle="dashed", linewidth=1.15, zorder=4)
+    ax_curve.axvline(stat, color="black", linestyle=(0, (1.2, 1.2)), linewidth=1.5, zorder=4)
+    _legend(
+        ax_curve,
+        [
+            Line2D([0], [0], color="black", linewidth=1.7, label="χ² density"),
+            Rectangle(
+                (0, 0),
+                1,
+                1,
+                facecolor="#f2f2f2",
+                edgecolor="black",
+                hatch="///",
+                label="upper 5%",
+            ),
+            Line2D(
+                [0],
+                [0],
+                color="black",
+                linestyle="dashed",
+                linewidth=1.15,
+                label="critical value  5.991",
+            ),
+            Line2D(
+                [0],
+                [0],
+                color="black",
+                linestyle=(0, (1.2, 1.2)),
+                linewidth=1.5,
+                label="χ² = 21.11",
+            ),
+        ],
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.22),
+        ncol=2,
+        borderaxespad=0.0,
+    )
+    ax_curve.set_xlim(0, x_max)
+    ax_curve.set_xticks([0, 10, 20, 30])
+    ax_curve.set_ylim(0, 0.62)
+    ax_curve.set_yticks([0, 0.2, 0.4, 0.6])
+    ax_curve.set_xlabel("value of the sum")
+    ax_curve.set_ylabel("density")
+    ax_curve.set_title("df = 2: the sum is in the upper 5% tail")
+
+    _save(fig, "06b-goodness-of-fit.png")
+    print(
+        f"  gof N={n} contributions={[round(c, 4) for c in contributions]} "
+        f"sum={stat:.4f} crit={crit:.4f}"
+    )
+
+
 def draw_intervals() -> None:
     hits = np.linspace(-1.55, 1.55, 19)
     miss = np.array([2.55])
@@ -1139,8 +1272,10 @@ def main() -> None:
     draw_galton()
     draw_horowitz()
     draw_chi_square()
+    draw_goodness_of_fit()
     draw_intervals()
-    # Step order is normal, CLT, binomial, Galton, Horowitz, chi-square, intervals.
+    # Playlist order in this folder: hierarchy, normal, map, CLT, binomial,
+    # Poisson, Galton, Horowitz, chi-square, goodness of fit, intervals.
     for name in (
         "03-horowitz-clt.png",
         "03-galton-board.png",

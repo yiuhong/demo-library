@@ -40,6 +40,10 @@ The Horowitz figure follows `statistics/horowitz_1974_simulation_CLT.html`: 96 s
 
 `ν` is the degrees of freedom. The demonstration writes the same sum as `χ²_k = Σ Zᵢ²` and calls the count `k`. The curves are `ν = 1`, `3`, and `5`. The `ν = 1` density is unbounded at 0, so the axes cut it off.
 
+## Goodness of fit
+
+`statistics/chi_square_goodness_of_fit.html` opens on the European wheel: probabilities `18/37`, `18/37`, and `1/37`, and `α = 0.05`. Cochran’s rule on that page wants every expected count at least 5, so the smallest such sample is `N = 185`, with expected counts 90, 90, and 5. The figure is a schematic of that hypothesis, not one spin. Observed counts are 80, 90, and 15. Red and green each miss by 10. The contributions are `100/90`, `0`, and `100/5`, so the sum is `190/9 = 21.11`. The reference is chi-square with `df = k − 1 = 2`. For that curve the upper 5% point is `−2 ln(0.05) = 5.991`. The hatched band is that upper tail, drawn full height because the density there is too thin to see under the curve. A dotted line marks the sum inside the band.
+
 ## Confidence intervals
 
 `statistics/target_analogy_confidence_intervals.html` treats `σ` as known. The margin is `z × SE` with `SE = σ / √n`, not a `t*` critical value. The buttons use `z = 1`, `1.96`, and `3`. The figure uses `z* = 1.96` and draws `SE = 1`, so every interval has half-width 1.96. Nineteen centers fall inside that half-width and one is placed outside. It is a schematic of the long-run 95% hit rate, not one random run of the demonstration.
