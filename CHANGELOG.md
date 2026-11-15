@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Chi-Square Distribution panel 1 keeps its squared-normal notes above the curve. “Values in [-1, 1] shrink toward 0 when squared” and “Values in [8, 12] shrink toward 0 when standardized & squared” sat on the crest. Both now sit in the headroom above it, including when the panel is short and the bell is at its tallest. A narrow slot wraps the sentence so it stays inside the plot. The wording, the cases, and the citation version are unchanged.
+
 - Pearson’s χ² goodness-of-fit no longer scrolls inside a panel. The decomposition table scrolled sideways (a `.table-scroll` wrapper), and the live sum scrolled on its own once six terms were written out. Each category is now a labeled grid in the card: four columns on a wide card, two on a narrow one, with the contribution on the same line as its label. The sum breaks after each term. Category names on the wheel wrap instead of being cut off, and inside the half-width card the probability slider sits on its own row. The page is still the only vertical scroller. Wheels, presets, spins, residuals, the χ² arithmetic, the density, Cochran’s rule, and the Monte Carlo overlay are unchanged. The citation version is unchanged.
 
 - Variance Explained uses a shorter page. The mode switch sits with the title, the slider and the distance toggles share one card, and the scatter plot and the variance breakdown sit side by side with less padding. The scatter keeps its size from that card. The model, the formulae, and the light theme are unchanged. Phone and coarse-pointer range targets stay 44px.
