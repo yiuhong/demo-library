@@ -63,6 +63,70 @@
         .pulse-highlight {
             animation: pulse 0.6s ease-out forwards;
         }
+
+        /* Teaching note starts closed. Same disclosure as the goodness-of-fit term note. */
+        .teaching-note > summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 1.25rem;
+            cursor: pointer;
+            list-style: none;
+            line-height: 1.35;
+        }
+
+        .teaching-note > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .teaching-note > summary::marker {
+            content: "";
+        }
+
+        .teaching-note > summary:focus {
+            outline: none;
+        }
+
+        .teaching-note > summary:focus-visible {
+            outline: 2px solid #000;
+            outline-offset: -3px;
+        }
+
+        .teaching-note > summary h3 {
+            margin: 0;
+            min-width: 0;
+        }
+
+        .teaching-note > summary::after {
+            content: "";
+            width: 0.45em;
+            height: 0.45em;
+            border-right: 2px solid #000;
+            border-bottom: 2px solid #000;
+            transform: translateY(-0.12em) rotate(45deg);
+            flex: 0 0 auto;
+        }
+
+        .teaching-note[open] > summary::after {
+            transform: translateY(0.12em) rotate(-135deg);
+        }
+
+        .teaching-note[open] > summary {
+            border-bottom: 1px solid #000;
+        }
+
+        .teaching-note-body {
+            padding: 0.75rem 1.25rem 1.25rem;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        @media (max-width: 768px), (pointer: coarse) {
+            .teaching-note > summary {
+                min-height: 44px;
+            }
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
     <link rel="stylesheet" href="../assets/tailwind.css">
@@ -202,9 +266,12 @@
             </div>
         </div>
         
-        <!-- Explanation Panel -->
-        <div class="demo-card demo-prose mt-6 p-5">
-            <h3 class="text-base font-bold mb-2">Connecting to the Paired $t$-test</h3>
+        <!-- Explanation Panel. Starts closed; the simulation above stays open. -->
+        <details class="demo-card demo-prose teaching-note mt-6">
+            <summary>
+                <h3 class="text-base font-bold">Connecting to the Paired $t$-test</h3>
+            </summary>
+            <div class="teaching-note-body">
             <p class="text-slate-600 text-sm leading-relaxed mb-4">
                 In a paired (dependent) $t$-test, each subject is measured twice (Pre and Post). Notice how a single sample draws a linked pair from both populations simultaneously. The test evaluates the <strong>difference scores</strong> ($D$) within each pair.
             </p>
@@ -229,7 +296,8 @@
             <p class="text-slate-600 text-sm leading-relaxed">
                 As you draw samples, the <strong>Estimated Standard Error</strong> ($s_D / \sqrt{n}$) varies from sample to sample because it relies on the sample's standard deviation ($s_D$). However, across 100 simulations, the average of these estimated standard errors closely approximates the true standard error (the empirical standard deviation of the sampling distribution on the right).
             </p>
-        </div>
+            </div>
+        </details>
     </div>
 
     <script>
