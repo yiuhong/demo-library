@@ -69,6 +69,75 @@
         .toggle-checkbox:checked + .toggle-label {
             background-color: #000000;
         }
+
+        /* Teaching note starts closed. Same disclosure as the goodness-of-fit term note. */
+        .teaching-note > summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 1.5rem;
+            cursor: pointer;
+            list-style: none;
+            line-height: 1.35;
+        }
+
+        .teaching-note > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .teaching-note > summary::marker {
+            content: "";
+        }
+
+        .teaching-note > summary:focus {
+            outline: none;
+        }
+
+        .teaching-note > summary:focus-visible {
+            outline: 2px solid #000;
+            outline-offset: -3px;
+        }
+
+        .teaching-note > summary h3 {
+            margin: 0;
+            min-width: 0;
+        }
+
+        .teaching-note > summary::after {
+            content: "";
+            width: 0.45em;
+            height: 0.45em;
+            border-right: 2px solid #000;
+            border-bottom: 2px solid #000;
+            transform: translateY(-0.12em) rotate(45deg);
+            flex: 0 0 auto;
+        }
+
+        .teaching-note[open] > summary::after {
+            transform: translateY(0.12em) rotate(-135deg);
+        }
+
+        .teaching-note[open] > summary {
+            border-bottom: 1px solid #000;
+        }
+
+        .teaching-note-body {
+            padding: 0.75rem 1.5rem 1.5rem;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .teaching-note-body .katex-display {
+            margin: 0.35em 0;
+            max-width: 100%;
+        }
+
+        @media (max-width: 768px), (pointer: coarse) {
+            .teaching-note > summary {
+                min-height: 44px;
+            }
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
     <link rel="stylesheet" href="../assets/tailwind.css">
@@ -241,9 +310,12 @@
                 
         </div> <!-- Close Main Grid -->
             
-            <!-- Explanation Panel -->
-        <div class="demo-card demo-prose p-6 w-full mt-6">
-            <h3 class="text-lg font-bold mb-2">Standard Error in Independent Groups</h3>
+            <!-- Explanation Panel. Starts closed; the simulation above stays open. -->
+        <details class="demo-card demo-prose teaching-note w-full mt-6">
+            <summary>
+                <h3 class="text-lg font-bold">Standard Error in Independent Groups</h3>
+            </summary>
+            <div class="teaching-note-body">
             <p id="explanation-text-1" class="text-slate-600 text-sm leading-relaxed mb-3">
                     Student's t-test assumes equal variances. It calculates a pooled variance ($s_p^2$) which is a weighted average of the two sample variances based on their degrees of freedom ($n-1$).
                 </p>
@@ -253,7 +325,8 @@
                 <p id="explanation-text-2" class="text-slate-600 text-sm leading-relaxed">
                     Notice that because we draw unequal sample sizes ($n_1=15, n_2=10$) and variances ($\sigma_1=10, \sigma_2=20$), the pooled variance leans heavily toward the smaller variance of the larger sample (Pop 1). This causes Student's SE to consistently underestimate the true error!
                 </p>
-        </div>
+            </div>
+        </details>
             
     </div> <!-- Close Max-w Container -->
 

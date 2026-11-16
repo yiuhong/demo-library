@@ -447,6 +447,18 @@
       color: #ffffff;
     }
 
+    .five-rules-drawer .pattern-decoder-box {
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 768px), (pointer: coarse) {
+      .rules-toggle-btn {
+        min-height: 44px;
+        white-space: normal;
+        text-align: left;
+      }
+    }
+
     .pattern-decoder-box {
       background: #ffffff;
       border: 1px dashed #cbd5e1;
@@ -1412,12 +1424,14 @@
             <span><strong>Crossed Interaction:</strong> e.g., <em>A&times;B&times;C</em> or <em>B&times;C&times;S/A</em> denotes crossed factorial or subject-by-within-factor interaction strata.</span>
           </span>
         </div>
-        <button class="rules-toggle-btn" id="rules-toggle-btn" onclick="toggleRulesDrawer()">
+        <button class="rules-toggle-btn" id="rules-toggle-btn" type="button" onclick="toggleRulesDrawer()" aria-expanded="false" aria-controls="five-rules-drawer">
           <span>🧱 Explore the 5 Foundational Brick Rules &amp; References</span>
-          <span id="rules-toggle-arrow">&#9662;</span>
+          <span id="rules-toggle-arrow" aria-hidden="true">&#9662;</span>
         </button>
       </div>
 
+      <!-- Rules 1–5 cheat-sheet starts closed with the long rules and references. -->
+      <div class="five-rules-drawer" id="five-rules-drawer">
       <div class="pattern-decoder-box">
         <div>
           <strong style="color: var(--error-text);">🧱 Rules 1 &amp; 2 — Within vs. Between Pools (View 3):</strong><br/>
@@ -1436,8 +1450,6 @@
         </div>
       </div>
 
-      <!-- Collapsible 5 Foundational Brick Rules Drawer -->
-      <div class="five-rules-drawer" id="five-rules-drawer">
         <div class="rules-grid">
           <!-- Rule 1 -->
           <div class="rule-card rule-error-theme" id="rule-card-1">
@@ -1647,8 +1659,10 @@
       rulesDrawerOpen = !rulesDrawerOpen;
       const drawer = document.getElementById('five-rules-drawer');
       const arrow = document.getElementById('rules-toggle-arrow');
+      const button = document.getElementById('rules-toggle-btn');
       drawer.classList.toggle('open', rulesDrawerOpen);
       arrow.innerHTML = rulesDrawerOpen ? '&#9652;' : '&#9662;';
+      button.setAttribute('aria-expanded', rulesDrawerOpen ? 'true' : 'false');
     }
 
     /* =========================================================================
