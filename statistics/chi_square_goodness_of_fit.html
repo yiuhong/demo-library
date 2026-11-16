@@ -171,7 +171,7 @@
 
     .q1-body {
       display: grid;
-      grid-template-columns: minmax(0, 228px) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 320px) minmax(11rem, 1fr);
       gap: 14px;
       align-items: start;
     }
@@ -181,13 +181,17 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
+      width: 320px;
+      max-width: 100%;
       min-width: 0;
     }
 
     #rouletteCanvas {
-      width: 220px;
-      height: 220px;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1;
       max-width: 100%;
+      min-width: 0;
       border-radius: 50%;
       display: block;
     }
@@ -467,6 +471,67 @@
       font-weight: 700;
     }
 
+    .term-note {
+      margin: 0 0 12px;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .term-note > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid #000;
+      border-radius: 4px;
+      background: var(--demo-panel);
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.35;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .term-note > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .term-note > summary:focus {
+      outline: none;
+    }
+
+    .term-note > summary:focus-visible {
+      outline: 2px solid #000;
+      outline-offset: 3px;
+    }
+
+    .term-note-label {
+      min-width: 0;
+    }
+
+    .term-note > summary::after {
+      content: "";
+      width: 0.45em;
+      height: 0.45em;
+      border-right: 2px solid #000;
+      border-bottom: 2px solid #000;
+      transform: translateY(-0.12em) rotate(45deg);
+      flex: 0 0 auto;
+    }
+
+    .term-note[open] > summary::after {
+      transform: translateY(0.12em) rotate(-135deg);
+    }
+
+    .term-note[open] > summary {
+      margin-bottom: 10px;
+    }
+
+    .term-note .term-grid {
+      margin-bottom: 0;
+    }
+
     .calc-board {
       max-width: 100%;
       border: 1px solid #000;
@@ -588,17 +653,6 @@
     }
 
     @container panel (max-width: 36rem) {
-      .q1-body {
-        grid-template-columns: minmax(0, 168px) minmax(0, 1fr);
-        gap: 10px;
-      }
-
-      #rouletteCanvas {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 1;
-      }
-
       .slider-row {
         display: flex;
         flex-wrap: wrap;
@@ -654,14 +708,25 @@
         justify-items: center;
       }
 
+      .wheel-container {
+        width: 100%;
+        max-width: none;
+      }
+
       .sim-controls {
         width: 100%;
       }
 
       #rouletteCanvas {
-        width: min(220px, 100%);
+        width: min(280px, 100%);
         height: auto;
         aspect-ratio: 1;
+      }
+    }
+
+    @media (max-width: 768px), (pointer: coarse) {
+      .term-note > summary {
+        min-height: 44px;
       }
     }
 
@@ -793,21 +858,26 @@
           <div class="formula-rhs" id="liveSymbolicSum">$\chi^2 = 0.000$</div>
         </div>
 
-        <p class="intuition">The term $\dfrac{(O - E)^2}{E}$ is squared error in units of the expected variance of a count. <q>How many units of ordinary random luck away from the expectation did this category land?</q></p>
-        <div class="term-grid">
-          <div class="term-pill demo-panel">
-            <strong>Numerator: $(O - E)^2$</strong>
-            Squared distance between the observed count and the expected count. Squaring keeps every miss positive and gives large misses extra weight.
+        <details class="term-note">
+          <summary>
+            <span class="term-note-label">How a Pearson term is built</span>
+          </summary>
+          <p class="intuition">The term $\dfrac{(O - E)^2}{E}$ is squared error in units of the expected variance of a count. <q>How many units of ordinary random luck away from the expectation did this category land?</q></p>
+          <div class="term-grid">
+            <div class="term-pill demo-panel">
+              <strong>Numerator: $(O - E)^2$</strong>
+              Squared distance between the observed count and the expected count. Squaring keeps every miss positive and gives large misses extra weight.
+            </div>
+            <div class="term-pill demo-panel">
+              <strong>Denominator: $E$</strong>
+              Expected variance of a count of that size. A miss of 3 is unsurprising when $E$ is large and surprising when $E$ is small.
+            </div>
+            <div class="term-pill demo-panel">
+              <strong>Ratio: $(O - E)^2 / E$</strong>
+              One category’s contribution to $\chi^2$. The contributions add up to the test statistic.
+            </div>
           </div>
-          <div class="term-pill demo-panel">
-            <strong>Denominator: $E$</strong>
-            Expected variance of a count of that size. A miss of 3 is unsurprising when $E$ is large and surprising when $E$ is small.
-          </div>
-          <div class="term-pill demo-panel">
-            <strong>Ratio: $(O - E)^2 / E$</strong>
-            One category’s contribution to $\chi^2$. The contributions add up to the test statistic.
-          </div>
-        </div>
+        </details>
 
         <div class="calc-board" id="calcBoard" aria-label="Chi-square decomposition by category"></div>
       </section>
@@ -1401,11 +1471,30 @@
       state.animFrameId = requestAnimationFrame(step);
     }
 
+    var WHEEL_SPACE = 480;
+    var lastWheelBitmap = 0;
+
+    function wheelBitmapSize(cssPx) {
+      var dpr = window.devicePixelRatio || 1;
+      if (dpr < 1) dpr = 1;
+      if (dpr > 3) dpr = 3;
+      return Math.max(WHEEL_SPACE, Math.round(cssPx * dpr));
+    }
+
     function drawRouletteWheel() {
       var canvas = document.getElementById("rouletteCanvas");
       var ctx = canvas.getContext("2d");
-      var w = canvas.width;
-      var h = canvas.height;
+      var cssPx = canvas.clientWidth;
+      if (!(cssPx > 1)) cssPx = WHEEL_SPACE;
+      var bitmap = wheelBitmapSize(cssPx);
+      if (canvas.width !== bitmap || canvas.height !== bitmap) {
+        canvas.width = bitmap;
+        canvas.height = bitmap;
+      }
+      lastWheelBitmap = bitmap;
+      ctx.setTransform(bitmap / WHEEL_SPACE, 0, 0, bitmap / WHEEL_SPACE, 0, 0);
+      var w = WHEEL_SPACE;
+      var h = WHEEL_SPACE;
       var cx = w / 2;
       var cy = h / 2;
       var outerR = Math.min(cx, cy) - 8;
@@ -2184,6 +2273,17 @@
     });
 
     initMode("color_eu");
+
+    var wheelCanvasEl = document.getElementById("rouletteCanvas");
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver(function () {
+        var cssPx = wheelCanvasEl.clientWidth;
+        if (!(cssPx > 1)) return;
+        if (wheelBitmapSize(cssPx) === lastWheelBitmap) return;
+        if (state.isSpinning) return;
+        drawRouletteWheel();
+      }).observe(wheelCanvasEl);
+    }
   </script>
   <script src="../assets/site-meta.js"></script>
   <script src="../assets/site-oer-footer.js"></script>
