@@ -344,6 +344,7 @@
                         <option value="boxcar">Boxcar / Uniform (Jagged Step)</option>
                     </select>
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">Shape of the weight function placed over each point. <span class="text-indigo-700 font-medium">Suggested: Gaussian</span> for smooth curves, or <span class="text-slate-600 font-medium">Boxcar</span> to see step-like averaging.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug"><strong>Reference.</strong> The smooth curve is a kernel density estimate: Rosenblatt (1956), <em>Remarks on some nonparametric estimates of a density function</em>, and Parzen (1962), <em>On estimation of a probability density function and mode</em>. The parabolic kernel is Epanechnikov (1969), <em>Non-parametric estimation of a multivariate probability density</em>.</p>
                 </div>
 
                 <!-- Optional Violin Bandwidth Override -->
@@ -457,6 +458,7 @@
                         <option value="percentile">Percentiles (5th to 95th)</option>
                     </select>
                     <p class="text-[11px] text-slate-500 mt-1 leading-snug">Defines how far the horizontal whiskers extend from the Q1–Q3 box. <span class="text-purple-700 font-medium">Suggested: Tukey (1.5×IQR)</span> to flag outliers as individual red dots.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug"><strong>Reference.</strong> The 1.5 × IQR fences are Tukey (1977), <em>Exploratory data analysis</em>.</p>
                 </div>
 
                 <!-- Extra Toggles: Mean Diamond & Jittered Points -->
