@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Project Viz</string>
+    <string name="title_activity_main">Project Viz</string>
+    <string name="package_name">com.yiuhong.demolibrary</string>
+    <string name="custom_url_scheme">com.yiuhong.demolibrary</string>
+</resources>

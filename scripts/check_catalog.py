@@ -15,6 +15,7 @@ Reads ``demos.json``, ``tracks.json``, and ``families.json`` at the repo root:
 * CITATION.cff matches the current version, and the cite page links the machine-readable citation
 * CHANGELOG.md and CONTRIBUTING.md are present, and the changelog names the current version
 * connection notes, formulae, and demo descriptions that use ``_`` or ``^`` are a subscript or superscript the connection page can draw, and that page builds ``sub`` / ``sup`` without ``innerHTML``
+* HTML under ``native-app/`` is the Capacitor build copy and is not part of this check
 
 Prints one line per problem and exits 1 when something is wrong. Exits 0 when
 every checked title and path is in place. GitHub Actions runs this on pull
@@ -100,6 +101,20 @@ def main(argv: list[str] | None = None) -> int:
         "Site chrome checked."
     )
     return 0
+
+
+def site_html_paths():
+    """Published HTML. Skip the Capacitor copy under native-app/.
+
+    Sync writes those pages again for the shell. Their paths are deeper
+    than the site root, so a catalog check would treat the copy as a
+    second notebook page.
+    """
+    blocked = {"native-app", "node_modules", ".git"}
+    for path in sorted(ROOT.rglob("*.html")):
+        if any(part in blocked for part in path.relative_to(ROOT).parts):
+            continue
+        yield path
 
 
 def load_json(path: Path) -> tuple[object | None, str | None]:
@@ -770,7 +785,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                 f"{href}: remove in-demo license or site-wide cite links"
             )
 
-    for path in sorted(ROOT.rglob("*.html")):
+    for path in site_html_paths():
         text = read_text(path)
         if text is None:
             continue

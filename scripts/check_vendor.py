@@ -287,7 +287,7 @@ def check_tailwind(problems: list[str]) -> None:
     elif not text.startswith(TAILWIND_HEADER):
         problems.append("assets/tailwind.css: expected the tailwindcss 3.4.17 header")
     linked = 0
-    for path in sorted(ROOT.rglob("*.html")):
+    for path in site_html_paths():
         page = path.read_text(encoding="utf-8")
         rel = path.relative_to(ROOT).as_posix()
         if PLAY_CDN_RE.search(page):
@@ -314,7 +314,7 @@ def check_tailwind(problems: list[str]) -> None:
 def check_pages(data: dict, problems: list[str]) -> None:
     libraries = data.get("libraries")
     known = set(libraries) if isinstance(libraries, dict) else set()
-    for path in sorted(ROOT.rglob("*.html")):
+    for path in site_html_paths():
         text = path.read_text(encoding="utf-8")
         rel = path.relative_to(ROOT).as_posix()
         for pattern in FORBIDDEN_HTML:
@@ -378,6 +378,19 @@ def fetch(url: str) -> bytes:
     request = urllib.request.Request(url, headers={"User-Agent": "demo-library-vendor-check"})
     with urllib.request.urlopen(request, timeout=60) as response:
         return response.read()
+
+
+def site_html_paths():
+    """Published HTML. Skip the Capacitor copy under native-app/.
+
+    A synced page lives deeper than the site root, so the loader path
+    this check expects would not match the copy. The copy is build output.
+    """
+    blocked = {"native-app", "node_modules", ".git"}
+    for path in sorted(ROOT.rglob("*.html")):
+        if any(part in blocked for part in path.relative_to(ROOT).parts):
+            continue
+        yield path
 
 
 def expected_src(path: Path) -> str:

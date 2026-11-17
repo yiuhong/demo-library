@@ -1,0 +1,23 @@
+{
+  "name": "project-viz-native",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Capacitor shell for Project Viz. Teaching pages are copied from the repository root at sync time.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "sync": "python3 scripts/sync_site.py && npx cap sync",
+    "android:debug": "python3 scripts/sync_site.py && npx cap sync android && python3 scripts/write_local_properties.py && cd android && ./gradlew assembleDebug",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/core": "8.6.2",
+    "@capacitor/ios": "8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2"
+  }
+}
