@@ -120,7 +120,7 @@
           "href": "statistics/boxplot_outliers.html",
           "title": "Boxplot and Outliers",
           "connectionTitle": "Points past the fence",
-          "note": "Once you can see the middle of the data in a boxplot, the next question is which points sit so far out that they count as unusual. The whiskers mark how far a point can sit from the quartiles before it counts as an outlier; the fence is a multiple of the spread inside the box. The histogram’s bars still depend on where the bin edges fall. A smooth curve can follow the same pile without those cuts.",
+          "note": "Once you can see the middle of the data in a boxplot, the next question is which points sit so far out that they count as unusual. The whiskers mark how far a point can sit from the quartiles before it counts as an outlier; the fence is a multiple of the spread inside the box. Those 1.5 × IQR fences are Tukey (1977), Exploratory data analysis. The histogram’s bars still depend on where the bin edges fall. A smooth curve can follow the same pile without those cuts.",
           "demoDescription": "Add extreme points and watch which ones fall outside the fences.",
           "formulae": [
             "lower fence = Q₁ − 1.5 × IQR",
@@ -133,7 +133,7 @@
           "href": "statistics/kde_plots.html",
           "title": "Kernel Density Estimate (KDE)",
           "connectionTitle": "A smooth curve, not bin edges",
-          "note": "A histogram’s bars move when the bin edges move, even though the numbers have not. A kernel density estimate sets a small kernel on each point and adds those kernels, so the same pile becomes a smooth curve. The bandwidth h is how wide each kernel is: a narrow kernel keeps the spikes, and a wide one flattens them. The kernel’s shape — Gaussian, Epanechnikov, or boxcar — is how the weights fall away from each point. That same curve is the violin, and a half of it is the cloud in a raincloud plot. The box beside them is still the five-number summary, which is what makes an extreme point look unusual.",
+          "note": "A histogram’s bars move when the bin edges move, even though the numbers have not. A kernel density estimate sets a small kernel on each point and adds those kernels, so the same pile becomes a smooth curve. The bandwidth h is how wide each kernel is: a narrow kernel keeps the spikes, and a wide one flattens them. The kernel’s shape — Gaussian, Epanechnikov, or boxcar — is how the weights fall away from each point. The estimate is the kernel density in Rosenblatt (1956), Remarks on some nonparametric estimates of a density function, and Parzen (1962), On estimation of a probability density function and mode. The parabolic kernel is Epanechnikov (1969), Non-parametric estimation of a multivariate probability density. That same curve is the violin, and a half of it is the cloud in a raincloud plot. The box beside them is still the five-number summary, which is what makes an extreme point look unusual.",
           "demoDescription": "Change the sample, the bandwidth, and the kernel. The histogram, the smooth curve, the violin, and the raincloud update together.",
           "formulae": [
             "f̂(x) = (1/(n h)) Σ K((x − xᵢ) / h)",
@@ -213,7 +213,7 @@
           "href": "statistics/probability_distributions_map.html",
           "title": "Probability Distributions Map",
           "connectionTitle": "The normal curve among the others",
-          "note": "The normal curve is one model among many. This map places sixteen common distributions in five neighborhoods and draws three kinds of link: a special case that fixes a parameter, a transformation or a sum, and a limit. Binomial(n, p) with n = 1 is Bernoulli(p). As n grows and np settles on λ, the binomial count approaches Poisson(λ). As n grows, the binomial count also approaches a normal curve, the shape the previous step built.",
+          "note": "The normal curve is one model among many. This map places sixteen common distributions in five neighborhoods and draws three kinds of link: a special case that fixes a parameter, a transformation or a sum, and a limit. Binomial(n, p) with n = 1 is Bernoulli(p). As n grows and np settles on λ, the binomial count approaches Poisson(λ). As n grows, the binomial count also approaches a normal curve, the shape the previous step built. That limit is the de Moivre–Laplace theorem: de Moivre (1738), The doctrine of chances (2nd ed.), and Laplace (1812), Théorie analytique des probabilités.",
           "demoDescription": "Filter a neighborhood, or select a distribution and read its links: a special case, a transform, or a limit.",
           "formulae": [
             "Binomial(1, p) = Bernoulli(p)",
@@ -234,7 +234,7 @@
           "href": "statistics/binomial_bernoulli.html",
           "title": "Binomial Distribution & Bernoulli Process",
           "connectionTitle": "Counting heads in n tosses",
-          "note": "A coin toss is a Bernoulli trial: two outcomes, the same chance of heads every time, and no memory of the tosses before it. Count the heads in n tosses and that count is binomial, the sum of those trials. The bars are the exact probabilities. The next step counts arrivals in a stretch of time instead of successes in a fixed number of trials.",
+          "note": "A coin toss is a Bernoulli trial: two outcomes, the same chance of heads every time, and no memory of the tosses before it. The trial and the binomial count are the model in Bernoulli (1713), Ars conjectandi. Count the heads in n tosses and that count is binomial, the sum of those trials. The bars are the exact probabilities. The next step counts arrivals in a stretch of time instead of successes in a fixed number of trials.",
           "demoDescription": "Set the number of coins and the chance of heads, then run many trials. The observed frequencies settle onto the bars.",
           "formulae": [
             "Xᵢ ~ Bernoulli(p),  P(Xᵢ = 1) = p",
@@ -249,7 +249,7 @@
           "href": "statistics/poisson_point_process.html",
           "title": "Poisson Distribution & Poisson Point Process",
           "connectionTitle": "Arrivals in a stretch of time",
-          "note": "A coin toss fixes the number of trials and counts the successes. A Poisson process fixes a stretch of time and counts arrivals that have no memory of one another. The waiting time between arrivals is exponential with the same rate, and the count in an interval of length t is Poisson(λt). Chop that interval into many short bins and each bin is nearly a Bernoulli trial. As the bins get finer, the binomial count approaches the Poisson count. The next step writes a binomial count as left and right bounces on a Galton board.",
+          "note": "A coin toss fixes the number of trials and counts the successes. A Poisson process fixes a stretch of time and counts arrivals that have no memory of one another. The count distribution is the one in Poisson (1837), Recherches sur la probabilité des jugements en matière criminelle et en matière civile. The waiting time between arrivals is exponential with the same rate, and the count in an interval of length t is Poisson(λt). Chop that interval into many short bins and each bin is nearly a Bernoulli trial. As the bins get finer, the binomial count approaches the Poisson count. The next step writes a binomial count as left and right bounces on a Galton board.",
           "demoDescription": "Set the rate and the window and watch the arrivals. The bars are the Poisson probabilities, and a finer binomial count approaches them.",
           "formulae": [
             "N(t) ~ Poisson(λt)",
@@ -264,7 +264,7 @@
           "href": "statistics/galton_board.html",
           "title": "Galton Board",
           "connectionTitle": "Bounces that pile into a bell",
-          "note": "Each bead on a Galton board takes a left or right bounce at every peg, the same Bernoulli trial as a coin toss. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape, and the binomial distribution approximates a normal distribution.",
+          "note": "Each bead on a Galton board takes a left or right bounce at every peg, the same Bernoulli trial as a coin toss. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape, and the binomial distribution approximates a normal distribution. The board is the quincunx in Galton (1889), Natural inheritance.",
           "demoDescription": "Start the flow or drop a burst, and change the rows. Each bead’s bin is its count of right bounces, and more rows pile those counts into a bell.",
           "formulae": [
             "X = X₁ + … + Xₙ ~ Binomial(n, p)",
@@ -371,7 +371,7 @@
           "href": "statistics/binomial_counts_to_chi_square.html",
           "title": "From Binomial Counts to Chi-Square",
           "connectionTitle": "A count, a z, then a chi-square",
-          "note": "A category from a coin or a die is a binomial count. The expected count is np, and the central limit theorem approximates that count with a normal curve. Dividing the error by the binomial standard deviation produces a z score. With two categories the errors are opposites, so the squared z equals Pearson’s chi-square and there is 1 degree of freedom. With more categories the counts are tied, so the degrees of freedom are k − 1, and one squared z is not that category’s Pearson cell: the squared z divides by E(1 − p), and the cell divides by E. The cells add to the chi-square. Cochran’s rule asks that every expected count be at least 5 before those curves are trusted. The last step uses the sum as a test of a model.",
+          "note": "A category from a coin or a die is a binomial count. The expected count is np, and the central limit theorem approximates that count with a normal curve. Dividing the error by the binomial standard deviation produces a z score. With two categories the errors are opposites, so the squared z equals Pearson’s chi-square and there is 1 degree of freedom. With more categories the counts are tied, so the degrees of freedom are k − 1, and one squared z is not that category’s Pearson cell: the squared z divides by E(1 − p), and the cell divides by E. The cells add to the chi-square. Cochran’s rule asks that every expected count be at least 5 before those curves are trusted. Pearson’s criterion is Pearson (1900), On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. The expected-count check is Cochran (1954), Some methods for strengthening the common χ² tests. The last step uses the sum as a test of a model.",
           "demoDescription": "Draw a coin or a die, standardize one category, and compare its squared z with the Pearson cell. Repeated draws fill the chi-square histogram.",
           "formulae": [
             "Eᵢ = n pᵢ",
@@ -389,7 +389,7 @@
           "href": "statistics/chi_square_goodness_of_fit.html",
           "title": "Pearson’s χ² Goodness-of-Fit",
           "connectionTitle": "Counts tested against a model",
-          "note": "Pearson’s goodness-of-fit test compares observed counts with the counts a stated model expects. Each category contributes (O − E)² / E, the Pearson cell from the previous step, and the contributions add to a chi-square with k − 1 degrees of freedom. That statistic is one point on the sampling curve from the first step. Past the critical value, the counts are surprising if the model is true. Cochran’s rule still asks that each expected count be at least 5 before that curve is a fair reference.",
+          "note": "Pearson’s goodness-of-fit test compares observed counts with the counts a stated model expects. Each category contributes (O − E)² / E, the Pearson cell from the previous step, and the contributions add to a chi-square with k − 1 degrees of freedom. That statistic is one point on the sampling curve from the first step. Past the critical value, the counts are surprising if the model is true. Cochran’s rule still asks that each expected count be at least 5 before that curve is a fair reference. Pearson’s criterion is Pearson (1900), On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. The expected-count check is Cochran (1954), Some methods for strengthening the common χ² tests.",
           "demoDescription": "Spin a wheel, compare the observed counts with the expected counts, and place the chi-square on its sampling curve.",
           "formulae": [
             "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ",
