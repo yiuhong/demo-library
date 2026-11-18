@@ -1099,9 +1099,12 @@
     }
 
     function onCatalogReady() {
-        if (scoped || page !== "catalog") return;
-        scoped = true;
+        // Latch only once the catalog is actually ready. A failed fetch
+        // dispatches the same event, and an early latch would ignore the
+        // later success (including Retry).
+        if (page !== "catalog" || scoped) return;
         if (!window.ProjectVizCatalog || !window.ProjectVizCatalog.ready || !window.ProjectVizCatalog.ready()) return;
+        scoped = true;
         var demo = readDemo();
         var category = resolveCatalogCategory(demo);
         window.ProjectVizCatalog.sync({
@@ -1122,7 +1125,10 @@
     }
 
     function onTracksReady() {
-        if (scoped || page !== "tracks") return;
+        // Same latch rule as the catalog. Tracks paint themselves; this
+        // hook attaches history and the open demonstration.
+        if (page !== "tracks" || scoped) return;
+        if (!window.ProjectVizTracks || !window.ProjectVizTracks.ready || !window.ProjectVizTracks.ready()) return;
         scoped = true;
         var demo = readDemo();
         var track = trackFromLocation();
@@ -1308,6 +1314,13 @@
             syncCatalog: syncCatalogView
         };
     }
+
+    // The ready event can fire before this file is parsed (a cached
+    // demos.json or tracks.json resolves while this script is still
+    // downloading). The listener above misses that event. If the data
+    // is already ready, attach chrome now.
+    onCatalogReady();
+    onTracksReady();
 
     if (hidesFullscreenQuery.addEventListener) {
         hidesFullscreenQuery.addEventListener("change", function () {

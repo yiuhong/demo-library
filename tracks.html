@@ -91,8 +91,87 @@
 
     <script src="assets/site-meta.js"></script>
     <script src="assets/site-oer-footer.js"></script>
+    <script>
+        (function () {
+            var MISSING_MS = 15000;
+            var gaveUp = false;
+            var sources = ["assets/concept-maps.js", "assets/tracks-page.js", "assets/shell.js"];
+
+            function settled() {
+                var api = window.ProjectVizTracks;
+                if (!api) return false;
+                if (typeof api.ready === "function" && api.ready()) return true;
+                if (typeof api.failed === "function" && api.failed()) return true;
+                return false;
+            }
+
+            function clearNode(node) {
+                while (node.firstChild) node.removeChild(node.firstChild);
+            }
+
+            function sourceReady(src) {
+                if (src.indexOf("concept-maps.js") !== -1) return !!window.ProjectVizMaps;
+                if (src.indexOf("tracks-page.js") !== -1) return !!window.ProjectVizTracks;
+                if (src.indexOf("shell.js") !== -1) return document.body.classList.contains("viz-shell-ready");
+                return false;
+            }
+
+            function loadSources(index, ok, fail) {
+                if (index >= sources.length) {
+                    ok();
+                    return;
+                }
+                var src = sources[index];
+                if (sourceReady(src)) {
+                    if (src.indexOf("tracks-page.js") !== -1 && window.ProjectVizTracks.load) window.ProjectVizTracks.load();
+                    loadSources(index + 1, ok, fail);
+                    return;
+                }
+                var script = document.createElement("script");
+                script.src = src + "?retry=" + Date.now();
+                script.onload = function () { loadSources(index + 1, ok, fail); };
+                script.onerror = function () { fail(); };
+                document.body.appendChild(script);
+            }
+
+            function paint() {
+                var mount = document.getElementById("tracks-root");
+                if (!mount) return;
+                clearNode(mount);
+                var note = document.createElement("p");
+                note.className = "hub-quiet";
+                note.textContent = "Guided tracks could not be loaded.";
+                var retry = document.createElement("button");
+                retry.type = "button";
+                retry.className = "catalog-retry";
+                retry.textContent = "Retry";
+                retry.addEventListener("click", function () {
+                    retry.disabled = true;
+                    clearNode(mount);
+                    var status = document.createElement("p");
+                    status.id = "tracks-status";
+                    status.className = "hub-quiet";
+                    status.textContent = "Loading tracks…";
+                    mount.appendChild(status);
+                    gaveUp = false;
+                    loadSources(0, function () {}, paint);
+                });
+                mount.appendChild(note);
+                mount.appendChild(retry);
+            }
+
+            function giveUp() {
+                if (gaveUp || settled() || window.ProjectVizTracks) return;
+                gaveUp = true;
+                paint();
+            }
+
+            window.ProjectVizTracksWatch = giveUp;
+            window.setTimeout(giveUp, MISSING_MS);
+        })();
+    </script>
     <script src="assets/concept-maps.js"></script>
-    <script src="assets/tracks-page.js"></script>
+    <script src="assets/tracks-page.js" onerror="if (window.ProjectVizTracksWatch) window.ProjectVizTracksWatch();"></script>
     <script src="assets/shell.js"></script>
 </body>
 </html>

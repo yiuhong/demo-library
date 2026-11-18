@@ -260,6 +260,53 @@ button.catalog-rail-back:focus-visible {
     outline-offset: 2px;
 }
 
+button.catalog-retry {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 2.75rem;
+    margin: 0 0 1.5rem;
+    padding: 0.4rem 1.15rem !important;
+    border: 1px solid #000000 !important;
+    border-radius: 3em !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    font-family: var(--font-family);
+    font-size: 0.92rem !important;
+    font-weight: bold;
+    letter-spacing: 0.01em !important;
+    line-height: 1.2 !important;
+    text-transform: none !important;
+    cursor: pointer;
+}
+
+button.catalog-retry:after {
+    display: none !important;
+    content: none !important;
+}
+
+button.catalog-retry:hover,
+button.catalog-retry:focus-visible {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+button.catalog-retry:focus {
+    outline: none;
+}
+
+button.catalog-retry:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+button.catalog-retry:disabled {
+    opacity: 0.45;
+    cursor: wait;
+}
+
 .viz-rail ul.track-chooser {
     list-style: none;
     margin: 0;

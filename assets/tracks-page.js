@@ -15,6 +15,9 @@
  * A phone shows the tree in the rail first, then the playlist, then the
  * demonstration. Family concept maps stay in families.json and are not
  * mounted here.
+ * The tree paints when tracks.json arrives, even if the shell is late.
+ * A hung or failed fetch shows an error and Retry. The shell still
+ * attaches navigation when it loads.
  */
 (function () {
     var root = document.getElementById("tracks-root");
@@ -29,6 +32,10 @@
     var currentId = "";
     var currentTopicId = "";
     var renderedKey = "";
+    var loadToken = 0;
+    var loadTimer = null;
+    var loadAbort = null;
+    var LOAD_LIMIT_MS = 12000;
 
     function el(tag, className, text) {
         var node = document.createElement(tag);
@@ -538,10 +545,26 @@
         return currentId;
     }
 
+    function showLoading() {
+        clear(root);
+        hideOverview();
+        if (!root) return;
+        var status = el("p", "hub-quiet", "Loading tracks…");
+        status.id = "tracks-status";
+        root.appendChild(status);
+    }
+
     function showError() {
         clear(root);
         hideOverview();
-        if (root) root.appendChild(el("p", "hub-quiet", "Guided tracks could not be loaded."));
+        if (!root) return;
+        root.appendChild(el("p", "hub-quiet", "Guided tracks could not be loaded."));
+        var retry = el("button", "catalog-retry", "Retry");
+        retry.type = "button";
+        retry.addEventListener("click", function () {
+            load();
+        });
+        root.appendChild(retry);
     }
 
     function jsonUrl(file) {
@@ -551,27 +574,96 @@
         return url.toString();
     }
 
+    function failLoad(token) {
+        if (token !== loadToken || ready) return;
+        if (loadTimer) window.clearTimeout(loadTimer);
+        loadTimer = null;
+        loadAbort = null;
+        ready = true;
+        failed = true;
+        showError();
+        try {
+            document.dispatchEvent(new CustomEvent("projectviz:tracks"));
+        } catch (err) {}
+    }
+
+    function reportTimeout() {
+        if (ready) return;
+        if (loadAbort) {
+            try {
+                loadAbort.abort();
+            } catch (err) {}
+        }
+        failLoad(loadToken);
+    }
+
+    function settleTracks(token, data) {
+        if (token !== loadToken || ready) return;
+        var nextTracks = normalizeTracks(data);
+        var nextTopics = normalizeTopics(data, nextTracks);
+        if (loadTimer) window.clearTimeout(loadTimer);
+        loadTimer = null;
+        loadAbort = null;
+        tracks = nextTracks;
+        topics = nextTopics;
+        failed = false;
+        ready = true;
+        renderedKey = "";
+        try {
+            sync();
+        } catch (err) {
+            ready = false;
+            failed = false;
+            throw err;
+        }
+        try {
+            document.dispatchEvent(new CustomEvent("projectviz:tracks"));
+        } catch (err2) {}
+    }
+
     function load() {
-        fetch(jsonUrl("tracks.json")).then(function (response) {
+        var token = ++loadToken;
+        if (loadAbort) {
+            try {
+                loadAbort.abort();
+            } catch (err) {}
+            loadAbort = null;
+        }
+        if (loadTimer) window.clearTimeout(loadTimer);
+        loadTimer = null;
+        ready = false;
+        failed = false;
+        showLoading();
+        var controller = typeof AbortController === "function" ? new AbortController() : null;
+        loadAbort = controller;
+        loadTimer = window.setTimeout(function () {
+            if (token !== loadToken || ready) return;
+            reportTimeout();
+        }, LOAD_LIMIT_MS);
+        var tracksUrl;
+        try {
+            tracksUrl = jsonUrl("tracks.json");
+        } catch (err) {
+            failLoad(token);
+            return;
+        }
+        var options = controller ? { signal: controller.signal } : {};
+        fetch(tracksUrl, options).then(function (response) {
             if (!response.ok) throw new Error("tracks");
             return response.json();
         }).then(function (data) {
-            tracks = normalizeTracks(data);
-            topics = normalizeTopics(data, tracks);
-            ready = true;
-            failed = false;
-            sync();
-            document.dispatchEvent(new CustomEvent("projectviz:tracks"));
+            settleTracks(token, data);
         }).catch(function () {
-            failed = true;
-            ready = false;
-            showError();
-            document.dispatchEvent(new CustomEvent("projectviz:tracks"));
+            failLoad(token);
         });
     }
 
     window.ProjectVizTracks = {
         sync: sync,
+        ready: function () { return ready && !failed; },
+        failed: function () { return failed; },
+        load: load,
+        reportTimeout: reportTimeout,
         trackForHref: trackForHref,
         currentId: function () { return currentId; },
         currentTopic: function () { return currentTopicId; },
