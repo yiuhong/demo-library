@@ -19,8 +19,11 @@
  * recompute a result, rewrite teaching text, or reset a simulation.
  *
  * The shell control is #viz-teach. On a demonstration, the same
- * Teach / Learn pair is inserted next to .demo-back. assets/teach.css
- * hides that in-page control when html has viz-embedded.
+ * Teach / Learn pair sits next to .demo-back, on one line. A page
+ * that already has .demo-topbar gets the pair inside that bar.
+ * A bare Back link is wrapped with the pair in .demo-teach-bar, so a
+ * parent stack such as space-y cannot drop the switch below Back.
+ * assets/teach.css hides that in-page control when html has viz-embedded.
  */
 (function () {
     if (window.__vizTeachBoot) return;
@@ -152,32 +155,57 @@
         return group;
     }
 
+    function wireSwitch(group) {
+        wire(group.querySelector("[data-viz-teach-choice='teach']"));
+        wire(group.querySelector("[data-viz-teach-choice='learn']"));
+    }
+
+    /* Back and the switch share one row. A bare link is lifted into that
+     * row so a sibling margin on the parent stack cannot drop the switch. */
+    function pairWithBack(link) {
+        var group = makeSwitch();
+        var parent = link.parentNode;
+        if (parent && parent.classList && parent.classList.contains("demo-topbar")) {
+            link.insertAdjacentElement("afterend", group);
+            wireSwitch(group);
+            return;
+        }
+        var bar = document.createElement("div");
+        bar.className = "demo-teach-bar";
+        if (link.style && link.style.marginBottom) {
+            bar.style.marginBottom = link.style.marginBottom;
+            link.style.marginBottom = "";
+        }
+        parent.insertBefore(bar, link);
+        bar.appendChild(link);
+        bar.appendChild(group);
+        wireSwitch(group);
+    }
+
     function mountPageControl() {
         var placed = false;
         var bars = document.querySelectorAll(".demo-topbar");
-        var i, bar, group, back;
+        var i, bar, back;
         for (i = 0; i < bars.length; i++) {
             bar = bars[i];
             if (bar.querySelector("[data-viz-teach-choice]")) {
                 placed = true;
                 continue;
             }
-            group = makeSwitch();
             back = bar.querySelector(".demo-back");
-            if (back) back.insertAdjacentElement("afterend", group);
-            else bar.insertBefore(group, bar.firstChild);
-            wire(group.querySelector("[data-viz-teach-choice='teach']"));
-            wire(group.querySelector("[data-viz-teach-choice='learn']"));
+            if (back) pairWithBack(back);
+            else {
+                var group = makeSwitch();
+                bar.insertBefore(group, bar.firstChild);
+                wireSwitch(group);
+            }
             placed = true;
         }
         if (placed) return;
         var links = document.querySelectorAll("a.demo-back");
         for (i = 0; i < links.length; i++) {
             if (links[i].parentNode && links[i].parentNode.querySelector("[data-viz-teach-choice]")) continue;
-            group = makeSwitch();
-            links[i].insertAdjacentElement("afterend", group);
-            wire(group.querySelector("[data-viz-teach-choice='teach']"));
-            wire(group.querySelector("[data-viz-teach-choice='learn']"));
+            pairWithBack(links[i]);
         }
     }
 
