@@ -71,8 +71,55 @@ html.viz-teach .lede:not([data-teach="essential"]) {
     font-size: 0.85rem;
 }
 
+/* Back and Teach / Learn share one line. A parent stack such as
+ * Tailwind space-y adds margin-top to every child after the first.
+ * The switch used to be that next sibling, so it sat below Back.
+ * .demo-teach-bar holds both, and the margin reset covers a switch
+ * that is still a direct sibling. */
+.demo-teach-bar {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.demo-topbar {
+    align-items: center;
+    justify-content: flex-start !important;
+    gap: 0.65rem;
+}
+
+.demo-teach-bar > .demo-back,
+.demo-teach-bar > .demo-teach,
+.demo-topbar > .demo-back,
+.demo-topbar > .demo-teach,
+.demo-back + .demo-teach {
+    align-self: center;
+    box-sizing: border-box;
+    min-height: 2.125rem;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.demo-teach-bar > .demo-teach,
+.demo-back + .demo-teach {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
 html.viz-embedded .demo-teach {
     display: none !important;
+}
+
+/* Shell pane bar: same centering as Fullscreen. A margin must not drop the pair. */
+.viz-pane-chrome > #viz-teach {
+    align-self: center;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 html.viz-teach .viz-mode-switch [data-viz-teach-choice="teach"],

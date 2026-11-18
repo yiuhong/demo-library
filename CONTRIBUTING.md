@@ -29,6 +29,7 @@ A new demonstration must:
 - load the shared theme, [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css) or [`assets/neuroscience-demo-theme.css`](assets/neuroscience-demo-theme.css)
 - keep `class="demo-page"` on `body`
 - leave the shared rule alone: under `(max-width: 768px), (pointer: coarse)`, `body.demo-page input[type="range"]` is a 44px hit box (an 8px track and a 28px thumb)
+- load Teach and Learn, and mark the page, as [Teach and Learn](#teach-and-learn) requires. That markup is the standing standard for every new demonstration and every new Guided Tracks connection page.
 
 Page-specific thumb colors are fine. Do not override that hit box back to a thin track.
 
@@ -75,9 +76,19 @@ Mark regions on purpose. Do not pick the essential equation with a script.
 - `data-teach="detail"` is hidden in Teach and shown in Learn: a lede, a pedagogy box, a long teaching note, a collapsed term-by-term explanation, and “In the next demo” prose.
 - An unmarked region follows a conservative default. Canvases, plots, headers, and controls stay. An obvious prose block such as a lede hides in Teach. Mark anything that is unclear.
 
-Citations stay on Learn, the detailed view. Do not add a second reference list for Teach. Footer and license chrome may stay as a thin line.
+Citations stay on Learn, the detailed view. Do not add a second reference list for Teach. Footer and license chrome may stay as a thin line. Cite a source only where the teaching depends on one, as a short note next to that teaching, and mark the note `data-teach="detail"`. Do not invent a citation.
 
-The first marked pages are Chi-Square Distribution, Chi-Square as Squared Distance, From Binomial Counts to Chi-Square, Pearson’s χ² Goodness-of-Fit, and Variance Explained. On the goodness-of-fit page the live sum already sits outside “How a Pearson term is built”, so Teach keeps that equation and hides the term note. Leave the other demonstrations unmarked until a later pass. Guided Tracks connection pages are unmarked in this pass too.
+This markup is the standing standard, not a one-time pass. A new demonstration is not done until it ships with it. A new Guided Tracks connection page ships with it too.
+
+- Load [`assets/teach.js`](assets/teach.js) and [`assets/teach.css`](assets/teach.css) the same way the demonstrations already do, immediately after the `embed=shell` hook.
+- `data-teach="essential"` on the figure, canvas, or plot, on the live equation or readout, and on the controls.
+- `data-teach="detail"` on the lede, the pedagogy, the longer notes, and any citation.
+- The page has a top bar. [`assets/teach.js`](assets/teach.js) inserts the Teach / Learn pair after `.demo-back`. A page with no Back link still needs a `.demo-topbar`, and the same pair is inserted there. The pair hides when `html` has `viz-embedded`.
+- Learn is the default and is the full page. Teach only hides detail. It does not recompute a result, rewrite teaching text, reset the simulation, or add a scrollbar inside a panel.
+
+[`tracks/connection.html`](tracks/connection.html) is the connection page. [`assets/connection-page.js`](assets/connection-page.js) marks the figure and the Key points formulae essential, and marks the note and **In the next demo** detail. The figure stays a concept illustration, and it stays before **In the next demo**. Do not paste that note into a new HTML file. A connection step in [`tracks.json`](tracks.json) is enough. The same renderer covers a new step.
+
+On Pearson’s χ² goodness-of-fit the live sum already sits outside “How a Pearson term is built”, so Teach keeps that equation and hides the term note. Where a live equation sits only inside a disclosure, split it from the explanation so it stays on screen in Teach and in Learn.
 
 Size the page for the catalog iframe. Avoid a page-level horizontal scrollbar. Never put a scrollbar over a canvas, especially WebGL. In Chrome that scrollbar can paint as a black band. Prefer wrapping, or a non-scrolling overlay. `height: 100vh` plus `overflow: hidden` on `body`, with no stacked fallback, is not safe in an iframe or on a phone.
 

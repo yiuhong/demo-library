@@ -309,9 +309,9 @@
     <a class="demo-back" href="../index.html">← Project Viz</a>
     <header class="demo-header">
       <h1>Probability Distributions Map</h1>
-      <p>Filter a neighborhood, or pan and zoom. Select a distribution to read its links.</p>
+      <p data-teach="detail">Filter a neighborhood, or pan and zoom. Select a distribution to read its links.</p>
     </header>
-    <div class="controls-bar demo-chip-group" id="neighborhood-filters">
+    <div class="controls-bar demo-chip-group" id="neighborhood-filters" data-teach="essential">
       <button class="demo-chip is-active" type="button" data-filter="all">All 16 Distributions</button>
       <button class="demo-chip" type="button" data-filter="coin"><span class="dot" style="background:var(--c-coin)"></span>1. Coin Flip (Counts)</button>
       <button class="demo-chip" type="button" data-filter="time"><span class="dot" style="background:var(--c-time)"></span>2. Arrivals &amp; Time</button>
@@ -326,7 +326,7 @@
           <button class="demo-btn icon-btn" id="btn-zoom-out" type="button" title="Zoom Out">−</button>
           <button class="demo-btn icon-btn" id="btn-reset" type="button" title="Reset View">⟲</button>
         </div>
-        <svg id="network-svg" viewBox="0 0 1150 780" preserveAspectRatio="xMidYMid meet">
+        <svg id="network-svg" viewBox="0 0 1150 780" preserveAspectRatio="xMidYMid meet" data-teach="essential">
           <defs>
             <marker id="arrow-special" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706" />
@@ -380,7 +380,7 @@
       <div class="inspector-section">
         <div class="section-label" id="plot-section-label">Live Density / Mass Explorer</div>
         <div class="plot-box">
-          <svg id="dist-plot-svg" viewBox="0 0 360 170"></svg>
+          <svg id="dist-plot-svg" viewBox="0 0 360 170" data-teach="essential"></svg>
         </div>
         <div class="sliders-container" id="insp-sliders"></div>
       </div>
@@ -388,14 +388,14 @@
       <!-- Real-World Intuition -->
       <div class="inspector-section">
         <div class="section-label">Why It Exists &amp; Intuition</div>
-        <p class="intuition-text" id="insp-intuition"></p>
+        <p class="intuition-text" id="insp-intuition" data-teach="detail"></p>
         <div class="example-box" id="insp-example"></div>
       </div>
 
       <!-- Mathematical Definition -->
       <div class="inspector-section">
         <div class="section-label">Mathematical Formulation (PMF / PDF)</div>
-        <div class="formula-box" id="insp-formula"></div>
+        <div class="formula-box" id="insp-formula" data-teach="essential"></div>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-name">Support</div>
@@ -416,7 +416,7 @@
       <div class="inspector-section" style="border-bottom: none;">
         <div class="section-label">How It Connects on the Map</div>
         <div class="connections-list" id="insp-connections"></div>
-        <p class="conn-desc">Reference. The links follow the chart in Leemis and McQueston (2008), <em>Univariate distribution relationships</em>. The binomial-to-normal limit is the de Moivre–Laplace theorem: de Moivre (1738), <em>The doctrine of chances</em> (2nd ed.), and Laplace (1812), <em>Théorie analytique des probabilités</em>.</p>
+        <p class="conn-desc" data-teach="detail">Reference. The links follow the chart in Leemis and McQueston (2008), <em>Univariate distribution relationships</em>. The binomial-to-normal limit is the de Moivre–Laplace theorem: de Moivre (1738), <em>The doctrine of chances</em> (2nd ed.), and Laplace (1812), <em>Théorie analytique des probabilités</em>.</p>
       </div>
     </aside>
   </div>

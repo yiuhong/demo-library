@@ -172,6 +172,9 @@
       z-index: 10;
     }
 
+
+    .stepper-bar > .demo-topbar { width: auto; margin: 0; flex: 0 0 auto; }
+    html.viz-embedded .stepper-bar > .demo-topbar { display: none !important; }
     .stepper-bar {
       display: flex;
       flex-wrap: wrap;
@@ -919,6 +922,7 @@
   <div id="stage-column">
     <header class="plot-chrome" id="plot-chrome">
       <div class="stepper-bar">
+        <div class="demo-topbar"></div>
         <button class="step-btn" data-step="1">1. Total Variation (<span class="math-var">SS</span><sub>T</sub>)</button>
         <button class="step-btn" data-step="2">2. Unexplained Error (<span class="math-var">SS</span><sub>E</sub>)</button>
         <button class="step-btn" data-step="3">3. Model Explained (<span class="math-var">SS</span><sub>M</sub>)</button>
@@ -932,8 +936,8 @@
       </div>
       <button type="button" class="pane-toggle" id="pane-toggle" aria-pressed="false">Controls</button>
     </header>
-  <div id="viewport-container">
-    <canvas id="three-canvas"></canvas>
+  <div id="viewport-container" data-teach="essential">
+    <canvas id="three-canvas" data-teach="essential"></canvas>
 
     <!-- 3D Axis Labels projected from 3D coordinates -->
     <div id="lbl-x1" class="axis-label" style="border-left: 3px solid var(--col-x1);"><span class="math-var">X</span><sub>1</sub> (Predictor 1)</div>
@@ -945,7 +949,7 @@
 
     <!-- Step narrative. The stepper itself lives in the header above. -->
     <div class="top-overlay">
-      <div id="story-text" class="story-banner">
+      <div id="story-text" class="story-banner" data-teach="detail">
         <strong>Full Synthesis:</strong> For every observation, the total deviation from the grand mean <span style="color:var(--col-sst);font-weight:700;">(<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>)</span> splits into the model's explained deviation <span style="color:var(--col-ssm);font-weight:700;">(<span class="math-var">&#374;</span><sub>i</sub> &minus; <span class="math-var">Y&#772;</span>)</span> plus the residual error <span style="color:var(--col-sse);font-weight:700;">(<span class="math-var">Y</span><sub>i</sub> &minus; <span class="math-var">&#374;</span><sub>i</sub>)</span>. The highlighted line is where <span class="math-var">&#374;</span> = <span class="math-var">Y&#772;</span>.
       </div>
     </div>
@@ -1126,7 +1130,7 @@
         </div>
       </div>
 
-      <div class="r2-banner">
+      <div class="r2-banner" data-teach="essential">
         <div>
           <strong style="color:var(--text-main);">Coefficient of Determination (<span class="math-var">R</span><sup>2</sup>):</strong>
           <div style="font-size:10.5px; color:var(--text-muted);">1 &minus; (<span class="math-var">SS</span><sub>E</sub> / <span class="math-var">SS</span><sub>T</sub>)</div>

@@ -91,7 +91,7 @@
                     <h1 class="demo-title text-xl">
                         EEG Biophysics Explorer
                     </h1>
-                    <p class="text-xs text-slate-400">Interactive simulation of synaptic dipole generation & volume conduction</p>
+                    <p class="text-xs text-slate-400" data-teach="detail">Interactive simulation of synaptic dipole generation & volume conduction</p>
                 </div>
             </div>
             
@@ -132,7 +132,7 @@
                             Neural Synchrony
                             <span class="group relative cursor-pointer text-slate-400 hover:text-slate-200">
                                 ⓘ
-                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed">
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed" data-teach="detail">
                                     How aligned the electrical dipoles of individual neurons are in time and phase. Higher synchrony dramatically increases constructive interference.
                                 </span>
                             </span>
@@ -153,7 +153,7 @@
                             Active Pyramidal Cells
                             <span class="group relative cursor-pointer text-slate-400 hover:text-slate-200">
                                 ⓘ
-                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed">
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed" data-teach="detail">
                                     The number of aligned cortical pyramidal cells firing. EEG requires tens of thousands of active cells to generate a readable signal.
                                 </span>
                             </span>
@@ -174,7 +174,7 @@
                             Impedance
                             <span class="group relative cursor-pointer text-slate-400 hover:text-slate-200">
                                 ⓘ
-                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed">
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed" data-teach="detail">
                                     The overall resistance of tissue layers (particularly the skull). Higher values act as a spatial low-pass filter, reducing and smearing the electrical field.
                                 </span>
                             </span>
@@ -195,7 +195,7 @@
                             Simulation Speed
                             <span class="group relative cursor-pointer text-slate-400 hover:text-slate-200">
                                 ⓘ
-                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed">
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-[10px] rounded shadow-2xl hidden group-hover:block z-30 pointer-events-none normal-case leading-relaxed" data-teach="detail">
                                     Slows down or speeds up the temporal flow of charges, dipole fields, and the oscilloscope sweep to make real-time analysis easier.
                                 </span>
                             </span>
@@ -250,15 +250,15 @@
                 <div class="flex flex-col gap-2">
                     <button onclick="loadTutorial('dipole')" class="tutorial-btn demo-option is-active flex flex-col items-start gap-1 p-2.5 text-left">
                         <span class="text-xs font-semibold viz-ink-erp-wave">1. The Synaptic Dipole</span>
-                        <span class="text-[10px] text-slate-400">Learn how EPSPs and IPSPs create positive/negative voltage poles along a pyramidal cell.</span>
+                        <span class="text-[10px] text-slate-400" data-teach="detail">Learn how EPSPs and IPSPs create positive/negative voltage poles along a pyramidal cell.</span>
                     </button>
                     <button onclick="loadTutorial('synchrony')" class="tutorial-btn demo-option flex flex-col items-start gap-1 p-2.5 text-left">
                         <span class="text-xs font-semibold text-purple-300">2. Why Synchrony is Crucial</span>
-                        <span class="text-[10px] text-slate-400">Discover how out-of-phase signals cancel each other, while synchronous firing builds observable scalp voltages.</span>
+                        <span class="text-[10px] text-slate-400" data-teach="detail">Discover how out-of-phase signals cancel each other, while synchronous firing builds observable scalp voltages.</span>
                     </button>
                     <button onclick="loadTutorial('conduction')" class="tutorial-btn demo-option flex flex-col items-start gap-1 p-2.5 text-left">
                         <span class="text-xs font-semibold text-pink-300">3. Volume Conduction & Filtering</span>
-                        <span class="text-[10px] text-slate-400">See how cerebrospinal fluid, bone, and skin disperse and low-pass filter electrical fields.</span>
+                        <span class="text-[10px] text-slate-400" data-teach="detail">See how cerebrospinal fluid, bone, and skin disperse and low-pass filter electrical fields.</span>
                     </button>
                 </div>
             </div>
@@ -279,7 +279,7 @@
 
                 <!-- Simulation Canvas Wrapper -->
                 <div class="demo-plot relative flex-grow min-h-[480px] overflow-hidden">
-                    <canvas id="canvas-biophysics" class="absolute inset-0 w-full h-full cursor-crosshair"></canvas>
+                    <canvas id="canvas-biophysics" class="absolute inset-0 w-full h-full cursor-crosshair" data-teach="essential"></canvas>
                     
                     <!-- Dynamic Layer Tag Float (changes on hover or click) -->
                     <div id="canvas-overlay-tag" class="absolute top-3 left-3 bg-slate-950 border border-slate-700 text-[10px] text-slate-300 px-2.5 py-1.5 rounded shadow-2xl pointer-events-none transition-opacity duration-200 opacity-0 z-40"></div>
@@ -305,7 +305,7 @@
 
                 <!-- Scope Canvas -->
                 <div class="demo-plot relative h-32 overflow-hidden flex items-center justify-center">
-                    <canvas id="canvas-oscilloscope" class="absolute inset-0 w-full h-full"></canvas>
+                    <canvas id="canvas-oscilloscope" class="absolute inset-0 w-full h-full" data-teach="essential"></canvas>
                     <div class="absolute left-10 top-2 code-font text-[9px] bg-slate-900/90 border border-slate-800 px-1 py-0.5 rounded viz-ink-raw opacity-80 z-10">60Hz Notch Active</div>
                     <div class="absolute right-2 bottom-2 code-font text-[9px] bg-slate-900/90 border border-slate-800 px-1 py-0.5 rounded text-slate-500 z-10" id="scale-indicator">10 µV / div</div>
                 </div>
@@ -339,17 +339,17 @@
                 <div class="flex-grow flex flex-col justify-between gap-4" id="inspector-content">
                     <div class="space-y-3">
                         <h4 class="text-sm font-semibold text-indigo-400" id="inspector-title">Welcome to EEG Biophysics</h4>
-                        <p class="text-xs text-slate-400 leading-relaxed" id="inspector-desc">
+                        <p class="text-xs text-slate-400 leading-relaxed" id="inspector-desc" data-teach="essential">
                             This simulator visualizes the micro-scale electrical phenomena that build up the macro-scale EEG waveforms measured by clinical and scientific systems. 
                         </p>
-                        <p class="text-xs text-slate-400 leading-relaxed">
+                        <p class="text-xs text-slate-400 leading-relaxed" data-teach="detail">
                             Click on the <strong>Head Cross-Section</strong> layers or use the <strong>Guided Physics Concepts</strong> to begin investigating how electrical currents propagate through the skull.
                         </p>
                     </div>
                     
-                    <div class="demo-panel p-3 space-y-1.5" id="inspector-bio-fact">
+                    <div class="demo-panel p-3 space-y-1.5" id="inspector-bio-fact" data-teach="detail">
                         <span class="text-[10px] font-semibold text-indigo-300 uppercase tracking-wider block">Key Biophysics Fact</span>
-                        <p class="text-[10px] text-slate-400 leading-normal">
+                        <p class="text-[10px] text-slate-400 leading-normal" data-teach="detail">
                             Individual action potentials (spikes) do not generate EEG signals. Instead, EEG is formed by the spatial summation of slower synaptic potentials (EPSPs and IPSPs).
                         </p>
                     </div>
@@ -363,7 +363,7 @@
     <footer class="demo-footer px-6 py-4 mt-auto">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div>
-                <span>Based on Freeman (2004a, b) biophysical models of cortical dipoles.</span>
+                <span data-teach="detail">Based on Freeman (2004a, b) biophysical models of cortical dipoles.</span>
             </div>
             <div class="flex items-center gap-4">
                 <span>Created as a high-fidelity educational tool</span>

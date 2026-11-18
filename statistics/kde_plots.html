@@ -199,7 +199,7 @@
     <div class="demo-card flex-1 min-h-0 flex flex-col overflow-hidden">
     <header class="demo-header shrink-0">
         <h1 class="text-xl md:text-2xl font-bold">Kernel Density Estimate (KDE)</h1>
-        <p class="text-sm leading-relaxed">Change the sample, the bandwidth, and the kernel. The histogram, the smooth curve, the violin, and the raincloud update together.</p>
+        <p class="text-sm leading-relaxed" data-teach="detail">Change the sample, the bandwidth, and the kernel. The histogram, the smooth curve, the violin, and the raincloud update together.</p>
     </header>
 
         <!-- Live Summary Statistics -->
@@ -272,7 +272,7 @@
                         <span id="val-n" class="demo-value">250</span>
                     </div>
                     <input id="ctrl-n" type="range" min="20" max="1000" step="10" value="250" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Number of data points. <span class="text-slate-600 font-medium">Suggested: 200–500</span> for stable shapes, or <span class="text-slate-600 font-medium">30–50</span> to see small-sample noise.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Number of data points. <span class="text-slate-600 font-medium">Suggested: 200–500</span> for stable shapes, or <span class="text-slate-600 font-medium">30–50</span> to see small-sample noise.</p>
                 </div>
 
                 <!-- Primary Mean (mu) -->
@@ -291,7 +291,7 @@
                         <span id="val-sd" class="demo-value">1.50</span>
                     </div>
                     <input id="ctrl-sd" type="range" min="0.5" max="3.5" step="0.1" value="1.5" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Controls horizontal dispersion. <span class="text-slate-600 font-medium">Suggested: 1.0–2.0</span>.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Controls horizontal dispersion. <span class="text-slate-600 font-medium">Suggested: 1.0–2.0</span>.</p>
                 </div>
 
                 <!-- Bimodal Separation (Active only in Bimodal mode) -->
@@ -301,7 +301,7 @@
                         <span id="val-sep" class="demo-value">4.5</span>
                     </div>
                     <input id="ctrl-sep" type="range" min="1.0" max="8.0" step="0.25" value="4.5" class="w-full h-1.5 bg-indigo-200 rounded-lg cursor-pointer">
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Distance between the two cluster centers. <span class="text-slate-600 font-medium">Suggested: 4.0–6.0</span> to clearly see two peaks.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Distance between the two cluster centers. <span class="text-slate-600 font-medium">Suggested: 4.0–6.0</span> to clearly see two peaks.</p>
                 </div>
 
                 <!-- Inject Outliers -->
@@ -311,7 +311,7 @@
                         <span id="val-outliers" class="demo-value">0</span>
                     </div>
                     <input id="ctrl-outliers" type="range" min="0" max="10" step="1" value="0" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Adds extreme values far from the center. <span class="text-slate-600 font-medium">Suggested: 2–5</span> to test Box Plot outlier dots.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Adds extreme values far from the center. <span class="text-slate-600 font-medium">Suggested: 2–5</span> to test Box Plot outlier dots.</p>
                 </div>
             </div>
 
@@ -322,7 +322,7 @@
                         <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
                         2. Shared Kernel Density Estimate (KDE) &amp; Axis
                     </h2>
-                    <p class="text-[11px] text-slate-600 mt-0.5 leading-snug">
+                    <p class="text-[11px] text-slate-600 mt-0.5 leading-snug" data-teach="detail">
                         Both the <strong>Top KDE Curve</strong> and the <strong>Bottom Violin / Raincloud</strong> use the same mathematical Kernel Density Estimate!
                     </p>
                 </div>
@@ -334,7 +334,7 @@
                         <span id="val-kde-bw" class="demo-value">0.60</span>
                     </div>
                     <input id="ctrl-kde-bw" type="range" min="0.15" max="2.5" step="0.05" value="0.60" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Width of the smoothing kernel. Small values (<span class="text-slate-600 font-medium">0.15–0.30</span>) create noisy spikes; large values (<span class="text-slate-600 font-medium">&gt;1.2</span>) flatten peaks. <span class="text-indigo-700 font-medium">Suggested: 0.50–0.80</span>.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Width of the smoothing kernel. Small values (<span class="text-slate-600 font-medium">0.15–0.30</span>) create noisy spikes; large values (<span class="text-slate-600 font-medium">&gt;1.2</span>) flatten peaks. <span class="text-indigo-700 font-medium">Suggested: 0.50–0.80</span>.</p>
                 </div>
 
                 <!-- Kernel Function -->
@@ -345,8 +345,8 @@
                         <option value="epanechnikov">Epanechnikov (Parabolic)</option>
                         <option value="boxcar">Boxcar / Uniform (Jagged Step)</option>
                     </select>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Shape of the weight function placed over each point. <span class="text-indigo-700 font-medium">Suggested: Gaussian</span> for smooth curves, or <span class="text-slate-600 font-medium">Boxcar</span> to see step-like averaging.</p>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug"><strong>Reference.</strong> The smooth curve is a kernel density estimate: Rosenblatt (1956), <em>Remarks on some nonparametric estimates of a density function</em>, and Parzen (1962), <em>On estimation of a probability density function and mode</em>. The parabolic kernel is Epanechnikov (1969), <em>Non-parametric estimation of a multivariate probability density</em>.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Shape of the weight function placed over each point. <span class="text-indigo-700 font-medium">Suggested: Gaussian</span> for smooth curves, or <span class="text-slate-600 font-medium">Boxcar</span> to see step-like averaging.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail"><strong>Reference.</strong> The smooth curve is a kernel density estimate: Rosenblatt (1956), <em>Remarks on some nonparametric estimates of a density function</em>, and Parzen (1962), <em>On estimation of a probability density function and mode</em>. The parabolic kernel is Epanechnikov (1969), <em>Non-parametric estimation of a multivariate probability density</em>.</p>
                 </div>
 
                 <!-- Optional Violin Bandwidth Override -->
@@ -359,7 +359,7 @@
                         <span id="val-violin-bw" class="demo-value">0.60</span>
                     </div>
                     <input id="ctrl-violin-bw" type="range" min="0.15" max="2.5" step="0.05" value="0.60" disabled class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer disabled:opacity-40">
-                    <p class="text-[11px] text-slate-500 leading-snug">Uncheck if you want to compare a different bandwidth in the Violin / Raincloud against the top KDE curve.</p>
+                    <p class="text-[11px] text-slate-500 leading-snug" data-teach="detail">Uncheck if you want to compare a different bandwidth in the Violin / Raincloud against the top KDE curve.</p>
                 </div>
 
                 <!-- Shared Horizontal X-Axis Domain Lock -->
@@ -371,7 +371,7 @@
                             <span>Auto-Fit Data</span>
                         </label>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Keep unchecked (<span class="text-slate-600 font-medium">Fixed [-10, 14]</span>) to see distributions shift/stretch relative to a fixed ruler, or check to zoom tightly around the data.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Keep unchecked (<span class="text-slate-600 font-medium">Fixed [-10, 14]</span>) to see distributions shift/stretch relative to a fixed ruler, or check to zoom tightly around the data.</p>
                 </div>
             </div>
 
@@ -407,7 +407,7 @@
                             <button id="btn-scale-count" class="demo-chip" type="button">Count</button>
                         </div>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-1.5 leading-snug"><span class="text-slate-600 font-medium">Density</span> scales total bar area to 1.0 (true probability density). <span class="text-slate-600 font-medium">Count</span> shows raw number of items per bin.</p>
+                    <p class="text-[11px] text-slate-500 mt-1.5 leading-snug" data-teach="detail"><span class="text-slate-600 font-medium">Density</span> scales total bar area to 1.0 (true probability density). <span class="text-slate-600 font-medium">Count</span> shows raw number of items per bin.</p>
                 </div>
 
                 <!-- Number of Bins -->
@@ -417,7 +417,7 @@
                         <span id="val-bins" class="demo-value">24</span>
                     </div>
                     <input id="ctrl-bins" type="range" min="5" max="60" step="1" value="24" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Divides the X-axis into equal intervals. Too few (<span class="text-slate-600 font-medium">5–8</span>) hides shape; too many (<span class="text-slate-600 font-medium">45–60</span>) creates noisy gaps. <span class="text-sky-700 font-medium">Suggested: 20–30</span>.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Divides the X-axis into equal intervals. Too few (<span class="text-slate-600 font-medium">5–8</span>) hides shape; too many (<span class="text-slate-600 font-medium">45–60</span>) creates noisy gaps. <span class="text-sky-700 font-medium">Suggested: 20–30</span>.</p>
                 </div>
 
                 <!-- Bin Alignment / Anchor Shift -->
@@ -427,7 +427,7 @@
                         <span id="val-shift" class="demo-value">0.00</span>
                     </div>
                     <input id="ctrl-shift" type="range" min="-0.5" max="0.5" step="0.05" value="0.0" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Nudges bin boundaries left/right without changing the data. Slide slowly to see how histogram bars can change height while the KDE curve stays rock-solid!</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Nudges bin boundaries left/right without changing the data. Slide slowly to see how histogram bars can change height while the KDE curve stays rock-solid!</p>
                 </div>
             </div>
 
@@ -448,7 +448,7 @@
                             <button id="btn-layout-raincloud" class="demo-chip" type="button">Raincloud</button>
                         </div>
                     </div>
-                    <p id="layout-desc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Choose <span class="text-slate-600 font-medium">Nested</span> to place the Box Plot inside the Violin, <span class="text-slate-600 font-medium">Split</span> to separate them, or <span class="text-purple-700 font-medium">Raincloud</span> for Half-Violin ("Cloud") + Box + Jittered ("Rain").</p>
+                    <p id="layout-desc" class="text-[11px] text-slate-500 mt-1.5 leading-snug" data-teach="detail">Choose <span class="text-slate-600 font-medium">Nested</span> to place the Box Plot inside the Violin, <span class="text-slate-600 font-medium">Split</span> to separate them, or <span class="text-purple-700 font-medium">Raincloud</span> for Half-Violin ("Cloud") + Box + Jittered ("Rain").</p>
                 </div>
 
                 <!-- Whisker Definition -->
@@ -459,8 +459,8 @@
                         <option value="minmax">Min / Max (Full Data Range)</option>
                         <option value="percentile">Percentiles (5th to 95th)</option>
                     </select>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug">Defines how far the horizontal whiskers extend from the Q1–Q3 box. <span class="text-purple-700 font-medium">Suggested: Tukey (1.5×IQR)</span> to flag outliers as individual red dots.</p>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug"><strong>Reference.</strong> The 1.5 × IQR fences are Tukey (1977), <em>Exploratory data analysis</em>.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Defines how far the horizontal whiskers extend from the Q1–Q3 box. <span class="text-purple-700 font-medium">Suggested: Tukey (1.5×IQR)</span> to flag outliers as individual red dots.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail"><strong>Reference.</strong> The 1.5 × IQR fences are Tukey (1977), <em>Exploratory data analysis</em>.</p>
                 </div>
 
                 <!-- Extra Toggles: Mean Diamond & Jittered Points -->
@@ -475,7 +475,7 @@
                             <span>Jittered ("Rain")</span>
                         </label>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-1.5 leading-snug">Enable <span class="text-slate-600 font-medium">Jittered ("Rain")</span> to reveal the raw data cloud (automatically enabled when switching to <span class="text-purple-700 font-medium">Raincloud</span> mode).</p>
+                    <p class="text-[11px] text-slate-500 mt-1.5 leading-snug" data-teach="detail">Enable <span class="text-slate-600 font-medium">Jittered ("Rain")</span> to reveal the raw data cloud (automatically enabled when switching to <span class="text-purple-700 font-medium">Raincloud</span> mode).</p>
                 </div>
             </div>
         </aside>
@@ -486,7 +486,7 @@
             <!-- Interactive Pedagogical Banner -->
             <div class="kde-canvas px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 shrink-0">
                 <div class="flex items-center space-x-2 text-xs">
-                    <span class="demo-value">Interactive tip</span>
+                    <span class="demo-value" data-teach="detail">Interactive tip</span>
                     <span id="pedagogical-tip">Hover over <strong>Histogram bars</strong>, <strong>KDE/Violin curves</strong>, <strong>Box Plot quartiles/whiskers</strong>, or <strong>Outlier dots</strong> to inspect exact values and formulas!</span>
                 </div>
                 <div class="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs">
@@ -505,13 +505,13 @@
                     <div class="flex items-center justify-between mb-1 z-10 pointer-events-none">
                         <div>
                             <h3 class="text-sm font-bold text-slate-800">Panel A: Histogram &amp; Kernel Density Estimate (KDE)</h3>
-                            <p class="text-xs text-slate-500" id="top-subtitle">Continuous probability density vs. discrete binning intervals</p>
+                            <p class="text-xs text-slate-500" id="top-subtitle" data-teach="detail">Continuous probability density vs. discrete binning intervals</p>
                         </div>
                         <div id="hover-readout-top" class="opacity-0 transition-opacity bg-slate-900 text-white text-xs font-mono px-2.5 py-1 rounded-md shadow">
                             x = 0.00
                         </div>
                     </div>
-                    <div id="canvas-top" class="flex-1 w-full h-full relative"></div>
+                    <div id="canvas-top" class="flex-1 w-full h-full relative" data-teach="essential"></div>
                 </div>
 
                 <!-- BOTTOM CANVAS: Box Plot, Violin & Raincloud Plot (45% height) -->
@@ -519,10 +519,10 @@
                     <div class="flex items-center justify-between mb-1 z-10 pointer-events-none">
                         <div>
                             <h3 class="text-sm font-bold text-slate-800" id="bottom-title">Panel B: Horizontally Aligned Violin &amp; Box Plot</h3>
-                            <p class="text-xs text-slate-500" id="bottom-subtitle">Mirrored KDE shape paired with five-number summary quartiles</p>
+                            <p class="text-xs text-slate-500" id="bottom-subtitle" data-teach="detail">Mirrored KDE shape paired with five-number summary quartiles</p>
                         </div>
                     </div>
-                    <div id="canvas-bottom" class="flex-1 w-full h-full relative"></div>
+                    <div id="canvas-bottom" class="flex-1 w-full h-full relative" data-teach="essential"></div>
                 </div>
 
             </div>

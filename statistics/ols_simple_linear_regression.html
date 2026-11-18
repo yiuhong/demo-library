@@ -689,11 +689,11 @@
     </div>
     <header class="demo-header page-title">
       <h1>Ordinary Least Squares (OLS)</h1>
-      <p>Drag the line or the points, or try the guess-the-line challenge. The loss is the squared vertical gaps; the split of the total is SSR and SSE.</p>
-      <p>Reference. Presets 4a–4d are Anscombe’s quartet, Anscombe (1973), <em>Graphs in statistical analysis</em>.</p>
+      <p data-teach="detail">Drag the line or the points, or try the guess-the-line challenge. The loss is the squared vertical gaps; the split of the total is SSR and SSE.</p>
+      <p data-teach="detail">Reference. Presets 4a–4d are Anscombe’s quartet, Anscombe (1973), <em>Graphs in statistical analysis</em>.</p>
     </header>
 
-    <div class="header-controls">
+    <div class="header-controls" data-teach="essential">
       <label for="presetSelect">Preset</label>
       <select id="presetSelect" class="demo-select" title="Select a curated statistical dataset">
         <option value="classic">1. Classic Linear Trend (r = 0.86, n = 12)</option>
@@ -772,7 +772,7 @@
         <!-- Packaged Visual Layers (Matched to Tab B: SS Area Comparator Colors) -->
         <div class="control-section">
           <div class="section-label">Geometric Visual Layers (Color-Matched to B)</div>
-          <p class="layer-hint">Squares and distances are separate. Clear both to leave the line and the points.</p>
+          <p class="layer-hint" data-teach="detail">Squares and distances are separate. Clear both to leave the line and the points.</p>
 
           <!-- Candidate line and its residuals (group C) -->
           <div class="layer-package pkg-cand">
@@ -896,7 +896,7 @@
       </div>
 
       <div class="svg-container" id="scatterContainer">
-        <svg id="scatterSvg" viewBox="0 0 700 520"></svg>
+        <svg id="scatterSvg" viewBox="0 0 700 520" data-teach="essential"></svg>
       </div>
 
       <div class="plot-instructions">
@@ -919,9 +919,9 @@
           <b>Parameter Space $(b_0, b_1) \to SSE$:</b> Each point on this contour map represents an entire line in data space. Click or drag anywhere on the bowl to test $(b_0, b_1)$!
         </div>
         <div class="canvas-wrap" id="lossCanvasWrap">
-          <canvas id="lossCanvas" width="360" height="320"></canvas>
+          <canvas id="lossCanvas" width="360" height="320" data-teach="essential"></canvas>
         </div>
-        <div class="formula-box" id="quadLossFormula">
+        <div class="formula-box" id="quadLossFormula" data-teach="essential">
           <div><b>Quadratic Loss Decomposition:</b></div>
           <div style="font-size:11.5px; margin-top:4px;" id="quadLossNumbers"></div>
         </div>
@@ -929,11 +929,11 @@
 
       <!-- TAB B: VARIANCE DECOMPOSITION & AREA COMPARATOR -->
       <div id="tabDecomp" class="tab-pane">
-        <div style="font-size:12px; color:var(--text-muted);">
+        <div style="font-size:12px; color:var(--text-muted);" data-teach="detail">
           <b>Total Squared Area Comparison:</b> Why does OLS partition $SST = SSR + SSE$ cleanly while non-OLS lines can have $SSE > SST$?
         </div>
-        <svg id="decompSvg" viewBox="0 0 365 275" preserveAspectRatio="xMidYMid meet" style="width:100%; flex:1; min-height:280px; background:var(--demo-panel); border:1px solid var(--border); border-radius:4px;"></svg>
-        <div class="formula-box" style="font-size:12px;">
+        <svg id="decompSvg" viewBox="0 0 365 275" preserveAspectRatio="xMidYMid meet" style="width:100%; flex:1; min-height:280px; background:var(--demo-panel); border:1px solid var(--border); border-radius:4px;" data-teach="essential"></svg>
+        <div class="formula-box" style="font-size:12px;" data-teach="essential">
           <div><b>Orthogonality Check:</b> $\sum (\hat{Y}_i - \bar{Y})(Y_i - \hat{Y}_i) = 0$ at OLS.</div>
           <div id="crossTermText" style="margin-top:4px; font-size:11.5px;"></div>
         </div>
@@ -942,10 +942,11 @@
       <!-- TAB C: RESIDUAL DIAGNOSTICS PLOT -->
       <div id="tabResid" class="tab-pane">
         <div style="font-size:12px; color:var(--text-muted);">
-          <b>Residuals ($e_i = Y_i - \tilde{Y}_i$) vs. Predictor ($X_i$):</b> Notice that only at the OLS solution does the residual trend line sit flat on $e = 0$ ($\sum e_i = 0$ and $\sum X_i e_i = 0$).
+          <b>Residuals ($e_i = Y_i - \tilde{Y}_i$) vs. Predictor ($X_i$).</b>
+          <span data-teach="detail">Notice that only at the OLS solution does the residual trend line sit flat on $e = 0$ ($\sum e_i = 0$ and $\sum X_i e_i = 0$).</span>
         </div>
-        <svg id="residSvg" viewBox="0 0 350 260" preserveAspectRatio="xMidYMid meet" style="width:100%; flex:1; min-height:280px; background:var(--demo-card); border:1px solid var(--border); border-radius:4px;"></svg>
-        <div class="formula-box" style="font-size:11.5px;" id="residOrthogStats"></div>
+        <svg id="residSvg" viewBox="0 0 350 260" preserveAspectRatio="xMidYMid meet" style="width:100%; flex:1; min-height:280px; background:var(--demo-card); border:1px solid var(--border); border-radius:4px;" data-teach="essential"></svg>
+        <div class="formula-box" style="font-size:11.5px;" id="residOrthogStats" data-teach="essential"></div>
       </div>
     </aside>
 
@@ -979,9 +980,9 @@
             </div>
           </div>
 
-          <div class="formula-box" id="liveMathEquation"></div>
+          <div class="formula-box" id="liveMathEquation" data-teach="essential"></div>
 
-          <div class="point-inspector" id="pointInspector">
+          <div class="point-inspector" id="pointInspector" data-teach="essential">
             <span><b>Hover or press a data point $(X_i, Y_i)$</b> on the plot to inspect its residual $e_i$, squared error $e_i^2$, leverage $h_{ii}$, and Cook's distance $D_i$.</span>
           </div>
 

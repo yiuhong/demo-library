@@ -12,6 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="../assets/vendor-loader.js" data-libs="d3"></script>
     <style>
+
+        header .demo-topbar { width: auto; margin: 0; }
+        html.viz-embedded header .demo-topbar { display: none !important; }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc;
@@ -98,7 +101,8 @@
 <body class="demo-page min-h-screen flex flex-col">
 
     <header class="bg-indigo-700 text-white shadow-md py-4 px-4 md:px-8 sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto flex justify-between items-center">
+        <div class="max-w-5xl mx-auto flex justify-between items-center gap-3">
+            <div class="demo-topbar"></div>
             <div>
                 <h1 class="text-xl md:text-2xl font-bold tracking-tight">The Lexical Hypothesis</h1>
             </div>
@@ -134,7 +138,7 @@
             <!-- Step 1: Introduction & Raw Dictionary -->
             <div id="step-1" class="step-content active flex-grow flex-col">
                 <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-2">Step 1: The English Dictionary (1936)</h2>
-                <p class="text-slate-600 mb-6 leading-relaxed">Imagine you are psychologists Gordon Allport and Henry Odbert in 1936. You decide to search through the entire unabridged English dictionary (over 400,000 words) to find every single term that could describe a person's behavior or characteristics. They found about <strong>18,000</strong> words. Reference. That dictionary count is Allport and Odbert (1936), <em>Trait-names: A psycho-lexical study</em>.</p>
+                <p class="text-slate-600 mb-6 leading-relaxed" data-teach="detail">Imagine you are psychologists Gordon Allport and Henry Odbert in 1936. You decide to search through the entire unabridged English dictionary (over 400,000 words) to find every single term that could describe a person's behavior or characteristics. They found about <strong>18,000</strong> words. Reference. That dictionary count is Allport and Odbert (1936), <em>Trait-names: A psycho-lexical study</em>.</p>
                 
                 <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 flex-grow flex flex-col relative overflow-hidden shadow-inner min-h-[300px]">
                     <div class="flex justify-between items-center mb-4 z-20 relative">
@@ -142,7 +146,7 @@
                         <span class="bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs font-bold">18,000+ words</span>
                     </div>
                     
-                    <div id="raw-dictionary" class="word-list-container flex-grow overflow-hidden flex flex-wrap gap-2 content-start p-2 z-10 opacity-70">
+                    <div id="raw-dictionary" class="word-list-container flex-grow overflow-hidden flex flex-wrap gap-2 content-start p-2 z-10 opacity-70" data-teach="essential">
                         <!-- Words will be injected here via JS -->
                     </div>
                     
@@ -163,7 +167,7 @@
             <!-- Step 2: Allport & Odbert Filtering -->
             <div id="step-2" class="step-content flex-grow flex-col">
                 <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-2">Step 2: Sorting the Chaos</h2>
-                <p class="text-slate-600 mb-4 leading-relaxed">18,000 words are too many to study. Allport and Odbert categorized them to find stable "traits". Your task: Help filter out temporary states, physical traits, and obscure terms to isolate true personality dimensions.</p>
+                <p class="text-slate-600 mb-4 leading-relaxed" data-teach="detail">18,000 words are too many to study. Allport and Odbert categorized them to find stable "traits". Your task: Help filter out temporary states, physical traits, and obscure terms to isolate true personality dimensions.</p>
                 
                 <div class="flex flex-col md:flex-row gap-4 mb-4">
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm flex-1 shadow-sm">
@@ -178,14 +182,14 @@
 
                 <div class="bg-slate-100 p-4 rounded-xl flex-grow flex flex-col border border-slate-200 relative">
                     <div class="text-center mb-4">
-                        <p class="text-sm text-slate-500 font-medium mb-2">Drag or click to categorize (They narrowed it to ~4,500 words)</p>
+                        <p class="text-sm text-slate-500 font-medium mb-2" data-teach="detail">Drag or click to categorize (They narrowed it to ~4,500 words)</p>
                         <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
                             <div id="filter-progress" class="h-full bg-indigo-500 w-0 transition-all duration-300"></div>
                         </div>
                     </div>
 
                     <div class="flex flex-col items-center justify-center flex-grow py-8 relative">
-                        <div id="current-word-display" class="text-4xl md:text-5xl font-bold text-slate-800 bg-white px-8 py-6 rounded-2xl shadow-lg border-2 border-slate-100 mb-8 transition-transform z-10 min-w-[250px] text-center">
+                        <div id="current-word-display" class="text-4xl md:text-5xl font-bold text-slate-800 bg-white px-8 py-6 rounded-2xl shadow-lg border-2 border-slate-100 mb-8 transition-transform z-10 min-w-[250px] text-center" data-teach="essential">
                             Word
                         </div>
                         
@@ -225,13 +229,13 @@
             <!-- Step 3: Factor Analysis -->
             <div id="step-3" class="step-content flex-grow flex-col">
                 <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-2">Step 3: Finding Patterns</h2>
-                <p class="text-slate-600 mb-4 leading-relaxed">4,500 words is still too many. Raymond Cattell realized many words mean roughly the same thing (synonyms like 'sociable', 'friendly'). He used a statistical technique called <strong>Factor Analysis</strong> to group words that co-occur together into fundamental dimensions.</p>
+                <p class="text-slate-600 mb-4 leading-relaxed" data-teach="detail">4,500 words is still too many. Raymond Cattell realized many words mean roughly the same thing (synonyms like 'sociable', 'friendly'). He used a statistical technique called <strong>Factor Analysis</strong> to group words that co-occur together into fundamental dimensions.</p>
                 
                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex-grow flex flex-col min-h-[400px]">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                         <div>
                             <span class="text-sm font-medium text-slate-700 block">Calculate correlations between variables (words):</span>
-                            <span class="text-xs text-slate-500 mt-1 block"><span class="font-bold">Tip:</span> Closer words and thicker lines = Stronger Correlation</span>
+                            <span class="text-xs text-slate-500 mt-1 block" data-teach="detail"><span class="font-bold">Tip:</span> Closer words and thicker lines = Stronger Correlation</span>
                         </div>
                         <button id="btn-run-analysis" onclick="runAutoFactorAnalysis()" class="w-full sm:w-auto bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -243,11 +247,11 @@
                     </div>
                     
                     <!-- D3 Visualization Area -->
-                    <div id="d3-container" class="bg-white border border-slate-200 rounded-lg flex-grow w-full h-[350px] overflow-hidden relative shadow-inner">
+                    <div id="d3-container" class="bg-white border border-slate-200 rounded-lg flex-grow w-full h-[350px] overflow-hidden relative shadow-inner" data-teach="essential">
                         <!-- D3 will render SVG here -->
                     </div>
                     
-                    <div class="mt-4 grid grid-cols-2 md:grid-cols-5 gap-3 text-center min-h-[60px]" id="factor-results">
+                    <div class="mt-4 grid grid-cols-2 md:grid-cols-5 gap-3 text-center min-h-[60px]" id="factor-results" data-teach="essential">
                         <!-- Factor results will appear here -->
                     </div>
                 </div>
@@ -266,7 +270,7 @@
             <!-- Step 4: The Big Five -->
             <div id="step-4" class="step-content flex-grow flex-col">
                 <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-2">Step 4: The Big Five Model (OCEAN)</h2>
-                <p class="text-slate-600 mb-6 leading-relaxed">While Cattell pioneered the statistical approach, his 16-factor model proved difficult to replicate. Decades later, researchers like <strong>Paul Costa and Robert McCrae</strong>, alongside Lewis Goldberg, refined this work. They repeatedly found that personality traits universally boil down to five broad, robust dimensions. The Lexical Hypothesis ultimately paved the way for this definitive framework: The Big Five.</p>
+                <p class="text-slate-600 mb-6 leading-relaxed" data-teach="detail">While Cattell pioneered the statistical approach, his 16-factor model proved difficult to replicate. Decades later, researchers like <strong>Paul Costa and Robert McCrae</strong>, alongside Lewis Goldberg, refined this work. They repeatedly found that personality traits universally boil down to five broad, robust dimensions. The Lexical Hypothesis ultimately paved the way for this definitive framework: The Big Five.</p>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 flex-grow content-start">
                     <!-- O -->
@@ -333,7 +337,7 @@
 
                 <div class="mt-8 bg-slate-800 text-white rounded-xl p-6 md:p-8 text-center shadow-xl">
                     <h3 class="text-xl md:text-2xl font-bold mb-3">The Lexical Legacy</h3>
-                    <p class="text-slate-300 text-sm md:text-base max-w-3xl mx-auto leading-relaxed">
+                    <p class="text-slate-300 text-sm md:text-base max-w-3xl mx-auto leading-relaxed" data-teach="detail">
                         By assuming that important traits are encoded in language, psychologists distilled thousands of dictionary words down to five universal dimensions that describe human personality across cultures.
                     </p>
                     <div class="mt-6 flex justify-between items-center w-full max-w-lg mx-auto">

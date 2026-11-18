@@ -72,24 +72,24 @@
     <header class="demo-header mx-4 sm:mx-6 lg:mx-auto max-w-6xl mb-8">
         <div class="max-w-6xl mx-auto">
             <h1 class="text-2xl font-bold">From T-Test to ANOVA: Partitioning Variation</h1>
-            <p class="mt-1">Drag the group means and the within-group spread.</p>
+            <p class="mt-1" data-teach="detail">Drag the group means and the within-group spread.</p>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         <section class="demo-card demo-prose p-6">
-            <p class="text-slate-700 leading-relaxed">
+            <p class="text-slate-700 leading-relaxed" data-teach="detail">
                 The colors in the plot match these two pieces.
             </p>
             <div class="flex flex-col md:flex-row gap-4 mt-4">
                 <div class="flex-1 viz-soft-residual border viz-border-residual p-4 rounded-lg">
                     <strong class="viz-ink-residual">1. Within-Group Variation (Sum of Squares Within / SSW)</strong>
-                    <p class="text-sm viz-ink-residual mt-1">Natural spread around their own group's mean (Noise).</p>
+                    <p class="text-sm viz-ink-residual mt-1" data-teach="detail">Natural spread around their own group's mean (Noise).</p>
                 </div>
                 <div class="flex-1 viz-soft-explained border viz-border-explained p-4 rounded-lg">
                     <strong class="viz-ink-explained">2. Between-Group Variation (Sum of Squares Between / SSB)</strong>
-                    <p class="text-sm viz-ink-explained mt-1">Spread between the group means and the grand mean (Signal).</p>
+                    <p class="text-sm viz-ink-explained mt-1" data-teach="detail">Spread between the group means and the grand mean (Signal).</p>
                 </div>
             </div>
         </section>
@@ -217,24 +217,24 @@
                     <!-- Top Section: Explanations wrapped in a grid to sit side-by-side on wide screens -->
                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
                         <!-- Concept Explanation -->
-                        <div class="text-[11px] text-slate-700 bg-white/80 p-3.5 rounded-lg border border-slate-200 shadow-sm leading-relaxed z-10 flex flex-col gap-2">
+                        <div class="text-[11px] text-slate-700 bg-white/80 p-3.5 rounded-lg border border-slate-200 shadow-sm leading-relaxed z-10 flex flex-col gap-2" data-teach="detail">
                             <div><strong class="text-slate-900">1. The Anchor Point:</strong> A T-Test measures the direct distance from Group A to B. Analysis of Variance (ANOVA) changes the anchor point, measuring how far <em>each group</em> pulls away from the Grand Mean.</div>
                             <div>
                                 <strong class="text-slate-900">2. Accounting for "Mass":</strong> A T-Test's signal (MD) ignores sample size. ANOVA multiplies by sample size (n) because it calculates the total shifted "mass" of <em>every individual</em>, not just the abstract averages.
                                 <details class="mt-1 cursor-pointer group">
                                     <summary class="text-[10px] viz-ink-difference font-semibold transition-colors inline-flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> How math maps MD to n</summary>
                                     <div class="mt-2 p-2.5 viz-soft-difference border viz-border-difference rounded text-[10px] leading-relaxed space-y-2 cursor-auto">
-                                        <p><strong>The Idea:</strong> The Mean Difference (<strong>MD</strong>) relates to <strong>SSB</strong>, which involves the distance from group means to the <strong>Grand Mean</strong>, weighted by the number of individuals (<strong>n</strong>). Because our two groups are equal in size, the Grand Mean is perfectly halfway between them—thus bringing a factor of <strong>1/2</strong> into the formula naturally!</p>
-                                        <p>Squaring that half-distance (<strong>MD&sup2;/4</strong>) and multiplying by the weight of individuals (<strong>n</strong>) for both groups gives: <strong>n(MD&sup2;/4) + n(MD&sup2;/4) = (n/2)MD&sup2;</strong>.</p>
+                                        <p data-teach="detail"><strong>The Idea:</strong> The Mean Difference (<strong>MD</strong>) relates to <strong>SSB</strong>, which involves the distance from group means to the <strong>Grand Mean</strong>, weighted by the number of individuals (<strong>n</strong>). Because our two groups are equal in size, the Grand Mean is perfectly halfway between them—thus bringing a factor of <strong>1/2</strong> into the formula naturally!</p>
+                                        <p data-teach="detail">Squaring that half-distance (<strong>MD&sup2;/4</strong>) and multiplying by the weight of individuals (<strong>n</strong>) for both groups gives: <strong>n(MD&sup2;/4) + n(MD&sup2;/4) = (n/2)MD&sup2;</strong>.</p>
                                         <div class="border-t viz-border-difference my-1"></div>
-                                        <p><strong>Unequal Groups?</strong> The Grand Mean acts like a center of gravity. The distance ratio depends directly on the group size ratio! The universal mathematical factor that seamlessly handles this gravity for both Signal and Noise is <strong>(n&#8321; &times; n&#8322;) / (n&#8321; + n&#8322;)</strong>. When n&#8321; = n&#8322; = n, this perfectly reduces back to <strong>n/2</strong>.</p>
+                                        <p data-teach="detail"><strong>Unequal Groups?</strong> The Grand Mean acts like a center of gravity. The distance ratio depends directly on the group size ratio! The universal mathematical factor that seamlessly handles this gravity for both Signal and Noise is <strong>(n&#8321; &times; n&#8322;) / (n&#8321; + n&#8322;)</strong>. When n&#8321; = n&#8322; = n, this perfectly reduces back to <strong>n/2</strong>.</p>
                                     </div>
                                 </details>
                             </div>
                         </div>
                         
                         <!-- Math Steps Description -->
-                        <div class="text-[11px] text-slate-700 bg-white/80 p-3.5 rounded-lg border border-slate-200 shadow-sm leading-relaxed z-10">
+                        <div class="text-[11px] text-slate-700 bg-white/80 p-3.5 rounded-lg border border-slate-200 shadow-sm leading-relaxed z-10" data-teach="detail">
                             <strong class="text-slate-900 block mb-2 border-b border-slate-200/60 pb-1.5">The Mathematical Steps from Difference to Variance:</strong>
                             <ul class="space-y-2.5 pl-1 mt-2">
                                 <li><span class="font-semibold text-slate-600 block mb-0.5">1. Square it:</span> Convert linear units (MD and SE) into squared variances.</li>
@@ -336,7 +336,7 @@
         <!-- The Core Lesson -->
         <div class="demo-header mt-4 text-center">
             <h2 class="text-2xl font-bold mb-4">Linear vs Squared</h2>
-            <p class="text-slate-300 max-w-4xl mx-auto text-lg mb-6 leading-relaxed">
+            <p class="text-slate-300 max-w-4xl mx-auto text-lg mb-6 leading-relaxed" data-teach="detail">
                 The core difference between a T-Test and ANOVA is a simple shift in scale. A T-Test compares <strong>linear units</strong> (raw mean differences), while ANOVA compares <strong>squared units</strong> (variances). Because they measure the exact same underlying reality, calculating the ratio of Signal to Noise using either method yields the exact same statistical truth!
             </p>
             <div class="text-slate-200 max-w-4xl mx-auto text-sm sm:text-base mb-8 bg-slate-700/50 p-6 rounded-lg border border-slate-600 text-left">

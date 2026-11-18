@@ -19,6 +19,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+
+        .bg-teal-600 .demo-topbar { width: auto; margin: 0 0 0.85rem; }
+        html.viz-embedded .demo-topbar { display: none !important; }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
@@ -64,8 +67,9 @@
         
         <!-- Header Section -->
         <div class="bg-teal-600 p-6 md:p-8 text-white">
+            <div class="demo-topbar"></div>
             <h1 class="text-3xl md:text-4xl font-bold mb-2">AI in Therapy: Transcript Analysis 🛋️</h1>
-            <p class="text-teal-100 text-lg">
+            <p class="text-teal-100 text-lg" data-teach="detail">
                 Paste a transcript and analyze it. A highlighted phrase keeps a modifier with the word it changes, so “not angry” is one phrase.
             </p>
         </div>
@@ -77,7 +81,7 @@
                     <h2 class="text-xl font-bold text-gray-800">1. Input Session Transcript</h2>
                     <button onclick="loadExample()" class="text-sm text-teal-600 hover:text-teal-800 font-medium px-3 py-1 rounded bg-teal-50 hover:bg-teal-100 transition-colors">Load Random Example</button>
                 </div>
-                <p class="text-gray-500 text-sm mb-3">Paste a snippet of a simulated therapy transcript, or write a sentence expressing a struggle.</p>
+                <p class="text-gray-500 text-sm mb-3" data-teach="detail">Paste a snippet of a simulated therapy transcript, or write a sentence expressing a struggle.</p>
                 <textarea id="inputText" rows="5" 
                     class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg resize-y shadow-sm"
                     placeholder="Enter transcript snippet here..."></textarea>
@@ -96,7 +100,7 @@
                 <hr class="my-8 border-gray-200">
                 
                 <h2 class="text-xl font-bold text-gray-800 mb-4">2. NLP Analysis 🔍</h2>
-                <p class="text-gray-600 mb-4 text-sm md:text-base">Hover over the highlighted words to see how the NLP engine mapped psychological patterns and handled context.</p>
+                <p class="text-gray-600 mb-4 text-sm md:text-base" data-teach="detail">Hover over the highlighted words to see how the NLP engine mapped psychological patterns and handled context.</p>
                 
                 <!-- Legend -->
                 <div class="flex flex-wrap gap-2 md:gap-3 mb-6 text-xs md:text-sm">
@@ -107,12 +111,12 @@
                 </div>
 
                 <!-- Highlighted Text Container -->
-                <div id="annotatedText" class="p-4 md:p-6 bg-gray-50 border border-gray-200 rounded-xl text-lg md:text-xl mb-8 whitespace-pre-wrap break-words">
+                <div id="annotatedText" class="p-4 md:p-6 bg-gray-50 border border-gray-200 rounded-xl text-lg md:text-xl mb-8 whitespace-pre-wrap break-words" data-teach="essential">
                     <!-- Javascript will inject spans here -->
                 </div>
 
                 <h2 class="text-xl font-bold text-gray-800 mb-4">3. Psychological Features Extracted 🧠</h2>
-                <p class="text-gray-600 mb-6 text-sm md:text-base">By mapping specific lexicons and understanding basic grammar structure, the engine structures unstructured text data.</p>
+                <p class="text-gray-600 mb-6 text-sm md:text-base" data-teach="detail">By mapping specific lexicons and understanding basic grammar structure, the engine structures unstructured text data.</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                     <!-- Emotions Card -->

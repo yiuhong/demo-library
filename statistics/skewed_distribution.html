@@ -92,7 +92,7 @@
         </div>
         <header class="demo-header mb-6">
             <h1 class="text-3xl font-bold mb-2">Skewed vs. Normal Distribution</h1>
-            <p class="max-w-3xl">
+            <p class="max-w-3xl" data-teach="detail">
                 Drag the skew. The density, the three averages, and the Q–Q plot update. Toggle raw scores and standardized scores (mean 0, variance 1).
             </p>
         </header>
@@ -131,11 +131,11 @@
         <!-- BOXPLOT PANEL -->
         <div class="demo-card p-4 mb-8 flex flex-col">
             <h2 class="text-lg font-semibold mb-1 text-center">Boxplots (Normal vs. Skewed)</h2>
-            <p class="text-xs text-slate-500 text-center mb-2">
+            <p class="text-xs text-slate-500 text-center mb-2" data-teach="detail">
                 Compare the medians (center lines), Interquartile Ranges (boxes), and <span class="font-bold text-slate-700">Outliers (circles)</span>. 
                 Because the skewed distribution is tightly packed in the middle, its box is narrower, which causes its heavy tail to be classified as statistical outliers.
             </p>
-            <div id="boxplot-chart" class="w-full h-[140px] relative"></div>
+            <div id="boxplot-chart" class="w-full h-[140px] relative" data-teach="essential"></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -143,36 +143,36 @@
             <!-- Density Plot Panel -->
             <div class="demo-card p-4 flex flex-col">
                 <h2 class="text-lg font-semibold mb-1 text-center">1. Density Curves</h2>
-                <p class="text-xs text-slate-500 text-center mb-4">
+                <p class="text-xs text-slate-500 text-center mb-4" data-teach="detail">
                     Regions in <span class="font-bold viz-ink-residual">Red</span> show where skewed concentration is higher than normal.
                 </p>
-                <div id="density-chart" class="chart-container flex-grow"></div>
+                <div id="density-chart" class="chart-container flex-grow" data-teach="essential"></div>
             </div>
 
             <!-- CDF Plot Panel -->
             <div class="demo-card p-4 flex flex-col">
                 <h2 class="text-lg font-semibold mb-1 text-center">2. Cumulative (CDF)</h2>
-                <p class="text-xs text-slate-500 text-center mb-4">
+                <p class="text-xs text-slate-500 text-center mb-4" data-teach="detail">
                     The horizontal gap between the curves reveals the exact difference in values at any given percentile.
                 </p>
-                <div id="cdf-chart" class="chart-container flex-grow"></div>
+                <div id="cdf-chart" class="chart-container flex-grow" data-teach="essential"></div>
             </div>
 
             <!-- Q-Q Plot Panel -->
             <div class="demo-card p-4 flex flex-col">
                 <h2 class="text-lg font-semibold mb-1 text-center">3. Q-Q Plot</h2>
-                <p class="text-xs text-slate-500 text-center mb-4">
+                <p class="text-xs text-slate-500 text-center mb-4" data-teach="detail">
                     Plots the exact horizontal gaps from the CDF. Points in <span class="font-bold viz-ink-residual">Red</span> indicate Skewed > Normal.
                 </p>
-                <div id="qq-chart" class="chart-container flex-grow"></div>
+                <div id="qq-chart" class="chart-container flex-grow" data-teach="essential"></div>
             </div>
 
         </div>
 
         <!-- NEW: Explanation of Concavity -->
-        <div class="viz-soft-group-a viz-ink-group-a border viz-border-group-a p-6 rounded-xl shadow-sm mt-8 mb-4">
+        <div class="viz-soft-group-a viz-ink-group-a border viz-border-group-a p-6 rounded-xl shadow-sm mt-8 mb-4" data-teach="detail">
             <h2 class="text-lg font-bold viz-ink-group-a mb-2">Reading the Curve: Concavity & The CDF Gap</h2>
-            <p class="text-sm mb-3">
+            <p class="text-sm mb-3" data-teach="detail">
                 Notice how the Q-Q plot isn't just a straight line, but often forms a distinct curve. This curvature—mathematically called <strong>concavity</strong>—maps directly to how the horizontal gap between the curves changes on the CDF plot.
             </p>
             <ul class="text-sm space-y-3 list-disc list-inside mb-4">
@@ -185,7 +185,7 @@
             </ul>
 
             <h3 class="text-md font-bold viz-ink-group-a mt-5 mb-2">The "Density Trap": Why Height Doesn't Equal Concavity</h3>
-            <p class="text-sm mb-0">
+            <p class="text-sm mb-0" data-teach="detail">
                 It is tempting to look at the Density plot and assume that when the <span class="viz-ink-residual">Red</span> curve dips <em>below</em> the <span class="viz-ink-group-a">Blue</span> curve, the Q-Q plot should curve downwards. However, lower density just means the data is spread thinly. If the data is spread thin, you have to travel much further along the X-axis to collect the next 5% of data. Therefore, a lower density actually creates a <strong>steeper slope</strong> on the Q-Q plot, not a dip! Concavity is driven by the widening or narrowing of the horizontal gap on the CDF, rather than which density curve is currently taller.
             </p>
         </div>

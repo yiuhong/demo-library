@@ -817,7 +817,7 @@
 <a class="demo-back" href="../index.html">← Project Viz</a>
 <header class="demo-header">
   <h1>2×2 Mixed ANOVA</h1>
-  <p>Ten subjects, five in each group. Switch the lens and move the sliders. Lens 3 splits the picture into midpoints and pre-to-post changes.</p>
+  <p data-teach="detail">Ten subjects, five in each group. Switch the lens and move the sliders. Lens 3 splits the picture into midpoints and pre-to-post changes.</p>
 </header>
 <div class="lens-switcher" id="lens-switcher">
     <button class="lens-btn" id="lens-1" onclick="setLens(1)">
@@ -927,7 +927,7 @@
         </button>
       </div>
 
-      <div style="background:#ffffff; border:1px dashed var(--border); border-radius:6px; padding:6px 8px; font-size:10.5px; color:var(--text-muted); line-height:1.35;">
+      <div style="background:#ffffff; border:1px dashed var(--border); border-radius:6px; padding:6px 8px; font-size:10.5px; color:var(--text-muted); line-height:1.35;" data-teach="detail">
         <b style="color:var(--text-main);">Direct Sculpting Tip:</b> Drag any of the <b>4 large cell mean nodes</b> (<span class="math"><span class="overline">Y</span></span><sub>A,Pre</sub>, <span class="math"><span class="overline">Y</span></span><sub>A,Post</sub>, <span class="math"><span class="overline">Y</span></span><sub>B,Pre</sub>, <span class="math"><span class="overline">Y</span></span><sub>B,Post</sub>) directly up or down on the canvas, and watch the 3 orthogonal Signal Sliders automatically decompose your gesture!
       </div>
     </div>
@@ -957,14 +957,14 @@
     </div>
 
     <div class="canvas-wrap">
-      <div class="callout-banner" id="canvas-callout">
+      <div class="callout-banner" id="canvas-callout" data-teach="detail">
         <b>Preset 1 — Baseline Noise Trap:</b> Notice how massive Between-Subject baseline variation creates overlapping Between-Subject SE bars, yet because every Treatment subject slopes steeper than Control, the Within-Subjects Interaction test is highly significant!
       </div>
-      <svg id="traj-svg" viewBox="0 0 720 470" preserveAspectRatio="xMidYMid meet"></svg>
+      <svg id="traj-svg" viewBox="0 0 720 470" preserveAspectRatio="xMidYMid meet" data-teach="essential"></svg>
     </div>
 
     <!-- INTERACTIVE CANVAS OVERLAYS -->
-    <div class="controls-bar">
+    <div class="controls-bar" data-teach="essential">
       <label class="checkbox-pill">
         <input type="checkbox" id="chk-center" onchange="toggleCenterBaseline()">
         <span>Center Subject Baselines (Remove Between-Subject Noise)</span>

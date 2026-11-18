@@ -206,7 +206,7 @@
     <div class="title-group">
       <a class="demo-back" href="../index.html" style="margin-bottom:0.65rem">← Project Viz</a>
       <h1>From Paired <em>t</em>-Test to Repeated-Measures ANOVA</h1>
-      <p>Slide the cross-timepoint correlation. Switch the paired $t$ (two time points) and the repeated-measures ANOVA (three).</p>
+      <p data-teach="detail">Slide the cross-timepoint correlation. Switch the paired $t$ (two time points) and the repeated-measures ANOVA (three).</p>
     </div>
 
     <div class="mode-switcher" role="tablist" aria-label="Analysis Mode Switcher">
@@ -223,7 +223,7 @@
 </header>
 
 <main class="main-container">
-  <section class="control-bar">
+  <section class="control-bar" data-teach="essential">
     <div class="slider-panel">
       <div class="slider-header">
         <span class="slider-title" data-tip="Controls how consistently subjects maintain their relative standing across timepoints.">
@@ -291,11 +291,11 @@
           <div class="card-title"><span>1. Interactive Subject Trajectories &amp; Geometry</span></div>
           <div class="card-subtitle">Connected raw scores ($N = 6$) across Timepoints with Subject Means ($\bar{S}_i$) axis</div>
         </div>
-        <span class="drag-hint">↕ Drag / Focus+Arrows to move points</span>
+        <span class="drag-hint" data-teach="detail">↕ Drag / Focus+Arrows to move points</span>
       </div>
 
       <div class="svg-container">
-        <svg id="main-dot-svg" viewBox="0 0 760 440" aria-label="Interactive Connected Dot Plot"></svg>
+        <svg id="main-dot-svg" viewBox="0 0 760 440" aria-label="Interactive Connected Dot Plot" data-teach="essential"></svg>
       </div>
 
       <div class="subject-legend">
@@ -331,7 +331,7 @@
           </div>
         </div>
         <div class="svg-container right-viz">
-          <svg id="right-viz-svg" viewBox="0 0 580 365" aria-label="Difference Scores and Variance Partitioning"></svg>
+          <svg id="right-viz-svg" viewBox="0 0 580 365" aria-label="Difference Scores and Variance Partitioning" data-teach="essential"></svg>
           <div id="diff-scores-unavailable" style="display: none; position: absolute; left: 2.76%; top: 9.86%; width: 43.79%; height: 88.22%; box-sizing: border-box; padding: 0.65rem 0.5rem; text-align: center; color: var(--text-muted); font-size: 0.82rem; line-height: 1.4; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; pointer-events: none; z-index: 2;">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.4rem; color: #94a3b8; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
             <strong style="color:var(--text-main); font-size: 0.95rem;">Not Applicable</strong>
@@ -358,7 +358,7 @@
       </div>
       
       <div id="ttest-active-view">
-        <div class="formula-box" id="katex-ttest-main"></div>
+        <div class="formula-box" id="katex-ttest-main" data-teach="essential"></div>
         <div class="math-breakdown">
           <div class="breakdown-row"><span>Mean Difference ($\bar{D}$):</span><span class="mono" id="val-dbar" style="color:var(--col-between)"></span></div>
           <div class="breakdown-row"><span>Unadj Variance ($s_1^2 + s_2^2$):</span><span class="mono" id="val-s1s2"></span></div>
@@ -391,7 +391,7 @@
           <div class="card-subtitle">Carving $SS_{\text{Subjects}}$ reduces $MS_{\text{Residual}}$</div>
         </div>
       </div>
-      <div class="formula-box" id="katex-anova-main"></div>
+      <div class="formula-box" id="katex-anova-main" data-teach="essential"></div>
       <div class="anova-scroll">
         <table class="anova-table" aria-label="ANOVA Summary">
           <thead><tr><th>Source</th><th>$SS$</th><th>$df$</th><th>$MS$</th><th>$F$</th><th>$p$-val</th></tr></thead>
@@ -412,7 +412,7 @@
         <strong>Parallel paths = tiny Residual:</strong> High $r \implies$ large $SS_{\text{Subjects}} \implies$ uniform slopes (small $s_D^2$) $\implies$ tiny $SS_{\text{Residual}}$.
       </div>
       
-      <div class="formula-box" id="katex-rosetta-identities"></div>
+      <div class="formula-box" id="katex-rosetta-identities" data-teach="essential"></div>
       
       <div class="math-breakdown" id="rosetta-active-verify">
         <div class="breakdown-row" style="border-left: 3px solid var(--col-between);">

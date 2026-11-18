@@ -1297,11 +1297,11 @@
     <a class="demo-back" href="../index.html">← Project Viz</a>
     <header class="demo-header">
       <h1>Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA Designs</h1>
-      <p>Choose between-subjects, within-subjects, or mixed, then the number of factors and a decomposition view. The bricks are the sums of squares for that design.</p>
+      <p data-teach="detail">Choose between-subjects, within-subjects, or mixed, then the number of factors and a decomposition view. The bricks are the sums of squares for that design.</p>
     </header>
 
     <!-- Controls -->
-    <div class="controls-grid">
+    <div class="controls-grid" data-teach="essential">
       <div class="panel">
         <div class="panel-title"><span>1. Select ANOVA Design, Number of Factors &amp; Decomposition Perspective</span></div>
         <div class="tabs">
@@ -1408,7 +1408,7 @@
             <div class="slider-sub" id="sub-n">Subjects per group (<em>n</em>)</div>
           </div>
         </div>
-        <div class="pedagogy-banner" id="pedagogy-banner"></div>
+        <div class="pedagogy-banner" id="pedagogy-banner" data-teach="detail"></div>
       </div>
     </div>
 
@@ -1416,7 +1416,7 @@
     <div class="notation-guide">
       <div class="notation-row">
         <span class="notation-guide-title">Subscript &amp; Operator Notation Guide:</span>
-        <div class="notation-items">
+        <div class="notation-items" data-teach="detail">
           <span class="notation-item">
             <span class="notation-symbol">/</span>
             <span><strong>Nesting (&ldquo;nested within&rdquo;):</strong> e.g., <em>S/A</em>, <em>S/AB</em>, or <em>S/ABC</em> denotes different Subjects nested inside Between-Subjects groups/cells.</span>
@@ -1433,8 +1433,8 @@
       </div>
 
       <!-- Rules 1–5 cheat-sheet starts closed with the long rules and references. -->
-      <div class="five-rules-drawer" id="five-rules-drawer">
-      <div class="pattern-decoder-box">
+      <div class="five-rules-drawer" id="five-rules-drawer" data-teach="detail">
+      <div class="pattern-decoder-box" data-teach="detail">
         <div>
           <strong style="color: var(--error-text);">🧱 Rules 1 &amp; 2 — Within vs. Between Pools (View 3):</strong><br/>
           &bull; <strong>Rule 1 (<em>SS</em><sub>Within-Cells</sub> Pool):</strong> ALWAYS contains individual Subject (<em>S</em>) or nested Subject (<em>S/A, S/AB</em>) variance (Kirk, 2012; Winer, 1971).<br/>
@@ -1461,14 +1461,14 @@
                 <span style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">The &ldquo;Subject&rdquo; Error Pool</span>
               </div>
               <h4>The Within-Conditions Rule (<em>SS</em><sub>Within-Cells</sub>)</h4>
-              <p class="rule-statement" style="border-left-color: var(--error-border); margin: 6px 0;">
+              <p class="rule-statement" style="border-left-color: var(--error-border); margin: 6px 0;" data-teach="detail">
                 The Within-Conditions (<em>SS</em><sub>Within-Cells</sub>) pool ALWAYS contains individual Subject (<em>S</em>) variance or nested Subject variance (<em>S/A</em>, <em>S/AB</em>).
               </p>
-              <p class="rule-logic">
+              <p class="rule-logic" data-teach="detail">
                 <strong>Conceptual Logic:</strong> When treatment conditions are held completely constant inside a specific cell, the experimental factors cannot cause variation. Therefore, any remaining variance among scores inside that cell <strong>must</strong> stem from individual baseline differences among the subjects. In a mixed design, this manifests as <em>SS</em><sub>S/A</sub> (subjects nested in groups) and <em>SS</em><sub>B&times;S/A</sub> (how those nested subjects vary across repeated measures).
               </p>
             </div>
-            <div class="rule-refs">
+            <div class="rule-refs" data-teach="detail">
               <strong>Academic References:</strong><br/>
               &bull; <strong>Kirk, R. E. (2012).</strong> <em>Experimental Design: Procedures for the Behavioral Sciences</em> (4th ed.). Sage. (Partitions total variance into between-blocks and within-blocks variance, isolating random subject effects from fixed treatment boundaries).<br/>
               &bull; <strong>Winer, B. J. (1971).</strong> <em>Statistical Principles in Experimental Design</em> (2nd ed.). McGraw-Hill. (Documents that variations within identical treatment combinations are functionally identical to subject-level residual error).
@@ -1483,14 +1483,14 @@
                 <span style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">The &ldquo;Treatment&rdquo; Pool</span>
               </div>
               <h4>The Between-Conditions Rule (<em>SS</em><sub>Between-Cells</sub>)</h4>
-              <p class="rule-statement" style="border-left-color: var(--effect-border); margin: 6px 0;">
+              <p class="rule-statement" style="border-left-color: var(--effect-border); margin: 6px 0;" data-teach="detail">
                 The Between-Conditions (<em>SS</em><sub>Between-Cells</sub>) pool ALWAYS contains ONLY the experimental factors (<em>A, B, A&times;B</em>) and never contains Subject (<em>S</em>) terms.
               </p>
-              <p class="rule-logic">
+              <p class="rule-logic" data-teach="detail">
                 <strong>Conceptual Logic:</strong> Between-cell variance evaluates differences between the aggregate averages of the experimental cells. Because calculating a cell mean averages out the unique fluctuations of individual subjects, the subject-level error is effectively washed away. The only systematic forces remaining to cause those cell averages to differ are the independent variables themselves.
               </p>
             </div>
-            <div class="rule-refs">
+            <div class="rule-refs" data-teach="detail">
               <strong>Academic References:</strong><br/>
               &bull; <strong>Keppel, G., &amp; Wickens, T. D. (2004).</strong> <em>Design and Analysis: A Researcher&rsquo;s Handbook</em> (4th ed.). Pearson. (Illustrates via a &ldquo;nested tree&rdquo; visual paradigm that treatment effects rely strictly on collapsing individual scores into group averages, stripping random subject noise from the fixed factor pool).
             </div>
@@ -1504,14 +1504,14 @@
                 <span style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">Error Term Selection</span>
               </div>
               <h4>The Subscript Matching Rule (<em>F</em>-Ratio Denominators)</h4>
-              <p class="rule-statement" style="border-left-color: #8b5cf6; margin: 6px 0;">
+              <p class="rule-statement" style="border-left-color: #8b5cf6; margin: 6px 0;" data-teach="detail">
                 The correct error term for testing a treatment effect must contain the exact repeated-factor letters of that treatment brick in its subscript, plus the Subject designation (<em>S</em> or <em>S/A</em>).
               </p>
-              <p class="rule-logic">
+              <p class="rule-logic" data-teach="detail">
                 <strong>Conceptual Logic:</strong> This rule dictates how <em>F</em>-ratios are built. To determine if an effect is statistically significant, it must be evaluated against the specific background noise it creates. A within-subjects factor <em>B</em> must be tested against how subjects uniquely react to factor <em>B</em>, making its natural denominator <em>MS</em><sub>B&times;S/A</sub>. A between-subjects factor <em>A</em> does not vary across repeated measures, so it is tested against baseline subject differences within those groups (<em>MS</em><sub>S/A</sub>).
               </p>
             </div>
-            <div class="rule-refs">
+            <div class="rule-refs" data-teach="detail">
               <strong>Academic References:</strong><br/>
               &bull; <strong>Montgomery, D. C. (2012).</strong> <em>Design and Analysis of Experiments</em> (8th ed.). Wiley. (Ch. 12: Formal Expected Mean Squares [EMS] algorithm matching fixed effect subscripts to random interaction subscripts).<br/>
               &bull; <strong>Cornfield, J., &amp; Tukey, J. W. (1956).</strong> Average values of mean squares in factorials. <em>JASA</em>, 51(274), 307&ndash;369. (Seminal <strong>Cornfield-Tukey Algorithm</strong> using subscripts to identify exact error terms mechanically).
@@ -1526,14 +1526,14 @@
                 <span style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">Algebraic Bracket Size</span>
               </div>
               <h4>The Degrees of Freedom (<em>df</em>) Multiplier Rule</h4>
-              <p class="rule-statement" style="border-left-color: #0d9488; margin: 6px 0;">
+              <p class="rule-statement" style="border-left-color: #0d9488; margin: 6px 0;" data-teach="detail">
                 To calculate the degrees of freedom for a nested or interaction error brick, multiply the <em>df</em> of the factor outside the nesting slash by the total levels of the factors inside.
               </p>
-              <p class="rule-logic">
+              <p class="rule-logic" data-teach="detail">
                 <strong>Conceptual Logic:</strong> The visual notation of the brick reflects its mathematical size. For subjects nested within a group (<em>S/A</em>), the individual subject <em>df</em> is (<em>n</em> &minus; 1). Because factor <em>A</em> is inside the nesting notation, you multiply by its total levels (<em>a</em>), resulting in <em>a</em>(<em>n</em> &minus; 1). For the interaction error term <em>B&times;S/A</em>, you multiply the <em>df</em> of <em>B</em>, which is (<em>b</em> &minus; 1), by the nested subject term <em>a</em>(<em>n</em> &minus; 1), yielding <em>a</em>(<em>b</em> &minus; 1)(<em>n</em> &minus; 1).
               </p>
             </div>
-            <div class="rule-refs">
+            <div class="rule-refs" data-teach="detail">
               <strong>Academic References:</strong><br/>
               &bull; <strong>Oehlert, G. W. (2010).</strong> <em>A First Course in Design and Analysis of Experiments</em>. W. H. Freeman. (Ch. 11 details the visual and arithmetic mechanics of tracking <em>df</em> by multiplying structural brackets based on whether indices are nested or crossed).
             </div>
@@ -1547,16 +1547,16 @@
                 <span style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">Pure vs. Mixed Fracture</span>
               </div>
               <h4>The Design Boundary Rule (Pure vs. Mixed)</h4>
-              <p class="rule-statement" style="border-left-color: #eab308; margin: 6px 0;">
+              <p class="rule-statement" style="border-left-color: #eab308; margin: 6px 0;" data-teach="detail">
                 The composition of the Within-Conditions pool changes predictably based on whether subjects are nested (Between-Subjects) or crossed (Within-Subjects) across factors.
               </p>
-              <p class="rule-logic">
+              <p class="rule-logic" data-teach="detail">
                 <strong>Conceptual Logic:</strong><br/>
                 &bull; In a <em>Pure Between-Subjects</em> design, subjects provide one data point, leaving the Within-Conditions pool as a single, undivided block (<em>SS</em><sub>S/A</sub>, <em>SS</em><sub>S/AB</sub>, or <em>SS</em><sub>Error</sub>).<br/>
                 &bull; In a <em>Pure Within-Subjects</em> design, subjects cross every condition, shattering the single error pool into individualized interaction terms for every factor combination (<em>SS</em><sub>A&times;S</sub>, <em>SS</em><sub>B&times;S</sub>, <em>SS</em><sub>A&times;B&times;S</sub>).
               </p>
             </div>
-            <div class="rule-refs">
+            <div class="rule-refs" data-teach="detail">
               <strong>Academic References:</strong><br/>
               &bull; <strong>Kutner, M. H., Nachtsheim, C. J., Neter, J., &amp; Li, W. (2005).</strong> <em>Applied Linear Statistical Models</em> (5th ed.). McGraw-Hill. (Demonstrates how shifting a factor from a between-subjects grouping variable to a repeated measure forces the error pool to fracture from a global residual into distinct factor-by-subject interactions).
             </div>
@@ -1566,7 +1566,7 @@
     </div>
 
     <!-- Orthogonal Atomic Bricks Bar Visualizer -->
-    <div class="bricks-bar-panel" id="bricks-bar-view">
+    <div class="bricks-bar-panel" id="bricks-bar-view" data-teach="essential">
       <div class="bricks-header">
         <span class="bricks-title">Orthogonal Atomic Bricks &amp; Active View Grouping (Proportional to <em>df</em>)</span>
         <span class="bricks-invariant-badge" id="bricks-invariant-text"></span>
@@ -1586,13 +1586,13 @@
     </div>
 
     <!-- Main Interactive Tree Section -->
-    <div class="diagram-wrapper" id="diagram-view">
+    <div class="diagram-wrapper" id="diagram-view" data-teach="essential">
       <div class="design-header">
         <div>
           <h2 id="design-title">One-Way (1-Factor) Between-Subjects ANOVA</h2>
           <div class="design-badges" id="design-badges"></div>
         </div>
-        <div class="equation-box" id="design-equation"></div>
+        <div class="equation-box" id="design-equation" data-teach="essential"></div>
       </div>
 
       <div class="tree-container">
@@ -1629,7 +1629,7 @@
     <!-- Summary Comparison View (Hidden unless tab selected) -->
     <div class="diagram-wrapper" id="compare-view" style="display: none;">
       <h2>Side-by-Side Comparison of 1-Way, 2-Way &amp; 3-Way ANOVA Designs (🧱 Rules 1&ndash;5)</h2>
-      <p style="color: var(--muted); margin-bottom: 16px;">
+      <p style="color: var(--muted); margin-bottom: 16px;" data-teach="detail">
         How atomic bricks, error strata, and degrees of freedom partition across design boundaries (<strong>Rule 5: Kutner et al., 2005</strong>) using current slider values:
         <em>a</em> = <strong class="live-a"></strong>,
         <em>b</em> = <strong class="live-b"></strong>,
