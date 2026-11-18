@@ -3,6 +3,7 @@
  * three existing demonstrations. Each plate reads title, description,
  * figure, then Open the demo. Motion stays in the figure.
  * A short feature list sits under the hero, in the same reading column.
+ * Its three titles are Crimson Text italic. The sentences stay Arial.
  * The menu is the shared .viz-topbar from shell.css. This page scrolls.
  * It is not the Catalog two-pane shell.
  */
@@ -377,7 +378,7 @@ a.library-full-cite {
 
 .home-feature-list > li {
     display: grid;
-    grid-template-columns: 13.5rem minmax(0, 1fr);
+    grid-template-columns: 14.5rem minmax(0, 1fr);
     gap: 0.25rem 1.35rem;
     align-items: baseline;
     min-width: 0;
@@ -387,11 +388,13 @@ a.library-full-cite {
 #intro .home-features h3 {
     margin: 0;
     color: #000000 !important;
-    font-size: 0.78rem;
-    font-weight: bold;
-    letter-spacing: 0.12em;
-    line-height: 1.35;
-    text-transform: uppercase;
+    font-family: "Crimson Text", "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 1.28em;
+    letter-spacing: 0;
+    line-height: 1.15;
+    text-transform: none;
 }
 
 #intro .home-features p {
