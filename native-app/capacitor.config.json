@@ -1,0 +1,11 @@
+{
+  "appId": "com.yiuhong.demolibrary",
+  "appName": "Project Viz",
+  "webDir": "www",
+  "backgroundColor": "#ffffff",
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "capacitor",
+    "hostname": "localhost"
+  }
+}
