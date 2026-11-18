@@ -6,6 +6,9 @@
  * the demonstration in the pane. Back to browse restores the grid.
  * Phone stacks categories, then that category's demos, then the
  * demonstration. Search stays inside the focused category.
+ * The rail paints when demos.json arrives, even if the shell is late.
+ * A hung or failed fetch shows an error and Retry. The shell still
+ * attaches navigation when it loads.
  */
 (function () {
     var rail = document.getElementById("viz-rail");
@@ -19,6 +22,10 @@
     var explicit = false;
     var demoOpen = false;
     var searchTerm = "";
+    var loadToken = 0;
+    var loadTimer = null;
+    var loadAbort = null;
+    var LOAD_LIMIT_MS = 12000;
 
     function isPhone() {
         return phoneQuery.matches;
@@ -531,11 +538,74 @@
         return currentId;
     }
 
-    function showError() {
-        failed = true;
-        ready = true;
+    function demoFromLocation() {
+        var params;
+        try {
+            params = new URLSearchParams(window.location.search);
+        } catch (err) {
+            return "";
+        }
+        var raw = (params.get("demo") || "").trim();
+        if (raw === "tracks/connection.html") {
+            var track = safeSlug(params.get("track") || "");
+            var step = (params.get("step") || "").trim();
+            if (track && /^[0-9]{1,3}$/.test(step)) {
+                return "tracks/connection.html?track=" + track + "&step=" + String(parseInt(step, 10));
+            }
+            return "";
+        }
+        if (!raw || raw.length > 300 || /[\s\\]/.test(raw)) return "";
+        if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) return "";
+        if (raw.indexOf("//") === 0 || raw.indexOf("..") !== -1 || raw.charAt(0) === "/") return "";
+        if (!/^[a-z0-9_./-]+\.html$/i.test(raw)) return "";
+        return raw;
+    }
+
+    function viewFromLocation() {
+        var demo = demoFromLocation();
+        var params;
+        try {
+            params = new URLSearchParams(window.location.search);
+        } catch (err) {
+            params = new URLSearchParams();
+        }
+        var requested = safeSlug(params.get("category") || "");
+        var fromDemo = demo ? categoryForHref(demo) : "";
+        var fromHash = categoryForHash(window.location.hash);
+        var category = fromDemo || (requested && findCategory(requested) ? requested : "") || fromHash || "";
+        return {
+            category: category,
+            demoOpen: !!demo,
+            explicit: !!(requested || demo || fromHash)
+        };
+    }
+
+    function showLoading() {
         clear(mount);
-        if (mount) mount.appendChild(el("p", "catalog-message", "The catalog could not be loaded."));
+        if (mount) {
+            var status = el("p", "catalog-message", "Loading catalog…");
+            status.id = "catalog-status";
+            mount.appendChild(status);
+        }
+        hideBrowse();
+        var empty = document.getElementById("viz-empty");
+        if (empty) {
+            empty.hidden = true;
+            empty.textContent = "Select a demonstration.";
+        }
+    }
+
+    function showError() {
+        clear(mount);
+        if (mount) {
+            mount.appendChild(el("p", "catalog-message", "The catalog could not be loaded."));
+            var retry = el("button", "catalog-retry", "Retry");
+            retry.type = "button";
+            retry.addEventListener("click", function () {
+                loadCatalog();
+            });
+            mount.appendChild(retry);
+        }
         hideBrowse();
         var empty = document.getElementById("viz-empty");
         if (empty) {
@@ -544,28 +614,97 @@
         }
     }
 
+    function failLoad(token) {
+        if (token !== loadToken || ready) return;
+        if (loadTimer) window.clearTimeout(loadTimer);
+        loadTimer = null;
+        loadAbort = null;
+        ready = true;
+        failed = true;
+        showError();
+        try {
+            document.dispatchEvent(new CustomEvent("projectviz:catalog"));
+        } catch (err) {}
+    }
+
+    function reportTimeout() {
+        if (ready) return;
+        if (loadAbort) {
+            try {
+                loadAbort.abort();
+            } catch (err) {}
+        }
+        failLoad(loadToken);
+    }
+
+    function settleCatalog(token, data) {
+        if (token !== loadToken || ready) return;
+        var next = normalizeCatalog(data);
+        if (!next.length) throw new Error("Catalog could not be loaded.");
+        if (loadTimer) window.clearTimeout(loadTimer);
+        loadTimer = null;
+        loadAbort = null;
+        categories = next;
+        failed = false;
+        ready = true;
+        try {
+            document.dispatchEvent(new CustomEvent("projectviz:catalog"));
+        } catch (err) {}
+        if (!document.getElementById("catalog-status")) return;
+        try {
+            sync(viewFromLocation());
+        } catch (err2) {
+            ready = false;
+            failed = false;
+            throw err2;
+        }
+    }
+
     function loadCatalog() {
-        var catalogUrl = new URL("demos.json", window.location.href);
-        catalogUrl.search = "";
-        catalogUrl.hash = "";
-        fetch(catalogUrl.toString()).then(function (response) {
+        var token = ++loadToken;
+        if (loadAbort) {
+            try {
+                loadAbort.abort();
+            } catch (err) {}
+            loadAbort = null;
+        }
+        if (loadTimer) window.clearTimeout(loadTimer);
+        loadTimer = null;
+        ready = false;
+        failed = false;
+        showLoading();
+        var controller = typeof AbortController === "function" ? new AbortController() : null;
+        loadAbort = controller;
+        loadTimer = window.setTimeout(function () {
+            if (token !== loadToken || ready) return;
+            reportTimeout();
+        }, LOAD_LIMIT_MS);
+        var catalogUrl;
+        try {
+            catalogUrl = new URL("demos.json", window.location.href);
+            catalogUrl.search = "";
+            catalogUrl.hash = "";
+        } catch (err) {
+            failLoad(token);
+            return;
+        }
+        var options = controller ? { signal: controller.signal } : {};
+        fetch(catalogUrl.toString(), options).then(function (response) {
             if (!response.ok) throw new Error("Catalog could not be loaded.");
             return response.json();
         }).then(function (data) {
-            categories = normalizeCatalog(data);
-            if (!categories.length) throw new Error("Catalog could not be loaded.");
-            ready = true;
-            failed = false;
-            document.dispatchEvent(new CustomEvent("projectviz:catalog"));
+            settleCatalog(token, data);
         }).catch(function () {
-            showError();
-            document.dispatchEvent(new CustomEvent("projectviz:catalog"));
+            failLoad(token);
         });
     }
 
     window.ProjectVizCatalog = {
         sync: sync,
         ready: function () { return ready && !failed; },
+        failed: function () { return failed; },
+        load: loadCatalog,
+        reportTimeout: reportTimeout,
         has: function (id) { return !!findCategory(safeSlug(id)); },
         firstId: function () { return categories.length ? categories[0].id : ""; },
         currentId: function () { return currentId; },

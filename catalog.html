@@ -113,7 +113,94 @@
 
     <script src="assets/site-meta.js"></script>
     <script src="assets/site-oer-footer.js"></script>
-    <script src="assets/catalog.js"></script>
+    <script>
+        (function () {
+            var MISSING_MS = 15000;
+            var gaveUp = false;
+            var sources = ["assets/catalog.js", "assets/shell.js"];
+
+            function settled() {
+                var api = window.ProjectVizCatalog;
+                if (!api) return false;
+                if (typeof api.ready === "function" && api.ready()) return true;
+                if (typeof api.failed === "function" && api.failed()) return true;
+                return false;
+            }
+
+            function clearNode(node) {
+                while (node.firstChild) node.removeChild(node.firstChild);
+            }
+
+            function setEmpty(message, hidden) {
+                var empty = document.getElementById("viz-empty");
+                if (!empty) return;
+                empty.hidden = hidden;
+                if (message) empty.textContent = message;
+            }
+
+            function sourceReady(src) {
+                if (src.indexOf("catalog.js") !== -1) return !!window.ProjectVizCatalog;
+                if (src.indexOf("shell.js") !== -1) return document.body.classList.contains("viz-shell-ready");
+                return false;
+            }
+
+            function loadSources(index, ok, fail) {
+                if (index >= sources.length) {
+                    ok();
+                    return;
+                }
+                var src = sources[index];
+                if (sourceReady(src)) {
+                    if (src.indexOf("catalog.js") !== -1 && window.ProjectVizCatalog.load) window.ProjectVizCatalog.load();
+                    loadSources(index + 1, ok, fail);
+                    return;
+                }
+                var script = document.createElement("script");
+                script.src = src + "?retry=" + Date.now();
+                script.onload = function () { loadSources(index + 1, ok, fail); };
+                script.onerror = function () { fail(); };
+                document.body.appendChild(script);
+            }
+
+            function paint() {
+                var mount = document.getElementById("catalog-rail");
+                if (!mount) return;
+                clearNode(mount);
+                var note = document.createElement("p");
+                note.className = "catalog-message";
+                note.textContent = "The catalog could not be loaded.";
+                var retry = document.createElement("button");
+                retry.type = "button";
+                retry.className = "catalog-retry";
+                retry.textContent = "Retry";
+                retry.addEventListener("click", function () {
+                    retry.disabled = true;
+                    clearNode(mount);
+                    var status = document.createElement("p");
+                    status.id = "catalog-status";
+                    status.className = "catalog-message";
+                    status.textContent = "Loading catalog…";
+                    mount.appendChild(status);
+                    setEmpty("Select a demonstration.", true);
+                    gaveUp = false;
+                    loadSources(0, function () {}, paint);
+                });
+                mount.appendChild(note);
+                mount.appendChild(retry);
+                setEmpty("The catalog could not be loaded.", false);
+            }
+
+            function giveUp() {
+                if (gaveUp || settled() || window.ProjectVizCatalog) return;
+                gaveUp = true;
+                paint();
+            }
+
+            window.ProjectVizCatalogWatch = giveUp;
+            window.setTimeout(giveUp, MISSING_MS);
+        })();
+    </script>
+    <script src="assets/catalog.js" onerror="if (window.ProjectVizCatalogWatch) window.ProjectVizCatalogWatch();"></script>
     <script src="assets/shell.js"></script>
 </body>
 </html>
