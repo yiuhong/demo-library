@@ -65,10 +65,10 @@
 
     <header class="demo-header">
         <h1 class="text-3xl font-bold mb-2">Galton Board</h1>
-        <p class="leading-relaxed">
+        <p class="leading-relaxed" data-teach="detail">
             Start the flow or drop a burst. Change the rows and the right-bias. Each bead’s bin is its count of right bounces.
         </p>
-        <p class="leading-relaxed text-sm mt-2">
+        <p class="leading-relaxed text-sm mt-2" data-teach="detail">
             <strong>Reference.</strong> The board is the quincunx in Galton (1889), <em>Natural inheritance</em>.
         </p>
     </header>
@@ -113,8 +113,8 @@
                 </div>
             </div>
 
-            <div id="canvasContainer" class="w-full relative flex-grow flex justify-center items-center min-h-[560px] sm:min-h-[640px]">
-                <canvas id="galtonCanvas" class="w-full h-full bg-white border border-black" style="border-radius: 4px;"></canvas>
+            <div id="canvasContainer" class="w-full relative flex-grow flex justify-center items-center min-h-[560px] sm:min-h-[640px]" data-teach="essential">
+                <canvas id="galtonCanvas" class="w-full h-full bg-white border border-black" style="border-radius: 4px;" data-teach="essential"></canvas>
             </div>
         </div>
 
@@ -259,10 +259,10 @@
 
             <div class="demo-panel p-3.5 text-xs leading-relaxed space-y-1">
                 <div class="font-bold">Reading the $k$-axis and $\pm\sigma$ markers</div>
-                <p>
+                <p data-teach="detail">
                     Each bin along the horizontal axis corresponds to $k$ ($0 \le k \le n$), counting how many times a bead bounced <strong>right</strong> out of <span id="insightRows" class="font-semibold"></span> peg rows (<span id="insightP" class="font-semibold"></span>, <span id="insightQ" class="font-semibold"></span>).
                 </p>
-                <p>
+                <p data-teach="detail">
                     The <strong class="viz-ink-mean">red dashed line</strong> marks the theoretical mean $\mu = np$. The <strong class="viz-ink-se">purple dashed lines</strong> mark one standard deviation ($\mu \pm \sigma$), where the normal curve has its inflection points (enclosing about $68.3\%$ of the distribution). Amber dots are the exact binomial probabilities; the dark blue curve is the normal approximation.
                 </p>
             </div>
@@ -287,15 +287,15 @@
                         <span class="text-xs font-bold uppercase tracking-wider viz-ink-group-c">1. Exact binomial PMF</span>
                         <span class="text-xs font-semibold px-2.5 py-0.5 border border-black bg-white viz-ink-group-c">Discrete dots</span>
                     </div>
-                    <p class="text-xs sm:text-sm leading-relaxed mb-3">
+                    <p class="text-xs sm:text-sm leading-relaxed mb-3" data-teach="detail">
                         Each bead’s bin is the count of right bounces. The box below evaluates $P(X = k)$ for the bin in view.
                     </p>
-                    <div class="math-block formula-fit bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;">
+                    <div class="math-block formula-fit bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;" data-teach="essential">
                         <div data-katex-display="X = \sum_{i=1}^{n} X_i \sim \text{Binomial}(n, p)"></div>
                         <div data-katex-display="P(X = k) = \binom{n}{k} p^{k}(1-p)^{n-k}"></div>
                         <div data-katex-display="k \in \{0, 1, \ldots, n\}"></div>
                     </div>
-                    <div class="formula-box formula-fit mt-3 bg-white border border-black p-3.5" style="border-radius: 4px;">
+                    <div class="formula-box formula-fit mt-3 bg-white border border-black p-3.5" style="border-radius: 4px;" data-teach="essential">
                         <div class="flex flex-wrap items-center justify-between gap-1 text-xs mb-1.5">
                             <span id="calcBinomialHeader" class="formula-chip formula-fit font-bold viz-ink-group-c">Theoretical binomial probability</span>
                             <span id="calcBinomialEmpirical" class="text-[11px] font-semibold px-2 py-0.5 border border-black bg-white viz-ink-group-a"></span>
@@ -315,14 +315,14 @@
                         <span class="text-xs font-bold uppercase tracking-wider viz-ink-density">2. Gaussian density approximation</span>
                         <span class="text-xs font-semibold px-2.5 py-0.5 border border-black bg-white viz-ink-density">Continuous curve</span>
                     </div>
-                    <p class="text-xs sm:text-sm leading-relaxed mb-3">
+                    <p class="text-xs sm:text-sm leading-relaxed mb-3" data-teach="detail">
                         With more rows, that binomial probability sits close to the normal curve. The box below evaluates the approximation for the same bin.
                     </p>
-                    <div class="math-block formula-fit bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;">
+                    <div class="math-block formula-fit bg-white border border-black px-4 py-3.5 my-2 text-center text-sm" style="border-radius: 4px;" data-teach="essential">
                         <div data-katex-display="\mu = np, \qquad \sigma = \sqrt{np(1-p)}"></div>
                         <div data-katex-display="\begin{aligned} P(X = k) \approx f(k) &= \frac{1}{\sigma\sqrt{2\pi}} \\ &\times \exp\!\left( -\frac{(k - \mu)^2}{2\sigma^2} \right) \end{aligned}"></div>
                     </div>
-                    <div class="formula-box formula-fit mt-3 bg-white border border-black p-3.5" style="border-radius: 4px;">
+                    <div class="formula-box formula-fit mt-3 bg-white border border-black p-3.5" style="border-radius: 4px;" data-teach="essential">
                         <div class="flex flex-wrap items-center justify-between gap-1 text-xs mb-1.5">
                             <span id="calcGaussianHeader" class="formula-chip formula-fit font-bold viz-ink-density">Theoretical Gaussian approximation</span>
                             <span id="calcApproxDiff" class="text-[11px] font-semibold px-2 py-0.5 border border-black bg-white"></span>

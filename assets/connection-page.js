@@ -7,6 +7,9 @@
  * Key points, formulae, the figure, In the next demo, what the
  * demonstration does. Key points shows only when formulae are present.
  * In the next demo shows only when the demo description is present.
+ * Teach hides the note and In the next demo. The figure and the Key
+ * points formulae stay. The figure remains a concept illustration and
+ * stays before In the next demo.
  * The figure shows only when the image path and its alt text are both valid.
  * A trailing _word, _word(note), _{word}, ^word, or ^{word} in the note,
  * the formulae, or the demo description is drawn as sub or sup. The source
@@ -252,11 +255,17 @@
             root.appendChild(header);
         }
         var lead = el("div", "connection-lead");
-        if (note) lead.appendChild(prose("p", "connection-note", note));
+        if (note) {
+            var noteNode = prose("p", "connection-note", note);
+            noteNode.setAttribute("data-teach", "detail");
+            lead.appendChild(noteNode);
+        }
         if (formulae.length) {
             var points = el("h2", "connection-key-points", "Key points");
             points.id = "connection-key-points";
+            points.setAttribute("data-teach", "essential");
             var list = el("ul", "connection-formulae");
+            list.setAttribute("data-teach", "essential");
             list.setAttribute("aria-labelledby", "connection-key-points");
             formulae.forEach(function (formula) {
                 list.appendChild(prose("li", null, formula));
@@ -267,6 +276,7 @@
         if (lead.childNodes.length) root.appendChild(lead);
         if (image) {
             var figure = el("figure", "connection-figure");
+            figure.setAttribute("data-teach", "essential");
             var img = document.createElement("img");
             img.alt = imageAlt;
             img.src = new URL("../" + image, window.location.href).href;
@@ -277,8 +287,11 @@
         if (demo) {
             var nextDemo = el("h2", "connection-next-demo", "In the next demo");
             nextDemo.id = "connection-next-demo";
+            nextDemo.setAttribute("data-teach", "detail");
             root.appendChild(nextDemo);
-            root.appendChild(prose("p", "connection-demo", demo));
+            var demoNode = prose("p", "connection-demo", demo);
+            demoNode.setAttribute("data-teach", "detail");
+            root.appendChild(demoNode);
         }
     }
 
@@ -294,7 +307,7 @@
         var view = window.innerHeight || document.documentElement.clientHeight || 0;
         if (!view) return;
         var tail = root.querySelector(".connection-demo");
-        if (tail && tail.scrollIntoView) {
+        if (tail && tail.getClientRects().length && tail.scrollIntoView) {
             if (fullyVisible(img, view) && fullyVisible(tail, view)) return;
             tail.scrollIntoView({ block: "end", inline: "nearest" });
             if (!fullyVisible(img, view)) {

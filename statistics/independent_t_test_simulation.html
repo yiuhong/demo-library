@@ -151,7 +151,7 @@
         </div>
         <header class="demo-header mb-6 text-center">
             <h1 class="text-3xl font-extrabold mb-2">Independent t-test Simulation</h1>
-            <p class="max-w-4xl mx-auto">
+            <p class="max-w-4xl mx-auto" data-teach="detail">
                 Draw samples from two groups. Switch Student’s $t$ and Welch’s $t$, and change whether the variances and the sample sizes match.
             </p>
         </header>
@@ -285,7 +285,7 @@
                 <!-- Chart 1: Mean Diff -->
                 <div class="text-[11px] font-semibold text-slate-500 text-center uppercase tracking-wider mb-1">Mean Diff ($\bar{X}_2 - \bar{X}_1$)</div>
                 <div class="flex-grow flex flex-col relative w-full mb-3" style="min-height: 300px;">
-                    <div id="sampling-dist-chart" class="absolute inset-0 w-full h-full"></div>
+                    <div id="sampling-dist-chart" class="absolute inset-0 w-full h-full" data-teach="essential"></div>
                 </div>
                 
                 <div class="demo-panel grid grid-cols-2 gap-4 mt-auto p-3">
@@ -312,22 +312,22 @@
                 
         </div> <!-- Close Main Grid -->
             
+            <p id="explanation-formula" class="demo-card demo-prose text-sm leading-relaxed mt-6 p-4" data-teach="essential">
+                Student's standard error formula: $$\text{SE} = \sqrt{s_p^2 \left(\frac{1}{n_1} + \frac{1}{n_2}\right)}$$ where $$s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}$$
+            </p>
             <!-- Explanation Panel. Starts closed; the simulation above stays open. -->
-        <details class="demo-card demo-prose teaching-note w-full mt-6">
+        <details class="demo-card demo-prose teaching-note w-full mt-6" data-teach="detail">
             <summary>
                 <h3 class="text-lg font-bold">Standard Error in Independent Groups</h3>
             </summary>
             <div class="teaching-note-body">
-            <p id="explanation-text-1" class="text-slate-600 text-sm leading-relaxed mb-3">
+            <p id="explanation-text-1" class="text-slate-600 text-sm leading-relaxed mb-3" data-teach="detail">
                     Student's t-test assumes equal variances. It calculates a pooled variance ($s_p^2$) which is a weighted average of the two sample variances based on their degrees of freedom ($n-1$).
                 </p>
-                <p id="explanation-formula" class="text-slate-600 text-sm leading-relaxed mb-3">
-                    Student's standard error formula: $$\text{SE} = \sqrt{s_p^2 \left(\frac{1}{n_1} + \frac{1}{n_2}\right)}$$ where $$s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}$$
-                </p>
-                <p id="explanation-text-2" class="text-slate-600 text-sm leading-relaxed">
+                <p id="explanation-text-2" class="text-slate-600 text-sm leading-relaxed" data-teach="detail">
                     Notice that because we draw unequal sample sizes ($n_1=15, n_2=10$) and variances ($\sigma_1=10, \sigma_2=20$), the pooled variance leans heavily toward the smaller variance of the larger sample (Pop 1). This causes Student's SE to consistently underestimate the true error!
                 </p>
-                <p class="text-slate-500 text-sm leading-relaxed mt-3">
+                <p class="text-slate-500 text-sm leading-relaxed mt-3" data-teach="detail">
                     <strong>Reference.</strong> Student’s equal-variance $t$ uses the distribution in Student (1908), <em>The probable error of a mean</em> (<em>Biometrika, 6</em>, 1–25). Welch’s standard error, for unequal variances, is the form in Welch (1938), <em>The significance of the difference between two means when the population variances are unequal</em> (<em>Biometrika, 29</em>, 350–362).
                 </p>
             </div>

@@ -66,7 +66,7 @@
 
     <header class="demo-header mb-6">
         <h1 class="text-3xl md:text-4xl font-bold mb-2">Understanding Statistical Power</h1>
-        <p class="max-w-3xl">Interact with the parameters below to see how they affect the distributions of the Null (H₀) and Alternative (H₁) hypotheses.</p>
+        <p class="max-w-3xl" data-teach="detail">Interact with the parameters below to see how they affect the distributions of the Null (H₀) and Alternative (H₁) hypotheses.</p>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -82,7 +82,7 @@
                     <span id="alpha-val" class="text-sm font-bold viz-ink-group-a">0.05</span>
                 </div>
                 <input type="range" id="alpha-slider" min="0.01" max="0.20" step="0.01" value="0.05" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
-                <p class="text-xs text-slate-500 mt-1">Probability of rejecting H₀ when it is true (Type I Error).</p>
+                <p class="text-xs text-slate-500 mt-1" data-teach="detail">Probability of rejecting H₀ when it is true (Type I Error).</p>
             </div>
 
             <!-- Null Mean (Limited Range) -->
@@ -117,7 +117,7 @@
                     d = <span class="text-slate-400">|μ₁ - μ₀| / σ</span> = |<span id="formula-mu1">2.0</span> - <span id="formula-mu0">0.0</span>| / <span id="formula-sd">5.0</span> = <span id="formula-d" class="font-bold viz-ink-group-a">0.40</span>
                 </div>
 
-                <p class="text-[11px] text-slate-600 leading-snug">
+                <p class="text-[11px] text-slate-600 leading-snug" data-teach="detail">
                     <strong class="text-slate-700">What it means:</strong> Cohen's <em>d</em> measures the distance between μ₀ and μ₁ in units of standard deviation (σ).
                 </p>
 
@@ -126,7 +126,7 @@
                     <span>Medium: d ≈ 0.5</span>
                     <span>Large: d ≈ 0.8</span>
                 </div>
-                <p class="text-[11px] text-slate-600 leading-snug">
+                <p class="text-[11px] text-slate-600 leading-snug" data-teach="detail">
                     <strong>Reference.</strong> Cohen’s <em>d</em> and these small, medium, and large benchmarks are the conventions in Cohen (1988), <em>Statistical power analysis for the behavioral sciences</em> (2nd ed.).
                 </p>
             </div>
@@ -198,7 +198,7 @@
         <div class="lg:col-span-2 flex flex-col gap-6">
             
             <!-- Visualization -->
-            <div id="chart-wrapper" class="demo-card p-6 relative">
+            <div id="chart-wrapper" class="demo-card p-6 relative" data-teach="essential">
                 <div class="flex flex-wrap justify-between items-center mb-4 gap-2 pr-12">
                     <h2 class="text-xl font-semibold text-slate-800">Sampling Distributions of the Sample Mean</h2>
                     <!-- Legend -->
@@ -210,7 +210,7 @@
                         <div class="flex items-center"><span class="w-3 h-3 rounded viz-bg-significant inline-block mr-1 opacity-80"></span> Power (1-β)</div>
                     </div>
                 </div>
-                <div id="chart" class="chart-container"></div>
+                <div id="chart" class="chart-container" data-teach="essential"></div>
                 <div id="chart-tooltip" class="chart-tooltip bg-slate-900/90 text-white text-xs p-2 rounded-lg shadow-xl opacity-0 z-10 border border-slate-700"></div>
             </div>
 
@@ -232,7 +232,7 @@
                     <div class="viz-ink-null text-xs font-semibold uppercase tracking-wider mb-1">False Positive</div>
                     <div class="text-slate-700 text-sm mb-2">Type I Error (α)</div>
                     <div id="stat-alpha" class="text-2xl font-bold viz-ink-null">5.0%</div>
-                    <p class="text-[10px] text-slate-500 mt-2 leading-tight">Incorrectly rejecting H₀ when it is actually true.</p>
+                    <p class="text-[10px] text-slate-500 mt-2 leading-tight" data-teach="detail">Incorrectly rejecting H₀ when it is actually true.</p>
                 </div>
 
                 <!-- Beta (Type 2) -->
@@ -250,7 +250,7 @@
                     <div class="viz-ink-significant text-xs font-semibold uppercase tracking-wider mb-1">True Positive</div>
                     <div class="text-slate-700 text-sm mb-2">Power (1-β)</div>
                     <div id="stat-power" class="text-2xl font-bold viz-ink-significant">--.-%</div>
-                    <p class="text-[10px] text-slate-500 mt-2 leading-tight">Correctly rejecting H₀ when H₁ is actually true.</p>
+                    <p class="text-[10px] text-slate-500 mt-2 leading-tight" data-teach="detail">Correctly rejecting H₀ when H₁ is actually true.</p>
                 </div>
 
             </div>

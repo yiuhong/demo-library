@@ -70,6 +70,13 @@
             padding: 20px;
         }
 
+
+        header .demo-topbar {
+            display: flex;
+            justify-content: center;
+            margin: 0 0 12px;
+        }
+        html.viz-embedded header .demo-topbar { display: none !important; }
         header {
             text-align: center;
             margin-bottom: 20px;
@@ -349,26 +356,27 @@
 
     <div id="dashboard">
         <header>
+            <div class="demo-topbar"></div>
             <h1>Noematachograph</h1>
-            <p class="subtitle">Franciscus Donders' Mental Chronometry Experiment (1868)</p>
-            <p class="source-note">Reference. The experiment is Donders (1868), <em>Over de snelheid van psychische processen</em>.</p>
+            <p class="subtitle" data-teach="detail">Franciscus Donders' Mental Chronometry Experiment (1868)</p>
+            <p class="source-note" data-teach="detail">Reference. The experiment is Donders (1868), <em>Over de snelheid van psychische processen</em>.</p>
         </header>
 
         <div class="main-content">
             <div id="canvas-wrapper">
-                <canvas id="experimentCanvas"></canvas>
+                <canvas id="experimentCanvas" data-teach="essential"></canvas>
                 
                 <!-- Vintage Engraved Brass Plate (HTML Overlay) -->
-                <div id="calcPlate" class="brass-plate">
+                <div id="calcPlate" class="brass-plate" data-teach="essential">
                     <h4>Chronometric Analysis</h4>
-                    <p style="color: var(--neon-green); font-size: 1.05rem; font-weight: bold; margin-bottom: 12px;">Total Clock Cycles Counted (N) = 80 cycles</p>
-                    <p>Tuning Fork Frequency (f) = 261 Hz <br><small style="color: #aaa; font-style: italic;">(Middle C: Exactly 261 vibrations per second. One cycle = 3.83ms)</small></p>
-                    <p class="formula-box" style="margin-top: 15px !important;">Formula:  Δt = N × (1 / f)</p>
-                    <p class="result-box">Δt = 80 × 3.83 ms = 306.4 ms</p>
+                    <p style="color: var(--neon-green); font-size: 1.05rem; font-weight: bold; margin-bottom: 12px;" data-teach="essential">Total Clock Cycles Counted (N) = 80 cycles</p>
+                    <p data-teach="essential">Tuning Fork Frequency (f) = 261 Hz <br><small style="color: #aaa; font-style: italic;">(Middle C: Exactly 261 vibrations per second. One cycle = 3.83ms)</small></p>
+                    <p class="formula-box" style="margin-top: 15px !important;" data-teach="essential">Formula:  Δt = N × (1 / f)</p>
+                    <p class="result-box" data-teach="essential">Δt = 80 × 3.83 ms = 306.4 ms</p>
                 </div>
             </div>
 
-            <div id="controls">
+            <div id="controls" data-teach="essential">
                 <div class="control-group">
                     <h3>Apparatus Controls</h3>
                     <button id="btnToggleRot">Start Cylinder Rotation</button>
@@ -392,7 +400,7 @@
                             <span>Mental Processing Time</span>
                         </div>
                     </div>
-                    <p style="font-size: 0.85rem; color: #aaa; margin-top: 10px; line-height: 1.4;">
+                    <p style="font-size: 0.85rem; color: #aaa; margin-top: 10px; line-height: 1.4;" data-teach="detail">
                         <strong>What is 261 Hz?</strong> It represents the musical pitch <strong>Middle C</strong>. Striking this fork creates 261 rapid back-and-forth oscillations per second, etching a time ruler where each wave peak marks exactly <strong>3.83 milliseconds</strong> of elapsed time.
                     </p>
                 </div>

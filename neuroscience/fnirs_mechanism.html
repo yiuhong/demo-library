@@ -33,7 +33,7 @@
                     <h1 class="demo-title text-xl">
                         fNIRS Explorer
                     </h1>
-                    <p class="text-xs text-slate-400 font-medium">Trigger neural activation. The model shows the light path and the change in oxygenated and deoxygenated hemoglobin.</p>
+                    <p class="text-xs text-slate-400 font-medium" data-teach="detail">Trigger neural activation. The model shows the light path and the change in oxygenated and deoxygenated hemoglobin.</p>
                 </div>
             </div>
             
@@ -72,7 +72,7 @@
 
                 <!-- Simulation Viewport -->
                 <div class="demo-stage relative flex-grow aspect-[4/3] flex items-center justify-center">
-                    <canvas id="simulation-canvas" class="w-full h-full block cursor-pointer"></canvas>
+                    <canvas id="simulation-canvas" class="w-full h-full block cursor-pointer" data-teach="essential"></canvas>
                     
                     <!-- Labels Layer (HTML positioning overlay for sleekness) -->
                     <div class="absolute inset-0 pointer-events-none p-4 select-none">
@@ -133,7 +133,7 @@
                         <span class="w-2.5 h-2.5 rounded viz-bg-hbo"></span> 
                         Oxyhemoglobin (O₂Hb)
                     </h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">
+                    <p class="text-xs text-slate-400 leading-relaxed" data-teach="detail">
                         Highly oxygenated blood entering the tissue. In near-infrared spectroscopy, <span class="viz-ink-hbo font-semibold">830 nm</span> light is primarily absorbed by O₂Hb because of its specific chemical properties and oxygenated state.
                     </p>
                     <div class="mt-4 flex items-center gap-3 viz-soft-hbo border viz-border-hbo rounded-xl p-3">
@@ -152,7 +152,7 @@
                         <span class="w-2.5 h-2.5 rounded viz-bg-hbr"></span> 
                         Deoxyhemoglobin (HHb)
                     </h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">
+                    <p class="text-xs text-slate-400 leading-relaxed" data-teach="detail">
                         Deoxygenated blood returning through capillary networks. <span class="viz-ink-hbr font-semibold">690 nm</span> light exhibits higher optical absorption for HHb, making it the primary target wavelength for detecting oxygen depletion.
                     </p>
                     <div class="mt-4 flex items-center gap-3 viz-soft-hbr border viz-border-hbr rounded-xl p-3">
@@ -177,7 +177,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="demo-kicker text-sm">fNIRS Signal Display</h2>
-                        <p class="text-[11px] text-slate-400">Concentration Changes (&Delta;O₂Hb, &Delta;HHb, &Delta;[HbT]) over time</p>
+                        <p class="text-[11px] text-slate-400" data-teach="detail">Concentration Changes (&Delta;O₂Hb, &Delta;HHb, &Delta;[HbT]) over time</p>
                     </div>
                     <span id="activation-badge" class="px-2 py-0.5 text-[10px] rounded-full border border-slate-700 bg-slate-800 text-slate-400 uppercase font-mono tracking-widest">
                         Resting
@@ -185,7 +185,7 @@
                 </div>
                 
                 <div class="h-48 relative">
-                    <canvas id="chart-signal"></canvas>
+                    <canvas id="chart-signal" data-teach="essential"></canvas>
                 </div>
                 
                 <!-- Micro dashboard showing instantaneous parameters (Rounded strictly to 1 decimal place without -0.0) -->
@@ -212,12 +212,12 @@
             <div class="demo-card p-6">
                 <div>
                     <h2 class="demo-kicker text-sm">Optical Absorption Spectrum</h2>
-                    <p class="text-[11px] text-slate-400 mb-3">Extinction coefficient of O₂Hb and HHb across NIR window</p>
+                    <p class="text-[11px] text-slate-400 mb-3" data-teach="detail">Extinction coefficient of O₂Hb and HHb across NIR window</p>
                 </div>
                 <div class="h-40 relative">
-                    <canvas id="chart-spectra"></canvas>
+                    <canvas id="chart-spectra" data-teach="essential"></canvas>
                 </div>
-                <p class="text-[10px] text-slate-400 leading-relaxed mt-2 italic">
+                <p class="text-[10px] text-slate-400 leading-relaxed mt-2 italic" data-teach="detail">
                     Note the crossover point (isosbestic point) at approximately <span class="font-semibold">800 nm</span>, where extinction coefficients for both oxygenation states are equal.
                 </p>
             </div>
@@ -240,7 +240,7 @@
                                 <span class="demo-dot"></span>
                             </div>
                             <h4 class="text-xs font-bold text-slate-200 mt-1">Neurovascular Coupling</h4>
-                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed" data-teach="detail">
                                 Clicking "Trigger Neural Activation" stimulates neurons. This triggers localized oxygen consumption and triggers a rapid increase of regional cerebral blood flow.
                             </p>
                         </div>
@@ -251,7 +251,7 @@
                                 <span class="demo-dot"></span>
                             </div>
                             <h4 class="text-xs font-bold text-slate-300 mt-1">The Near-Infrared Window</h4>
-                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed" data-teach="detail">
                                 Living tissues are transparent to NIR light (650-900nm), allowing photons to penetrate scalp, skull, and CSF, reaching up to 1-2cm into cerebral cortex.
                             </p>
                         </div>
@@ -262,7 +262,7 @@
                                 <span class="demo-dot"></span>
                             </div>
                             <h4 class="text-xs font-bold text-slate-300 mt-1">Modified Beer-Lambert Law</h4>
-                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed" data-teach="detail">
                                 Because light scatters in a banana-shaped path, the modified Beer-Lambert Law calculates relative concentration changes of O₂Hb and HHb based on optical density changes.
                             </p>
                         </div>

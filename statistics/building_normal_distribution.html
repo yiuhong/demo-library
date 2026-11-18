@@ -116,14 +116,14 @@
                 <!-- Step 1 -->
                 <div id="step-1" class="step-content active">
                     <h2 class="text-lg font-bold mb-3">1. Exponential Growth</h2>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         Before building a bell curve, let's look at basic exponential growth: $e^x$. As $x$ gets larger, the value shoots up to infinity. This doesn't work for probabilities, which must be finite!
                     </p>
-                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-1"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-1" data-teach="essential"></div>
                     <div class="flex justify-center mb-4">
-                        <canvas id="mini-graph-1" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
+                        <canvas id="mini-graph-1" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]" data-teach="essential"></canvas>
                     </div>
-                    <p class="text-slate-600 text-sm">
+                    <p class="text-slate-600 text-sm" data-teach="detail">
                         <em>Notice how the curve explodes infinitely to the right.</em>
                     </p>
                 </div>
@@ -131,14 +131,14 @@
                 <!-- Step 2 -->
                 <div id="step-2" class="step-content">
                     <h2 class="text-lg font-bold mb-3">2. Exponential Decay</h2>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         What if we make the exponent negative? The function $e^{-x}$ decays beautifully to zero on the right, but it explodes to infinity on the left! We need a function that decays on <em>both</em> sides.
                     </p>
-                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-2"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-2" data-teach="essential"></div>
                     <div class="flex justify-center mb-4">
-                        <canvas id="mini-graph-2" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
+                        <canvas id="mini-graph-2" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]" data-teach="essential"></canvas>
                     </div>
-                    <p class="text-slate-600 text-sm">
+                    <p class="text-slate-600 text-sm" data-teach="detail">
                         <em>Notice how the curve now explodes infinitely to the left.</em>
                     </p>
                 </div>
@@ -146,15 +146,15 @@
                 <!-- Step 3 -->
                 <div id="step-3" class="step-content">
                     <h2 class="text-lg font-bold mb-3">3. Distance from the Center</h2>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         To fix the infinite growth, we want a shape that is highest at the center ($x=0$) and drops off as we move away in either direction. 
                         By raising Euler's number to a negative absolute distance ($-|x|$), we get a peak at 1 that shrinks symmetrically.
                     </p>
-                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-3"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-3" data-teach="essential"></div>
                     <div class="flex justify-center mb-4">
-                        <canvas id="mini-graph-3" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
+                        <canvas id="mini-graph-3" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]" data-teach="essential"></canvas>
                     </div>
-                    <p class="text-slate-600 text-sm">
+                    <p class="text-slate-600 text-sm" data-teach="detail">
                         <em>Notice how this fixes the explosions, but creates an unnatural sharp point at the top.</em>
                     </p>
                 </div>
@@ -162,14 +162,14 @@
                 <!-- Step 4 -->
                 <div id="step-4" class="step-content">
                     <h2 class="text-lg font-bold mb-3">4. The Smooth Bell Shape</h2>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         By replacing the absolute distance with a <strong>squared</strong> distance ($x^2$), the sharp peak becomes beautifully smooth and rounded—creating the foundation of the famous "bell" shape.
                     </p>
-                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-4"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-4" data-teach="essential"></div>
                     <div class="flex justify-center mb-4">
-                        <canvas id="mini-graph-4" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
+                        <canvas id="mini-graph-4" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]" data-teach="essential"></canvas>
                     </div>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         <em>Through calculus, measuring the variance (spread) of this exact shape results in an awkward standard deviation of exactly $1/\sqrt{2}$ (about 0.707). This is a messy starting point for statistics!</em>
                     </p>
                 </div>
@@ -177,14 +177,14 @@
                 <!-- Step 5 -->
                 <div id="step-5" class="step-content">
                     <h2 class="text-lg font-bold mb-3">5. The "1/2" Math Trick</h2>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         To fix the awkward fraction, we add a $1/2$ into the exponent. Why? In calculus, the derivative of $\frac{1}{2}x^2$ is simply $x$. 
                     </p>
-                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-5"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-5" data-teach="essential"></div>
                     <div class="flex justify-center mb-4">
-                        <canvas id="mini-graph-5" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
+                        <canvas id="mini-graph-5" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]" data-teach="essential"></canvas>
                     </div>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         When we run this widened curve through our calculus formulas, the $1/2$ causes the messy math to cancel out beautifully. It forces the baseline spread (Standard Deviation, $\sigma$) to be exactly <strong>1.0</strong>, making all future statistics much easier!
                     </p>
                 </div>
@@ -192,14 +192,14 @@
                 <!-- Step 6 -->
                 <div id="step-6" class="step-content">
                     <h2 class="text-lg font-bold mb-3">6. Adding Spread ($\sigma$)</h2>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         Not all data is tightly clustered. We introduce a variable $\sigma$ (sigma), known as the <strong>Standard Deviation</strong>, to control how spread out the bell curve is.
                     </p>
-                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-6"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-6" data-teach="essential"></div>
                     <div class="flex justify-center mb-4">
-                        <canvas id="mini-graph-6" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
+                        <canvas id="mini-graph-6" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]" data-teach="essential"></canvas>
                     </div>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         Notice how a larger $\sigma$ stretches the curve horizontally on the main graph.
                     </p>
                 </div>
@@ -207,14 +207,14 @@
                 <!-- Step 7 -->
                 <div id="step-7" class="step-content">
                     <h2 class="text-lg font-bold mb-3">7. Shifting the Center ($\mu$)</h2>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         Data doesn't always center around zero. We introduce $\mu$ (mu), the <strong>Mean</strong>, to shift the entire curve left or right.
                     </p>
-                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-7"></div>
+                    <div class="demo-panel p-4 mb-4 text-center overflow-x-auto" id="math-7" data-teach="essential"></div>
                     <div class="flex justify-center mb-4">
-                        <canvas id="mini-graph-7" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
+                        <canvas id="mini-graph-7" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]" data-teach="essential"></canvas>
                     </div>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         We subtract $\mu$ from $x$. Notice how the graph shifts to the right as $\mu$ becomes positive.
                     </p>
                 </div>
@@ -222,16 +222,16 @@
                 <!-- Step 8 -->
                 <div id="step-8" class="step-content">
                     <h2 class="text-lg font-bold mb-3">8. Normalization (Area = 1)</h2>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         A true <em>probability</em> distribution must have a total area under the curve equal to 1 (representing 100% probability). 
                     </p>
-                    <p class="text-slate-600 text-sm mb-4">
+                    <p class="text-slate-600 text-sm mb-4" data-teach="detail">
                         Currently, when you increase $\sigma$, the area grows. Calculus tells us the area of our previous function is exactly $\sigma\sqrt{2\pi}$. 
                         By dividing our function by this constant, the area remains perfectly locked at 1, no matter how much you stretch it!
                     </p>
-                    <div class="demo-panel p-3 mb-4 text-center overflow-x-auto" id="math-8"></div>
+                    <div class="demo-panel p-3 mb-4 text-center overflow-x-auto" id="math-8" data-teach="essential"></div>
                     <div class="flex justify-center mb-4">
-                        <canvas id="mini-graph-8" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]"></canvas>
+                        <canvas id="mini-graph-8" width="240" height="100" class="bg-white border border-slate-200 rounded shadow-sm w-full max-w-[240px]" data-teach="essential"></canvas>
                     </div>
                     <div class="viz-soft-density viz-ink-density border px-3 py-2 rounded text-sm font-semibold text-center" id="area-display" style="border-color: var(--viz-density);">
                         Total Area = 1.000
@@ -253,11 +253,11 @@
 
         <!-- Graph / Canvas Area -->
         <section class="norm-plot demo-card flex-1 relative p-4 md:p-8 mx-0 md:mr-4 mb-4 flex flex-col min-h-[400px]">
-            <div class="demo-panel w-full flex-1 relative overflow-hidden" id="canvas-container">
-                <canvas id="graph-canvas" class="absolute inset-0 w-full h-full"></canvas>
+            <div class="demo-panel w-full flex-1 relative overflow-hidden" id="canvas-container" data-teach="essential">
+                <canvas id="graph-canvas" class="absolute inset-0 w-full h-full" data-teach="essential"></canvas>
             </div>
             <!-- Legend / Insight -->
-            <div class="mt-4 text-center text-sm text-slate-500 font-medium h-12 flex items-center justify-center" id="graph-insight">
+            <div class="mt-4 text-center text-sm text-slate-500 font-medium h-12 flex items-center justify-center" id="graph-insight" data-teach="essential">
                 The basic unnormalized exponential curve. Peak height is always 1.
             </div>
         </section>

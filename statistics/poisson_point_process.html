@@ -110,8 +110,8 @@
     <a class="demo-back" href="../index.html">← Project Viz</a>
     <header class="demo-header">
       <h1>Poisson Distribution &amp; Poisson Point Process</h1>
-      <p>Pick a scenario, or set the rate $\lambda$, the window $t$, and a count $k$. The strip shows arrivals; the bars are the Poisson probabilities.</p>
-      <p>Reference. The count distribution is the one in Poisson (1837), <em>Recherches sur la probabilité des jugements en matière criminelle et en matière civile</em>.</p>
+      <p data-teach="detail">Pick a scenario, or set the rate $\lambda$, the window $t$, and a count $k$. The strip shows arrivals; the bars are the Poisson probabilities.</p>
+      <p data-teach="detail">Reference. The count distribution is the one in Poisson (1837), <em>Recherches sur la probabilité des jugements en matière criminelle et en matière civile</em>.</p>
     </header>
     <div class="preset-bar">
 
@@ -181,7 +181,7 @@
           </div>
         </div>
 
-        <div class="formula-display" id="formula-pmf"></div>
+        <div class="formula-display" id="formula-pmf" data-teach="essential"></div>
 
         <div class="metrics-row">
           <div class="metric-box demo-panel">
@@ -219,7 +219,7 @@
         </div>
 
         <div class="canvas-wrapper">
-          <canvas id="sim-canvas" width="700" height="420"></canvas>
+          <canvas id="sim-canvas" width="700" height="420" data-teach="essential"></canvas>
         </div>
 
         <div class="legend-row">
@@ -252,7 +252,7 @@
         </div>
 
         <div class="canvas-wrapper">
-          <canvas id="pmf-canvas" width="560" height="420"></canvas>
+          <canvas id="pmf-canvas" width="560" height="420" data-teach="essential"></canvas>
         </div>
 
         <div class="legend-row">
@@ -281,7 +281,7 @@
       <div class="panel-header">
         <div>
           <div class="panel-title">Panel 3: Law of Rare Events — Bernoulli Sub-Interval Discretizer</div>
-          <div class="panel-subtitle">
+          <div class="panel-subtitle" data-teach="detail">
             Chop the continuous timeline $[0, t]$ into $n$ micro-bins of width $\Delta t = t/n$. As $n \to \infty$, collisions vanish and $\text{Binomial}(n, \mu/n) \to \text{Poisson}(\mu)$.
           </div>
         </div>
@@ -305,7 +305,7 @@
       </div>
 
       <div class="canvas-wrapper">
-        <canvas id="bernoulli-canvas" width="1280" height="145"></canvas>
+        <canvas id="bernoulli-canvas" width="1280" height="145" data-teach="essential"></canvas>
       </div>
     </div>
   </div>

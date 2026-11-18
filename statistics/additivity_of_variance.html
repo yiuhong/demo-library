@@ -73,25 +73,25 @@
                 </div>
 
                 <!-- Dynamic Explanation for Sum -->
-                <div id="explanation-sum">
+                <div id="explanation-sum" data-teach="detail">
                     <p class="text-sm text-slate-600 mb-3 font-medium">Reading the sum, $Z = X + Y$</p>
                     <div class="prose prose-sm prose-slate space-y-2 text-xs text-slate-600">
-                        <p>Slate contours are lines of constant sum (slope −1). The green axis is $y = x$, where that sum changes fastest.</p>
-                        <p>Drag $\rho$. The bars are $SS$ and the variance of $Z$.</p>
+                        <p data-teach="detail">Slate contours are lines of constant sum (slope −1). The green axis is $y = x$, where that sum changes fastest.</p>
+                        <p data-teach="detail">Drag $\rho$. The bars are $SS$ and the variance of $Z$.</p>
                     </div>
                 </div>
 
                 <!-- Dynamic Explanation for Difference -->
-                <div id="explanation-diff" class="hidden">
+                <div id="explanation-diff" class="hidden" data-teach="detail">
                     <p class="text-sm text-slate-600 mb-3 font-medium">Reading the difference, $Z = X - Y$</p>
                     <div class="prose prose-sm prose-slate space-y-2 text-xs text-slate-600">
-                        <p>Contours are lines of constant difference (slope +1). Along $y = x$ the difference is 0, so a positive correlation shrinks the spread of $Z$.</p>
+                        <p data-teach="detail">Contours are lines of constant difference (slope +1). Along $y = x$ the difference is 0, so a positive correlation shrinks the spread of $Z$.</p>
                         <p>Drag $\rho$ and watch that bar.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="controls-container demo-card p-5">
+            <div class="controls-container demo-card p-5" data-teach="essential">
                 <h3 class="font-semibold text-slate-800 mb-4 text-sm uppercase tracking-wider">Interactive Parameters</h3>
 
                 <div class="mb-4">
@@ -124,7 +124,7 @@
                         <span id="n-val" class="font-mono text-slate-700 font-semibold">100</span>
                     </label>
                     <input type="range" id="n-slider" min="20" max="300" step="10" value="100" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
-                    <p class="text-[11px] text-slate-500 mt-1">Scales total $SS = (N-1)\sigma^2$ while holding $\sigma^2$ constant.</p>
+                    <p class="text-[11px] text-slate-500 mt-1" data-teach="detail">Scales total $SS = (N-1)\sigma^2$ while holding $\sigma^2$ constant.</p>
                 </div>
 
                 <div class="demo-divider mt-4 pt-4 space-y-2">
@@ -157,8 +157,8 @@
                             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">Theoretical Variance ($\sigma_Z^2$)</h4>
                             <span class="text-[11px] text-slate-400">Mean Square ($SS_Z / df$)</span>
                         </div>
-                        <p id="formula-sum" class="text-xs text-slate-600">$\sigma_{X+Y}^2 = \sigma_X^2 + \sigma_Y^2 + 2\rho\sigma_X\sigma_Y$</p>
-                        <p id="formula-diff" class="text-xs text-slate-600 hidden">$\sigma_{X-Y}^2 = \sigma_X^2 + \sigma_Y^2 - 2\rho\sigma_X\sigma_Y$</p>
+                        <p id="formula-sum" class="text-xs text-slate-600" data-teach="essential">$\sigma_{X+Y}^2 = \sigma_X^2 + \sigma_Y^2 + 2\rho\sigma_X\sigma_Y$</p>
+                        <p id="formula-diff" class="text-xs text-slate-600 hidden" data-teach="essential">$\sigma_{X-Y}^2 = \sigma_X^2 + \sigma_Y^2 - 2\rho\sigma_X\sigma_Y$</p>
                         <div class="flex items-baseline justify-between mt-2">
                             <p class="text-base font-bold viz-ink-explained">
                                 <span id="calc-var-label-sum">$\text{Var}(X+Y)$</span><span id="calc-var-label-diff" class="hidden">$\text{Var}(X-Y)$</span>:
@@ -176,8 +176,8 @@
                             <h4 class="text-xs font-bold uppercase tracking-wider viz-ink-total">Sum of Squares ($SS_Z$) Partition</h4>
                             <span class="text-[11px] font-medium viz-ink-total">$df = N - 1 =$ <span id="card-df">99</span></span>
                         </div>
-                        <p id="ss-formula-sum" class="text-xs viz-ink-total mb-2">$SS_{X+Y} = SS_X + SS_Y + 2\,SP_{XY} \quad (Z = X + Y)$</p>
-                        <p id="ss-formula-diff" class="text-xs viz-ink-total mb-2 hidden">$SS_{X-Y} = SS_X + SS_Y - 2\,SP_{XY} \quad (Z = X - Y)$</p>
+                        <p id="ss-formula-sum" class="text-xs viz-ink-total mb-2" data-teach="essential">$SS_{X+Y} = SS_X + SS_Y + 2\,SP_{XY} \quad (Z = X + Y)$</p>
+                        <p id="ss-formula-diff" class="text-xs viz-ink-total mb-2 hidden" data-teach="essential">$SS_{X-Y} = SS_X + SS_Y - 2\,SP_{XY} \quad (Z = X - Y)$</p>
 
                         <!-- Visual Breakdown Grid -->
                         <div class="grid grid-cols-3 gap-1.5 text-center bg-white/90 p-2 rounded border viz-border-total text-xs">
@@ -213,7 +213,7 @@
 
         <div class="lg:col-span-2 flex flex-col items-center">
             <div class="demo-card p-4 w-full overflow-hidden">
-                <div id="vis-container" class="relative w-full aspect-square max-w-[620px] mx-auto">
+                <div id="vis-container" class="relative w-full aspect-square max-w-[620px] mx-auto" data-teach="essential">
                     <!-- Tooltip labels. Dollar math is typeset once; the value nodes stay plain text. -->
                     <div id="tooltip" class="tooltip">
                         <div class="font-bold text-slate-800 border-b border-slate-100 pb-1 mb-1">

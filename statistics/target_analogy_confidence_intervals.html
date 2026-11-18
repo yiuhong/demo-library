@@ -165,7 +165,7 @@
     <header class="mb-4 flex flex-col md:flex-row justify-between items-center md:items-start shrink-0 gap-4">
         <div class="demo-header text-center md:text-left flex-1">
             <h1 class="text-2xl md:text-3xl font-bold mb-1">A target analogy of the confidence intervals</h1>
-            <p class="text-base">Pick a mode, set the shooter’s skill and the range, then generate data. In the long run, count how many intervals cross the true value.</p>
+            <p class="text-base" data-teach="detail">Pick a mode, set the shooter’s skill and the range, then generate data. In the long run, count how many intervals cross the true value.</p>
         </div>
         <div class="demo-panel p-3 text-xs font-mono flex flex-col gap-1 min-w-[250px]">
             <div class="flex justify-between"><span class="font-bold text-slate-500 mr-4">Standard Error (SE):</span> <span>σ / √n</span></div>
@@ -201,8 +201,8 @@
             <div class="step-card active" id="step1" onclick="setMode(1)">
                 <h2 class="text-lg font-bold mb-1 text-slate-800">1. Multiple shots (samples)</h2>
                 <div class="text-xs text-slate-600 space-y-1">
-                    <p>We see the True Mean (<span class="viz-ink-mean">Red Center</span>) casting a range that traps predictable sample means (<span class="viz-ink-group-a">Blue Dots</span>).</p>
-                    <p class="font-semibold viz-ink-se mt-2 viz-soft-se p-1.5 rounded border viz-border-se">Note: This purple circle is the Margin of Error from the Standard Error (SE). It shows the sampling spread around the blue sample means, not a Confidence Interval.</p>
+                    <p data-teach="detail">We see the True Mean (<span class="viz-ink-mean">Red Center</span>) casting a range that traps predictable sample means (<span class="viz-ink-group-a">Blue Dots</span>).</p>
+                    <p class="font-semibold viz-ink-se mt-2 viz-soft-se p-1.5 rounded border viz-border-se" data-teach="detail">Note: This purple circle is the Margin of Error from the Standard Error (SE). It shows the sampling spread around the blue sample means, not a Confidence Interval.</p>
                 </div>
             </div>
 
@@ -210,8 +210,8 @@
             <div class="step-card" id="step2" onclick="setMode(2)">
                 <h2 class="text-lg font-bold mb-1 text-slate-800">2. One shot (sample)</h2>
                 <div class="text-xs text-slate-600 space-y-1">
-                    <p>You only get one sample. We reverse it: Draw the range around the single dart. Does it capture the invisible center?</p>
-                    <p class="font-semibold text-slate-700 mt-2 bg-slate-50 p-1.5 rounded border border-slate-200">Click on any dot or line in either graph to select it and test if its confidence interval captures the true mean!</p>
+                    <p data-teach="detail">You only get one sample. We reverse it: Draw the range around the single dart. Does it capture the invisible center?</p>
+                    <p class="font-semibold text-slate-700 mt-2 bg-slate-50 p-1.5 rounded border border-slate-200" data-teach="detail">Click on any dot or line in either graph to select it and test if its confidence interval captures the true mean!</p>
                 </div>
             </div>
 
@@ -219,7 +219,7 @@
             <div class="step-card" id="step3" onclick="setMode(3)">
                 <h2 class="text-lg font-bold mb-1 text-slate-800">3. The Long Run</h2>
                 <div class="text-xs text-slate-600 space-y-1">
-                    <p>Drawing ranges around all 100 samples. <strong class="viz-ink-significant">Green ranges</strong> succeed. <strong class="viz-ink-null">Red ranges</strong> fail.</p>
+                    <p data-teach="detail">Drawing ranges around all 100 samples. <strong class="viz-ink-significant">Green ranges</strong> succeed. <strong class="viz-ink-null">Red ranges</strong> fail.</p>
                 </div>
             </div>
             
@@ -243,7 +243,7 @@
             </div>
 
             <!-- SVG Container for 2D -->
-            <div id="svg-container" class="w-full h-full flex-grow bg-white relative"></div>
+            <div id="svg-container" class="w-full h-full flex-grow bg-white relative" data-teach="essential"></div>
         </div>
 
         <!-- PANEL 3: 1D Confidence Intervals (Right) -->

@@ -26,14 +26,14 @@
         <!-- Header & Explanation Section -->
         <header class="demo-header">
             <h1 class="text-3xl font-bold mb-2">The Central Limit Theorem (CLT)</h1>
-            <p class="leading-relaxed">
+            <p class="leading-relaxed" data-teach="detail">
                 Pick a population shape and a sample size, then run the simulation. The right-hand plot is the pile of sample means.
             </p>
         </header>
 
         <div class="demo-card demo-prose p-6">
             <h2 class="font-bold text-lg mb-2">The Standard Error (SE)</h2>
-            <p class="text-sm leading-relaxed mb-3">
+            <p class="text-sm leading-relaxed mb-3" data-teach="detail">
                 The spread of that pile is the standard error. Raise $n$ and the pile gets narrower. This simulation uses the population $\sigma$.
             </p>
             <div class="demo-panel text-xl text-center my-4 py-3 w-fit mx-auto px-8">
@@ -57,7 +57,7 @@
                         <option value="normal">Normal (Bell Curve)</option>
                         <option value="bimodal">Bimodal (Two Peaks)</option>
                     </select>
-                    <p class="text-xs text-slate-500">The underlying shape of the population.</p>
+                    <p class="text-xs text-slate-500" data-teach="detail">The underlying shape of the population.</p>
                 </div>
 
                 <!-- Sample Size Slider -->
@@ -67,7 +67,7 @@
                         <span id="n-val" class="demo-value">30</span>
                     </label>
                     <input type="range" id="sample-size" min="2" max="150" value="30" class="w-full cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none">
-                    <p class="text-xs text-slate-500">Number of observations drawn in each single sample.</p>
+                    <p class="text-xs text-slate-500" data-teach="detail">Number of observations drawn in each single sample.</p>
                 </div>
 
                 <!-- Number of Samples Slider -->
@@ -77,7 +77,7 @@
                         <span id="iterations-val" class="demo-value">500</span>
                     </label>
                     <input type="range" id="iterations" min="50" max="2000" step="10" value="500" class="w-full cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none">
-                    <p class="text-xs text-slate-500">Total times we draw a sample of size $n$ and record its mean.</p>
+                    <p class="text-xs text-slate-500" data-teach="detail">Total times we draw a sample of size $n$ and record its mean.</p>
                 </div>
 
             </div>
@@ -99,10 +99,10 @@
             <div class="demo-card p-6 flex flex-col">
                 <div class="mb-4">
                     <h3 class="text-lg font-bold">Population Distribution</h3>
-                    <p id="pop-desc" class="text-sm text-slate-500 mb-1">A highly skewed Exponential distribution.<br> <span class="font-mono bg-slate-100 px-1 rounded">Mean ($\mu$) = 40</span> | <span class="font-mono bg-slate-100 px-1 rounded">Std Dev ($\sigma$) = 40.00</span></p>
+                    <p id="pop-desc" class="text-sm text-slate-500 mb-1" data-teach="detail">A highly skewed Exponential distribution.<br> <span class="font-mono bg-slate-100 px-1 rounded">Mean ($\mu$) = 40</span> | <span class="font-mono bg-slate-100 px-1 rounded">Std Dev ($\sigma$) = 40.00</span></p>
                 </div>
                 <div class="relative w-full aspect-[4/3] flex-grow">
-                    <canvas id="pop-canvas" width="800" height="600" class="absolute inset-0 w-full h-full object-contain border border-black bg-white" style="border-radius: 4px;"></canvas>
+                    <canvas id="pop-canvas" width="800" height="600" class="absolute inset-0 w-full h-full object-contain border border-black bg-white" style="border-radius: 4px;" data-teach="essential"></canvas>
                 </div>
             </div>
 
@@ -110,11 +110,11 @@
             <div class="demo-card p-6 flex flex-col">
                 <div class="mb-4">
                     <h3 class="text-lg font-bold">Sampling Distribution of the Mean</h3>
-                    <p class="text-sm text-slate-500">Histogram of sample means with theoretical normal overlay.</p>
+                    <p class="text-sm text-slate-500" data-teach="detail">Histogram of sample means with theoretical normal overlay.</p>
                 </div>
                 
                 <div class="relative w-full aspect-[4/3] mb-6 flex-grow">
-                    <canvas id="sample-canvas" width="800" height="600" class="absolute inset-0 w-full h-full object-contain border border-black bg-white" style="border-radius: 4px;"></canvas>
+                    <canvas id="sample-canvas" width="800" height="600" class="absolute inset-0 w-full h-full object-contain border border-black bg-white" style="border-radius: 4px;" data-teach="essential"></canvas>
                 </div>
                 
                 <!-- Statistical Results Output -->

@@ -106,8 +106,9 @@ Each demo has:
 ```
 
 3. Load the shared demo theme (`assets/stats-demo-theme.css` or `assets/neuroscience-demo-theme.css`) and keep `class="demo-page"` on `body`. The phone and coarse-pointer range target (44px) lives in that theme. Do not override it back to a thin track. A thumb color on the page is fine. See [CONTRIBUTING.md](CONTRIBUTING.md).
-4. Append one object to that subcategory's `demos` array in `demos.json`.
-5. Optionally add a step in `tracks.json` if it belongs on a playlist.
+4. Load `assets/teach.js` and `assets/teach.css` immediately after the `embed=shell` hook. Mark the figure, the live equation or readout, and the controls `data-teach="essential"`. Mark the lede, the pedagogy, the longer notes, and any citation `data-teach="detail"`. Learn is the full page. Teach only hides those detail regions. Put a `.demo-topbar` on the page, with the Back link or alone when the page has no Back link, so the Teach / Learn pair is there. The pair hides when the page is already in the shell. Cite a source only where the teaching depends on one, as a short note. Do not invent a citation. See [CONTRIBUTING.md](CONTRIBUTING.md).
+5. Append one object to that subcategory's `demos` array in `demos.json`.
+6. Optionally add a step in `tracks.json` if it belongs on a playlist.
 
 You do not edit card markup by hand. A new category is a new object in `categories`; its rail row is built from `id` and `title`. The catalog page renders it. The first category in that list is the one focused when the catalog opens.
 
@@ -138,7 +139,7 @@ Optional fields on a step. When a note, formulae, demo description, or image is 
 * `image` — relative path from the site root, such as `tracks/images/describing-data/01-mean-median-mode.png`.
 * `imageAlt` — text alternative. Required when `image` is set. If the alt text is missing, or the path is not a relative image path, the image is left out.
 
-An image path has to stay relative: no URL scheme and no `..`. A step with only `href` and `title` stays a demonstration link, with no title before it. The figures stay the black-and-white preview images already in `tracks/images/`. Do not copy the note into a new HTML file; `tracks/connection.html` reads `tracks.json`. A neuroscience demonstration uses the dark demo chrome on that connection page. Other demonstrations use the light statistics chrome.
+An image path has to stay relative: no URL scheme and no `..`. A step with only `href` and `title` stays a demonstration link, with no title before it. The figures stay the black-and-white preview images already in `tracks/images/`. Do not copy the note into a new HTML file; `tracks/connection.html` reads `tracks.json`. That page loads Teach and Learn. The figure and the Key points stay visible in Teach. The note and **In the next demo** are the detail. The figure stays a concept illustration and stays before **In the next demo**. A neuroscience demonstration uses the dark demo chrome on that connection page. Other demonstrations use the light statistics chrome.
 
 A step is still listed if its `href` has no matching card yet, so a playlist can name a demo before that card is in `demos.json`. The HTML file named by the `href` still has to be in the repo.
 

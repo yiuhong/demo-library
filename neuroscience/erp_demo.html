@@ -83,7 +83,7 @@
                         Extraction of Event-Related Potentials (ERPs)
                     </h1>
                 </div>
-                <p class="text-xs text-slate-400 mt-1">
+                <p class="text-xs text-slate-400 mt-1" data-teach="detail">
                     Add trials. Single-trial traces stay on the plot; the running average is the event-related potential.
                 </p>
             </div>
@@ -124,7 +124,7 @@
                         </div>
                     </div>
                     
-                    <canvas id="erp-canvas" class="w-full h-64 block cursor-crosshair"></canvas>
+                    <canvas id="erp-canvas" class="w-full h-64 block cursor-crosshair" data-teach="essential"></canvas>
                     
                     <!-- X-Axis Labels -->
                     <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-2">
@@ -206,12 +206,12 @@
                     <span class="text-[10px] text-emerald-400 flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Streaming Channel #64</span>
                 </div>
                 <div class="demo-plot p-2 overflow-hidden relative">
-                    <canvas id="timeline-canvas" class="w-full h-20 block"></canvas>
+                    <canvas id="timeline-canvas" class="w-full h-20 block" data-teach="essential"></canvas>
                     <div class="absolute bottom-2 right-2 text-[9px] text-slate-500 bg-slate-900/90 border border-slate-800 px-1.5 py-0.5 rounded">
                         Continuous Sweep Speed: 1.0s/div
                     </div>
                 </div>
-                <p class="text-xs text-slate-400 leading-relaxed">
+                <p class="text-xs text-slate-400 leading-relaxed" data-teach="detail">
                     <strong>The Epoching Process:</strong> The scrolling trace above represents the raw background brain rhythm. The red dashed lines represent auditory stimulus onset triggers ($S_1, S_2, \dots$). The signal averager isolates local epochs (time window highlighted by a shaded rectangle) locked directly to these trigger times to run calculations below.
                 </p>
             </div>
@@ -236,7 +236,7 @@
                 <!-- Tab Content 1: Wave Anatomy (Interactive Waveform Chart matching provided image) -->
                 <div id="tab-anatomy-content" class="p-5 flex flex-col gap-4 flex-grow">
                     <div class="text-xs text-slate-300">
-                        <p class="leading-relaxed">
+                        <p class="leading-relaxed" data-teach="detail">
                             A complete human Event-Related Potential (ERP) consists of sequential components categorized by their latency (time delay post-stimulus). Hover or click on the labeled peaks to explore their neurological origins:
                         </p>
                     </div>
@@ -246,7 +246,7 @@
                         <div class="absolute top-1 left-2 text-[8px] font-mono text-slate-500 uppercase">Interactive Schematic</div>
                         <div class="absolute top-1 right-2 text-[8px] font-mono text-slate-500">Amplitude ($\mu\text{V}$) is inverted (- is UP)</div>
                         
-                        <svg viewBox="0 0 500 240" class="w-full h-auto mt-2 select-none" id="anatomy-svg">
+                        <svg viewBox="0 0 500 240" class="w-full h-auto mt-2 select-none" id="anatomy-svg" data-teach="essential">
                             <!-- Background Axis Lines -->
                             <line x1="10" y1="120" x2="490" y2="120" stroke="#1e293b" stroke-width="1.5" /> <!-- Baseline -->
                             <line x1="70" y1="15" x2="70" y2="225" class="viz-stroke-stimulus" stroke-width="1.5" stroke-dasharray="2,2"/> <!-- Stimulus Onset -->
@@ -313,41 +313,41 @@
                             <span id="comp-latency" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded font-mono font-bold" style="color: var(--viz-erp-p1)">40 - 60 ms</span>
                         </div>
                         <h4 id="comp-title" class="text-sm font-bold" style="color: var(--viz-erp-p1)">Cortical P1 (P50 Wave)</h4>
-                        <p id="comp-desc" class="text-xs text-slate-400 leading-relaxed mt-1">
+                        <p id="comp-desc" class="text-xs text-slate-400 leading-relaxed mt-1" data-teach="essential">
                             An early sensory positive component reflecting initial processing in the primary auditory cortex. It is often used to study sensory gating (e.g., the brain's ability to filter out redundant auditory information).
                         </p>
                     </div>
                 </div>
 
                 <!-- Tab Content 2: Math and Biophysics Description -->
-                <div id="tab-math-content" class="p-5 flex flex-col gap-4 hidden overflow-y-auto max-h-[420px]">
+                <div id="tab-math-content" class="p-5 flex flex-col gap-4 hidden overflow-y-auto max-h-[420px]" data-teach="detail">
                     <div class="flex flex-col gap-3 text-xs leading-relaxed text-slate-300">
                         <div class="border-l-2 border-indigo-500 pl-3 py-0.5">
                             <h4 class="font-bold text-white">The Signal-to-Noise Problem</h4>
-                            <p class="mt-1">
+                            <p class="mt-1" data-teach="detail">
                                 Background EEG activity (alpha, beta, delta, theta waves) typically ranges between $20\,\mu\text{V}$ and $100\,\mu\text{V}$. In contrast, cognitive sensory ERPs are buried at values between $1\,\mu\text{V}$ and $10\,\mu\text{V}$. Individual stimulus trials look identical to random background noise.
                             </p>
                         </div>
 
                         <div class="border-l-2 border-indigo-500 pl-3 py-0.5 mt-2">
                             <h4 class="font-bold text-white">The Averaging Formulation</h4>
-                            <p class="mt-1">
+                            <p class="mt-1" data-teach="detail">
                                 An ongoing recording is divided into stimulus-locked trials $S_j(t) = s(t) + n_j(t)$, where $s(t)$ is the consistent time-locked ERP wave (signal), and $n_j(t)$ is the random uncorrelated noise (background EEG) on trial $j$.
                             </p>
-                            <p class="demo-panel demo-mono mt-2 p-2 text-center text-xs">
+                            <p class="demo-panel demo-mono mt-2 p-2 text-center text-xs" data-teach="detail">
                                 $$\text{Average}(t) = \frac{1}{N} \sum_{j=1}^{N} S_j(t) = s(t) + \frac{1}{N}\sum_{j=1}^{N} n_j(t)$$
                             </p>
                         </div>
 
                         <div class="border-l-2 border-indigo-500 pl-3 py-0.5 mt-2">
                             <h4 class="font-bold text-white">Mathematical Noise Suppression</h4>
-                            <p class="mt-1">
+                            <p class="mt-1" data-teach="detail">
                                 Assuming the background EEG noise $n_j(t)$ is Gaussian with a mean of zero and variance of $\sigma^2$, and is completely uncorrelated across trials, the variance of the averaged noise goes down with $N$ trials:
                             </p>
-                            <p class="demo-panel demo-mono mt-2 p-2 text-center text-xs">
+                            <p class="demo-panel demo-mono mt-2 p-2 text-center text-xs" data-teach="detail">
                                 $$\sigma_{\text{average}} = \frac{\sigma}{\sqrt{N}}$$
                             </p>
-                            <p class="mt-2">
+                            <p class="mt-2" data-teach="detail">
                                 Thus, with 100 trials, background noise is suppressed by a factor of $\sqrt{100} = 10$, bringing a $20\,\mu\text{V}$ noise down to a manageable $2\,\mu\text{V}$, revealing the pure sensory ERP.
                             </p>
                         </div>
@@ -370,7 +370,7 @@
                 <h4 class="demo-kicker text-xs flex items-center gap-1.5">
                     <i data-lucide="calculator" class="w-4 h-4"></i> Interactive Noise Reduction Theorem
                 </h4>
-                <p class="text-xs text-slate-300 leading-relaxed">
+                <p class="text-xs text-slate-300 leading-relaxed" data-teach="detail">
                     By adjusting the sliders, you change the parameters of the simulation in real time. Standard clinical recordings aim for a target post-average Signal-to-Noise Ratio (SNR) of at least <strong>$1.5$ to $2.0$</strong> to make safe clinical judgments.
                 </p>
                 <div class="demo-panel p-3 text-xs flex flex-col gap-2">
@@ -396,7 +396,7 @@
     <!-- Footer of Page -->
     <footer class="demo-footer py-4 px-6 mt-8">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-            <p>Interactive neurophysiology simulator for teaching computational cognitive neuroscience.</p>
+            <p data-teach="detail">Interactive neurophysiology simulator for teaching computational cognitive neuroscience.</p>
             <div class="flex items-center gap-4">
                 <a href="#" class="hover:text-slate-300 transition">Faraday Cage Theory</a>
                 <a href="#" class="hover:text-slate-300 transition">Differential Amplification</a>

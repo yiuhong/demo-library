@@ -33,7 +33,7 @@
     <div class="demo-card overflow-hidden">
         <div class="demo-header">
             <h1 class="text-2xl font-bold mb-2">Understanding Bessel's Correction ($n-1$)</h1>
-            <p class="text-sm max-w-4xl">
+            <p class="text-sm max-w-4xl" data-teach="detail">
                 Draw repeated samples. One running average divides the variance by $n$; the other divides by $n - 1$. Compare both with the true variance.
             </p>
         </div>
@@ -47,7 +47,7 @@
                         Sample Size ($n$): <span id="sampleSizeVal" class="demo-value">30</span>
                     </label>
                     <input type="range" id="sampleSize" min="30" max="200" value="30" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer">
-                    <p class="text-xs text-slate-500 mt-1">Restricted to $\ge 30$ to keep the chart scale legible.</p>
+                    <p class="text-xs text-slate-500 mt-1" data-teach="detail">Restricted to $\ge 30$ to keep the chart scale legible.</p>
                 </div>
 
                 <div>
@@ -55,7 +55,7 @@
                         Samples per Draw: <span id="numSamplesVal" class="demo-value">10</span>
                     </label>
                     <input type="range" id="numSamples" min="1" max="100" value="10" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer">
-                    <p class="text-xs text-slate-500 mt-1">How many random samples to generate per click.</p>
+                    <p class="text-xs text-slate-500 mt-1" data-teach="detail">How many random samples to generate per click.</p>
                 </div>
 
                 <div class="flex items-end space-x-3">
@@ -102,9 +102,9 @@
             <div class="mb-6 demo-panel p-5">
                 <h3 class="text-lg font-semibold text-slate-800 mb-2 text-center">Convergence of Variance Estimates</h3>
                 <div class="canvas-container">
-                    <canvas id="varianceChart"></canvas>
+                    <canvas id="varianceChart" data-teach="essential"></canvas>
                 </div>
-                <p class="text-sm text-center text-slate-500 mt-4 max-w-3xl mx-auto">
+                <p class="text-sm text-center text-slate-500 mt-4 max-w-3xl mx-auto" data-teach="detail">
                     The chart shows the running average of the variance estimates as more samples are drawn. 
                     Notice how the blue line ($n-1$) converges to the true variance (green dashed line), while the red line ($n$) stays below it. The individual scatter points show the high variability of single samples.
                 </p>
@@ -113,7 +113,7 @@
             <!-- Single Sample Explanation View -->
             <div class="demo-panel p-5">
                 <h3 class="text-md font-semibold text-slate-800 border-b border-slate-200 pb-2 mb-3">Latest Sample Details</h3>
-                <div id="latestSampleDetails" class="text-sm">
+                <div id="latestSampleDetails" class="text-sm" data-teach="essential">
                     <p class="text-slate-500 italic">Draw samples to see calculation details here.</p>
                 </div>
             </div>
@@ -121,11 +121,11 @@
             <!-- Minimization Property Visualization -->
             <div class="mt-6 demo-panel p-5" id="parabolaContainer" style="display: none;">
                 <h3 class="text-md font-semibold text-slate-800 border-b border-slate-200 pb-2 mb-3">Why $n-1$? The Minimization Property of the Mean</h3>
-                <p class="text-sm text-slate-600 mb-4">
+                <p class="text-sm text-slate-600 mb-4" data-teach="detail">
                     Mathematically, the sample mean is the <strong>exact point that minimizes the sum of squared deviations</strong>. If you calculate the sum of squares around <em>any other number</em> (including the true population mean), the result will form a U-shaped parabola and will be larger. Because we don't know the population mean, we are forced to use the sample mean, which artificially shrinks our variance estimate. Dividing by $n-1$ corrects for this artificial shrinkage!
                 </p>
                 <div class="canvas-container relative h-64 w-full">
-                    <canvas id="ssParabolaChart"></canvas>
+                    <canvas id="ssParabolaChart" data-teach="essential"></canvas>
                 </div>
             </div>
 

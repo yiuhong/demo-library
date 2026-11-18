@@ -87,14 +87,14 @@
 
     <header class="demo-header mb-6 text-center">
         <h1 class="text-3xl font-bold mb-2">Moments are Just Averages</h1>
-        <p class="max-w-2xl mx-auto">
+        <p class="max-w-2xl mx-auto" data-teach="detail">
             Drag the points. The 1st moment is their average, the 2nd is the average of squared deviations, and the 3rd is the average of cubed deviations.
         </p>
     </header>
 
-    <div class="max-w-3xl mx-auto text-left viz-soft-group-a border-l-4 viz-border-group-a p-5 mb-6">
+    <div class="max-w-3xl mx-auto text-left viz-soft-group-a border-l-4 viz-border-group-a p-5 mb-6" data-teach="detail">
             <h3 class="text-lg font-semibold viz-ink-group-a mb-2">On the chart</h3>
-            <p class="text-sm viz-ink-group-a leading-relaxed">
+            <p class="text-sm viz-ink-group-a leading-relaxed" data-teach="detail">
                 Toggle a moment to draw it. The power on that card is the only change; the points stay the same.
             </p>
         </div>
@@ -106,7 +106,7 @@
             
             <!-- Chart & Legend -->
             <div class="w-full lg:w-2/3 flex flex-col">
-                <div id="chart" class="chart-container w-full h-64 relative z-10"></div>
+                <div id="chart" class="chart-container w-full h-64 relative z-10" data-teach="essential"></div>
                 
                 <!-- Interactive Chart Legend (Toggles) -->
                 <div class="demo-panel flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-xs mt-4 p-3">
@@ -138,7 +138,7 @@
                     </div>
                 </div>
 
-                <p class="text-[11px] text-gray-500 text-center mt-3 max-w-lg mx-auto leading-tight">
+                <p class="text-[11px] text-gray-500 text-center mt-3 max-w-lg mx-auto leading-tight" data-teach="detail">
                     * Deviations from the grey Normal Reference curve indicate <strong>Skewness</strong> (leaning left/right) and <strong>Kurtosis</strong> (abnormally sharp peaks or fat tails).
                 </p>
             </div>
@@ -161,7 +161,7 @@
     <!-- Step-by-Step Table Breakdown -->
     <div class="mb-8 demo-card p-6">
         <h2 class="text-xl font-semibold mb-4 text-center">Column averages</h2>
-        <p class="text-center text-gray-600 mb-6 text-sm max-w-3xl mx-auto">
+        <p class="text-center text-gray-600 mb-6 text-sm max-w-3xl mx-auto" data-teach="detail">
             Each column is one moment. The bottom row is the average of that column, the same number drawn on the chart.
         </p>
         <div class="overflow-x-auto">
@@ -196,10 +196,10 @@
                 <div class="w-8 h-8 rounded-full viz-soft-mean viz-ink-mean flex items-center justify-center font-bold shrink-0">1</div>
                 <h3 class="text-xl font-semibold">1st Moment: Mean (<span class="italic">μ</span>)</h3>
             </div>
-            <p class="text-gray-600 mb-4 text-sm flex-grow">
+            <p class="text-gray-600 mb-4 text-sm flex-grow" data-teach="detail">
                 The mean is the average of the raw values. It tells us the "center of mass" of the distribution.
             </p>
-            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center">
+            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" data-teach="essential">
                 $$ \mu = E[X] = \frac{1}{N} \sum_{i=1}^{N} x_i $$
             </div>
             <div class="flex flex-col gap-2 viz-soft-mean viz-ink-mean p-3 rounded mt-auto text-center">
@@ -214,10 +214,10 @@
                 <div class="w-8 h-8 rounded-full viz-soft-explained viz-ink-explained flex items-center justify-center font-bold shrink-0">2</div>
                 <h3 class="text-xl font-semibold">2nd Central Moment: Variance (<span class="italic">σ²</span>)</h3>
             </div>
-            <p class="text-gray-600 mb-4 text-sm flex-grow">
+            <p class="text-gray-600 mb-4 text-sm flex-grow" data-teach="detail">
                 Variance is the average of the <em>squared differences</em> from the mean. It tells us the "scale" or how spread out the data is. <strong>Unlike higher moments, we do not divide by standard deviation here.</strong> Why? Because variance is exactly what we use to measure that scale! If we standardized the data first, the variance would always just equal 1.
             </p>
-            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: var(--viz-explained);">
+            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: var(--viz-explained);" data-teach="essential">
                 $$ \sigma^2 = E[(X - \mu)^2] = \frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2 $$
             </div>
             <div class="flex flex-col gap-2 viz-soft-explained viz-ink-explained p-3 rounded mt-auto text-center">
@@ -232,10 +232,10 @@
                 <div class="w-8 h-8 rounded-full viz-soft-density viz-ink-density flex items-center justify-center font-bold shrink-0">3</div>
                 <h3 class="text-xl font-semibold">3rd Std. Moment: Skewness</h3>
             </div>
-            <p class="text-gray-600 mb-4 text-sm flex-grow">
+            <p class="text-gray-600 mb-4 text-sm flex-grow" data-teach="detail">
                 Skewness is the average of the <em>cubed differences</em>. We divide by standard deviation (σ) to <strong>standardize</strong> it, making it a "scale-free" measure of asymmetry. Because it's cubed, signs are preserved: negative outliers pull it left, positive pull it right.
             </p>
-            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: var(--viz-density);">
+            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: var(--viz-density);" data-teach="essential">
                 $$ \text{Skew} = E\left[\left(\frac{X - \mu}{\sigma}\right)^3\right] = \frac{1}{N} \sum_{i=1}^{N} \left(\frac{x_i - \mu}{\sigma}\right)^3 $$
             </div>
             <div class="flex flex-col gap-2 viz-soft-density viz-ink-density p-3 rounded mt-auto text-center">
@@ -250,10 +250,10 @@
                 <div class="w-8 h-8 rounded-full viz-soft-group-c viz-ink-group-c flex items-center justify-center font-bold shrink-0">4</div>
                 <h3 class="text-xl font-semibold">4th Std. Moment: Kurtosis</h3>
             </div>
-            <p class="text-gray-600 mb-4 text-sm flex-grow">
+            <p class="text-gray-600 mb-4 text-sm flex-grow" data-teach="detail">
                 Kurtosis is the average of the data raised to the <em>fourth power</em>. Like skewness, we divide by standard deviation (σ) to remove units (like meters or dollars) so we can strictly measure the "tailedness" or shape of the distribution. Extreme outliers get massively amplified.
             </p>
-            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: var(--viz-group-c);">
+            <div class="formula-box p-3 rounded-r-lg mb-4 overflow-x-auto text-center" style="border-left-color: var(--viz-group-c);" data-teach="essential">
                 $$ \text{Kurtosis} = E\left[\left(\frac{X - \mu}{\sigma}\right)^4\right] = \frac{1}{N} \sum_{i=1}^{N} \left(\frac{x_i - \mu}{\sigma}\right)^4 $$
             </div>
             <div class="flex flex-col gap-2 viz-soft-group-c viz-ink-group-c p-3 rounded mt-auto text-center">

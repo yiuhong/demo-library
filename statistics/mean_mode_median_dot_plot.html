@@ -86,7 +86,7 @@
         <!-- Header -->
         <header class="demo-header text-center">
             <h1 class="text-3xl md:text-4xl font-bold">Mean, Median, and Mode on a Dot Plot</h1>
-            <p>Click a column to <strong>add</strong> a dot. Click a dot to <strong>remove</strong> it.</p>
+            <p data-teach="detail">Click a column to <strong>add</strong> a dot. Click a dot to <strong>remove</strong> it.</p>
         </header>
 
         <!-- Main Interactive Area -->
@@ -95,7 +95,7 @@
             <div class="overflow-x-auto pb-2">
                 <div class="min-w-[600px] pt-8">
                     <!-- Plot Container -->
-                    <div id="plot-container" class="relative h-[480px] flex items-stretch border-b-2 border-slate-300 pb-2 mb-2">
+                    <div id="plot-container" class="relative h-[480px] flex items-stretch border-b-2 border-slate-300 pb-2 mb-2" data-teach="essential">
                         <!-- Mean & Median Lines injected via JS -->
                         <div id="mean-line" class="stat-line mean-line hidden rounded-t-full rounded-b-full">
                             <div class="absolute -top-7 left-1/2 -translate-x-1/2 viz-bg-mean text-[10px] md:text-xs font-bold px-2 py-0.5 rounded shadow-sm whitespace-nowrap">Mean</div>
@@ -148,7 +148,7 @@
                     <h3 class="text-lg font-semibold">Mean</h3>
                 </div>
                 <p id="stat-mean" class="text-3xl font-bold">-</p>
-                <p class="text-xs mt-1 text-center">Sum of values divided by count.</p>
+                <p class="text-xs mt-1 text-center" data-teach="detail">Sum of values divided by count.</p>
             </div>
 
             <!-- Median Card -->
@@ -158,7 +158,7 @@
                     <h3 class="text-lg font-semibold">Median</h3>
                 </div>
                 <p id="stat-median" class="text-3xl font-bold">-</p>
-                <p class="text-xs mt-1 text-center">The exact middle value.</p>
+                <p class="text-xs mt-1 text-center" data-teach="detail">The exact middle value.</p>
             </div>
 
             <!-- Mode Card -->
@@ -168,7 +168,7 @@
                     <h3 class="text-lg font-semibold">Mode</h3>
                 </div>
                 <p id="stat-mode" class="text-3xl font-bold text-center">-</p>
-                <p class="text-xs mt-1 text-center">Most frequent value(s).</p>
+                <p class="text-xs mt-1 text-center" data-teach="detail">Most frequent value(s).</p>
             </div>
         </div>
     </div>

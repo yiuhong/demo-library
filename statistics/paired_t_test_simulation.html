@@ -140,7 +140,7 @@
         </div>
         <header class="demo-header mb-6 text-center">
             <h1 class="text-3xl font-extrabold mb-2">Paired Samples (Dependent $t$-test) Simulation</h1>
-            <p class="max-w-4xl mx-auto text-sm md:text-base">
+            <p class="max-w-4xl mx-auto text-sm md:text-base" data-teach="detail">
                 A population of 1,000 people, each with a pre-test and a post-test. Draw 10 pairs at a time. Hover a dot to see that person’s other score.
             </p>
         </header>
@@ -153,9 +153,9 @@
                 </div>
                 
                 <!-- Callout Banner explaining subject linkage -->
-                <div class="demo-panel text-xs p-2 mb-3 flex items-start gap-1.5">
+                <div class="demo-panel text-xs p-2 mb-3 flex items-start gap-1.5" data-teach="detail">
                     <span class="text-base">💡</span>
-                    <span><strong>Linked Subject Concept:</strong> Each participant ($P$) is measured twice. <strong>Hover over any dot</strong> in either box to highlight that exact same participant's twin score!</span>
+                    <span data-teach="detail"><strong>Linked Subject Concept:</strong> Each participant ($P$) is measured twice. <strong>Hover over any dot</strong> in either box to highlight that exact same participant's twin score!</span>
                 </div>
 
                 <div class="flex flex-col gap-3 mb-2">
@@ -186,7 +186,7 @@
                     Distribution of Differences ($D = Post - Pre$)
                     <span class="ml-2 viz-ink-difference">$\mu_D = 5, \sigma_D = 10$</span>
                 </div>
-                <div id="pop-dist-chart" class="h-32 w-full mt-auto"></div>
+                <div id="pop-dist-chart" class="h-32 w-full mt-auto" data-teach="essential"></div>
             </div>
 
             <!-- Middle Column: The Sampling Process -->
@@ -245,7 +245,7 @@
                 </div>
                 
                 <div class="flex-grow flex flex-col">
-                    <div id="sampling-dist-chart" class="flex-grow w-full min-h-[200px]"></div>
+                    <div id="sampling-dist-chart" class="flex-grow w-full min-h-[200px]" data-teach="essential"></div>
                 </div>
                 
                 <div class="demo-panel grid grid-cols-2 gap-3 mt-4 p-3">
@@ -269,12 +269,12 @@
         </div>
         
         <!-- Explanation Panel. Starts closed; the simulation above stays open. -->
-        <details class="demo-card demo-prose teaching-note mt-6">
+        <details class="demo-card demo-prose teaching-note mt-6" data-teach="detail">
             <summary>
                 <h3 class="text-base font-bold">Connecting to the Paired $t$-test</h3>
             </summary>
             <div class="teaching-note-body">
-            <p class="text-slate-600 text-sm leading-relaxed mb-4">
+            <p class="text-slate-600 text-sm leading-relaxed mb-4" data-teach="detail">
                 In a paired (dependent) $t$-test, each subject is measured twice (Pre and Post). Notice how a single sample draws a linked pair from both populations simultaneously. The test evaluates the <strong>difference scores</strong> ($D$) within each pair.
             </p>
             
@@ -285,7 +285,7 @@
                     </svg>
                     Why is a Paired t-test identical to a One-Sample t-test?
                 </h4>
-                <p class="text-sm leading-relaxed mb-3">
+                <p class="text-sm leading-relaxed mb-3" data-teach="detail">
                     A paired-samples $t$-test is mathematically identical to performing a <strong>one-sample $t$-test</strong> on the column of difference scores. Here is why:
                 </p>
                 <ul class="list-disc pl-5 text-sm space-y-2">
@@ -295,7 +295,7 @@
                 </ul>
             </div>
             
-            <p class="text-slate-600 text-sm leading-relaxed">
+            <p class="text-slate-600 text-sm leading-relaxed" data-teach="detail">
                 As you draw samples, the <strong>Estimated Standard Error</strong> ($s_D / \sqrt{n}$) varies from sample to sample because it relies on the sample's standard deviation ($s_D$). However, across 100 simulations, the average of these estimated standard errors closely approximates the true standard error (the empirical standard deviation of the sampling distribution on the right).
             </p>
             </div>
