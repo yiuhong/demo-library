@@ -2,6 +2,8 @@
 <html lang="en" translate="no">
 <head>
   <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+  <script src="../assets/teach.js"></script>
+  <link rel="stylesheet" href="../assets/teach.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google" content="notranslate">
@@ -648,11 +650,11 @@
 
     <header class="page-head">
       <h1>From Binomial Counts to Chi-Square</h1>
-      <p class="lede">Discrete binomial and multinomial counts. The central limit theorem approximates a category count by a normal curve. Summing squared residuals across $k$ categories yields $\chi^2$ with $k - 1$ degrees of freedom.</p>
-      <p class="lede">Reference. Pearson’s cell is the criterion in Pearson (1900), <em>On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling</em> (<em>Philosophical Magazine, Series 5, 50</em>, 157–175). The expected-count check is Cochran (1954), <em>Some methods for strengthening the common χ² tests</em> (<em>Biometrics, 10</em>, 417–451).</p>
+      <p class="lede" data-teach="detail">Discrete binomial and multinomial counts. The central limit theorem approximates a category count by a normal curve. Summing squared residuals across $k$ categories yields $\chi^2$ with $k - 1$ degrees of freedom.</p>
+      <p class="lede" data-teach="detail">Reference. Pearson’s cell is the criterion in Pearson (1900), <em>On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling</em> (<em>Philosophical Magazine, Series 5, 50</em>, 157–175). The expected-count check is Cochran (1954), <em>Some methods for strengthening the common χ² tests</em> (<em>Biometrics, 10</em>, 417–451).</p>
     </header>
 
-    <section class="toolbar demo-card" aria-label="Simulation controls">
+    <section class="toolbar demo-card" aria-label="Simulation controls" data-teach="essential">
       <p id="ruleBadge" class="rule is-valid" aria-live="polite">Cochran’s rule: every $E_i \ge 5$. Minimum $E = 15.0$.</p>
       <div class="controls">
         <div class="field">
@@ -661,7 +663,7 @@
             <span id="valN" class="demo-value">30</span>
           </div>
           <input type="range" id="sliderN" min="5" max="100" step="1" value="30">
-          <p class="caption" id="captionN">Moderate $n$ (30): the binomial bars sit close to the bell curve.</p>
+          <p class="caption" id="captionN" data-teach="detail">Moderate $n$ (30): the binomial bars sit close to the bell curve.</p>
         </div>
 
         <div class="field">
@@ -670,7 +672,7 @@
             <span id="valP" class="demo-value">0.50</span>
           </div>
           <input type="range" id="sliderP" min="0.05" max="0.95" step="0.01" value="0.50">
-          <p class="caption" id="captionP">This probability is near one half, so the count is nearly symmetric about its expectation.</p>
+          <p class="caption" id="captionP" data-teach="detail">This probability is near one half, so the count is nearly symmetric about its expectation.</p>
         </div>
 
         <div class="field">
@@ -682,7 +684,7 @@
             <button type="button" class="demo-chip is-active" id="btnK2" aria-pressed="true">k = 2, coin (binomial)</button>
             <button type="button" class="demo-chip" id="btnK6" aria-pressed="false">k = 6, die (multinomial)</button>
           </div>
-          <p class="caption" id="captionK">Category 1 is heads, with probability $p_1$. Category 2 is tails, with probability $1 - p_1$.</p>
+          <p class="caption" id="captionK" data-teach="detail">Category 1 is heads, with probability $p_1$. Category 2 is tails, with probability $1 - p_1$.</p>
         </div>
 
         <div class="field">
@@ -695,17 +697,17 @@
             <button type="button" class="demo-btn" id="btnRun1000">Run 1,000 samples</button>
             <button type="button" class="demo-btn" id="btnReset">Reset</button>
           </div>
-          <p class="caption">One draw, or 1,000 draws that build the chi-square histogram. Reset clears the draws and keeps $n$, $p_1$, and $k$.</p>
+          <p class="caption" data-teach="detail">One draw, or 1,000 draws that build the chi-square histogram. Reset clears the draws and keeps $n$, $p_1$, and $k$.</p>
         </div>
       </div>
     </section>
 
-    <section class="sample-panel demo-card" aria-labelledby="sampleHeading">
+    <section class="sample-panel demo-card" aria-labelledby="sampleHeading" data-teach="essential">
       <div class="sample-head">
         <h2 id="sampleHeading">Latest sample ($n = 30$ coin flips)</h2>
       </div>
       <p class="process" id="processBadge">Binomial process: $O_1 \sim \mathrm{Binomial}(n, p_1)$, with $k = 2$ and $df = 1$.</p>
-      <p class="tip">Select a category pill or a table row to focus that category’s marginal binomial.</p>
+      <p class="tip" data-teach="detail">Select a category pill or a table row to focus that category’s marginal binomial.</p>
       <div class="pills" id="samplePills"></div>
       <div id="iconsTray">
         <p class="icons-empty">Run 1 sample, or run 1,000 samples, to see each flip or roll.</p>
@@ -713,12 +715,12 @@
     </section>
 
     <main class="pipeline">
-      <article class="stage stage-1 demo-card">
+      <article class="stage stage-1 demo-card" data-teach="essential">
         <div class="stage-head">
           <div class="stage-num" aria-hidden="true">1</div>
           <div>
             <h2 id="st1Heading">Raw counts (marginal binomial)</h2>
-            <p id="st1Subtitle">Exact binomial probabilities for the focused category.</p>
+            <p id="st1Subtitle" data-teach="detail">Exact binomial probabilities for the focused category.</p>
           </div>
         </div>
 
@@ -737,7 +739,7 @@
         </div>
         <p class="axis-note" id="axis1">Horizontal axis: count of the focused category. Vertical axis: probability.</p>
 
-        <div class="math-panel demo-panel">
+        <div class="math-panel demo-panel" data-teach="essential">
           <div class="math-row">
             <span class="math-label" id="st1ExpLabel">Expected count (heads)</span>
             <span class="formula-math" id="st1EFormula">$E_1 = n \cdot p_1 =$</span>
@@ -757,15 +759,15 @@
           </div>
         </div>
 
-        <p class="note" id="st1Note">Each bar is the exact probability of $x$ outcomes in the focused category across $n$ trials.</p>
+        <p class="note" id="st1Note" data-teach="detail">Each bar is the exact probability of $x$ outcomes in the focused category across $n$ trials.</p>
       </article>
 
-      <article class="stage stage-2 demo-card">
+      <article class="stage stage-2 demo-card" data-teach="essential">
         <div class="stage-head">
           <div class="stage-num" aria-hidden="true">2</div>
           <div>
             <h2>Standardization (normal approximation)</h2>
-            <p id="st2Subtitle">The central limit theorem, in standard units for the focused category.</p>
+            <p id="st2Subtitle" data-teach="detail">The central limit theorem, in standard units for the focused category.</p>
           </div>
         </div>
 
@@ -784,7 +786,7 @@
         </div>
         <p class="axis-note">Horizontal axis: standard deviations from the mean. Vertical axis: standard normal density.</p>
 
-        <div class="math-panel demo-panel">
+        <div class="math-panel demo-panel" data-teach="essential">
           <div class="math-row">
             <span class="math-label" id="st2ZLabel">Marginal binomial $Z$ score</span>
             <span class="formula-math" id="st2ZFormula">$Z_i = \frac{O_i - E_i}{\sqrt{n p_i(1-p_i)}} =$</span>
@@ -799,15 +801,15 @@
           </div>
         </div>
 
-        <p class="note">Dividing the raw error $O_i - E_i$ by the binomial standard deviation $\sqrt{n p_i(1-p_i)}$ gives a standard normal $Z_i$. $Z_i^2$ divides by $E_i(1-p_i)$. Each Pearson cell $(O_i - E_i)^2 / E_i$ divides by $E_i$ alone, because stage 3 adds every category.</p>
+        <p class="note" data-teach="detail">Dividing the raw error $O_i - E_i$ by the binomial standard deviation $\sqrt{n p_i(1-p_i)}$ gives a standard normal $Z_i$. $Z_i^2$ divides by $E_i(1-p_i)$. Each Pearson cell $(O_i - E_i)^2 / E_i$ divides by $E_i$ alone, because stage 3 adds every category.</p>
       </article>
 
-      <article class="stage stage-3 demo-card">
+      <article class="stage stage-3 demo-card" data-teach="essential">
         <div class="stage-head">
           <div class="stage-num" aria-hidden="true">3</div>
           <div>
             <h2>Multinomial summation (chi-square)</h2>
-            <p>Simulated values against the $\chi^2$ density with $k - 1$ degrees of freedom.</p>
+            <p data-teach="detail">Simulated values against the $\chi^2$ density with $k - 1$ degrees of freedom.</p>
           </div>
         </div>
 
@@ -822,11 +824,11 @@
         </div>
         <p class="axis-note" id="chiStatus">Horizontal axis: chi-square statistic. Vertical axis: density. No samples yet. The curve is the theoretical chi-square density.</p>
 
-        <div class="proof">
+        <div class="proof" data-teach="essential">
           <h3 id="proofHeader">When $k = 2$, $Z^2 = \chi^2$.</h3>
           <p class="formula-math" id="proofIdentity">$Z^2 = \frac{(O_1-E_1)^2}{np(1-p)}$</p>
           <p class="formula-math" id="proofIdentityB">$= \sum_i \frac{(O_i-E_i)^2}{E_i}$</p>
-          <p class="formula-math" id="proofNumeric"></p>
+          <p class="formula-math" id="proofNumeric" data-teach="detail"></p>
           <ul class="cat-list" id="catList"></ul>
         </div>
       </article>

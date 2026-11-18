@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+  <script src="../assets/teach.js"></script>
+  <link rel="stylesheet" href="../assets/teach.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
@@ -763,10 +765,10 @@
 
     <header class="page-head">
       <h1>Pearson’s $\chi^2$ goodness-of-fit test</h1>
-      <p class="lede">Spin a wheel, then compare the counts with the probabilities under $H_0$. The live $\chi^2$ sum stays beside the sampling distribution.</p>
+      <p class="lede" data-teach="detail">Spin a wheel, then compare the counts with the probabilities under $H_0$. The live $\chi^2$ sum stays beside the sampling distribution.</p>
     </header>
 
-    <div class="toolbar demo-card">
+    <div class="toolbar demo-card" data-teach="essential">
       <div class="field">
         <label class="field-label" for="modeSelect">Roulette mode</label>
         <select id="modeSelect" class="demo-select">
@@ -793,7 +795,7 @@
           <span class="demo-value" id="sampleSizeBadge">N = 0</span>
         </div>
 
-        <div class="pedagogy">
+        <div class="pedagogy" data-teach="detail">
           <div class="pedagogy-head">
             <span id="q1PedagogyTitle"></span>
             <span class="pedagogy-tag" id="q1PedagogyTag"></span>
@@ -801,7 +803,7 @@
           <p id="q1PedagogyDesc"></p>
         </div>
 
-        <div class="q1-body">
+        <div class="q1-body" data-teach="essential">
           <div class="wheel-container">
             <canvas id="rouletteCanvas" width="480" height="480"></canvas>
             <div class="outcome demo-panel" id="lastOutcomeBanner">Ready to spin.</div>
@@ -830,7 +832,7 @@
         </div>
       </section>
 
-      <section class="card demo-card card-plot" aria-labelledby="countsHeading">
+      <section class="card demo-card card-plot" aria-labelledby="countsHeading" data-teach="essential">
         <div class="card-head">
           <h2 id="countsHeading">Counts and residuals</h2>
           <div class="card-tools" role="group" aria-label="Chart view">
@@ -853,13 +855,13 @@
           <span class="demo-value" id="dfFormulaBadge">$df = k - 1 = 2$</span>
         </div>
 
-        <div class="formula-banner demo-panel">
+        <div class="formula-banner demo-panel" data-teach="essential">
           <div>$\chi^2 = \sum_i \dfrac{(O_i - E_i)^2}{E_i}$</div>
           <div class="formula-rhs" id="liveSymbolicSum">$\chi^2 = 0.000$</div>
         </div>
-        <p class="intuition">Reference. Pearson’s criterion is Pearson (1900), <em>On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling</em> (<em>Philosophical Magazine, Series 5, 50</em>, 157–175). The expected-count check is Cochran (1954), <em>Some methods for strengthening the common χ² tests</em> (<em>Biometrics, 10</em>, 417–451).</p>
+        <p class="intuition" data-teach="detail">Reference. Pearson’s criterion is Pearson (1900), <em>On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling</em> (<em>Philosophical Magazine, Series 5, 50</em>, 157–175). The expected-count check is Cochran (1954), <em>Some methods for strengthening the common χ² tests</em> (<em>Biometrics, 10</em>, 417–451).</p>
 
-        <details class="term-note">
+        <details class="term-note" data-teach="detail">
           <summary>
             <span class="term-note-label">How a Pearson term is built</span>
           </summary>
@@ -880,10 +882,10 @@
           </div>
         </details>
 
-        <div class="calc-board" id="calcBoard" aria-label="Chi-square decomposition by category"></div>
+        <div class="calc-board" id="calcBoard" aria-label="Chi-square decomposition by category" data-teach="essential"></div>
       </section>
 
-      <section class="card demo-card card-plot" aria-labelledby="pdfHeading">
+      <section class="card demo-card card-plot" aria-labelledby="pdfHeading" data-teach="essential">
         <div class="card-head">
           <h2 id="pdfHeading">$\chi^2$ sampling distribution</h2>
           <span class="demo-value" id="critBadge">$\chi^2_{\mathrm{crit}} = 5.991$</span>

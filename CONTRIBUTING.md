@@ -54,6 +54,31 @@ A formula or a table may recede into a tab or a disclosure only when it is refer
 
 Optional extra stage narrative may have a Show/Hide control at every size. It may start closed when the window is tight if the visitor has no saved choice. A saved preference is allowed. It is not required, and it is not forbidden. Do not auto-collapse text that is the only instructional content. Do not add this chrome to a demonstration that has no stage narrative.
 
+### Teach and Learn
+
+Teach and Learn are one control for the whole library. Both names are on the control. Learn is the default: the full page, for later review. Teach is the quieter class view. The choice only changes visibility. It does not recompute a result, rewrite teaching text, invent a shorter lesson, reset the simulation, or add a scrollbar inside a panel. Do not invent a third visual theme. Each demonstration keeps its own plot and layout.
+
+Catalog and Guided Tracks put the control in the pane bar, beside Fullscreen. A demonstration opened on its own gets the same control in the page top bar, next to Back. [`assets/teach.js`](assets/teach.js) inserts that control. When `html` has `viz-embedded`, the in-page control is hidden, the same way `.demo-back` is hidden, so a visitor inside the shell sees one control.
+
+`?teach=1` opens Teach. `?learn=1` or `?teach=0` opens Learn. `?learn=0` opens Teach. `on` / `off` and `true` / `false` work too, the same tokens as `?notebook=`. If both flags are in the link, the later one wins. The page stores that choice in `localStorage` under `viz-teach` on this origin (`1` is Teach, `0` is Learn), so the shell and a standalone demonstration share it. Teach adds class `viz-teach` on `<html>`. An already-open page follows a change through the `storage` event, without a reload.
+
+Load [`assets/teach.js`](assets/teach.js) as a blocking script in `<head>`, and [`assets/teach.css`](assets/teach.css), so `viz-teach` is on `<html>` before the first paint when the page opens in Teach. Copy the lines the demonstrations already use, immediately after the `embed=shell` hook:
+
+```html
+<script src="../assets/teach.js"></script>
+<link rel="stylesheet" href="../assets/teach.css">
+```
+
+Mark regions on purpose. Do not pick the essential equation with a script.
+
+- `data-teach="essential"` stays visible in Teach: the main figure, the live equation, and the controls that change them. When the live equation is the lesson, it stays on screen, including in Teach. If that equation currently lives only inside a disclosure, split it from the explanation. Learn shows it as well.
+- `data-teach="detail"` is hidden in Teach and shown in Learn: a lede, a pedagogy box, a long teaching note, a collapsed term-by-term explanation, and “In the next demo” prose.
+- An unmarked region follows a conservative default. Canvases, plots, headers, and controls stay. An obvious prose block such as a lede hides in Teach. Mark anything that is unclear.
+
+Citations stay on Learn, the detailed view. Do not add a second reference list for Teach. Footer and license chrome may stay as a thin line.
+
+The first marked pages are Chi-Square Distribution, Chi-Square as Squared Distance, From Binomial Counts to Chi-Square, Pearson’s χ² Goodness-of-Fit, and Variance Explained. On the goodness-of-fit page the live sum already sits outside “How a Pearson term is built”, so Teach keeps that equation and hides the term note. Leave the other demonstrations unmarked until a later pass. Guided Tracks connection pages are unmarked in this pass too.
+
 Size the page for the catalog iframe. Avoid a page-level horizontal scrollbar. Never put a scrollbar over a canvas, especially WebGL. In Chrome that scrollbar can paint as a black band. Prefer wrapping, or a non-scrolling overlay. `height: 100vh` plus `overflow: hidden` on `body`, with no stacked fallback, is not safe in an iframe or on a phone.
 
 For a plot-plus-inspector or a locked-viewport explorer, a stacked narrow view puts a shorter plot in the page flow, lets the page be the only vertical scroller, and wraps or locally scrolls formulae so the demonstration does not open a page-level horizontal scrollbar. On Multiple Regression and ANOVA Equivalence, a 960px stacked layout and a plot height of `min(52vh, 90vw)` are a proven example. They are not a mandatory size. A simple document-flow page does not need that media block.

@@ -1067,6 +1067,7 @@ body.viz-app #footer ul.menu > li {
 
     #viz-prev,
     #viz-next,
+    #viz-teach,
     #viz-fullscreen,
     #viz-exit,
     button.viz-back {
@@ -1093,7 +1094,8 @@ body.viz-app #footer ul.menu > li {
 
 @media (pointer: coarse) {
     #viz-fullscreen,
-    #viz-exit {
+    #viz-exit,
+    #viz-teach {
         min-height: 2.75rem;
     }
 }
