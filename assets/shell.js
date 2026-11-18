@@ -6,6 +6,9 @@
  * in the address bar. step= is still that step's index. The rail lists
  * the connection before the demonstration. Fullscreen calls the browser
  * Fullscreen API on #viz-pane (the bar and the open demonstration).
+ * Teach and Learn sit beside Fullscreen. assets/teach.js wires that
+ * pair. Choosing one does not enter fullscreen, reload the iframe,
+ * or recompute the demonstration. Learn is the full page.
  * While that pane is fullscreen it is the scrollport: the iframe is
  * laid out at the demonstration's content height, measured while the
  * iframe is the pane's own height, so a viewport-sized page does not

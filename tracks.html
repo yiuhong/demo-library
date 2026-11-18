@@ -2,6 +2,7 @@
 <html lang="en" class="viz-notebook">
 <head>
     <script src="assets/notebook.js"></script>
+    <script src="assets/teach.js"></script>
     <title>Guided Tracks - Project Viz</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -26,6 +27,7 @@
     <link rel="stylesheet" href="assets/shell.css" />
     <link rel="stylesheet" href="assets/topic-plates.css" />
     <link rel="stylesheet" href="assets/notebook.css" />
+    <link rel="stylesheet" href="assets/teach.css" />
 </head>
 <body class="viz-app" data-viz-page="tracks">
 
@@ -62,6 +64,10 @@
                 <h2 id="viz-pane-title">All topics</h2>
                 <button type="button" class="viz-chrome-btn" id="viz-prev" hidden disabled>Previous</button>
                 <button type="button" class="viz-chrome-btn" id="viz-next" hidden disabled>Next</button>
+                <div class="viz-mode-switch" id="viz-teach" role="radiogroup" aria-label="Teach or Learn">
+                    <button type="button" role="radio" data-viz-teach-choice="teach" aria-checked="false" tabindex="-1">Teach</button>
+                    <button type="button" role="radio" data-viz-teach-choice="learn" aria-checked="true" tabindex="0">Learn</button>
+                </div>
                 <button type="button" class="viz-chrome-btn" id="viz-fullscreen" aria-pressed="false" disabled>Fullscreen</button>
                 <button type="button" class="viz-chrome-btn" id="viz-exit" hidden>Exit</button>
             </div>

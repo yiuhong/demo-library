@@ -1,0 +1,108 @@
+/*
+ * Teach and Learn. html.viz-teach is Teach: hide data-teach="detail"
+ * and an unmarked lede. Canvases, plots, headers, controls, and
+ * data-teach="essential" stay. Learn is the default, with no class.
+ * display: none only. No overflow rule, so a panel does not gain a
+ * scrollbar.
+ *
+ * The control shows both names. The selected name is filled. The
+ * shell pair is #viz-teach. The in-page pair uses .demo-teach and
+ * hides under html.viz-embedded, the same way .demo-back does.
+ * The fill follows the class, so the selected name is right before
+ * aria-checked is written.
+ */
+
+html.viz-teach [data-teach="detail"],
+html.viz-teach .lede:not([data-teach="essential"]) {
+    display: none !important;
+}
+
+.viz-mode-switch {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 0.12rem;
+    margin: 0;
+    padding: 0.12rem;
+    border: 1px solid #000000;
+    border-radius: 3em;
+    background: #ffffff;
+    color: #000000;
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+.viz-mode-switch button {
+    margin: 0;
+    padding: 0.28rem 0.75rem;
+    border: 0;
+    border-radius: 3em;
+    background: transparent;
+    color: #000000;
+    box-shadow: none;
+    font: inherit;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+.viz-mode-switch button:hover,
+.viz-mode-switch button:focus-visible {
+    background: #000000;
+    color: #ffffff;
+}
+
+.viz-mode-switch button:focus {
+    outline: none;
+}
+
+.viz-mode-switch button:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+.demo-teach.viz-mode-switch {
+    margin: 0 auto 0 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+}
+
+html.viz-embedded .demo-teach {
+    display: none !important;
+}
+
+html.viz-teach .viz-mode-switch [data-viz-teach-choice="teach"],
+html:not(.viz-teach) .viz-mode-switch [data-viz-teach-choice="learn"] {
+    background: #000000;
+    color: #ffffff;
+}
+
+html.viz-teach .viz-mode-switch [data-viz-teach-choice="learn"],
+html:not(.viz-teach) .viz-mode-switch [data-viz-teach-choice="teach"] {
+    background: transparent;
+    color: #000000;
+}
+
+html.viz-teach .viz-mode-switch [data-viz-teach-choice="learn"]:hover,
+html:not(.viz-teach) .viz-mode-switch [data-viz-teach-choice="teach"]:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
+html.viz-teach .viz-mode-switch [data-viz-teach-choice="teach"]:hover,
+html:not(.viz-teach) .viz-mode-switch [data-viz-teach-choice="learn"]:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    .viz-mode-switch button {
+        min-height: 2.75rem;
+        padding-left: 0.85rem;
+        padding-right: 0.85rem;
+    }
+}

@@ -2,6 +2,8 @@
 <html lang="en" translate="no">
 <head>
   <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+  <script src="../assets/teach.js"></script>
+  <link rel="stylesheet" href="../assets/teach.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
@@ -412,10 +414,10 @@
 
     <header class="page-head">
       <h1>Chi-Square as Squared Distance</h1>
-      <p class="lede">A dart from a Gaussian cloud. Squared distance from the bullseye is a generalized, scaled, or standard chi-square random variable, with one, two, or three free axes.</p>
+      <p class="lede" data-teach="detail">A dart from a Gaussian cloud. Squared distance from the bullseye is a generalized, scaled, or standard chi-square random variable, with one, two, or three free axes.</p>
     </header>
 
-    <section class="toolbar demo-card" aria-label="Simulation controls">
+    <section class="toolbar demo-card" aria-label="Simulation controls" data-teach="essential">
       <div class="mode-row" role="group" aria-label="Chi-square form">
         <button type="button" class="demo-chip is-active" id="mode-1" aria-pressed="true">
           <span>Generalized chi-square</span>
@@ -482,7 +484,7 @@
       </div>
     </section>
 
-    <section class="lesson demo-card" aria-label="Live formula">
+    <section class="lesson demo-card" aria-label="Live formula" data-teach="essential">
       <div class="formula-box">
         <span class="formula-label" id="formula-title">Squared distance Q</span>
         <div class="formula-math" id="formula-display"></div>
@@ -491,10 +493,10 @@
         <span class="formula-label" id="pdf-title">Density f(Q)</span>
         <div class="formula-math" id="pdf-formula-display"></div>
       </div>
-      <div class="callout" id="educational-callout"></div>
+      <div class="callout" id="educational-callout" data-teach="detail"></div>
     </section>
 
-    <section class="stage">
+    <section class="stage" data-teach="essential">
       <div class="panel demo-card">
         <div class="panel-head">
           <h2 id="board-panel-title">2D dartboard</h2>

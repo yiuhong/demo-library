@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
@@ -169,16 +171,16 @@
                     <button id="btn-case-normals" class="demo-chip is-active" type="button" aria-pressed="true">Squared normals</button>
                     <button id="btn-case-counts" class="demo-chip" type="button" aria-pressed="false">Observed and expected counts</button>
                 </div>
-                <p id="case-blurb" class="text-sm text-gray-600 leading-relaxed mt-4">
+                <p id="case-blurb" class="text-sm text-gray-600 leading-relaxed mt-4" data-teach="detail">
                     Set the degrees of freedom and draw samples. Each draw squares that many standard normals and adds them; the histogram is those sums.
                 </p>
-                <div id="dynamic-formula" class="mt-4 p-3 viz-soft-group-a viz-ink-group-a viz-border-group-a rounded-lg text-center font-semibold border">
+                <div id="dynamic-formula" class="mt-4 p-3 viz-soft-group-a viz-ink-group-a viz-border-group-a rounded-lg text-center font-semibold border" data-teach="essential">
                     <div id="formula-primary"></div>
                     <div id="formula-secondary"></div>
                 </div>
             </div>
 
-            <div id="controls-normals" class="space-y-4">
+            <div id="controls-normals" class="space-y-4" data-teach="essential">
                 <div>
                     <label for="k-slider" class="flex justify-between text-sm font-medium text-gray-700 mb-1">
                         <span>Degrees of Freedom ($k$)</span>
@@ -188,7 +190,7 @@
                 </div>
             </div>
 
-            <div id="controls-counts" class="space-y-4 is-hidden">
+            <div id="controls-counts" class="space-y-4 is-hidden" data-teach="essential">
                 <div class="demo-chip-group" role="group" aria-label="Count example">
                     <button id="btn-example-coin" class="demo-chip" type="button" aria-pressed="false">Fair coin</button>
                     <button id="btn-example-die" class="demo-chip is-active" type="button" aria-pressed="true">Fair die</button>
@@ -203,7 +205,7 @@
                 <p id="expected-readout" class="text-sm text-gray-600 leading-relaxed"></p>
             </div>
 
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2" data-teach="essential">
                 <button id="btn-draw-1" class="demo-btn demo-btn-primary is-block" type="button">
                     Draw 1 Sample (Animation)
                 </button>
@@ -218,7 +220,7 @@
                 </button>
             </div>
 
-            <div id="moments-card" class="demo-panel p-4">
+            <div id="moments-card" class="demo-panel p-4" data-teach="essential">
                 <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">Theoretical Moments</h3>
                 <div class="grid grid-cols-2 gap-4 text-center">
                     <div>
@@ -238,7 +240,7 @@
 
         <main class="chi-main w-full lg:w-3/4 flex flex-col gap-4 pb-4">
 
-            <div class="chi-plot demo-card p-4 flex flex-col min-h-0">
+            <div class="chi-plot demo-card p-4 flex flex-col min-h-0" data-teach="essential">
                 <div class="flex flex-wrap justify-between items-end gap-2 mb-2">
                     <div>
                         <h2 id="chart1-title" class="font-bold text-gray-800">1. Draw Values</h2>
@@ -262,14 +264,14 @@
                 </div>
             </div>
 
-            <div class="chi-bridge viz-soft-group-a rounded-xl shadow-sm p-4 border viz-border-group-a relative flex flex-col">
+            <div class="chi-bridge viz-soft-group-a rounded-xl shadow-sm p-4 border viz-border-group-a relative flex flex-col" data-teach="essential">
                 <div id="bridge-label" class="absolute top-2 left-4 text-xs font-bold viz-ink-group-a uppercase tracking-wider z-10 viz-soft-group-a pr-2 pb-1 rounded-br">2. Square and Sum</div>
                 <div id="bridge-container" class="w-full flex flex-wrap content-start justify-center items-center gap-x-2 gap-y-3 font-serif text-lg pt-6 pb-2">
                     <span class="viz-ink-group-a italic font-sans text-base">Click "Draw 1 Sample" to observe transformation...</span>
                 </div>
             </div>
 
-            <div class="chi-plot demo-card p-4 flex flex-col min-h-0">
+            <div class="chi-plot demo-card p-4 flex flex-col min-h-0" data-teach="essential">
                 <div class="flex flex-wrap justify-between items-end gap-2 mb-2">
                     <div>
                         <h2 class="font-bold text-gray-800">3. The Chi-Square Distribution</h2>
@@ -286,7 +288,7 @@
                 </div>
             </div>
 
-            <div class="demo-card p-4">
+            <div class="demo-card p-4" data-teach="detail">
                 <div id="notes-normals" class="case-notes text-sm text-gray-600 space-y-2">
                     <p><strong>1. Hard boundary at 0:</strong> Squaring any number yields $\ge 0$.</p>
                     <p><strong>2. Right-skew at low $k$:</strong> ~68% of $Z \in [-1, 1]$. When squared, these shrink toward 0 (e.g., $0.5^2 = 0.25$), stacking heavily near 0. Rare outliers explode outward.</p>

@@ -2,6 +2,7 @@
 <html lang="en" class="viz-notebook">
 <head>
     <script src="assets/notebook.js"></script>
+    <script src="assets/teach.js"></script>
     <title>Catalog - Project Viz</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -26,6 +27,12 @@
                     var step = (params.get("step") || "").trim();
                     if (demo === "tracks/connection.html" && /^[0-9]{1,3}$/.test(step)) next.set("step", step);
                 }
+                var teach = (params.get("teach") || "").replace(/\s+/g, "").toLowerCase();
+                if (teach === "1" || teach === "on" || teach === "true") next.set("teach", "1");
+                else if (teach === "0" || teach === "off" || teach === "false") next.set("teach", "0");
+                var learn = (params.get("learn") || "").replace(/\s+/g, "").toLowerCase();
+                if (learn === "1" || learn === "on" || learn === "true") next.set("learn", "1");
+                else if (learn === "0" || learn === "off" || learn === "false") next.set("learn", "0");
                 var hash = id ? "#track-" + encodeURIComponent(id) : "";
                 window.location.replace("tracks.html" + (next.toString() ? "?" + next.toString() : "") + hash);
                 return;
@@ -42,6 +49,7 @@
     <link rel="stylesheet" href="assets/catalog.css" />
     <link rel="stylesheet" href="assets/shell.css" />
     <link rel="stylesheet" href="assets/notebook.css" />
+    <link rel="stylesheet" href="assets/teach.css" />
 </head>
 <body class="viz-app" data-viz-page="catalog">
 
@@ -72,6 +80,10 @@
             <div class="viz-pane-chrome">
                 <button type="button" class="viz-chrome-btn viz-back" id="viz-back">Back</button>
                 <h2 id="viz-pane-title">Catalog</h2>
+                <div class="viz-mode-switch" id="viz-teach" role="radiogroup" aria-label="Teach or Learn">
+                    <button type="button" role="radio" data-viz-teach-choice="teach" aria-checked="false" tabindex="-1">Teach</button>
+                    <button type="button" role="radio" data-viz-teach-choice="learn" aria-checked="true" tabindex="0">Learn</button>
+                </div>
                 <button type="button" class="viz-chrome-btn" id="viz-fullscreen" aria-pressed="false" disabled>Fullscreen</button>
                 <button type="button" class="viz-chrome-btn" id="viz-exit" hidden>Exit</button>
             </div>
