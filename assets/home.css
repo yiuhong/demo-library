@@ -2,6 +2,7 @@
  * Home page. A short hero and one featured plate. The plate cycles
  * three existing demonstrations. Each plate reads title, description,
  * figure, then Open the demo. Motion stays in the figure.
+ * A short feature list sits under the hero, in the same reading column.
  * The menu is the shared .viz-topbar from shell.css. This page scrolls.
  * It is not the Catalog two-pane shell.
  */
@@ -357,6 +358,77 @@ a.library-full-cite {
     border-bottom: 1px solid #000000 !important;
 }
 
+.home-features {
+    max-width: 44rem;
+    margin-top: 3.25rem;
+}
+
+.home-features h2 {
+    margin: 0 0 1.05rem 0;
+}
+
+.home-feature-list {
+    display: grid;
+    gap: 1.15rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.home-feature-list > li {
+    display: grid;
+    grid-template-columns: 13.5rem minmax(0, 1fr);
+    gap: 0.25rem 1.35rem;
+    align-items: baseline;
+    min-width: 0;
+    padding: 0;
+}
+
+#intro .home-features h3 {
+    margin: 0;
+    color: #000000 !important;
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    line-height: 1.35;
+    text-transform: uppercase;
+}
+
+#intro .home-features p {
+    max-width: none;
+    margin: 0;
+    color: #222222 !important;
+    font-size: 1em;
+    line-height: 1.5;
+}
+
+#intro .home-features .home-features-note {
+    max-width: 40rem;
+    margin-top: 1.35rem;
+}
+
+#intro .home-features .home-features-note a {
+    color: #000000 !important;
+    font-weight: bold;
+    text-decoration: none;
+    border-bottom: 1px solid #000000;
+}
+
+#intro .home-features .home-features-note a:hover,
+#intro .home-features .home-features-note a:focus-visible {
+    background: #000000;
+    color: #ffffff !important;
+}
+
+#intro .home-features .home-features-note a:focus {
+    outline: none;
+}
+
+#intro .home-features .home-features-note a:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
 @media screen and (min-width: 1280px) {
     .home-hero {
         grid-template-columns: minmax(0, 1.05fr) minmax(17rem, 0.95fr);
@@ -375,5 +447,14 @@ a.library-full-cite {
 
     .home-slide-title {
         font-size: 1.25rem;
+    }
+
+    .home-features {
+        margin-top: 2.5rem;
+    }
+
+    .home-feature-list > li {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.2rem;
     }
 }
