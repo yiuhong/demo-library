@@ -7,6 +7,9 @@ swipe on a fullscreen element that does not overflow is taken by the
 browser. The script checks the source, not a device:
 
 * requestFullscreen is still how Catalog and Guided Tracks enter
+  when the browser offers the Fullscreen API
+* a home-screen web app that cannot start that API uses is-immersive
+  (top bar, rail, and footer hide) and does not force is-expanded
 * document.exitFullscreen() is only reached from setExpanded(false)
   and from the narrow-phone / closed-demo guard in syncExpanded
 * the scroll sync does not call exitFullscreen or setExpanded
@@ -60,6 +63,12 @@ def main() -> int:
         problems.append("shell.js: fullscreen host must stay #viz-pane")
     if "applyExpanded(!!activeFullscreen())" not in shell_js:
         problems.append("shell.js: a rejected fullscreen request must not force is-expanded")
+    if "navigator.standalone" not in shell_js or "(display-mode: standalone)" not in shell_js:
+        problems.append("shell.js: detect a home-screen web app before treating Fullscreen as dead")
+    if "function applyImmersive(" not in shell_js or 'classList.toggle("is-immersive"' not in shell_js:
+        problems.append("shell.js: home-screen fallback must use is-immersive, not is-expanded")
+    if "homeScreenWebApp() && !fullscreenApiEnabled()" not in shell_js:
+        problems.append("shell.js: skip the Fullscreen API only when the home-screen window cannot start it")
 
     scroll_fn = grab(shell_js, "function syncFullscreenScroll()", "function applyExpanded(")
     if not scroll_fn:
@@ -113,6 +122,19 @@ def main() -> int:
         problems.append("shell.css: the enter control stays hidden under 480px")
     if "#viz-exit" in narrow:
         problems.append("shell.css: Exit stays available while fullscreen is on at a narrow width")
+
+    for selector in (
+        "body.viz-app.is-immersive .viz-topbar",
+        "body.viz-app.is-immersive .viz-rail",
+        "body.viz-app.is-immersive #footer",
+    ):
+        if selector not in shell_css:
+            problems.append(f"shell.css: immersive mode must hide {selector}")
+    immersive_pane = grab(shell_css, "body.viz-app.is-immersive .viz-pane {", "}")
+    if not immersive_pane:
+        problems.append("shell.css: immersive pane rule is missing")
+    elif "overflow:" in immersive_pane:
+        problems.append("shell.css: immersive pane must not become a scrollport")
 
     if ".viz-rail" not in shell_css or "overscroll-behavior: contain;" not in shell_css:
         problems.append("shell.css: the rail keeps overscroll-behavior: contain")
