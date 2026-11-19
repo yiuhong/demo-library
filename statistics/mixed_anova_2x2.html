@@ -816,6 +816,67 @@
       .section-card { max-width: 100%; overflow-x: auto; }
     }
 
+    /* Trial Teach on this page only. The how-to is Learn.
+       The control column keeps every slider, with less padding,
+       and the trajectory takes the width that column gives up.
+       Learn uses the rules above. */
+    html.viz-teach .demo-header {
+      padding: 0.7rem 1rem;
+    }
+    html.viz-teach .demo-header h1 {
+      margin-bottom: 0;
+    }
+    html.viz-teach .lens-switcher {
+      margin: 6px 0;
+    }
+    html.viz-teach .panel {
+      padding: 8px;
+      gap: 6px;
+    }
+    html.viz-teach .section-card {
+      flex: 0 0 auto !important;
+      justify-content: flex-start !important;
+      padding: 6px 8px;
+      gap: 4px;
+    }
+    html.viz-teach .slider-sub {
+      line-height: 1.25;
+    }
+    html.viz-teach .preset-grid {
+      gap: 4px;
+    }
+    html.viz-teach .preset-btn {
+      padding: 4px 6px;
+    }
+    html.viz-teach .controls-bar {
+      padding: 6px 8px;
+      gap: 8px;
+    }
+    html.viz-teach .canvas-wrap {
+      flex: 1 1 auto;
+      min-height: 480px;
+    }
+    html.viz-teach svg#traj-svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    @media (min-width: 1200px) {
+      html.viz-teach .workspace {
+        grid-template-columns: 300px minmax(0, 1fr) 370px;
+      }
+    }
+    @media (max-width: 1100px) {
+      html.viz-teach .canvas-wrap {
+        min-height: 420px;
+      }
+      html.viz-teach svg#traj-svg {
+        width: 100%;
+        height: 420px;
+        aspect-ratio: auto;
+      }
+    }
+
 </style>
 </head>
 <body class="demo-page">
@@ -824,7 +885,7 @@
 <header class="demo-header">
   <h1>2×2 Mixed ANOVA</h1>
   <p data-teach="detail">Ten subjects, five in each group.</p>
-  <p data-teach="essential">Switch the lens and move the sliders.</p>
+  <p data-teach="detail">Switch the lens and move the sliders.</p>
   <p data-teach="detail">Lens 3 splits the picture into midpoints and pre-to-post changes.</p>
 </header>
 <div class="lens-switcher" id="lens-switcher">
@@ -935,7 +996,7 @@
         </button>
       </div>
 
-      <div style="background:#ffffff; border:1px dashed var(--border); border-radius:6px; padding:6px 8px; font-size:10.5px; color:var(--text-muted); line-height:1.35;" data-teach="essential">
+      <div style="background:#ffffff; border:1px dashed var(--border); border-radius:6px; padding:6px 8px; font-size:10.5px; color:var(--text-muted); line-height:1.35;" data-teach="detail">
         <b style="color:var(--text-main);">Direct Sculpting Tip:</b> Drag any of the <b>4 large cell mean nodes</b> (<span class="math"><span class="overline">Y</span></span><sub>A,Pre</sub>, <span class="math"><span class="overline">Y</span></span><sub>A,Post</sub>, <span class="math"><span class="overline">Y</span></span><sub>B,Pre</sub>, <span class="math"><span class="overline">Y</span></span><sub>B,Post</sub>) directly up or down on the canvas, and watch the 3 orthogonal Signal Sliders automatically decompose your gesture!
       </div>
     </div>
@@ -959,7 +1020,7 @@
           <span style="color:var(--text-muted);">Subject Midpoint (<span class="math"><span class="overline">Y</span><sub>ij•</sub></span>)</span>
         </div>
       </div>
-      <div style="font-size:11px; color:var(--text-muted);">
+      <div style="font-size:11px; color:var(--text-muted);" data-teach="detail">
         ANOVA table rows highlight the matching geometry.
       </div>
     </div>

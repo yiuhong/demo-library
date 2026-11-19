@@ -70,6 +70,39 @@
         .color-g3 { background-color: var(--viz-group-c-soft); border-left: 4px solid var(--viz-group-c); }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
+
+        /* Trial Teach on this page only. The how-to is Learn.
+           The plot boxes are taller, and the control column uses
+           less padding. The sample is not replaced. Learn keeps
+           the heights below. */
+        html.viz-teach .demo-header h1 {
+            margin-bottom: 0;
+        }
+        html.viz-teach #design-controls > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 0.65rem;
+        }
+        html.viz-teach #design-controls .p-4 {
+            padding: 0.7rem;
+        }
+        html.viz-teach #design-controls .mb-4 {
+            margin-bottom: 0.55rem;
+        }
+        html.viz-teach #design-controls .mb-3 {
+            margin-bottom: 0.45rem;
+        }
+        html.viz-teach #design-controls .slider-container {
+            margin-bottom: 0.15rem;
+        }
+        html.viz-teach #design-controls .gap-2 {
+            gap: 0.2rem;
+        }
+        html.viz-teach #dotplot,
+        html.viz-teach #interaction-plot {
+            height: 26rem;
+        }
+        html.viz-teach #f-dist {
+            height: 16rem;
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
     <link rel="stylesheet" href="../assets/tailwind.css">
@@ -84,7 +117,7 @@
     <!-- Header -->
     <div class="demo-header">
         <h1 class="text-2xl font-bold mb-1">Interactive Two-Way ANOVA (2 × 2 Factorial Design)</h1>
-        <p class="text-sm max-w-3xl" data-teach="essential">
+        <p class="text-sm max-w-3xl" data-teach="detail">
             Set the cell means and resample the noise.
         </p>
         <p class="text-sm max-w-3xl" data-teach="detail">
@@ -99,7 +132,7 @@
     <div class="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         <!-- Left Column: Controls & Marginal Means Table (4 cols on lg) -->
-        <div class="lg:col-span-4 space-y-5">
+        <div class="lg:col-span-4 space-y-5" id="design-controls">
             
             <!-- Parameter Controls -->
             <div class="demo-panel p-4">
@@ -251,7 +284,7 @@
                             <span class="viz-ink-mean font-semibold">┆ Grand Mean</span>
                         </div>
                     </div>
-                    <p class="text-xs text-slate-500 mb-2" id="breakdown-info" data-teach="essential">
+                    <p class="text-xs text-slate-500 mb-2" id="breakdown-info" data-teach="detail">
                         Solid vertical ticks show the 4 sample cell means (<span class="font-mono">x̄<sub>ij</sub></span>). <strong>Click any data point</strong> to view its step-by-step linear breakdown.
                     </p>
                     <div id="dotplot" class="w-full h-72 relative" data-teach="essential"></div>
@@ -380,7 +413,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                     <div>
                         <h2 class="text-base font-semibold">F-Distribution (Sampling Distribution under H<sub>0</sub>)</h2>
-                        <p class="text-xs text-slate-500" data-teach="essential">
+                        <p class="text-xs text-slate-500" data-teach="detail">
                             Select which of the three omnibus F-tests to inspect on its corresponding F(df<sub>effect</sub>, df<sub>Within</sub>) distribution:
                         </p>
                     </div>
@@ -1373,8 +1406,10 @@
         });
     });
 
-    // Responsive Resize
-    window.addEventListener('resize', () => {
+    // The plot boxes change size with the window, and with Teach.
+    // The sample, the sliders, and the selected point stay as they are.
+    function layoutPlots() {
+        if (dotContainer.clientWidth < 40 || intContainer.clientWidth < 40 || fContainer.clientWidth < 40) return;
         dotWidth = dotContainer.clientWidth - dotMargin.left - dotMargin.right;
         dotHeight = dotContainer.clientHeight - dotMargin.top - dotMargin.bottom;
         d3.select("#dotplot svg").attr("width", dotWidth + dotMargin.left + dotMargin.right).attr("height", dotHeight + dotMargin.top + dotMargin.bottom);
@@ -1400,7 +1435,9 @@
         fDfLabel.attr("x", fWidth - 6);
 
         updateVisuals();
-    });
+    }
+    window.addEventListener('resize', layoutPlots);
+    new MutationObserver(layoutPlots).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
     // Initial Load
     generateNewSamples();
