@@ -171,8 +171,11 @@
                     <button id="btn-case-normals" class="demo-chip is-active" type="button" aria-pressed="true">Squared normals</button>
                     <button id="btn-case-counts" class="demo-chip" type="button" aria-pressed="false">Observed and expected counts</button>
                 </div>
-                <p id="case-blurb" class="text-sm text-gray-600 leading-relaxed mt-4" data-teach="detail">
-                    Set the degrees of freedom and draw samples. Each draw squares that many standard normals and adds them; the histogram is those sums.
+                <p id="case-howto" class="text-sm text-gray-600 leading-relaxed mt-4" data-teach="essential">
+                    Set the degrees of freedom and draw samples.
+                </p>
+                <p id="case-blurb" class="text-sm text-gray-600 leading-relaxed mt-2" data-teach="detail">
+                    Each draw squares that many standard normals and adds them; the histogram is those sums.
                 </p>
                 <div id="dynamic-formula" class="mt-4 p-3 viz-soft-group-a viz-ink-group-a viz-border-group-a rounded-lg text-center font-semibold border" data-teach="essential">
                     <div id="formula-primary"></div>
@@ -492,7 +495,8 @@
             if (caseId === 'counts') {
                 const example = currentExample();
                 const c = example.names.length;
-                document.getElementById('case-blurb').textContent = 'Choose a fair coin or a fair die, and set how many trials are in one draw. Each draw compares observed counts with those expected counts. The sum of (O − E)² / E is marked on the chi-square curve, and the histogram is many such sums.';
+                document.getElementById('case-howto').textContent = 'Choose a fair coin or a fair die, and set how many trials are in one draw.';
+                document.getElementById('case-blurb').textContent = 'Each draw compares observed counts with those expected counts. The sum of (O − E)² / E is marked on the chi-square curve, and the histogram is many such sums.';
                 renderKatex(document.getElementById('formula-primary'), `X^2=\\sum_{i=1}^{${c}}(O_i-E_i)^2/E_i`, true);
                 renderKatex(document.getElementById('formula-secondary'), `E_i=np_i\\quad df=c-1=${df}`, true);
                 document.getElementById('chart1-title').textContent = '1. Observed and expected counts';
@@ -502,7 +506,8 @@
                 document.getElementById('bridge-label').textContent = '2. Each (O − E)² / E';
                 renderKatex(document.getElementById('chart2-math'), `X^2 \\approx \\chi^2_{${df}}`, false);
             } else {
-                document.getElementById('case-blurb').textContent = 'Set the degrees of freedom and draw samples. Each draw squares that many standard normals and adds them; the histogram is those sums.';
+                document.getElementById('case-howto').textContent = 'Set the degrees of freedom and draw samples.';
+                document.getElementById('case-blurb').textContent = 'Each draw squares that many standard normals and adds them; the histogram is those sums.';
                 renderKatex(document.getElementById('formula-primary'), `\\chi^2_{${k}}=\\sum_{i=1}^{${k}} Z_i^2`, true);
                 renderKatex(document.getElementById('formula-secondary'), 'Z_i=(X_i-\\mu)/\\sigma', true);
                 if (showStandardized) {

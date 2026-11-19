@@ -663,7 +663,7 @@
             <span id="valN" class="demo-value">30</span>
           </div>
           <input type="range" id="sliderN" min="5" max="100" step="1" value="30">
-          <p class="caption" id="captionN" data-teach="detail">Moderate $n$ (30): the binomial bars sit close to the bell curve.</p>
+          <p class="caption" id="captionN" data-teach="essential">Moderate $n$ (30): the binomial bars sit close to the bell curve.</p>
         </div>
 
         <div class="field">
@@ -672,7 +672,7 @@
             <span id="valP" class="demo-value">0.50</span>
           </div>
           <input type="range" id="sliderP" min="0.05" max="0.95" step="0.01" value="0.50">
-          <p class="caption" id="captionP" data-teach="detail">This probability is near one half, so the count is nearly symmetric about its expectation.</p>
+          <p class="caption" id="captionP" data-teach="essential">This probability is near one half, so the count is nearly symmetric about its expectation.</p>
         </div>
 
         <div class="field">
@@ -684,7 +684,7 @@
             <button type="button" class="demo-chip is-active" id="btnK2" aria-pressed="true">k = 2, coin (binomial)</button>
             <button type="button" class="demo-chip" id="btnK6" aria-pressed="false">k = 6, die (multinomial)</button>
           </div>
-          <p class="caption" id="captionK" data-teach="detail">Category 1 is heads, with probability $p_1$. Category 2 is tails, with probability $1 - p_1$.</p>
+          <p class="caption" id="captionK" data-teach="essential">Category 1 is heads, with probability $p_1$. Category 2 is tails, with probability $1 - p_1$.</p>
         </div>
 
         <div class="field">
@@ -697,7 +697,7 @@
             <button type="button" class="demo-btn" id="btnRun1000">Run 1,000 samples</button>
             <button type="button" class="demo-btn" id="btnReset">Reset</button>
           </div>
-          <p class="caption" data-teach="detail">One draw, or 1,000 draws that build the chi-square histogram. Reset clears the draws and keeps $n$, $p_1$, and $k$.</p>
+          <p class="caption" data-teach="essential">One draw, or 1,000 draws that build the chi-square histogram. Reset clears the draws and keeps $n$, $p_1$, and $k$.</p>
         </div>
       </div>
     </section>
@@ -707,7 +707,7 @@
         <h2 id="sampleHeading">Latest sample ($n = 30$ coin flips)</h2>
       </div>
       <p class="process" id="processBadge">Binomial process: $O_1 \sim \mathrm{Binomial}(n, p_1)$, with $k = 2$ and $df = 1$.</p>
-      <p class="tip" data-teach="detail">Select a category pill or a table row to focus that category’s marginal binomial.</p>
+      <p class="tip" data-teach="essential">Select a category pill or a table row to focus that category’s marginal binomial.</p>
       <div class="pills" id="samplePills"></div>
       <div id="iconsTray">
         <p class="icons-empty">Run 1 sample, or run 1,000 samples, to see each flip or roll.</p>
@@ -828,7 +828,7 @@
           <h3 id="proofHeader">When $k = 2$, $Z^2 = \chi^2$.</h3>
           <p class="formula-math" id="proofIdentity">$Z^2 = \frac{(O_1-E_1)^2}{np(1-p)}$</p>
           <p class="formula-math" id="proofIdentityB">$= \sum_i \frac{(O_i-E_i)^2}{E_i}$</p>
-          <p class="formula-math" id="proofNumeric" data-teach="detail"></p>
+          <p class="formula-math" id="proofNumeric" data-teach="essential"></p>
           <ul class="cat-list" id="catList"></ul>
         </div>
       </article>
