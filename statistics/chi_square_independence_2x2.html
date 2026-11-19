@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+  <script src="../assets/teach.js"></script>
+  <link rel="stylesheet" href="../assets/teach.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
+  <title>2×2 Chi-Square Test of Independence</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+  <script src="../assets/stats-viz-theme.js"></script>
+  <script src="../assets/vendor-loader.js" data-libs="katex"></script>
+  <style>
+    body.demo-page {
+      margin: 0;
+      line-height: 1.45;
+      overflow-x: clip;
+    }
+
+    .page {
+      box-sizing: border-box;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 16px 32px;
+    }
+
+    .page *,
+    .page *::before,
+    .page *::after {
+      box-sizing: border-box;
+    }
+
+    .page-head {
+      margin: 0 0 14px;
+    }
+
+    .page-head h1 {
+      font-size: 1.55rem;
+      line-height: 1.25;
+      margin: 0 0 6px;
+    }
+
+    .lede,
+    .howto,
+    .note {
+      margin: 0 0 8px;
+      max-width: 46rem;
+      font-size: 0.95rem;
+    }
+
+    .howto {
+      margin-bottom: 0;
+    }
+
+    .note {
+      margin: 14px 0 0;
+      font-size: 0.88rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 22px;
+      align-items: flex-end;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+      flex: 1 1 16rem;
+    }
+
+    .field-presets {
+      flex: 2 1 22rem;
+    }
+
+    .field-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .data-col,
+    .engine-col {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .block {
+      padding: 12px 14px 14px;
+      min-width: 0;
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .card-head h2 {
+      font-size: 1rem;
+      line-height: 1.3;
+      margin: 0;
+      min-width: 0;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .control {
+      min-width: 0;
+      padding: 8px 10px;
+    }
+
+    .control-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .control-readout {
+      font-variant-numeric: tabular-nums;
+      color: var(--viz-level-m);
+    }
+
+    .hint {
+      margin: 4px 0 0;
+      font-size: 0.78rem;
+    }
+
+    .table-grid {
+      display: grid;
+      grid-template-columns: 6.4rem minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .axis {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      min-width: 0;
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .axis.col {
+      align-items: center;
+      text-align: center;
+      padding: 2px 4px;
+    }
+
+    .axis .pct {
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .cell {
+      border: 1px solid #000;
+      border-radius: 4px;
+      background: #fff;
+      padding: 8px;
+      min-width: 0;
+    }
+
+    .cell.is-active {
+      box-shadow: inset 0 0 0 2px var(--viz-level-m);
+    }
+
+    body.mode-locked .cell.is-coupled {
+      background: var(--demo-panel);
+    }
+
+    .cell-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .cell-name {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1.3;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .tag-11 { background: var(--viz-subject-1); }
+    .tag-12 { background: var(--viz-subject-2); }
+    .tag-21 { background: var(--viz-subject-3); }
+    .tag-22 { background: var(--viz-subject-4); color: #111; }
+
+    .free-flag {
+      display: none;
+      font-weight: 700;
+    }
+
+    body.mode-locked .free-flag {
+      display: inline;
+    }
+
+    .delta-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .delta-pos {
+      background: var(--viz-residual-soft);
+      color: var(--viz-residual);
+    }
+
+    .delta-neg {
+      background: var(--viz-group-b-soft);
+      color: var(--viz-group-b);
+    }
+
+    .delta-zero {
+      background: var(--demo-panel);
+      color: #222;
+    }
+
+    .obs-control {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .obs-control label {
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .obs-input {
+      width: 4.4rem;
+      max-width: 100%;
+      font: inherit;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+      padding: 0.3rem 0.25rem;
+      border: 1px solid #000;
+      border-radius: 4px;
+      background: #fff;
+      color: #000;
+    }
+
+    .obs-input:disabled {
+      background: var(--demo-panel);
+      color: #222;
+    }
+
+    .btn-step {
+      font: inherit;
+      font-weight: 700;
+      min-width: 1.8rem;
+      min-height: 1.8rem;
+      padding: 0 0.35rem;
+      border: 1px solid #000;
+      border-radius: 4px;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+    }
+
+    .btn-step:hover:not(:disabled) {
+      background: #000;
+      color: #fff;
+    }
+
+    .btn-step:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-step:focus-visible,
+    .obs-input:focus-visible {
+      outline: 2px solid #000;
+      outline-offset: 2px;
+    }
+
+    .cell-slider {
+      width: 100%;
+      margin: 0 0 6px;
+    }
+
+    .sub-readouts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 8px;
+      font-size: 0.75rem;
+      background: var(--demo-panel);
+      border-radius: 4px;
+      padding: 6px;
+    }
+
+    .readout {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .readout b {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .margins {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .margin-tile {
+      background: var(--demo-panel);
+      border: 1px solid #000;
+      border-radius: 4px;
+      padding: 6px 4px;
+      text-align: center;
+      min-width: 0;
+    }
+
+    .margin-tile b {
+      display: block;
+      font-size: 1rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .margin-tile span {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .margin-tile.grand {
+      background: #fff;
+    }
+
+    .alert {
+      display: none;
+      margin: 8px 0 0;
+      padding: 8px 10px;
+      border: 1px solid var(--viz-highlight);
+      background: var(--viz-group-c-soft);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .alert.is-on {
+      display: block;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      align-items: center;
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border: 1px solid #000;
+      border-radius: 2px;
+      flex: 0 0 auto;
+    }
+
+    .swatch-pos { background: var(--viz-residual); }
+    .swatch-neg { background: var(--viz-group-b); }
+    .swatch-zero { background: var(--viz-reference); }
+    .swatch-line {
+      width: 16px;
+      height: 0;
+      border: none;
+      border-top: 2px dashed #000;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .plot-well {
+      border: 1px solid #000;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .plot-well svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .hypo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .hypo h2 {
+      font-size: 1rem;
+      line-height: 1.3;
+      margin: 0 0 6px;
+    }
+
+    .hyp-line {
+      margin: 0 0 4px;
+      max-width: 40rem;
+    }
+
+    .hyp-line:last-child {
+      margin-bottom: 0;
+    }
+
+    .eq-block {
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      min-width: 0;
+    }
+
+    .eq-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .eq-line {
+      margin: 0;
+      min-width: 0;
+    }
+
+    .eq-line + .eq-line {
+      margin-top: 2px;
+    }
+
+    .term-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .term {
+      padding: 6px 8px;
+      min-width: 0;
+    }
+
+    .term-name {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    .dot-11 { background: var(--viz-subject-1); }
+    .dot-12 { background: var(--viz-subject-2); }
+    .dot-21 { background: var(--viz-subject-3); }
+    .dot-22 { background: var(--viz-subject-4); }
+
+    .sum-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.2rem 0.45rem;
+      margin: 8px 0 0;
+      font-weight: 700;
+    }
+
+    .contrib {
+      margin-top: 8px;
+    }
+
+    .contrib-bar {
+      display: flex;
+      width: 100%;
+      height: 22px;
+      border: 1px solid #000;
+      border-radius: 4px;
+      overflow: hidden;
+      background: var(--demo-panel);
+    }
+
+    .seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-width: 0;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      overflow: hidden;
+    }
+
+    .seg-11 { background: var(--viz-subject-1); }
+    .seg-12 { background: var(--viz-subject-2); }
+    .seg-21 { background: var(--viz-subject-3); }
+    .seg-22 { background: var(--viz-subject-4); color: #111; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .seg { transition: width 0.2s ease; }
+    }
+
+    .contrib-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.2rem), 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .metric {
+      padding: 8px;
+      text-align: center;
+      min-width: 0;
+    }
+
+    .metric .m-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .metric .m-num {
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+    }
+
+    .metric .m-note {
+      margin-top: 2px;
+      font-size: 0.75rem;
+    }
+
+    .checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin-top: 10px;
+    }
+
+    .checks label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .extra {
+      display: none;
+      margin-top: 8px;
+    }
+
+    .extra.is-on {
+      display: block;
+    }
+
+    .extra .eq-line + .eq-line {
+      margin-top: 6px;
+    }
+
+    .decision {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid #000;
+      border-left-width: 4px;
+      background: var(--demo-panel);
+      font-size: 0.88rem;
+    }
+
+    .decision.is-reject {
+      border-left-color: var(--viz-h1);
+      background: var(--viz-difference-soft);
+    }
+
+    .decision.is-retain {
+      border-left-color: var(--viz-h0);
+      background: var(--viz-h0-soft);
+    }
+
+    .decision-badge {
+      display: inline-block;
+      margin-right: 6px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      vertical-align: 1px;
+    }
+
+    .decision.is-reject .decision-badge { background: var(--viz-h1); }
+    .decision.is-retain .decision-badge { background: var(--viz-h0); }
+
+    /* Calculation stage is an in-page control. It is not Teach/Learn. */
+    body.calc-data #engine-col,
+    body.calc-data .only-full,
+    body.calc-core .only-full,
+    body.calc-data .cell-slider,
+    body.calc-core .cell-slider,
+    body.calc-data .readout-z,
+    body.calc-core .readout-z,
+    body.calc-data .readout-share,
+    body.calc-core .readout-share {
+      display: none;
+    }
+
+    body.calc-data .board {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    body.calc-data .data-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      align-items: start;
+    }
+
+    @media (max-width: 1080px) {
+      .board {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      body.calc-data .data-col {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .controls,
+      .table-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .axis.col,
+      .axis.corner {
+        display: none;
+      }
+
+      .margins {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .margin-tile.grand {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 768px), (pointer: coarse) {
+      .btn-step,
+      .obs-input,
+      .checks label {
+        min-height: 44px;
+      }
+
+      .btn-step {
+        min-width: 44px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css">
+</head>
+<body class="demo-page calc-full mode-locked">
+  <div class="page">
+    <div class="demo-topbar">
+      <a class="demo-back" href="../index.html">← Project Viz</a>
+    </div>
+
+    <header class="page-head">
+      <h1>2×2 χ² test of independence</h1>
+      <p class="lede" data-teach="detail">Under independence, each expected count is the row total times the column total, divided by N. With those margins fixed, the four residuals share one magnitude, and only one cell is free to move.</p>
+      <p class="howto" data-teach="essential">Edit a count, or slide the residual while the margins are fixed. The mosaic and the χ² sum update together. Keys 1, 2, and 3 change how much of the calculation is on screen.</p>
+    </header>
+
+    <!-- Calculation stage discloses the table, the core sum, or the full partition. It does not switch Teach/Learn. -->
+    <div class="toolbar demo-card" data-teach="essential">
+      <div class="field">
+        <span class="field-label" id="stageLabel">Calculation</span>
+        <div class="demo-chip-group" role="group" aria-labelledby="stageLabel">
+          <button type="button" class="demo-chip" id="stage-data" data-stage="data" aria-pressed="false">1. Data and mosaic</button>
+          <button type="button" class="demo-chip" id="stage-core" data-stage="core" aria-pressed="false">2. Core χ²</button>
+          <button type="button" class="demo-chip is-active" id="stage-full" data-stage="full" aria-pressed="true">3. Full partition</button>
+        </div>
+      </div>
+      <div class="field field-presets">
+        <span class="field-label" id="presetLabel">Presets</span>
+        <div class="demo-chip-group" role="group" aria-labelledby="presetLabel">
+          <button type="button" class="demo-chip" data-preset="indep">Independence</button>
+          <button type="button" class="demo-chip" data-preset="noise">Sampling noise</button>
+          <button type="button" class="demo-chip is-active" data-preset="sig">Clear association</button>
+          <button type="button" class="demo-chip" data-preset="small">Small counts</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="board">
+      <div class="data-col" id="data-col">
+        <section class="block demo-card" aria-labelledby="tableHeading" data-teach="essential">
+          <div class="card-head">
+            <h2 id="tableHeading">Gender × major</h2>
+            <div class="demo-chip-group" role="group" aria-label="Margin mode">
+              <button type="button" class="demo-chip" id="mode-free" aria-pressed="false">Free totals</button>
+              <button type="button" class="demo-chip is-active" id="mode-locked" aria-pressed="true">Fixed totals</button>
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="control demo-panel">
+              <div class="control-head">
+                <label for="seesaw">Coupled residual</label>
+                <span class="control-readout" id="seesaw-readout">Δ₁₁ = 0</span>
+              </div>
+              <input id="seesaw" type="range" min="-30" max="30" step="1" value="0" aria-describedby="seesaw-hint">
+              <p class="hint" id="seesaw-hint">Fixed margins leave one free cell. This slider moves that cell, and the other three follow.</p>
+            </div>
+            <div class="control demo-panel only-full">
+              <div class="control-head">
+                <label for="multiplier">Sample-size multiplier</label>
+                <span class="control-readout" id="mult-readout">1.00×</span>
+              </div>
+              <input id="multiplier" type="range" min="1" max="5" step="0.25" value="1" aria-describedby="mult-hint">
+              <p class="hint" id="mult-hint">Same proportions, so φ stays put, while χ² scales with N.</p>
+            </div>
+          </div>
+
+          <div class="table-grid">
+            <div class="axis corner"></div>
+            <div class="axis col">Psychology</div>
+            <div class="axis col">Social science</div>
+
+            <div class="axis row">Male <span class="pct" id="row1-pct"></span></div>
+            <div class="cell" id="card-11" data-cell="11">
+              <div class="cell-top">
+                <span class="cell-name tag-11">Male · Psychology <span class="free-flag">· free cell</span></span>
+                <span class="delta-pill delta-zero" id="delta-11">Δ = 0</span>
+              </div>
+              <div class="obs-control">
+                <label for="input-11">O<sub>11</sub></label>
+                <input id="input-11" class="obs-input" type="number" min="0" max="2000" step="1" value="30" inputmode="numeric">
+                <button type="button" class="btn-step" id="dec-11" aria-label="Decrease Male × Psychology">−</button>
+                <button type="button" class="btn-step" id="inc-11" aria-label="Increase Male × Psychology">+</button>
+              </div>
+              <input id="slider-11" class="cell-slider" type="range" min="0" max="120" value="30" aria-label="Male × Psychology count">
+              <div class="sub-readouts">
+                <div class="readout"><span>E<sub>11</sub></span><b id="exp-11">48.0</b></div>
+                <div class="readout readout-z"><span>z<sub>11</sub></span><b id="z-11">0</b></div>
+                <div class="readout"><span>χ²<sub>11</sub></span><b id="chi-11">0</b></div>
+                <div class="readout readout-share"><span>Share</span><b id="share-11">0%</b></div>
+              </div>
+            </div>
+            <div class="cell is-coupled" id="card-12" data-cell="12">
+              <div class="cell-top">
+                <span class="cell-name tag-12">Male · Social science</span>
+                <span class="delta-pill delta-zero" id="delta-12">Δ = 0</span>
+              </div>
+              <div class="obs-control">
+                <label for="input-12">O<sub>12</sub></label>
+                <input id="input-12" class="obs-input" type="number" min="0" max="2000" step="1" value="50" inputmode="numeric" disabled>
+                <button type="button" class="btn-step" id="dec-12" aria-label="Decrease Male × Social science" disabled>−</button>
+                <button type="button" class="btn-step" id="inc-12" aria-label="Increase Male × Social science" disabled>+</button>
+              </div>
+              <input id="slider-12" class="cell-slider" type="range" min="0" max="120" value="50" aria-label="Male × Social science count" disabled>
+              <div class="sub-readouts">
+                <div class="readout"><span>E<sub>12</sub></span><b id="exp-12">32.0</b></div>
+                <div class="readout readout-z"><span>z<sub>12</sub></span><b id="z-12">0</b></div>
+                <div class="readout"><span>χ²<sub>12</sub></span><b id="chi-12">0</b></div>
+                <div class="readout readout-share"><span>Share</span><b id="share-12">0%</b></div>
+              </div>
+            </div>
+
+            <div class="axis row">Female <span class="pct" id="row2-pct"></span></div>
+            <div class="cell is-coupled" id="card-21" data-cell="21">
+              <div class="cell-top">
+                <span class="cell-name tag-21">Female · Psychology</span>
+                <span class="delta-pill delta-zero" id="delta-21">Δ = 0</span>
+              </div>
+              <div class="obs-control">
+                <label for="input-21">O<sub>21</sub></label>
+                <input id="input-21" class="obs-input" type="number" min="0" max="2000" step="1" value="90" inputmode="numeric" disabled>
+                <button type="button" class="btn-step" id="dec-21" aria-label="Decrease Female × Psychology" disabled>−</button>
+                <button type="button" class="btn-step" id="inc-21" aria-label="Increase Female × Psychology" disabled>+</button>
+              </div>
+              <input id="slider-21" class="cell-slider" type="range" min="0" max="150" value="90" aria-label="Female × Psychology count" disabled>
+              <div class="sub-readouts">
+                <div class="readout"><span>E<sub>21</sub></span><b id="exp-21">72.0</b></div>
+                <div class="readout readout-z"><span>z<sub>21</sub></span><b id="z-21">0</b></div>
+                <div class="readout"><span>χ²<sub>21</sub></span><b id="chi-21">0</b></div>
+                <div class="readout readout-share"><span>Share</span><b id="share-21">0%</b></div>
+              </div>
+            </div>
+            <div class="cell is-coupled" id="card-22" data-cell="22">
+              <div class="cell-top">
+                <span class="cell-name tag-22">Female · Social science</span>
+                <span class="delta-pill delta-zero" id="delta-22">Δ = 0</span>
+              </div>
+              <div class="obs-control">
+                <label for="input-22">O<sub>22</sub></label>
+                <input id="input-22" class="obs-input" type="number" min="0" max="2000" step="1" value="30" inputmode="numeric" disabled>
+                <button type="button" class="btn-step" id="dec-22" aria-label="Decrease Female × Social science" disabled>−</button>
+                <button type="button" class="btn-step" id="inc-22" aria-label="Increase Female × Social science" disabled>+</button>
+              </div>
+              <input id="slider-22" class="cell-slider" type="range" min="0" max="150" value="30" aria-label="Female × Social science count" disabled>
+              <div class="sub-readouts">
+                <div class="readout"><span>E<sub>22</sub></span><b id="exp-22">48.0</b></div>
+                <div class="readout readout-z"><span>z<sub>22</sub></span><b id="z-22">0</b></div>
+                <div class="readout"><span>χ²<sub>22</sub></span><b id="chi-22">0</b></div>
+                <div class="readout readout-share"><span>Share</span><b id="share-22">0%</b></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="margins" aria-label="Margins">
+            <div class="margin-tile"><b id="r1-val">80</b><span>Male total</span></div>
+            <div class="margin-tile"><b id="r2-val">120</b><span>Female total</span></div>
+            <div class="margin-tile"><b id="c1-val">120</b><span id="c1-pct">Psychology</span></div>
+            <div class="margin-tile"><b id="c2-val">80</b><span id="c2-pct">Social science</span></div>
+            <div class="margin-tile grand"><b id="n-val">200</b><span>Grand total N</span></div>
+          </div>
+
+          <p class="alert" id="small-alert">An expected count is below 5. The χ²(1) curve is a rough reference for a table this small.</p>
+        </section>
+
+        <section class="block demo-card" aria-labelledby="mosaicHeading" data-teach="essential">
+          <div class="card-head">
+            <h2 id="mosaicHeading">Mosaic</h2>
+            <span class="demo-value" id="gap-badge">Conditional gap</span>
+          </div>
+          <div class="legend">
+            <span class="legend-item"><span class="swatch swatch-pos"></span>More than expected</span>
+            <span class="legend-item"><span class="swatch swatch-neg"></span>Fewer than expected</span>
+            <span class="legend-item"><span class="swatch swatch-zero"></span>Matches expected</span>
+            <span class="legend-item"><span class="swatch swatch-line"></span>Overall psychology share</span>
+          </div>
+          <div class="plot-well">
+            <svg id="mosaic-svg" viewBox="0 0 540 250" role="img" aria-label="Mosaic of gender by major"></svg>
+          </div>
+        </section>
+      </div>
+
+      <div class="engine-col" id="engine-col">
+        <section class="block demo-card" aria-labelledby="hypHeading" data-teach="essential">
+          <div class="hypo">
+            <div>
+              <h2 id="hypHeading">Hypotheses</h2>
+              <p class="hyp-line"><strong>H<sub>0</sub>.</strong> The psychology share is the same for Male and Female.</p>
+              <p class="hyp-line"><strong>H<sub>1</sub>.</strong> Those two shares are not equal.</p>
+            </div>
+            <div>
+              <span class="field-label" id="alphaLabel">Significance (α)</span>
+              <div class="demo-chip-group" role="group" aria-labelledby="alphaLabel">
+                <button type="button" class="demo-chip" data-alpha="0.10" aria-pressed="false">.10</button>
+                <button type="button" class="demo-chip is-active" data-alpha="0.05" aria-pressed="true">.05</button>
+                <button type="button" class="demo-chip" data-alpha="0.01" aria-pressed="false">.01</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="block demo-card" aria-labelledby="formulaHeading" data-teach="essential">
+          <div class="card-head">
+            <h2 id="formulaHeading">χ² partition</h2>
+            <span class="demo-value" id="inspect-pill">All four cells</span>
+          </div>
+
+          <div class="eq-block demo-panel">
+            <div class="eq-label">
+              <span>Expected count and residual</span>
+              <span id="common-delta" style="text-transform:none;letter-spacing:0;font-weight:700;"></span>
+            </div>
+            <p class="eq-line" id="eq-expected"></p>
+            <p class="eq-line" id="eq-delta"></p>
+          </div>
+
+          <div class="eq-block demo-panel only-full">
+            <div class="eq-label"><span>Degrees of freedom</span></div>
+            <p class="eq-line" id="eq-df"></p>
+          </div>
+
+          <div class="eq-block demo-panel">
+            <div class="eq-label"><span>Four-cell sum</span></div>
+            <p class="eq-line" id="eq-sum"></p>
+            <div class="term-grid" id="term-grid"></div>
+            <p class="sum-line" id="sum-line"></p>
+            <div class="contrib only-full">
+              <div class="contrib-bar" id="contrib-bar" aria-hidden="true"></div>
+              <div class="contrib-legend" id="contrib-legend"></div>
+            </div>
+          </div>
+
+          <div class="metrics">
+            <div class="metric demo-panel">
+              <div class="m-title">Degrees of freedom</div>
+              <div class="m-num">1</div>
+              <div class="m-note" id="note-df"></div>
+            </div>
+            <div class="metric demo-panel">
+              <div class="m-title">Pearson χ²(1)</div>
+              <div class="m-num" id="tile-chisq">0</div>
+              <div class="m-note" id="note-chi"></div>
+            </div>
+            <div class="metric demo-panel only-full">
+              <div class="m-title">Phi, φ</div>
+              <div class="m-num" id="tile-phi">0</div>
+              <div class="m-note" id="note-phi"></div>
+            </div>
+            <div class="metric demo-panel only-full">
+              <div class="m-title">Two-proportion |z|</div>
+              <div class="m-num" id="tile-z">0</div>
+              <div class="m-note" id="note-z"></div>
+            </div>
+          </div>
+
+          <div class="checks only-full">
+            <label for="chk-yates"><input type="checkbox" id="chk-yates"> Yates’ correction</label>
+            <label for="chk-det"><input type="checkbox" id="chk-det"> 2×2 product shortcut</label>
+          </div>
+          <div class="extra demo-panel only-full" id="extra">
+            <p class="eq-line" id="eq-yates"></p>
+            <p class="eq-line" id="eq-det"></p>
+          </div>
+        </section>
+
+        <section class="block demo-card" aria-labelledby="curveHeading" data-teach="essential">
+          <div class="card-head">
+            <h2 id="curveHeading">χ²(1) reference</h2>
+            <span class="demo-value" id="crit-pill"></span>
+          </div>
+          <div class="plot-well">
+            <svg id="dist-svg" viewBox="0 0 560 220" role="img" aria-label="Chi-square density on 1 degree of freedom"></svg>
+          </div>
+          <div class="decision is-retain" id="decision">
+            <span class="decision-badge" id="decision-badge">Fail to reject H₀</span>
+            <span id="decision-text"></span>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <p class="note" data-teach="detail">Reference. The χ² criterion is Pearson (1900), <em>On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling</em> (<em>Philosophical Magazine, Series 5, 50</em>, 157–175). The expected-count check is Cochran (1954), <em>Some methods for strengthening the common χ² tests</em> (<em>Biometrics, 10</em>, 417–451). The continuity correction is Yates (1934), <em>Contingency tables involving small numbers and the χ² test</em> (<em>Supplement to the Journal of the Royal Statistical Society, 1</em>, 217–235).</p>
+  </div>
+
+  <script>
+    var CELLS = ["11", "12", "21", "22"];
+    var PRESETS = {
+      indep: [48, 32, 72, 48],
+      noise: [44, 36, 76, 44],
+      sig: [30, 50, 90, 30],
+      small: [2, 6, 7, 3]
+    };
+    var CRIT = { 0.10: 2.70554, 0.05: 3.84146, 0.01: 6.63490 };
+    var NAMES = {
+      "11": "Male · Psychology",
+      "12": "Male · Social science",
+      "21": "Female · Psychology",
+      "22": "Female · Social science"
+    };
+
+    var state = {
+      base: PRESETS.sig.slice(),
+      multiplier: 1,
+      marginalMode: "locked",
+      alpha: 0.05,
+      hover: null,
+      pinned: null,
+      showYates: false,
+      showDet: false
+    };
+
+    function color(token, fallback) {
+      try {
+        var value = window.statsViz && statsViz.color(token);
+        if (value) return value;
+      } catch (err) {}
+      return fallback;
+    }
+
+    var INK = {
+      pos: color("--viz-residual", "#e11d48"),
+      neg: color("--viz-group-b", "#0f766e"),
+      neutral: color("--viz-reference", "#475569"),
+      curve: color("--viz-total", "#334155"),
+      reject: color("--viz-h1", "#dc2626"),
+      retain: color("--viz-h0", "#2563eb"),
+      crit: color("--viz-null", "#be123c"),
+      cell: [
+        color("--viz-subject-1", "#0072b2"),
+        color("--viz-subject-2", "#d55e00"),
+        color("--viz-subject-3", "#009e73"),
+        color("--viz-subject-4", "#cc79a7")
+      ]
+    };
+
+    function hexToRgb(hex) {
+      var h = String(hex).trim();
+      var match = h.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+      if (match) return { r: +match[1], g: +match[2], b: +match[3] };
+      h = h.replace("#", "");
+      if (h.length === 3) h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
+      var n = parseInt(h, 16);
+      if (!isFinite(n)) return { r: 71, g: 85, b: 105 };
+      return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+    }
+
+    function mixHex(a, b, t) {
+      var A = hexToRgb(a);
+      var B = hexToRgb(b);
+      return {
+        r: Math.round(A.r + (B.r - A.r) * t),
+        g: Math.round(A.g + (B.g - A.g) * t),
+        b: Math.round(A.b + (B.b - A.b) * t)
+      };
+    }
+
+    function rgbCss(c) {
+      return "rgb(" + c.r + "," + c.g + "," + c.b + ")";
+    }
+
+    function inkFor(c) {
+      var y = (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) / 255;
+      return y > 0.64 ? "#111111" : "#ffffff";
+    }
+
+    function residualPaint(z) {
+      var az = Math.abs(z);
+      if (az < 0.05) return hexToRgb(INK.neutral);
+      var t = 0.35 + 0.65 * Math.min(1, az / 3.2);
+      return mixHex(INK.neutral, z > 0 ? INK.pos : INK.neg, t);
+    }
+
+    function rgba(hex, alpha) {
+      var c = hexToRgb(hex);
+      return "rgba(" + c.r + "," + c.g + "," + c.b + "," + alpha + ")";
+    }
+
+    function tex(el, latex) {
+      if (!el) return;
+      if (!window.katex) {
+        el.textContent = latex;
+        return;
+      }
+      katex.render(latex, el, { throwOnError: false, displayMode: false });
+    }
+
+    function setRich(el, parts) {
+      if (!el) return;
+      el.replaceChildren();
+      parts.forEach(function (part) {
+        if (part.m && window.katex) {
+          var span = document.createElement("span");
+          katex.render(part.m, span, { throwOnError: false, displayMode: false });
+          el.appendChild(span);
+        } else {
+          el.appendChild(document.createTextNode(part.t || part.m || ""));
+        }
+      });
+    }
+
+    function normalCDF(x) {
+      var a1 = 0.254829592;
+      var a2 = -0.284496736;
+      var a3 = 1.421413741;
+      var a4 = -1.453152027;
+      var a5 = 1.061405429;
+      var p = 0.3275911;
+      var sign = x < 0 ? -1 : 1;
+      var absX = Math.abs(x) / Math.sqrt(2);
+      var t = 1 / (1 + p * absX);
+      var y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
+      return 0.5 * (1 + sign * y);
+    }
+
+    function chiP(chiSq) {
+      if (!(chiSq > 0)) return 1;
+      var p = 2 * (1 - normalCDF(Math.sqrt(chiSq)));
+      return Math.max(0, Math.min(1, p));
+    }
+
+    function chiPDF(x) {
+      var v = x <= 0.02 ? 0.02 : x;
+      return (1 / Math.sqrt(2 * Math.PI * v)) * Math.exp(-0.5 * v);
+    }
+
+    function pMath(p) {
+      if (p < 0.0001) return "p \\lt .0001";
+      if (p >= 0.9999) return "p = 1.000";
+      var s = p.toFixed(4);
+      if (s.charAt(0) === "0") s = s.slice(1);
+      return "p = " + s;
+    }
+
+    function pText(p) {
+      if (p < 0.0001) return "p < .0001";
+      if (p >= 0.9999) return "p = 1.000";
+      var s = p.toFixed(4);
+      if (s.charAt(0) === "0") s = s.slice(1);
+      return "p = " + s;
+    }
+
+    function computeStats() {
+      var m = state.multiplier;
+      var O = state.base.map(function (v) { return Math.round(v * m); });
+      var R1 = O[0] + O[1];
+      var R2 = O[2] + O[3];
+      var C1 = O[0] + O[2];
+      var C2 = O[1] + O[3];
+      var N = R1 + R2;
+      var E = [0, 0, 0, 0];
+      if (N > 0) {
+        E[0] = (R1 * C1) / N;
+        E[1] = (R1 * C2) / N;
+        E[2] = (R2 * C1) / N;
+        E[3] = (R2 * C2) / N;
+      }
+      var d = O.map(function (o, i) { return o - E[i]; });
+      var z = d.map(function (dv, i) { return E[i] > 0 ? dv / Math.sqrt(E[i]) : 0; });
+      var c = z.map(function (zv) { return zv * zv; });
+      var chiSq = c[0] + c[1] + c[2] + c[3];
+      var absD = Math.abs(d[0]);
+      var yatesNum = Math.pow(Math.max(0, absD - 0.5), 2);
+      var chiYates = 0;
+      E.forEach(function (Ev) { if (Ev > 0) chiYates += yatesNum / Ev; });
+      var adbc = O[0] * O[3] - O[1] * O[2];
+      var detChi = (N > 0 && R1 > 0 && R2 > 0 && C1 > 0 && C2 > 0)
+        ? (N * adbc * adbc) / (R1 * R2 * C1 * C2)
+        : 0;
+      return {
+        O: O, E: E, d: d, z: z, c: c,
+        R1: R1, R2: R2, C1: C1, C2: C2, N: N,
+        chiSq: chiSq,
+        pVal: chiP(chiSq),
+        phi: N > 0 ? Math.sqrt(chiSq / N) : 0,
+        zStat: Math.sqrt(Math.max(0, chiSq)),
+        chiYates: chiYates,
+        pYates: chiP(chiYates),
+        detChi: detChi,
+        adbc: adbc,
+        minE: N > 0 ? Math.min.apply(null, E) : 0
+      };
+    }
+
+    function inspectedId() {
+      return state.hover || state.pinned;
+    }
+
+    function basesMatch(name) {
+      var p = PRESETS[name];
+      return !!p && state.base[0] === p[0] && state.base[1] === p[1] && state.base[2] === p[2] && state.base[3] === p[3];
+    }
+
+    function syncPresetButtons() {
+      var found = null;
+      if (state.multiplier === 1) {
+        Object.keys(PRESETS).forEach(function (name) {
+          if (basesMatch(name)) found = name;
+        });
+      } else if (state.preset && basesMatch(state.preset)) {
+        found = state.preset;
+      }
+      state.preset = found;
+      document.querySelectorAll("[data-preset]").forEach(function (btn) {
+        var on = btn.getAttribute("data-preset") === found;
+        btn.classList.toggle("is-active", on);
+      });
+    }
+
+    function setStage(stage) {
+      state.stage = stage;
+      document.body.classList.remove("calc-data", "calc-core", "calc-full");
+      document.body.classList.add(stage === "data" ? "calc-data" : stage === "core" ? "calc-core" : "calc-full");
+      document.querySelectorAll("[data-stage]").forEach(function (btn) {
+        var on = btn.getAttribute("data-stage") === stage;
+        btn.classList.toggle("is-active", on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+
+    function setMarginalMode(mode) {
+      state.marginalMode = mode;
+      document.body.classList.toggle("mode-locked", mode === "locked");
+      document.body.classList.toggle("mode-free", mode === "free");
+      document.getElementById("mode-free").classList.toggle("is-active", mode === "free");
+      document.getElementById("mode-locked").classList.toggle("is-active", mode === "locked");
+      document.getElementById("mode-free").setAttribute("aria-pressed", mode === "free" ? "true" : "false");
+      document.getElementById("mode-locked").setAttribute("aria-pressed", mode === "locked" ? "true" : "false");
+      document.getElementById("seesaw").disabled = mode !== "locked";
+      CELLS.forEach(function (id) {
+        var lock = mode === "locked" && id !== "11";
+        document.getElementById("input-" + id).disabled = lock;
+        document.getElementById("slider-" + id).disabled = lock;
+        document.getElementById("dec-" + id).disabled = lock;
+        document.getElementById("inc-" + id).disabled = lock;
+        document.getElementById("card-" + id).classList.toggle("is-coupled", lock);
+      });
+      document.getElementById("seesaw-hint").textContent = mode === "locked"
+        ? "Fixed margins leave one free cell. This slider moves that cell, and the other three follow."
+        : "Free totals: edit any cell. The margins move with the counts, and this slider stays off.";
+      renderAll();
+    }
+
+    function setAlpha(alpha) {
+      state.alpha = alpha;
+      document.querySelectorAll("[data-alpha]").forEach(function (btn) {
+        var on = Math.abs(parseFloat(btn.getAttribute("data-alpha")) - alpha) < 1e-9;
+        btn.classList.toggle("is-active", on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      renderAll();
+    }
+
+    function applyPreset(name) {
+      state.base = PRESETS[name].slice();
+      state.multiplier = 1;
+      state.preset = name;
+      document.getElementById("multiplier").value = "1";
+      renderAll();
+    }
+
+    function marginsFromBase() {
+      var R1 = state.base[0] + state.base[1];
+      var R2 = state.base[2] + state.base[3];
+      var C1 = state.base[0] + state.base[2];
+      var N = R1 + R2;
+      return { R1: R1, R2: R2, C1: C1, N: N };
+    }
+
+    function setLockedO11(next) {
+      var m = marginsFromBase();
+      var minO = Math.max(0, m.C1 - m.R2);
+      var maxO = Math.min(m.R1, m.C1);
+      var clamped = Math.max(minO, Math.min(maxO, Math.round(next)));
+      state.base[0] = clamped;
+      state.base[1] = m.R1 - clamped;
+      state.base[2] = m.C1 - clamped;
+      state.base[3] = m.R2 - state.base[2];
+      renderAll();
+    }
+
+    function onCellInput(id, raw) {
+      if (state.marginalMode === "locked" && id !== "11") return;
+      var parsed = parseFloat(raw);
+      if (!isFinite(parsed) || parsed < 0) parsed = 0;
+      var baseVal = Math.max(0, Math.round(parsed / (state.multiplier || 1)));
+      if (state.marginalMode === "locked") {
+        setLockedO11(baseVal);
+        return;
+      }
+      state.base[CELLS.indexOf(id)] = baseVal;
+      renderAll();
+    }
+
+    function stepCell(id, dir) {
+      if (state.marginalMode === "locked" && id !== "11") return;
+      var idx = CELLS.indexOf(id);
+      var next = Math.max(0, state.base[idx] + dir);
+      if (state.marginalMode === "locked") setLockedO11(next);
+      else {
+        state.base[idx] = next;
+        renderAll();
+      }
+    }
+
+    function syncSeesaw() {
+      var m = marginsFromBase();
+      var e11 = m.N > 0 ? (m.R1 * m.C1) / m.N : 0;
+      var baseE = Math.round(e11);
+      var minO = Math.max(0, m.C1 - m.R2);
+      var maxO = Math.min(m.R1, m.C1);
+      var slider = document.getElementById("seesaw");
+      var minDelta = minO - baseE;
+      var maxDelta = maxO - baseE;
+      if (minDelta === maxDelta) maxDelta = minDelta + 1;
+      slider.min = String(minDelta);
+      slider.max = String(maxDelta);
+      slider.value = String(state.base[0] - baseE);
+    }
+
+    function onSeesaw() {
+      if (state.marginalMode !== "locked") return;
+      var m = marginsFromBase();
+      var baseE = Math.round(m.N > 0 ? (m.R1 * m.C1) / m.N : 0);
+      var k = parseInt(document.getElementById("seesaw").value, 10) || 0;
+      setLockedO11(baseE + k);
+    }
+
+    function markCells() {
+      var id = inspectedId();
+      CELLS.forEach(function (cell) {
+        document.getElementById("card-" + cell).classList.toggle("is-active", cell === id);
+      });
+    }
+
+    function pinCell(id) {
+      state.pinned = state.pinned === id ? null : id;
+      markCells();
+      renderFormulas(computeStats());
+    }
+
+    function renderAll() {
+      var s = computeStats();
+      renderTable(s);
+      renderMosaic(s);
+      renderFormulas(s);
+      renderCurve(s);
+    }
+
+    function renderTable(s) {
+      syncPresetButtons();
+      syncSeesaw();
+      CELLS.forEach(function (id, i) {
+        var share = s.chiSq > 0 ? (s.c[i] / s.chiSq) * 100 : 0;
+        var input = document.getElementById("input-" + id);
+        var slider = document.getElementById("slider-" + id);
+        input.value = String(s.O[i]);
+        if (state.marginalMode === "free") {
+          slider.min = "0";
+          slider.max = String(Math.max(150, s.O[i] + 40));
+        } else if (id === "11") {
+          slider.min = String(Math.max(0, s.C1 - s.R2));
+          slider.max = String(Math.max(slider.min, Math.min(s.R1, s.C1)));
+        }
+        slider.value = String(s.O[i]);
+        document.getElementById("exp-" + id).textContent = s.E[i].toFixed(1);
+        document.getElementById("z-" + id).textContent = (s.z[i] >= 0 ? "+" : "") + s.z[i].toFixed(2);
+        document.getElementById("chi-" + id).textContent = s.c[i].toFixed(2);
+        document.getElementById("share-" + id).textContent = share.toFixed(1) + "%";
+        var pill = document.getElementById("delta-" + id);
+        var sign = s.d[i] > 0.005 ? "+" : "";
+        pill.textContent = "Δ = " + sign + s.d[i].toFixed(1);
+        pill.className = "delta-pill " + (s.d[i] > 0.005 ? "delta-pos" : s.d[i] < -0.005 ? "delta-neg" : "delta-zero");
+      });
+
+      document.getElementById("r1-val").textContent = String(s.R1);
+      document.getElementById("r2-val").textContent = String(s.R2);
+      document.getElementById("c1-val").textContent = String(s.C1);
+      document.getElementById("c2-val").textContent = String(s.C2);
+      document.getElementById("n-val").textContent = String(s.N);
+      var r1 = s.N > 0 ? (100 * s.R1 / s.N).toFixed(1) : "0.0";
+      var r2 = s.N > 0 ? (100 * s.R2 / s.N).toFixed(1) : "0.0";
+      var c1 = s.N > 0 ? (100 * s.C1 / s.N).toFixed(1) : "0.0";
+      var c2 = s.N > 0 ? (100 * s.C2 / s.N).toFixed(1) : "0.0";
+      document.getElementById("row1-pct").textContent = r1 + "% of N";
+      document.getElementById("row2-pct").textContent = r2 + "% of N";
+      document.getElementById("c1-pct").textContent = "Psychology · " + c1 + "%";
+      document.getElementById("c2-pct").textContent = "Social science · " + c2 + "%";
+
+      var d11 = s.d[0];
+      document.getElementById("seesaw-readout").textContent =
+        "Δ₁₁ = " + (d11 > 0.005 ? "+" : "") + d11.toFixed(1);
+      document.getElementById("mult-readout").textContent =
+        state.multiplier.toFixed(2) + "× · N = " + s.N;
+      document.getElementById("seesaw").setAttribute("aria-valuetext", "residual " + d11.toFixed(1));
+      document.getElementById("small-alert").classList.toggle("is-on", s.N > 0 && s.minE < 5);
+      markCells();
+    }
+
+    function renderMosaic(s) {
+      var svg = document.getElementById("mosaic-svg");
+      var W = 540, H = 250;
+      var padL = 52, padR = 58, padT = 26, padB = 36;
+      var plotW = W - padL - padR;
+      var plotH = H - padT - padB;
+      var gap = 10;
+      var pMale = s.N > 0 ? s.R1 / s.N : 0.5;
+      var pFem = 1 - pMale;
+      var wMale = Math.max(28, (plotW - gap) * pMale);
+      var wFem = Math.max(28, (plotW - gap) * pFem);
+      var scale = (wMale + wFem) / (plotW - gap);
+      if (scale > 1) {
+        wMale /= scale;
+        wFem /= scale;
+      }
+      var pPsychMale = s.R1 > 0 ? s.O[0] / s.R1 : 0;
+      var pPsychFem = s.R2 > 0 ? s.O[2] / s.R2 : 0;
+      var pPsychAll = s.N > 0 ? s.C1 / s.N : 0;
+      var diffPct = Math.abs(pPsychMale - pPsychFem) * 100;
+      document.getElementById("gap-badge").textContent = diffPct < 0.1
+        ? "Sample shares match"
+        : "Psychology gap " + diffPct.toFixed(1) + " pp";
+
+      var h11 = plotH * pPsychMale;
+      var h12 = plotH - h11;
+      var h21 = plotH * pPsychFem;
+      var h22 = plotH - h21;
+      var xMale = padL;
+      var xFem = padL + wMale + gap;
+      /* Psychology sits on top, so the dashed line is that share of the way down the column. */
+      var yBase = padT + plotH * pPsychAll;
+
+      function block(cell, x, y, w, h, share, count) {
+        var paint = residualPaint(s.z[CELLS.indexOf(cell)]);
+        var label = h > 28 && w > 72;
+        var text = inkFor(paint);
+        var name = NAMES[cell];
+        var lines = label
+          ? '<text x="' + (x + w / 2) + '" y="' + (y + h / 2 - 2) + '" text-anchor="middle" fill="' + text + '" font-size="11" font-family="Arial, Helvetica, sans-serif" font-weight="700">' + name + '</text>'
+            + '<text x="' + (x + w / 2) + '" y="' + (y + h / 2 + 13) + '" text-anchor="middle" fill="' + text + '" font-size="10.5" font-family="Arial, Helvetica, sans-serif">O = ' + count + ' (' + share.toFixed(1) + '%)</text>'
+          : "";
+        return '<g data-cell="' + cell + '">'
+          + '<rect x="' + x + '" y="' + y + '" width="' + Math.max(0, w) + '" height="' + Math.max(0, h) + '" fill="' + rgbCss(paint) + '" rx="3" stroke="#ffffff" stroke-width="1.5"></rect>'
+          + lines + "</g>";
+      }
+
+      var html = "";
+      [0, 0.5, 1].forEach(function (t) {
+        var y = padT + plotH * t;
+        html += '<line x1="' + (padL - 5) + '" y1="' + y + '" x2="' + padL + '" y2="' + y + '" stroke="#000" stroke-width="1"></line>';
+        html += '<text x="' + (padL - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="10" font-family="Arial, Helvetica, sans-serif" fill="#111">' + Math.round(t * 100) + '%</text>';
+      });
+      html += block("11", xMale, padT, wMale, h11, pPsychMale * 100, s.O[0]);
+      html += block("12", xMale, padT + h11, wMale, h12, (1 - pPsychMale) * 100, s.O[1]);
+      html += block("21", xFem, padT, wFem, h21, pPsychFem * 100, s.O[2]);
+      html += block("22", xFem, padT + h21, wFem, h22, (1 - pPsychFem) * 100, s.O[3]);
+      html += '<line x1="' + (xMale + wMale) + '" y1="' + (padT + h11) + '" x2="' + xFem + '" y2="' + (padT + h21) + '" stroke="#000" stroke-width="2"></line>';
+      html += '<line x1="' + (padL - 2) + '" y1="' + yBase + '" x2="' + (W - padR + 2) + '" y2="' + yBase + '" stroke="#000" stroke-width="1.6" stroke-dasharray="6 4"></line>';
+      html += '<text x="' + (W - 8) + '" y="' + (yBase + 4) + '" text-anchor="end" font-size="10" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="#111">' + (pPsychAll * 100).toFixed(0) + '%</text>';
+      html += '<text x="' + (xMale + wMale / 2) + '" y="' + (H - 14) + '" text-anchor="middle" font-size="11" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="#111">Male ' + (pMale * 100).toFixed(1) + '%</text>';
+      html += '<text x="' + (xFem + wFem / 2) + '" y="' + (H - 14) + '" text-anchor="middle" font-size="11" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="#111">Female ' + (pFem * 100).toFixed(1) + '%</text>';
+      svg.innerHTML = html;
+      svg.setAttribute("aria-label",
+        "Mosaic of gender by major. Psychology is " + (pPsychMale * 100).toFixed(1)
+        + "% of Male and " + (pPsychFem * 100).toFixed(1) + "% of Female.");
+    }
+
+    function renderFormulas(s) {
+      var id = inspectedId();
+      var pill = document.getElementById("inspect-pill");
+      var absD = Math.abs(s.d[0]);
+      setRich(document.getElementById("common-delta"), [
+        { m: "|\\Delta| = " + absD.toFixed(2) },
+        { t: " in every cell" }
+      ]);
+
+      if (id) {
+        var i = CELLS.indexOf(id);
+        var row = id.charAt(0) === "1" ? s.R1 : s.R2;
+        var col = id.charAt(1) === "1" ? s.C1 : s.C2;
+        var sign = s.d[i] >= 0 ? "+" : "";
+        pill.textContent = "Cell (" + id.charAt(0) + ", " + id.charAt(1) + ")";
+        tex(document.getElementById("eq-expected"),
+          "E_{" + id + "} = \\frac{R_{" + id.charAt(0) + "} \\times C_{" + id.charAt(1) + "}}{N} = \\frac{" + row + " \\times " + col + "}{" + s.N + "} = " + s.E[i].toFixed(2));
+        tex(document.getElementById("eq-delta"),
+          "\\Delta_{" + id + "} = " + s.O[i] + " - " + s.E[i].toFixed(2) + " = " + sign + s.d[i].toFixed(2));
+      } else {
+        pill.textContent = "All four cells";
+        tex(document.getElementById("eq-expected"), "E_{ij} = \\frac{R_i \\times C_j}{N}");
+        var dSign = s.d[0] >= 0 ? "+" : "";
+        var oSign = s.d[1] >= 0 ? "+" : "";
+        tex(document.getElementById("eq-delta"),
+          "\\Delta_{11} = \\Delta_{22} = " + dSign + s.d[0].toFixed(1) + ",\\quad \\Delta_{12} = \\Delta_{21} = " + oSign + s.d[1].toFixed(1));
+      }
+
+      tex(document.getElementById("eq-df"),
+        "df = (R - 1)(C - 1) = (2 - 1)(2 - 1) = 1");
+      tex(document.getElementById("eq-sum"),
+        "\\chi^2 = \\sum_{i,j} \\frac{(O_{ij} - E_{ij})^2}{E_{ij}}");
+
+      var grid = document.getElementById("term-grid");
+      grid.replaceChildren();
+      CELLS.forEach(function (cell, i) {
+        var term = document.createElement("div");
+        term.className = "term demo-panel";
+        var name = document.createElement("div");
+        name.className = "term-name";
+        name.innerHTML = '<span class="dot dot-' + cell + '"></span>' + NAMES[cell];
+        var line = document.createElement("div");
+        term.appendChild(name);
+        term.appendChild(line);
+        grid.appendChild(term);
+        var e = s.E[i] > 0 ? s.E[i].toFixed(1) : "0";
+        tex(line, "\\frac{(" + s.O[i] + " - " + e + ")^2}{" + e + "} = " + s.c[i].toFixed(2));
+      });
+
+      var sum = document.getElementById("sum-line");
+      sum.replaceChildren();
+      function addBit(text, strong) {
+        var node = document.createElement(strong ? "strong" : "span");
+        node.textContent = text;
+        sum.appendChild(node);
+      }
+      addBit("χ² = ");
+      CELLS.forEach(function (cell, i) {
+        if (i) addBit("+");
+        addBit(s.c[i].toFixed(2));
+      });
+      addBit("=", true);
+      addBit(s.chiSq.toFixed(2), true);
+
+      var bar = document.getElementById("contrib-bar");
+      var legend = document.getElementById("contrib-legend");
+      bar.replaceChildren();
+      legend.replaceChildren();
+      CELLS.forEach(function (cell, i) {
+        var pct = s.chiSq > 0.0001 ? (s.c[i] / s.chiSq) * 100 : 25;
+        var seg = document.createElement("div");
+        seg.className = "seg seg-" + cell;
+        seg.style.width = pct + "%";
+        seg.textContent = pct >= 12 ? pct.toFixed(0) + "%" : "";
+        bar.appendChild(seg);
+        var item = document.createElement("span");
+        item.className = "legend-item";
+        item.innerHTML = '<span class="dot dot-' + cell + '"></span>' + NAMES[cell] + ": " + s.c[i].toFixed(2) + " (" + pct.toFixed(1) + "%)";
+        legend.appendChild(item);
+      });
+
+      document.getElementById("tile-chisq").textContent = s.chiSq.toFixed(2);
+      document.getElementById("tile-phi").textContent = s.phi.toFixed(3);
+      document.getElementById("tile-z").textContent = s.zStat.toFixed(3);
+      tex(document.getElementById("note-df"), "(2-1)(2-1) = 1");
+      tex(document.getElementById("note-chi"), "\\sum \\Delta_{ij}^2 / E_{ij}");
+      tex(document.getElementById("note-phi"), "\\phi = \\sqrt{\\chi^2 / N}");
+      tex(document.getElementById("note-z"), "|z| = \\sqrt{\\chi^2(1)}");
+
+      var yatesEl = document.getElementById("eq-yates");
+      var detEl = document.getElementById("eq-det");
+      yatesEl.hidden = !state.showYates;
+      detEl.hidden = !state.showDet;
+      document.getElementById("extra").classList.toggle("is-on", state.showYates || state.showDet);
+      if (state.showYates) {
+        tex(yatesEl,
+          "\\chi^2_{\\mathrm{Yates}} = \\sum \\frac{(\\max(0, |\\Delta| - 0.5))^2}{E_{ij}} = "
+          + s.chiYates.toFixed(2) + ",\\ " + pMath(s.pYates));
+      } else {
+        yatesEl.replaceChildren();
+      }
+      if (state.showDet) {
+        tex(detEl,
+          "\\chi^2 = \\frac{N(O_{11}O_{22} - O_{12}O_{21})^2}{R_1 R_2 C_1 C_2} = \\frac{"
+          + s.N + "(" + s.adbc + ")^2}{" + s.R1 + "\\cdot " + s.R2 + "\\cdot " + s.C1 + "\\cdot " + s.C2
+          + "} = " + s.detChi.toFixed(2));
+      } else {
+        detEl.replaceChildren();
+      }
+    }
+
+    function renderCurve(s) {
+      var svg = document.getElementById("dist-svg");
+      var W = 560, H = 220;
+      var padL = 48, padR = 18, padT = 28, padB = 36;
+      var plotW = W - padL - padR;
+      var plotH = H - padT - padB;
+      var xMax = 15;
+      var yMax = 1.25;
+      function xToPx(x) {
+        return padL + (Math.min(xMax, Math.max(0, x)) / xMax) * plotW;
+      }
+      function yToPx(y) {
+        return padT + plotH - (Math.min(yMax, Math.max(0, y)) / yMax) * plotH;
+      }
+      var crit = CRIT[state.alpha];
+      var alphaStr = state.alpha.toFixed(2).replace(/^0/, "");
+      setRich(document.getElementById("crit-pill"), [
+        { m: "\\chi^2_{\\mathrm{crit}} = " + crit.toFixed(3) }
+      ]);
+
+      var html = "";
+      html += '<text x="' + padL + '" y="16" font-size="11" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="#111">density</text>';
+      [0, 2, 4, 6, 8, 10, 12, 14].forEach(function (tick) {
+        var px = xToPx(tick);
+        html += '<line x1="' + px + '" y1="' + padT + '" x2="' + px + '" y2="' + (padT + plotH) + '" stroke="#ececec" stroke-width="1"></line>';
+        html += '<text x="' + px + '" y="' + (H - 16) + '" text-anchor="middle" font-size="10" font-family="Arial, Helvetica, sans-serif" fill="#111">' + tick + '</text>';
+      });
+      html += '<text x="' + (padL + plotW / 2) + '" y="' + (H - 2) + '" text-anchor="middle" font-size="11" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="#111">χ²</text>';
+
+      var rej = "M " + xToPx(crit) + " " + yToPx(0) + " ";
+      for (var i = 0; i <= 80; i++) {
+        var xv = crit + (xMax - crit) * (i / 80);
+        rej += "L " + xToPx(xv) + " " + yToPx(chiPDF(xv)) + " ";
+      }
+      rej += "L " + xToPx(xMax) + " " + yToPx(0) + " Z";
+      html += '<path d="' + rej + '" fill="' + rgba(INK.crit, 0.22) + '"></path>';
+
+      var curve = "";
+      for (var j = 0; j <= 180; j++) {
+        var x = 0.04 + (xMax - 0.04) * (j / 180);
+        curve += (j === 0 ? "M " : " L ") + xToPx(x) + " " + yToPx(chiPDF(x));
+      }
+      html += '<path d="' + curve + '" fill="none" stroke="' + INK.curve + '" stroke-width="2.2"></path>';
+      html += '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (W - padR) + '" y2="' + (padT + plotH) + '" stroke="#000" stroke-width="1.4"></line>';
+
+      var critPx = xToPx(crit);
+      html += '<line x1="' + critPx + '" y1="' + (padT + 4) + '" x2="' + critPx + '" y2="' + (padT + plotH) + '" stroke="' + INK.crit + '" stroke-width="1.6" stroke-dasharray="5 4"></line>';
+      html += '<text x="' + Math.min(W - padR - 4, critPx + 4) + '" y="' + (padT + 14) + '" font-size="10" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="' + INK.crit + '">critical ' + crit.toFixed(2) + ' (α = ' + alphaStr + ')</text>';
+
+      var clamped = Math.min(xMax, s.chiSq);
+      var obsPx = xToPx(clamped);
+      var isSig = s.chiSq >= crit - 1e-9 && s.N > 0;
+      var obsColor = isSig ? INK.reject : INK.retain;
+      var label = s.chiSq > xMax
+        ? "χ² = " + s.chiSq.toFixed(2) + " (past 15)"
+        : "χ² = " + s.chiSq.toFixed(2);
+      var boxW = Math.max(92, 7.1 * label.length);
+      var boxX = Math.min(W - padR - boxW, Math.max(padL, obsPx - boxW / 2));
+      html += '<line x1="' + obsPx + '" y1="' + (padT + 28) + '" x2="' + obsPx + '" y2="' + (padT + plotH) + '" stroke="' + obsColor + '" stroke-width="2.4"></line>';
+      html += '<circle cx="' + obsPx + '" cy="' + yToPx(chiPDF(Math.max(0.08, clamped))) + '" r="4.5" fill="' + obsColor + '"></circle>';
+      html += '<rect x="' + boxX + '" y="' + (padT + 26) + '" width="' + boxW + '" height="18" rx="3" fill="' + obsColor + '"></rect>';
+      html += '<text x="' + (boxX + boxW / 2) + '" y="' + (padT + 39) + '" text-anchor="middle" font-size="10" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="#fff">' + label + '</text>';
+      svg.innerHTML = html;
+      svg.setAttribute("aria-label",
+        "Chi-square density on 1 degree of freedom. Observed chi-square " + s.chiSq.toFixed(2)
+        + ", critical value " + crit.toFixed(2) + " at alpha " + alphaStr + ".");
+
+      var box = document.getElementById("decision");
+      var badge = document.getElementById("decision-badge");
+      box.className = "decision " + (isSig ? "is-reject" : "is-retain");
+      badge.textContent = isSig ? "Reject H₀" : "Fail to reject H₀";
+      var pM = s.R1 > 0 ? (100 * s.O[0] / s.R1).toFixed(1) : "0.0";
+      var pF = s.R2 > 0 ? (100 * s.O[2] / s.R2).toFixed(1) : "0.0";
+      var tail = ". Psychology is " + pM + "% of the Male row and " + pF + "% of the Female row"
+        + (isSig ? "." : ", which this test does not separate from independence.");
+      setRich(document.getElementById("decision-text"), [
+        { m: "\\chi^2(1, N = " + s.N + ") = " + s.chiSq.toFixed(2) },
+        { t: ", " },
+        { m: pMath(s.pVal) },
+        { t: ", " },
+        { m: "\\phi = " + s.phi.toFixed(2) },
+        { t: tail }
+      ]);
+    }
+
+    function cellFromEvent(event) {
+      var node = event.target && event.target.closest ? event.target.closest("[data-cell]") : null;
+      return node ? node.getAttribute("data-cell") : null;
+    }
+
+    function bindPointer(root) {
+      root.addEventListener("pointerover", function (event) {
+        var id = cellFromEvent(event);
+        if (!id || state.hover === id) return;
+        state.hover = id;
+        markCells();
+        renderFormulas(computeStats());
+      });
+      root.addEventListener("pointerout", function (event) {
+        var id = cellFromEvent(event);
+        if (!id) return;
+        var next = event.relatedTarget && event.relatedTarget.closest
+          ? event.relatedTarget.closest("[data-cell]")
+          : null;
+        if (next && next.getAttribute("data-cell") === id) return;
+        if (state.hover !== id) return;
+        state.hover = null;
+        markCells();
+        renderFormulas(computeStats());
+      });
+      root.addEventListener("click", function (event) {
+        var id = cellFromEvent(event);
+        if (!id) return;
+        if (event.target.closest("input, button, label")) {
+          if (state.pinned !== id) {
+            state.pinned = id;
+            markCells();
+            renderFormulas(computeStats());
+          }
+          return;
+        }
+        pinCell(id);
+      });
+    }
+
+    document.querySelectorAll("[data-stage]").forEach(function (btn) {
+      btn.addEventListener("click", function () { setStage(btn.getAttribute("data-stage")); });
+    });
+    document.querySelectorAll("[data-preset]").forEach(function (btn) {
+      btn.addEventListener("click", function () { applyPreset(btn.getAttribute("data-preset")); });
+    });
+    document.querySelectorAll("[data-alpha]").forEach(function (btn) {
+      btn.addEventListener("click", function () { setAlpha(parseFloat(btn.getAttribute("data-alpha"))); });
+    });
+    document.getElementById("mode-free").addEventListener("click", function () { setMarginalMode("free"); });
+    document.getElementById("mode-locked").addEventListener("click", function () { setMarginalMode("locked"); });
+    document.getElementById("seesaw").addEventListener("input", onSeesaw);
+    document.getElementById("multiplier").addEventListener("input", function (event) {
+      state.multiplier = parseFloat(event.target.value) || 1;
+      renderAll();
+    });
+    CELLS.forEach(function (id) {
+      document.getElementById("input-" + id).addEventListener("input", function (event) {
+        onCellInput(id, event.target.value);
+      });
+      document.getElementById("slider-" + id).addEventListener("input", function (event) {
+        onCellInput(id, event.target.value);
+      });
+      document.getElementById("dec-" + id).addEventListener("click", function () { stepCell(id, -1); });
+      document.getElementById("inc-" + id).addEventListener("click", function () { stepCell(id, 1); });
+    });
+    document.getElementById("chk-yates").addEventListener("change", function (event) {
+      state.showYates = event.target.checked;
+      renderFormulas(computeStats());
+    });
+    document.getElementById("chk-det").addEventListener("change", function (event) {
+      state.showDet = event.target.checked;
+      renderFormulas(computeStats());
+    });
+    bindPointer(document.getElementById("data-col"));
+    bindPointer(document.getElementById("mosaic-svg"));
+    document.addEventListener("keydown", function (event) {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      var tag = document.activeElement && document.activeElement.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (event.key === "1") setStage("data");
+      else if (event.key === "2") setStage("core");
+      else if (event.key === "3") setStage("full");
+    });
+
+    setStage("full");
+    setMarginalMode("locked");
+    applyPreset("sig");
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

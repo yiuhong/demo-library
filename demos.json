@@ -300,6 +300,15 @@
               ]
             },
             {
+              "href": "statistics/chi_square_independence_2x2.html",
+              "title": "2×2 Chi-Square Test of Independence",
+              "description": "A 2×2 gender-by-major table, a mosaic plot, and Pearson’s chi-square test of independence.",
+              "keywords": "2×2 chi-square test of independence contingency table mosaic Yates phi gender major expected counts",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
               "href": "statistics/target_analogy_confidence_intervals.html",
               "title": "Target Analogy of Confidence Intervals",
               "description": "A target analogy of confidence intervals.",
