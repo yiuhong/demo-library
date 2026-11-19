@@ -53,11 +53,26 @@ Live controls stay beside the figure or immediately above it. Do not put them un
 
 A formula or a table may recede into a tab or a disclosure only when it is reference material. When the live equation, the plug-in arithmetic, or the sum-of-squares partition is the lesson, it stays on screen next to the figure. Variance Explained, Covariance and Correlation, and Moments keep that material in view.
 
-Optional extra stage narrative may have a Show/Hide control at every size. It may start closed when the window is tight if the visitor has no saved choice. A saved preference is allowed. It is not required, and it is not forbidden. Do not auto-collapse text that is the only instructional content. Do not add this chrome to a demonstration that has no stage narrative.
+Optional extra stage narrative may have a Show/Hide control at every size. It may start closed when the window is tight if the visitor has no saved choice. A saved preference is allowed. It is not required, and it is not forbidden. Do not auto-collapse text that is the only instructional content. Do not add this chrome to a demonstration that has no stage narrative. That narrative is commentary, so mark it `data-teach="detail"`. Its Show/Hide may close the extra narrative. It does not close the short commentary object that default Learn still shows, and it is not a substitute for Teach.
+
+### Interface principles
+
+Use this list when you compose a new demonstration, and when you next touch an existing one. These principles are the standard for composing the page, not a layout to copy. Do not rebuild an existing demonstration so it looks like Multiple Regression and ANOVA Equivalence. A different grid, sidebar, or document flow is fine when the page follows these principles. That demonstration’s Controls / Model / Fit tabs, its 960px, 500px, and 900px breakpoints, the `min(52vh, 90vw)` plot height, and the `demo-library-regression-anova-step-description` preference key stay that page’s chrome.
+
+- The figure comes first. The figure, canvas, or plot is what the page is for. Controls stay beside the figure or immediately above it. Do not put them under a long formula, a block of prose, or a table in the same column.
+- Controls update the figure at once.
+- The live equation or readout stays with the plot. When that equation, the plug-in arithmetic, or the sum-of-squares partition is the lesson, it stays on screen next to the figure, in Learn and in Teach. A formula that is only reference material may sit in a disclosure.
+- Phone and coarse-pointer sliders stay a 44px target. [Range sliders](#range-sliders) is that rule. Do not paint the hit box back to a thin track.
+- No scrollbar inside a panel. The content wraps or fits in the card. On a stacked phone or a narrow window, the page is the vertical scroller. The locked-viewport cases later in this section still stand: a desktop inspector may scroll when the page is locked to the viewport, and a formula may scroll locally so the page stays free of a horizontal scrollbar. The plot is not also a vertical scroller. Never put a scrollbar over a canvas.
+- Teach and Learn is one site-wide switch. Do not add a per-demo theme, a second pair of names, or a mode that only this page understands. [Teach and Learn](#teach-and-learn) is the control and the object list.
+- Chrome is the shared chrome. Load the matching shared theme, keep `class="demo-page"` on `body`, and run the `embed=shell` hook. Do not invent a third library-chrome theme. A personality or cognitive page may keep its own look. It still needs the embed hook.
+- Default Learn still shows a short commentary object before any drawer is opened: a visible lede or a short teaching paragraph. A long term-by-term note may start closed. That closed drawer is density inside the commentary. It is not Teach.
+
+A pure explorer may have almost no commentary. Do not invent a note so this list has something to show. The switch still ships, so the library stays consistent.
 
 ### Teach and Learn
 
-Teach and Learn are one control for the whole library. Both names are on the control. Learn is the default: the full page, for later review. Teach is the quieter class view. The choice only changes visibility. It does not recompute a result, rewrite teaching text, invent a shorter lesson, reset the simulation, or add a scrollbar inside a panel. Do not invent a third visual theme. Each demonstration keeps its own plot and layout.
+Teach and Learn are one control for the whole library. Both names are on the control. Learn is the default: the full page, for later review. Teach is the quieter class view. Teach includes only demonstration objects. Learn includes demonstration objects and commentary objects. The choice only changes visibility. Hiding a commentary object lets the figure use the space it leaves. That is ordinary layout after `display: none` in [`assets/teach.css`](assets/teach.css). It does not recompute a result, rewrite teaching text, invent a shorter lesson, reset the simulation, or add a scrollbar inside a panel. Do not write a Teach branch that does any of those. Leave [`assets/teach.css`](assets/teach.css) and [`assets/teach.js`](assets/teach.js) as they are. Do not invent a third visual theme. Each demonstration keeps its own plot and layout.
 
 Catalog and Guided Tracks put the control in the pane bar, beside Fullscreen. A demonstration opened on its own gets the same control in the page top bar, next to Back. [`assets/teach.js`](assets/teach.js) inserts that control. When `html` has `viz-embedded`, the in-page control is hidden, the same way `.demo-back` is hidden, so a visitor inside the shell sees one control.
 
@@ -70,25 +85,48 @@ Load [`assets/teach.js`](assets/teach.js) as a blocking script in `<head>`, and 
 <link rel="stylesheet" href="../assets/teach.css">
 ```
 
-Mark regions on purpose. Do not pick the essential equation with a script.
+Mark regions on purpose. Do not pick the essential equation with a script. The only values are `data-teach="essential"` and `data-teach="detail"`. Do not add a third value. Map demonstration objects to `essential` and commentary objects to `detail`.
 
-- `data-teach="essential"` stays visible in Teach: the main figure, the live equation, and the controls that change them. When the live equation is the lesson, it stays on screen, including in Teach. If that equation currently lives only inside a disclosure, split it from the explanation. Learn shows it as well.
-- `data-teach="detail"` is hidden in Teach and shown in Learn: a lede, a pedagogy box, a long teaching note, a collapsed term-by-term explanation, and “In the next demo” prose.
-- An unmarked region follows a conservative default. Canvases, plots, headers, and controls stay. An obvious prose block such as a lede hides in Teach. Mark anything that is unclear.
+Categorize every demo element as a demonstration object or a commentary object. Page chrome is neither. The title, Back, and the footer stay in both modes. Do not mark them `detail`. They are not part of the teaching contrast.
 
-Citations stay on Learn, the detailed view. Do not add a second reference list for Teach. Footer and license chrome may stay as a thin line. Cite a source only where the teaching depends on one, as a short note next to that teaching, and mark the note `data-teach="detail"`. Do not invent a citation.
+Demonstration objects are included in both modes. Mark them `data-teach="essential"`:
 
-This markup is the standing standard, not a one-time pass. A new demonstration is not done until it ships with it. A new Guided Tracks connection page ships with it too.
+- the figure, canvas, or plot
+- the live equation or readout
+- the controls that change the figure
+- a short how-to for using the figure in class, such as “drag the handles” or “slide the correlation”
+- Key points on a Guided Tracks connection page
+
+When the live equation is the lesson, it stays on screen, including in Teach. If that equation currently lives only inside a disclosure, split it from the explanation. Learn shows it as well.
+
+Commentary objects are included in Learn and excluded in Teach. Mark them `data-teach="detail"`:
+
+- the lede or a short takeaway
+- a teaching note or a pedagogy box
+- a term-by-term explanation, including its drawer
+- a citation
+- a connection note and “In the next demo.”
+
+An unmarked region follows a conservative default. Canvases, plots, headers, and controls stay. An obvious prose block such as a lede hides in Teach. Mark anything that is unclear. Mark the short how-to `essential`, or that default will treat it as a lede and hide it in Teach.
+
+Visibility test. Open the page in default Learn and leave collapsed notes closed. Switch to Teach. Commentary objects leave. Demonstration objects stay, and they feel more central, because the figure can use the space the commentary left. If you have to hunt for what changed, the test failed. Either a short how-to was marked as commentary, or the commentary was already invisible in default Learn.
+
+Collapsed-by-default is a density tool inside a commentary object. It is not a substitute for Teach. Default Learn still shows commentary without opening a drawer: a visible lede or a short teaching paragraph, even when the long term-by-term note starts closed. Do not recategorize a useful how-to just to create contrast. Do not invent a dummy note or a bibliography so Teach has something to hide. A page that is already a pure explorer may show only a tiny difference. That is acceptable. The switch still ships, so the library stays consistent.
+
+Citations stay in Learn. Do not add a second reference list for Teach. There is no blanket bibliography. Footer, license, and cite-the-library pages do not need a reference list of their own. Footer and license chrome may stay as a thin line. Cite a source only where the teaching depends on one, in the style of a short teaching note next to that teaching, and mark the note `data-teach="detail"`. Do not invent a citation.
+
+This markup is the standing standard, not a one-time pass. A new demonstration is not done until it ships with it. A new Guided Tracks connection page ships with it too. An existing page picks the object list up the next time that page is touched. Do not restyle the current library in order to apply it.
 
 - Load [`assets/teach.js`](assets/teach.js) and [`assets/teach.css`](assets/teach.css) the same way the demonstrations already do, immediately after the `embed=shell` hook.
-- `data-teach="essential"` on the figure, canvas, or plot, on the live equation or readout, and on the controls.
-- `data-teach="detail"` on the lede, the pedagogy, the longer notes, and any citation.
+- `data-teach="essential"` on every demonstration object: the figure, canvas, or plot; the live equation or readout; the controls that change the figure; the short how-to; and, on a connection page, the Key points.
+- `data-teach="detail"` on every commentary object: the lede or short takeaway; a teaching note or pedagogy box; a term-by-term explanation, including its drawer; a citation; and, on a connection page, the note and “In the next demo.”
+- Run the visibility test above. Default Learn shows a short commentary object before any drawer is opened, unless the page is a pure explorer with nothing to hide.
 - The page has a top bar. [`assets/teach.js`](assets/teach.js) inserts the Teach / Learn pair after `.demo-back`. A page with no Back link still needs a `.demo-topbar`, and the same pair is inserted there. The pair hides when `html` has `viz-embedded`.
-- Learn is the default and is the full page. Teach only hides detail. It does not recompute a result, rewrite teaching text, reset the simulation, or add a scrollbar inside a panel.
+- Learn is the default and is the full page. Teach includes only demonstration objects. The layout reflows so the figure can use the freed space. Teach does not recompute a result, rewrite teaching text, reset the simulation, or add a scrollbar inside a panel.
 
-[`tracks/connection.html`](tracks/connection.html) is the connection page. [`assets/connection-page.js`](assets/connection-page.js) marks the figure and the Key points formulae essential, and marks the note and **In the next demo** detail. The figure stays a concept illustration, and it stays before **In the next demo**. Do not paste that note into a new HTML file. A connection step in [`tracks.json`](tracks.json) is enough. The same renderer covers a new step.
+[`tracks/connection.html`](tracks/connection.html) is the connection page. [`assets/connection-page.js`](assets/connection-page.js) marks the figure and the Key points formulae essential, and marks the note and **In the next demo** detail. The figure and the Key points are demonstration objects. The note and **In the next demo** are commentary objects. The figure stays a concept illustration, and it stays before **In the next demo**. Do not paste that note into a new HTML file. A connection step in [`tracks.json`](tracks.json) is enough. The same renderer covers a new step.
 
-On Pearson’s χ² goodness-of-fit the live sum already sits outside “How a Pearson term is built”, so Teach keeps that equation and hides the term note. Where a live equation sits only inside a disclosure, split it from the explanation so it stays on screen in Teach and in Learn.
+On Pearson’s χ² goodness-of-fit the live sum already sits outside “How a Pearson term is built”, so Teach keeps that equation and hides the term note. The live sum is a demonstration object. The term-by-term note, including its drawer, is commentary. Where a live equation sits only inside a disclosure, split it from the explanation so it stays on screen in Teach and in Learn.
 
 Size the page for the catalog iframe. Avoid a page-level horizontal scrollbar. Never put a scrollbar over a canvas, especially WebGL. In Chrome that scrollbar can paint as a black band. Prefer wrapping, or a non-scrolling overlay. `height: 100vh` plus `overflow: hidden` on `body`, with no stacked fallback, is not safe in an iframe or on a phone.
 
