@@ -493,7 +493,9 @@
     const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0xffffff, 1);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    // Colour management is off, so a hex is stored as written. sRGB output
+    // would encode it again and wash Group A and Group B out on this white scene.
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
@@ -688,11 +690,16 @@
 
     function addPoint(group, point) {
       const pos = world(point.f, point.s, point.score);
-      const outline = new THREE.Mesh(SPHERE, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-      outline.scale.setScalar(0.2);
+      // The rim is the inside of a slightly larger sphere. A front-facing
+      // shell, white or otherwise, sits closer to the camera and hides the fill.
+      const outline = new THREE.Mesh(SPHERE, new THREE.MeshBasicMaterial({
+        color: 0x111111,
+        side: THREE.BackSide
+      }));
+      outline.scale.setScalar(0.22);
       outline.position.copy(pos);
       const dot = new THREE.Mesh(SPHERE, new THREE.MeshBasicMaterial({ color: hex(point.token) }));
-      dot.scale.setScalar(0.15);
+      dot.scale.setScalar(0.17);
       dot.position.copy(pos);
       group.add(outline, dot);
     }
