@@ -17,6 +17,13 @@
  * swipe. The enter control is hidden
  * only under 480px. Phone shows the rail, then the page. A wider
  * phone shell still offers Fullscreen.
+ * A home-screen web app (Add to Home Screen or Add to Dock) often
+ * cannot start that API, so the request does nothing. The same button
+ * then hides the top bar, the rail, and the footer (is-immersive) and
+ * the demonstration fills the window. The iframe is not restyled into
+ * a second scroller. Exit, Back, and Escape restore the chrome. iPad
+ * Safari in a browser tab still uses the Fullscreen API when it is
+ * available.
  * On Guided Tracks the desktop rail lists topics and the pane
  * shows the topic tree until a track is open. Choosing a topic zooms
  * that subtree. Back from a demonstration returns to that track, and
@@ -289,6 +296,42 @@
         return "";
     }
 
+    /* iPadOS 26 saves Share → Add to Home Screen / Add to Dock as a
+       web app even with no manifest and no apple-mobile-web-app meta.
+       Element fullscreen is often refused in that window: the flag is
+       false, or the request fails and the button used to sit there.
+       navigator.standalone is the iOS signal. The display-mode queries
+       cover the same window when the flag is missing. A browser tab,
+       including iPad Safari, matches none of these. display-mode here
+       is the web app's launch mode, not :fullscreen. */
+    function homeScreenWebApp() {
+        if (typeof navigator !== "undefined" && navigator.standalone === true) return true;
+        if (!window.matchMedia) return false;
+        return window.matchMedia("(display-mode: standalone)").matches
+            || window.matchMedia("(display-mode: minimal-ui)").matches
+            || window.matchMedia("(display-mode: fullscreen)").matches;
+    }
+
+    function fullscreenApiEnabled() {
+        var flags = [
+            document.fullscreenEnabled,
+            document.webkitFullscreenEnabled,
+            document.mozFullScreenEnabled,
+            document.msFullscreenEnabled
+        ];
+        var i, sawFalse = false;
+        for (i = 0; i < flags.length; i++) {
+            if (flags[i] === true) return true;
+            if (flags[i] === false) sawFalse = true;
+        }
+        if (sawFalse) return false;
+        var el = document.documentElement;
+        if (!el) return false;
+        return typeof el.requestFullscreen === "function"
+            || typeof el.webkitRequestFullscreen === "function"
+            || typeof el.webkitRequestFullScreen === "function";
+    }
+
     function fullscreenHost() {
         return document.getElementById("viz-pane") || document.documentElement;
     }
@@ -496,13 +539,28 @@
         }
     }
 
-    function applyExpanded(on) {
-        document.body.classList.toggle("is-expanded", !!on);
+    function syncFullscreenChrome() {
+        var on = document.body.classList.contains("is-expanded")
+            || document.body.classList.contains("is-immersive");
         if (fullscreenBtn) {
             fullscreenBtn.hidden = !!on;
             fullscreenBtn.setAttribute("aria-pressed", on ? "true" : "false");
         }
         if (exitBtn) exitBtn.hidden = !on;
+    }
+
+    /* is-immersive hides library chrome without the Fullscreen API.
+       The iframe keeps filling the stage, so a swipe stays a scroll
+       inside the demonstration. It does not turn on is-expanded. */
+    function applyImmersive(on) {
+        if (on && (!currentHref || hidesFullscreen())) on = false;
+        document.body.classList.toggle("is-immersive", !!on);
+        syncFullscreenChrome();
+    }
+
+    function applyExpanded(on) {
+        document.body.classList.toggle("is-expanded", !!on);
+        syncFullscreenChrome();
         if (on) {
             rememberFullscreenViewport();
             syncFullscreenScroll();
@@ -532,6 +590,7 @@
             exitFullscreen().catch(function () {});
             on = false;
         }
+        if (on) document.body.classList.remove("is-immersive");
         applyExpanded(on);
     }
 
@@ -539,6 +598,7 @@
         if (!currentHref || hidesFullscreen()) on = false;
         if (!on) {
             exitFullscreen().catch(function () {});
+            applyImmersive(false);
             applyExpanded(false);
             return;
         }
@@ -546,9 +606,18 @@
             applyExpanded(true);
             return;
         }
+        /* No API in this window. Waiting on the request leaves the
+           button looking dead when the promise never settles. */
+        if (homeScreenWebApp() && !fullscreenApiEnabled()) {
+            applyImmersive(true);
+            return;
+        }
         requestFullscreen(fullscreenHost()).then(function () {
+            if (activeFullscreen()) document.body.classList.remove("is-immersive");
+            else if (homeScreenWebApp()) applyImmersive(true);
             syncExpanded();
         }).catch(function () {
+            if (!activeFullscreen() && homeScreenWebApp()) applyImmersive(true);
             applyExpanded(!!activeFullscreen());
         });
     }
@@ -1268,7 +1337,9 @@
 
     document.addEventListener("keydown", function (event) {
         if (event.key !== "Escape") return;
-        if (!document.body.classList.contains("is-expanded") && !activeFullscreen()) return;
+        if (!document.body.classList.contains("is-expanded")
+            && !document.body.classList.contains("is-immersive")
+            && !activeFullscreen()) return;
         setExpanded(false);
     });
 
@@ -1277,6 +1348,7 @@
     });
     ["fullscreenerror", "webkitfullscreenerror", "mozfullscreenerror", "MSFullscreenError"].forEach(function (name) {
         document.addEventListener(name, function () {
+            if (!activeFullscreen() && homeScreenWebApp()) applyImmersive(true);
             applyExpanded(!!activeFullscreen());
         });
     });

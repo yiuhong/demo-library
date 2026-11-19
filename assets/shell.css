@@ -12,6 +12,9 @@
  * Exit stays reachable while fullscreen is on. The one-step
  * phone shell is still 736px, and a tablet in that shell
  * keeps Fullscreen.
+ * is-immersive is the home-screen fallback when that API cannot
+ * start. It hides the top bar, the rail, and the footer. The
+ * iframe still fills the stage, so the pane does not scroll.
  */
 
 .viz-app {
@@ -992,6 +995,42 @@ body.viz-app.is-expanded .viz-workspace {
 
 body.viz-app.is-expanded .viz-rail {
     display: none;
+}
+
+/* Home-screen web apps often cannot enter browser fullscreen. Hide the
+   chrome the API would have covered. The stage iframe stays absolutely
+   filled, so this pane does not become a second scroller. Safe-area
+   padding is zero when the web app viewport is already inset. */
+
+body.viz-app.is-immersive .viz-topbar,
+body.viz-app.is-immersive .viz-rail,
+body.viz-app.is-immersive #footer,
+body.viz-app[data-viz-page="catalog"].is-immersive.is-demo-open .viz-rail {
+    display: none;
+}
+
+body.viz-app.is-immersive .viz-workspace {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+body.viz-app.is-immersive .viz-pane {
+    display: flex;
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    box-sizing: border-box;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+body.viz-app.is-immersive .viz-pane-chrome {
+    padding-top: max(0.4rem, env(safe-area-inset-top, 0px));
 }
 
 body.viz-app #footer.viz-section {
