@@ -33,7 +33,7 @@
     <div class="demo-card overflow-hidden">
         <div class="demo-header">
             <h1 class="text-2xl font-bold mb-2">Understanding Bessel's Correction ($n-1$)</h1>
-            <p class="text-sm max-w-4xl" data-teach="detail">
+            <p class="text-sm max-w-4xl" data-teach="essential">
                 Draw repeated samples. One running average divides the variance by $n$; the other divides by $n - 1$. Compare both with the true variance.
             </p>
         </div>
@@ -47,7 +47,7 @@
                         Sample Size ($n$): <span id="sampleSizeVal" class="demo-value">30</span>
                     </label>
                     <input type="range" id="sampleSize" min="30" max="200" value="30" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer">
-                    <p class="text-xs text-slate-500 mt-1" data-teach="detail">Restricted to $\ge 30$ to keep the chart scale legible.</p>
+                    <p class="text-xs text-slate-500 mt-1" data-teach="essential">Restricted to $\ge 30$ to keep the chart scale legible.</p>
                 </div>
 
                 <div>
@@ -55,7 +55,7 @@
                         Samples per Draw: <span id="numSamplesVal" class="demo-value">10</span>
                     </label>
                     <input type="range" id="numSamples" min="1" max="100" value="10" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer">
-                    <p class="text-xs text-slate-500 mt-1" data-teach="detail">How many random samples to generate per click.</p>
+                    <p class="text-xs text-slate-500 mt-1" data-teach="essential">How many random samples to generate per click.</p>
                 </div>
 
                 <div class="flex items-end space-x-3">

@@ -84,8 +84,11 @@
     <!-- Header -->
     <div class="demo-header">
         <h1 class="text-2xl font-bold mb-1">Interactive Two-Way ANOVA (2 × 2 Factorial Design)</h1>
+        <p class="text-sm max-w-3xl" data-teach="essential">
+            Set the cell means and resample the noise.
+        </p>
         <p class="text-sm max-w-3xl" data-teach="detail">
-            Set the cell means and resample the noise. The lines are Factor A (group) within Factor B (gender). Parallel lines have no interaction.
+            The lines are Factor A (group) within Factor B (gender). Parallel lines have no interaction.
         </p>
     </div>
     <div class="demo-toolbar">
@@ -248,7 +251,7 @@
                             <span class="viz-ink-mean font-semibold">┆ Grand Mean</span>
                         </div>
                     </div>
-                    <p class="text-xs text-slate-500 mb-2" id="breakdown-info" data-teach="detail">
+                    <p class="text-xs text-slate-500 mb-2" id="breakdown-info" data-teach="essential">
                         Solid vertical ticks show the 4 sample cell means (<span class="font-mono">x̄<sub>ij</sub></span>). <strong>Click any data point</strong> to view its step-by-step linear breakdown.
                     </p>
                     <div id="dotplot" class="w-full h-72 relative" data-teach="essential"></div>
@@ -377,7 +380,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                     <div>
                         <h2 class="text-base font-semibold">F-Distribution (Sampling Distribution under H<sub>0</sub>)</h2>
-                        <p class="text-xs text-slate-500" data-teach="detail">
+                        <p class="text-xs text-slate-500" data-teach="essential">
                             Select which of the three omnibus F-tests to inspect on its corresponding F(df<sub>effect</sub>, df<sub>Within</sub>) distribution:
                         </p>
                     </div>
