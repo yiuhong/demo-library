@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+  <script src="../assets/teach.js"></script>
+  <link rel="stylesheet" href="../assets/teach.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
+  <title>Geometric ANOVA Regression</title>
+  <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+  <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+  <script src="../assets/stats-viz-theme.js"></script>
+  <script src="../assets/vendor-loader.js" data-libs="katex,three,orbit-controls"></script>
+  <style>
+    body.demo-page {
+      margin: 0;
+      line-height: 1.45;
+      overflow-x: clip;
+    }
+
+    .page {
+      box-sizing: border-box;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 16px 32px;
+    }
+
+    .page *,
+    .page *::before,
+    .page *::after {
+      box-sizing: border-box;
+    }
+
+    .page-head {
+      margin: 0 0 14px;
+    }
+
+    .page-head h1 {
+      font-size: 1.55rem;
+      line-height: 1.25;
+      margin: 0 0 6px;
+    }
+
+    .lede,
+    .howto {
+      margin: 0 0 8px;
+      max-width: 48rem;
+      font-size: 0.95rem;
+    }
+
+    .howto {
+      margin-bottom: 0;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .model-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      border: 0;
+    }
+
+    .model-row .demo-chip {
+      flex: 1 1 10.5rem;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.25;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 22px;
+    }
+
+    .check {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .check input {
+      width: 1.05rem;
+      height: 1.05rem;
+      accent-color: #000;
+    }
+
+    .slider-field {
+      flex: 1 1 16rem;
+      min-width: 0;
+    }
+
+    .slider-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 2px;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .slider-field input[type="range"] {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .readout {
+      padding: 10px 14px 12px;
+      margin-bottom: 14px;
+    }
+
+    .readout h2 {
+      font-size: 1rem;
+      line-height: 1.3;
+      margin: 0 0 4px;
+    }
+
+    .formula {
+      font-size: clamp(0.78rem, 2vw, 1.15rem);
+      overflow: visible;
+    }
+
+    .formula .katex-display {
+      margin: 0.15em 0 0.25em;
+      overflow: visible;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin-top: 6px;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .swatch {
+      width: 0.85rem;
+      height: 0.85rem;
+      border-radius: 2px;
+      background: var(--viz-group-a);
+      flex: 0 0 auto;
+    }
+
+    .swatch.b { background: var(--viz-group-b); }
+
+    .swatch.r {
+      width: 1.15rem;
+      height: 0;
+      border-radius: 0;
+      background: transparent;
+      border-top: 3px dotted var(--viz-residual);
+    }
+
+    .plots {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.9fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .plot-card {
+      min-width: 0;
+      padding: 12px 12px 10px;
+    }
+
+    .plot-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .plot-head h2 {
+      font-size: 1rem;
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .plot-kicker {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .camera-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .plot-frame {
+      position: relative;
+      height: 28rem;
+      background: #fff;
+      border: 1px solid #000;
+      overflow: hidden;
+    }
+
+    .plot-frame canvas,
+    #plot-2d {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+    }
+
+    #plot-3d {
+      touch-action: none;
+    }
+
+    .plot-fallback {
+      margin: 12px;
+      font-size: 0.9rem;
+    }
+
+    #plot-2d text {
+      font-family: Arial, Helvetica, sans-serif;
+      fill: #000;
+      font-size: 13px;
+    }
+
+    #plot-2d .tick {
+      font-size: 12px;
+    }
+
+    .explain {
+      margin-top: 14px;
+      padding: 12px 14px;
+    }
+
+    .explain p {
+      margin: 0;
+      max-width: 52rem;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 960px) {
+      .plots {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .plot-frame {
+        height: 22rem;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .formula {
+        font-size: 0.72rem;
+      }
+
+      .plot-frame {
+        height: 18rem;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="../assets/site-oer-footer.css">
+</head>
+<body class="demo-page">
+  <div class="page">
+    <div class="demo-topbar">
+      <a class="demo-back" href="../index.html">← Project Viz</a>
+    </div>
+
+    <header class="page-head">
+      <h1>Geometric ANOVA Regression</h1>
+      <p class="lede" data-teach="detail">Each design is the same picture: a score, a coded factor, and the part the model does not fit. Between-subjects designs fit planes. Within-subjects designs give each person a line. The mixed design nests those lines in two cohorts.</p>
+      <p class="howto" data-teach="essential">Choose a design. Drag the 3D figure to turn it, or use Reset, Isometric, Front, and Side. Pinch, or hold Ctrl and scroll, to zoom. Slide the effect, and show or hide the residual lines.</p>
+    </header>
+
+    <section class="controls demo-card" data-teach="essential" aria-label="Model and effect">
+      <div class="demo-chip-group model-row" role="group" aria-label="ANOVA design">
+        <button type="button" class="demo-chip is-active" data-model="1" aria-pressed="true">One-way between-subjects</button>
+        <button type="button" class="demo-chip" data-model="2" aria-pressed="false">Two-way between-subjects</button>
+        <button type="button" class="demo-chip" data-model="3" aria-pressed="false">One-way within-subjects</button>
+        <button type="button" class="demo-chip" data-model="4" aria-pressed="false">Two-way within-subjects</button>
+        <button type="button" class="demo-chip" data-model="5" aria-pressed="false">Two-way mixed</button>
+      </div>
+      <div class="control-row">
+        <label class="check" for="toggle-residuals">
+          <input type="checkbox" id="toggle-residuals" checked>
+          Show residual lines
+        </label>
+        <div class="slider-field">
+          <div class="slider-label-row">
+            <label id="slider-label" for="effect-slider">Factor 1 slope</label>
+            <span class="demo-value" id="slider-value">1.00×</span>
+          </div>
+          <input id="effect-slider" type="range" min="0" max="200" step="5" value="100" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1.00 times">
+        </div>
+      </div>
+    </section>
+
+    <section class="readout demo-card" data-teach="essential" aria-live="polite">
+      <h2 id="model-name">One-way between-subjects</h2>
+      <div class="formula" id="formula"></div>
+      <div class="legend">
+        <span class="legend-item"><i class="swatch" aria-hidden="true"></i><span id="legend-a">Factor 1 = 0</span></span>
+        <span class="legend-item"><i class="swatch b" aria-hidden="true"></i><span id="legend-b">Factor 1 = 1</span></span>
+        <span class="legend-item"><i class="swatch r" aria-hidden="true"></i><span>Residual</span></span>
+      </div>
+    </section>
+
+    <div class="plots">
+      <section class="plot-card demo-card" data-teach="essential" aria-labelledby="plot3d-title">
+        <div class="plot-head">
+          <div>
+            <span class="plot-kicker">3D regression space</span>
+            <h2 id="plot3d-title">Factor 1, subject rank, and score</h2>
+          </div>
+          <div class="camera-row" role="group" aria-label="3D camera">
+            <button type="button" class="demo-btn" id="camera-reset">Reset</button>
+            <button type="button" class="demo-btn demo-btn-primary" data-preset="isometric" aria-pressed="true">Isometric</button>
+            <button type="button" class="demo-btn" data-preset="front" aria-pressed="false" title="Factor 1 by score, as in the 2D cross-section">Front</button>
+            <button type="button" class="demo-btn" data-preset="side" aria-pressed="false" title="Subject axis by score">Side</button>
+          </div>
+        </div>
+        <div class="plot-frame" id="plot-3d-frame">
+          <canvas id="plot-3d" aria-label="3D regression space"></canvas>
+          <p class="plot-fallback" id="plot-fallback" hidden>This figure needs WebGL.</p>
+        </div>
+      </section>
+
+      <section class="plot-card demo-card" data-teach="essential" aria-labelledby="plot2d-title">
+        <div class="plot-head">
+          <div>
+            <span class="plot-kicker">2D cross-section</span>
+            <h2 id="plot2d-title">Factor 1 and score, one mean line</h2>
+          </div>
+        </div>
+        <div class="plot-frame">
+          <svg id="plot-2d" viewBox="0 0 640 460" role="img" aria-labelledby="plot2d-title"></svg>
+        </div>
+      </section>
+    </div>
+
+    <section class="explain demo-card" data-teach="detail">
+      <p id="explanation-body"></p>
+    </section>
+  </div>
+
+  <script>
+    const SUBJECT_BASELINES = [20, 27, 34, 41, 49, 56, 63, 70];
+    const RESIDUALS_M1_G0 = [-18, -11, -6, -1, 4, 9, 14, 19];
+    const RESIDUALS_M1_G1 = [-17, -12, -5, 1, 5, 10, 13, 18];
+    const RESIDUALS_M2 = [
+      [-12, -5, 4, 13],
+      [-11, -3, 5, 11],
+      [-13, -4, 6, 12],
+      [-10, -2, 3, 10]
+    ];
+    const RESIDUALS_WITHIN_0 = [-2.2, 1.8, -1.5, 2.0, -1.9, 1.4, -2.1, 1.7];
+    const RESIDUALS_WITHIN_1 = [2.2, -1.8, 1.5, -2.0, 1.9, -1.4, 2.1, -1.7];
+
+    const MODEL_META = {
+      1: {
+        name: "One-way between-subjects",
+        latex: "Z_{ij}=b_{0}+b_{1}(\\mathrm{Factor\\,1})+e_{ij}",
+        plot3d: "Factor 1, subject rank, and score",
+        plot2d: "Factor 1 and score, one mean line",
+        slider: "Factor 1 slope",
+        legendA: "Factor 1 = 0",
+        legendB: "Factor 1 = 1",
+        yTitle: "Subject rank",
+        explanation: "In the 3D space, a one-way between-subjects model fits one tilted plane across Factor 1. That plane ignores each person’s baseline along the subject axis. In the 2D cross-section it is one line through the two group means, and the wide baseline spread is left in the long residual lines."
+      },
+      2: {
+        name: "Two-way between-subjects",
+        latex: "\\begin{aligned}Z_{ijk}=b_{0}&+b_{1}(\\mathrm{Factor\\,1})+b_{2}(\\mathrm{Factor\\,2})\\\\&+b_{3}(\\mathrm{Factor\\,1}\\times\\mathrm{Factor\\,2})+e_{ijk}\\end{aligned}",
+        plot3d: "Factor 1, Factor 2, and score",
+        plot2d: "Factor 1 and score, two mean lines",
+        slider: "Interaction tilt",
+        legendA: "Factor 2, level A",
+        legendB: "Factor 2, level B",
+        yTitle: "Factor 2",
+        explanation: "A second between-subjects factor splits the fit into two planes, one for each level of Factor 2. Their slopes differ by the Factor 1 × Factor 2 interaction, so the planes are not parallel. In the 2D cross-section those planes are two straight lines, with shorter residuals for the people inside each cell."
+      },
+      3: {
+        name: "One-way within-subjects",
+        latex: "Z_{ij}=(b_{0}+u_{0j})+b_{1}(\\mathrm{Factor\\,1})+e_{ij}",
+        plot3d: "Factor 1, subject, and score",
+        plot2d: "Factor 1 and score, eight parallel lines",
+        slider: "Within-subject slope",
+        legendA: "Condition 0",
+        legendB: "Condition 1",
+        yTitle: "Subject",
+        explanation: "Each of the eight subjects is observed at both levels of Factor 1, so each subject has an intercept. In 3D that is a stack of eight parallel lines. In the 2D cross-section the lines stay parallel: baseline spread is set aside, and the residuals are short."
+      },
+      4: {
+        name: "Two-way within-subjects",
+        latex: "\\begin{aligned}Z_{ijk}=(b_{0}+u_{0j})&+b_{1}(\\mathrm{Factor\\,1})+b_{2}(\\mathrm{Factor\\,2})\\\\&+b_{3}(\\mathrm{F1}\\times\\mathrm{F2})+e_{ijk}\\end{aligned}",
+        plot3d: "Factor 1, subject, and score",
+        plot2d: "Factor 1 and score, two subject bundles",
+        slider: "Factor 2 shift and interaction",
+        legendA: "Factor 2, level A",
+        legendB: "Factor 2, level B",
+        yTitle: "Subject",
+        explanation: "Every subject is observed at every combination of Factor 1 and Factor 2, so each person has two lines, one for each level of Factor 2. In 3D those lines form two sheets. In the 2D cross-section they are two bundles of parallel subject lines."
+      },
+      5: {
+        name: "Two-way mixed",
+        latex: "\\begin{aligned}Z_{ijk}=(b_{0}+u_{0j})&+b_{1}(\\text{Within-F1})+b_{2}(\\text{Between-Cohort})\\\\&+b_{3}(\\text{F1}\\times\\text{Cohort})+e_{ijk}\\end{aligned}",
+        plot3d: "Within-factor, cohort, and score",
+        plot2d: "Within-factor and score, two cohort bundles",
+        slider: "Cohort by condition",
+        legendA: "Cohort A, subjects 1–4",
+        legendB: "Cohort B, subjects 5–8",
+        yTitle: "Subject (cohort)",
+        explanation: "Subjects 1–4 are one between-subjects cohort and subjects 5–8 are the other. Each cohort is a stack of parallel lines, and the stacks do not share a slope. In the 2D cross-section one bundle is steep and the other is shallow. That difference in within-subject slope is the interaction."
+      }
+    };
+
+    const state = {
+      model: 1,
+      showResiduals: true,
+      effectScale: 1,
+      preset: "isometric"
+    };
+
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const canvas = document.getElementById("plot-3d");
+    const svg = document.getElementById("plot-2d");
+    const VIEW = 7.15;
+
+    function channels(token) {
+      const value = statsViz.color(token).replace(/\s+/g, "");
+      const match = value.match(/^#([0-9a-f]{6})$/i);
+      if (!match) throw new Error("Missing colour " + token);
+      const h = match[1];
+      return [
+        parseInt(h.slice(0, 2), 16),
+        parseInt(h.slice(2, 4), 16),
+        parseInt(h.slice(4, 6), 16)
+      ];
+    }
+
+    function hex(token) {
+      const c = channels(token);
+      return (c[0] << 16) + (c[1] << 8) + c[2];
+    }
+
+    function css(token) {
+      return statsViz.color(token);
+    }
+
+    function rgb01(token) {
+      return channels(token).map(function (channel) { return channel / 255; });
+    }
+
+    function world(factor, subject, score) {
+      return new THREE.Vector3(
+        (factor - 0.5) * 8,
+        ((score - 50) / 100) * 8,
+        ((subject - 4.5) / 8) * 10
+      );
+    }
+
+    function pose(x, y, z) {
+      return new THREE.Vector3(x, y, z).normalize().multiplyScalar(16);
+    }
+
+    THREE.ColorManagement.enabled = false;
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0xffffff, 1);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+    const camera = new THREE.OrthographicCamera(-VIEW, VIEW, VIEW, -VIEW, 0.1, 80);
+    camera.up.set(0, 1, 0);
+
+    const controls = new THREE.OrbitControls(camera, canvas);
+    controls.target.set(0, 0, 0);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enablePan = false;
+    controls.enableZoom = false;
+    controls.minPolarAngle = THREE.MathUtils.degToRad(28);
+    controls.maxPolarAngle = THREE.MathUtils.degToRad(86);
+    controls.minAzimuthAngle = THREE.MathUtils.degToRad(1.5);
+    controls.maxAzimuthAngle = THREE.MathUtils.degToRad(88.5);
+
+    const PRESETS = {
+      isometric: pose(1, 0.72, 1),
+      front: pose(0.04, 0.11, 1),
+      side: pose(1, 0.11, 0.055)
+    };
+
+    const roomGroup = new THREE.Group();
+    const modelGroup = new THREE.Group();
+    scene.add(roomGroup);
+    scene.add(modelGroup);
+    const SPHERE = new THREE.SphereGeometry(1, 14, 10);
+
+    function clearGroup(group) {
+      const removed = group.children.slice();
+      removed.forEach(function (obj) { group.remove(obj); });
+      removed.forEach(function (obj) {
+        obj.traverse(function (node) {
+          if (node.geometry && node.geometry !== SPHERE) node.geometry.dispose();
+          if (!node.material) return;
+          const mats = Array.isArray(node.material) ? node.material : [node.material];
+          mats.forEach(function (material) {
+            if (material.map) material.map.dispose();
+            material.dispose();
+          });
+        });
+      });
+    }
+
+    function addLine(group, a, b, color) {
+      const geom = new THREE.BufferGeometry().setFromPoints([a, b]);
+      const line = new THREE.Line(geom, new THREE.LineBasicMaterial({ color: color }));
+      group.add(line);
+    }
+
+    function makeLabel(text) {
+      const scratch = document.createElement("canvas");
+      const ctx = scratch.getContext("2d");
+      const font = "600 48px Arial, Helvetica, sans-serif";
+      ctx.font = font;
+      const width = Math.ceil(ctx.measureText(text).width) + 24;
+      const height = 64;
+      scratch.width = width;
+      scratch.height = height;
+      ctx.font = font;
+      ctx.fillStyle = "#111111";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, 12, height / 2);
+      const texture = new THREE.CanvasTexture(scratch);
+      texture.colorSpace = THREE.NoColorSpace;
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: false
+      }));
+      const worldHeight = 0.62;
+      sprite.scale.set(worldHeight * (width / height), worldHeight, 1);
+      sprite.userData.label = text;
+      return sprite;
+    }
+
+    function buildRoom() {
+      const grid = hex("--viz-reference");
+      const f0 = -0.15;
+      const f1 = 1.15;
+      const s0 = 0.5;
+      const s1 = 8.5;
+      const z0 = 0;
+      const z1 = 100;
+      const corners = [
+        world(f0, s0, z0), world(f1, s0, z0), world(f1, s1, z0), world(f0, s1, z0),
+        world(f0, s0, z1), world(f1, s0, z1), world(f1, s1, z1), world(f0, s1, z1)
+      ];
+      const edges = [
+        [0, 1], [1, 2], [2, 3], [3, 0],
+        [4, 5], [5, 6], [6, 7], [7, 4],
+        [0, 4], [1, 5], [2, 6], [3, 7]
+      ];
+      edges.forEach(function (edge) {
+        addLine(roomGroup, corners[edge[0]], corners[edge[1]], grid);
+      });
+      [0, 50, 100].forEach(function (score) {
+        addLine(roomGroup, world(f0, s0, score), world(f1, s0, score), grid);
+        addLine(roomGroup, world(f0, s0, score), world(f0, s1, score), grid);
+      });
+      [2, 4, 6, 8].forEach(function (subject) {
+        addLine(roomGroup, world(f0, subject, z0), world(f1, subject, z0), grid);
+        addLine(roomGroup, world(f0, subject, z0), world(f0, subject, z1), grid);
+      });
+
+      [0, 1].forEach(function (factor) {
+        const tick = makeLabel(String(factor));
+        tick.position.copy(world(factor, 8.9, -8));
+        roomGroup.add(tick);
+      });
+      [0, 50, 100].forEach(function (score) {
+        const tick = makeLabel(String(score));
+        tick.position.copy(world(-0.38, 8.7, score));
+        roomGroup.add(tick);
+      });
+    }
+
+    function pushTri(positions, colors, a, b, c, rgb) {
+      positions.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+      for (let i = 0; i < 3; i++) colors.push(rgb[0], rgb[1], rgb[2]);
+    }
+
+    function addQuad(group, quad, tokenA, tokenB, opacity) {
+      const p = quad.map(function (point) {
+        return world(point.f, point.s, point.score);
+      });
+      const positions = [
+        p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, p[2].x, p[2].y, p[2].z,
+        p[0].x, p[0].y, p[0].z, p[2].x, p[2].y, p[2].z, p[3].x, p[3].y, p[3].z
+      ];
+      const ca = rgb01(tokenA);
+      const cb = rgb01(tokenB);
+      const colors = [];
+      [ca, cb, cb, ca, cb, ca].forEach(function (rgb) {
+        colors.push(rgb[0], rgb[1], rgb[2]);
+      });
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      geom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+      const mesh = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({
+        vertexColors: true,
+        transparent: true,
+        opacity: opacity,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      }));
+      group.add(mesh);
+    }
+
+    function addRibbon(group, samples, token, opacity) {
+      if (samples.length < 2) return;
+      const positions = [];
+      const colors = [];
+      const rgb = rgb01(token);
+      for (let i = 0; i < samples.length - 1; i++) {
+        const a = samples[i];
+        const b = samples[i + 1];
+        const p00 = world(0, a.s, a.score0);
+        const p10 = world(1, a.s, a.score1);
+        const p11 = world(1, b.s, b.score1);
+        const p01 = world(0, b.s, b.score0);
+        pushTri(positions, colors, p00, p10, p11, rgb);
+        pushTri(positions, colors, p00, p11, p01, rgb);
+      }
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      geom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+      group.add(new THREE.Mesh(geom, new THREE.MeshBasicMaterial({
+        vertexColors: true,
+        transparent: true,
+        opacity: opacity,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      })));
+    }
+
+    function addTube(group, a, b, token, radius) {
+      const start = world(a.f, a.s, a.score);
+      const end = world(b.f, b.s, b.score);
+      const dir = new THREE.Vector3().subVectors(end, start);
+      const length = dir.length();
+      if (length < 1e-4) return;
+      const mesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius, radius, length, 8),
+        new THREE.MeshBasicMaterial({ color: hex(token) })
+      );
+      mesh.position.copy(start).add(end).multiplyScalar(0.5);
+      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+      group.add(mesh);
+    }
+
+    function addPoint(group, point) {
+      const pos = world(point.f, point.s, point.score);
+      const outline = new THREE.Mesh(SPHERE, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+      outline.scale.setScalar(0.2);
+      outline.position.copy(pos);
+      const dot = new THREE.Mesh(SPHERE, new THREE.MeshBasicMaterial({ color: hex(point.token) }));
+      dot.scale.setScalar(0.15);
+      dot.position.copy(pos);
+      group.add(outline, dot);
+    }
+
+    function addResiduals(group, residuals) {
+      const positions = [];
+      residuals.forEach(function (point) {
+        const a = world(point.f, point.s, point.obs);
+        const b = world(point.f, point.s, point.fit);
+        positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
+        const gem = new THREE.Mesh(
+          new THREE.OctahedronGeometry(0.11),
+          new THREE.MeshBasicMaterial({ color: hex("--viz-residual"), wireframe: true })
+        );
+        gem.position.copy(b);
+        group.add(gem);
+      });
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      const line = new THREE.LineSegments(geom, new THREE.LineDashedMaterial({
+        color: hex("--viz-residual"),
+        dashSize: 0.16,
+        gapSize: 0.1
+      }));
+      line.computeLineDistances();
+      group.add(line);
+    }
+
+    function emptyModel() {
+      return {
+        quads: [],
+        ribbons: [],
+        tubes: [],
+        lines: [],
+        points: [],
+        residuals: [],
+        lines2d: [],
+        markers2d: [],
+        diamonds: []
+      };
+    }
+
+    function model1(scale) {
+      const model = emptyModel();
+      const mean0 = 36;
+      const mean1 = mean0 + 26 * scale;
+      model.quads.push({
+        quad: [
+          { f: 0, s: 1, score: mean0 },
+          { f: 1, s: 1, score: mean1 },
+          { f: 1, s: 8, score: mean1 },
+          { f: 0, s: 8, score: mean0 }
+        ],
+        a: "--viz-group-a",
+        b: "--viz-group-b",
+        opacity: 0.4
+      });
+      model.tubes.push({
+        a: { f: 0, s: 4.5, score: mean0 },
+        b: { f: 1, s: 4.5, score: mean1 },
+        token: "--viz-total",
+        radius: 0.075
+      });
+      model.lines2d.push({ x1: 0, y1: mean0, x2: 1, y2: mean1, token: "--viz-total", width: 3, dash: "" });
+      model.diamonds.push({ x: 0, y: mean0, token: "--viz-group-a" }, { x: 1, y: mean1, token: "--viz-group-b" });
+      for (let i = 0; i < 8; i++) {
+        const subject = i + 1;
+        const jitter = (i - 3.5) * 0.018;
+        const z0 = mean0 + RESIDUALS_M1_G0[i];
+        const z1 = mean1 + RESIDUALS_M1_G1[i];
+        model.points.push({ f: 0, s: subject, score: z0, token: "--viz-group-a" });
+        model.points.push({ f: 1, s: subject, score: z1, token: "--viz-group-b" });
+        model.residuals.push({ f: 0, s: subject, x: jitter, obs: z0, fit: mean0 });
+        model.residuals.push({ f: 1, s: subject, x: 1 + jitter, obs: z1, fit: mean1 });
+        model.markers2d.push({ x: jitter, y: z0, token: "--viz-group-a", title: "Factor 1 = 0, score " + z0.toFixed(1) });
+        model.markers2d.push({ x: 1 + jitter, y: z1, token: "--viz-group-b", title: "Factor 1 = 1, score " + z1.toFixed(1) });
+      }
+      return model;
+    }
+
+    function model2(scale) {
+      const model = emptyModel();
+      const a0 = 32;
+      const a1 = 32 + 34 * scale;
+      const b0 = 60;
+      const b1 = 60 - 12 * scale + 6;
+      const levels = [
+        { s0: 1, s1: 3.8, spine: 2.4, score0: a0, score1: a1, token: "--viz-group-a" },
+        { s0: 5.2, s1: 8, spine: 6.6, score0: b0, score1: b1, token: "--viz-group-b" }
+      ];
+      levels.forEach(function (level) {
+        model.quads.push({
+          quad: [
+            { f: 0, s: level.s0, score: level.score0 },
+            { f: 1, s: level.s0, score: level.score1 },
+            { f: 1, s: level.s1, score: level.score1 },
+            { f: 0, s: level.s1, score: level.score0 }
+          ],
+          a: level.token,
+          b: level.token,
+          opacity: 0.34
+        });
+        model.tubes.push({
+          a: { f: 0, s: level.spine, score: level.score0 },
+          b: { f: 1, s: level.spine, score: level.score1 },
+          token: level.token,
+          radius: 0.07
+        });
+        model.lines2d.push({
+          x1: 0, y1: level.score0, x2: 1, y2: level.score1,
+          token: level.token, width: 3, dash: ""
+        });
+        model.diamonds.push(
+          { x: 0, y: level.score0, token: level.token },
+          { x: 1, y: level.score1, token: level.token }
+        );
+      });
+      const yA = [1.3, 2.0, 2.8, 3.5];
+      const yB = [5.5, 6.2, 7.0, 7.7];
+      for (let i = 0; i < 4; i++) {
+        const jitter = (i - 1.5) * 0.022;
+        const cells = [
+          { f: 0, s: yA[i], fit: a0, obs: a0 + RESIDUALS_M2[0][i], x: jitter - 0.015, token: "--viz-group-a" },
+          { f: 1, s: yA[i], fit: a1, obs: a1 + RESIDUALS_M2[1][i], x: 1 + jitter - 0.015, token: "--viz-group-a" },
+          { f: 0, s: yB[i], fit: 60, obs: 60 + RESIDUALS_M2[2][i], x: jitter + 0.015, token: "--viz-group-b" },
+          { f: 1, s: yB[i], fit: b1, obs: b1 + RESIDUALS_M2[3][i], x: 1 + jitter + 0.015, token: "--viz-group-b" }
+        ];
+        cells.forEach(function (cell) {
+          model.points.push({ f: cell.f, s: cell.s, score: cell.obs, token: cell.token });
+          model.residuals.push({ f: cell.f, s: cell.s, x: cell.x, obs: cell.obs, fit: cell.fit });
+          model.markers2d.push({
+            x: cell.x,
+            y: cell.obs,
+            token: cell.token,
+            title: "Score " + cell.obs.toFixed(1)
+          });
+        });
+      }
+      return model;
+    }
+
+    function model3(scale) {
+      const model = emptyModel();
+      const slope = 22 * scale;
+      const samples = [];
+      for (let i = 0; i < 8; i++) {
+        const subject = i + 1;
+        const base = SUBJECT_BASELINES[i] - 4;
+        const fit0 = base;
+        const fit1 = base + slope;
+        const obs0 = fit0 + RESIDUALS_WITHIN_0[i];
+        const obs1 = fit1 + RESIDUALS_WITHIN_1[i];
+        samples.push({ s: subject, score0: fit0, score1: fit1 });
+        model.lines.push({
+          a: { f: 0, s: subject, score: fit0 },
+          b: { f: 1, s: subject, score: fit1 },
+          token: "--viz-group-a"
+        });
+        model.lines2d.push({ x1: 0, y1: fit0, x2: 1, y2: fit1, token: "--viz-group-a", width: 1.6, dash: "5 4" });
+        model.points.push({ f: 0, s: subject, score: obs0, token: "--viz-group-a" });
+        model.points.push({ f: 1, s: subject, score: obs1, token: "--viz-group-b" });
+        model.residuals.push({ f: 0, s: subject, x: 0, obs: obs0, fit: fit0 });
+        model.residuals.push({ f: 1, s: subject, x: 1, obs: obs1, fit: fit1 });
+        model.markers2d.push({ x: 0, y: obs0, token: "--viz-group-a", title: "Subject " + subject + ", condition 0, score " + obs0.toFixed(1) });
+        model.markers2d.push({ x: 1, y: obs1, token: "--viz-group-b", title: "Subject " + subject + ", condition 1, score " + obs1.toFixed(1) });
+      }
+      model.ribbons.push({ samples: samples, token: "--viz-group-a", opacity: 0.2 });
+      return model;
+    }
+
+    function model4(scale) {
+      const model = emptyModel();
+      const slopeA = 14 * scale;
+      const shift = 14 + 6 * scale;
+      const slopeB = 14 * scale + 6 * (scale - 1);
+      const sheetA = [];
+      const sheetB = [];
+      for (let i = 0; i < 8; i++) {
+        const subject = i + 1;
+        const base = SUBJECT_BASELINES[i] * 0.72 + 4;
+        const a0 = base;
+        const a1 = base + slopeA;
+        const b0 = base + shift;
+        const b1 = b0 + slopeB;
+        const obsA0 = a0 + RESIDUALS_WITHIN_0[i] * 0.8;
+        const obsA1 = a1 + RESIDUALS_WITHIN_1[i] * 0.8;
+        const obsB0 = b0 - RESIDUALS_WITHIN_0[i] * 0.8;
+        const obsB1 = b1 - RESIDUALS_WITHIN_1[i] * 0.8;
+        const sA = subject - 0.08;
+        const sB = subject + 0.08;
+        sheetA.push({ s: sA, score0: a0, score1: a1 });
+        sheetB.push({ s: sB, score0: b0, score1: b1 });
+        model.lines.push(
+          { a: { f: 0, s: sA, score: a0 }, b: { f: 1, s: sA, score: a1 }, token: "--viz-group-a" },
+          { a: { f: 0, s: sB, score: b0 }, b: { f: 1, s: sB, score: b1 }, token: "--viz-group-b" }
+        );
+        model.lines2d.push(
+          { x1: 0, y1: a0, x2: 1, y2: a1, token: "--viz-group-a", width: 1.5, dash: "5 4" },
+          { x1: 0, y1: b0, x2: 1, y2: b1, token: "--viz-group-b", width: 1.5, dash: "" }
+        );
+        const cells = [
+          { f: 0, s: sA, obs: obsA0, fit: a0, x: -0.012, token: "--viz-group-a" },
+          { f: 1, s: sA, obs: obsA1, fit: a1, x: 1 - 0.012, token: "--viz-group-a" },
+          { f: 0, s: sB, obs: obsB0, fit: b0, x: 0.012, token: "--viz-group-b" },
+          { f: 1, s: sB, obs: obsB1, fit: b1, x: 1.012, token: "--viz-group-b" }
+        ];
+        cells.forEach(function (cell) {
+          model.points.push({ f: cell.f, s: cell.s, score: cell.obs, token: cell.token });
+          model.residuals.push(cell);
+          model.markers2d.push({ x: cell.x, y: cell.obs, token: cell.token, title: "Subject " + subject + ", score " + cell.obs.toFixed(1) });
+        });
+      }
+      model.ribbons.push(
+        { samples: sheetA, token: "--viz-group-a", opacity: 0.18 },
+        { samples: sheetB, token: "--viz-group-b", opacity: 0.18 }
+      );
+      return model;
+    }
+
+    function model5(scale) {
+      const model = emptyModel();
+      const slopeA = 32 * scale;
+      const slopeB = 5 * (2 - scale);
+      const cohorts = [
+        { baselines: [18, 26, 34, 42], start: 1, slope: slopeA, token: "--viz-group-a", dash: "5 4", xShift: -0.01 },
+        { baselines: [46, 54, 62, 70], start: 5, slope: slopeB, token: "--viz-group-b", dash: "", xShift: 0.01 }
+      ];
+      cohorts.forEach(function (cohort, cohortIndex) {
+        const samples = [];
+        cohort.baselines.forEach(function (base, i) {
+          const subject = cohort.start + i;
+          const fit0 = base;
+          const fit1 = base + cohort.slope;
+          const obs0 = fit0 + RESIDUALS_WITHIN_0[i + cohortIndex * 4];
+          const obs1 = fit1 + RESIDUALS_WITHIN_1[i + cohortIndex * 4];
+          samples.push({ s: subject, score0: fit0, score1: fit1 });
+          model.lines.push({
+            a: { f: 0, s: subject, score: fit0 },
+            b: { f: 1, s: subject, score: fit1 },
+            token: cohort.token
+          });
+          model.lines2d.push({ x1: 0, y1: fit0, x2: 1, y2: fit1, token: cohort.token, width: 1.8, dash: cohort.dash });
+          const cells = [
+            { f: 0, s: subject, obs: obs0, fit: fit0, x: cohort.xShift, token: cohort.token },
+            { f: 1, s: subject, obs: obs1, fit: fit1, x: 1 + cohort.xShift, token: cohort.token }
+          ];
+          cells.forEach(function (cell) {
+            model.points.push({ f: cell.f, s: cell.s, score: cell.obs, token: cell.token });
+            model.residuals.push(cell);
+            model.markers2d.push({
+              x: cell.x,
+              y: cell.obs,
+              token: cell.token,
+              title: "Subject " + subject + ", score " + cell.obs.toFixed(1)
+            });
+          });
+        });
+        model.ribbons.push({ samples: samples, token: cohort.token, opacity: 0.2 });
+      });
+      return model;
+    }
+
+    function generate(model, scale) {
+      if (model === 1) return model1(scale);
+      if (model === 2) return model2(scale);
+      if (model === 3) return model3(scale);
+      if (model === 4) return model4(scale);
+      return model5(scale);
+    }
+
+    function draw3D(model) {
+      clearGroup(modelGroup);
+      model.quads.forEach(function (quad) {
+        addQuad(modelGroup, quad.quad, quad.a, quad.b, quad.opacity);
+      });
+      model.ribbons.forEach(function (ribbon) {
+        addRibbon(modelGroup, ribbon.samples, ribbon.token, ribbon.opacity);
+      });
+      model.tubes.forEach(function (tube) {
+        addTube(modelGroup, tube.a, tube.b, tube.token, tube.radius);
+      });
+      model.lines.forEach(function (line) {
+        addLine(modelGroup, world(line.a.f, line.a.s, line.a.score), world(line.b.f, line.b.s, line.b.score), hex(line.token));
+      });
+      if (state.showResiduals) addResiduals(modelGroup, model.residuals);
+      model.points.forEach(function (point) { addPoint(modelGroup, point); });
+    }
+
+    function svgEl(name, attrs) {
+      const el = document.createElementNS(SVG_NS, name);
+      Object.keys(attrs).forEach(function (key) {
+        el.setAttribute(key, attrs[key]);
+      });
+      return el;
+    }
+
+    function draw2D(model) {
+      const left = 58;
+      const right = 16;
+      const top = 16;
+      const bottom = 48;
+      const width = 640 - left - right;
+      const height = 460 - top - bottom;
+      const x0 = -0.22;
+      const x1 = 1.22;
+
+      function X(value) {
+        return left + ((value - x0) / (x1 - x0)) * width;
+      }
+      function Y(value) {
+        return top + (1 - value / 100) * height;
+      }
+
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      const grid = css("--viz-reference");
+      svg.appendChild(svgEl("rect", { x: left, y: top, width: width, height: height, fill: "#ffffff", stroke: "#000" }));
+      [0, 20, 40, 60, 80, 100].forEach(function (score) {
+        svg.appendChild(svgEl("line", {
+          x1: X(x0), y1: Y(score), x2: X(x1), y2: Y(score),
+          stroke: grid, "stroke-opacity": "0.35"
+        }));
+        const tick = svgEl("text", { x: left - 8, y: Y(score) + 4, "text-anchor": "end", class: "tick" });
+        tick.textContent = String(score);
+        svg.appendChild(tick);
+      });
+      [0, 1].forEach(function (factor) {
+        svg.appendChild(svgEl("line", {
+          x1: X(factor), y1: Y(0), x2: X(factor), y2: Y(100),
+          stroke: grid, "stroke-opacity": "0.45"
+        }));
+        const tick = svgEl("text", { x: X(factor), y: Y(0) + 18, "text-anchor": "middle", class: "tick" });
+        tick.textContent = String(factor);
+        svg.appendChild(tick);
+      });
+      const xLabel = svgEl("text", { x: left + width / 2, y: 452, "text-anchor": "middle" });
+      xLabel.textContent = "Factor 1";
+      const yLabel = svgEl("text", {
+        x: 16,
+        y: top + height / 2,
+        "text-anchor": "middle",
+        transform: "rotate(-90 16 " + (top + height / 2) + ")"
+      });
+      yLabel.textContent = "Score";
+      svg.appendChild(xLabel);
+      svg.appendChild(yLabel);
+
+      const clipId = "cross-section-clip";
+      const defs = svgEl("defs", {});
+      const clip = svgEl("clipPath", { id: clipId });
+      clip.appendChild(svgEl("rect", { x: left, y: top, width: width, height: height }));
+      defs.appendChild(clip);
+      svg.appendChild(defs);
+      const layer = svgEl("g", { "clip-path": "url(#" + clipId + ")" });
+
+      if (state.showResiduals) {
+        model.residuals.forEach(function (point) {
+          layer.appendChild(svgEl("line", {
+            x1: X(point.x), y1: Y(point.obs), x2: X(point.x), y2: Y(point.fit),
+            stroke: css("--viz-residual"), "stroke-width": 1.4, "stroke-dasharray": "2 3"
+          }));
+        });
+      }
+      model.lines2d.forEach(function (line) {
+        const attrs = {
+          x1: X(line.x1), y1: Y(line.y1), x2: X(line.x2), y2: Y(line.y2),
+          stroke: css(line.token), "stroke-width": line.width, fill: "none"
+        };
+        if (line.dash) attrs["stroke-dasharray"] = line.dash;
+        layer.appendChild(svgEl("line", attrs));
+      });
+      model.markers2d.forEach(function (marker) {
+        const dot = svgEl("circle", {
+          cx: X(marker.x), cy: Y(marker.y), r: 5,
+          fill: css(marker.token), stroke: "#fff", "stroke-width": 1.2
+        });
+        const title = svgEl("title", {});
+        title.textContent = marker.title;
+        dot.appendChild(title);
+        layer.appendChild(dot);
+      });
+      model.diamonds.forEach(function (diamond) {
+        const x = X(diamond.x);
+        const y = Y(diamond.y);
+        const d = 6;
+        layer.appendChild(svgEl("polygon", {
+          points: x + "," + (y - d) + " " + (x + d) + "," + y + " " + x + "," + (y + d) + " " + (x - d) + "," + y,
+          fill: css(diamond.token), stroke: "#fff", "stroke-width": 1
+        }));
+      });
+      svg.appendChild(layer);
+    }
+
+    function renderFormula(latex) {
+      const el = document.getElementById("formula");
+      if (!window.katex) {
+        el.textContent = latex;
+        return;
+      }
+      katex.render(latex, el, { displayMode: true, throwOnError: false });
+    }
+
+    function render() {
+      const meta = MODEL_META[state.model];
+      document.getElementById("model-name").textContent = meta.name;
+      document.getElementById("plot3d-title").textContent = meta.plot3d;
+      document.getElementById("plot2d-title").textContent = meta.plot2d;
+      document.getElementById("slider-label").textContent = meta.slider;
+      document.getElementById("legend-a").textContent = meta.legendA;
+      document.getElementById("legend-b").textContent = meta.legendB;
+      document.getElementById("explanation-body").textContent = meta.explanation;
+      canvas.setAttribute("aria-label", meta.plot3d);
+      renderFormula(meta.latex);
+      const model = generate(state.model, state.effectScale);
+      draw3D(model);
+      draw2D(model);
+    }
+
+    function resize() {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if (!width || !height) return;
+      const aspect = width / height;
+      camera.left = -VIEW * aspect;
+      camera.right = VIEW * aspect;
+      camera.top = VIEW;
+      camera.bottom = -VIEW;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height, false);
+    }
+
+    function paintPresetButtons() {
+      document.querySelectorAll("[data-preset]").forEach(function (button) {
+        const on = button.getAttribute("data-preset") === state.preset;
+        button.classList.toggle("demo-btn-primary", on);
+        button.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+
+    function applyPreset(name) {
+      const next = PRESETS[name];
+      if (!next) return;
+      controls.enableDamping = false;
+      camera.zoom = 1;
+      camera.up.set(0, 1, 0);
+      camera.position.copy(next);
+      controls.target.set(0, 0, 0);
+      camera.updateProjectionMatrix();
+      controls.update();
+      controls.enableDamping = true;
+      state.preset = name;
+      paintPresetButtons();
+    }
+
+    function setZoom(value) {
+      camera.zoom = Math.min(2.2, Math.max(0.7, value));
+      camera.updateProjectionMatrix();
+    }
+
+    document.querySelectorAll("[data-model]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        state.model = parseInt(button.getAttribute("data-model"), 10);
+        document.querySelectorAll("[data-model]").forEach(function (other) {
+          const on = other === button;
+          other.classList.toggle("is-active", on);
+          other.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        render();
+      });
+    });
+
+    document.getElementById("toggle-residuals").addEventListener("change", function (event) {
+      state.showResiduals = event.target.checked;
+      render();
+    });
+
+    document.getElementById("effect-slider").addEventListener("input", function (event) {
+      state.effectScale = parseFloat(event.target.value) / 100;
+      document.getElementById("slider-value").textContent = state.effectScale.toFixed(2) + "×";
+      event.target.setAttribute("aria-valuenow", String(state.effectScale));
+      event.target.setAttribute("aria-valuetext", state.effectScale.toFixed(2) + " times");
+      render();
+    });
+
+    document.getElementById("camera-reset").addEventListener("click", function () {
+      applyPreset("isometric");
+    });
+
+    document.querySelectorAll("[data-preset]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        applyPreset(button.getAttribute("data-preset"));
+      });
+    });
+
+    controls.addEventListener("start", function () {
+      state.preset = "";
+      paintPresetButtons();
+    });
+
+    canvas.addEventListener("wheel", function (event) {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      event.preventDefault();
+      setZoom(camera.zoom * (event.deltaY > 0 ? 0.92 : 1.08));
+    }, { passive: false });
+
+    let pinchDistance = null;
+    canvas.addEventListener("touchstart", function (event) {
+      if (event.touches.length !== 2) return;
+      const dx = event.touches[0].clientX - event.touches[1].clientX;
+      const dy = event.touches[0].clientY - event.touches[1].clientY;
+      pinchDistance = Math.hypot(dx, dy);
+    }, { passive: true });
+    canvas.addEventListener("touchmove", function (event) {
+      if (event.touches.length !== 2 || !pinchDistance) return;
+      event.preventDefault();
+      const dx = event.touches[0].clientX - event.touches[1].clientX;
+      const dy = event.touches[0].clientY - event.touches[1].clientY;
+      const next = Math.hypot(dx, dy);
+      setZoom(camera.zoom * (next / pinchDistance));
+      pinchDistance = next;
+    }, { passive: false });
+    canvas.addEventListener("touchend", function () {
+      pinchDistance = null;
+    });
+
+    if (!renderer.getContext()) {
+      document.getElementById("plot-fallback").hidden = false;
+    }
+
+    buildRoom();
+    resize();
+    applyPreset("isometric");
+    render();
+    window.addEventListener("resize", resize);
+    if (window.ResizeObserver) {
+      new ResizeObserver(resize).observe(document.getElementById("plot-3d-frame"));
+    }
+
+    function frame() {
+      requestAnimationFrame(frame);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    frame();
+  </script>
+  <script src="../assets/site-meta.js"></script>
+  <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

@@ -423,6 +423,15 @@
               ]
             },
             {
+              "href": "statistics/geometric_anova_regression.html",
+              "title": "Geometric ANOVA Regression",
+              "description": "Five ANOVA designs as one 3D linear model and its 2D cross-section: between-subjects planes, within-subject lines, and a mixed design.",
+              "keywords": "Geometric ANOVA regression linear model between-subjects within-subjects mixed repeated measures interaction residual",
+              "tags": [
+                "Explorer"
+              ]
+            },
+            {
               "href": "statistics/anova_assumptions.html",
               "title": "ANOVA Assumptions",
               "description": "Explore how violating normality, homogeneity of variance, and independence distorts ANOVA under a true null.",
