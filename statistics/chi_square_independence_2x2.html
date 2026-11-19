@@ -673,37 +673,13 @@
     .decision.is-reject .decision-badge { background: var(--viz-h1); }
     .decision.is-retain .decision-badge { background: var(--viz-h0); }
 
-    /* Calculation stage is an in-page control. It is not Teach/Learn. */
-    body.calc-data #engine-col,
-    body.calc-data .only-full,
-    body.calc-core .only-full,
-    body.calc-data .cell-slider,
-    body.calc-core .cell-slider,
-    body.calc-data .readout-z,
-    body.calc-core .readout-z,
-    body.calc-data .readout-share,
-    body.calc-core .readout-share {
-      display: none;
-    }
-
-    body.calc-data .board {
+    /* The sample-size multiplier is Learn-only, so the residual control uses the row. */
+    html.viz-teach .controls {
       grid-template-columns: minmax(0, 1fr);
-    }
-
-    body.calc-data .data-col {
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-      align-items: start;
     }
 
     @media (max-width: 1080px) {
       .board {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    @media (max-width: 900px) {
-      body.calc-data .data-col {
         grid-template-columns: minmax(0, 1fr);
       }
     }
@@ -742,7 +718,7 @@
   </style>
   <link rel="stylesheet" href="../assets/site-oer-footer.css">
 </head>
-<body class="demo-page calc-full mode-locked">
+<body class="demo-page mode-locked">
   <div class="page">
     <div class="demo-topbar">
       <a class="demo-back" href="../index.html">← Project Viz</a>
@@ -751,19 +727,10 @@
     <header class="page-head">
       <h1>2×2 χ² test of independence</h1>
       <p class="lede" data-teach="detail">Under independence, each expected count is the row total times the column total, divided by N. With those margins fixed, the four residuals share one magnitude, and only one cell is free to move.</p>
-      <p class="howto" data-teach="essential">Edit a count, or slide the residual while the margins are fixed. The mosaic and the χ² sum update together. Keys 1, 2, and 3 change how much of the calculation is on screen.</p>
+      <p class="howto" data-teach="essential">Edit a count, or slide a cell or the residual while the margins are fixed. The mosaic and the χ² sum update together.</p>
     </header>
 
-    <!-- Calculation stage discloses the table, the core sum, or the full partition. It does not switch Teach/Learn. -->
     <div class="toolbar demo-card" data-teach="essential">
-      <div class="field">
-        <span class="field-label" id="stageLabel">Calculation</span>
-        <div class="demo-chip-group" role="group" aria-labelledby="stageLabel">
-          <button type="button" class="demo-chip" id="stage-data" data-stage="data" aria-pressed="false">1. Data and mosaic</button>
-          <button type="button" class="demo-chip" id="stage-core" data-stage="core" aria-pressed="false">2. Core χ²</button>
-          <button type="button" class="demo-chip is-active" id="stage-full" data-stage="full" aria-pressed="true">3. Full partition</button>
-        </div>
-      </div>
       <div class="field field-presets">
         <span class="field-label" id="presetLabel">Presets</span>
         <div class="demo-chip-group" role="group" aria-labelledby="presetLabel">
@@ -787,7 +754,7 @@
           </div>
 
           <div class="controls">
-            <div class="control demo-panel">
+            <div class="control demo-panel" data-teach="essential">
               <div class="control-head">
                 <label for="seesaw">Coupled residual</label>
                 <span class="control-readout" id="seesaw-readout">Δ₁₁ = 0</span>
@@ -795,7 +762,7 @@
               <input id="seesaw" type="range" min="-30" max="30" step="1" value="0" aria-describedby="seesaw-hint">
               <p class="hint" id="seesaw-hint">Fixed margins leave one free cell. This slider moves that cell, and the other three follow.</p>
             </div>
-            <div class="control demo-panel only-full">
+            <div class="control demo-panel" data-teach="detail">
               <div class="control-head">
                 <label for="multiplier">Sample-size multiplier</label>
                 <span class="control-readout" id="mult-readout">1.00×</span>
@@ -822,12 +789,12 @@
                 <button type="button" class="btn-step" id="dec-11" aria-label="Decrease Male × Psychology">−</button>
                 <button type="button" class="btn-step" id="inc-11" aria-label="Increase Male × Psychology">+</button>
               </div>
-              <input id="slider-11" class="cell-slider" type="range" min="0" max="120" value="30" aria-label="Male × Psychology count">
+              <input id="slider-11" class="cell-slider" data-teach="essential" type="range" min="0" max="120" value="30" aria-label="Male × Psychology count">
               <div class="sub-readouts">
                 <div class="readout"><span>E<sub>11</sub></span><b id="exp-11">48.0</b></div>
-                <div class="readout readout-z"><span>z<sub>11</sub></span><b id="z-11">0</b></div>
+                <div class="readout readout-z" data-teach="detail"><span>z<sub>11</sub></span><b id="z-11">0</b></div>
                 <div class="readout"><span>χ²<sub>11</sub></span><b id="chi-11">0</b></div>
-                <div class="readout readout-share"><span>Share</span><b id="share-11">0%</b></div>
+                <div class="readout readout-share" data-teach="detail"><span>Share</span><b id="share-11">0%</b></div>
               </div>
             </div>
             <div class="cell is-coupled" id="card-12" data-cell="12">
@@ -841,12 +808,12 @@
                 <button type="button" class="btn-step" id="dec-12" aria-label="Decrease Male × Social science" disabled>−</button>
                 <button type="button" class="btn-step" id="inc-12" aria-label="Increase Male × Social science" disabled>+</button>
               </div>
-              <input id="slider-12" class="cell-slider" type="range" min="0" max="120" value="50" aria-label="Male × Social science count" disabled>
+              <input id="slider-12" class="cell-slider" data-teach="essential" type="range" min="0" max="120" value="50" aria-label="Male × Social science count" disabled>
               <div class="sub-readouts">
                 <div class="readout"><span>E<sub>12</sub></span><b id="exp-12">32.0</b></div>
-                <div class="readout readout-z"><span>z<sub>12</sub></span><b id="z-12">0</b></div>
+                <div class="readout readout-z" data-teach="detail"><span>z<sub>12</sub></span><b id="z-12">0</b></div>
                 <div class="readout"><span>χ²<sub>12</sub></span><b id="chi-12">0</b></div>
-                <div class="readout readout-share"><span>Share</span><b id="share-12">0%</b></div>
+                <div class="readout readout-share" data-teach="detail"><span>Share</span><b id="share-12">0%</b></div>
               </div>
             </div>
 
@@ -862,12 +829,12 @@
                 <button type="button" class="btn-step" id="dec-21" aria-label="Decrease Female × Psychology" disabled>−</button>
                 <button type="button" class="btn-step" id="inc-21" aria-label="Increase Female × Psychology" disabled>+</button>
               </div>
-              <input id="slider-21" class="cell-slider" type="range" min="0" max="150" value="90" aria-label="Female × Psychology count" disabled>
+              <input id="slider-21" class="cell-slider" data-teach="essential" type="range" min="0" max="150" value="90" aria-label="Female × Psychology count" disabled>
               <div class="sub-readouts">
                 <div class="readout"><span>E<sub>21</sub></span><b id="exp-21">72.0</b></div>
-                <div class="readout readout-z"><span>z<sub>21</sub></span><b id="z-21">0</b></div>
+                <div class="readout readout-z" data-teach="detail"><span>z<sub>21</sub></span><b id="z-21">0</b></div>
                 <div class="readout"><span>χ²<sub>21</sub></span><b id="chi-21">0</b></div>
-                <div class="readout readout-share"><span>Share</span><b id="share-21">0%</b></div>
+                <div class="readout readout-share" data-teach="detail"><span>Share</span><b id="share-21">0%</b></div>
               </div>
             </div>
             <div class="cell is-coupled" id="card-22" data-cell="22">
@@ -881,12 +848,12 @@
                 <button type="button" class="btn-step" id="dec-22" aria-label="Decrease Female × Social science" disabled>−</button>
                 <button type="button" class="btn-step" id="inc-22" aria-label="Increase Female × Social science" disabled>+</button>
               </div>
-              <input id="slider-22" class="cell-slider" type="range" min="0" max="150" value="30" aria-label="Female × Social science count" disabled>
+              <input id="slider-22" class="cell-slider" data-teach="essential" type="range" min="0" max="150" value="30" aria-label="Female × Social science count" disabled>
               <div class="sub-readouts">
                 <div class="readout"><span>E<sub>22</sub></span><b id="exp-22">48.0</b></div>
-                <div class="readout readout-z"><span>z<sub>22</sub></span><b id="z-22">0</b></div>
+                <div class="readout readout-z" data-teach="detail"><span>z<sub>22</sub></span><b id="z-22">0</b></div>
                 <div class="readout"><span>χ²<sub>22</sub></span><b id="chi-22">0</b></div>
-                <div class="readout readout-share"><span>Share</span><b id="share-22">0%</b></div>
+                <div class="readout readout-share" data-teach="detail"><span>Share</span><b id="share-22">0%</b></div>
               </div>
             </div>
           </div>
@@ -899,7 +866,7 @@
             <div class="margin-tile grand"><b id="n-val">200</b><span>Grand total N</span></div>
           </div>
 
-          <p class="alert" id="small-alert">An expected count is below 5. The χ²(1) curve is a rough reference for a table this small.</p>
+          <p class="alert" id="small-alert" data-teach="essential">An expected count is below 5. The χ²(1) curve is a rough reference for a table this small.</p>
         </section>
 
         <section class="block demo-card" aria-labelledby="mosaicHeading" data-teach="essential">
@@ -944,7 +911,7 @@
             <span class="demo-value" id="inspect-pill">All four cells</span>
           </div>
 
-          <div class="eq-block demo-panel">
+          <div class="eq-block demo-panel" data-teach="essential">
             <div class="eq-label">
               <span>Expected count and residual</span>
               <span id="common-delta" style="text-transform:none;letter-spacing:0;font-weight:700;"></span>
@@ -953,50 +920,50 @@
             <p class="eq-line" id="eq-delta"></p>
           </div>
 
-          <div class="eq-block demo-panel only-full">
+          <div class="eq-block demo-panel" data-teach="detail">
             <div class="eq-label"><span>Degrees of freedom</span></div>
             <p class="eq-line" id="eq-df"></p>
           </div>
 
-          <div class="eq-block demo-panel">
+          <div class="eq-block demo-panel" data-teach="essential">
             <div class="eq-label"><span>Four-cell sum</span></div>
             <p class="eq-line" id="eq-sum"></p>
             <div class="term-grid" id="term-grid"></div>
             <p class="sum-line" id="sum-line"></p>
-            <div class="contrib only-full">
+            <div class="contrib" data-teach="detail">
               <div class="contrib-bar" id="contrib-bar" aria-hidden="true"></div>
               <div class="contrib-legend" id="contrib-legend"></div>
             </div>
           </div>
 
           <div class="metrics">
-            <div class="metric demo-panel">
+            <div class="metric demo-panel" data-teach="essential">
               <div class="m-title">Degrees of freedom</div>
               <div class="m-num">1</div>
               <div class="m-note" id="note-df"></div>
             </div>
-            <div class="metric demo-panel">
+            <div class="metric demo-panel" data-teach="essential">
               <div class="m-title">Pearson χ²(1)</div>
               <div class="m-num" id="tile-chisq">0</div>
               <div class="m-note" id="note-chi"></div>
             </div>
-            <div class="metric demo-panel only-full">
+            <div class="metric demo-panel" data-teach="detail">
               <div class="m-title">Phi, φ</div>
               <div class="m-num" id="tile-phi">0</div>
               <div class="m-note" id="note-phi"></div>
             </div>
-            <div class="metric demo-panel only-full">
+            <div class="metric demo-panel" data-teach="detail">
               <div class="m-title">Two-proportion |z|</div>
               <div class="m-num" id="tile-z">0</div>
               <div class="m-note" id="note-z"></div>
             </div>
           </div>
 
-          <div class="checks only-full">
+          <div class="checks" data-teach="detail">
             <label for="chk-yates"><input type="checkbox" id="chk-yates"> Yates’ correction</label>
             <label for="chk-det"><input type="checkbox" id="chk-det"> 2×2 product shortcut</label>
           </div>
-          <div class="extra demo-panel only-full" id="extra">
+          <div class="extra demo-panel" id="extra" data-teach="detail">
             <p class="eq-line" id="eq-yates"></p>
             <p class="eq-line" id="eq-det"></p>
           </div>
@@ -1127,13 +1094,22 @@
       if (!el) return;
       el.replaceChildren();
       parts.forEach(function (part) {
+        var node;
         if (part.m && window.katex) {
-          var span = document.createElement("span");
-          katex.render(part.m, span, { throwOnError: false, displayMode: false });
-          el.appendChild(span);
+          node = document.createElement("span");
+          katex.render(part.m, node, { throwOnError: false, displayMode: false });
         } else {
-          el.appendChild(document.createTextNode(part.t || part.m || ""));
+          node = document.createTextNode(part.t || part.m || "");
         }
+        if (part.teach) {
+          if (node.nodeType === 3) {
+            var wrap = document.createElement("span");
+            wrap.appendChild(node);
+            node = wrap;
+          }
+          node.setAttribute("data-teach", part.teach);
+        }
+        el.appendChild(node);
       });
     }
 
@@ -1242,17 +1218,6 @@
       document.querySelectorAll("[data-preset]").forEach(function (btn) {
         var on = btn.getAttribute("data-preset") === found;
         btn.classList.toggle("is-active", on);
-      });
-    }
-
-    function setStage(stage) {
-      state.stage = stage;
-      document.body.classList.remove("calc-data", "calc-core", "calc-full");
-      document.body.classList.add(stage === "data" ? "calc-data" : stage === "core" ? "calc-core" : "calc-full");
-      document.querySelectorAll("[data-stage]").forEach(function (btn) {
-        var on = btn.getAttribute("data-stage") === stage;
-        btn.classList.toggle("is-active", on);
-        btn.setAttribute("aria-pressed", on ? "true" : "false");
       });
     }
 
@@ -1693,8 +1658,8 @@
         { m: "\\chi^2(1, N = " + s.N + ") = " + s.chiSq.toFixed(2) },
         { t: ", " },
         { m: pMath(s.pVal) },
-        { t: ", " },
-        { m: "\\phi = " + s.phi.toFixed(2) },
+        { t: ", ", teach: "detail" },
+        { m: "\\phi = " + s.phi.toFixed(2), teach: "detail" },
         { t: tail }
       ]);
     }
@@ -1739,9 +1704,6 @@
       });
     }
 
-    document.querySelectorAll("[data-stage]").forEach(function (btn) {
-      btn.addEventListener("click", function () { setStage(btn.getAttribute("data-stage")); });
-    });
     document.querySelectorAll("[data-preset]").forEach(function (btn) {
       btn.addEventListener("click", function () { applyPreset(btn.getAttribute("data-preset")); });
     });
@@ -1775,16 +1737,7 @@
     });
     bindPointer(document.getElementById("data-col"));
     bindPointer(document.getElementById("mosaic-svg"));
-    document.addEventListener("keydown", function (event) {
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      var tag = document.activeElement && document.activeElement.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-      if (event.key === "1") setStage("data");
-      else if (event.key === "2") setStage("core");
-      else if (event.key === "3") setStage("full");
-    });
 
-    setStage("full");
     setMarginalMode("locked");
     applyPreset("sig");
   </script>
