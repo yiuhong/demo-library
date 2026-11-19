@@ -718,9 +718,15 @@
   .draggable-node {
     cursor: ns-resize;
     touch-action: none;
+  }
+  /* Grow only the painted cell-mean dot (r=7.5). The transparent r=28
+     hit circle shares this class so it can be dragged. Applying r: 9px
+     to that circle shrinks it off the pointer, and the cursor flickers
+     between ns-resize and auto. */
+  .draggable-node:not([fill="transparent"]) {
     transition: r 0.15s;
   }
-  .draggable-node:hover {
+  .draggable-node:not([fill="transparent"]):hover {
     r: 9px;
   }
 
