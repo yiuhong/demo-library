@@ -103,6 +103,67 @@
             display: block;
             background: #ffffff;
         }
+
+        /* Trial Teach on this page only. The how-to is Learn.
+           The control column uses less padding, and the plots
+           are taller. The sample is not replaced. Learn keeps
+           the heights in the markup. */
+        html.viz-teach .demo-header h1 {
+            margin-bottom: 0;
+        }
+        html.viz-teach #assumption-nav {
+            padding: 0.6rem 0.75rem;
+        }
+        html.viz-teach #assumption-nav > .mb-3 {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        html.viz-teach #lab-grid {
+            gap: 0.75rem;
+        }
+        html.viz-teach #assumption-controls {
+            padding: 0.7rem;
+        }
+        html.viz-teach #assumption-controls.space-y-4 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 0.55rem;
+        }
+        html.viz-teach #assumption-controls .p-4 {
+            padding: 0.7rem;
+        }
+        html.viz-teach #assumption-controls .p-3\.5 {
+            padding: 0.6rem;
+        }
+        html.viz-teach #assumption-controls .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 0.55rem;
+        }
+        html.viz-teach #assumption-controls .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 0.45rem;
+        }
+        html.viz-teach #plot-column.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 0.75rem;
+        }
+        html.viz-teach #plot-column > .grid {
+            gap: 0.75rem;
+        }
+        html.viz-teach #plot-column .demo-card.p-4 {
+            padding: 0.7rem;
+        }
+        html.viz-teach #plot-groups,
+        html.viz-teach #plot-diagnostic {
+            height: 22rem;
+        }
+        html.viz-teach #plot-montecarlo {
+            height: 20rem;
+        }
+        @media (max-width: 1023px) {
+            html.viz-teach #plot-groups,
+            html.viz-teach #plot-diagnostic {
+                height: 18rem;
+            }
+            html.viz-teach #plot-montecarlo {
+                height: 16rem;
+            }
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
     <link rel="stylesheet" href="../assets/tailwind.css">
@@ -120,7 +181,7 @@
     <header class="demo-header">
         <h1 class="text-xl sm:text-2xl font-bold">ANOVA Assumptions: Type I Error &amp; Power Lab</h1>
     </header>
-    <p class="text-sm mt-4 leading-relaxed max-w-4xl" data-teach="essential">
+    <p class="text-sm mt-4 leading-relaxed max-w-4xl" data-teach="detail">
         Step through the three assumptions. Draw a sample under H<sub>0</sub> or H<sub>1</sub> and read the Type I error and the power.
     </p>
 </div>
@@ -128,7 +189,7 @@
 <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6 space-y-6">
 
 <!-- Top Assumption Navigation Bar -->
-<div class="demo-card p-3 sm:p-4">
+<div class="demo-card p-3 sm:p-4" id="assumption-nav">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 pb-3 border-b border-black">
         <div class="flex items-center gap-2.5">
             <span id="pageStepPill" class="demo-chip">ASSUMPTION 1 OF 3</span>
@@ -181,10 +242,10 @@
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" id="lab-grid">
 
     <!-- Left Control & Explanation Column -->
-    <div class="lg:col-span-4 space-y-4 demo-card p-5">
+    <div class="lg:col-span-4 space-y-4 demo-card p-5" id="assumption-controls">
         <div class="flex items-center justify-between border-b border-black pb-3">
             <div>
                 <h3 id="controlPanelTitle" class="text-sm font-bold text-black uppercase tracking-wider">Assumption 1: Normality Controls</h3>
@@ -198,7 +259,7 @@
                 <span class="text-[11px] font-bold uppercase tracking-wider text-black">Hypothesis Visibility Toggles</span>
                 <span id="activeHypothesisPill" class="px-2 py-0.5 rounded text-[10px] mono font-semibold bg-white text-black border border-black">Showing Both (H0 &amp; H1)</span>
             </div>
-            <p class="text-[11px] text-neutral-700 leading-snug" data-teach="essential">
+            <p class="text-[11px] text-neutral-700 leading-snug" data-teach="detail">
                 Toggle <span class="mono viz-ink-h0">H<sub>0</sub></span> and <span class="mono viz-ink-h1">H<sub>1</sub></span> on or off to view a single hypothesis state or both together:
             </p>
             <!-- Segmented Control with Independent H0 and H1 Toggles -->
@@ -411,7 +472,7 @@
     </div>
 
     <!-- Right Visualizations Column -->
-    <div class="lg:col-span-8 space-y-6">
+    <div class="lg:col-span-8 space-y-6" id="plot-column">
 
         <!-- Top Row: Group Distributions & Specific Assumption Diagnostic -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -424,7 +485,7 @@
                     </div>
                     <p id="plot1Subtitle" class="text-xs text-neutral-700 mt-0.5" data-teach="essential">Jittered points, group means (bars), and &plusmn;1 SD boxes</p>
                 </div>
-                <div class="relative w-full h-64 bg-white rounded border border-black overflow-hidden">
+                <div class="relative w-full h-64 bg-white rounded border border-black overflow-hidden" id="plot-groups">
                     <canvas id="canvasGroups" data-teach="essential"></canvas>
                 </div>
             </div>
@@ -448,7 +509,7 @@
                     </div>
                     <p id="diagSubtitle" class="text-xs text-neutral-700 w-full">Points should hug the 45-degree reference line</p>
                 </div>
-                <div class="relative w-full h-64 bg-white rounded border border-black overflow-hidden">
+                <div class="relative w-full h-64 bg-white rounded border border-black overflow-hidden" id="plot-diagnostic">
                     <canvas id="canvasDiagnostic" data-teach="essential"></canvas>
                 </div>
             </div>
@@ -459,7 +520,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <div>
                     <h3 class="text-sm font-bold text-black">3. Monte Carlo Simulation: Sampling Distribution of <i>F</i> (800 Runs)</h3>
-                    <p id="mcSubtitle" class="text-xs text-neutral-700" data-teach="essential">Use the H<sub>0</sub> and H<sub>1</sub> toggles to show one distribution at a time or both together</p>
+                    <p id="mcSubtitle" class="text-xs text-neutral-700" data-teach="detail">Use the H<sub>0</sub> and H<sub>1</sub> toggles to show one distribution at a time or both together</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2.5 text-[11px] mono shrink-0">
                     <span class="inline-flex items-center gap-1.5 viz-ink-density leading-none whitespace-nowrap">
@@ -476,7 +537,7 @@
                     </button>
                 </div>
             </div>
-            <div class="relative w-full h-60 bg-white rounded border border-black overflow-hidden">
+            <div class="relative w-full h-60 bg-white rounded border border-black overflow-hidden" id="plot-montecarlo">
                 <canvas id="canvasMonteCarlo" data-teach="essential"></canvas>
             </div>
         </div>
@@ -2315,11 +2376,15 @@
         recomputeAndRender();
     });
 
-    window.addEventListener('resize', () => {
+    // The plot boxes change size with the window, and with Teach.
+    // The sample, the sliders, and the selected assumption stay as they are.
+    function layoutPlots() {
         renderGroupsPlot();
         renderDiagnosticPlot();
         renderMonteCarloPlot();
-    });
+    }
+    window.addEventListener('resize', layoutPlots);
+    new MutationObserver(layoutPlots).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
     drawFreshNormals();
     recomputeAndRender();

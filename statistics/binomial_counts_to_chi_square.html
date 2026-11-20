@@ -638,6 +638,63 @@
         min-height: 44px;
       }
     }
+
+    /* Trial Teach on this page only. The how-to is Learn.
+       The control stack uses less padding, and the plots
+       take that height. The sample is not replaced.
+       Learn keeps the heights above. */
+    html.viz-teach .page-head {
+      margin-bottom: 8px;
+    }
+    html.viz-teach .page-head h1 {
+      margin-bottom: 0;
+    }
+    html.viz-teach .toolbar {
+      gap: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+    html.viz-teach .controls {
+      gap: 8px 12px;
+    }
+    html.viz-teach .field {
+      gap: 4px;
+    }
+    html.viz-teach .sample-panel {
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+    html.viz-teach .sample-head {
+      margin-bottom: 4px;
+    }
+    html.viz-teach .process {
+      margin-bottom: 6px;
+    }
+    html.viz-teach .pipeline {
+      gap: 8px;
+    }
+    html.viz-teach .stage {
+      padding: 8px 10px 10px;
+      gap: 6px;
+    }
+    html.viz-teach .math-panel {
+      padding: 8px 10px;
+      gap: 6px;
+    }
+    html.viz-teach .plot-well {
+      height: 340px;
+    }
+    html.viz-teach .plot-well.is-short {
+      height: 210px;
+    }
+    @media (max-width: 1100px) {
+      html.viz-teach .plot-well {
+        height: 280px;
+      }
+      html.viz-teach .plot-well.is-short {
+        height: 190px;
+      }
+    }
   </style>
   <link rel="stylesheet" href="../assets/site-oer-footer.css">
   <link rel="stylesheet" href="../assets/tailwind.css">
@@ -697,7 +754,7 @@
             <button type="button" class="demo-btn" id="btnRun1000">Run 1,000 samples</button>
             <button type="button" class="demo-btn" id="btnReset">Reset</button>
           </div>
-          <p class="caption" data-teach="essential">One draw, or 1,000 draws that build the chi-square histogram. Reset clears the draws and keeps $n$, $p_1$, and $k$.</p>
+          <p class="caption" data-teach="detail">One draw, or 1,000 draws that build the chi-square histogram. Reset clears the draws and keeps $n$, $p_1$, and $k$.</p>
         </div>
       </div>
     </section>
@@ -707,10 +764,10 @@
         <h2 id="sampleHeading">Latest sample ($n = 30$ coin flips)</h2>
       </div>
       <p class="process" id="processBadge">Binomial process: $O_1 \sim \mathrm{Binomial}(n, p_1)$, with $k = 2$ and $df = 1$.</p>
-      <p class="tip" data-teach="essential">Select a category pill or a table row to focus that category’s marginal binomial.</p>
+      <p class="tip" data-teach="detail">Select a category pill or a table row to focus that category’s marginal binomial.</p>
       <div class="pills" id="samplePills"></div>
       <div id="iconsTray">
-        <p class="icons-empty">Run 1 sample, or run 1,000 samples, to see each flip or roll.</p>
+        <p class="icons-empty" data-teach="detail">Run 1 sample, or run 1,000 samples, to see each flip or roll.</p>
       </div>
     </section>
 
@@ -1265,7 +1322,7 @@
         }
 
         if (!lastObs || !lastRolls) {
-          iconsTray.innerHTML = "<p class=\"icons-empty\">Run 1 sample, or run 1,000 samples, to see each " + (k === 2 ? "flip" : "roll") + ".</p>";
+          iconsTray.innerHTML = "<p class=\"icons-empty\" data-teach=\"detail\">Run 1 sample, or run 1,000 samples, to see each " + (k === 2 ? "flip" : "roll") + ".</p>";
           return;
         }
 

@@ -673,9 +673,68 @@
     .decision.is-reject .decision-badge { background: var(--viz-h1); }
     .decision.is-retain .decision-badge { background: var(--viz-h0); }
 
-    /* The sample-size multiplier is Learn-only, so the residual control uses the row. */
+    /* The sample-size multiplier is Learn-only, so the residual control uses the row.
+       Trial Teach on this page only. The how-to is Learn. The control
+       stack uses less padding, and the mosaic and the curve take that
+       space. The counts are not replaced. Learn keeps the sizes above. */
+    html.viz-teach .page-head {
+      margin-bottom: 8px;
+    }
+    html.viz-teach .page-head h1 {
+      margin-bottom: 0;
+    }
+    html.viz-teach .toolbar {
+      gap: 8px 14px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+    html.viz-teach .board {
+      gap: 8px;
+    }
+    html.viz-teach .data-col,
+    html.viz-teach .engine-col {
+      gap: 8px;
+    }
+    html.viz-teach .block {
+      padding: 8px 10px 10px;
+    }
+    html.viz-teach .card-head {
+      margin-bottom: 6px;
+    }
     html.viz-teach .controls {
       grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    html.viz-teach .control {
+      padding: 6px 8px;
+    }
+    html.viz-teach .cell {
+      padding: 6px;
+    }
+    html.viz-teach .margins {
+      gap: 6px;
+      margin-top: 6px;
+    }
+    html.viz-teach .eq-block {
+      padding: 6px 8px;
+      margin-bottom: 6px;
+    }
+    html.viz-teach #mosaic-svg {
+      width: 100%;
+      height: 22rem;
+    }
+    html.viz-teach #dist-svg {
+      width: 100%;
+      height: 18rem;
+    }
+    @media (max-width: 720px) {
+      html.viz-teach #mosaic-svg {
+        height: 16rem;
+      }
+      html.viz-teach #dist-svg {
+        height: 14rem;
+      }
     }
 
     @media (max-width: 1080px) {
@@ -727,7 +786,7 @@
     <header class="page-head">
       <h1>2×2 χ² test of independence</h1>
       <p class="lede" data-teach="detail">Under independence, each expected count is the row total times the column total, divided by N. With those margins fixed, the four residuals share one magnitude, and only one cell is free to move.</p>
-      <p class="howto" data-teach="essential">Edit a count, or slide a cell or the residual while the margins are fixed. The mosaic and the χ² sum update together.</p>
+      <p class="howto" data-teach="detail">Edit a count, or slide a cell or the residual while the margins are fixed. The mosaic and the χ² sum update together.</p>
     </header>
 
     <div class="toolbar demo-card" data-teach="essential">
@@ -760,7 +819,7 @@
                 <span class="control-readout" id="seesaw-readout">Δ₁₁ = 0</span>
               </div>
               <input id="seesaw" type="range" min="-30" max="30" step="1" value="0" aria-describedby="seesaw-hint">
-              <p class="hint" id="seesaw-hint">Fixed margins leave one free cell. This slider moves that cell, and the other three follow.</p>
+              <p class="hint" id="seesaw-hint" data-teach="detail">Fixed margins leave one free cell. This slider moves that cell, and the other three follow.</p>
             </div>
             <div class="control demo-panel" data-teach="detail">
               <div class="control-head">
@@ -1400,9 +1459,27 @@
       markCells();
     }
 
+    function svgFrame(svg, learnW, learnH) {
+      var teach = document.documentElement.classList.contains("viz-teach");
+      if (!teach) {
+        svg.setAttribute("viewBox", "0 0 " + learnW + " " + learnH);
+        return { W: learnW, H: learnH };
+      }
+      var rect = svg.getBoundingClientRect();
+      var W = Math.round(rect.width);
+      var H = Math.round(rect.height);
+      if (W < 40 || H < 40) {
+        svg.setAttribute("viewBox", "0 0 " + learnW + " " + learnH);
+        return { W: learnW, H: learnH };
+      }
+      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+      return { W: W, H: H };
+    }
+
     function renderMosaic(s) {
       var svg = document.getElementById("mosaic-svg");
-      var W = 540, H = 250;
+      var frame = svgFrame(svg, 540, 250);
+      var W = frame.W, H = frame.H;
       var padL = 52, padR = 58, padT = 26, padB = 36;
       var plotW = W - padL - padR;
       var plotH = H - padT - padB;
@@ -1581,7 +1658,8 @@
 
     function renderCurve(s) {
       var svg = document.getElementById("dist-svg");
-      var W = 560, H = 220;
+      var frame = svgFrame(svg, 560, 220);
+      var W = frame.W, H = frame.H;
       var padL = 48, padR = 18, padT = 28, padB = 36;
       var plotW = W - padL - padR;
       var plotH = H - padT - padB;
@@ -1737,6 +1815,16 @@
     });
     bindPointer(document.getElementById("data-col"));
     bindPointer(document.getElementById("mosaic-svg"));
+
+    // The mosaic and the curve change size with the window, and with Teach.
+    // The counts, the sliders, and the selected cell stay as they are.
+    function layoutPlots() {
+      var s = computeStats();
+      renderMosaic(s);
+      renderCurve(s);
+    }
+    window.addEventListener("resize", layoutPlots);
+    new MutationObserver(layoutPlots).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
     setMarginalMode("locked");
     applyPreset("sig");
