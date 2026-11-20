@@ -241,9 +241,62 @@
       min-width: 0;
     }
 
-    .rigging-head strong {
+    .rigging-box > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: -10px -12px 0;
+      padding: 10px 12px;
+      color: inherit;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.35;
+      cursor: pointer;
+      list-style: none;
+      min-width: 0;
+    }
+
+    .rigging-box > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .rigging-box > summary::marker {
+      content: none;
+    }
+
+    .rigging-box > summary:focus {
+      outline: none;
+    }
+
+    .rigging-box > summary:focus-visible {
+      outline: 2px solid #000;
+      outline-offset: -3px;
+    }
+
+    .rigging-summary-label {
       min-width: 0;
       overflow-wrap: anywhere;
+    }
+
+    .rigging-box > summary::after {
+      content: "";
+      width: 0.45em;
+      height: 0.45em;
+      border-right: 2px solid #000;
+      border-bottom: 2px solid #000;
+      transform: translateY(-0.12em) rotate(45deg);
+      flex: 0 0 auto;
+    }
+
+    .rigging-box[open] > summary::after {
+      transform: translateY(0.12em) rotate(-135deg);
+    }
+
+    .rigging-box[open] > summary {
+      margin-bottom: 8px;
+      padding-bottom: 0;
     }
 
     .rigging-head .demo-chip-group {
@@ -727,7 +780,8 @@
     }
 
     @media (max-width: 768px), (pointer: coarse) {
-      .term-note > summary {
+      .term-note > summary,
+      .rigging-box > summary {
         min-height: 44px;
       }
     }
@@ -818,16 +872,18 @@
               <button type="button" class="demo-btn" id="btnReset">Reset counts</button>
             </div>
 
-            <div class="rigging-box demo-panel">
+            <details class="rigging-box demo-panel" open>
+              <summary>
+                <span class="rigging-summary-label">True wheel $\pi_i$ against null $p_i$</span>
+              </summary>
               <div class="rigging-head">
-                <strong>True wheel $\pi_i$ against null $p_i$</strong>
                 <div class="demo-chip-group">
                   <button type="button" class="demo-chip is-active" id="btnFairPreset">Fair wheel (H₀ true)</button>
                   <button type="button" class="demo-chip" id="btnBiasPreset">Rigged: Green 0 magnet</button>
                 </div>
               </div>
               <div class="sliders-list" id="slidersContainer"></div>
-            </div>
+            </details>
           </div>
         </div>
       </section>

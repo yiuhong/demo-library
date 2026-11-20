@@ -57,6 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Pearson’s χ² goodness-of-fit can close the true-wheel panel. “True wheel πᵢ against null pᵢ” stays as the heading, and the panel starts open. Closing it hides the Fair wheel and Rigged presets and the πᵢ sliders. Opening it shows them again. Counts, the selected preset, and the slider values stay, including during a spin and when Teach and Learn switch. The term note still starts closed. The citation version is unchanged.
+
 - Teach on Kernel Density Estimate, Partitioning Sum of Squares, and Ordinary Least Squares keeps the figure, the live equation or readout, and the controls. The short how-to is Learn only, and so are the leftover instructional hints on those pages. On those three pages the control stack uses less padding while Teach is on, and the plot takes the space that how-to used. Switching Teach and Learn still only shows or hides regions: the sample, the sliders, and the selected point stay. Other demonstrations are unchanged. The citation version is unchanged.
 
 - Teach on From Binomial Counts to Chi-Square, ANOVA Assumptions, and the 2×2 Chi-Square Test of Independence keeps the figure, the live equation or readout, and the controls, and the short how-to is Learn only. On those three pages the control stack uses less padding while Teach is on, and the plot takes the space that how-to used. Switching Teach and Learn still only shows or hides regions: the sample, the counts, and the sliders stay. Other demonstrations are unchanged. The citation version is unchanged.
