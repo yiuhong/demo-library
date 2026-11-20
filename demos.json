@@ -301,11 +301,11 @@
             },
             {
               "href": "statistics/chi_square_independence_2x2.html",
-              "title": "2×2 Chi-Square Test of Independence",
-              "description": "A 2×2 gender-by-major table, a mosaic plot, and Pearson’s chi-square test of independence.",
-              "keywords": "2×2 chi-square test of independence contingency table mosaic Yates phi gender major expected counts",
+              "title": "χ² Roulette: Goodness-of-Fit vs Independence",
+              "description": "One 2×2 roulette table, read as a goodness-of-fit test or a test of independence on the same counts.",
+              "keywords": "chi-square roulette goodness-of-fit test of independence contingency table degrees of freedom expected counts wheel gamblers color range parity",
               "tags": [
-                "Explorer"
+                "Simulation"
               ]
             },
             {
