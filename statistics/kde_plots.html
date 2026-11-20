@@ -186,6 +186,49 @@
                 overflow-y: auto;
             }
         }
+
+        /* Trial Teach on this page only. The how-to is Learn.
+           The control column uses less padding, and the plots
+           take that height. The sample is not replaced.
+           Learn keeps the layout above. */
+        html.viz-teach .demo-header {
+            padding: 0.65rem 1rem;
+        }
+        html.viz-teach .demo-header h1 {
+            margin-bottom: 0;
+        }
+        html.viz-teach .kde-stats {
+            padding: 0.4rem 0.75rem;
+        }
+        html.viz-teach aside.overflow-y-auto {
+            padding: 0.65rem;
+        }
+        html.viz-teach aside.overflow-y-auto.space-y-5 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 0.55rem;
+        }
+        html.viz-teach aside .p-4 {
+            padding: 0.65rem;
+        }
+        html.viz-teach aside .space-y-3\.5 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 0.5rem;
+        }
+        html.viz-teach aside .p-2\.5 {
+            padding: 0.4rem 0.5rem;
+        }
+        html.viz-teach main.flex-1 {
+            padding: 0.65rem;
+            gap: 0.55rem;
+        }
+        html.viz-teach main .gap-4 {
+            gap: 0.55rem;
+        }
+        html.viz-teach main .kde-canvas.p-4 {
+            padding: 0.55rem 0.7rem;
+        }
+        html.viz-teach main .kde-canvas.px-4 {
+            padding-top: 0.35rem;
+            padding-bottom: 0.35rem;
+        }
     </style>
 <link rel="stylesheet" href="../assets/site-oer-footer.css">
     <link rel="stylesheet" href="../assets/tailwind.css">
@@ -199,7 +242,7 @@
     <div class="demo-card flex-1 min-h-0 flex flex-col overflow-hidden">
     <header class="demo-header shrink-0">
         <h1 class="text-xl md:text-2xl font-bold">Kernel Density Estimate (KDE)</h1>
-        <p class="text-sm leading-relaxed" data-teach="essential">Change the sample, the bandwidth, and the kernel. The histogram, the smooth curve, the violin, and the raincloud update together.</p>
+        <p class="text-sm leading-relaxed" data-teach="detail">Change the sample, the bandwidth, and the kernel. The histogram, the smooth curve, the violin, and the raincloud update together.</p>
     </header>
 
         <!-- Live Summary Statistics -->
@@ -359,7 +402,7 @@
                         <span id="val-violin-bw" class="demo-value">0.60</span>
                     </div>
                     <input id="ctrl-violin-bw" type="range" min="0.15" max="2.5" step="0.05" value="0.60" disabled class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer disabled:opacity-40">
-                    <p class="text-[11px] text-slate-500 leading-snug" data-teach="essential">Uncheck if you want to compare a different bandwidth in the Violin / Raincloud against the top KDE curve.</p>
+                    <p class="text-[11px] text-slate-500 leading-snug" data-teach="detail">Uncheck if you want to compare a different bandwidth in the Violin / Raincloud against the top KDE curve.</p>
                 </div>
 
                 <!-- Shared Horizontal X-Axis Domain Lock -->
@@ -371,7 +414,7 @@
                             <span>Auto-Fit Data</span>
                         </label>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="essential">Keep unchecked (<span class="text-slate-600 font-medium">Fixed [-10, 14]</span>) to see distributions shift/stretch relative to a fixed ruler, or check to zoom tightly around the data.</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Keep unchecked (<span class="text-slate-600 font-medium">Fixed [-10, 14]</span>) to see distributions shift/stretch relative to a fixed ruler, or check to zoom tightly around the data.</p>
                 </div>
             </div>
 
@@ -427,7 +470,7 @@
                         <span id="val-shift" class="demo-value">0.00</span>
                     </div>
                     <input id="ctrl-shift" type="range" min="-0.5" max="0.5" step="0.05" value="0.0" class="w-full h-1.5 bg-slate-200 rounded-lg cursor-pointer">
-                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="essential">Nudges bin boundaries left/right without changing the data. Slide slowly to see how histogram bars can change height while the KDE curve stays rock-solid!</p>
+                    <p class="text-[11px] text-slate-500 mt-1 leading-snug" data-teach="detail">Nudges bin boundaries left/right without changing the data. Slide slowly to see how histogram bars can change height while the KDE curve stays rock-solid!</p>
                 </div>
             </div>
 
@@ -448,7 +491,7 @@
                             <button id="btn-layout-raincloud" class="demo-chip" type="button">Raincloud</button>
                         </div>
                     </div>
-                    <p id="layout-desc" class="text-[11px] text-slate-500 mt-1.5 leading-snug" data-teach="essential">Choose <span class="text-slate-600 font-medium">Nested</span> to place the Box Plot inside the Violin, <span class="text-slate-600 font-medium">Split</span> to separate them, or <span class="text-purple-700 font-medium">Raincloud</span> for Half-Violin ("Cloud") + Box + Jittered ("Rain").</p>
+                    <p id="layout-desc" class="text-[11px] text-slate-500 mt-1.5 leading-snug" data-teach="detail">Choose <span class="text-slate-600 font-medium">Nested</span> to place the Box Plot inside the Violin, <span class="text-slate-600 font-medium">Split</span> to separate them, or <span class="text-purple-700 font-medium">Raincloud</span> for Half-Violin ("Cloud") + Box + Jittered ("Rain").</p>
                 </div>
 
                 <!-- Whisker Definition -->
@@ -475,7 +518,7 @@
                             <span>Jittered ("Rain")</span>
                         </label>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-1.5 leading-snug" data-teach="essential">Enable <span class="text-slate-600 font-medium">Jittered ("Rain")</span> to reveal the raw data cloud (automatically enabled when switching to <span class="text-purple-700 font-medium">Raincloud</span> mode).</p>
+                    <p class="text-[11px] text-slate-500 mt-1.5 leading-snug" data-teach="detail">Enable <span class="text-slate-600 font-medium">Jittered ("Rain")</span> to reveal the raw data cloud (automatically enabled when switching to <span class="text-purple-700 font-medium">Raincloud</span> mode).</p>
                 </div>
             </div>
         </aside>
@@ -485,9 +528,9 @@
 
             <!-- Interactive Pedagogical Banner -->
             <div class="kde-canvas px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 shrink-0">
-                <div class="flex items-center space-x-2 text-xs">
-                    <span class="demo-value" data-teach="essential">Interactive tip</span>
-                    <span id="pedagogical-tip" data-teach="essential">Hover over <strong>Histogram bars</strong>, <strong>KDE/Violin curves</strong>, <strong>Box Plot quartiles/whiskers</strong>, or <strong>Outlier dots</strong> to inspect exact values and formulas!</span>
+                <div class="flex items-center space-x-2 text-xs" data-teach="detail">
+                    <span class="demo-value">Interactive tip</span>
+                    <span id="pedagogical-tip">Hover over <strong>Histogram bars</strong>, <strong>KDE/Violin curves</strong>, <strong>Box Plot quartiles/whiskers</strong>, or <strong>Outlier dots</strong> to inspect exact values and formulas!</span>
                 </div>
                 <div class="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs">
                     <span class="flex items-center gap-1"><span class="kde-swatch kde-swatch-hist"></span> Histogram</span>
@@ -1971,10 +2014,13 @@
                 renderAll();
             });
 
-            // Responsive Resize Handler
-            window.addEventListener('resize', () => {
+            // The plot boxes change size with the window, and with Teach.
+            // The sample, the bandwidth, and the kernel stay as they are.
+            function layoutPlots() {
                 renderAll();
-            });
+            }
+            window.addEventListener('resize', layoutPlots);
+            new MutationObserver(layoutPlots).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
         }
 
         // Initialize on Window Load

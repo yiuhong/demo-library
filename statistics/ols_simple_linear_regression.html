@@ -680,6 +680,56 @@
     @media (pointer: coarse) {
       .err-option { min-height: 44px; align-items: center; }
     }
+
+    /* Trial Teach on this page only. The how-to is Learn.
+       The control stack uses less padding, and the scatter
+       and the companion plots take that height. The points
+       are not replaced. Learn keeps the heights above. */
+    html.viz-teach .page-title h1 {
+      margin-bottom: 0;
+    }
+    html.viz-teach .header-controls {
+      margin-top: 0.45rem;
+      padding: 0.45rem 0.65rem;
+      gap: 0.4rem;
+    }
+    html.viz-teach .workspace {
+      gap: 8px;
+      padding: 8px 0;
+    }
+    html.viz-teach .panel-header {
+      padding: 6px 10px;
+    }
+    html.viz-teach .panel-body {
+      padding: 8px;
+      gap: 8px;
+    }
+    html.viz-teach .control-section {
+      padding-bottom: 7px;
+      gap: 6px;
+    }
+    html.viz-teach .layer-package {
+      padding: 5px 7px;
+      gap: 4px;
+    }
+    html.viz-teach .svg-container {
+      height: 600px;
+    }
+    html.viz-teach .canvas-wrap {
+      min-height: 340px;
+    }
+    html.viz-teach #decompSvg,
+    html.viz-teach #residSvg {
+      min-height: 340px;
+    }
+    html.viz-teach #pointInspector:not(:has(> :not([data-teach="detail"]))) {
+      display: none;
+    }
+    @media (max-width: 860px) {
+      html.viz-teach .svg-container {
+        height: 420px;
+      }
+    }
   </style>
 </head>
 <body class="demo-page">
@@ -689,7 +739,7 @@
     </div>
     <header class="demo-header page-title">
       <h1>Ordinary Least Squares (OLS)</h1>
-      <p data-teach="essential">Drag the line or the points, or try the guess-the-line challenge.</p>
+      <p data-teach="detail">Drag the line or the points, or try the guess-the-line challenge.</p>
       <p data-teach="detail">The loss is the squared vertical gaps; the split of the total is SSR and SSE.</p>
       <p data-teach="detail">Reference. Presets 4a–4d are Anscombe’s quartet, Anscombe (1973), <em>Graphs in statistical analysis</em>.</p>
     </header>
@@ -773,7 +823,7 @@
         <!-- Packaged Visual Layers (Matched to Tab B: SS Area Comparator Colors) -->
         <div class="control-section">
           <div class="section-label">Geometric Visual Layers (Color-Matched to B)</div>
-          <p class="layer-hint" data-teach="essential">Squares and distances are separate. Clear both to leave the line and the points.</p>
+          <p class="layer-hint" data-teach="detail">Squares and distances are separate. Clear both to leave the line and the points.</p>
 
           <!-- Candidate line and its residuals (group C) -->
           <div class="layer-package pkg-cand">
@@ -984,7 +1034,7 @@
           <div class="formula-box" id="liveMathEquation" data-teach="essential"></div>
 
           <div class="point-inspector" id="pointInspector" data-teach="essential">
-            <span><b>Hover or press a data point $(X_i, Y_i)$</b> on the plot to inspect its residual $e_i$, squared error $e_i^2$, leverage $h_{ii}$, and Cook's distance $D_i$.</span>
+            <span data-teach="detail"><b>Hover or press a data point $(X_i, Y_i)$</b> on the plot to inspect its residual $e_i$, squared error $e_i^2$, leverage $h_{ii}$, and Cook's distance $D_i$.</span>
           </div>
 
         </div>
@@ -2689,7 +2739,7 @@
         const el = document.getElementById("pointInspector");
         const st = state.stats;
         if (state.hoveredIndex === null || !st.pointDiagnostics[state.hoveredIndex]) {
-          el.innerHTML = `<span><b>Hover or press a data point $(X_i, Y_i)$</b> on the plot to inspect its candidate residual $e_i$, OLS residual $\\hat{e}_i$, $SST$ deviation $(Y_i - \\bar{Y})$, leverage $h_{ii}$, and Cook's $D_i$.</span>`;
+          el.innerHTML = `<span data-teach="detail"><b>Hover or press a data point $(X_i, Y_i)$</b> on the plot to inspect its candidate residual $e_i$, OLS residual $\\hat{e}_i$, $SST$ deviation $(Y_i - \\bar{Y})$, leverage $h_{ii}$, and Cook's $D_i$.</span>`;
           typesetMath(el);
           return;
         }

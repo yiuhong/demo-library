@@ -1290,6 +1290,58 @@
     .info-icon { border: 1px solid #000; background: #fff; color: #000; }
     input[type="range"] { accent-color: #000; }
 
+    /* Trial Teach on this page only. The how-to is Learn.
+       The control stack uses less padding, and the bricks
+       and the diagram use that space. The design is not replaced.
+       Learn keeps the spacing above. */
+    html.viz-teach .demo-header {
+      padding: 12px 16px;
+      margin-bottom: 10px;
+    }
+    html.viz-teach .demo-header h1 {
+      margin-bottom: 0;
+    }
+    html.viz-teach .controls-grid {
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    html.viz-teach .controls-grid .panel {
+      padding: 10px 12px;
+    }
+    html.viz-teach .controls-grid .panel-title {
+      margin-bottom: 8px;
+    }
+    html.viz-teach .controls-grid .tabs {
+      gap: 6px;
+    }
+    html.viz-teach .controls-grid .tab-btn {
+      padding: 6px 10px;
+    }
+    html.viz-teach .controls-grid .factor-toggle-row {
+      margin-top: 8px;
+      padding-top: 8px;
+      gap: 6px;
+    }
+    html.viz-teach .controls-grid .factor-pill {
+      padding: 5px 8px;
+    }
+    html.viz-teach .controls-grid .sliders {
+      gap: 8px;
+    }
+    html.viz-teach .controls-grid .slider-group {
+      padding: 6px 8px;
+    }
+    html.viz-teach .bricks-bar-panel {
+      margin-bottom: 10px;
+    }
+    html.viz-teach .ftest-bar {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+    }
+    html.viz-teach .diagram-wrapper {
+      margin-bottom: 10px;
+    }
+
   </style>
 </head>
 <body class="demo-page">
@@ -1297,7 +1349,7 @@
     <a class="demo-back" href="../index.html">← Project Viz</a>
     <header class="demo-header">
       <h1>Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA Designs</h1>
-      <p data-teach="essential">Choose between-subjects, within-subjects, or mixed, then the number of factors and a decomposition view.</p>
+      <p data-teach="detail">Choose between-subjects, within-subjects, or mixed, then the number of factors and a decomposition view.</p>
       <p data-teach="detail">The bricks are the sums of squares for that design.</p>
     </header>
 
