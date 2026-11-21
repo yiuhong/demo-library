@@ -1151,6 +1151,20 @@ body.viz-app #footer ul.menu > li {
         display: inline-flex;
     }
 
+    /* Guided Tracks only. Back, Previous, and Next already share a
+     * line height, padding, and the 44px target. Back is a flex box,
+     * so its label sits on the top of that box. Previous and Next stay
+     * ordinary buttons, so the extra space centers their labels.
+     * One centered row puts the three labels on the same line. Catalog
+     * has no Previous or Next, and its Back stays as it was. */
+    body.viz-app[data-viz-page="tracks"] button.viz-back,
+    body.viz-app[data-viz-page="tracks"] #viz-prev,
+    body.viz-app[data-viz-page="tracks"] #viz-next {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     #viz-prev,
     #viz-next,
     #viz-teach,
