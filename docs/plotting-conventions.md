@@ -4,7 +4,7 @@ This file is the record of how a Project Viz demonstration draws a figure, and o
 
 The public catalog is statistics. `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project. They are not part of the public catalog. Where this file names a page in those folders, it is describing a file that is still in the tree, not a catalog subject. Do not add those pages to `demos.json`.
 
-[CONTRIBUTING.md](../CONTRIBUTING.md) still owns the demo chrome: the shared theme, the 44px range target, labels and formulae that stay on screen, and scroll. This file does not replace that. It points at it. [Rules for a new page](#rules-for-a-new-page) repeats the Teach and Learn object list and the interface principles, in the same terms, so a new figure can be marked and composed from this file. It stays one protocol with [CONTRIBUTING.md](../CONTRIBUTING.md).
+[CONTRIBUTING.md](../CONTRIBUTING.md) still owns the demo chrome: the shared theme, the 44px range target, labels and formulae that stay on screen, scroll, and the teaching source. This file does not replace that. It points at it. [Teaching source](#teaching-source) repeats that rule in the same terms. [Rules for a new page](#rules-for-a-new-page) repeats the Teach and Learn object list and the interface principles, in the same terms, so a new figure can be marked and composed from this file. It stays one protocol with [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Which tool
 
@@ -57,8 +57,21 @@ Checked against the package registries on 13 November 2026.
 
 Each script and stylesheet URL in the registry carries a sha384 integrity hash taken from the file that URL returned. The loader adds `crossorigin="anonymous"`, which the hash requires.
 
+## Teaching source
+
+Before you add a new demonstration, name the textbook passage, classic paper, or other reputable teaching source the lesson is based on. If there is no such source, do not add the page yet.
+
+AI may help implement the demonstration. It must not be the origin of the lesson.
+
+When the teaching depends on that source, cite it as [Teach and Learn](../CONTRIBUTING.md#teach-and-learn) already requires: a short teaching note next to that teaching, marked `data-teach="detail"`. There is no blanket bibliography. Footer, license, and cite-the-library pages do not need a reference list of their own. A new demonstration still follows that object list. [Demonstration and commentary](#demonstration-and-commentary) repeats the same cite.
+
+Do not invent a citation. If a source is uncertain, say so in the pull request and skip the guess. Do not add a citation to an existing demonstration in order to apply this rule, and do not invent one when you next touch the page.
+
+[Teaching source](../CONTRIBUTING.md#teaching-source) is the same rule.
+
 ## Rules for a new page
 
+- Name the textbook passage, classic paper, or other reputable teaching source the lesson is based on. If there is no such source, do not add the page yet. [Teaching source](#teaching-source) is that rule. AI may help implement the demonstration. It must not be the origin of the lesson.
 - Pin an exact version. Never `@latest`. Never a package URL with no version, such as `npm/chart.js`.
 - Mathematics uses KaTeX. Do not add MathJax.
 - Do not add the Tailwind Play CDN (`https://cdn.tailwindcss.com`). Layout utilities come from [`assets/tailwind.css`](../assets/tailwind.css). Load that sheet with the shared theme the page already should use: [`assets/stats-demo-theme.css`](../assets/stats-demo-theme.css) or [`assets/neuroscience-demo-theme.css`](../assets/neuroscience-demo-theme.css). A class that is not already in the sheet does nothing until you rebuild it. [Tailwind](#tailwind) is that rule.
