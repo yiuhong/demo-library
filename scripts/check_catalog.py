@@ -41,6 +41,7 @@ ORCID_URL = "https://orcid.org/0000-0003-4436-0166"
 ORCID_LABEL = "ORCID iD 0000-0003-4436-0166"
 DEMO_CITE_HREF = "statistics/central_limit_theorem.html"
 CITATION_TITLE = "Project Viz: A visualization demo library for teaching"
+TAGLINE = "A visual library for teaching and learning statistics through interactive demonstrations."
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -599,6 +600,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             problems.append(f"{name}: missing the local shell foundation")
         if name in ("index.html", "cite.html"):
             required.append(CITATION_TITLE)
+            required.append(TAGLINE)
         if name == "index.html":
             required.extend(
                 (
@@ -633,7 +635,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             about = element_text(text, "library-about")
             if about is None:
                 problems.append("index.html: library about blurb is missing")
-            elif "A visualization demo library for teaching." not in about:
+            elif TAGLINE not in about:
                 problems.append("index.html: about blurb is not the Project Viz tagline")
         if name in ("index.html", "catalog.html", "tracks.html"):
             for banned in (
@@ -842,6 +844,8 @@ def check_citation_file(problems: list[str], version: str | None, updated: str |
         problems.append("CITATION.cff: ORCID URL is missing")
     if not re.search(r"\bMIT\b", text):
         problems.append("CITATION.cff: note the MIT code license in the message or abstract")
+    if TAGLINE not in text:
+        problems.append("CITATION.cff: abstract is not the statistics teaching tagline")
     if "preferred-citation:" not in text or not re.search(r"(?m)^  type:\s*website\s*$", text):
         problems.append("CITATION.cff: preferred-citation should be the website citation")
     if version and text.count(f'version: "{version}"') < 2:

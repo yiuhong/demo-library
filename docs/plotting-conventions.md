@@ -2,6 +2,8 @@
 
 This file is the record of how a Project Viz demonstration draws a figure, and of which library versions it may load. The pins live in [`assets/vendor.json`](../assets/vendor.json). A page does not paste its own copy of a CDN address.
 
+The public catalog is statistics. `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project. They are not part of the public catalog. Where this file names a page in those folders, it is describing a file that is still in the tree, not a catalog subject. Do not add those pages to `demos.json`.
+
 [CONTRIBUTING.md](../CONTRIBUTING.md) still owns the demo chrome: the shared theme, the 44px range target, labels and formulae that stay on screen, and scroll. This file does not replace that. It points at it. [Rules for a new page](#rules-for-a-new-page) repeats the Teach and Learn object list and the interface principles, in the same terms, so a new figure can be marked and composed from this file. It stays one protocol with [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Which tool
@@ -64,7 +66,7 @@ Each script and stylesheet URL in the registry carries a sha384 integrity hash t
 - Name the axis, the legend, and the readout by the quantity (sample mean, SSE, frequency), not by a generic y or value.
 - Keep a formula on screen when the formula is the lesson. A reference formula may sit in a disclosure. [Demo interface](../CONTRIBUTING.md#demo-interface) is the rest of that rule.
 - Ship Teach and Learn with the page, and compose the page by the two sections below. Load [`assets/teach.js`](../assets/teach.js) and [`assets/teach.css`](../assets/teach.css) immediately after the `embed=shell` hook. Give the page a `.demo-topbar` (with Back, or alone when there is no Back link) so the Teach / Learn pair is on the page. [Teach and Learn](../CONTRIBUTING.md#teach-and-learn) and [Interface principles](../CONTRIBUTING.md#interface-principles) are the same standard.
-- Use the light statistics theme or the dark neuroscience lab. Do not invent a third chrome theme. Personality and cognitive pages may keep their own look, as [Demo interface](../CONTRIBUTING.md#demo-interface) already says.
+- A new public page uses the light statistics theme. Do not invent a third chrome theme. Files in `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain for a later project and are not part of the public catalog. A neuroscience file there may keep the dark lab. A personality or cognitive file may keep its own look, as [Demo interface](../CONTRIBUTING.md#demo-interface) already says.
 - Do not put a scrollbar over a canvas, especially a WebGL canvas. In Chrome that scrollbar can paint as a black band.
 - Phone and coarse-pointer range inputs stay a 44px target. [Range sliders](../CONTRIBUTING.md#range-sliders) is that rule. Do not paint the hit box back to a thin track.
 
@@ -112,7 +114,7 @@ Use this list when you compose a new demonstration, and when you next touch an e
 - Phone and coarse-pointer sliders stay a 44px target. [Range sliders](../CONTRIBUTING.md#range-sliders) is that rule. Do not paint the hit box back to a thin track.
 - No scrollbar inside a panel. The content wraps or fits in the card. On a stacked phone or a narrow window, the page is the vertical scroller. [Demo interface](../CONTRIBUTING.md#demo-interface) still allows a desktop inspector to scroll when the page is locked to the viewport, and a formula to scroll locally so the page stays free of a horizontal scrollbar. The plot is not also a vertical scroller. Never put a scrollbar over a canvas.
 - Teach and Learn is one site-wide switch. Do not add a per-demo theme, a second pair of names, or a mode that only this page understands.
-- Chrome is the shared chrome. Load the matching shared theme, keep `class="demo-page"` on `body`, and run the `embed=shell` hook. Do not invent a third library-chrome theme. A personality or cognitive page may keep its own look. It still needs the embed hook.
+- Chrome is the shared chrome. Load the matching shared theme, keep `class="demo-page"` on `body`, and run the `embed=shell` hook. Do not invent a third library-chrome theme. A personality or cognitive file that remains for a later project may keep its own look. It is not a catalog page. It still needs the embed hook.
 - Default Learn still shows a short commentary object before any drawer is opened: a visible lede or a short teaching paragraph. A long term-by-term note may start closed. That closed drawer is density inside the commentary. It is not Teach.
 
 A pure explorer may have almost no commentary. Do not invent a note so this list has something to show. The switch still ships.
@@ -125,7 +127,7 @@ A pure explorer may have almost no commentary. Do not invent a note so this list
 4. Open every page in the `smoke` list below, on a local server or on GitHub Pages. The loader reads `vendor.json` from the same origin. Opening a demonstration as a `file://` URL will not.
 5. Open a draft pull request. Do not bump the citation version in [`assets/site-meta.js`](../assets/site-meta.js) for a pin. A syllabus does not need a new citation when the teaching content did not change.
 
-The short list, also stored as `smoke` in the registry:
+The short list, also stored as `smoke` in the registry. Paths under `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` are files kept for a later project. They are not public catalog pages.
 
 - `statistics/kde_plots.html` — D3
 - `statistics/target_analogy_confidence_intervals.html` — D3, previously the cdnjs 7.8.5 build
