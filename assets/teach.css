@@ -19,6 +19,21 @@ html.viz-teach .lede:not([data-teach="essential"]) {
     display: none !important;
 }
 
+/*
+ * Introductory text under the demo heading uses that heading's
+ * content width. A max-width on the lede, the how-to, the note in
+ * that stack, or the paragraph under the title stopped the lines
+ * early and left an empty band on a wide window. A phone is already
+ * narrower than those caps, so the lines do not change there and
+ * the page does not gain a scrollbar.
+ */
+.page-head > .lede,
+.page-head > .howto,
+.page-head > .note,
+.demo-header > h1 ~ p {
+    max-width: none;
+}
+
 .viz-mode-switch {
     display: inline-flex;
     align-items: center;
