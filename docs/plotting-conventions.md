@@ -107,7 +107,9 @@ Mark these `data-teach="detail"`. They are shown in Learn and hidden in Teach:
 - a citation
 - a connection note and “In the next demo.”
 
-On a Guided Tracks connection page the figure and the Key points are demonstration objects. The note and **In the next demo** are commentary. [`assets/connection-page.js`](../assets/connection-page.js) already marks them that way. A connection step in [`tracks.json`](../tracks.json) is enough. Do not paste the note into a new HTML file.
+On a Guided Tracks connection page the figure and the Key points are demonstration objects. The note and **In the next demo** are commentary. [`assets/connection-page.js`](../assets/connection-page.js) already marks them that way. A connection step in [`tracks.json`](../tracks.json) is enough. Do not paste the note into a new HTML file. A step may set `closingHeading` when the track ends on a check and that heading should not say “In the next demo”. The heading is still commentary.
+
+Trial, on Center and spread only. That track may end with one short visualized self-test after its last demonstration. The check reuses that track’s figures and is drawn with the page’s own SVG, not a new plotting library. The figure, the controls, and the immediate feedback stay in Teach and in Learn. A longer note on why an answer is right or wrong is Learn only. This is not a library-wide rollout.
 
 An unmarked region follows a conservative default. Canvases, plots, headers, and controls stay. An obvious prose block such as a lede hides in Teach. Mark the short how-to `essential`, or that default will hide it in Teach.
 

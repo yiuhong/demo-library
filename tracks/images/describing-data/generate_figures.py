@@ -868,6 +868,110 @@ def draw_same_stats() -> None:
     print("  anscombe quartet summaries match to 2 d.p.")
 
 
+def draw_center_spread_check() -> None:
+    """Concept sketch for the Center and spread trial check. Not a screenshot.
+
+    The left panel is the check's starting dot plot: fixed values 4, 4, and 9,
+    open point at 24, mode 4, median 6.5, mean 10.25, mark at 8.
+    The right panel is the variance bar at its start: sum of squared
+    deviations 900, divisor n = 10, bar at 90, true variance 100.
+    """
+    fixed = [4, 4, 9]
+    high = 24
+    values = fixed + [high]
+    mean = sum(values) / len(values)
+    ordered = sorted(values)
+    median = (ordered[1] + ordered[2]) / 2.0
+    mode = 4
+    mark = 8.0
+    if abs(mean - 10.25) > 1e-9 or median != 6.5:
+        raise SystemExit(f"check figure stats drifted: mean={mean} median={median}")
+    if (17 + 15) / 4 != mark:
+        raise SystemExit("mark is no longer the mean when the open point is 15")
+
+    fig, axes = plt.subplots(1, 2, figsize=(9.4, 4.6), constrained_layout=True)
+
+    ax = axes[0]
+    counts: dict[int, int] = {}
+    for value in fixed:
+        counts[value] = counts.get(value, 0) + 1
+        ax.scatter(
+            [value],
+            [counts[value]],
+            s=46,
+            c="black",
+            zorder=3,
+            linewidths=0,
+        )
+    ax.scatter(
+        [high],
+        [1],
+        s=78,
+        facecolors="white",
+        edgecolors="black",
+        linewidths=1.4,
+        zorder=4,
+    )
+    styles = [
+        (mode, "mode = 4", (0, (1, 1.15)), 1.15),
+        (median, "median = 6.5", (0, (5, 2)), 1.15),
+        (mark, "mark = 8", (0, (6, 1.5, 1, 1.5)), 1.15),
+        (mean, "mean = 10.25", "solid", 1.8),
+    ]
+    for xpos, _label, style, width in styles:
+        ax.axvline(xpos, color="black", linestyle=style, linewidth=width, zorder=2)
+    ax.legend(
+        handles=[
+            Line2D([0], [0], color="black", linestyle=style, linewidth=width, label=label)
+            for _xpos, label, style, width in styles
+        ],
+        frameon=True,
+        edgecolor="black",
+        fancybox=False,
+        loc="upper right",
+        fontsize=10,
+    )
+    ax.set_xlim(1, 26)
+    ax.set_ylim(0, 4.8)
+    ax.set_xlabel("value")
+    ax.set_ylabel("count")
+    ax.set_title("Open point at 24")
+    ax.set_xticks([4, 8, 12, 16, 20, 24])
+    ax.set_yticks([0, 1, 2, 3, 4])
+
+    ax = axes[1]
+    ax.bar(
+        [0],
+        [90],
+        width=0.55,
+        facecolor="white",
+        edgecolor="black",
+        linewidth=1.15,
+        zorder=2,
+    )
+    ax.axhline(100, color="black", linestyle="dashed", linewidth=1.25, zorder=3)
+    ax.text(
+        0,
+        45,
+        "90",
+        ha="center",
+        va="center",
+        fontsize=13,
+        bbox={"facecolor": "white", "edgecolor": "none", "pad": 1.4},
+        zorder=4,
+    )
+    ax.text(0, 109, "true variance = 100", ha="center", va="bottom", fontsize=12)
+    ax.set_xlim(-0.9, 0.9)
+    ax.set_ylim(0, 132)
+    ax.set_xticks([0], ["divide by n"])
+    ax.set_ylabel("variance estimate")
+    ax.set_title("Bar still short of the line")
+    ax.set_yticks([0, 30, 60, 90, 120])
+
+    _save(fig, "10-center-spread-check.png")
+    print(f"  check mean={mean:.2f} median={median:.1f} mode={mode} mark={mark:.0f}")
+
+
 def main() -> None:
     _style()
     draw_mean_median_mode()
@@ -879,6 +983,7 @@ def main() -> None:
     draw_kde()
     draw_qq()
     draw_same_stats()
+    draw_center_spread_check()
 
 
 if __name__ == "__main__":

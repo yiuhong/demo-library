@@ -7,9 +7,11 @@
  * Key points, formulae, the figure, In the next demo, what the
  * demonstration does. Key points shows only when formulae are present.
  * In the next demo shows only when the demo description is present.
- * Teach hides the note and In the next demo. The figure and the Key
- * points formulae stay. The figure remains a concept illustration and
- * stays before In the next demo.
+ * A step may set closingHeading to replace that heading. The Center
+ * and spread check uses it because the track ends there. Other steps
+ * leave it unset. Teach hides the note and that closing heading. The
+ * figure and the Key points formulae stay. The figure remains a concept
+ * illustration and stays before the closing heading.
  * The figure shows only when the image path and its alt text are both valid.
  * A trailing _word, _word(note), _{word}, ^word, or ^{word} in the note,
  * the formulae, or the demo description is drawn as sub or sup. The source
@@ -110,6 +112,15 @@
         if (document.documentElement.classList.contains("viz-embedded")) {
             document.documentElement.classList.toggle("connection-sheet", !neuro);
         }
+    }
+
+    function closingHeadingOf(raw) {
+        var fallback = "In the next demo";
+        if (typeof raw !== "string") return fallback;
+        var title = raw.trim().replace(/\s+/g, " ");
+        if (!title || title.length > 80) return fallback;
+        if (!/[A-Za-z]/.test(title)) return fallback;
+        return title;
     }
 
     function connectionTitleOf(raw) {
@@ -285,7 +296,7 @@
             root.appendChild(figure);
         }
         if (demo) {
-            var nextDemo = el("h2", "connection-next-demo", "In the next demo");
+            var nextDemo = el("h2", "connection-next-demo", closingHeadingOf(step.closingHeading));
             nextDemo.id = "connection-next-demo";
             nextDemo.setAttribute("data-teach", "detail");
             root.appendChild(nextDemo);

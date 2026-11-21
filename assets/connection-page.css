@@ -3,7 +3,8 @@
  * Stats demos use the light chrome. A neuroscience step swaps in the
  * dark demo theme before the note is shown.
  * Order under the title: note, Key points, formulae, the figure,
- * In the next demo, what the demonstration does.
+ * In the next demo (or the step's closing heading), what the
+ * demonstration does.
  */
 
 .connection-wrap {

@@ -39,3 +39,4 @@ with `K` the standard normal density. The bandwidth is Silverman’s rule, `h = 
 7. Kernel density: those same 44 values, with a Gaussian kernel at the Silverman bandwidth.
 8. Q–Q: 40 standard normal draws (NumPy seed 24).
 9. Same summaries: Anscombe’s quartet (Anscombe, 1973), the same 11-point sets as `statistics/limitations_of_summary_statistics.html`. Each panel has mean x = 9.00, mean y = 7.50, sample standard deviations 3.32 and 2.03 (divisor n − 1), and correlation 0.82, to two decimals. The dashed line is y = 3 + 0.5x.
+10. Center and spread check (trial, this track only): the check’s starting pictures, not a screenshot. Left, the values 4, 4, and 9 with an open point at 24. Mode 4, median 6.5, mean 10.25, and a mark at mean 8 (that mean is the open point at 15). Right, a variance bar at 90 under a true-variance line at 100. The average sum of squared deviations is fixed at 900, so dividing by n = 10 leaves 90 and dividing by n − 1 = 9 lands on 100.
