@@ -5,7 +5,8 @@
  * Tracks and the topics only: no track children on that overview.
  * Choosing a topic zooms that subtree, and the tracks appear there.
  * Each topic has a small animated plate on that overview, and again
- * above its own tree.
+ * above its own tree. Each track on that tree has its own plate,
+ * in the same frame. The topic drawings are not reused as track drawings.
  * Choosing a track replaces the rail with the playlist: when a step has
  * a note, formulae, a demo description, or a figure, its connectionTitle
  * is a link immediately before that demonstration. The link opens
@@ -347,6 +348,11 @@
             var link = overviewNode("is-track", trackHref(track), track.title, stepCountLabel(track.steps.length));
             link.setAttribute("data-track", id);
             item.appendChild(link);
+            var plate = trackPlate(id);
+            if (plate) {
+                item.className = "has-plate";
+                item.appendChild(plate);
+            }
             branch.appendChild(item);
         });
         return branch;
@@ -360,17 +366,39 @@
         "association": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="28" y1="16" x2="28" y2="108" stroke="#111111" stroke-width="1.4"/><line x1="28" y1="108" x2="292" y2="108" stroke="#111111" stroke-width="1.4"/><g class="tp-as-loose" fill="#111111"><circle cx="70" cy="40" r="3.15"/><circle cx="98" cy="96" r="3.15"/><circle cx="124" cy="36" r="3.15"/><circle cx="150" cy="88" r="3.15"/><circle cx="178" cy="44" r="3.15"/><circle cx="206" cy="90" r="3.15"/><circle cx="232" cy="48" r="3.15"/><circle cx="112" cy="60" r="3.15"/><circle cx="190" cy="70" r="3.15"/></g><g class="tp-as-tight" fill="#111111"><circle cx="72" cy="92" r="3.15"/><circle cx="104" cy="74" r="3.15"/><circle cx="136" cy="72" r="3.15"/><circle cx="168" cy="54" r="3.15"/><circle cx="204" cy="52" r="3.15"/><circle cx="236" cy="34" r="3.15"/><circle cx="252" cy="42" r="3.15"/></g><line class="tp-as-fit" pathLength="100" x1="48" y1="96" x2="268" y2="28" stroke="#111111" stroke-width="2"/></svg>'
     };
 
-    function topicPlate(id) {
-        var markup = PLATES[id];
+    /* One drawing per track id. Same frame as the topic plates. */
+    var TRACK_PLATES = {
+        "center-and-spread": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="24" y1="104" x2="296" y2="104" stroke="#111111" stroke-width="1.4"/><g fill="#111111"><circle cx="72" cy="88" r="3.15"/><circle cx="96" cy="88" r="3.15"/><circle cx="114" cy="88" r="3.15"/><circle cx="128" cy="88" r="3.15"/><circle cx="140" cy="88" r="3.15"/><circle cx="152" cy="88" r="3.15"/><circle cx="160" cy="88" r="3.15"/><circle cx="168" cy="88" r="3.15"/><circle cx="180" cy="88" r="3.15"/><circle cx="192" cy="88" r="3.15"/><circle cx="206" cy="88" r="3.15"/><circle cx="224" cy="88" r="3.15"/><circle cx="248" cy="88" r="3.15"/></g><line class="tk-cs-mean" x1="160" y1="104" x2="160" y2="34" stroke="#111111" stroke-width="2.2"/><g class="tk-cs-spread" fill="none" stroke="#111111" stroke-width="1.5" stroke-dasharray="5 3.5"><line x1="96" y1="104" x2="96" y2="34"/><line x1="224" y1="104" x2="224" y2="34"/></g></svg>',
+        "shape-and-pictures": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="28" y1="108" x2="300" y2="108" stroke="#111111" stroke-width="1.4"/><g class="tk-sp-box" fill="none" stroke="#111111" stroke-width="1.5"><line x1="46" y1="64" x2="98" y2="64"/><line x1="198" y1="64" x2="246" y2="64"/><line x1="46" y1="54" x2="46" y2="74"/><line x1="246" y1="54" x2="246" y2="74"/><rect x="98" y="44" width="100" height="40" fill="#ffffff" stroke="#111111" stroke-width="1.6"/><line x1="156" y1="44" x2="156" y2="84" stroke="#111111" stroke-width="2"/></g><g class="tk-sp-out" fill="none" stroke="#111111" stroke-width="1.4"><line x1="268" y1="40" x2="268" y2="88" stroke-dasharray="3 3"/><circle cx="292" cy="64" r="3.4" fill="#111111" stroke="none"/></g></svg>',
+        "same-summaries-different-graphs": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="36" y1="16" x2="36" y2="112" stroke="#111111" stroke-width="1.4"/><line x1="36" y1="112" x2="292" y2="112" stroke="#111111" stroke-width="1.4"/><g class="tk-sg-line" fill="#111111"><circle cx="70" cy="96" r="3.15"/><circle cx="106" cy="84" r="3.15"/><circle cx="142" cy="72" r="3.15"/><circle cx="178" cy="60" r="3.15"/><circle cx="214" cy="48" r="3.15"/><circle cx="250" cy="36" r="3.15"/></g><g class="tk-sg-curve" fill="#111111"><circle cx="70" cy="100" r="3.15"/><circle cx="106" cy="52" r="3.15"/><circle cx="142" cy="40" r="3.15"/><circle cx="178" cy="46" r="3.15"/><circle cx="214" cy="78" r="3.15"/><circle cx="250" cy="100" r="3.15"/></g><line class="tk-sg-fit" pathLength="100" x1="58" y1="100" x2="262" y2="32" stroke="#111111" stroke-width="2"/></svg>',
+        "from-process-to-distribution": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="24" y1="104" x2="296" y2="104" stroke="#111111" stroke-width="1.4"/><path class="tk-pd-curve" pathLength="100" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" d="M28 104 C72 104 96 96 118 68 C134 46 148 30 160 30 C172 30 186 46 202 68 C224 96 248 104 292 104"/><g class="tk-pd-mark" fill="none" stroke="#111111"><line x1="160" y1="104" x2="160" y2="26" stroke-width="1.6" stroke-dasharray="6 3.5"/><line x1="118" y1="104" x2="118" y2="62" stroke-width="1.3" stroke-dasharray="2 3"/><line x1="202" y1="104" x2="202" y2="62" stroke-width="1.3" stroke-dasharray="2 3"/></g></svg>',
+        "counts-arrivals-and-the-board": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><g fill="#ffffff" stroke="#111111" stroke-width="1.3"><circle cx="160" cy="22" r="3.2"/><circle cx="140" cy="40" r="3.2"/><circle cx="180" cy="40" r="3.2"/><circle cx="120" cy="58" r="3.2"/><circle cx="160" cy="58" r="3.2"/><circle cx="200" cy="58" r="3.2"/></g><g fill="#111111"><circle class="tk-ca-bead" cx="160" cy="10" r="3.4"/><circle class="tk-ca-bead" cx="140" cy="34" r="3.4"/><circle class="tk-ca-bead" cx="160" cy="52" r="3.4"/></g><g class="tk-ca-bars" fill="#111111"><rect x="108" y="104" width="14" height="12"/><rect x="128" y="92" width="14" height="24"/><rect x="148" y="80" width="14" height="36"/><rect x="168" y="92" width="14" height="24"/><rect x="188" y="104" width="14" height="12"/></g><line x1="100" y1="116" x2="210" y2="116" stroke="#111111" stroke-width="1.4"/><circle class="tk-ca-landed" cx="160" cy="92" r="5.2" fill="#ffffff" stroke="#111111" stroke-width="1.4"/></svg>',
+        "sampling-distributions-and-intervals": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><g class="tk-si-hit" fill="none" stroke="#111111" stroke-width="1.6"><line x1="108" y1="28" x2="204" y2="28"/><line x1="108" y1="22" x2="108" y2="34"/><line x1="204" y1="22" x2="204" y2="34"/><line x1="108" y1="48" x2="204" y2="48"/><line x1="108" y1="42" x2="108" y2="54"/><line x1="204" y1="42" x2="204" y2="54"/><line x1="108" y1="68" x2="204" y2="68"/><line x1="108" y1="62" x2="108" y2="74"/><line x1="204" y1="62" x2="204" y2="74"/><line x1="108" y1="88" x2="204" y2="88"/><line x1="108" y1="82" x2="108" y2="94"/><line x1="204" y1="82" x2="204" y2="94"/></g><g class="tk-si-miss" fill="none" stroke="#111111" stroke-width="1.7"><line x1="188" y1="108" x2="284" y2="108" stroke-dasharray="1.8 1.6"/><line x1="188" y1="102" x2="188" y2="114"/><line x1="284" y1="102" x2="284" y2="114"/></g><line x1="156" y1="14" x2="156" y2="116" stroke="#111111" stroke-width="1.8" stroke-dasharray="5 3.5"/></svg>',
+        "from-chi-square-to-goodness-of-fit": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="24" y1="104" x2="304" y2="104" stroke="#111111" stroke-width="1.4"/><path class="tk-chi-curve" pathLength="100" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" d="M32 104 C44 104 50 72 62 42 C72 18 86 16 98 34 C114 58 132 90 156 100 C196 108 250 106 304 104"/><g class="tk-chi-mark" fill="none" stroke="#111111"><line x1="176" y1="104" x2="176" y2="30" stroke-width="1.45" stroke-dasharray="5 3.5"/><line x1="236" y1="104" x2="236" y2="30" stroke-width="2"/></g></svg>',
+        "t-test": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><g fill="#111111"><circle cx="86" cy="30" r="3.2"/><circle cx="214" cy="22" r="3.2"/><circle cx="86" cy="50" r="3.2"/><circle cx="214" cy="42" r="3.2"/><circle cx="86" cy="70" r="3.2"/><circle cx="214" cy="62" r="3.2"/><circle cx="86" cy="90" r="3.2"/><circle cx="214" cy="82" r="3.2"/><circle cx="86" cy="110" r="3.2"/><circle cx="214" cy="102" r="3.2"/></g><g fill="none" stroke="#111111" stroke-width="1.6"><line class="tk-tt-link" pathLength="100" x1="86" y1="30" x2="214" y2="22"/><line class="tk-tt-link" pathLength="100" x1="86" y1="50" x2="214" y2="42"/><line class="tk-tt-link" pathLength="100" x1="86" y1="70" x2="214" y2="62"/><line class="tk-tt-link" pathLength="100" x1="86" y1="90" x2="214" y2="82"/><line class="tk-tt-link" pathLength="100" x1="86" y1="110" x2="214" y2="102"/></g></svg>',
+        "statistical-power": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="20" y1="104" x2="304" y2="104" stroke="#111111" stroke-width="1.4"/><path fill="none" stroke="#111111" stroke-width="1.7" stroke-linecap="round" d="M28 104 C48 104 62 92 76 68 C88 46 100 30 114 30 C128 30 140 46 152 68 C166 92 180 104 200 104"/><path class="tk-pw-alt" pathLength="100" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" d="M108 104 C128 104 142 92 156 68 C168 46 180 30 194 30 C208 30 220 46 232 68 C246 92 260 104 280 104"/><line class="tk-pw-cut" x1="164" y1="104" x2="164" y2="22" stroke="#111111" stroke-width="1.45" stroke-dasharray="4 3"/></svg>',
+        "anova": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="20" y1="108" x2="300" y2="108" stroke="#111111" stroke-width="1.4"/><g fill="#111111"><circle cx="48" cy="78" r="3.15"/><circle cx="62" cy="86" r="3.15"/><circle cx="76" cy="72" r="3.15"/><circle cx="90" cy="82" r="3.15"/><circle cx="138" cy="58" r="3.15"/><circle cx="152" cy="66" r="3.15"/><circle cx="166" cy="50" r="3.15"/><circle cx="180" cy="62" r="3.15"/><circle cx="228" cy="40" r="3.15"/><circle cx="242" cy="48" r="3.15"/><circle cx="256" cy="34" r="3.15"/><circle cx="270" cy="44" r="3.15"/></g><g fill="none" stroke="#111111" stroke-width="2"><line class="tk-an-mean" x1="40" y1="80" x2="98" y2="80"/><line class="tk-an-mean" x1="130" y1="58" x2="188" y2="58"/><line class="tk-an-mean" x1="220" y1="40" x2="278" y2="40"/></g></svg>',
+        "association": '<svg viewBox="0 0 320 128" width="320" height="128" aria-hidden="true" focusable="false"><line x1="28" y1="16" x2="28" y2="108" stroke="#111111" stroke-width="1.4"/><line x1="28" y1="108" x2="292" y2="108" stroke="#111111" stroke-width="1.4"/><g fill="#111111"><circle cx="72" cy="88" r="3.15"/><circle cx="108" cy="56" r="3.15"/><circle cx="148" cy="90" r="3.15"/><circle cx="188" cy="34" r="3.15"/><circle cx="228" cy="66" r="3.15"/><circle cx="258" cy="36" r="3.15"/></g><line class="tk-ac-fit" pathLength="100" x1="52" y1="96" x2="268" y2="30" stroke="#111111" stroke-width="2"/><g class="tk-ac-resid" fill="none" stroke="#111111" stroke-width="1.35"><line x1="108" y1="56" x2="108" y2="79"/><line x1="148" y1="67" x2="148" y2="90"/><line x1="188" y1="34" x2="188" y2="54"/><line x1="228" y1="42" x2="228" y2="66"/></g></svg>',
+    };
+
+    function mountedPlate(id, markup, attr) {
         if (!markup) return null;
         var plate = el("figure", "topic-plate");
-        plate.setAttribute("data-topic-plate", id);
+        plate.setAttribute(attr, id);
         plate.setAttribute("aria-hidden", "true");
         /* Static markup, parsed as HTML so the svg stays in the SVG namespace. */
         plate.innerHTML = markup;
         var svg = plate.querySelector("svg");
         if (!svg || svg.namespaceURI !== "http://www.w3.org/2000/svg") return null;
         return plate;
+    }
+
+    function topicPlate(id) {
+        return mountedPlate(id, PLATES[id], "data-topic-plate");
+    }
+
+    function trackPlate(id) {
+        return mountedPlate(id, TRACK_PLATES[id], "data-track-plate");
     }
 
     function buildTree(topic) {

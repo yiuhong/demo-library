@@ -1436,6 +1436,116 @@ def draw_goodness_of_fit() -> None:
     print(f"  gof chi={chi:.2f} df={df:.0f} crit={crit:.4f}")
 
 
+# Schematic 2×2 counts for the goodness-of-fit / independence step.
+# Not a spin of statistics/chi_square_independence_2x2.html.
+# One observed table. A known equal model puts 10 in every cell.
+# The margins of this table put 12, 12, 8, and 8 in those cells.
+FIT_N = 40
+FIT_OBSERVED = (16, 8, 4, 12)
+
+
+def _fit_or_independence() -> tuple[tuple[float, float, float, float], float, float]:
+    """Expected counts under a known equal model, and under the sample margins."""
+    observed = FIT_OBSERVED
+    if sum(observed) != FIT_N:
+        raise SystemExit(f"observed counts must sum to {FIT_N}")
+    equal = tuple(FIT_N / 4.0 for _ in observed)
+    row1 = observed[0] + observed[1]
+    row2 = observed[2] + observed[3]
+    col1 = observed[0] + observed[2]
+    col2 = observed[1] + observed[3]
+    margins = (
+        row1 * col1 / FIT_N,
+        row1 * col2 / FIT_N,
+        row2 * col1 / FIT_N,
+        row2 * col2 / FIT_N,
+    )
+    chi_equal = sum((o - e) ** 2 / e for o, e in zip(observed, equal))
+    chi_margins = sum((o - e) ** 2 / e for o, e in zip(observed, margins))
+    if equal != (10.0, 10.0, 10.0, 10.0):
+        raise SystemExit(f"equal model drifted: {equal}")
+    if margins != (12.0, 12.0, 8.0, 8.0):
+        raise SystemExit(f"margin model drifted: {margins}")
+    if abs(chi_equal - 8.0) > 1e-12 or abs(chi_margins - 20.0 / 3.0) > 1e-12:
+        raise SystemExit(f"chi-square drifted: equal={chi_equal}, margins={chi_margins}")
+    return margins, chi_equal, chi_margins
+
+
+def draw_fit_or_independence() -> None:
+    """Same observed 2×2 counts, two ways of naming the expected counts.
+
+    Left: a known model, four equal probabilities, 3 degrees of freedom.
+    Right: expected counts from the sample margins, 1 degree of freedom.
+    The bars are a schematic, not a frame from the roulette demonstration.
+    """
+    margins, chi_equal, chi_margins = _fit_or_independence()
+    observed = np.array(FIT_OBSERVED, dtype=float)
+    equal = np.full(4, FIT_N / 4.0)
+
+    fig, (ax_model, ax_margins) = plt.subplots(
+        1, 2, figsize=(8.8, 4.7), sharey=True, constrained_layout=True
+    )
+    x = np.arange(4, dtype=float)
+    width = 0.36
+    labels = ["1, 1", "1, 2", "2, 1", "2, 2"]
+
+    def _bars(ax: plt.Axes, expected: np.ndarray, title: str, xlabel: str) -> None:
+        ax.bar(
+            x - width / 2.0,
+            expected,
+            width=width,
+            facecolor="white",
+            edgecolor="black",
+            linewidth=1.05,
+            zorder=2,
+        )
+        ax.bar(
+            x + width / 2.0,
+            observed,
+            width=width,
+            facecolor="white",
+            edgecolor="black",
+            hatch="///",
+            linewidth=1.05,
+            zorder=2,
+        )
+        ax.set_xlim(-0.55, 3.55)
+        ax.set_ylim(0, 24)
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels)
+        ax.set_xlabel(xlabel)
+        ax.set_title(title)
+        _legend(
+            ax,
+            [
+                Rectangle((0, 0), 1, 1, facecolor="white", edgecolor="black", label="expected"),
+                Rectangle(
+                    (0, 0),
+                    1,
+                    1,
+                    facecolor="white",
+                    edgecolor="black",
+                    hatch="///",
+                    label="observed",
+                ),
+            ],
+            loc="upper right",
+        )
+
+    _bars(ax_model, equal, f"χ² = {chi_equal:.1f},  df = 3", "known model,  each p = 1/4")
+    _bars(
+        ax_margins,
+        np.array(margins, dtype=float),
+        f"χ² = {chi_margins:.2f},  df = 1",
+        "E = row total × column total / n",
+    )
+    ax_model.set_ylabel("count")
+    ax_model.set_yticks([0, 5, 10, 15, 20])
+    fig.suptitle("Same observed counts", fontsize=13)
+    _save(fig, "11-fit-or-independence.png")
+    print(f"  fit-or-independence equal={chi_equal:.2f} margins={chi_margins:.4f}")
+
+
 def draw_intervals() -> None:
     hits = np.linspace(-1.55, 1.55, 19)
     miss = np.array([2.55])
@@ -1496,6 +1606,7 @@ def main() -> None:
     draw_squared_distance()
     draw_counts_to_chi_square()
     draw_goodness_of_fit()
+    draw_fit_or_independence()
     # Sampling-track order is normal, CLT, binomial, Galton, Horowitz, chi-square, intervals.
     for name in (
         "03-horowitz-clt.png",

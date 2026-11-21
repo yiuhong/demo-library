@@ -5,6 +5,8 @@
  * topics are statistics. The shell pane stays plain white; the grid
  * here belongs to the plate, as it does on a home frame.
  * Reduced motion holds the settled drawing.
+ * Track plates reuse this frame. Their motion is the tk-* rules.
+ * The topic drawings and the topic motion are unchanged.
  */
 
 .topic-plate {
@@ -151,6 +153,119 @@
     100% { stroke-dashoffset: 100; }
 }
 
+.tk-cs-mean,
+.tk-cs-spread,
+.tk-sp-box,
+.tk-sp-out,
+.tk-pd-mark,
+.tk-si-hit,
+.tk-si-miss,
+.tk-chi-mark,
+.tk-an-mean,
+.tk-ac-resid,
+.tk-pw-cut,
+.tk-ca-landed {
+    opacity: 0;
+}
+
+.tk-cs-mean { animation: tk-fade 4.6s ease-in-out infinite; }
+.tk-cs-spread { animation: tk-fade 4.6s ease-in-out infinite; animation-delay: 0.42s; }
+
+.tk-sp-box { animation: tk-fade 4.8s ease-in-out infinite; }
+.tk-sp-out { animation: tk-fade 4.8s ease-in-out infinite; animation-delay: 0.55s; }
+
+.tk-sg-line { animation: tk-sg-line 5.2s ease-in-out infinite; }
+.tk-sg-curve { opacity: 0; animation: tk-sg-curve 5.2s ease-in-out infinite; }
+
+.tk-sg-fit,
+.tk-pd-curve,
+.tk-chi-curve,
+.tk-tt-link,
+.tk-pw-alt,
+.tk-ac-fit {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+}
+
+.tk-sg-fit { animation: tk-draw 5.2s ease-in-out infinite; }
+.tk-pd-curve { animation: tk-draw 4.8s ease-in-out infinite; }
+.tk-pd-mark { animation: tk-fade 4.8s ease-in-out infinite; animation-delay: 0.7s; }
+.tk-chi-curve { animation: tk-draw 5s ease-in-out infinite; }
+.tk-chi-mark { animation: tk-fade 5s ease-in-out infinite; animation-delay: 0.75s; }
+.tk-tt-link { animation: tk-draw 5s ease-in-out infinite; }
+.tk-tt-link:nth-child(2) { animation-delay: 0.08s; }
+.tk-tt-link:nth-child(3) { animation-delay: 0.16s; }
+.tk-tt-link:nth-child(4) { animation-delay: 0.24s; }
+.tk-tt-link:nth-child(5) { animation-delay: 0.32s; }
+.tk-pw-alt { animation: tk-draw 5s ease-in-out infinite; }
+.tk-pw-cut { animation: tk-fade 5s ease-in-out infinite; animation-delay: 0.7s; }
+.tk-an-mean { animation: tk-fade 5s ease-in-out infinite; }
+.tk-an-mean:nth-child(2) { animation-delay: 0.22s; }
+.tk-an-mean:nth-child(3) { animation-delay: 0.44s; }
+.tk-ac-fit { animation: tk-draw 5.2s ease-in-out infinite; }
+.tk-ac-resid { animation: tk-fade 5.2s ease-in-out infinite; animation-delay: 0.7s; }
+
+.tk-si-hit { animation: tk-fade 5s ease-in-out infinite; }
+.tk-si-miss { animation: tk-fade 5s ease-in-out infinite; animation-delay: 0.45s; }
+
+.tk-ca-bead {
+    opacity: 0;
+    animation: tk-ca-step 5.2s ease-in-out infinite;
+}
+
+.tk-ca-bead:nth-child(2) { animation-delay: 0.28s; }
+.tk-ca-bead:nth-child(3) { animation-delay: 0.56s; }
+.tk-ca-landed { animation: tk-fade 5.2s ease-in-out infinite; animation-delay: 0.85s; }
+
+.tk-ca-bars rect {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    transform: scaleY(0);
+    animation: tk-rise 5.2s ease-in-out infinite;
+}
+
+.tk-ca-bars rect:nth-child(1) { animation-delay: 0.15s; }
+.tk-ca-bars rect:nth-child(2) { animation-delay: 0.25s; }
+.tk-ca-bars rect:nth-child(3) { animation-delay: 0.35s; }
+.tk-ca-bars rect:nth-child(4) { animation-delay: 0.45s; }
+.tk-ca-bars rect:nth-child(5) { animation-delay: 0.55s; }
+
+@keyframes tk-fade {
+    0%, 16% { opacity: 0; }
+    40%, 78% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes tk-draw {
+    0%, 12% { stroke-dashoffset: 100; }
+    48%, 78% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: 100; }
+}
+
+@keyframes tk-rise {
+    0%, 28% { transform: scaleY(0); }
+    55%, 82% { transform: scaleY(1); }
+    100% { transform: scaleY(0); }
+}
+
+@keyframes tk-ca-step {
+    0%, 4% { opacity: 0; }
+    10%, 18% { opacity: 1; }
+    26%, 100% { opacity: 0; }
+}
+
+@keyframes tk-sg-line {
+    0%, 18% { opacity: 1; }
+    42%, 74% { opacity: 0; }
+    94%, 100% { opacity: 1; }
+}
+
+@keyframes tk-sg-curve {
+    0%, 18% { opacity: 0; }
+    42%, 74% { opacity: 1; }
+    94%, 100% { opacity: 0; }
+}
+
 @media screen and (max-width: 736px) {
     .overview-tree li.has-plate > .topic-plate,
     .overview-tree > .topic-plate {
@@ -175,7 +290,29 @@
     .tp-cm-far,
     .tp-as-loose,
     .tp-as-tight,
-    .tp-as-fit {
+    .tp-as-fit,
+    .tk-cs-mean,
+    .tk-cs-spread,
+    .tk-sp-box,
+    .tk-sp-out,
+    .tk-sg-line,
+    .tk-sg-curve,
+    .tk-sg-fit,
+    .tk-pd-curve,
+    .tk-pd-mark,
+    .tk-ca-bead,
+    .tk-ca-landed,
+    .tk-ca-bars rect,
+    .tk-si-hit,
+    .tk-si-miss,
+    .tk-chi-curve,
+    .tk-chi-mark,
+    .tk-tt-link,
+    .tk-pw-alt,
+    .tk-pw-cut,
+    .tk-an-mean,
+    .tk-ac-fit,
+    .tk-ac-resid {
         animation: none;
     }
 
@@ -183,21 +320,43 @@
     .tp-dd-median,
     .tp-dd-mean,
     .tp-cm-far,
-    .tp-as-tight {
+    .tp-as-tight,
+    .tk-cs-mean,
+    .tk-cs-spread,
+    .tk-sp-box,
+    .tk-sp-out,
+    .tk-sg-curve,
+    .tk-pd-mark,
+    .tk-ca-landed,
+    .tk-si-hit,
+    .tk-si-miss,
+    .tk-chi-mark,
+    .tk-pw-cut,
+    .tk-an-mean,
+    .tk-ac-resid {
         opacity: 1;
     }
 
     .tp-cm-near,
-    .tp-as-loose {
+    .tp-as-loose,
+    .tk-sg-line,
+    .tk-ca-bead {
         opacity: 0;
     }
 
     .tp-ps-curve,
-    .tp-as-fit {
+    .tp-as-fit,
+    .tk-sg-fit,
+    .tk-pd-curve,
+    .tk-chi-curve,
+    .tk-tt-link,
+    .tk-pw-alt,
+    .tk-ac-fit {
         stroke-dashoffset: 0;
     }
 
-    .tp-ps-bars rect {
+    .tp-ps-bars rect,
+    .tk-ca-bars rect {
         transform: scaleY(1);
     }
 }

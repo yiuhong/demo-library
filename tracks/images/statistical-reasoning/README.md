@@ -56,6 +56,10 @@ The Horowitz figure follows `statistics/horowitz_1974_simulation_CLT.html`: 96 s
 
 `10-goodness-of-fit.png` is a schematic equal-probability model, not one spin of `statistics/chi_square_goodness_of_fit.html`. Three categories and `n = 30` give an expected count of 10. Observed counts are 18, 8, and 4, so `χ² = 10.4` on 2 degrees of freedom. For that chi-square law the 5% critical value is `−2 ln(0.05) = 5.99`. The observed line sits to the right of it.
 
+### The same counts, two expected counts
+
+`11-fit-or-independence.png` is a schematic 2×2 table, not one spin of `statistics/chi_square_independence_2x2.html`. The observed counts are 16, 8, 4, and 12, so `n = 40`. A known equal model expects 10 in every cell: `χ² = 8.0` on 3 degrees of freedom. The sample margins are 24 and 16 by 20 and 20, so the independence expected counts are 12, 12, 8, and 8: `χ² = 20/3` on 1 degree of freedom. The figure does not use Yates’ correction.
+
 ## Confidence intervals
 
 `statistics/target_analogy_confidence_intervals.html` treats `σ` as known. The margin is `z × SE` with `SE = σ / √n`, not a `t*` critical value. The buttons use `z = 1`, `1.96`, and `3`. The figure uses `z* = 1.96` and draws `SE = 1`, so every interval has half-width 1.96. Nineteen centers fall inside that half-width and one is placed outside. It is a schematic of the long-run 95% hit rate, not one random run of the demonstration.

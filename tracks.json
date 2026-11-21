@@ -337,7 +337,7 @@
     {
       "id": "from-chi-square-to-goodness-of-fit",
       "title": "From chi-square to goodness-of-fit",
-      "summary": "This path is for the chi-square curve and the goodness-of-fit test that uses it. By the end you can read that curve as a sum of squared standard normals, see the sum as squared distance from a bullseye, follow a count from a z score to Pearson’s statistic, and test observed counts against the counts a model expects.",
+      "summary": "This path is for the chi-square curve, the goodness-of-fit test that uses it, and the same formula read as a test of independence. By the end you can read that curve as a sum of squared standard normals, see the sum as squared distance from a bullseye, follow a count from a z score to Pearson’s statistic, test observed counts against the counts a known model expects, and tell that reading from one whose expected counts come from the sample margins.",
       "steps": [
         {
           "href": "statistics/chi_square_distribution.html",
@@ -371,7 +371,7 @@
           "href": "statistics/binomial_counts_to_chi_square.html",
           "title": "From Binomial Counts to Chi-Square",
           "connectionTitle": "A count, a z, then a chi-square",
-          "note": "A category from a coin or a die is a binomial count. The expected count is np, and the central limit theorem approximates that count with a normal curve. Dividing the error by the binomial standard deviation produces a z score. With two categories the errors are opposites, so the squared z equals Pearson’s chi-square and there is 1 degree of freedom. With more categories the counts are tied, so the degrees of freedom are k − 1, and one squared z is not that category’s Pearson cell: the squared z divides by E(1 − p), and the cell divides by E. The cells add to the chi-square. Cochran’s rule asks that every expected count be at least 5 before those curves are trusted. Pearson’s criterion is Pearson (1900), On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. The expected-count check is Cochran (1954), Some methods for strengthening the common χ² tests. The last step uses the sum as a test of a model.",
+          "note": "A category from a coin or a die is a binomial count. The expected count is np, and the central limit theorem approximates that count with a normal curve. Dividing the error by the binomial standard deviation produces a z score. With two categories the errors are opposites, so the squared z equals Pearson’s chi-square and there is 1 degree of freedom. With more categories the counts are tied, so the degrees of freedom are k − 1, and one squared z is not that category’s Pearson cell: the squared z divides by E(1 − p), and the cell divides by E. The cells add to the chi-square. Cochran’s rule asks that every expected count be at least 5 before those curves are trusted. Pearson’s criterion is Pearson (1900), On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. The expected-count check is Cochran (1954), Some methods for strengthening the common χ² tests. The next step uses the sum as a test of a model.",
           "demoDescription": "Draw a coin or a die, standardize one category, and compare its squared z with the Pearson cell. Repeated draws fill the chi-square histogram.",
           "formulae": [
             "Eᵢ = n pᵢ",
@@ -389,7 +389,7 @@
           "href": "statistics/chi_square_goodness_of_fit.html",
           "title": "Pearson’s χ² Goodness-of-Fit",
           "connectionTitle": "Counts tested against a model",
-          "note": "Pearson’s goodness-of-fit test compares observed counts with the counts a stated model expects. Each category contributes (O − E)² / E, the Pearson cell from the previous step, and the contributions add to a chi-square with k − 1 degrees of freedom. That statistic is one point on the sampling curve from the first step. Past the critical value, the counts are surprising if the model is true. Cochran’s rule still asks that each expected count be at least 5 before that curve is a fair reference. Pearson’s criterion is Pearson (1900), On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. The expected-count check is Cochran (1954), Some methods for strengthening the common χ² tests.",
+          "note": "Pearson’s goodness-of-fit test compares observed counts with the counts a stated model expects. Each category contributes (O − E)² / E, the Pearson cell from the previous step, and the contributions add to a chi-square with k − 1 degrees of freedom. That statistic is one point on the sampling curve from the first step. Past the critical value, the counts are surprising if the model is true. Cochran’s rule still asks that each expected count be at least 5 before that curve is a fair reference. Pearson’s criterion is Pearson (1900), On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. The expected-count check is Cochran (1954), Some methods for strengthening the common χ² tests. The next step keeps that formula. The same χ² can be read as goodness-of-fit, when the expected counts come from a known model, or as a test of independence, when they come from the sample margins.",
           "demoDescription": "Spin a wheel, compare the observed counts with the expected counts, and place the chi-square on its sampling curve.",
           "formulae": [
             "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ",
@@ -399,6 +399,21 @@
           ],
           "image": "tracks/images/statistical-reasoning/10-goodness-of-fit.png",
           "imageAlt": "Two panels. Left: three categories under an equal model. Expected bars are 10. Observed bars are 18, 8, and 4. The title reads χ² = 10.4, df = 2. Right: a chi-square density with 2 degrees of freedom. A dashed line at 5.99 marks the 5% critical value, and a shaded band runs to the right of it. A solid line at 10.4 sits inside that band."
+        },
+        {
+          "href": "statistics/chi_square_independence_2x2.html",
+          "title": "χ² Roulette: Goodness-of-Fit vs Independence",
+          "connectionTitle": "A known model, or the sample margins",
+          "note": "The same chi-square compares each observed count with an expected count. In a goodness-of-fit reading the expected counts come from probabilities stated before the sample. Nothing is estimated from the data, so a 2×2 table has 3 degrees of freedom. A test of independence builds those expected counts from the sample’s own row and column totals. Estimating the two margins spends 2 degrees of freedom, and the same four cells are judged on 1 degree of freedom. The sum does not change its form. What changes is where each expected count comes from.",
+          "demoDescription": "Switch goodness-of-fit and independence on the same counts, and watch the expected counts, the degrees of freedom, and the curve change together.",
+          "formulae": [
+            "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ",
+            "goodness-of-fit: Eᵢ = n pᵢ, and pᵢ is known",
+            "independence: E = (row total × column total) / n",
+            "2×2: df = 3 when pᵢ is known, and df = 1 from the margins"
+          ],
+          "image": "tracks/images/statistical-reasoning/11-fit-or-independence.png",
+          "imageAlt": "Two panels under the caption Same observed counts. Both use hatched bars of 16, 8, 4, and 12 for cells labeled 1, 1; 1, 2; 2, 1; and 2, 2. Left, titled χ² = 8.0, df = 3: every open expected bar is 10, and the axis reads known model, each p = 1/4. Right, titled χ² = 6.67, df = 1: the open expected bars are 12, 12, 8, and 8, and the axis reads E = row total × column total / n."
         }
       ]
     },
@@ -487,7 +502,7 @@
     {
       "id": "anova",
       "title": "ANOVA",
-      "summary": "This path is for comparing means, from separate groups to the same people and a split of variation. By the end you can say where the variation comes from and what the usual reading assumes.",
+      "summary": "This path is for comparing means, from separate groups to the same people and a split of variation, then that split drawn as a fitted line or plane. By the end you can say where the variation comes from, read the design as one linear model, and say what the usual reading assumes.",
       "steps": [
         {
           "href": "statistics/t_test_to_anova.html",
@@ -549,7 +564,7 @@
           "href": "statistics/mixed_anova_2x2.html",
           "title": "2×2 Mixed ANOVA",
           "connectionTitle": "One factor for groups, one for time",
-          "note": "A 2×2 mixed design has one factor that separates people into groups and one factor that measures the same people twice. The group effect is tested against differences between people. The time effect and the group-by-time interaction are tested against how people vary in their change. The same picture can be read as two simple comparisons: the midpoints, and the pre-to-post changes. The usual reading of these F tests still depends on conditions on the residuals.",
+          "note": "A 2×2 mixed design has one factor that separates people into groups and one factor that measures the same people twice. The group effect is tested against differences between people. The time effect and the group-by-time interaction are tested against how people vary in their change. The same picture can be read as two simple comparisons: the midpoints, and the pre-to-post changes. The next step draws this design, and the designs before it, as one fitted line or plane.",
           "demoDescription": "The demonstration separates a group effect, tested between people, from a time effect and a group-by-time interaction, tested against how people vary in their change.",
           "formulae": [
             "SS_between = SS_group + SS_error(between)",
@@ -559,6 +574,20 @@
           ],
           "image": "tracks/images/anova/03b-mixed-anova.png",
           "imageAlt": "Ten subjects from pre to post, group A solid and group B dashed, with each person's average on a separate track. The between-subjects bar is a group brick of 80 against an error of 2916. The within-subjects bar splits time 180, the group-by-time interaction 101.25, and error 51.84."
+        },
+        {
+          "href": "statistics/geometric_anova_regression.html",
+          "title": "Geometric ANOVA Regression",
+          "connectionTitle": "A plane, a line, or two cohorts",
+          "note": "The splits so far can be read as one linear model: a score, a coded factor, and the part the fit does not explain. A between-subjects design fits one plane across the factor. In the cross-section that plane is one line, and each person’s baseline stays in the residual, so those residual lines are long. A within-subjects design gives each person a line. The baseline is set aside, and the residuals are short. The mixed design nests those lines in two cohorts, and the cohorts need not share a slope. The usual reading of these fits still depends on conditions on the residuals.",
+          "demoDescription": "Choose a design and see a plane for separate groups, a line for each person, or two cohorts whose slopes need not match.",
+          "formulae": [
+            "between-subjects: Z = b₀ + b₁(Factor 1) + e",
+            "within-subjects: Z = (b₀ + u₀) + b₁(Factor 1) + e",
+            "mixed: two cohorts of lines, and the slopes need not match"
+          ],
+          "image": "tracks/images/anova/03c-geometric-anova.png",
+          "imageAlt": "Three panels of score against a coded factor marked 0 and 1. Between: one line: a solid line rises from 36 to 54. At 0, filled points sit at 22, 36, and 50, and dotted residuals join the outer points to the line. At 1, filled points sit at 40, 54, and 68, with the same dotted residuals. Within: a line each: four parallel solid lines, each rising by 12, with an open point just off each end and a short dotted residual. Mixed: two slopes: two solid lines rise steeply, and two dashed lines rise only slightly."
         },
         {
           "href": "statistics/anova_assumptions.html",
