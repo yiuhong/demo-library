@@ -240,12 +240,6 @@ button.home-dot:focus-visible {
     outline-offset: 3px;
 }
 
-.home-frame.is-neuro {
-    background-color: #0f172a;
-    background-image: radial-gradient(#1e293b 1px, transparent 1px);
-    border-color: #334155;
-}
-
 .ve-fit {
     stroke-dasharray: 100;
     stroke-dashoffset: 100;
@@ -268,15 +262,10 @@ button.home-dot:focus-visible {
     animation: r-fade-tight 4.4s ease-in-out infinite;
 }
 
-.erp-trace {
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    animation: erp-draw 3.6s ease-in-out infinite;
-}
-
-.erp-peak {
-    opacity: 0;
-    animation: erp-peak 3.6s ease-in-out infinite;
+.clt-bar {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: clt-rise 3.2s ease-in-out infinite;
 }
 
 @keyframes ve-draw {
@@ -301,15 +290,9 @@ button.home-dot:focus-visible {
     90%, 100% { opacity: 0; }
 }
 
-@keyframes erp-draw {
-    0% { stroke-dashoffset: 100; }
-    64%, 100% { stroke-dashoffset: 0; }
-}
-
-@keyframes erp-peak {
-    0%, 42% { opacity: 0; }
-    64%, 86% { opacity: 1; }
-    100% { opacity: 0; }
+@keyframes clt-rise {
+    0% { transform: scaleY(0.12); }
+    55%, 100% { transform: scaleY(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -319,8 +302,7 @@ button.home-dot:focus-visible {
     .r-tight,
     .r-label-loose,
     .r-label-tight,
-    .erp-trace,
-    .erp-peak {
+    .clt-bar {
         animation: none;
     }
 
@@ -330,8 +312,7 @@ button.home-dot:focus-visible {
     .r-label-loose { opacity: 0; }
     .r-tight,
     .r-label-tight { opacity: 1; }
-    .erp-trace { stroke-dashoffset: 0; }
-    .erp-peak { opacity: 1; }
+    .clt-bar { transform: scaleY(1); }
 }
 
 p.library-preferred-cite {

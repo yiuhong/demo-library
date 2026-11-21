@@ -1,6 +1,6 @@
 # Project Viz
 
-A visualization demo library for teaching. Interactive demonstrations for exploring concepts in psychology, neuroscience, and statistics.
+A visualization demo library for teaching. Interactive demonstrations for exploring concepts in statistics.
 
 **🌟 [View Project Viz](https://yiuhong.github.io/demo-library/)**
 
@@ -20,22 +20,20 @@ Version and last-updated date live in [`assets/site-meta.js`](assets/site-meta.j
 
 ## 📂 Repository Structure
 
-Demo pages live in subject folders. The library page does not hard-code the catalog cards.
+The public catalog is statistics. Its demo pages live in `statistics/`. The library page does not hard-code the catalog cards. `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project. They are not in `demos.json`, and they are not part of the public catalog.
 
 The home page (`index.html`) is the front page: the wordmark, two buttons (the catalog and Guided Tracks), and a featured plate that cycles three demonstrations. It uses the same top bar as the catalog and Guided Tracks (Home, Catalog, Guided Tracks, About Yiu Hong). Cite & reuse ([`cite.html`](cite.html)) and Licenses ([`license.html`](license.html)) use that same bar. Those two links stay in the colophon and the footer. Home is not the two-pane shell. The catalog ([`catalog.html`](catalog.html)) and Guided Tracks ([`tracks.html`](tracks.html)) share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane on the same row. The catalog rail is the category list. The pane is a card grid for the focused category, and the first category is focused when you arrive. Choosing a card loads that demonstration: the rail becomes that category’s demo list, and Back to browse restores the grid. Switching category swaps the grid. Guided Tracks opens on the list of tracks in the rail. Choosing a track replaces that list with the playlist: each step is a demonstration link, and when the step has a note, formulae, a demo description, or a figure, its `connectionTitle` sits immediately before the demonstration and opens that material in the pane. Back, at the top of the rail, returns to the track list. Previous and Next, on the pane bar beside Fullscreen, step through that track in the same order. Previous is unavailable on the first page and Next is unavailable on the last. Choosing a demonstration or a connection loads it in the pane. Fullscreen asks the browser to show that pane — the bar and the open demonstration or connection — in fullscreen. Exit and Escape leave it. In a home-screen web app, where that request cannot start, the same button hides the top bar, the rail, and the footer so the demonstration fills the window, and Exit, Back, or Escape brings them back. The control is hidden under 480px, where the phone bar is already full. From 480px up, including a tablet that still uses the one-step shell, Fullscreen stays on the bar. Demonstrations do not add a second Fullscreen button. On a phone, Catalog shows the categories, then the demonstrations in the chosen category, then the demonstration. Back from the demonstration returns to that category. Back from the category returns to the category list. Guided Tracks shows the track list, then that track’s steps, then the demonstration. Back from the demonstration returns to that track. Back from the track returns to the track list. `catalog.html?demo=statistics/variance_explained.html` and `tracks.html?demo=statistics/variance_explained.html` open that demonstration directly. `tracks.html?track=center-and-spread&demo=tracks/connection.html&step=0` opens that connection. Opening a demonstration or connection file on its own still shows Return to Project Viz. Inside the shell that link is omitted.
 
 Home, Catalog, Guided Tracks, Cite & reuse, and Licenses load [`assets/foundation.css`](assets/foundation.css) for type, the reading column, the footer, and the load fade. They do not load a stylesheet or script from the personal site. The favicon and the About Yiu Hong link still point there.
 
-Home, Catalog, and Guided Tracks wear a notebook sheet: class `viz-notebook` on `<html>`, drawn by [`assets/notebook.css`](assets/notebook.css). The page is white. UI ink is black. The grid is a faint blue, and a thin muted red line is the left margin (and the rule above the home colophon). A quiet black ruler sits under the top bar. Cite & reuse and Licenses stay plain. A featured plate keeps its own canvas, including the dark neuroscience plate. While a neuroscience demonstration is open, the pane uses a cool gray bar over a dark stage. The demonstration stays in the iframe, which this sheet does not enter. The topic overview, the empty stage, Catalog browse, and an embedded connection note stay plain white. Remove `viz-notebook` from those three pages to ship the plain shell. `?notebook=0` hides the sheet for one visit, and `?notebook=1` shows it.
+Home, Catalog, and Guided Tracks wear a notebook sheet: class `viz-notebook` on `<html>`, drawn by [`assets/notebook.css`](assets/notebook.css). The page is white. UI ink is black. The grid is a faint blue, and a thin muted red line is the left margin (and the rule above the home colophon). A quiet black ruler sits under the top bar. Cite & reuse and Licenses stay plain. A featured plate keeps its own canvas. The three plates are Variance Explained, Covariance and Correlation, and Central Limit Theorem (CLT). While a file from `neuroscience/` is open in the pane, the pane uses a cool gray bar over a dark stage. That folder is not a public catalog subject. The demonstration stays in the iframe, which this sheet does not enter. The topic overview, the empty stage, Catalog browse, and an embedded connection note stay plain white. Remove `viz-notebook` from those three pages to ship the plain shell. `?notebook=0` hides the sheet for one visit, and `?notebook=1` shows it.
 
-Statistics demonstrations use the same idea, more quietly, in [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css): white paper, a fainter blue grid, and a one-pixel muted red edge. The grid does not cover a plot, a canvas, or a connection note. Neuroscience demonstrations stay the dark lab.
+Statistics demonstrations use the same idea, more quietly, in [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css): white paper, a fainter blue grid, and a one-pixel muted red edge. The grid does not cover a plot, a canvas, or a connection note. A neuroscience file kept for a later project stays the dark lab. It is not part of the public catalog.
 
 Featured plates are the three `href`s in `index.html`; titles and sentences come from `demos.json`. The plates do not print figure or plate captions. Concept maps are a separate list, in [`families.json`](families.json): each node is a catalog `href`, and the title is read from `demos.json`. Opening a demonstration does not mark the home plate, Guided Tracks, or the catalog.
 
-* `📁 /cognitive_psychology`
-* `📁 /neuroscience`
-* `📁 /statistics`
-* `📁 /personality_psychology`
+* `📁 /statistics` — public catalog
+* `📁 /cognitive_psychology`, `📁 /neuroscience`, and `📁 /personality_psychology` — kept in the repository for a later project, not part of the public catalog
 * [`demos.json`](demos.json) — catalog inventory for List
 * [`families.json`](families.json) — concept maps. Titles stay in `demos.json`
 * [`tracks.json`](tracks.json) — Guided Tracks playlists only (order, notes, formulae, demo descriptions, images)
@@ -78,10 +76,10 @@ The catalog page fetches [`demos.json`](demos.json) and builds the category rail
 
 Each category has:
 
-* `id` — chip value (`cognitive`, `neuroscience`, `statistics`, `personality`)
+* `id` — chip value. The public catalog has one category, `statistics`.
 * `title` — category heading and chip label
-* `panel` — page band: `style2`, `style3`, or `style1`. Categories that share a panel render in the same section. Cognitive psychology and neuroscience share `style2`; statistics is `style3`; personality psychology is `style1`.
-* `domId` — optional element id. Current anchors: `cognitive-category`, `neuro-category`, `stats-category`, `personality-category`.
+* `panel` — page band. Statistics uses `style3`.
+* `domId` — optional element id. The public catalog anchor is `stats-category`. Older home links for `cognitive-category`, `neuro-category`, and `personality-category` are not redirected.
 * `subcategories` — ordered groups
 
 Each subcategory has `title`, `demos`, and an optional `group`. Subcategories with the same `group` render under one topic heading. Omit `group` for a normal subcategory. Statistics topics are flat headings. Their names match these Guided Tracks: Center and spread, Shape and pictures, Same summaries, different graphs, From process to distribution, Counts, arrivals, and the board, Sampling distributions and intervals, t-test, Statistical power, ANOVA, and Association. From chi-square to goodness-of-fit is a further playlist under Probability & sampling, and it is not a catalog heading.
@@ -96,7 +94,7 @@ Each demo has:
 
 ### How to add a demo
 
-1. Add the demo HTML file in the subject folder.
+1. Add the demo HTML file under `statistics/`.
 2. In that file, link the site-chrome stylesheet and load the two scripts below (paths are `../assets/` from a subject folder). The strip is **Cite this demo** (when the page is listed in `demos.json`; it opens that demo’s citation in a new tab) and the author’s site, also in a new tab. License, site-wide cite, and source links stay on the library footer. Do not add an "All rights reserved" notice.
 
 ```html
@@ -139,7 +137,7 @@ Optional fields on a step. When a note, formulae, demo description, or image is 
 * `image` — relative path from the site root, such as `tracks/images/describing-data/01-mean-median-mode.png`.
 * `imageAlt` — text alternative. Required when `image` is set. If the alt text is missing, or the path is not a relative image path, the image is left out.
 
-An image path has to stay relative: no URL scheme and no `..`. A step with only `href` and `title` stays a demonstration link, with no title before it. The figures stay the black-and-white preview images already in `tracks/images/`. Do not copy the note into a new HTML file; `tracks/connection.html` reads `tracks.json`. That page loads Teach and Learn. The figure and the Key points stay visible in Teach. The note and **In the next demo** are the detail. The figure stays a concept illustration and stays before **In the next demo**. A neuroscience demonstration uses the dark demo chrome on that connection page. Other demonstrations use the light statistics chrome.
+An image path has to stay relative: no URL scheme and no `..`. A step with only `href` and `title` stays a demonstration link, with no title before it. The figures stay the black-and-white preview images already in `tracks/images/`. Do not copy the note into a new HTML file; `tracks/connection.html` reads `tracks.json`. That page loads Teach and Learn. The figure and the Key points stay visible in Teach. The note and **In the next demo** are the detail. The figure stays a concept illustration and stays before **In the next demo**. The public catalog and Guided Tracks are statistics, so a connection step uses the light statistics chrome. A neuroscience file kept for a later project still uses the dark demo chrome if a step names it. Those files are not catalog subjects.
 
 A step is still listed if its `href` has no matching card yet, so a playlist can name a demo before that card is in `demos.json`. The HTML file named by the `href` still has to be in the repo.
 

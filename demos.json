@@ -1,82 +1,6 @@
 {
   "categories": [
     {
-      "id": "cognitive",
-      "title": "Cognitive Psychology",
-      "domId": "cognitive-category",
-      "panel": "style2",
-      "subcategories": [
-        {
-          "title": "Mental Chronometry",
-          "demos": [
-            {
-              "href": "cognitive_psychology/noematachograph.html",
-              "title": "Noematachograph",
-              "description": "Donders' noematachograph for measuring mental chronometry.",
-              "keywords": "Noematachograph",
-              "tags": [
-                "Explorer"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "neuroscience",
-      "title": "Neuroscience",
-      "domId": "neuro-category",
-      "panel": "style2",
-      "subcategories": [
-        {
-          "title": "Electroencephalography (EEG)",
-          "demos": [
-            {
-              "href": "neuroscience/eeg_illustration.html",
-              "title": "EEG Illustration",
-              "description": "An illustration of electroencephalography (EEG).",
-              "keywords": "EEG Illustration",
-              "tags": [
-                "Explorer"
-              ]
-            },
-            {
-              "href": "neuroscience/EEG_signal_decomposition.html",
-              "title": "EEG Signal Decomposition",
-              "description": "Interactive decomposition of an EEG signal.",
-              "keywords": "EEG Signal Decomposition",
-              "tags": [
-                "Explorer"
-              ]
-            },
-            {
-              "href": "neuroscience/erp_demo.html",
-              "title": "Event-related potential (ERP)",
-              "description": "A simulator and explorer for event-related potentials (ERP).",
-              "keywords": "Event-related potential (ERP)",
-              "tags": [
-                "Simulation"
-              ]
-            }
-          ]
-        },
-        {
-          "title": "Functional Near-Infrared Spectroscopy (fNIRS)",
-          "demos": [
-            {
-              "href": "neuroscience/fnirs_mechanism.html",
-              "title": "fNIRS Mechanism",
-              "description": "A simulator of the functional near-infrared spectroscopy (fNIRS) mechanism.",
-              "keywords": "fNIRS Mechanism",
-              "tags": [
-                "Explorer"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
       "id": "statistics",
       "title": "Statistics",
       "domId": "stats-category",
@@ -497,42 +421,6 @@
               "keywords": "Additivity of Variance sum of squares SS sum vs difference",
               "tags": [
                 "Explorer"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "personality",
-      "title": "Personality Psychology",
-      "domId": "personality-category",
-      "panel": "style1",
-      "subcategories": [
-        {
-          "title": "Psychoanalysis",
-          "demos": [
-            {
-              "href": "personality_psychology/nlp_psychotherapy.html",
-              "title": "NLP in Psychotherapy",
-              "description": "Natural language processing for psychotherapy transcript analysis.",
-              "keywords": "Natural Language Processing (NLP) in Psychotherapy",
-              "tags": [
-                "Explorer"
-              ]
-            }
-          ]
-        },
-        {
-          "title": "Personality Traits",
-          "demos": [
-            {
-              "href": "personality_psychology/lexical_approach.html",
-              "title": "Lexical Approach",
-              "description": "The lexical hypothesis for uncovering personality traits.",
-              "keywords": "Lexical Approach",
-              "tags": [
-                "Walkthrough"
               ]
             }
           ]

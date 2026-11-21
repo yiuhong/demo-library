@@ -5,7 +5,7 @@
     <title>Project Viz - Yiu Hong Ko</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="A visualization demo library for teaching. Interactive demonstrations for exploring concepts in psychology, neuroscience, and statistics." />
+    <meta name="description" content="A visualization demo library for teaching. Interactive demonstrations for exploring concepts in statistics." />
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@1,600&display=swap" rel="stylesheet">
@@ -55,7 +55,7 @@
                 window.location.replace("tracks.html" + (next.toString() ? "?" + next.toString() : "") + hash);
                 return;
             }
-            var catalogHash = /^(path-[a-z0-9-]+|stats-category|cognitive-category|neuro-category|personality-category)$/.test(bare);
+            var catalogHash = /^(path-[a-z0-9-]+|stats-category)$/.test(bare);
             if (view === "list" || view === "cards" || catalogHash) {
                 var catalogNext = new URLSearchParams();
                 withDemo(catalogNext);
@@ -89,7 +89,7 @@
                             <span class="visually-hidden">Project Viz</span>
                             <img src="images/project-viz-wordmark.svg" alt="" width="1041" height="271" aria-hidden="true">
                         </h1>
-                        <p id="library-about" class="library-about">A visualization demo library for teaching. Interactive demonstrations for exploring concepts in psychology, neuroscience, and statistics.</p>
+                        <p id="library-about" class="library-about">A visualization demo library for teaching. Interactive demonstrations for exploring concepts in statistics.</p>
                         <div class="home-actions">
                             <a class="home-cta is-primary" href="catalog.html">Browse the catalog</a>
                             <a class="home-cta" href="tracks.html">Guided Tracks</a>
@@ -158,18 +158,31 @@
                                 <a class="home-open" href="statistics/covariance_and_correlation.html">Open the demo</a>
                             </article>
 
-                            <article class="home-slide" data-href="neuroscience/erp_demo.html" hidden>
-                                <h2 class="home-slide-title">Event-related potential (ERP)</h2>
-                                <p class="home-hook">A simulator and explorer for event-related potentials (ERP).</p>
-                                <div class="home-frame is-neuro">
+                            <article class="home-slide" data-href="statistics/central_limit_theorem.html" hidden>
+                                <h2 class="home-slide-title">Central Limit Theorem (CLT)</h2>
+                                <p class="home-hook">A simulation of the central limit theorem (CLT).</p>
+                                <div class="home-frame">
                                     <svg viewBox="0 0 360 188" aria-hidden="true">
-                                        <line x1="24" y1="118" x2="336" y2="118" stroke="#334155" stroke-width="1"/>
-                                        <path class="erp-trace" pathLength="100" fill="none" stroke="#e2e8f0" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" d="M18 118 C48 118 62 108 78 102 C96 94 104 86 116 108 C128 148 142 158 160 122 C176 86 186 40 206 36 C226 32 236 86 258 116 C276 140 304 128 342 118"/>
-                                        <circle class="erp-peak" cx="206" cy="36" r="4.5" fill="#a5b4fc"/>
-                                        <text x="216" y="32" fill="#c7d2fe" font-family="ui-monospace, monospace" font-size="12">P3</text>
+                                        <line x1="40" y1="28" x2="40" y2="150" stroke="#111111" stroke-width="1.4"/>
+                                        <line x1="40" y1="150" x2="300" y2="150" stroke="#111111" stroke-width="1.4"/>
+                                        <g fill="#111111">
+                                            <rect class="clt-bar" x="52" y="136" width="16" height="14"/>
+                                            <rect class="clt-bar" x="74" y="124" width="16" height="26"/>
+                                            <rect class="clt-bar" x="96" y="104" width="16" height="46"/>
+                                            <rect class="clt-bar" x="118" y="78" width="16" height="72"/>
+                                            <rect class="clt-bar" x="140" y="56" width="16" height="94"/>
+                                            <rect class="clt-bar" x="162" y="40" width="16" height="110"/>
+                                            <rect class="clt-bar" x="184" y="56" width="16" height="94"/>
+                                            <rect class="clt-bar" x="206" y="78" width="16" height="72"/>
+                                            <rect class="clt-bar" x="228" y="104" width="16" height="46"/>
+                                            <rect class="clt-bar" x="250" y="124" width="16" height="26"/>
+                                            <rect class="clt-bar" x="272" y="136" width="16" height="14"/>
+                                        </g>
+                                        <path fill="none" stroke="#111111" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" d="M44 145.2 48 142.4 52 134.6 56 131.8 60 129 64 126.8 68 124.6 72 122.5 76 120.3 80 118.1 84 115.2 88 111.5 92 107.9 96 104.3 100 100.6 104 97 108 92.3 112 87.5 116 82.8 120 78.1 124 73.4 128 69 132 65 136 61 140 57 144 53 148 49 152 46.1 156 43.2 160 40.3 164 37.4 168 34.5 172 34.5 176 37.4 180 40.3 184 43.2 188 46.1 192 49 196 53 200 57 204 61 208 65 212 69 216 73.4 220 78.1 224 82.8 228 87.5 232 92.3 236 97 240 100.6 244 104.3 248 107.9 252 111.5 256 115.2 260 118.1 264 120.3 268 122.5 272 124.6 276 126.8 280 129 284 131.3 288 133.7 292 141 296 143.3 300 145.7 304 148"/>
+                                        <text x="178" y="26" fill="#111111" font-family="ui-monospace, monospace" font-size="15">x̄</text>
                                     </svg>
                                 </div>
-                                <a class="home-open" href="neuroscience/erp_demo.html">Open the demo</a>
+                                <a class="home-open" href="statistics/central_limit_theorem.html">Open the demo</a>
                             </article>
                         </div>
                         <div class="home-controls">
@@ -177,7 +190,7 @@
                             <div class="home-dots" role="group" aria-label="Featured plates">
                                 <button type="button" class="home-dot is-active" aria-pressed="true" aria-label="Variance Explained"></button>
                                 <button type="button" class="home-dot" aria-pressed="false" aria-label="Covariance and Correlation"></button>
-                                <button type="button" class="home-dot" aria-pressed="false" aria-label="Event-related potential"></button>
+                                <button type="button" class="home-dot" aria-pressed="false" aria-label="Central Limit Theorem (CLT)"></button>
                             </div>
                             <button type="button" class="home-control" id="home-next">Next</button>
                         </div>
@@ -189,7 +202,7 @@
                     <ul class="home-feature-list">
                         <li>
                             <h3>Coverage</h3>
-                            <p>The demonstrations cover psychology, neuroscience, statistics, and personality.</p>
+                            <p>The demonstrations cover statistics.</p>
                         </li>
                         <li>
                             <h3>Interactive figures</h3>

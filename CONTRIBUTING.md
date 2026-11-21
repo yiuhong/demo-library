@@ -18,7 +18,7 @@ Small corrections — a wrong label, a broken link, a clearer sentence — are t
 
 ## Shell
 
-Home, Catalog, Guided Tracks, Cite & reuse, and Licenses load [`assets/foundation.css`](assets/foundation.css). Do not link a stylesheet or a script from the personal site. The notebook sheet ([`assets/notebook.css`](assets/notebook.css)) is only on Home, Catalog, and Guided Tracks: white paper, black UI ink, a faint blue grid, and a thin muted red margin. Cite & reuse and Licenses stay plain. Statistics pages take a quieter version of that sheet from [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). Do not paint the grid over a plot, a canvas, or a connection note. Neuroscience stays the dark lab.
+Home, Catalog, Guided Tracks, Cite & reuse, and Licenses load [`assets/foundation.css`](assets/foundation.css). Do not link a stylesheet or a script from the personal site. The notebook sheet ([`assets/notebook.css`](assets/notebook.css)) is only on Home, Catalog, and Guided Tracks: white paper, black UI ink, a faint blue grid, and a thin muted red margin. Cite & reuse and Licenses stay plain. Statistics pages take a quieter version of that sheet from [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). Do not paint the grid over a plot, a canvas, or a connection note. The public catalog is statistics. Files in `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project and are not part of the public catalog. A neuroscience file in that set stays the dark lab.
 
 ## Range sliders
 
@@ -39,7 +39,7 @@ These are general chrome rules, not a strict template. Do not rebuild an existin
 
 [Shell](#shell) covers the notebook grid and the two shared looks. [Range sliders](#range-sliders) is the 44px standard. That section is also where a new demonstration loads the matching shared theme and keeps `class="demo-page"` on `body`.
 
-A statistics page loads [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). A neuroscience page loads [`assets/neuroscience-demo-theme.css`](assets/neuroscience-demo-theme.css). A personality or cognitive page may keep its own look. It still needs the embed hook and an embedding contract: when `html` has `viz-embedded`, hide the return link and keep the shell pane free of a page-level horizontal scrollbar. Do not invent a third library-chrome theme. Do not force those pages onto the statistics light sheet or the neuroscience dark lab.
+The public catalog is statistics. A statistics page loads [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). Files in `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project and are not part of the public catalog. Do not add them to `demos.json`. A neuroscience file in that set still loads [`assets/neuroscience-demo-theme.css`](assets/neuroscience-demo-theme.css). A personality or cognitive file may keep its own look. It still needs the embed hook and an embedding contract: when `html` has `viz-embedded`, hide the return link and keep the shell pane free of a page-level horizontal scrollbar. Do not invent a third library-chrome theme. Do not force those pages onto the statistics light sheet or the neuroscience dark lab.
 
 Catalog and Guided Tracks open a demonstration with `embed=shell`. Run the existing hook so that query adds `viz-embedded` on `html`. Fullscreen and iframe sizing in the shell depend on it. Copy the one-liner the other demonstrations already use:
 
@@ -65,7 +65,7 @@ Use this list when you compose a new demonstration, and when you next touch an e
 - Phone and coarse-pointer sliders stay a 44px target. [Range sliders](#range-sliders) is that rule. Do not paint the hit box back to a thin track.
 - No scrollbar inside a panel. The content wraps or fits in the card. On a stacked phone or a narrow window, the page is the vertical scroller. The locked-viewport cases later in this section still stand: a desktop inspector may scroll when the page is locked to the viewport, and a formula may scroll locally so the page stays free of a horizontal scrollbar. The plot is not also a vertical scroller. Never put a scrollbar over a canvas.
 - Teach and Learn is one site-wide switch. Do not add a per-demo theme, a second pair of names, or a mode that only this page understands. [Teach and Learn](#teach-and-learn) is the control and the object list.
-- Chrome is the shared chrome. Load the matching shared theme, keep `class="demo-page"` on `body`, and run the `embed=shell` hook. Do not invent a third library-chrome theme. A personality or cognitive page may keep its own look. It still needs the embed hook.
+- Chrome is the shared chrome. Load the matching shared theme, keep `class="demo-page"` on `body`, and run the `embed=shell` hook. Do not invent a third library-chrome theme. A personality or cognitive file that remains for a later project may keep its own look. It is not a catalog page. It still needs the embed hook.
 - Default Learn still shows a short commentary object before any drawer is opened: a visible lede or a short teaching paragraph. A long term-by-term note may start closed. That closed drawer is density inside the commentary. It is not Teach.
 
 A pure explorer may have almost no commentary. Do not invent a note so this list has something to show. The switch still ships, so the library stays consistent.
@@ -134,15 +134,15 @@ For a plot-plus-inspector or a locked-viewport explorer, a stacked narrow view p
 
 A Plot / Inspector toggle, or a Plot / Controls toggle, is only for a short landscape view of one main plot plus a dense inspector. Do not force it onto a simple one-column page, a multi-plot lesson whose figures must be seen together, a map or a conceptual dashboard, or a document-like step tour.
 
-Plot design, the statistical engine, and the theme stay with the demonstration. [Shell](#shell) keeps statistics on the light notebook and neuroscience on the dark lab. A page may keep a distinct look, as the Noematachograph does.
+Plot design, the statistical engine, and the theme stay with the demonstration. [Shell](#shell) keeps statistics on the light notebook. A neuroscience file kept for a later project stays on the dark lab and is not a catalog page. A page may keep a distinct look, as the Noematachograph does. That page remains in the repository for a later project and is not in the public catalog.
 
 The equivalence demonstration’s Controls / Model / Fit tabs, its exact 960px, 500px, and 900px breakpoints, the `min(52vh, 90vw)` plot height, and the `demo-library-regression-anova-step-description` preference key are that demonstration’s chrome. They are not a library template.
 
 When you next touch an older demonstration, the notes below are the gaps in that file. They are guidance for later work, not a list of pages to rebuild. A page that does not look like the equivalence demonstration is not a defect.
 
-Noematachograph, NLP in Psychotherapy, and Lexical Approach lack `demo-page`, a shared theme, and the `embed=shell` hook. Add the hook without flattening their look. Boxplot and Outliers and From Paired t-Test to RM-ANOVA load the statistics theme but omit `body.demo-page`. From Paired t-Test to RM-ANOVA also forces a 6px range and does not restore the 44px target in [Range sliders](#range-sliders).
+Noematachograph, NLP in Psychotherapy, and Lexical Approach remain in the repository for a later project and are not in the public catalog. They lack `demo-page`, a shared theme, and the `embed=shell` hook. Add the hook without flattening their look, and do not add them to `demos.json`. Boxplot and Outliers and From Paired t-Test to RM-ANOVA load the statistics theme but omit `body.demo-page`. From Paired t-Test to RM-ANOVA also forces a 6px range and does not restore the 44px target in [Range sliders](#range-sliders).
 
-If you are already laying the page out again, ease a locked or competing scroll area on EEG Signal Decomposition, Chi-Square Distribution, Covariance and Correlation, Building the Normal Distribution, and Target Analogy of Confidence Intervals. When you next edit the theme sheets, align the embedded `overflow-x: clip` in [`assets/neuroscience-demo-theme.css`](assets/neuroscience-demo-theme.css) with [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css) (`html.viz-embedded body.demo-page`). Do that in the sheets. Do not touch every neuroscience HTML file for it.
+If you are already laying the page out again, ease a locked or competing scroll area on EEG Signal Decomposition, Chi-Square Distribution, Covariance and Correlation, Building the Normal Distribution, and Target Analogy of Confidence Intervals. EEG Signal Decomposition remains in `neuroscience/` for a later project and is not a catalog page. When you next edit the theme sheets, align the embedded `overflow-x: clip` in [`assets/neuroscience-demo-theme.css`](assets/neuroscience-demo-theme.css) with [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css) (`html.viz-embedded body.demo-page`). Do that in the sheets. Do not touch every neuroscience HTML file for it.
 
 ## Plotting
 
@@ -150,7 +150,11 @@ Which drawing tool to use, which version to load, and how to upgrade one later a
 
 ## Catalog
 
-Demo cards live in [`demos.json`](demos.json). Concept maps live in [`families.json`](families.json). Guided Tracks live in [`tracks.json`](tracks.json). The README lists the fields. Before you open a pull request, run:
+The public catalog is a statistics teaching collection. Demo cards live in [`demos.json`](demos.json). Concept maps live in [`families.json`](families.json). Guided Tracks live in [`tracks.json`](tracks.json). The README lists the fields.
+
+`cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project. They are not listed in `demos.json`, and they are not part of the public catalog, Guided Tracks, or the home plates. Do not add those pages to the catalog. Leave the files where they are.
+
+Before you open a pull request, run:
 
 ```bash
 python3 scripts/check_catalog.py
