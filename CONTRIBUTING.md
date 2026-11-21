@@ -16,6 +16,16 @@ Pull requests are welcome. Opening a pull request is not a guarantee of merge.
 
 Small corrections — a wrong label, a broken link, a clearer sentence — are the easiest to review. Keep teaching text, explanations, and figures under CC BY 4.0, and source code under MIT, as [LICENSE](LICENSE) and [LICENSE-CODE](LICENSE-CODE) describe. [license.html](license.html) lists that split.
 
+## Teaching source
+
+Before you add a new demonstration, name the textbook passage, classic paper, or other reputable teaching source the lesson is based on. If there is no such source, do not add the page yet.
+
+AI may help implement the demonstration. It must not be the origin of the lesson.
+
+When the teaching depends on that source, cite it as [Teach and Learn](#teach-and-learn) already requires: a short teaching note next to that teaching, marked `data-teach="detail"`. There is no blanket bibliography. Footer, license, and cite-the-library pages do not need a reference list of their own. A new demonstration still follows that object list.
+
+Do not invent a citation. If a source is uncertain, say so in the pull request and skip the guess. Do not add a citation to an existing demonstration in order to apply this rule, and do not invent one when you next touch the page.
+
 ## Shell
 
 Home, Catalog, Guided Tracks, Cite & reuse, and Licenses load [`assets/foundation.css`](assets/foundation.css). Do not link a stylesheet or a script from the personal site. The notebook sheet ([`assets/notebook.css`](assets/notebook.css)) is only on Home, Catalog, and Guided Tracks: white paper, black UI ink, a faint blue grid, and a thin muted red margin. Cite & reuse and Licenses stay plain. Statistics pages take a quieter version of that sheet from [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). Do not paint the grid over a plot, a canvas, or a connection note. The public catalog is statistics. Files in `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project and are not part of the public catalog. A neuroscience file in that set stays the dark lab.
@@ -30,6 +40,7 @@ A new demonstration must:
 - keep `class="demo-page"` on `body`
 - leave the shared rule alone: under `(max-width: 768px), (pointer: coarse)`, `body.demo-page input[type="range"]` is a 44px hit box (an 8px track and a 28px thumb)
 - load Teach and Learn, and mark the page, as [Teach and Learn](#teach-and-learn) requires. That markup is the standing standard for every new demonstration and every new Guided Tracks connection page.
+- name the textbook passage, classic paper, or other reputable teaching source the lesson is based on, as [Teaching source](#teaching-source) requires. If there is no such source, do not add the page yet. AI may help implement the demonstration. It must not be the origin of the lesson.
 
 Page-specific thumb colors are fine. Do not override that hit box back to a thin track.
 
@@ -146,7 +157,7 @@ If you are already laying the page out again, ease a locked or competing scroll 
 
 ## Plotting
 
-Which drawing tool to use, which version to load, and how to upgrade one later are recorded in [docs/plotting-conventions.md](docs/plotting-conventions.md). The pins themselves are [`assets/vendor.json`](assets/vendor.json). A demonstration asks for a library with [`assets/vendor-loader.js`](assets/vendor-loader.js). Do not paste a CDN address for D3, Chart.js, KaTeX, jStat, or Three.js. Mathematics is KaTeX from that registry. Do not add MathJax. Do not add Plotly, Vega-Lite, Observable Plot, or another plotting library. Do not load the Tailwind Play CDN (`https://cdn.tailwindcss.com`). Utilities come from [`assets/tailwind.css`](assets/tailwind.css), built with Tailwind CSS 3.4.17. Rebuild that sheet when a page needs a utility it does not already contain. The shared theme sheets stay as they are. Labels, formulae, the shared theme, scroll, and the 44px range target stay in [Demo interface](#demo-interface) and [Range sliders](#range-sliders).
+Which drawing tool to use, which version to load, and how to upgrade one later are recorded in [docs/plotting-conventions.md](docs/plotting-conventions.md). The pins themselves are [`assets/vendor.json`](assets/vendor.json). A demonstration asks for a library with [`assets/vendor-loader.js`](assets/vendor-loader.js). Do not paste a CDN address for D3, Chart.js, KaTeX, jStat, or Three.js. Mathematics is KaTeX from that registry. Do not add MathJax. Do not add Plotly, Vega-Lite, Observable Plot, or another plotting library. Do not load the Tailwind Play CDN (`https://cdn.tailwindcss.com`). Utilities come from [`assets/tailwind.css`](assets/tailwind.css), built with Tailwind CSS 3.4.17. Rebuild that sheet when a page needs a utility it does not already contain. The shared theme sheets stay as they are. Labels, formulae, the shared theme, scroll, and the 44px range target stay in [Demo interface](#demo-interface) and [Range sliders](#range-sliders). The teaching source stays in [Teaching source](#teaching-source). [docs/plotting-conventions.md](docs/plotting-conventions.md) repeats that rule in the same terms.
 
 ## Catalog
 
