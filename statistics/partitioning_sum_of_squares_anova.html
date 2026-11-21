@@ -1342,6 +1342,168 @@
       margin-bottom: 10px;
     }
 
+    /* Phone shell (max-width: 736px). The chart is a centered row with a
+       fixed minimum (680px, or 1180px for ten or more leaves), so a narrow
+       panel clips the left side and scrolls the right. Drop that minimum.
+       A short chart stays horizontal and uses the panel. A chart whose
+       boxes would be too narrow to read gets .tree-stacked: one column,
+       children under the parent, and the page is the scroller. */
+    @media (max-width: 736px) {
+      #diagram-view.diagram-wrapper {
+        overflow: visible;
+      }
+
+      #diagram-view .tree-container {
+        min-width: 0;
+        justify-content: stretch;
+      }
+
+      #diagram-view .tree,
+      #diagram-view .tree.compact-tree,
+      #diagram-view .tree.ultra-compact-tree {
+        width: 100%;
+        min-width: 0;
+      }
+
+      #diagram-view .tree .node {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      #diagram-view .node-label,
+      #diagram-view .node-sub,
+      #diagram-view .node-df-formula,
+      #diagram-view .node-df-val,
+      #diagram-view .stratum-tag,
+      #diagram-view .role-pill {
+        max-width: 100%;
+        overflow-wrap: break-word;
+        white-space: normal;
+      }
+
+      #diagram-view .node:hover,
+      #diagram-view .node.active-numerator,
+      #diagram-view .node.active-denominator {
+        transform: none;
+      }
+
+      #diagram-view .tree.tree-stacked ul {
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        width: 100%;
+        padding-top: 0;
+        gap: 8px;
+      }
+
+      #diagram-view .tree.tree-stacked > ul {
+        gap: 0;
+      }
+
+      #diagram-view .tree.tree-stacked li {
+        flex: 0 0 auto !important;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        padding: 0;
+        align-items: stretch;
+      }
+
+      #diagram-view .tree.tree-stacked li::before,
+      #diagram-view .tree.tree-stacked li::after,
+      #diagram-view .tree.tree-stacked ul ul::before {
+        display: none;
+        content: none;
+        border: 0;
+        width: 0;
+        height: 0;
+      }
+
+      #diagram-view .tree.tree-stacked ul ul {
+        margin: 0;
+        padding: 8px 0 0 14px;
+        border-left: 2px solid #cbd5e1;
+        gap: 8px;
+      }
+
+      #diagram-view .tree.tree-stacked .node,
+      #diagram-view .tree.tree-stacked.compact-tree .node,
+      #diagram-view .tree.tree-stacked.ultra-compact-tree .node {
+        max-width: none;
+        width: 100%;
+        align-items: flex-start;
+        text-align: left;
+        padding: 8px 10px;
+      }
+
+      #diagram-view .tree.tree-stacked ul ul > li > .node::before {
+        content: "";
+        display: block;
+        position: absolute;
+        left: -16px;
+        top: 50%;
+        width: 16px;
+        height: 0;
+        border: 0;
+        border-top: 2px solid #cbd5e1;
+        transform: translateY(-1px);
+      }
+
+      #diagram-view .tree.tree-stacked .node-label,
+      #diagram-view .tree.tree-stacked.compact-tree .node-label,
+      #diagram-view .tree.tree-stacked.ultra-compact-tree .node-label {
+        font-size: 0.95rem;
+      }
+
+      #diagram-view .tree.tree-stacked .node-sub,
+      #diagram-view .tree.tree-stacked.compact-tree .node-sub,
+      #diagram-view .tree.tree-stacked.ultra-compact-tree .node-sub {
+        font-size: 0.8rem;
+        line-height: 1.3;
+        margin-bottom: 4px;
+      }
+
+      #diagram-view .tree.tree-stacked .node-df-formula,
+      #diagram-view .tree.tree-stacked.compact-tree .node-df-formula,
+      #diagram-view .tree.tree-stacked.ultra-compact-tree .node-df-formula {
+        font-size: 0.8rem;
+        padding: 2px 6px;
+      }
+
+      #diagram-view .tree.tree-stacked .node-df-val,
+      #diagram-view .tree.tree-stacked.compact-tree .node-df-val,
+      #diagram-view .tree.tree-stacked.ultra-compact-tree .node-df-val {
+        font-size: 0.84rem;
+      }
+
+      #diagram-view .tree.tree-stacked .stratum-tag,
+      #diagram-view .tree.tree-stacked.ultra-compact-tree .stratum-tag {
+        font-size: 0.68rem;
+        padding: 1px 5px;
+      }
+
+      #diagram-view .tree.tree-stacked .role-pill {
+        position: static;
+        left: auto;
+        top: auto;
+        transform: none;
+        margin-bottom: 4px;
+      }
+
+      /* A long F table was the grid item's min-content, so the cards
+         under the tree sat a few pixels past the phone viewport. */
+      .bottom-grid > .panel {
+        min-width: 0;
+      }
+
+      .f-table th,
+      .f-table td,
+      .math-formula,
+      .meta-box {
+        overflow-wrap: anywhere;
+      }
+    }
+
   </style>
 </head>
 <body class="demo-page">
@@ -3457,6 +3619,34 @@
       container.innerHTML = html;
     }
 
+    // A phone cannot show every leaf in one row. 128px is enough for a
+    // wrapped label at the normal size. Narrower than that, stack.
+    const TREE_NODE_MIN = 128;
+    let treeFitObserver = null;
+
+    function fitTreeToWidth() {
+      const tree = document.getElementById('tree-root');
+      const diagram = document.getElementById('diagram-view');
+      if (!tree || !diagram) return;
+      if (treeFitObserver) treeFitObserver.disconnect();
+
+      const phone = window.matchMedia('(max-width: 736px)').matches;
+      if (!phone || diagram.style.display === 'none') {
+        tree.classList.remove('tree-stacked');
+      } else {
+        tree.classList.remove('tree-stacked');
+        const nodes = [...tree.querySelectorAll('.node')];
+        let narrowest = Infinity;
+        for (const node of nodes) {
+          narrowest = Math.min(narrowest, node.getBoundingClientRect().width);
+        }
+        const overflows = tree.scrollWidth > tree.clientWidth + 1;
+        tree.classList.toggle('tree-stacked', !nodes.length || overflows || narrowest < TREE_NODE_MIN);
+      }
+
+      if (treeFitObserver) treeFitObserver.observe(diagram);
+    }
+
     function renderAll() {
       const { a, b, c, n } = getParams();
       const atomic = computeAtomicLayer(currentDesign, numFactors, a, b, c, n, mixed3Type);
@@ -3482,6 +3672,7 @@
 
       const treeHTML = `<ul>${buildTreeHTML(view.tree, fTestHighlight)}</ul>`;
       treeRootEl.innerHTML = treeHTML;
+      fitTreeToWidth();
 
       // Update Inspector & Rule Box
       const targetNode = findNode(view.tree, selectedNodeId) || view.tree;
@@ -3575,10 +3766,11 @@
     }
 
     // Initialize on load
+    treeFitObserver = new ResizeObserver(() => fitTreeToWidth());
     syncFactorUI();
     updateParams();
 
-    // A still tap pins a factor note. A slide does not, so the wide trees can scroll.
+    // A still tap pins a factor note. A slide does not, so a finger can scroll the page.
     // Mouse hover is unchanged.
     document.querySelectorAll(".factor-pill").forEach((pill) => {
       if (!pill.querySelector(".tooltip-popup")) return;
