@@ -9,7 +9,9 @@
  * shell pair is #viz-teach. The in-page pair uses .demo-teach and
  * hides under html.viz-embedded, the same way .demo-back does.
  * The fill follows the class, so the selected name is right before
- * aria-checked is written.
+ * aria-checked is written. Hover colors apply only for a fine pointer
+ * that can hover. A phone tap leaves :hover stuck, and the selected
+ * name's hover rule would paint that name white.
  */
 
 html.viz-teach [data-teach="detail"],
@@ -50,19 +52,38 @@ html.viz-teach .lede:not([data-teach="essential"]) {
     cursor: pointer;
 }
 
-.viz-mode-switch button:hover,
-.viz-mode-switch button:focus-visible {
-    background: #000000;
-    color: #ffffff;
-}
-
 .viz-mode-switch button:focus {
     outline: none;
 }
 
 .viz-mode-switch button:focus-visible {
+    background: #000000;
+    color: #ffffff;
     outline: 2px solid #000000;
     outline-offset: 2px;
+}
+
+/* A mouse inverts the name under the pointer, then the class fill
+ * returns when the pointer leaves. Those rules stay off unless the
+ * primary pointer is fine and can hover, so a stuck :hover cannot
+ * clear the selected name. */
+@media (hover: hover) and (pointer: fine) {
+    .viz-mode-switch button:hover {
+        background: #000000;
+        color: #ffffff;
+    }
+
+    html.viz-teach .viz-mode-switch [data-viz-teach-choice="learn"]:hover,
+    html:not(.viz-teach) .viz-mode-switch [data-viz-teach-choice="teach"]:hover {
+        background: #000000;
+        color: #ffffff;
+    }
+
+    html.viz-teach .viz-mode-switch [data-viz-teach-choice="teach"]:hover,
+    html:not(.viz-teach) .viz-mode-switch [data-viz-teach-choice="learn"]:hover {
+        background: #ffffff;
+        color: #000000;
+    }
 }
 
 .demo-teach.viz-mode-switch {
@@ -131,18 +152,6 @@ html:not(.viz-teach) .viz-mode-switch [data-viz-teach-choice="learn"] {
 html.viz-teach .viz-mode-switch [data-viz-teach-choice="learn"],
 html:not(.viz-teach) .viz-mode-switch [data-viz-teach-choice="teach"] {
     background: transparent;
-    color: #000000;
-}
-
-html.viz-teach .viz-mode-switch [data-viz-teach-choice="learn"]:hover,
-html:not(.viz-teach) .viz-mode-switch [data-viz-teach-choice="teach"]:hover {
-    background: #000000;
-    color: #ffffff;
-}
-
-html.viz-teach .viz-mode-switch [data-viz-teach-choice="teach"]:hover,
-html:not(.viz-teach) .viz-mode-switch [data-viz-teach-choice="learn"]:hover {
-    background: #ffffff;
     color: #000000;
 }
 

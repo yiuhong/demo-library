@@ -1161,6 +1161,14 @@ body.viz-app #footer ul.menu > li {
         padding-left: 0.7rem !important;
         padding-right: 0.7rem !important;
     }
+
+    /* The demonstration already shows its title. This heading is the
+     * only item in the bar that can shrink, so a phone collapses it
+     * to a character or to nothing beside Back and Teach / Learn
+     * (and Previous / Next on Guided Tracks). */
+    #viz-pane-title {
+        display: none;
+    }
 }
 
 /* The phone shell (max-width: 736px) used to hide Fullscreen too.
