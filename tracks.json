@@ -40,7 +40,7 @@
     {
       "id": "center-and-spread",
       "title": "Center and spread",
-      "summary": "This path is for where a set of numbers sits and how wide they are. By the end you can read the mean, the median, and the mode, treat higher moments as averages of spread and skew, and see why a sample variance divides by n − 1.",
+      "summary": "This path is for where a set of numbers sits and how wide they are. By the end you can read the mean, the median, and the mode, treat higher moments as averages of spread and skew, and see why a sample variance divides by n − 1. A short check then asks you to move those pictures. The track ends after the check.",
       "steps": [
         {
           "href": "statistics/mean_mode_median_dot_plot.html",
@@ -82,6 +82,21 @@
           ],
           "image": "tracks/images/describing-data/03-bessels-correction.png",
           "imageAlt": "Two bars for the average variance estimate from 8000 samples of size 10, drawn from a population whose variance is 100. Dividing by n averages about 90.2, below the true-variance line. Dividing by n − 1 averages about 100.2, on that line."
+        },
+        {
+          "href": "statistics/center_and_spread_check.html",
+          "title": "Center and spread check",
+          "connectionTitle": "A check of these pictures",
+          "closingHeading": "The check, then the track ends",
+          "note": "The three demonstrations are done. Mean, median, and mode were three lines on one dot plot. Higher moments made spread and skew into averages of powers of the deviations. The last demonstration showed why a sample variance divides by n − 1. The page after this figure is a short check of that dot plot and of that divisor. When the check is done, the track ends.",
+          "demoDescription": "Drag the high point until the mean meets its mark, and slide the divisor until the variance bar meets the true-variance line. The gap on each picture shows whether you are closer.",
+          "formulae": [
+            "x̄ = (Σ xᵢ) / n",
+            "median = 6.5 and mode = 4 while the point stays to the right",
+            "Σ (xᵢ − x̄)² / (n − 1) = 100"
+          ],
+          "image": "tracks/images/describing-data/10-center-spread-check.png",
+          "imageAlt": "Two panels of the check at its start. Left: dots at 4, 4, and 9, and one open point at 24. A dotted line marks the mode at 4, a dashed line marks the median at 6.5, a solid line marks the mean at 10.25, and a dash-dot line marks the target mean at 8. Right: one bar at 90, under a dashed line at the true variance 100, while the divisor is still n."
         }
       ]
     },

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Center and spread check</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/stats-viz-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <style>
+        /*
+         * Trial check for the Center and spread track. Two figures, no
+         * inner scroller. Teach hides [data-teach="detail"] and the
+         * figure row takes that space. Drawing follows the sliders and
+         * the box size. It does not read Teach or Learn.
+         */
+        body.demo-page {
+            margin: 0;
+        }
+
+        .page {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 54rem;
+            margin: 0 auto;
+            padding: 1rem 1rem 2.5rem;
+        }
+
+        .page *,
+        .page *::before,
+        .page *::after {
+            box-sizing: border-box;
+        }
+
+        .page-title {
+            margin-bottom: 0.9rem;
+        }
+
+        .lede {
+            margin: 0 0 1.1rem;
+            font-size: 1.02rem;
+            line-height: 1.5;
+        }
+
+        .check {
+            margin: 0 0 1.25rem;
+        }
+
+        .check-body {
+            display: grid;
+            grid-template-rows: minmax(16rem, 1fr) auto;
+            height: 32rem;
+            padding: 0.85rem 0.9rem 1rem;
+        }
+
+        .check-main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+            gap: 0.85rem;
+            min-width: 0;
+            min-height: 0;
+        }
+
+        .figure-wrap {
+            position: relative;
+            min-width: 0;
+            min-height: 16rem;
+            height: 100%;
+            background: #ffffff;
+            border: 1px solid #000000;
+        }
+
+        .figure-wrap svg {
+            position: absolute;
+            inset: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: pan-y;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.55rem;
+            min-width: 0;
+        }
+
+        .controls label {
+            font-weight: bold;
+        }
+
+        .controls p,
+        .why {
+            margin: 0;
+            line-height: 1.45;
+        }
+
+        .why {
+            padding-top: 0.85rem;
+        }
+
+        .hint {
+            margin: 0;
+            font-size: 0.92rem;
+        }
+
+        .legend {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .legend li {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin: 0.12rem 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .swatch {
+            flex: 0 0 auto;
+            width: 1.7rem;
+            border-top: 3px solid #000000;
+        }
+
+        .swatch.mean { border-top-color: var(--viz-mean); }
+        .swatch.median {
+            border-top-color: var(--viz-median);
+            border-top-style: dashed;
+        }
+        .swatch.mode {
+            border-top-color: var(--viz-mode);
+            border-top-style: dotted;
+        }
+        .swatch.mark { border-top-style: dashed; }
+        .swatch.truth {
+            border-top-color: var(--viz-significant);
+            border-top-style: dashed;
+        }
+
+        .equation {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .distance {
+            height: 0.7rem;
+            border: 1px solid #000000;
+            background: #ffffff;
+        }
+
+        .distance > span {
+            display: block;
+            height: 100%;
+            width: 0%;
+            background: #000000;
+        }
+
+        .feedback {
+            font-weight: bold;
+        }
+
+        .controls .demo-btn {
+            align-self: flex-start;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .distance > span {
+                transition: width 80ms linear;
+            }
+        }
+
+        @media (max-width: 768px), (pointer: coarse) {
+            .controls .demo-btn {
+                min-height: 44px;
+            }
+        }
+
+        /* Stacked phone: the page scrolls. The figure keeps a comfortable
+           height. Teach gives the figure the room the why paragraph used. */
+        @media (max-width: 736px) {
+            .check-body {
+                display: flex;
+                flex-direction: column;
+                height: auto;
+                min-height: 0;
+            }
+
+            .check-main {
+                display: flex;
+                flex-direction: column;
+                flex: none;
+            }
+
+            .figure-wrap {
+                height: 18rem;
+                flex: none;
+            }
+
+            html.viz-teach .figure-wrap {
+                height: 23rem;
+            }
+        }
+    </style>
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Center and spread check</h1>
+        </header>
+
+        <p class="lede" data-teach="detail">Two pictures from this track. Move the high point on the dot plot, then the divisor on the variance bar. Each gap shows whether you are closer. This is the last step.</p>
+
+        <article class="check demo-card">
+            <header class="demo-header">
+                <h2>Move the mean</h2>
+                <p data-teach="essential">Drag the open point, or move the slider, until the mean meets the mark.</p>
+            </header>
+            <div class="check-body">
+                <div class="check-main">
+                    <div class="figure-wrap">
+                        <svg id="center-plot" data-teach="essential" role="group" aria-label="Dot plot"></svg>
+                    </div>
+                    <div class="controls" data-teach="essential">
+                        <label for="high-point">High point <span id="high-readout">24</span></label>
+                        <input id="high-point" type="range" min="10" max="24" step="1" value="24">
+                        <p class="hint">The other values stay at 4, 4, and 9.</p>
+                        <ul class="legend">
+                            <li><span class="swatch mean"></span> Mean <span id="mean-value">10.25</span></li>
+                            <li><span class="swatch median"></span> Median <span id="median-value">6.50</span></li>
+                            <li><span class="swatch mode"></span> Mode <span id="mode-value">4</span></li>
+                            <li><span class="swatch mark"></span> Mark 8</li>
+                        </ul>
+                        <p class="equation">x̄ = <span id="mean-eq">10.25</span></p>
+                        <p>How close</p>
+                        <div class="distance" aria-hidden="true"><span id="center-meter"></span></div>
+                        <p>Distance <span id="center-gap">2.25</span></p>
+                        <p id="center-feedback" class="feedback" aria-live="polite">Farther from the mark</p>
+                        <button id="center-reset" class="demo-btn" type="button">Start again</button>
+                    </div>
+                </div>
+                <p class="why" data-teach="detail">The mean divides the sum by the count, so the open point pulls it. For every place this slider allows, the middle stays at 6.5 and the most common value stays at 4. The mark is a mean of 8, which is this point at 15.</p>
+            </div>
+        </article>
+
+        <article class="check demo-card">
+            <header class="demo-header">
+                <h2>Meet the true variance</h2>
+                <p data-teach="essential">Slide the divisor from n toward n − 1 until the bar meets the line.</p>
+            </header>
+            <div class="check-body">
+                <div class="check-main">
+                    <div class="figure-wrap">
+                        <svg id="spread-plot" data-teach="essential" role="group" aria-label="Variance bar"></svg>
+                    </div>
+                    <div class="controls" data-teach="essential">
+                        <label for="divisor">Divisor <span id="divisor-readout">10 (n)</span></label>
+                        <input id="divisor" type="range" min="9" max="10" step="0.01" value="10">
+                        <p class="hint">n = 10 at the right. n − 1 = 9 at the left.</p>
+                        <ul class="legend">
+                            <li><span class="swatch"></span> Estimate <span id="estimate-value">90.0</span></li>
+                            <li><span class="swatch truth"></span> True variance 100</li>
+                        </ul>
+                        <p class="equation">900 / <span id="divisor-eq">10</span> = <span id="estimate-eq">90.0</span></p>
+                        <p>How close</p>
+                        <div class="distance" aria-hidden="true"><span id="spread-meter"></span></div>
+                        <p>Distance <span id="spread-gap">10.0</span></p>
+                        <p id="spread-feedback" class="feedback" aria-live="polite">Farther from the line</p>
+                        <button id="spread-reset" class="demo-btn" type="button">Start again</button>
+                    </div>
+                </div>
+                <p class="why" data-teach="detail">This picture fixes the average sum of squared deviations at 900, and the true variance at 100. Dividing by n = 10 leaves 90. Dividing by n − 1 = 9 lands on 100. The bar is 900 divided by the divisor you set.</p>
+            </div>
+        </article>
+    </div>
+
+    <script>
+        (function () {
+            var FIXED = [4, 4, 9];
+            var MARK = 8;
+            var CENTER_MAX_GAP = 2.25;
+            var SS = 900;
+            var TRUTH = 100;
+            var SPREAD_MAX_GAP = 10;
+
+            var centerPlot = document.getElementById("center-plot");
+            var spreadPlot = document.getElementById("spread-plot");
+            var highInput = document.getElementById("high-point");
+            var divisorInput = document.getElementById("divisor");
+            var centerLayout = null;
+
+            function svgEl(name, attrs) {
+                var node = document.createElementNS("http://www.w3.org/2000/svg", name);
+                Object.keys(attrs).forEach(function (key) {
+                    if (attrs[key] == null || attrs[key] === "") return;
+                    node.setAttribute(key, String(attrs[key]));
+                });
+                return node;
+            }
+
+            function clear(node) {
+                while (node.firstChild) node.removeChild(node.firstChild);
+            }
+
+            function measure(svg) {
+                var rect = svg.getBoundingClientRect();
+                var w = Math.round(rect.width);
+                var h = Math.round(rect.height);
+                if (w < 40 || h < 40) return null;
+                svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+                svg.setAttribute("preserveAspectRatio", "none");
+                return { w: w, h: h };
+            }
+
+            function centerStats(high) {
+                var values = FIXED.concat([high]);
+                var sum = 0;
+                var i;
+                for (i = 0; i < values.length; i++) sum += values[i];
+                var mean = sum / values.length;
+                var sorted = values.slice().sort(function (a, b) { return a - b; });
+                var median = (sorted[1] + sorted[2]) / 2;
+                var counts = {};
+                var mode = values[0];
+                var best = 0;
+                for (i = 0; i < values.length; i++) {
+                    var value = values[i];
+                    counts[value] = (counts[value] || 0) + 1;
+                    if (counts[value] > best) {
+                        best = counts[value];
+                        mode = value;
+                    }
+                }
+                return { mean: mean, median: median, mode: mode };
+            }
+
+            function band(gap, onAt, closeAt, farWord, closeWord, onWord) {
+                if (gap <= onAt) return onWord;
+                if (gap <= closeAt) return closeWord;
+                return farWord;
+            }
+
+            function setMeter(id, gap, maxGap) {
+                var closeness = 1 - gap / maxGap;
+                if (closeness < 0) closeness = 0;
+                if (closeness > 1) closeness = 1;
+                document.getElementById(id).style.width = (closeness * 100) + "%";
+            }
+
+            function drawCenter() {
+                var box = measure(centerPlot);
+                if (!box) return;
+                var high = Number(highInput.value);
+                var stats = centerStats(high);
+                var mean = stats.mean;
+                var gap = Math.abs(mean - MARK);
+                var w = box.w;
+                var h = box.h;
+                var padL = 34;
+                var padR = 12;
+                var padT = 16;
+                var padB = 26;
+                var plotW = Math.max(1, w - padL - padR);
+                var plotH = Math.max(1, h - padT - padB);
+                var xMin = 2;
+                var xMax = 26;
+                var base = padT + plotH;
+                centerLayout = { xMin: xMin, xMax: xMax, padL: padL, plotW: plotW, w: w };
+
+                function xOf(value) {
+                    return padL + (value - xMin) / (xMax - xMin) * plotW;
+                }
+
+                clear(centerPlot);
+                centerPlot.appendChild(svgEl("rect", {
+                    x: 0, y: 0, width: w, height: h, fill: "#ffffff"
+                }));
+                centerPlot.appendChild(svgEl("line", {
+                    x1: padL, x2: padL + plotW, y1: base, y2: base,
+                    stroke: "#000000", "stroke-width": 1.25
+                }));
+
+                var ticks = [4, 8, 12, 16, 20, 24];
+                ticks.forEach(function (tick) {
+                    var x = xOf(tick);
+                    centerPlot.appendChild(svgEl("line", {
+                        x1: x, x2: x, y1: base, y2: base + 5,
+                        stroke: "#000000", "stroke-width": 1
+                    }));
+                    var label = svgEl("text", {
+                        x: x, y: base + 18, "text-anchor": "middle",
+                        "font-family": "Arial, Helvetica, sans-serif", "font-size": 12,
+                        fill: "#000000"
+                    });
+                    label.textContent = String(tick);
+                    centerPlot.appendChild(label);
+                });
+
+                function vline(value, stroke, width, dash) {
+                    var x = xOf(value);
+                    centerPlot.appendChild(svgEl("line", {
+                        x1: x, x2: x, y1: padT + 14, y2: base,
+                        stroke: stroke, "stroke-width": width, "stroke-dasharray": dash
+                    }));
+                }
+
+                vline(MARK, "#000000", 1.4, "7 3 1.5 3");
+                var markX = xOf(MARK);
+                centerPlot.appendChild(svgEl("path", {
+                    d: "M " + (markX - 6) + " " + padT + " L " + markX + " " + (padT + 11) + " L " + (markX + 6) + " " + padT + " Z",
+                    fill: "#000000"
+                }));
+                vline(stats.mode, "var(--viz-mode)", 2.25, "1.6 3");
+                vline(stats.median, "var(--viz-median)", 2.25, "7 4");
+                vline(mean, "var(--viz-mean)", 3, "");
+
+                var bracketY = padT + 22;
+                var left = xOf(Math.min(mean, MARK));
+                var right = xOf(Math.max(mean, MARK));
+                if (right - left > 1) {
+                    centerPlot.appendChild(svgEl("line", {
+                        x1: left, x2: right, y1: bracketY, y2: bracketY,
+                        stroke: "#000000", "stroke-width": 2
+                    }));
+                }
+
+                var stacks = {};
+                function dot(value, open) {
+                    var index = stacks[value] || 0;
+                    stacks[value] = index + 1;
+                    var cx = xOf(value);
+                    var cy = base - 12 - index * 18;
+                    if (open) {
+                        centerPlot.appendChild(svgEl("circle", {
+                            cx: cx, cy: cy, r: 8, fill: "#ffffff", stroke: "#000000", "stroke-width": 2.5
+                        }));
+                        var hit = svgEl("circle", {
+                            cx: cx, cy: cy, r: 22, fill: "transparent", "data-drag": "high"
+                        });
+                        hit.setAttribute("style", "cursor: ew-resize; touch-action: none;");
+                        centerPlot.appendChild(hit);
+                    } else {
+                        centerPlot.appendChild(svgEl("circle", {
+                            cx: cx, cy: cy, r: 7, fill: "var(--viz-sample)"
+                        }));
+                    }
+                }
+
+                FIXED.forEach(function (value) { dot(value, false); });
+                dot(high, true);
+
+                centerPlot.setAttribute("aria-label",
+                    "Dot plot. Open point at " + high +
+                    ". Mean " + mean.toFixed(2) +
+                    ", median " + stats.median.toFixed(2) +
+                    ", mode " + stats.mode +
+                    ". Mark at 8."
+                );
+
+                document.getElementById("high-readout").textContent = String(high);
+                document.getElementById("mean-value").textContent = mean.toFixed(2);
+                document.getElementById("median-value").textContent = stats.median.toFixed(2);
+                document.getElementById("mode-value").textContent = String(stats.mode);
+                document.getElementById("mean-eq").textContent = mean.toFixed(2);
+                document.getElementById("center-gap").textContent = gap.toFixed(2);
+                setMeter("center-meter", gap, CENTER_MAX_GAP);
+                document.getElementById("center-feedback").textContent = band(
+                    gap, 0.02, 0.75,
+                    "Farther from the mark",
+                    "Closer to the mark",
+                    "On the mark"
+                );
+            }
+
+            function drawSpread() {
+                var box = measure(spreadPlot);
+                if (!box) return;
+                var divisor = Number(divisorInput.value);
+                var estimate = SS / divisor;
+                var gap = Math.abs(TRUTH - estimate);
+                var w = box.w;
+                var h = box.h;
+                var padL = 36;
+                var padR = 18;
+                var padT = 16;
+                var padB = 28;
+                var plotW = Math.max(1, w - padL - padR);
+                var plotH = Math.max(1, h - padT - padB);
+                var base = padT + plotH;
+                var yMax = 120;
+
+                function yOf(value) {
+                    return padT + (1 - value / yMax) * plotH;
+                }
+
+                clear(spreadPlot);
+                spreadPlot.appendChild(svgEl("rect", {
+                    x: 0, y: 0, width: w, height: h, fill: "#ffffff"
+                }));
+                spreadPlot.appendChild(svgEl("line", {
+                    x1: padL, x2: padL + plotW, y1: base, y2: base,
+                    stroke: "#000000", "stroke-width": 1.25
+                }));
+
+                var barW = Math.min(72, plotW * 0.28);
+                var barX = padL + plotW / 2 - barW / 2;
+                var barTop = yOf(estimate);
+                spreadPlot.appendChild(svgEl("rect", {
+                    x: barX, y: barTop, width: barW, height: Math.max(0, base - barTop),
+                    fill: "#ffffff", stroke: "#000000", "stroke-width": 1.5
+                }));
+                if (base - barTop > 28) {
+                    var barLabel = svgEl("text", {
+                        x: barX + barW / 2, y: barTop + 22, "text-anchor": "middle",
+                        "font-family": "Arial, Helvetica, sans-serif", "font-size": 14,
+                        fill: "#000000"
+                    });
+                    barLabel.textContent = estimate.toFixed(1);
+                    spreadPlot.appendChild(barLabel);
+                }
+
+                var lineY = yOf(TRUTH);
+                spreadPlot.appendChild(svgEl("line", {
+                    x1: padL, x2: padL + plotW, y1: lineY, y2: lineY,
+                    stroke: "var(--viz-significant)",
+                    "stroke-width": 2, "stroke-dasharray": "7 4"
+                }));
+                var truthLabel = svgEl("text", {
+                    x: padL + 4, y: lineY - 6,
+                    "font-family": "Arial, Helvetica, sans-serif", "font-size": 12,
+                    fill: "#000000"
+                });
+                truthLabel.textContent = "100";
+                spreadPlot.appendChild(truthLabel);
+
+                var bracketX = barX + barW + 10;
+                if (Math.abs(barTop - lineY) > 1) {
+                    spreadPlot.appendChild(svgEl("line", {
+                        x1: bracketX, x2: bracketX, y1: barTop, y2: lineY,
+                        stroke: "#000000", "stroke-width": 2
+                    }));
+                }
+
+                var caption = svgEl("text", {
+                    x: barX + barW / 2, y: base + 18, "text-anchor": "middle",
+                    "font-family": "Arial, Helvetica, sans-serif", "font-size": 12,
+                    fill: "#000000"
+                });
+                caption.textContent = "variance estimate";
+                spreadPlot.appendChild(caption);
+
+                var divisorText = divisor.toFixed(2);
+                if (Math.abs(divisor - 10) < 0.001) divisorText = "10 (n)";
+                else if (Math.abs(divisor - 9) < 0.001) divisorText = "9 (n − 1)";
+
+                spreadPlot.setAttribute("aria-label",
+                    "Variance bar at " + estimate.toFixed(1) +
+                    ". True variance 100. Divisor " + divisorText + "."
+                );
+
+                document.getElementById("divisor-readout").textContent = divisorText;
+                document.getElementById("estimate-value").textContent = estimate.toFixed(1);
+                document.getElementById("divisor-eq").textContent = Math.abs(divisor - 10) < 0.001 || Math.abs(divisor - 9) < 0.001
+                    ? String(Math.round(divisor))
+                    : divisor.toFixed(2);
+                document.getElementById("estimate-eq").textContent = estimate.toFixed(1);
+                document.getElementById("spread-gap").textContent = gap.toFixed(1);
+                setMeter("spread-meter", gap, SPREAD_MAX_GAP);
+                document.getElementById("spread-feedback").textContent = band(
+                    gap, 0.4, 4,
+                    "Farther from the line",
+                    "Closer to the line",
+                    "On the line"
+                );
+            }
+
+            function drawAll() {
+                drawCenter();
+                drawSpread();
+            }
+
+            highInput.addEventListener("input", drawCenter);
+            divisorInput.addEventListener("input", drawSpread);
+            document.getElementById("center-reset").addEventListener("click", function () {
+                highInput.value = "24";
+                drawCenter();
+            });
+            document.getElementById("spread-reset").addEventListener("click", function () {
+                divisorInput.value = "10";
+                drawSpread();
+            });
+
+            var dragging = false;
+            centerPlot.addEventListener("pointerdown", function (event) {
+                var target = event.target;
+                if (!target || !target.getAttribute || target.getAttribute("data-drag") !== "high") return;
+                dragging = true;
+                centerPlot.setPointerCapture(event.pointerId);
+                moveHigh(event);
+            });
+            centerPlot.addEventListener("pointermove", function (event) {
+                if (!dragging) return;
+                moveHigh(event);
+            });
+            centerPlot.addEventListener("pointerup", function () { dragging = false; });
+            centerPlot.addEventListener("pointercancel", function () { dragging = false; });
+
+            function moveHigh(event) {
+                if (!centerLayout) return;
+                var rect = centerPlot.getBoundingClientRect();
+                if (!rect.width) return;
+                var x = (event.clientX - rect.left) * (centerLayout.w / rect.width);
+                var value = centerLayout.xMin + (x - centerLayout.padL) / centerLayout.plotW * (centerLayout.xMax - centerLayout.xMin);
+                value = Math.round(value);
+                if (value < 10) value = 10;
+                if (value > 24) value = 24;
+                if (String(value) === highInput.value) return;
+                highInput.value = String(value);
+                drawCenter();
+            }
+
+            var frames = [centerPlot.parentNode, spreadPlot.parentNode];
+            if (window.ResizeObserver) {
+                var observer = new ResizeObserver(function () { drawAll(); });
+                frames.forEach(function (frame) { observer.observe(frame); });
+            }
+            window.addEventListener("resize", drawAll);
+            drawAll();
+        })();
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>
