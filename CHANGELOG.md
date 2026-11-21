@@ -63,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The home page heading that read In the library now reads Features. Coverage, Interactive figures, and Teach and Learn stay under that heading. The citation version is unchanged.
+
 - Guided Tracks. χ² Roulette: Goodness-of-Fit vs Independence is step 5 of From chi-square to goodness-of-fit, immediately after Pearson’s χ² Goodness-of-Fit. That note now leads into the same χ² sum read two ways: expected counts from a known model, or from the sample margins. The playlist summary ends on that distinction. The playlist title is unchanged. Geometric ANOVA Regression is a step on the ANOVA track, after 2×2 Mixed ANOVA and before ANOVA Assumptions, so Assumptions stays the close. Each track on a topic’s tree has its own animated plate, in the same frame and motion as the topic plates. The topic plates are unchanged. The citation version is unchanged.
 
 - The 2×2 chi-square independence page is now a roulette teaching lab at the same address, still under Statistics → Sampling distributions and intervals, immediately after Pearson’s χ² Goodness-of-Fit. One 2×2 table can be read as goodness-of-fit (df = 3, expected counts from a uniform baseline or the known wheel) or as a test of independence (df = 1, expected counts from the sample margins). Classroom presets spin a physical wheel or sample gamblers’ outside bets. Teach keeps the wheel, the table, the live sum, the curve, the controls, and the short how-to. Learn adds the lede, the pedagogy banner, and the notes on one chi-square framework. Pearson’s χ² Goodness-of-Fit and Guided Tracks are unchanged. The citation version is unchanged.
