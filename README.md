@@ -1,6 +1,6 @@
 # Project Viz
 
-A visualization demo library for teaching. Interactive demonstrations for exploring concepts in statistics.
+A visual library for teaching and learning statistics through interactive demonstrations.
 
 **🌟 [View Project Viz](https://yiuhong.github.io/demo-library/)**
 

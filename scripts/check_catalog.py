@@ -41,10 +41,7 @@ ORCID_URL = "https://orcid.org/0000-0003-4436-0166"
 ORCID_LABEL = "ORCID iD 0000-0003-4436-0166"
 DEMO_CITE_HREF = "statistics/central_limit_theorem.html"
 CITATION_TITLE = "Project Viz: A visualization demo library for teaching"
-TAGLINE = (
-    "A visualization demo library for teaching. "
-    "Interactive demonstrations for exploring concepts in statistics."
-)
+TAGLINE = "A visual library for teaching and learning statistics through interactive demonstrations."
 
 
 def main(argv: list[str] | None = None) -> int:
