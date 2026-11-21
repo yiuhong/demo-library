@@ -134,7 +134,7 @@ Optional fields on a step. When a note, formulae, demo description, or image is 
 * `connectionTitle` — a few words to one short phrase that introduces the upcoming demonstration. It is taken from the note. It is the rail button label and the heading on the connection page. Do not use the word Connection as that label.
 * `demoDescription` — one or two short sentences on what that demonstration does. Plain text, not HTML. The page labels that line In the next demo, unless the step sets `closingHeading`. It sits after the figure, or after the formulae box when the step has no figure, or after the note when the step has neither. A connection page needs this line.
 * `closingHeading` — optional short phrase used instead of In the next demo. Center and spread sets it on the trial self-test, where the track ends. Other steps leave it unset. The heading is still the detail.
-* `formulae` — array of plain-text formula strings. They are inserted as text, not as HTML. The page labels them Key points.
+* `formulae` — array of plain-text formula strings. They are inserted as text, not as HTML. The page labels them Key points. A line that is a formula also carries a short verbal gloss and definitions of the symbols in that line.
 * `image` — relative path from the site root, such as `tracks/images/describing-data/01-mean-median-mode.png`.
 * `imageAlt` — text alternative. Required when `image` is set. If the alt text is missing, or the path is not a relative image path, the image is left out.
 

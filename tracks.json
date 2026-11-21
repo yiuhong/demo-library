@@ -49,7 +49,7 @@
           "note": "We often describe data by their averages: numerical summaries that answer where the numbers sit. The mean, the median, and the mode are three such answers; they line up when the numbers are roughly balanced, and they pull apart when the shape is not. When they disagree, the next question is what other kinds of average can capture spread and shape, not only center.",
           "demoDescription": "Move the points and watch which average shifts.",
           "formulae": [
-            "x̄ = (Σ xᵢ) / n",
+            "x̄ = (Σ xᵢ) / n — the mean: add the scores and divide by how many. xᵢ is one score, n is how many, and Σ adds them.",
             "median = middle after sorting",
             "mode = most frequent value"
           ],
@@ -63,9 +63,9 @@
           "note": "There are different types of averages, and in statistics those averages of powers of the values (or of their deviations) are called moments. The mean is the first moment; higher moments give numbers for spread and for skew. Raising the deviations to a higher power, or changing the center and the scale, is what turns that average into the variance, the skewness, or the kurtosis. Those numbers still treat the sample mean as if it were already known, which matters once variance is estimated from the same data.",
           "demoDescription": "Change the sample and compare how each moment responds.",
           "formulae": [
-            "m₁ = x̄",
-            "m₂ = Σ (xᵢ − x̄)² / n",
-            "m₃ = Σ (xᵢ − x̄)³ / n"
+            "m₁ = x̄ — the first moment is the mean. m₁ is that moment, and x̄ is the mean.",
+            "m₂ = Σ (xᵢ − x̄)² / n — the second moment: an average of squared deviations, a number for spread. xᵢ is one score, x̄ the mean, n how many, and Σ adds them.",
+            "m₃ = Σ (xᵢ − x̄)³ / n — the third moment: an average of cubed deviations, a number for skew. xᵢ is one score, x̄ the mean, n how many, and Σ adds them."
           ],
           "image": "tracks/images/describing-data/02-moments.png",
           "imageAlt": "Three panels of one sample, 1, 2, 3, 4, 5, 9. The first marks the mean at 4. The second shows squared deviations from that mean, which average to 6.67. The third shows cubed deviations, where the value 9 produces a cube of 125 and the average is 15."
@@ -77,8 +77,8 @@
           "note": "When we use the data to estimate how spread out they are, the usual average of squared deviations is a little too small, because the sample mean was taken from those same values. Dividing by n − 1 instead of n corrects for that.",
           "demoDescription": "Run many samples and see which divisor lands nearer the true variance on average.",
           "formulae": [
-            "s² = Σ (xᵢ − x̄)² / (n − 1)",
-            "s = √(s²)"
+            "s² = Σ (xᵢ − x̄)² / (n − 1) — the sample variance. Dividing by n − 1 instead of n corrects for using the sample mean. xᵢ is one score, x̄ that mean, n how many, and Σ adds them.",
+            "s = √(s²) — the sample standard deviation, the square root of the sample variance. s² is that variance."
           ],
           "image": "tracks/images/describing-data/03-bessels-correction.png",
           "imageAlt": "Two bars for the average variance estimate from 8000 samples of size 10, drawn from a population whose variance is 100. Dividing by n averages about 90.2, below the true-variance line. Dividing by n − 1 averages about 100.2, on that line."
@@ -91,9 +91,9 @@
           "note": "The three demonstrations are done. Mean, median, and mode were three lines on one dot plot. Higher moments made spread and skew into averages of powers of the deviations. The last demonstration showed why a sample variance divides by n − 1. The page after this figure is a short check of that dot plot and of that divisor. When the check is done, the track ends.",
           "demoDescription": "Drag the high point until the mean meets its mark, and slide the divisor until the variance bar meets the true-variance line. The gap on each picture shows whether you are closer.",
           "formulae": [
-            "x̄ = (Σ xᵢ) / n",
+            "x̄ = (Σ xᵢ) / n — the mean: add the scores and divide by how many. xᵢ is one score, n is how many, and Σ adds them.",
             "median = 6.5 and mode = 4 while the point stays to the right",
-            "Σ (xᵢ − x̄)² / (n − 1) = 100"
+            "Σ (xᵢ − x̄)² / (n − 1) = 100 — the sample variance meets the true variance when the divisor is n − 1. xᵢ is one score, x̄ the mean, n how many, Σ adds the squared deviations, and 100 is that true variance."
           ],
           "image": "tracks/images/describing-data/10-center-spread-check.png",
           "imageAlt": "Two panels of the check at its start. Left: dots at 4, 4, and 9, and one open point at 24. A dotted line marks the mode at 4, a dashed line marks the median at 6.5, a solid line marks the mean at 10.25, and a dash-dot line marks the target mean at 8. Right: one bar at 90, under a dashed line at the true variance 100, while the divisor is still n."
@@ -112,8 +112,8 @@
           "note": "Not every set of numbers is balanced around its center; a long tail on one side pulls the mean toward itself, so mean, median, and mode sit in different places. That imbalance is skew. A number for skew is useful, but the same shape is easier to see in a picture of how the values pile up and where the middle of the data sits.",
           "demoDescription": "Drag the skew and watch the three averages separate.",
           "formulae": [
-            "skew = (1/n) Σ ((xᵢ − x̄) / σ)³",
-            "σ² = Σ (xᵢ − x̄)² / n"
+            "skew = (1/n) Σ ((xᵢ − x̄) / σ)³ — average cubed deviation, after scaling by the spread. Positive when the long tail is on the right. xᵢ is one score, x̄ the mean, σ the spread, n how many, and Σ adds them.",
+            "σ² = Σ (xᵢ − x̄)² / n — the average squared deviation that scales the skew. xᵢ is one score, x̄ the mean, n how many, σ² that average, and Σ adds them."
           ],
           "image": "tracks/images/describing-data/04-skew.png",
           "imageAlt": "A right-skewed density curve. A dotted line marks the mode at 0.49, a dashed line marks the median at 1.00, and a solid line marks the mean at 1.44, farther into the long tail."
@@ -125,8 +125,8 @@
           "note": "Numbers for center, spread, and skew summarize a shape; pictures show that shape directly. A histogram shows how values pile up; a boxplot packs the center and spread of the same data into a box and whiskers. Reading both together also shows how far a point can sit before it looks unusual against the middle of the data.",
           "demoDescription": "Read the pile and the box together on one sample.",
           "formulae": [
-            "Q₁, Q₂ (median), Q₃",
-            "IQR = Q₃ − Q₁"
+            "Q₁, Q₂ (median), Q₃ — the first quartile, the median, and the third quartile. About a quarter of the sorted values sit at or below Q₁, and about three quarters at or below Q₃.",
+            "IQR = Q₃ − Q₁ — the interquartile range, the width of the middle half. Q₁ is the first quartile, and Q₃ is the third."
           ],
           "image": "tracks/images/describing-data/05-boxplot-histogram.png",
           "imageAlt": "Histogram and boxplot of the same 44 values. The tallest bar is at 5. Dashed lines mark the first quartile at 5, the median at 6, and the third quartile at 8. Whiskers run from 3 to 12."
@@ -138,8 +138,8 @@
           "note": "Once you can see the middle of the data in a boxplot, the next question is which points sit so far out that they count as unusual. The whiskers mark how far a point can sit from the quartiles before it counts as an outlier; the fence is a multiple of the spread inside the box. Those 1.5 × IQR fences are Tukey (1977), Exploratory data analysis. The histogram’s bars still depend on where the bin edges fall. A smooth curve can follow the same pile without those cuts.",
           "demoDescription": "Add extreme points and watch which ones fall outside the fences.",
           "formulae": [
-            "lower fence = Q₁ − 1.5 × IQR",
-            "upper fence = Q₃ + 1.5 × IQR"
+            "lower fence = Q₁ − 1.5 × IQR — a point below this is marked unusual. Q₁ is the first quartile, and IQR is the middle half, Q₃ − Q₁.",
+            "upper fence = Q₃ + 1.5 × IQR — a point above this is marked unusual. Q₃ is the third quartile, and IQR is the middle half, Q₃ − Q₁."
           ],
           "image": "tracks/images/describing-data/06-boxplot-fences.png",
           "imageAlt": "Vertical boxplot for one sample. The box runs from the first quartile at 20 to the third quartile at 40, with the median at 30. Dashed Tukey fences sit at −10 and 70. The upper whisker stops at 44, inside the fence, and a point at 80 is marked as an outlier."
@@ -151,7 +151,7 @@
           "note": "A histogram’s bars move when the bin edges move, even though the numbers have not. A kernel density estimate sets a small kernel on each point and adds those kernels, so the same pile becomes a smooth curve. The bandwidth h is how wide each kernel is: a narrow kernel keeps the spikes, and a wide one flattens them. The kernel’s shape — Gaussian, Epanechnikov, or boxcar — is how the weights fall away from each point. The estimate is the kernel density in Rosenblatt (1956), Remarks on some nonparametric estimates of a density function, and Parzen (1962), On estimation of a probability density function and mode. The parabolic kernel is Epanechnikov (1969), Non-parametric estimation of a multivariate probability density. That same curve is the violin, and a half of it is the cloud in a raincloud plot. The box beside them is still the five-number summary, which is what makes an extreme point look unusual.",
           "demoDescription": "Change the sample, the bandwidth, and the kernel. The histogram, the smooth curve, the violin, and the raincloud update together.",
           "formulae": [
-            "f̂(x) = (1/(n h)) Σ K((x − xᵢ) / h)",
+            "f̂(x) = (1/(n h)) Σ K((x − xᵢ) / h) — the smooth density at x: average a kernel placed on every point. x is a place on the axis, xᵢ one point, n how many, h the bandwidth, K the kernel, and Σ adds them.",
             "h = bandwidth"
           ],
           "image": "tracks/images/describing-data/07-kernel-density.png",
@@ -171,7 +171,7 @@
           "note": "A few extreme points are one way a set of numbers can look unusual; another is that the overall shape does not match a familiar reference curve. A Q–Q plot lines the sample’s quantiles up against a reference distribution, often the normal. A curve away from the straight line means the sample’s shape and the reference shape differ. That check still describes one sample. The next question is whether another picture could carry the same means, the same spread, and the same correlation.",
           "demoDescription": "Compare the sample quantiles to the reference line.",
           "formulae": [
-            "plot (theoretical quantile, sample quantile) for each order statistic"
+            "plot (theoretical quantile, sample quantile) for each order statistic — one point for each sorted place. A quantile is the value that cuts off a given share. An order statistic is the sample lined up from smallest to largest."
           ],
           "image": "tracks/images/describing-data/08-qq-plot.png",
           "imageAlt": "Q–Q plot of one sample of 40 standard normal draws. Ordered sample quantiles are plotted against normal theoretical quantiles and lie close to a straight reference line."
@@ -183,7 +183,7 @@
           "note": "A Q–Q plot can show that a sample’s shape and a reference shape differ. Summaries of center, spread, and correlation can still agree while the pictures do not. Anscombe’s quartet (Anscombe, 1973) and the Datasaurus dozen (Matejka & Fitzmaurice, 2017) keep the means, the standard deviations, and r fixed, and the graph changes from a line to a curve, a stack, a star, or a dinosaur. When the averages match, the graph is still part of the description.",
           "demoDescription": "Switch shapes and those summaries stay put. Drag a point and they move; re-lock them and the strange picture can return with the same numbers.",
           "formulae": [
-            "same x̄, sₓ, ȳ, sᵧ, and r across shapes"
+            "same x̄, sₓ, ȳ, sᵧ, and r across shapes — those summaries can match while the picture changes. x̄ and ȳ are the two means, sₓ and sᵧ the two standard deviations, and r the correlation."
           ],
           "image": "tracks/images/describing-data/09-same-stats-different-graphs.png",
           "imageAlt": "Four scatter plots of Anscombe’s quartet. Panel I is a noisy line, II a curve, III a line with one high point, and IV a vertical stack with one point far to the right. The same dashed regression line is drawn on each panel. Every panel has mean x 9.00, mean y 7.50, standard deviations 3.32 and 2.03, and correlation 0.82."
@@ -203,9 +203,9 @@
           "demoDescription": "Step through a random walk or coin tosses. Each level updates from the parameter through to the inference.",
           "formulae": [
             "parameter θ fixes the process",
-            "X : Ω → ℝ",
-            "μ = E[X],  σ² = Var(X)",
-            "X̄ ± 1.96 · (s / √M)"
+            "X : Ω → ℝ — a random variable turns an outcome into a number. X is that number, Ω is the set of outcomes, and ℝ is the real numbers.",
+            "μ = E[X],  σ² = Var(X) — the mean and the variance of X. E[X] is the expected value, the long-run average, and Var(X) is the average squared deviation from it.",
+            "X̄ ± 1.96 · (s / √M) — an interval for the mean from one sample. X̄ is the sample mean, s the sample standard deviation, M how many observations, and 1.96 the normal cutoff for about 95%."
           ],
           "image": "tracks/images/statistical-reasoning/00-conceptual-hierarchy.png",
           "imageAlt": "Four panels for a 50-step random walk before any trial. Level 0 sets an up-step probability of 0.50, mean 0, and variance 50, and level 2 reads the end position as X = 2K − N. Level 1 is an empty position plot with a dashed line at 0. Level 3 is a normal curve for the end position, with a dashed line at the mean and dotted lines one standard deviation out. Level 4 marks the true mean at 0 and shows sample size 0."
@@ -217,7 +217,7 @@
           "note": "Many descriptions of data end by asking whether the shape looks like a familiar smooth curve. The normal distribution is one such curve, fixed by a center and a spread. Putting the curve together shows what the model is made of. The next step places that curve among the other distributions it connects to.",
           "demoDescription": "The demonstration puts a normal curve together from a center and a spread.",
           "formulae": [
-            "f(x) = (1 / (σ√(2π))) exp(−(x − μ)² / (2σ²))",
+            "f(x) = (1 / (σ√(2π))) exp(−(x − μ)² / (2σ²)) — the height of the normal curve at x. x is a point on the axis, μ the center, σ the spread, π is pi, and exp is the exponential.",
             "μ = center",
             "σ = spread"
           ],
@@ -231,9 +231,9 @@
           "note": "The normal curve is one model among many. This map places sixteen common distributions in five neighborhoods and draws three kinds of link: a special case that fixes a parameter, a transformation or a sum, and a limit. Binomial(n, p) with n = 1 is Bernoulli(p). As n grows and np settles on λ, the binomial count approaches Poisson(λ). As n grows, the binomial count also approaches a normal curve, the shape the previous step built. That limit is the de Moivre–Laplace theorem: de Moivre (1738), The doctrine of chances (2nd ed.), and Laplace (1812), Théorie analytique des probabilités.",
           "demoDescription": "Filter a neighborhood, or select a distribution and read its links: a special case, a transform, or a limit.",
           "formulae": [
-            "Binomial(1, p) = Bernoulli(p)",
-            "Binomial(n, p) → Poisson(λ) as n → ∞ and np → λ",
-            "Binomial(n, p) → Normal as n → ∞ (de Moivre–Laplace)"
+            "Binomial(1, p) = Bernoulli(p) — one trial with success chance p is a Bernoulli trial. p is that chance.",
+            "Binomial(n, p) → Poisson(λ) as n → ∞ and np → λ — the binomial count approaches a Poisson count as the trials grow and the mean np settles on λ. n is how many trials, p the success chance, and λ the Poisson mean.",
+            "Binomial(n, p) → Normal as n → ∞ (de Moivre–Laplace) — with many trials the same count approaches a normal curve. n is how many trials, and p is the success chance."
           ],
           "image": "tracks/images/statistical-reasoning/01b-distributions-map.png",
           "imageAlt": "Sixteen distributions in five neighborhoods: coin flip, arrivals, boundaries, the natural world, and the toolbelt. Solid arrows are special cases, dashed arrows are limits, and dotted arrows are transforms. Normal is shaded, and the side panel is its density with mean 0 and standard deviation 1."
@@ -252,10 +252,10 @@
           "note": "A coin toss is a Bernoulli trial: two outcomes, the same chance of heads every time, and no memory of the tosses before it. The trial and the binomial count are the model in Bernoulli (1713), Ars conjectandi. Count the heads in n tosses and that count is binomial, the sum of those trials. The bars are the exact probabilities. The next step counts arrivals in a stretch of time instead of successes in a fixed number of trials.",
           "demoDescription": "Set the number of coins and the chance of heads, then run many trials. The observed frequencies settle onto the bars.",
           "formulae": [
-            "Xᵢ ~ Bernoulli(p),  P(Xᵢ = 1) = p",
-            "X = X₁ + … + Xₙ ~ Binomial(n, p)",
-            "P(X = k) = C(n, k) · pᵏ · (1 − p)ⁿ⁻ᵏ",
-            "μ = np,  σ = √(np(1 − p))"
+            "Xᵢ ~ Bernoulli(p),  P(Xᵢ = 1) = p — one trial. Xᵢ is 1 for a success and 0 otherwise, and p is the chance of success.",
+            "X = X₁ + … + Xₙ ~ Binomial(n, p) — the count of successes in n trials. Each Xᵢ is one trial, n is how many, and p is the chance of success on each.",
+            "P(X = k) = C(n, k) · pᵏ · (1 − p)ⁿ⁻ᵏ — the chance of exactly k successes. C(n, k) is the number of ways to place those k successes in n trials, and p is the chance of one success.",
+            "μ = np,  σ = √(np(1 − p)) — the mean and the standard deviation of that count. n is how many trials, and p is the chance of success."
           ],
           "image": "tracks/images/statistical-reasoning/03-binomial-bernoulli.png",
           "imageAlt": "Left: ten coins, five heads then five tails, so this sequence has 5 heads. Right: binomial probabilities for n = 10 and p = 1/2. The bars peak at k = 5. A normal curve sits on them, with a dashed line at μ = 5 and dotted lines at μ ± σ."
@@ -267,10 +267,10 @@
           "note": "A coin toss fixes the number of trials and counts the successes. A Poisson process fixes a stretch of time and counts arrivals that have no memory of one another. The count distribution is the one in Poisson (1837), Recherches sur la probabilité des jugements en matière criminelle et en matière civile. The waiting time between arrivals is exponential with the same rate, and the count in an interval of length t is Poisson(λt). Chop that interval into many short bins and each bin is nearly a Bernoulli trial. As the bins get finer, the binomial count approaches the Poisson count. The next step writes a binomial count as left and right bounces on a Galton board.",
           "demoDescription": "Set the rate and the window and watch the arrivals. The bars are the Poisson probabilities, and a finer binomial count approaches them.",
           "formulae": [
-            "N(t) ~ Poisson(λt)",
-            "P(N(t) = k) = e^{−λt} (λt)^k / k!",
-            "μ = λt",
-            "Binomial(n, μ/n) → Poisson(μ) as n → ∞"
+            "N(t) ~ Poisson(λt) — the number of arrivals in a window of length t. λ is the rate, arrivals per unit of time.",
+            "P(N(t) = k) = e^{−λt} (λt)^k / k! — the chance of exactly k arrivals. λt is the mean count, e is the exponential base, and k! is k factorial: 1 × 2 × … × k, and 0! = 1.",
+            "μ = λt — the mean number of arrivals. λ is the rate per unit of time, and t is the length of the window.",
+            "Binomial(n, μ/n) → Poisson(μ) as n → ∞ — split the window into n bins and the binomial count approaches the Poisson count. μ is the mean count, and n is how many bins."
           ],
           "image": "tracks/images/statistical-reasoning/03b-poisson-point-process.png",
           "imageAlt": "Rain on a tile at 6 drops per second. One window shows four drops, a counting-process step path that ends at 4, and the four arrival times. Beside them, Poisson probabilities for μ = 6: the bar at k = 6 is hatched, a dashed line marks μ = 6, and a Binomial(20, 0.3) curve lies on the bars."
@@ -282,9 +282,9 @@
           "note": "Each bead on a Galton board takes a left or right bounce at every peg, the same Bernoulli trial as a coin toss. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape, and the binomial distribution approximates a normal distribution. The board is the quincunx in Galton (1889), Natural inheritance.",
           "demoDescription": "Start the flow or drop a burst, and change the rows. Each bead’s bin is its count of right bounces, and more rows pile those counts into a bell.",
           "formulae": [
-            "X = X₁ + … + Xₙ ~ Binomial(n, p)",
-            "μ = np,  σ = √(np(1 − p))",
-            "P(X = k) ≈ (1 / (σ√(2π))) exp(−(k − μ)² / (2σ²))"
+            "X = X₁ + … + Xₙ ~ Binomial(n, p) — the bin is a count of right bounces. Each Xᵢ is one bounce, n is the number of rows, and p is the chance of a right bounce.",
+            "μ = np,  σ = √(np(1 − p)) — the mean and the standard deviation of that count of bounces. n is the number of rows, and p is the chance of a right bounce.",
+            "P(X = k) ≈ (1 / (σ√(2π))) exp(−(k − μ)² / (2σ²)) — with many rows, the chance of bin k is about this normal height. k is the bin, μ the mean count, σ its spread, π is pi, and exp is the exponential."
           ],
           "image": "tracks/images/statistical-reasoning/04-galton-board.png",
           "imageAlt": "Left: a board of 12 rows of pegs. One bead takes six right bounces, then six left bounces, and ends in bin 6. Ticks mark bins 0, 6, and 12. Right: binomial probabilities for n = 12 and p = 1/2. The bars peak at k = 6. A normal curve sits on them, with a dashed line at μ = 6 and dotted lines at μ ± σ."
@@ -303,8 +303,8 @@
           "note": "A single sample mean is one summary of one set of numbers. If you imagine drawing many samples of the same size, those means themselves form a distribution. As each sample gets larger, that distribution of means settles toward a normal curve, whatever shape the raw observations had. The central limit theorem is that statement about means. The spread of those means is the standard error, σ / √n, so a larger sample pulls them in tighter.",
           "demoDescription": "Draw many samples and watch their means settle toward a normal curve. This simulation uses the population standard deviation; with one real sample that spread is estimated by s / √n.",
           "formulae": [
-            "X̄ ≈ N(μ, σ²/n) for large n",
-            "SE = σ / √n"
+            "X̄ ≈ N(μ, σ²/n) for large n — the distribution of the sample mean is about normal. X̄ is that mean, μ and σ the population mean and standard deviation, n the sample size, and N(mean, variance) a normal curve.",
+            "SE = σ / √n — the standard error: how widely those means spread. σ is the population standard deviation, and n is the sample size."
           ],
           "image": "tracks/images/statistical-reasoning/02-clt-sampling.png",
           "imageAlt": "Sampling distributions of the mean for an exponential population with mean 1. The n = 2 curve is low and right-skewed, n = 8 is taller, and n = 32 is a tall narrow curve on the dashed line at μ = 1."
@@ -316,7 +316,7 @@
           "note": "The central limit theorem is easier to trust when you can watch sample means accumulate. Horowitz's 1974 classroom simulation draws samples of 10 again and again from about 1,000 scores, roughly N(50, 15.8); the collection of sample means takes on a normal shape. The spread of those means is about σ / √10. Each sample also estimates that spread with s / √n, and the average of those estimates settles near it (Horowitz, 1974, pp. 179–182). Once means behave like normals, sums of squared standard normals become the next building block.",
           "demoDescription": "Draw samples of 10 with replacement from about 1,000 scores and watch the means pile up. Each sample’s s / √n estimates the spread of those means.",
           "formulae": [
-            "X̄ₙ → N(μ, σ²/n) as n grows"
+            "X̄ₙ → N(μ, σ²/n) as n grows — the distribution of the sample mean approaches a normal curve. X̄ₙ is the mean of n scores, μ and σ the population mean and standard deviation, and n the sample size."
           ],
           "image": "tracks/images/statistical-reasoning/05-horowitz-clt.png",
           "imageAlt": "Histogram of 96 sample means. Each mean is from 10 draws of a normal population with mean 50 and standard deviation 15.8. A normal curve centered at 50 with standard deviation 5 lies over the bars."
@@ -328,8 +328,8 @@
           "note": "Not every sampling story is about a mean. Square independent standard normal draws and add them up; the sum follows a chi-square distribution, the usual sampling model for a variance. With sampling distributions for means and for variances in view, you can ask what kind of interval claim a sampling distribution can support.",
           "demoDescription": "Set the degrees of freedom and draw samples. Each draw squares that many standard normals and adds them.",
           "formulae": [
-            "χ²_ν = Z₁² + … + Z_ν²",
-            "Zᵢ ~ N(0, 1), independent"
+            "χ²_ν = Z₁² + … + Z_ν² — a chi-square value is this sum of squared standard normals. ν is how many squares, and each Z is one standard normal.",
+            "Zᵢ ~ N(0, 1), independent — each draw is a standard normal, and the draws are independent. Zᵢ is one draw, and N(0, 1) has mean 0 and variance 1."
           ],
           "image": "tracks/images/statistical-reasoning/06-chi-square.png",
           "imageAlt": "Chi-square densities for 1, 3, and 5 degrees of freedom. The 1-df curve spikes at zero and runs off the top of the axes. The 3-df curve peaks near 1. The 5-df curve peaks near 3 and sits lower and further right."
@@ -341,8 +341,8 @@
           "note": "A confidence interval is a range computed from a sample. In the target analogy the unknown value stays fixed and each interval is a shot, so the stated percentage describes the procedure over many samples — not the chance that this one interval covers that value.",
           "demoDescription": "Generate many intervals aimed at a fixed value, and count how many of them cross it.",
           "formulae": [
-            "CI = X̄ ± z* · (σ / √n)",
-            "coverage ≈ 1 − α over repeated samples"
+            "CI = X̄ ± z* · (σ / √n) — an interval around the sample mean. X̄ is that mean, z* the normal cutoff for the stated percentage, σ the population standard deviation, and n the sample size.",
+            "coverage ≈ 1 − α over repeated samples — the share of repeated intervals that hit the fixed value. α is the share that miss."
           ],
           "image": "tracks/images/statistical-reasoning/07-confidence-intervals.png",
           "imageAlt": "Twenty horizontal intervals of equal width aimed at a dashed line, the true value. Nineteen solid intervals cross that line. The top interval is dotted, lies entirely to the right, and is labeled miss."
@@ -361,8 +361,8 @@
           "note": "Square independent standard normals and add them. The sum follows a chi-square curve, and the degrees of freedom are how many squares went in: one square spikes at zero, and further squares move the curve to the right. The same page can drop a sum of squared count residuals onto that curve. That mark is still one draw from the sampling distribution, not a test of a model. The next step draws those squares as distance from a point.",
           "demoDescription": "Set the degrees of freedom and draw samples of squared standard normals. The counts case places a sum of squared count residuals on the same curve.",
           "formulae": [
-            "χ²_ν = Z₁² + … + Z_ν²",
-            "Zᵢ ~ N(0, 1), independent",
+            "χ²_ν = Z₁² + … + Z_ν² — a chi-square value is this sum of squared standard normals. ν is how many squares, and each Z is one standard normal.",
+            "Zᵢ ~ N(0, 1), independent — each draw is a standard normal, and the draws are independent. Zᵢ is one draw, and N(0, 1) has mean 0 and variance 1.",
             "ν = number of squared normals"
           ],
           "image": "tracks/images/statistical-reasoning/06-chi-square.png",
@@ -375,9 +375,9 @@
           "note": "Give each of those normals a spread, and the sum of squares is squared distance from a bullseye. A dart from a Gaussian cloud lands on a rail, a board, or in a chamber. Unequal spreads stretch the cloud, and each axis keeps its own weight: a generalized chi-square. Equal spreads make circles, and the squared distance is one variance times a standard chi-square. Divide each axis by its spread and the squared distance is the standard chi-square from the previous step. The next step starts from counts instead of from a dart.",
           "demoDescription": "Throw a Gaussian dart and read its squared distance from the bullseye as a generalized, scaled, or standard chi-square.",
           "formulae": [
-            "Q = σ_1² Z_1² + … + σ_ν² Z_ν²",
-            "equal spreads: Q = σ² χ²_ν",
-            "divide each axis by its spread: Q = Z_1² + … + Z_ν²"
+            "Q = σ_1² Z_1² + … + σ_ν² Z_ν² — squared distance from the bullseye when each axis has its own spread. Q is that distance, σ_1² the variance on the first axis, Z_1 a standard normal on that axis, and ν how many axes.",
+            "equal spreads: Q = σ² χ²_ν — when every axis has the same spread, the distance is that variance times a standard chi-square. σ² is the shared variance, and ν is how many axes.",
+            "divide each axis by its spread: Q = Z_1² + … + Z_ν² — after scaling each axis by its spread, the distance is a standard chi-square. Each Z is a standard normal, and ν is how many axes."
           ],
           "image": "tracks/images/statistical-reasoning/08-squared-distance.png",
           "imageAlt": "Three panels of one dart whose standard normals are 1 and 1/2, so it sits between the one-spread and two-spread contours. A line joins the bullseye to the dart. Generalized: elliptical contours with σx = 2 and σy = 1, the dart at (2, 0.5), and Q = 4.25. Scaled: circular contours with σ = 2, the dart at (2, 1), and Q = 5.00. Standard: circular contours after dividing by the spreads, the dart at (1, 0.5), and Q = 1.25. A dotted curve is one spread and a dashed curve is two."
@@ -389,13 +389,13 @@
           "note": "A category from a coin or a die is a binomial count. The expected count is np, and the central limit theorem approximates that count with a normal curve. Dividing the error by the binomial standard deviation produces a z score. With two categories the errors are opposites, so the squared z equals Pearson’s chi-square and there is 1 degree of freedom. With more categories the counts are tied, so the degrees of freedom are k − 1, and one squared z is not that category’s Pearson cell: the squared z divides by E(1 − p), and the cell divides by E. The cells add to the chi-square. Cochran’s rule asks that every expected count be at least 5 before those curves are trusted. Pearson’s criterion is Pearson (1900), On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. The expected-count check is Cochran (1954), Some methods for strengthening the common χ² tests. The next step uses the sum as a test of a model.",
           "demoDescription": "Draw a coin or a die, standardize one category, and compare its squared z with the Pearson cell. Repeated draws fill the chi-square histogram.",
           "formulae": [
-            "Eᵢ = n pᵢ",
-            "Zᵢ = (Oᵢ − Eᵢ) / √(n pᵢ (1 − pᵢ))",
-            "Pearson cell = (Oᵢ − Eᵢ)² / Eᵢ",
-            "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ,   df = k − 1",
-            "k = 2: Z² = χ²",
-            "k > 2: Z² divides by Eᵢ(1 − pᵢ)",
-            "Cochran: each Eᵢ ≥ 5"
+            "Eᵢ = n pᵢ — the count the model expects in category i. n is how many trials, and pᵢ is the model’s chance for that category.",
+            "Zᵢ = (Oᵢ − Eᵢ) / √(n pᵢ (1 − pᵢ)) — that count, scaled into a z score. Oᵢ is the observed count, Eᵢ the expected count, n how many trials, and pᵢ the category’s chance.",
+            "Pearson cell = (Oᵢ − Eᵢ)² / Eᵢ — that category’s contribution to the chi-square. Oᵢ is the observed count, and Eᵢ is the expected count.",
+            "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ,   df = k − 1 — the cells add to a chi-square, with degrees of freedom one less than the categories. Oᵢ is observed, Eᵢ expected, df degrees of freedom, k how many categories, and Σ adds the cells.",
+            "k = 2: Z² = χ² — with two categories, the squared z equals the chi-square. k is how many categories.",
+            "k > 2: Z² divides by Eᵢ(1 − pᵢ) — with more categories the squared z uses the binomial variance, so it is not the Pearson cell. Eᵢ is the expected count, and pᵢ is the category’s chance.",
+            "Cochran: each Eᵢ ≥ 5 — trust the normal and chi-square curves when every expected count is at least 5. Eᵢ is the expected count."
           ],
           "image": "tracks/images/statistical-reasoning/09-counts-to-chi-square.png",
           "imageAlt": "Two panels under a caption that each expected count is 10, which meets Cochran’s rule of at least 5. Left: a fair coin of 20 tosses. Expected bars are 10 for heads and 10 for tails. Observed bars are 14 heads and 6 tails. The title reads k = 2, Z² = χ² = 3.20. Right: one cell of a six-category draw. The Z² bar reaches 4.32 and is labeled ÷ E(1 − p). The Pearson cell reaches 3.60 and is labeled ÷ E. The shared numerator is 36."
@@ -407,10 +407,10 @@
           "note": "Pearson’s goodness-of-fit test compares observed counts with the counts a stated model expects. Each category contributes (O − E)² / E, the Pearson cell from the previous step, and the contributions add to a chi-square with k − 1 degrees of freedom. That statistic is one point on the sampling curve from the first step. Past the critical value, the counts are surprising if the model is true. Cochran’s rule still asks that each expected count be at least 5 before that curve is a fair reference. Pearson’s criterion is Pearson (1900), On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. The expected-count check is Cochran (1954), Some methods for strengthening the common χ² tests. The next step keeps that formula. The same χ² can be read as goodness-of-fit, when the expected counts come from a known model, or as a test of independence, when they come from the sample margins.",
           "demoDescription": "Spin a wheel, compare the observed counts with the expected counts, and place the chi-square on its sampling curve.",
           "formulae": [
-            "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ",
-            "Eᵢ = n pᵢ under the model",
-            "df = k − 1",
-            "a large χ² falls past the critical value"
+            "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ — observed counts against the counts a model expects, added up. Oᵢ is the observed count, Eᵢ the expected count, and Σ adds the categories.",
+            "Eᵢ = n pᵢ under the model — the count the stated model expects. n is the total count, and pᵢ is the model’s chance for category i.",
+            "df = k − 1 — degrees of freedom, one less than the number of categories. k is how many categories.",
+            "a large χ² falls past the critical value — the counts are then surprising if the model is true. χ² is the goodness-of-fit statistic."
           ],
           "image": "tracks/images/statistical-reasoning/10-goodness-of-fit.png",
           "imageAlt": "Two panels. Left: three categories under an equal model. Expected bars are 10. Observed bars are 18, 8, and 4. The title reads χ² = 10.4, df = 2. Right: a chi-square density with 2 degrees of freedom. A dashed line at 5.99 marks the 5% critical value, and a shaded band runs to the right of it. A solid line at 10.4 sits inside that band."
@@ -422,10 +422,10 @@
           "note": "The same chi-square compares each observed count with an expected count. In a goodness-of-fit reading the expected counts come from probabilities stated before the sample. Nothing is estimated from the data, so a 2×2 table has 3 degrees of freedom. A test of independence builds those expected counts from the sample’s own row and column totals. Estimating the two margins spends 2 degrees of freedom, and the same four cells are judged on 1 degree of freedom. The sum does not change its form. What changes is where each expected count comes from.",
           "demoDescription": "Switch goodness-of-fit and independence on the same counts, and watch the expected counts, the degrees of freedom, and the curve change together.",
           "formulae": [
-            "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ",
-            "goodness-of-fit: Eᵢ = n pᵢ, and pᵢ is known",
-            "independence: E = (row total × column total) / n",
-            "2×2: df = 3 when pᵢ is known, and df = 1 from the margins"
+            "χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ — the same sum of squared gaps. Oᵢ is the observed count, Eᵢ the expected count, and Σ adds the cells.",
+            "goodness-of-fit: Eᵢ = n pᵢ, and pᵢ is known — expected counts from chances stated before the sample. n is the total count, Eᵢ the expected count, and pᵢ that known chance.",
+            "independence: E = (row total × column total) / n — expected counts built from the sample’s own margins. E is the expected count in a cell, and n is the grand total.",
+            "2×2: df = 3 when pᵢ is known, and df = 1 from the margins — four cells, judged on 3 degrees of freedom when the chances are known and on 1 when the margins supply the expected counts. df is degrees of freedom, and pᵢ is a chance stated in advance."
           ],
           "image": "tracks/images/statistical-reasoning/11-fit-or-independence.png",
           "imageAlt": "Two panels under the caption Same observed counts. Both use hatched bars of 16, 8, 4, and 12 for cells labeled 1, 1; 1, 2; 2, 1; and 2, 2. Left, titled χ² = 8.0, df = 3: every open expected bar is 10, and the axis reads known model, each p = 1/4. Right, titled χ² = 6.67, df = 1: the open expected bars are 12, 12, 8, and 8, and the axis reads E = row total × column total / n."
@@ -444,9 +444,9 @@
           "note": "When a mean is compared against a known standard deviation, a z curve is the usual reference. In practice that standard deviation is almost always estimated from the same data, and the extra uncertainty shows up as heavier tails than z. When that estimate of the spread comes out small, the statistic is pushed farther into the tail. Those tails are heavier still in a small sample; that wider curve is the t distribution, and it is the reference you will use for the two comparisons that follow.",
           "demoDescription": "Compare the z curve with the t curve, and see a small estimate of the spread push the statistic farther into the heavier tail.",
           "formulae": [
-            "z = (X̄ − μ) / (σ / √n)",
-            "t = (X̄ − μ) / (s / √n)",
-            "df = n − 1"
+            "z = (X̄ − μ) / (σ / √n) — a sample mean compared with a known spread. X̄ is the sample mean, μ the population mean, σ the known standard deviation, and n the sample size.",
+            "t = (X̄ − μ) / (s / √n) — the same comparison when the spread is estimated from the sample, so the tails are heavier. X̄ is the sample mean, μ the comparison value, s the sample standard deviation, and n the sample size.",
+            "df = n − 1 — degrees of freedom for this one sample. n is the sample size."
           ],
           "image": "tracks/images/t-test/01-z-vs-t.png",
           "imageAlt": "The standard normal and a t distribution with 4 degrees of freedom. The left panel shows both full curves. The right panel zooms into the right tail, where the dashed t curve stays above the solid z curve."
@@ -458,9 +458,9 @@
           "note": "One common comparison is two groups that do not share people — each person is in one group only. An independent-samples t-test asks whether the two group means differ by more than you would expect from the spread within the groups, using a t curve whose standard error combines those two spreads. A different design pairs two scores within the same person instead.",
           "demoDescription": "Compare two groups that do not share people, and see whether their means differ by more than the spread within the groups.",
           "formulae": [
-            "t = (X̄₁ − X̄₂) / SE",
-            "SE = √(s_p² (1/n₁ + 1/n₂))",
-            "s_p² = ((n₁ − 1) s₁² + (n₂ − 1) s₂²) / (n₁ + n₂ − 2)"
+            "t = (X̄₁ − X̄₂) / SE — how far the two means stand apart, in standard errors. X̄₁ and X̄₂ are the group means, and SE is the standard error of their difference.",
+            "SE = √(s_p² (1/n₁ + 1/n₂)) — that standard error, from one pooled variance. s_p² is the pooled variance, and n₁ and n₂ are the two sample sizes.",
+            "s_p² = ((n₁ − 1) s₁² + (n₂ − 1) s₂²) / (n₁ + n₂ − 2) — the pooled variance, the two group spreads combined. s₁² and s₂² are the group variances, and n₁ and n₂ are the sample sizes."
           ],
           "image": "tracks/images/t-test/02-independent-t.png",
           "imageAlt": "Two groups of eight scores. Group 1 is centered at 50 and group 2 at 62, with an arrow marking a mean difference of 12. A bracket of length s = 4.9 sits beside each mean."
@@ -472,9 +472,9 @@
           "note": "In a paired design, the two scores from each person become one difference. That removes person-to-person variation before the mean difference is set against a t curve. The path ends here: the same family of reference curve, and two designs for which scores enter the comparison.",
           "demoDescription": "Turn each person’s two scores into one difference, and set the mean of those differences against a t curve.",
           "formulae": [
-            "dᵢ = xᵢ,post − xᵢ,pre",
-            "t = d̄ / (s_d / √n), with μ₀ = 0",
-            "df = n − 1"
+            "dᵢ = xᵢ,post − xᵢ,pre — one person’s change, later score minus earlier score. xᵢ,post is the later score, and xᵢ,pre is the earlier one.",
+            "t = d̄ / (s_d / √n), with μ₀ = 0 — the mean change set against a t curve, for a hypothesized change of zero. d̄ is the mean difference, s_d its standard deviation, n how many pairs, and μ₀ that hypothesized mean.",
+            "df = n − 1 — degrees of freedom, one less than the number of pairs. n is how many pairs."
           ],
           "image": "tracks/images/t-test/03-paired-t.png",
           "imageAlt": "Left: eight before-and-after pairs joined by lines. Right: those eight differences, with a dashed line at the mean difference of 5. The two differences equal to 7 are drawn side by side."
@@ -493,8 +493,8 @@
           "note": "A significance cutoff is set under the null, but a real effect shifts the sampling distribution of the test statistic. Power is the chance of detecting an effect that is really there: the share of that alternative distribution that lands beyond the null cutoff. Once that definition is clear, the next question is how power changes when the study changes.",
           "demoDescription": "A real effect shifts the sampling distribution, and the demonstration shades the share that lands beyond the null cutoff.",
           "formulae": [
-            "power = P(reject H₀ | H₁ true)",
-            "α = P(reject H₀ | H₀ true)"
+            "power = P(reject H₀ | H₁ true) — the chance of detecting an effect that is really there. H₀ is the null, no effect, and H₁ is the alternative, a real effect.",
+            "α = P(reject H₀ | H₀ true) — the chance of a false detection when there is no effect. α is that rate, and H₀ is the null."
           ],
           "image": "tracks/images/statistical-power/01-power-regions.png",
           "imageAlt": "A null sampling curve centered at 0 and an alternative curve centered at 2, for σ = 5 and n = 30. A dotted line marks the one-tailed 5% cutoff at 1.50. Gray shading under the alternative, to the right of the cutoff, is the power, about 71%."
@@ -506,8 +506,8 @@
           "note": "Power is not a fixed number; it moves with the study. A larger effect or a larger sample moves the alternative distribution farther past the null cutoff, and more of it counts as a detection.",
           "demoDescription": "A power curve shows how the chance of detecting a real effect changes with the size of the effect and the size of the sample.",
           "formulae": [
-            "power rises with |effect| and with n",
-            "SE shrinks as 1/√n"
+            "power rises with |effect| and with n — a larger effect or a larger sample makes a real effect easier to detect. n is the sample size, and |effect| is the size of the effect, ignoring its sign.",
+            "SE shrinks as 1/√n — the standard error gets smaller as the sample grows, in proportion to one over the square root of n. SE is that standard error, and n is the sample size."
           ],
           "image": "tracks/images/statistical-power/02-power-curve.png",
           "imageAlt": "Power of a two-sided, equal-group t test against total sample size, for Cohen's d = 0.50 and α = 0.05. Dashed guides mark the operating point where power first reaches 0.80, at total N = 128."
@@ -526,8 +526,8 @@
           "note": "With two groups, a t-test asks whether the means differ by more than the scatter inside the groups. ANOVA asks the same kind of question when there may be more than two means: is the variation among group means large relative to the variation left inside groups? When each person is measured more than once, that inside scatter depends on how their scores move together.",
           "demoDescription": "Set a two-group comparison beside one with more means, and see whether the variation among means is large relative to the variation inside groups.",
           "formulae": [
-            "F = MS_between / MS_within",
-            "for two groups, t² = F"
+            "F = MS_between / MS_within — variation among the means, relative to variation inside the groups. MS_between and MS_within are those mean squares: a sum of squares divided by its degrees of freedom.",
+            "for two groups, t² = F — the squared two-group t equals this F. t is that t statistic, and F is the ratio of the mean squares."
           ],
           "image": "tracks/images/anova/01-two-means-three-means.png",
           "imageAlt": "Two panels with the same within-group scatter. The left panel has group means at 40 and 60. The right panel has group means at 30, 50, and 70. A short horizontal line marks each mean."
@@ -539,10 +539,10 @@
           "note": "The difference-score standard deviation already has the pre–post correlation built into it. A more positive covariance shrinks s_D: when scores move together, people who score high at one timepoint tend to score high at the other, so individual change scores stay small — and that smaller s_D is what feeds Residual. The same positive covariance enlarges SS Subjects, because subject sums of squares track how far each person's average sits from the grand mean. Together, SS Subjects and Residual make up within-conditions: the scatter around each timepoint mean. By partitioning out those individual differences, the paired t and repeated-measures ANOVA cut noise that an independent test would leave intact. An independent test treats all of within-conditions as residual.",
           "demoDescription": "Slide the pre–post correlation and see a positive covariance shrink the difference-score spread, enlarge SS Subjects, and feed the residual.",
           "formulae": [
-            "s_D² = s₁² + s₂² − 2 r s₁ s₂",
-            "Within-conditions = Subjects + Residual",
-            "SS Residual = (N − 1) s_D² / 2",
-            "for k = 2, t² = F"
+            "s_D² = s₁² + s₂² − 2 r s₁ s₂ — the variance of the person-by-person differences. s₁ and s₂ are the standard deviations at the two times, and r is their correlation.",
+            "Within-conditions = Subjects + Residual — scatter around the timepoint means splits into individual differences and what is left.",
+            "SS Residual = (N − 1) s_D² / 2 — the leftover sum of squares after person differences are set aside. N is how many people, and s_D² is the variance of the differences.",
+            "for k = 2, t² = F — with two timepoints, the squared paired t equals the repeated-measures F. k is how many timepoints, t that paired statistic, and F the ratio of mean squares."
           ],
           "image": "tracks/images/anova/01b-paired-t-to-rm-anova.png",
           "imageAlt": "Two panels with the same six pre heights and the same six post heights. Filled circles mark pre and open circles mark post, and a short horizontal line marks each timepoint mean, 10 and 14. At r = 0.00 the lines cross, s_D² = 40.5, and a bar of within-conditions 202.5 splits into hatched subjects 101.25 and open residual 101.25. At r = 0.90 four lines are parallel and two cross, s_D² = 4.05, and that bar is subjects 192.375 with a thin residual of 10.125."
@@ -554,10 +554,10 @@
           "note": "To compare several means, it helps to say where the variation in the data comes from. With one factor the total splits into a part between groups and a part left inside groups. With two or three factors, and with between-subjects, within-subjects, or mixed designs, that total breaks into more bricks: each main effect, each interaction, and an error term that matches the stratum. The next step is the 2×2 between-subjects case, two main effects, their interaction, and one error.",
           "demoDescription": "The same bricks can be read as a flat linear model, grouped by error stratum, or introduced condition by condition.",
           "formulae": [
-            "SS_total = sum of the atomic bricks",
+            "SS_total = sum of the atomic bricks — the total sum of squares, every piece of variation added together. SS_total is that total, and a brick is one piece: an effect or its error.",
             "between-subjects: one error term tests every effect",
-            "within-subjects: each repeated factor has its own error stratum",
-            "F = MS_effect / MS_error for the matching stratum"
+            "within-subjects: each repeated factor has its own error stratum — the error term that belongs to that repeated factor.",
+            "F = MS_effect / MS_error for the matching stratum — an effect tested against its own error term. MS_effect and MS_error are mean squares: a sum of squares divided by its degrees of freedom."
           ],
           "image": "tracks/images/anova/02-sum-of-squares.png",
           "imageAlt": "Between-subjects, one factor, three groups of ten. A bar proportional to degrees of freedom splits a small hatched brick, SS_A with df = 2, from a larger open brick for subjects within A with df = 27."
@@ -569,8 +569,8 @@
           "note": "Sometimes each observation belongs to a combination of two factors, not one. Two-way ANOVA labels variation with both factors at once: each factor has its own main effect, and the interaction is the pattern that appears only in the combination. The next step is the mixed case, where one factor separates people and the other measures the same people twice. The usual reading of these F tests still depends on conditions on the residuals.",
           "demoDescription": "See each factor’s main effect, and the interaction that appears only when the two factors are combined.",
           "formulae": [
-            "SS_total = SS_A + SS_B + SS_AB + SS_error",
-            "F_A = MS_A / MS_error, and likewise for B and AB"
+            "SS_total = SS_A + SS_B + SS_AB + SS_error — the total sum of squares splits into factor A, factor B, their interaction, and error. Each SS is a sum of squares.",
+            "F_A = MS_A / MS_error, and likewise for B and AB — factor A’s mean square divided by the error mean square, and the same for B and the interaction. A mean square is a sum of squares divided by its degrees of freedom."
           ],
           "image": "tracks/images/anova/03-two-way.png",
           "imageAlt": "Two panels of 2×2 cell means. On the left the female line runs from 38 to 48 and the male line from 46 to 56, parallel. On the right the lines cross: female runs from 38 to 56 and male from 56 to 38."
@@ -582,10 +582,10 @@
           "note": "A 2×2 mixed design has one factor that separates people into groups and one factor that measures the same people twice. The group effect is tested against differences between people. The time effect and the group-by-time interaction are tested against how people vary in their change. The same picture can be read as two simple comparisons: the midpoints, and the pre-to-post changes. The next step draws this design, and the designs before it, as one fitted line or plane.",
           "demoDescription": "The demonstration separates a group effect, tested between people, from a time effect and a group-by-time interaction, tested against how people vary in their change.",
           "formulae": [
-            "SS_between = SS_group + SS_error(between)",
-            "SS_within = SS_time + SS_group×time + SS_error(within)",
-            "F_group = MS_group / MS_error(between)",
-            "F_time = MS_time / MS_error(within)"
+            "SS_between = SS_group + SS_error(between) — differences between people split into the group effect and the rest. Each SS is a sum of squares.",
+            "SS_within = SS_time + SS_group×time + SS_error(within) — change within people splits into time, the group-by-time interaction, and the rest. Each SS is a sum of squares.",
+            "F_group = MS_group / MS_error(between) — the group effect, tested against differences between people. Each MS is a mean square: a sum of squares divided by its degrees of freedom.",
+            "F_time = MS_time / MS_error(within) — the time effect, tested against how people vary in their change. Each MS is a mean square: a sum of squares divided by its degrees of freedom."
           ],
           "image": "tracks/images/anova/03b-mixed-anova.png",
           "imageAlt": "Ten subjects from pre to post, group A solid and group B dashed, with each person's average on a separate track. The between-subjects bar is a group brick of 80 against an error of 2916. The within-subjects bar splits time 180, the group-by-time interaction 101.25, and error 51.84."
@@ -597,8 +597,8 @@
           "note": "The splits so far can be read as one linear model: a score, a coded factor, and the part the fit does not explain. A between-subjects design fits one plane across the factor. In the cross-section that plane is one line, and each person’s baseline stays in the residual, so those residual lines are long. A within-subjects design gives each person a line. The baseline is set aside, and the residuals are short. The mixed design nests those lines in two cohorts, and the cohorts need not share a slope. The usual reading of these fits still depends on conditions on the residuals.",
           "demoDescription": "Choose a design and see a plane for separate groups, a line for each person, or two cohorts whose slopes need not match.",
           "formulae": [
-            "between-subjects: Z = b₀ + b₁(Factor 1) + e",
-            "within-subjects: Z = (b₀ + u₀) + b₁(Factor 1) + e",
+            "between-subjects: Z = b₀ + b₁(Factor 1) + e — one line for separate groups. Z is the score, b₀ the intercept, b₁ the slope on the coded factor, and e the residual the line does not explain.",
+            "within-subjects: Z = (b₀ + u₀) + b₁(Factor 1) + e — a line for each person, with that person’s baseline set aside. Z is the score, b₀ a shared intercept, u₀ the person’s own baseline, b₁ the slope, and e the residual.",
             "mixed: two cohorts of lines, and the slopes need not match"
           ],
           "image": "tracks/images/anova/03c-geometric-anova.png",
@@ -632,8 +632,8 @@
           "note": "When two variables are measured together, a natural question is whether they tend to move in the same direction. Covariance records that shared movement in the units of both variables; dividing by the two standard deviations turns the record into a correlation on a scale from negative one to one. The size of that correlation also has a meaning in units of variance.",
           "demoDescription": "Drag the points and watch the covariance and the correlation change.",
           "formulae": [
-            "cov(X, Y) = Σ (xᵢ − x̄)(yᵢ − ȳ) / (n − 1)",
-            "r = cov(X, Y) / (s_x s_y)"
+            "cov(X, Y) = Σ (xᵢ − x̄)(yᵢ − ȳ) / (n − 1) — shared movement, in the units of both variables. xᵢ and yᵢ are one pair, x̄ and ȳ their means, n how many pairs, and Σ adds the pairs.",
+            "r = cov(X, Y) / (s_x s_y) — that shared movement on a scale from −1 to 1. s_x and s_y are the two standard deviations."
           ],
           "image": "tracks/images/association/01-correlation.png",
           "imageAlt": "Scatter of 36 points with a positive association. Dashed lines mark the mean of x and the mean of y. A label reads r = 0.81, unit-free."
@@ -645,11 +645,11 @@
           "note": "A straight line through paired measurements is a claim about how one variable changes with the other. Ordinary least squares chooses the intercept and the slope that make the squared vertical gaps as small as they can be. That minimum is the error sum of squares. The same line splits the total sum of squares into a part the line accounts for and a part left over. The share the line accounts for is the proportion of variance in the outcome that the straight line explains.",
           "demoDescription": "Choose the intercept and slope that make the squared vertical gaps as small as they can be, and see the total sum of squares split into the part the line accounts for and the part left over.",
           "formulae": [
-            "SSE(b₀, b₁) = Σ (yᵢ − b₀ − b₁ xᵢ)²",
-            "β̂₁ = Σ (xᵢ − x̄)(yᵢ − ȳ) / Σ (xᵢ − x̄)²",
-            "β̂₀ = ȳ − β̂₁ x̄",
-            "SST = SSR + SSE",
-            "R² = SSR / SST"
+            "SSE(b₀, b₁) = Σ (yᵢ − b₀ − b₁ xᵢ)² — the sum of squared vertical gaps for a chosen line. yᵢ is an outcome, xᵢ its predictor, b₀ the intercept, b₁ the slope, and Σ adds the gaps.",
+            "β̂₁ = Σ (xᵢ − x̄)(yᵢ − ȳ) / Σ (xᵢ − x̄)² — the slope that makes those squared gaps as small as they can be. xᵢ and yᵢ are one pair, and x̄ and ȳ are the means.",
+            "β̂₀ = ȳ − β̂₁ x̄ — the intercept that goes with that slope. ȳ and x̄ are the means, and β̂₁ is the fitted slope.",
+            "SST = SSR + SSE — the total sum of squares splits into the part the line accounts for and the part left over. SST is the total, SSR the regression sum of squares, and SSE the error sum of squares.",
+            "R² = SSR / SST — the share of the total that the line accounts for. SSR is the regression sum of squares, and SST is the total."
           ],
           "image": "tracks/images/association/02-ols.png",
           "imageAlt": "Scatter of 36 points with a solid least-squares line and dotted vertical residuals. A label reads SSE minimized, SST = SSR + SSE."
@@ -661,12 +661,12 @@
           "note": "Ordinary least squares on one predictor draws a line and splits the total sum of squares into the part that line accounts for and the part left over: SST = SSR + SSE. With two predictors the fitted surface is a plane, and the same split is written SST = SSM + SSE. SSM is the sum of squared distances from the fitted values to the mean of Y, and SSE is the sum of squared vertical gaps the plane does not close. R² is the share SSM takes of SST.",
           "demoDescription": "Fit a plane to two predictors and see the total sum of squares split into the part the plane accounts for and the part left as vertical gaps.",
           "formulae": [
-            "Ŷ = b₀ + b₁X₁ + b₂X₂",
-            "SST = Σ (Yᵢ − Ȳ)²",
-            "SSM = Σ (Ŷᵢ − Ȳ)²",
-            "SSE = Σ (Yᵢ − Ŷᵢ)²",
-            "SST = SSM + SSE",
-            "R² = SSM / SST"
+            "Ŷ = b₀ + b₁X₁ + b₂X₂ — the fitted plane. Ŷ is a fitted value, b₀ the intercept, and b₁ and b₂ the slopes on the predictors X₁ and X₂.",
+            "SST = Σ (Yᵢ − Ȳ)² — the total sum of squared deviations from the mean of Y. Yᵢ is one outcome, Ȳ that mean, and Σ adds them.",
+            "SSM = Σ (Ŷᵢ − Ȳ)² — the part the plane accounts for: squared distances from the fitted values to the mean. Ŷᵢ is a fitted value, and Ȳ is the mean of Y.",
+            "SSE = Σ (Yᵢ − Ŷᵢ)² — the squared vertical gaps the plane does not close. Yᵢ is an outcome, and Ŷᵢ is its fitted value.",
+            "SST = SSM + SSE — the total is the plane’s share plus the leftover. SST is the total sum of squares, SSM the model sum of squares, and SSE the error sum of squares.",
+            "R² = SSM / SST — the share of the total that the plane accounts for. SSM is the model sum of squares, and SST is the total."
           ],
           "image": "tracks/images/association/02b-multiple-regression.png",
           "imageAlt": "Three-dimensional scatter of 18 open circles around a light gray fitted plane. Dotted vertical lines mark the gaps from the points to the plane. Axes are labeled x₁, x₂, and y. A boxed label reads Ŷ = b₀ + b₁X₁ + b₂X₂. The title reads Two predictors fit a plane."
@@ -678,10 +678,10 @@
           "note": "A plane fitted to two continuous predictors is still ordinary least squares: Ŷ = b₀ + b₁X₁ + b₂X₂, and a product term b₃X₁X₂ bends that plane when the slope of one predictor depends on the other. Coding one predictor as 0 or 1 turns the same equation into an analysis of covariance: one slope for each group, and b₃ is the difference between those slopes. Coding both predictors as 0 or 1 is a 2×2 ANOVA, and the same product is the interaction. Dummy codes for three groups use two 0/1 predictors and no product term. That fit is a one-way ANOVA: the intercept is the reference mean, and each coefficient is a difference between a group mean and that reference.",
           "demoDescription": "Move from two continuous predictors to one binary predictor, then to two binary factors, then to dummy codes for three groups, and morph each 3D fit into the matching 2D plot.",
           "formulae": [
-            "Ŷ = b₀ + b₁X₁ + b₂X₂ + b₃X₁X₂",
+            "Ŷ = b₀ + b₁X₁ + b₂X₂ + b₃X₁X₂ — a plane, plus a product so one slope can depend on the other predictor. Ŷ is the fitted value, b₀ the intercept, b₁ and b₂ the slopes, and b₃ how much one slope changes with the other predictor.",
             "X₂ is 0 or 1, and b₃ is the difference in slopes",
             "both predictors are 0 or 1: a 2×2 ANOVA",
-            "Ŷ = b₀ + b₁D₁ + b₂D₂"
+            "Ŷ = b₀ + b₁D₁ + b₂D₂ — dummy codes for three groups, the same fit as a one-way ANOVA. D₁ and D₂ are 0 or 1, b₀ is the reference group’s mean, and each other coefficient is a difference from that mean."
           ],
           "image": "tracks/images/association/02c-regression-anova-equivalence.png",
           "imageAlt": "Three line drawings. Left: a plane above axes X₁, X₂, and Y. Middle: two parallel lines of Y against X₁, solid for X₂ = 0 and dashed for X₂ = 1. Right: three group means, A, B, and C, as open circles on a categorical axis."
@@ -693,8 +693,8 @@
           "note": "A correlation says how strongly two variables line up; squaring it turns that strength into a share of variance. That square is the same kind of share the linear model calls R²: the proportion of variance in one variable that a straight-line relationship with the other accounts for. The last step stays with variance and asks what happens when sources do not share anything.",
           "demoDescription": "Square a correlation and see that share of variance as the part a straight-line relationship accounts for.",
           "formulae": [
-            "R² = r²",
-            "R² = SS_line / SS_total"
+            "R² = r² — square the correlation and the result is a share of variance. r is the correlation, and R² is that share.",
+            "R² = SS_line / SS_total — the same share: the part a straight line accounts for, over the total. SS_line is the line’s sum of squares, and SS_total is the total."
           ],
           "image": "tracks/images/association/03-variance-explained.png",
           "imageAlt": "Left: 36 points with a fitted straight line and dotted residuals. Right: a bar of the variance in y, hatched for the shared 66 percent and open for the remaining 34 percent. The panel title reads R² = 0.66."
@@ -706,10 +706,10 @@
           "note": "Sum of squares is simply another way to measure deviation — the same idea as variance, kept as a total rather than an average. Because squared deviations are always positive, those totals add cleanly. The catch is mild: since they are squares, adding or subtracting two variables still has to carry their correlation, which widens a sum and narrows a difference when the association is positive.",
           "demoDescription": "Add or subtract two variables and see a positive correlation widen the sum and narrow the difference.",
           "formulae": [
-            "Var(X + Y) = Var(X) + Var(Y) + 2 Cov(X, Y)",
-            "Var(X − Y) = Var(X) + Var(Y) − 2 Cov(X, Y)",
-            "SS(X + Y) = SS(X) + SS(Y) + 2 SP(X, Y)",
-            "SS(X − Y) = SS(X) + SS(Y) − 2 SP(X, Y)"
+            "Var(X + Y) = Var(X) + Var(Y) + 2 Cov(X, Y) — the variance of a sum. A positive covariance widens it. Var is a variance, and Cov is the covariance.",
+            "Var(X − Y) = Var(X) + Var(Y) − 2 Cov(X, Y) — the variance of a difference. A positive covariance narrows it. Var is a variance, and Cov is the covariance.",
+            "SS(X + Y) = SS(X) + SS(Y) + 2 SP(X, Y) — the same relation for totals rather than averages. SS is a sum of squares, and SP is the sum of products of the paired deviations.",
+            "SS(X − Y) = SS(X) + SS(Y) − 2 SP(X, Y) — a positive sum of products narrows the difference. SS is a sum of squares, and SP is the sum of products of the paired deviations."
           ],
           "image": "tracks/images/association/04-additivity.png",
           "imageAlt": "Three bars. Var(X) and Var(Y) are each 1. The third bar stacks those two parts into Var(X+Y) = 2. A note says the covariance term is 0."
