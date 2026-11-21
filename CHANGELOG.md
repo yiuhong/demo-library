@@ -63,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Guided Tracks Key points. When a line is a formula, that same line now carries a short verbal description and a definition of the symbols in it. The wording stays on the Key points, so Teach and Learn both show it. Lines that were already plain language, and already defined their symbols, are unchanged. No connection step was added or removed, and no demonstration page was edited. The citation version is unchanged.
+- Guided Tracks Key points. When a line is a formula, that same line now carries a short verbal description and a definition of the symbols in it. The wording stays on the Key points, so Teach and Learn both show it. The formula is bold on its own line, then the description, then the symbol definitions when those are a separate sentence. Lines that were already plain language, and already defined their symbols, stay one line and are unchanged. No connection step was added or removed, and no demonstration page was edited. The citation version is unchanged.
 
 - Introductory text under a demo heading uses the content width on a wide window. The lede, the how-to, and the note in that stack were capped at about 46–48rem inside a wider page, and the same kind of cap (a Tailwind max width, or 54rem on Variance Explained) stopped the title paragraph early on Skewed vs. Normal, Statistical Power, the independent t-test, Moments, and Variance Explained. Those lines left an empty band beside the text in Teach and in Learn, wherever the paragraph is on screen. The text now runs to the heading width. A phone is already narrower than the old cap, so the lines, Back, and Teach / Learn are unchanged. The citation version is unchanged.
 
