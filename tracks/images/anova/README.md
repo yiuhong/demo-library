@@ -30,6 +30,16 @@ The parallel panel is the opening cell means in `statistics/two_way_anova.html`:
 
 The crossing panel keeps the same scale and swaps the pattern: female 38 and 56, male 56 and 38.
 
+## Geometric reading
+
+`03c-geometric-anova.png` is a schematic cross-section, not a camera view of `statistics/geometric_anova_regression.html`. The coded factor is 0 or 1 on every panel.
+
+Between-subjects: one line through the group means 36 and 54. At 0 the scores are 22, 36, and 50. At 1 they are 40, 54, and 68. The outer scores sit 14 from the line.
+
+Within-subjects: four parallel lines with slope 12, starting at 18, 34, 50, and 66. Each open point sits 3.5 off its line end.
+
+Mixed: one cohort has slope 16 (20 to 36, and 34 to 50). The other has slope 4 (58 to 62, and 72 to 76).
+
 ## Residuals and spread
 
 The right-hand groups are 12 scores each, drawn with NumPy seed 19, population means 20, 32, and 44, and a common population standard deviation of 4. In this draw the sample means are about 20.2, 32.2, and 41.6, and the sample standard deviations are about 3.0, 3.9, and 3.0.

@@ -864,6 +864,83 @@ def draw_paired_t_to_rm() -> None:
         )
 
 
+def draw_geometric() -> None:
+    """Three readings of one coded factor. Not a frame of the 3D demonstration.
+
+    Between-subjects: one line through the two group means, and long residuals.
+    Within-subjects: four parallel lines, and short residuals.
+    Mixed: two cohorts whose slopes do not match.
+    """
+    between_x0 = np.array([22.0, 36.0, 50.0])
+    between_x1 = np.array([40.0, 54.0, 68.0])
+    if abs(float(between_x0.mean()) - 36.0) > 1e-12 or abs(float(between_x1.mean()) - 54.0) > 1e-12:
+        raise SystemExit("between-subjects means drifted")
+    within_base = np.array([18.0, 34.0, 50.0, 66.0])
+    within_slope = 12.0
+    within_gap = 3.5
+    mixed_a = ((20.0, 36.0), (34.0, 50.0))
+    mixed_b = ((58.0, 62.0), (72.0, 76.0))
+    a_slopes = [pair[1] - pair[0] for pair in mixed_a]
+    b_slopes = [pair[1] - pair[0] for pair in mixed_b]
+    if len(set(np.round(a_slopes, 6))) != 1 or len(set(np.round(b_slopes, 6))) != 1:
+        raise SystemExit(f"a cohort's lines should share a slope: {a_slopes} {b_slopes}")
+    if a_slopes[0] == b_slopes[0]:
+        raise SystemExit("the two cohorts should not share a slope")
+    if abs(within_gap) >= abs(between_x0[0] - 36.0):
+        raise SystemExit("within-subjects residuals should be shorter than the between-subjects ones")
+
+    fig, axes = plt.subplots(1, 3, figsize=(9.6, 4.35), sharey=True, constrained_layout=True)
+
+    def _residual(ax: plt.Axes, x: float, y: float, fitted: float) -> None:
+        ax.plot([x, x], [y, fitted], color="black", linewidth=0.8, linestyle=(0, (1.2, 1.1)), zorder=2)
+
+    ax = axes[0]
+    ax.plot([0, 1], [36, 54], color="black", linewidth=1.8, zorder=3)
+    for y in between_x0:
+        _residual(ax, 0.0, y, 36.0)
+        ax.scatter([0.0], [y], s=32, c="black", zorder=4)
+    for y in between_x1:
+        _residual(ax, 1.0, y, 54.0)
+        ax.scatter([1.0], [y], s=32, c="black", zorder=4)
+    ax.set_title("Between: one line")
+
+    ax = axes[1]
+    for base in within_base:
+        fitted = (base, base + within_slope)
+        ax.plot([0, 1], fitted, color="black", linewidth=1.5, zorder=3)
+        _residual(ax, 0.0, base - within_gap, fitted[0])
+        _residual(ax, 1.0, fitted[1] + within_gap, fitted[1])
+        ax.scatter(
+            [0.0, 1.0],
+            [base - within_gap, fitted[1] + within_gap],
+            s=26,
+            facecolors="white",
+            edgecolors="black",
+            linewidths=1.0,
+            zorder=4,
+        )
+    ax.set_title("Within: a line each")
+
+    ax = axes[2]
+    for y0, y1 in mixed_a:
+        ax.plot([0, 1], [y0, y1], color="black", linewidth=1.6, zorder=3)
+    for y0, y1 in mixed_b:
+        ax.plot([0, 1], [y0, y1], color="black", linewidth=1.6, linestyle="dashed", zorder=3)
+    ax.set_title("Mixed: two slopes")
+
+    for panel in axes:
+        panel.set_xlim(-0.45, 1.45)
+        panel.set_xticks([0, 1])
+        panel.set_ylim(8, 90)
+        panel.set_xlabel("coded factor")
+    axes[0].set_ylabel("score")
+    _save(fig, "03c-geometric-anova.png")
+    print(
+        "  geometric between means 36 and 54; "
+        f"within slope {within_slope:.0f}; mixed slopes {a_slopes[0]:.0f} and {b_slopes[0]:.0f}"
+    )
+
+
 def main() -> None:
     _style()
     draw_t_to_anova()
@@ -871,6 +948,7 @@ def main() -> None:
     draw_partition()
     draw_two_way()
     draw_mixed()
+    draw_geometric()
     draw_assumptions()
 
 
