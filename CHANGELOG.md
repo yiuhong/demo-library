@@ -63,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Previous, Next, and Try again on Self-test: Shape and pictures stay in one action bar at the bottom of the panel. The question, the score, and the review text sit above that bar. Previous and Next stay in the same place on the questions, the score, and each review item. Try again keeps a reserved slot, so it can show on the score and on Review 10 of 10 without moving Next or Previous. On a phone or a tablet the same three slots stack, and that bar stays the same height on every step. The touch targets stay usable. The panel still reserves the height of the tallest Learn state, including in Teach, and it does not scroll. The citation version is unchanged.
+
 - Self-test: Shape and pictures keeps one page length. The panel reserves the height of the tallest Learn state, a long question or a wrong-answer review that also shows the correct answer, the demonstration link, and Try again, and a shorter state leaves empty space inside that area. The panel does not scroll. Teach keeps the same space and still hides the questions. The page title and the track step are Self-test: Shape and pictures. The citation version is unchanged.
 
 - The Central Limit Theorem plate on the home page draws a smooth bell over the histogram. The overlay had been a kinked polyline, with a flat crest and a sharp drop at the right tail, and the x̄ above the axis is removed. The bars still rise. The plate title, the hook, and the other two plates are unchanged. The citation version is unchanged.
