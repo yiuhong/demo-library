@@ -678,7 +678,7 @@
                 {
                     demo: "skewed_distribution.html",
                     demoTitle: "Skewed Distribution",
-                    stem: "On this track, the number for skew is which average?",
+                    stem: "The number for skew is which average?",
                     choices: [
                         "The interquartile range, Q₃ − Q₁.",
                         "The bandwidth h of a kernel.",
@@ -690,11 +690,11 @@
                 {
                     demo: "skewed_distribution.html",
                     demoTitle: "Skewed Distribution",
-                    stem: "On the Skewed Distribution page, a Q–Q plot that curves upward in positive skew is driven by what?",
+                    stem: "A Q–Q plot of a positively skewed distribution against a normal curve bends upward. What drives that bend?",
                     choices: [
-                        "The red density curve being taller than the blue density curve.",
-                        "The horizontal gap on the CDF widening as you move up the percentiles.",
-                        "The histogram bin edges moving.",
+                        "The skewed density being taller than the normal density.",
+                        "The horizontal gap on the cumulative curve widening as you move up the percentiles.",
+                        "The histogram bin edges moving while the numbers stay the same.",
                         "The bandwidth of the kernel increasing."
                     ],
                     answer: 1
@@ -714,7 +714,7 @@
                 {
                     demo: "boxplot_histogram.html",
                     demoTitle: "Boxplot and Histogram",
-                    stem: "The interquartile range on this track is which difference?",
+                    stem: "The interquartile range is which difference?",
                     choices: [
                         "The maximum minus the minimum.",
                         "The mean minus the median.",
@@ -726,7 +726,7 @@
                 {
                     demo: "boxplot_outliers.html",
                     demoTitle: "Boxplot and Outliers",
-                    stem: "A point counts as an outlier on this track when it falls where?",
+                    stem: "Under Tukey’s 1.5 × IQR fence rule, a point counts as an outlier when it falls where?",
                     choices: [
                         "More than one bin away from the tallest bar.",
                         "Past the fence Q₁ − 1.5 × IQR, or past the fence Q₃ + 1.5 × IQR.",
@@ -738,9 +738,9 @@
                 {
                     demo: "boxplot_outliers.html",
                     demoTitle: "Boxplot and Outliers",
-                    stem: "The Boxplot and outliers page draws the whiskers and the far points how?",
+                    stem: "In a Tukey boxplot, where do the whiskers stop, and how is a point past a fence shown?",
                     choices: [
-                        "The whiskers stop at Tukey’s fences, and points past the fences are drawn on their own.",
+                        "The whiskers stop at the fences, and points past the fences are drawn on their own.",
                         "The whiskers run from the smallest value to the largest value, and no point is drawn apart.",
                         "The whiskers are the kernel on each point, and the box is the bandwidth.",
                         "The whiskers mark the mean and the mode."
@@ -762,7 +762,7 @@
                 {
                     demo: "kde_plots.html",
                     demoTitle: "Kernel Density Estimate (KDE)",
-                    stem: "On the kernel density estimate, the bandwidth h is what?",
+                    stem: "In a kernel density estimate, the bandwidth h is what?",
                     choices: [
                         "The number of bins in the histogram.",
                         "How wide each kernel is. A narrow kernel keeps the spikes, and a wide one flattens them.",
@@ -774,11 +774,11 @@
                 {
                     demo: "kde_plots.html",
                     demoTitle: "Kernel Density Estimate (KDE)",
-                    stem: "The connection note for the kernel density estimate says the violin and the raincloud are what?",
+                    stem: "The violin and the cloud in a raincloud plot are what?",
                     choices: [
-                        "A second sample, drawn again with a new seed.",
-                        "The Q–Q plot of the skewed distribution against a normal curve.",
-                        "The fences, drawn as a curve instead of as dashed lines.",
+                        "A second sample, drawn again on its own.",
+                        "A Q–Q plot of the sample against a normal curve.",
+                        "The fences, drawn as a curve instead of as lines.",
                         "The same smooth curve. The violin is that curve, and a half of it is the cloud in a raincloud plot."
                     ],
                     answer: 3
