@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Self-test: Statistical power</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <link rel="stylesheet" href="../assets/track-review.css">
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Self-test: Statistical power</h1>
+        </header>
+
+        <div id="review-slot" class="review-slot">
+            <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
+            <div id="review" class="review demo-card" data-teach="detail"></div>
+        </div>
+        <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
+    </div>
+
+    <script src="../assets/shape-complete-pdf.js"></script>
+    <script src="../assets/track-review.js"></script>
+    <script>
+        TrackReview.start(
+        {
+            "trackTitle": "Statistical power",
+            "filename": "project-viz-statistical-power-complete.pdf",
+            "questions": [
+                {
+                    "demo": "statistical_power.html",
+                    "demoTitle": "Statistical Power",
+                    "stem": "Power is which probability?",
+                    "choices": [
+                        "The probability of rejecting the null when a real effect is there.",
+                        "The probability of rejecting the null when the null is true.",
+                        "The probability that the null is true.",
+                        "The share of a sample that sits inside the middle half."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "statistical_power.html",
+                    "demoTitle": "Statistical Power",
+                    "stem": "The significance level α is which probability?",
+                    "choices": [
+                        "The probability of rejecting the null when the null is true.",
+                        "The probability of detecting a real effect.",
+                        "The sample size, as a percentage.",
+                        "One minus a correlation."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "statistical_power.html",
+                    "demoTitle": "Statistical Power",
+                    "stem": "A real effect changes the sampling distribution how, and power is which share of it?",
+                    "choices": [
+                        "The effect shifts the distribution. Power is the share that lands beyond the cutoff set under the null.",
+                        "The effect moves the cutoff and leaves the distribution centered on the null.",
+                        "The effect widens the null distribution in proportion to the sample size.",
+                        "The effect replaces the mean with the median, and power is the share below that median."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "statistical_power.html",
+                    "demoTitle": "Statistical Power",
+                    "stem": "Failing to reject the null when a real effect is there is what, relative to power?",
+                    "choices": [
+                        "A Type II error. Power is one minus that probability.",
+                        "A Type I error. Power is that probability.",
+                        "A confidence interval that misses a fixed value.",
+                        "A point that sits past a fence around the middle half."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "statistical_power.html",
+                    "demoTitle": "Statistical Power",
+                    "stem": "An effect size in units of the standard deviation, of the kind Cohen’s d records, measures what?",
+                    "choices": [
+                        "The distance between the null mean and the alternative mean, divided by the standard deviation.",
+                        "A p-value.",
+                        "Degrees of freedom.",
+                        "The width of one confidence interval in raw score units."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "power_curve.html",
+                    "demoTitle": "Power Curve",
+                    "stem": "Power is not a fixed number attached to a test. It moves with what?",
+                    "choices": [
+                        "The size of the effect and the size of the sample.",
+                        "Only the names given to the groups.",
+                        "The number of bins in a histogram.",
+                        "Whether the picture of the data is a curve or a set of bars."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "power_curve.html",
+                    "demoTitle": "Power Curve",
+                    "stem": "A larger effect, with the sample size held fixed, does what to power?",
+                    "choices": [
+                        "It raises power. More of the alternative distribution lands past the null cutoff.",
+                        "It lowers power, because a large effect is harder to detect.",
+                        "It leaves power unchanged.",
+                        "It sets the significance level equal to the effect and leaves power fixed."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "power_curve.html",
+                    "demoTitle": "Power Curve",
+                    "stem": "A larger sample, with the effect held fixed, does what to power?",
+                    "choices": [
+                        "It raises power.",
+                        "It lowers power, because the standard error grows in proportion to the square root of n.",
+                        "It sets power equal to the significance level.",
+                        "It reverses the direction of the effect."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "power_curve.html",
+                    "demoTitle": "Power Curve",
+                    "stem": "The standard error of a mean shrinks how as the sample grows?",
+                    "choices": [
+                        "In proportion to 1/√n.",
+                        "In proportion to n.",
+                        "In proportion to n squared.",
+                        "It does not shrink. Only the effect size changes power."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "power_curve.html",
+                    "demoTitle": "Power Curve",
+                    "stem": "A power of 0.80 means what?",
+                    "choices": [
+                        "An 80 percent chance of rejecting the null if the effect used to size the study is real.",
+                        "An 80 percent chance that the null is true.",
+                        "A p-value of 0.80.",
+                        "That 80 percent of the raw scores sit beyond the null cutoff."
+                    ],
+                    "answer": 0
+                }
+            ]
+        }
+        );
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

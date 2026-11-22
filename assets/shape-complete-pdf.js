@@ -378,10 +378,16 @@
          * Baselines are the distance from the top of the sheet, tuned
          * to the same sizes and gaps as the on-screen card.
          */
+        /*
+         * The track name defaults to Shape and pictures, which is the
+         * call the original page makes. A later track passes its own
+         * title. Every current title fits on this line at the same size.
+         */
+        var trackName = info.track || "Shape and pictures";
         textAt("caps", "PROJECT VIZ", 58, 35, 13, ink, 0.18);
         textAt("display", "Well done!", 58, 67, 28, ink, -0.02);
         textAt("text", "You have finished the track:", 58, 96, 16, ink, 0);
-        textAt("display", "Shape and pictures", 58, 121, 20, ink, -0.02);
+        textAt("display", trackName, 58, 121, 20, ink, -0.02);
         textAt("script", info.date, 58, 150, 22, navy, 0);
 
         var sealSize = 86;
@@ -518,7 +524,8 @@
         });
         var card = cardStream(fonts, res, {
             date: String(info.date || ""),
-            score: info.score
+            score: info.score,
+            track: info.track
         });
         var fontRes = keys.map(function (key, index) {
             return "/F" + (index + 1) + " " + ids[key].type0 + " 0 R";
@@ -539,8 +546,10 @@
             bodies[ids[key].file - 1] = made.file;
             bodies[ids[key].uni - 1] = made.uni;
         });
+        var trackName = info.track || "Shape and pictures";
+        var docTitle = pdfLiteral("Project Viz - " + trackName);
         bodies[infoId - 1] = latin1(
-            "<< /Title (Project Viz - Shape and pictures) /Creator (Project Viz) /Producer (Project Viz) >>"
+            "<< /Title (" + docTitle + ") /Creator (Project Viz) /Producer (Project Viz) >>"
         );
         return assemble(bodies);
     }
@@ -570,12 +579,16 @@
         return loading;
     }
 
-    function save(bytes) {
+    function pdfLiteral(text) {
+        return String(text).replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+    }
+
+    function save(bytes, filename) {
         var blob = new Blob([bytes], { type: "application/pdf" });
         var url = URL.createObjectURL(blob);
         var link = document.createElement("a");
         link.href = url;
-        link.download = FILENAME;
+        link.download = filename || FILENAME;
         link.rel = "noopener";
         document.body.appendChild(link);
         link.click();

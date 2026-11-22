@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Self-test: Association</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <link rel="stylesheet" href="../assets/track-review.css">
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Self-test: Association</h1>
+        </header>
+
+        <div id="review-slot" class="review-slot">
+            <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
+            <div id="review" class="review demo-card" data-teach="detail"></div>
+        </div>
+        <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
+    </div>
+
+    <script src="../assets/shape-complete-pdf.js"></script>
+    <script src="../assets/track-review.js"></script>
+    <script>
+        TrackReview.start(
+        {
+            "trackTitle": "Association",
+            "filename": "project-viz-association-complete.pdf",
+            "questions": [
+                {
+                    "demo": "covariance_and_correlation.html",
+                    "demoTitle": "Covariance and Correlation",
+                    "stem": "Covariance records shared movement in what units?",
+                    "choices": [
+                        "The units of both variables.",
+                        "A scale that already runs from −1 to 1.",
+                        "Counts of categories.",
+                        "Degrees of freedom."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "covariance_and_correlation.html",
+                    "demoTitle": "Covariance and Correlation",
+                    "stem": "Dividing the covariance by the two standard deviations produces what?",
+                    "choices": [
+                        "A correlation on a scale from −1 to 1.",
+                        "Another covariance, still in the product of the two units.",
+                        "A chi-square statistic.",
+                        "An F ratio of two mean squares."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "ols_simple_linear_regression.html",
+                    "demoTitle": "Ordinary Least Squares (OLS)",
+                    "stem": "Ordinary least squares chooses the intercept and the slope that do what?",
+                    "choices": [
+                        "Make the squared vertical gaps as small as they can be.",
+                        "Make the horizontal gaps as small as they can be.",
+                        "Make the correlation equal the sample size.",
+                        "Force the intercept to equal the slope."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "ols_simple_linear_regression.html",
+                    "demoTitle": "Ordinary Least Squares (OLS)",
+                    "stem": "The least-squares line splits the total sum of squares how?",
+                    "choices": [
+                        "Into a part the line accounts for and a part left over. The share the line accounts for is that first part divided by the total.",
+                        "Into the part the line accounts for minus the leftover, which need not add back to the total.",
+                        "Into the mean and the most frequent value.",
+                        "Into two equal halves, for any cloud of points."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "multiple_regression_sst_ssm_sse.html",
+                    "demoTitle": "Multiple Regression",
+                    "stem": "With two predictors, the fitted surface and the split of the total are what?",
+                    "choices": [
+                        "A plane. The total is the part the plane accounts for plus the vertical gaps it does not close, and the share is the plane’s part over the total.",
+                        "A line in one predictor only, with no leftover.",
+                        "The mean of the outcome alone, and no sum of squares.",
+                        "The correlation of the two predictors, in place of the total."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "multiple_regression_anova_equivalence.html",
+                    "demoTitle": "Multiple Regression and ANOVA Equivalence",
+                    "stem": "A product of two predictors in a fitted equation does what?",
+                    "choices": [
+                        "It lets the slope of one predictor depend on the other. The surface bends when that coefficient is not zero.",
+                        "It forces the two slopes to be equal.",
+                        "It removes the intercept.",
+                        "It sets the share of variance equal to the correlation of the two predictors."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "multiple_regression_anova_equivalence.html",
+                    "demoTitle": "Multiple Regression and ANOVA Equivalence",
+                    "stem": "Coding one predictor as 0 or 1, and keeping a product with the other predictor, turns the same equation into what?",
+                    "choices": [
+                        "An analysis of covariance: one slope for each group, and the product coefficient is the difference between those slopes.",
+                        "A count of arrivals in a window of time.",
+                        "A smooth density with a bandwidth.",
+                        "A one-sample comparison that uses a known standard deviation."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "multiple_regression_anova_equivalence.html",
+                    "demoTitle": "Multiple Regression and ANOVA Equivalence",
+                    "stem": "Coding both predictors as 0 or 1 is which analysis, and two 0/1 codes for three groups, with no product, are which analysis?",
+                    "choices": [
+                        "A 2×2 analysis of variance, and a one-way analysis of variance. In the three-group fit the intercept is the reference mean, and each other coefficient is a difference from that mean.",
+                        "A paired comparison, and a goodness-of-fit test.",
+                        "A quantile plot, and a box with fences.",
+                        "A confidence interval, and a power calculation."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "variance_explained.html",
+                    "demoTitle": "Variance Explained",
+                    "stem": "Squaring a correlation produces what?",
+                    "choices": [
+                        "A share of variance. That square is the same kind of share a straight-line fit calls R².",
+                        "A covariance, back in the original units of the two variables.",
+                        "A standard error.",
+                        "The degrees-of-freedom correction n − 1."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "additivity_of_variance.html",
+                    "demoTitle": "Additivity of Variance & SS",
+                    "stem": "When two variables are positively correlated, how do the variance of their sum and the variance of their difference compare with the sum of the two variances?",
+                    "choices": [
+                        "The variance of the sum is larger. The variance of the difference is smaller.",
+                        "Both equal the sum of the two variances. The correlation drops out.",
+                        "The variance of the sum is smaller. The variance of the difference is larger.",
+                        "Both equal the correlation, on a scale from −1 to 1."
+                    ],
+                    "answer": 0
+                }
+            ]
+        }
+        );
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

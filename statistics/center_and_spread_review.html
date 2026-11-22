@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Self-test: Center and spread</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <link rel="stylesheet" href="../assets/track-review.css">
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Self-test: Center and spread</h1>
+        </header>
+
+        <div id="review-slot" class="review-slot">
+            <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
+            <div id="review" class="review demo-card" data-teach="detail"></div>
+        </div>
+        <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
+    </div>
+
+    <script src="../assets/shape-complete-pdf.js"></script>
+    <script src="../assets/track-review.js"></script>
+    <script>
+        TrackReview.start(
+        {
+            "trackTitle": "Center and spread",
+            "filename": "project-viz-center-and-spread-complete.pdf",
+            "questions": [
+                {
+                    "demo": "mean_mode_median_dot_plot.html",
+                    "demoTitle": "Mean, Median, and Mode",
+                    "stem": "The mean of a set of numbers is which summary?",
+                    "choices": [
+                        "The most frequent value.",
+                        "The middle value after the numbers are sorted.",
+                        "The sum of the values divided by how many there are.",
+                        "The average of the squared deviations from the center."
+                    ],
+                    "answer": 2
+                },
+                {
+                    "demo": "mean_mode_median_dot_plot.html",
+                    "demoTitle": "Mean, Median, and Mode",
+                    "stem": "The median of a set of numbers is which summary?",
+                    "choices": [
+                        "The sum of the values divided by how many there are.",
+                        "The middle value after the numbers are sorted.",
+                        "The most frequent value.",
+                        "The square root of the average squared deviation."
+                    ],
+                    "answer": 1
+                },
+                {
+                    "demo": "mean_mode_median_dot_plot.html",
+                    "demoTitle": "Mean, Median, and Mode",
+                    "stem": "The mode of a set of numbers is which summary?",
+                    "choices": [
+                        "The middle value after the numbers are sorted.",
+                        "The sum of the values divided by how many there are.",
+                        "The most frequent value.",
+                        "The average of the cubed deviations."
+                    ],
+                    "answer": 2
+                },
+                {
+                    "demo": "mean_mode_median_dot_plot.html",
+                    "demoTitle": "Mean, Median, and Mode",
+                    "stem": "When do the mean, the median, and the mode line up, and when do they pull apart?",
+                    "choices": [
+                        "They line up when the numbers are roughly balanced, and they pull apart when the shape is not.",
+                        "They always sit in one place, whatever the shape.",
+                        "They pull apart only when every value appears exactly once.",
+                        "They line up only when a variance is divided by n − 1."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "moments_as_averages.html",
+                    "demoTitle": "Moments",
+                    "stem": "A statistical moment is which kind of average?",
+                    "choices": [
+                        "An average of powers of the values, or of their deviations from the center.",
+                        "Only the middle value after the numbers are sorted.",
+                        "The most frequent value, counted once for each power.",
+                        "The share of repeated intervals that cover a fixed value."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "moments_as_averages.html",
+                    "demoTitle": "Moments",
+                    "stem": "The second moment is the average of squared deviations from the mean, and that average is not divided by the standard deviation. Why?",
+                    "choices": [
+                        "That average is the scale itself. Dividing by the standard deviation first would force the result to 1.",
+                        "Squared deviations are already on the same scale as the raw scores, so no further division is possible.",
+                        "The standard deviation of any sample is 1.",
+                        "The second moment counts how many values are tied for most frequent."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "moments_as_averages.html",
+                    "demoTitle": "Moments",
+                    "stem": "The third moment, the average of cubed deviations from the mean, is a number for what?",
+                    "choices": [
+                        "Spread. Cubing removes the sign, so the result is another variance.",
+                        "Skew. Cubing keeps the sign, so values far above the mean and values far below it pull the average in opposite directions.",
+                        "The sample size.",
+                        "The most frequent value."
+                    ],
+                    "answer": 1
+                },
+                {
+                    "demo": "bessels_correction_simulation.html",
+                    "demoTitle": "Bessel's Correction",
+                    "stem": "Why is the average of squared deviations around the sample mean a little too small as an estimate of the population variance?",
+                    "choices": [
+                        "The sample mean is the point that makes the sum of squared deviations as small as it can be, and that mean was taken from the same values.",
+                        "The largest value is left out of the sum.",
+                        "The median is used in place of the mean.",
+                        "Dividing by n − 1 is what makes the average too small."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "bessels_correction_simulation.html",
+                    "demoTitle": "Bessel's Correction",
+                    "stem": "Bessel’s correction replaces which divisor in the sample variance?",
+                    "choices": [
+                        "n − 1 with n.",
+                        "n with n − 1.",
+                        "The mean with the median.",
+                        "The sum of squared deviations with the sum of the raw scores."
+                    ],
+                    "answer": 1
+                },
+                {
+                    "demo": "bessels_correction_simulation.html",
+                    "demoTitle": "Bessel's Correction",
+                    "stem": "Over many samples from the same population, which divisor’s average variance estimate sits on the true variance?",
+                    "choices": [
+                        "Dividing by n. That average stays a little low.",
+                        "Dividing by n − 1.",
+                        "Dividing by the mode.",
+                        "Dividing by the number of samples drawn."
+                    ],
+                    "answer": 1
+                }
+            ]
+        }
+        );
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>
