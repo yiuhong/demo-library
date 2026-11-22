@@ -656,6 +656,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                 "assets/opened.js",
                 "hub-opened",
                 "Opened",
+                "by category",
             ):
                 if banned in text:
                     problems.append(f"catalog.html: {banned} does not belong on the catalog")
@@ -710,6 +711,18 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             problems.append("assets/shell.css: About Yiu Hong chip needs a full border")
         if "is-opened" in shell_css:
             problems.append("assets/shell.css: do not style an opened box")
+
+    catalog_js = read_text(ROOT / "assets" / "catalog.js")
+    if catalog_js is None:
+        problems.append("assets/catalog.js: file not found")
+    else:
+        for banned in (
+            "Search this category",
+            "Back to all categories",
+            "Select a category",
+        ):
+            if banned in catalog_js:
+                problems.append(f"assets/catalog.js: {banned} does not belong on the catalog")
 
     notebook_css = read_text(ROOT / "assets" / "notebook.css")
     if notebook_css is None:

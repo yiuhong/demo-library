@@ -1,11 +1,13 @@
 /*
  * Catalog page. Cards come from demos.json.
- * Desktop browse: the rail is categories only, and the pane is the
- * focused category's card grid. The first category is focused on arrival.
- * Opening a card switches the rail to that category's demos and loads
- * the demonstration in the pane. Back to browse restores the grid.
- * Phone stacks categories, then that category's demos, then the
- * demonstration. Search stays inside the focused category.
+ * The page opens on the curriculum groups and their cards. Search
+ * covers every demonstration. A subject in the file is not a step
+ * the visitor has to open.
+ * Desktop: the rail lists the groups. The pane is the grouped card
+ * grid. Opening a card switches the rail to that grouped demo list
+ * and loads the demonstration. Back to browse restores the grid.
+ * Phone: the groups and cards are the first screen, then the
+ * demonstration. Back returns to the groups.
  * The rail paints when demos.json arrives, even if the shell is late.
  * A hung or failed fetch shows an error and Retry. The shell still
  * attaches navigation when it loads.
@@ -186,13 +188,6 @@
         return null;
     }
 
-    function demoCount(category) {
-        var n = 0;
-        var i;
-        for (i = 0; i < category.subcategories.length; i++) n += category.subcategories[i].demos.length;
-        return n;
-    }
-
     function countLabel(n) {
         return n === 1 ? "1 demo" : n + " demos";
     }
@@ -248,9 +243,7 @@
     }
 
     function stageTitle() {
-        var category = findCategory(currentId);
-        if (category) return category.title;
-        return isPhone() ? "Select a category" : "Catalog";
+        return "Catalog";
     }
 
     function paintStageTitle() {
@@ -396,12 +389,12 @@
 
     function searchField() {
         var wrap = el("div", "search-container");
-        var label = el("label", "visually-hidden", "Search this category");
+        var label = el("label", "visually-hidden", "Search the catalog");
         label.htmlFor = "searchInput";
         var input = document.createElement("input");
         input.id = "searchInput";
         input.type = "search";
-        input.placeholder = "Search this category";
+        input.placeholder = "Search the catalog";
         input.value = searchTerm;
         input.setAttribute("autocomplete", "off");
         input.addEventListener("input", function () {
@@ -420,7 +413,32 @@
         return note;
     }
 
-    function renderCategories() {
+    function appendCatalog(parent, compact) {
+        var i;
+        for (i = 0; i < categories.length; i++) {
+            var category = categories[i];
+            if (!compact && category.domId) {
+                var marker = el("div", "catalog-anchor");
+                marker.id = category.domId;
+                parent.appendChild(marker);
+            }
+            appendTopics(parent, category, compact);
+        }
+    }
+
+    function markGroups() {
+        if (!mount) return;
+        var token = hashToken();
+        mount.querySelectorAll("a.catalog-choice").forEach(function (link) {
+            var group = link.getAttribute("data-group") || "";
+            var on = !!token && group === token;
+            link.classList.toggle("is-current", on);
+            if (on) link.setAttribute("aria-current", "location");
+            else link.removeAttribute("aria-current");
+        });
+    }
+
+    function renderGroupNav() {
         clear(mount);
         placeBack(false);
         setLandingChrome(true);
@@ -429,69 +447,69 @@
             return;
         }
         var list = el("ul", "catalog-chooser");
-        list.setAttribute("aria-label", "Categories");
-        categories.forEach(function (category) {
-            var item = el("li");
-            var link = el("a", "catalog-choice");
-            link.href = "catalog.html?category=" + category.id;
-            link.setAttribute("data-category", category.id);
-            var on = !demoOpen && category.id === currentId;
-            if (on) {
-                link.classList.add("is-current");
-                link.setAttribute("aria-current", "true");
+        list.setAttribute("aria-label", "Curriculum groups");
+        var i;
+        var j;
+        for (i = 0; i < categories.length; i++) {
+            var subs = categories[i].subcategories;
+            for (j = 0; j < subs.length; j++) {
+                var sub = subs[j];
+                var item = el("li");
+                var link = el("a", "catalog-choice");
+                var anchor = sub.anchor || "";
+                link.href = anchor ? "#" + anchor : "#catalog";
+                if (anchor) link.setAttribute("data-group", anchor);
+                link.appendChild(el("span", "catalog-choice-title", sub.title));
+                link.appendChild(el("span", "catalog-choice-count", countLabel(sub.demos.length)));
+                item.appendChild(link);
+                list.appendChild(item);
             }
-            link.appendChild(el("span", "catalog-choice-title", category.title));
-            link.appendChild(el("span", "catalog-choice-count", countLabel(demoCount(category))));
-            item.appendChild(link);
-            list.appendChild(item);
-        });
+        }
         mount.appendChild(list);
+        markGroups();
     }
 
-    function renderDemoList(category, compact) {
+    function renderCompactList() {
         clear(mount);
-        placeBack(
-            true,
-            compact ? "Back to browse" : "Back",
-            compact ? "Back to browse" : "Back to all categories"
-        );
+        placeBack(true, "Back to browse", "Back to browse");
         setLandingChrome(false);
-        var heading = el("h2", null, category.title);
-        if (category.domId && isPhone()) heading.id = category.domId;
-        mount.appendChild(heading);
-        var body = el("div", compact ? "catalog-demo-rail" : "catalog-phone-list");
-        if (!compact) {
-            body.appendChild(searchField());
-            body.appendChild(noResultsNote());
-        }
+        var nav = el("nav", "catalog-demo-rail");
+        nav.setAttribute("aria-label", "Demonstrations");
+        appendCatalog(nav, true);
+        mount.appendChild(nav);
+    }
+
+    function renderPhoneBrowse() {
+        clear(mount);
+        placeBack(false);
+        setLandingChrome(true);
+        var body = el("div", "catalog-phone-list");
+        body.appendChild(el("p", "catalog-browse-kicker", "Pick a demonstration"));
+        body.appendChild(searchField());
+        body.appendChild(noResultsNote());
         var nav = el("nav");
-        nav.setAttribute("aria-label", category.title);
-        appendTopics(nav, category, compact);
+        nav.setAttribute("aria-label", "Catalog");
+        appendCatalog(nav, false);
         body.appendChild(nav);
         mount.appendChild(body);
-        if (!compact) applySearch(body);
+        applySearch(body);
     }
 
-    function renderGrid(category) {
+    function renderGrid() {
         if (!browse) return;
         clear(browse);
         browse.hidden = false;
-        if (category.domId) {
-            var marker = el("div");
-            marker.id = category.domId;
-            browse.appendChild(marker);
-        }
         var head = el("div", "catalog-browse-head");
         head.appendChild(el("p", "catalog-browse-kicker", "Pick a demonstration"));
         head.appendChild(searchField());
         browse.appendChild(head);
         browse.appendChild(noResultsNote());
         var nav = el("nav");
-        nav.setAttribute("aria-label", category.title);
-        appendTopics(nav, category, false);
+        nav.setAttribute("aria-label", "Catalog");
+        appendCatalog(nav, false);
         browse.appendChild(nav);
         applySearch(browse);
-        browse.scrollTop = 0;
+        if (!hashToken()) browse.scrollTop = 0;
     }
 
     function hideBrowse() {
@@ -517,21 +535,19 @@
         demoOpen = !!options.demoOpen;
         var categoryId = typeof options.category === "string" ? safeSlug(options.category) : currentId;
         if (categoryId && !findCategory(categoryId)) categoryId = "";
-        if (!categoryId && !isPhone()) categoryId = categories.length ? categories[0].id : "";
-        if (categoryId !== currentId) searchTerm = "";
+        if (!categoryId && categories.length) categoryId = categories[0].id;
         currentId = categoryId || "";
-        var category = findCategory(currentId);
-        document.title = category ? category.title + " - Catalog" : "Catalog - Project Viz";
-        if (!category) {
-            renderCategories();
+        document.title = "Catalog - Project Viz";
+        if (!categories.length) {
+            renderGroupNav();
             hideBrowse();
             paintStageTitle();
             return currentId;
         }
-        if (isPhone()) renderDemoList(category, false);
-        else if (demoOpen) renderDemoList(category, true);
-        else renderCategories();
-        if (!isPhone() && !demoOpen) renderGrid(category);
+        if (isPhone()) renderPhoneBrowse();
+        else if (demoOpen) renderCompactList();
+        else renderGroupNav();
+        if (!isPhone() && !demoOpen) renderGrid();
         else hideBrowse();
         paintStageTitle();
         revealHash();
@@ -716,12 +732,31 @@
 
     window.addEventListener("hashchange", function () {
         if (!ready || failed) return;
-        var id = categoryForHash(window.location.hash);
-        if (!id) return;
-        if (window.ProjectVizShell && window.ProjectVizShell.openCategory) {
-            window.ProjectVizShell.openCategory(id, { replace: true });
-        }
+        markGroups();
         revealHash();
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!event.isTrusted || event.button !== 0) return;
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        var link = event.target && event.target.closest ? event.target.closest("a.catalog-choice[data-group]") : null;
+        if (!link || !mount || !mount.contains(link)) return;
+        var id = link.getAttribute("data-group") || "";
+        if (!id || !/^[A-Za-z][\w-]*$/.test(id)) return;
+        event.preventDefault();
+        if (searchTerm) {
+            searchTerm = "";
+            var input = document.getElementById("searchInput");
+            if (input) input.value = "";
+            applySearch(browse);
+        }
+        var current = hashToken();
+        if (current === id) {
+            markGroups();
+            revealHash();
+            return;
+        }
+        window.location.hash = id;
     });
 
     if (phoneQuery.addEventListener) {
