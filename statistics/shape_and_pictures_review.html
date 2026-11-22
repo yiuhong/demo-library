@@ -55,19 +55,13 @@
             overflow: visible;
         }
 
-        .review-intro,
         .review-stem,
         .hint,
-        .score-note,
         .match,
         .source {
             margin: 0;
             line-height: 1.45;
             overflow-wrap: break-word;
-        }
-
-        .review-intro {
-            margin-bottom: 0.9rem;
         }
 
         .step-kicker {
@@ -500,8 +494,6 @@
                 var message = "";
                 if (selections[cursor] == null) message = "Select an answer, then Next.";
                 else if (cursor === LAST && !allAnswered()) message = "Answer all ten questions to see the score.";
-                else if (cursor === LAST && finished) message = "Next returns to the score.";
-                else if (cursor === LAST) message = "Next shows the score.";
                 if (hint) {
                     hint.hidden = !message;
                     hint.textContent = message;
@@ -521,9 +513,6 @@
 
             function renderQuiz() {
                 var item = QUESTIONS[cursor];
-                if (cursor === 0) {
-                    addText(review, "p", "review-intro", "Ten questions from this track, one at a time. Choose an answer and press Next. The score waits until all ten are answered.");
-                }
                 var heading = addText(review, "h2", "step-kicker", "Question " + (cursor + 1) + " of 10");
                 heading.id = "review-heading";
                 heading.tabIndex = -1;
@@ -561,7 +550,6 @@
                 heading.tabIndex = -1;
                 var number = addText(review, "p", "score", scoreText());
                 number.setAttribute("aria-live", "polite");
-                addText(review, "p", "score-note", "Next walks through each question: your answer, the correct answer, and the demonstration it comes from. Previous returns to the questions. The score stays until Try again.");
                 review.appendChild(nav());
             }
 

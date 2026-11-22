@@ -162,8 +162,8 @@
           "title": "Shape and pictures review",
           "connectionTitle": "Ten questions on these pictures",
           "closingHeading": "The review, then the track ends",
-          "note": "The four demonstrations are done. A long tail pulls the mean toward itself, so the mean, the median, and the mode sit in different places. A histogram shows how the values pile up, and a boxplot packs the center and the spread into a box and whiskers. A point past a Tukey fence (1.5 × IQR) is drawn apart from the whiskers. A kernel density estimate adds a kernel on each point, so the same pile is a smooth curve. That curve is the violin, and a half of it is the cloud in a raincloud plot. The page after this note asks ten questions on those pictures. When the review is done, the track ends.",
-          "demoDescription": "Answer ten questions from this track, one at a time. The score appears after the last answer. Each item then shows your answer, the correct answer, and a link back to its demonstration. The questions are in Learn.",
+          "note": "The four demonstrations are done. A long tail pulls the mean toward itself, so the mean, the median, and the mode sit in different places. A histogram shows how the values pile up, and a boxplot packs the center and the spread into a box and whiskers. A point past a Tukey fence (1.5 × IQR) is drawn apart from the whiskers. A kernel density estimate adds a kernel on each point, so the same pile is a smooth curve. That curve is the violin, and a half of it is the cloud in a raincloud plot. The page after this note asks ten questions on those pictures.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
           "formulae": [
             "skew = (1/n) Σ ((xᵢ − x̄) / σ)³ — average cubed deviation, after scaling by the spread. Positive when the long tail is on the right. xᵢ is one score, x̄ the mean, σ the spread, n how many, and Σ adds them.",
             "IQR = Q₃ − Q₁ — the interquartile range, the width of the middle half. Q₁ is the first quartile, and Q₃ is the third.",
