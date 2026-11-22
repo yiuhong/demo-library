@@ -57,8 +57,8 @@
 
         .review-stem,
         .hint,
+        .section-heading,
         .section-line,
-        .section-summary,
         .score-note,
         .source {
             margin: 0;
@@ -201,11 +201,16 @@
             color: #8e1212;
         }
 
+        .section-heading {
+            margin: 0.15rem 0 0.3rem;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
         .section-line + .section-line {
             margin-top: 0.15rem;
         }
 
-        .section-summary,
         .score-note,
         .source {
             margin-top: 0.85rem;
@@ -478,8 +483,8 @@
             }
 
             /*
-             * The four demonstrations are the sections. Compare the
-             * share correct. The bank is 3, 2, 2, 3.
+             * The four demonstrations are the sections. Each line is
+             * that demonstration's count correct over its questions.
              */
             function sectionGroups() {
                 var groups = [];
@@ -496,15 +501,10 @@
                 return groups;
             }
 
-            function rateDelta(aCorrect, aTotal, bCorrect, bTotal) {
-                return aCorrect * bTotal - bCorrect * aTotal;
-            }
-
-            function sectionCopy() {
+            function sectionLines() {
                 var groups = sectionGroups();
+                var lines = [];
                 var i;
-                var best = 0;
-                var worst = 0;
                 for (i = 0; i < groups.length; i++) {
                     var correct = 0;
                     var j;
@@ -513,43 +513,14 @@
                         var index = indexes[j];
                         if (selections[index] === QUESTIONS[index].answer) correct += 1;
                     }
-                    groups[i].correct = correct;
-                    groups[i].total = indexes.length;
-                    if (rateDelta(correct, indexes.length, groups[best].correct, groups[best].total) > 0) best = i;
-                    if (rateDelta(correct, indexes.length, groups[worst].correct, groups[worst].total) < 0) worst = i;
+                    lines.push(groups[i].title + ": " + correct + "/" + indexes.length);
                 }
-                var lines = [];
-                var stronger = [];
-                var weaker = [];
-                for (i = 0; i < groups.length; i++) {
-                    lines.push(groups[i].title + ": " + groups[i].correct + "/" + groups[i].total);
-                    if (rateDelta(groups[i].correct, groups[i].total, groups[best].correct, groups[best].total) === 0) {
-                        stronger.push(groups[i].title);
-                    }
-                    if (rateDelta(groups[i].correct, groups[i].total, groups[worst].correct, groups[worst].total) === 0) {
-                        weaker.push(groups[i].title);
-                    }
-                }
-                var even = rateDelta(groups[best].correct, groups[best].total, groups[worst].correct, groups[worst].total) === 0;
-                var summary = even
-                    ? "The result was even across the four demonstrations."
-                    : "Stronger: " + stronger.join("; ") + ". Weaker: " + weaker.join("; ") + ".";
-                return { lines: lines, summary: summary };
+                return lines;
             }
 
-            function answerBlock(kind, label, verdict, text) {
+            function answerBlock(kind, label, text) {
                 var block = el("div", { "class": "answer-block is-" + kind });
-                var k = el("span", { "class": "k" });
-                var name = el("span");
-                name.textContent = label;
-                k.appendChild(name);
-                if (verdict) {
-                    k.appendChild(document.createTextNode(" "));
-                    var mark = el("span", { "class": "verdict" });
-                    mark.textContent = verdict;
-                    k.appendChild(mark);
-                }
-                block.appendChild(k);
+                addText(block, "span", "k", label);
                 addText(block, "span", "answer-text", text);
                 return block;
             }
@@ -656,12 +627,12 @@
                 heading.tabIndex = -1;
                 var number = addText(review, "p", "score", scoreText());
                 number.setAttribute("aria-live", "polite");
-                var feedback = sectionCopy();
+                addText(review, "h3", "section-heading", "Breakdown");
+                var lines = sectionLines();
                 var i;
-                for (i = 0; i < feedback.lines.length; i++) {
-                    addText(review, "p", "section-line", feedback.lines[i]);
+                for (i = 0; i < lines.length; i++) {
+                    addText(review, "p", "section-line", lines[i]);
                 }
-                addText(review, "p", "section-summary", feedback.summary);
                 addText(review, "p", "score-note", "Next reviews the answers.");
                 review.appendChild(nav());
             }
@@ -676,15 +647,14 @@
                 addText(review, "p", "score-line", "Score: " + scoreText());
                 addText(review, "p", "review-stem", item.stem);
                 if (picked === item.answer) {
-                    review.appendChild(answerBlock("correct", "Your answer", "Correct", item.choices[picked]));
+                    review.appendChild(answerBlock("correct", "YOUR ANSWER IS CORRECT", item.choices[picked]));
                 } else {
                     review.appendChild(answerBlock(
                         "incorrect",
-                        "Your answer",
-                        "Incorrect",
+                        "YOUR ANSWER IS INCORRECT",
                         picked == null ? "No answer selected." : item.choices[picked]
                     ));
-                    review.appendChild(answerBlock("correct", "Correct answer", "", item.choices[item.answer]));
+                    review.appendChild(answerBlock("correct", "Correct answer", item.choices[item.answer]));
                 }
                 var source = el("p", { "class": "source" });
                 source.appendChild(document.createTextNode("Demonstration: "));
