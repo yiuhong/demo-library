@@ -1,9 +1,10 @@
 /*
  * Ten-question review for a Guided Track other than Shape and pictures.
  * The questions, the score, the review, Try again, and the completion
- * card follow statistics/shape_and_pictures_review.html. That page does
- * not load this file. Nothing about the attempt is stored. A high score
- * can download a PDF; that file is the only record.
+ * card follow statistics/shape_and_pictures_review.html. Question 1 in
+ * Learn opens with one sentence about the completion card. That page
+ * does not load this file. Nothing about the attempt is stored. A high
+ * score can download a PDF; that file is the only record.
  */
 (function (root) {
     function start(config) {
@@ -24,6 +25,7 @@
          */
 
         var PASS = 8;
+        var OPENING_NOTE = "Score 8 or more out of 10 to get a completion card you can download.";
         var MONTHS = [
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
@@ -248,9 +250,19 @@
             return node;
         }
 
-        function fillQuiz(parent, index, hintText, live) {
+        function fillQuiz(parent, index, hintText, live, withOpening) {
             mount(parent, index === LAST ? "Score" : "Next", function (body) {
                 var item = QUESTIONS[index];
+                /*
+                 * Learn only, and only on question 1. Later questions,
+                 * the score, and the review omit it. Try again returns
+                 * to question 1, so it shows again. Teach hides it with
+                 * the rest of the commentary.
+                 */
+                if (withOpening || (live && index === 0)) {
+                    var note = addText(body, "p", "opening-note", OPENING_NOTE);
+                    note.setAttribute("data-teach", "detail");
+                }
                 stepHeading(body, "Question " + (index + 1) + " of 10", live);
                 var field = el("fieldset", { "class": "ask" });
                 var legend = el("legend");
@@ -260,7 +272,7 @@
                     var label = el("label", { "class": "choice" });
                     var input = el("input", {
                         type: "radio",
-                        name: live ? "track-review-answer" : "track-review-sizer-" + index,
+                        name: live ? "track-review-answer" : "track-review-sizer-" + index + (withOpening ? "-note" : ""),
                         value: String(choiceIndex)
                     });
                     if (live && selections[index] === choiceIndex) {
@@ -367,13 +379,13 @@
             });
         }
 
-        function addSizer(kind, index, picked, hintText) {
+        function addSizer(kind, index, picked, hintText, withOpening) {
             var node = el("div", {
                 "class": "review review-sizer demo-card",
                 "aria-hidden": "true"
             });
             node.inert = true;
-            if (kind === "quiz") fillQuiz(node, index, hintText, false);
+            if (kind === "quiz") fillQuiz(node, index, hintText, false, withOpening);
             else if (kind === "score") fillScore(node, widestSectionLines(), false);
             else fillReview(node, index, picked, false);
             var controls = node.querySelectorAll("button, input, a");
@@ -391,10 +403,14 @@
          * score. Every question sizer includes the line that can
          * show on the last question, because a shuffle can put any
          * question last. The line itself still shows only then.
-         * Every sizer includes the three-slot action bar, so the
-         * reserved height covers Try again on the score and on the
-         * last item, and the completion card on the score. The slot
-         * is as tall as the tallest of these.
+         * Every question also has a sizer for the question-1 state:
+         * the opening note, that question, and the action bar.
+         * A shuffle can put any question first, and the note shows
+         * only then. The note and the last-question line do not
+         * share a sizer. Every sizer includes the three-slot action
+         * bar, so the reserved height covers Try again on the score
+         * and on the last item, and the completion card on the score.
+         * The slot is as tall as the tallest of these.
          */
         function buildSizers() {
             var q;
@@ -406,6 +422,7 @@
                     null,
                     "Answer all ten questions to see the score."
                 );
+                addSizer("quiz", q, null, "", true);
                 for (i = 0; i < QUESTIONS[q].choices.length; i++) {
                     if (i === QUESTIONS[q].answer) continue;
                     addSizer("review", q, i, "");
