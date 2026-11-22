@@ -550,12 +550,21 @@
                 return node;
             }
 
+            /*
+             * Try again shows on the score and on the last review
+             * item (Review 10 of 10). Earlier review items and the
+             * questions do not show it.
+             */
+            function tryAgainHere() {
+                return cursor === SCORE || cursor === REVIEW + LAST;
+            }
+
             function nav() {
                 var bar = el("div", { "class": "nav" });
                 bar.appendChild(button("prev", "Previous", false));
                 var nextLabel = cursor === LAST ? "Score" : "Next";
                 bar.appendChild(button("next", nextLabel, true));
-                if (cursor === SCORE) bar.appendChild(button("again", "Try again", false));
+                if (tryAgainHere()) bar.appendChild(button("again", "Try again", false));
                 return bar;
             }
 
@@ -565,7 +574,7 @@
                 var again = review.querySelector("[data-action='again']");
                 if (prev) prev.disabled = cursor === 0;
                 if (next) next.disabled = !canForward();
-                if (again) again.hidden = cursor !== SCORE;
+                if (again) again.hidden = !tryAgainHere();
                 if (cursor > LAST) return;
                 var hint = review.querySelector("[data-role='hint']");
                 var message = "";
