@@ -69,6 +69,12 @@ Do not invent a citation. If a source is uncertain, say so in the pull request a
 
 [Teaching source](../CONTRIBUTING.md#teaching-source) is the same rule.
 
+## Self-tests
+
+A self-test question must test the knowledge and concepts the track teaches, not the specifics of a demonstration’s setup. Ask about the idea (a definition, a rule, or a relationship). Do not ask how a particular page is drawn, which control to move, which color a curve uses, or what a connection note says. Do not use stems such as “on this track,” “on this page,” or “the connection note says.” A question must still be answerable from what the track teaches. Do not invent facts or citations. A review link back to the relevant demonstration is fine. The question stem itself stands without that page’s apparatus. Apply this when you write a new self-test, and when you next revise an existing one. Do not rewrite an existing check or question bank only to apply this rule. This is not a library-wide rollout of the ten-question review on Shape and pictures. The Center and spread trial stays a trial on that track.
+
+[Self-tests](../CONTRIBUTING.md#self-tests) is the same rule.
+
 ## Rules for a new page
 
 - Name the textbook passage, classic paper, or other reputable teaching source the lesson is based on. If there is no such source, do not add the page yet. [Teaching source](#teaching-source) is that rule. AI may help implement the demonstration. It must not be the origin of the lesson.
