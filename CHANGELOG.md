@@ -63,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Self-test: Shape and pictures keeps one page length. The panel reserves the height of the tallest Learn state, a long question or a wrong-answer review that also shows the correct answer, the demonstration link, and Try again, and a shorter state leaves empty space inside that area. The panel does not scroll. Teach keeps the same space and still hides the questions. The page title and the track step are Self-test: Shape and pictures. The citation version is unchanged.
+
 - The Central Limit Theorem plate on the home page draws a smooth bell over the histogram. The overlay had been a kinked polyline, with a flat crest and a sharp drop at the right tail, and the x̄ above the axis is removed. The bars still rise. The plate title, the hook, and the other two plates are unchanged. The citation version is unchanged.
 
 - Try again on Shape and pictures review is on the score and on the last review step, Review 10 of 10. It stays off the ten questions and off Review 1 of 10 through Review 9 of 10. Previous and Next still move between the score and the review items without clearing the attempt. Try again, from the score or from that last step, still clears the selections and the score and returns to question 1. Switching Teach and Learn still does not clear the attempt. The citation version is unchanged.
