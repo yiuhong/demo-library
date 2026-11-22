@@ -37,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- The home Features note now reads “Guided Tracks follow a sequence of demonstrations and, in Learn mode, end with a self-test. Score 8 or more out of 10 to get a collectible completion card you can download.” The five feature cards and the citation version are unchanged.
+- The home Features note now reads “Guided Tracks follow a sequence of demonstrations and, in Learn mode, end with a self-test.” The citation version is unchanged.
 
 - Guided Track self-tests, in Learn, open question 1 with “Score 8 or more out of 10 to get a completion card you can download.” The sentence is gone after question 1, including on the score and the review. Try again starts again at question 1, so the sentence shows again. Teach still shows only “Switch to Learn mode for self-test questions.” Shape and pictures uses the same sentence. The questions and the citation version are unchanged.
 
@@ -70,6 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Catalog and Guided Tracks share one shell: a top bar (Home, Catalog, Guided Tracks, About Yiu Hong), a left rail, and a demo pane. The Guided Tracks rail is a vertical menu of playlist links. The selected demonstration loads in the pane. Fullscreen puts that pane into browser fullscreen. A phone shows one step at a time; Back returns to the same category or track. `catalog.html?demo=…` and `tracks.html?demo=…` open that demonstration directly.
 
 ### Changed
+
+- The Teach and Learn card on the home Features list now reads “Learn is the full detailed view, including self-tests with collectible completion cards. Teach is a quieter class view: the figure, the live equation, and the controls stay, and the longer notes are hidden.” It no longer says that Learn is the default. The Features note now reads “Guided Tracks follow a sequence of demonstrations and, in Learn mode, end with a self-test.” Guided Tracks still links to tracks.html. Coverage, Interactive figures, References, Open source, the Features layout, and the citation version are unchanged.
 
 - Home Features uses the content width under the hero on a wide window. The list was capped at 44rem, and the Guided Tracks note at 40rem, so both stayed in the left reading column while the hero ran in two columns from 1280px. The section and the note now span the same width as the hero. Each row is still a title beside its sentence. At 736px the title still stacks over the sentence. The Crimson Text italic titles, the sentences, the hero, and the citation version are unchanged.
 
