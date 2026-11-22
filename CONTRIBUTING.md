@@ -26,6 +26,20 @@ When the teaching depends on that source, cite it as [Teach and Learn](#teach-an
 
 Do not invent a citation. If a source is uncertain, say so in the pull request and skip the guess. Do not add a citation to an existing demonstration in order to apply this rule, and do not invent one when you next touch the page.
 
+## Self-tests
+
+A self-test question must test the knowledge and concepts the track teaches, not the specifics of a demonstration’s setup.
+
+Ask about the idea (a definition, a rule, or a relationship). Do not ask how a particular page is drawn, which control to move, which color a curve uses, or what a connection note says.
+
+Do not use stems such as “on this track,” “on this page,” or “the connection note says.”
+
+A question must still be answerable from what the track teaches. Do not invent facts or citations.
+
+A review link back to the relevant demonstration is fine. The question stem itself stands without that page’s apparatus.
+
+Apply this when you write a new self-test, and when you next revise an existing one. Do not rewrite an existing check or question bank only to apply this rule. This is not a library-wide rollout of the ten-question review on Shape and pictures. The Center and spread trial in [Teach and Learn](#teach-and-learn) stays a trial on that track.
+
 ## Shell
 
 Home, Catalog, Guided Tracks, Cite & reuse, and Licenses load [`assets/foundation.css`](assets/foundation.css). Do not link a stylesheet or a script from the personal site. The notebook sheet ([`assets/notebook.css`](assets/notebook.css)) is only on Home, Catalog, and Guided Tracks: white paper, black UI ink, a faint blue grid, and a thin muted red margin. Cite & reuse and Licenses stay plain. Statistics pages take a quieter version of that sheet from [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). Do not paint the grid over a plot, a canvas, or a connection note. The public catalog is statistics. Files in `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project and are not part of the public catalog. A neuroscience file in that set stays the dark lab.
