@@ -63,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Shape and pictures review puts Breakdown above the section scores. Each line stays the demonstration and its n/N. The stronger, weaker, and even-result sentences are gone. Next reviews the answers stays on the score. Each review step states YOUR ANSWER IS CORRECT or YOUR ANSWER IS INCORRECT. A correct selected answer is shown once, in green. A wrong selected answer is red, and the correct answer is green. Try again stays on the score. The citation version is unchanged.
+
 - Shape and pictures review, on the score only, says Next reviews the answers and names the stronger and weaker demonstrations by the share correct, each as n/N. A correct review item is shown once, in green, with the word Correct. A wrong selected answer is red, with the word Incorrect, and the correct answer is green. The citation version is unchanged.
 
 - The Teach notice on Shape and pictures review says to switch to Learn for the self-test questions. The page stays in Teach. Switching Teach and Learn does not clear the attempt. The citation version is unchanged.
