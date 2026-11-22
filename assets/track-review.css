@@ -1,0 +1,621 @@
+/*
+ * End-of-track self-test shared by the Guided Track reviews other
+ * than Shape and pictures. Questions, the score, and the item review
+ * are one commentary card. Hidden sizers share that card's grid cell
+ * and reserve the height of the tallest Learn state, including the
+ * completion card, so a shorter state leaves empty space and the page
+ * length stays put. Teach hides the questions and keeps the same slot.
+ * Previous, Next, and a slot for Try again are the last row of that
+ * card. The page is the scroller. The card does not scroll.
+ *
+ * Faces are the OFL subsets already vendored for the Shape and pictures
+ * card, under assets/fonts/shape-complete/. Paths are relative to this file.
+ */
+body.demo-page {
+    margin: 0;
+}
+
+.page {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 1rem 1rem 2.5rem;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+    box-sizing: border-box;
+}
+
+.page-title {
+    margin-bottom: 0;
+}
+
+.review-slot {
+    display: grid;
+    margin: 1rem 0 0;
+}
+
+.review-slot > .mode-notice,
+.review-slot > .review {
+    grid-area: 1 / 1;
+}
+
+.mode-notice {
+    align-self: start;
+    justify-self: stretch;
+    margin: 0;
+    padding: 0.9rem 1rem;
+    line-height: 1.45;
+    z-index: 1;
+}
+
+html:not(.viz-teach) .mode-notice {
+    display: none;
+}
+
+.review {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 1rem 1rem 1.1rem;
+    overflow: visible;
+    min-width: 0;
+}
+
+#review {
+    align-self: stretch;
+}
+
+.review-body {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+#review > .review-body {
+    flex: 1 1 auto;
+}
+
+.review-sizer {
+    visibility: hidden;
+    align-self: start;
+    justify-self: stretch;
+    pointer-events: none;
+    user-select: none;
+    overflow: visible;
+}
+
+.review-stem,
+.hint,
+.section-heading,
+.section-line,
+.score-note,
+.source {
+    margin: 0;
+    line-height: 1.45;
+    overflow-wrap: break-word;
+}
+
+.step-kicker {
+    margin: 0 0 0.45rem;
+    font-size: 0.82rem;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.step-kicker:focus,
+.step-kicker:focus-visible {
+    outline: none;
+}
+
+.ask {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.ask legend {
+    display: block;
+    width: 100%;
+    margin: 0 0 0.85rem;
+    padding: 0;
+    font-size: 1.05rem;
+    font-weight: bold;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+}
+
+.choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    width: 100%;
+    margin: 0.45rem 0 0;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #000000;
+    background: #ffffff;
+    color: #000000;
+    font-size: 1rem;
+    line-height: 1.4;
+    cursor: pointer;
+    overflow-wrap: break-word;
+}
+
+.choice input {
+    appearance: none;
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0.15rem 0 0;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    background: #ffffff;
+}
+
+.choice.is-selected {
+    background: #000000;
+    color: #ffffff;
+}
+
+.choice.is-selected input {
+    border-color: #ffffff;
+    background: #ffffff;
+    box-shadow: inset 0 0 0 0.28rem #000000;
+}
+
+.choice:focus-within {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.choice-text {
+    min-width: 0;
+}
+
+.hint {
+    margin-top: 0.85rem;
+}
+
+.score-line {
+    margin: 0 0 0.85rem;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+}
+
+.score {
+    margin: 0.2rem 0 0.75rem;
+    font-size: 1.75rem;
+    font-weight: bold;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+/*
+ * High score only. Cream sheet, blue rules, red margin.
+ * The faces are the OFL subsets also embedded in the PDF.
+ * Download sits on the sheet, not in the action bar.
+ */
+@font-face {
+    font-family: "Complete Display";
+    src: url("fonts/shape-complete/fraunces-560.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Complete Score";
+    src: url("fonts/shape-complete/fraunces-500.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Complete Text";
+    src: url("fonts/shape-complete/sourceserif-400.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Complete Script";
+    src: url("fonts/shape-complete/caveat-500.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Complete Caps";
+    src: url("fonts/shape-complete/cormorant.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+.complete-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 0.15rem 0 0.95rem;
+    padding: 1.35rem 1.15rem 1rem 3.6rem;
+    border-radius: 6px;
+    background-color: #fbf7ee;
+    background-image:
+        linear-gradient(to right, transparent 2.55rem, #c96a6a 2.55rem, #c96a6a calc(2.55rem + 2px), transparent calc(2.55rem + 2px)),
+        repeating-linear-gradient(to bottom, transparent 0 calc(1.75rem - 1px), #d5e0ee calc(1.75rem - 1px) 1.75rem);
+    color: #241f1a;
+    box-shadow: 0 10px 24px rgba(36, 31, 26, 0.10), 0 1px 3px rgba(36, 31, 26, 0.06);
+    font-synthesis: none;
+}
+
+.complete-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.14;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+
+.complete-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.demo-page .review .complete-card .complete-kicker {
+    margin: 0 0 0.3rem;
+    font-family: "Complete Caps", Georgia, "Times New Roman", serif;
+    font-size: 0.82rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: #241f1a;
+}
+
+.demo-page .review .complete-card .complete-title {
+    margin: 0 0 0.35rem;
+    font-family: "Complete Display", Georgia, "Times New Roman", serif;
+    font-size: 1.75rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: #241f1a;
+}
+
+.demo-page .review .complete-card .complete-finish {
+    margin: 0;
+    font-family: "Complete Text", Georgia, "Times New Roman", serif;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.35;
+    color: #241f1a;
+}
+
+.demo-page .review .complete-card .complete-track {
+    margin: 0 0 0.3rem;
+    font-family: "Complete Display", Georgia, "Times New Roman", serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: #241f1a;
+}
+
+.demo-page .review .complete-card .complete-date {
+    margin: 0;
+    font-family: "Complete Script", "Segoe Script", cursive;
+    font-size: 1.38rem;
+    font-weight: 400;
+    line-height: 1.15;
+    color: #3d4a62;
+}
+
+.complete-score-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.9rem;
+}
+
+.demo-page .review .complete-card .complete-score {
+    margin: 0;
+    font-family: "Complete Score", Georgia, "Times New Roman", serif;
+    font-size: 2.6rem;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    white-space: nowrap;
+    color: #241f1a;
+    font-variant-numeric: tabular-nums;
+}
+
+.complete-score-of {
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    color: #5a534c;
+}
+
+.complete-seal {
+    position: relative;
+    flex: 0 0 5.375rem;
+    width: 5.375rem;
+    height: 5.375rem;
+    border: 2px solid #7a3b3b;
+    border-radius: 50%;
+    color: #7a3b3b;
+    display: grid;
+    place-items: center;
+}
+
+.complete-seal::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px dashed #7a3b3b;
+    border-radius: 50%;
+}
+
+.complete-seal-word {
+    position: relative;
+    z-index: 1;
+    font-family: "Complete Score", Georgia, "Times New Roman", serif;
+    font-size: 0.84rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1;
+}
+
+.complete-download {
+    appearance: none;
+    -webkit-appearance: none;
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    margin: 0.8rem 0 0.1rem;
+    padding: 0.35rem 1.05rem;
+    border: 1px solid #241f1a;
+    border-radius: 999px;
+    background: transparent;
+    color: #241f1a;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.82rem;
+    font-weight: bold;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+.complete-download:focus {
+    outline: none;
+}
+
+.complete-download:focus-visible {
+    outline: 2px solid #241f1a;
+    outline-offset: 3px;
+}
+
+.score-encourage {
+    margin: 0 0 0.85rem;
+    max-width: 28em;
+    font-size: 1.05rem;
+    line-height: 1.45;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .complete-download:hover {
+        background: #241f1a;
+        color: #fbf7ee;
+    }
+}
+
+@media (max-width: 736px) {
+    .complete-card {
+        padding: 0.95rem 0.75rem 0.8rem 2.45rem;
+        background-image:
+            linear-gradient(to right, transparent 1.55rem, #c96a6a 1.55rem, #c96a6a calc(1.55rem + 2px), transparent calc(1.55rem + 2px)),
+            repeating-linear-gradient(to bottom, transparent 0 calc(1.75rem - 1px), #d5e0ee calc(1.75rem - 1px) 1.75rem);
+    }
+
+    .demo-page .review .complete-card .complete-title {
+        font-size: 1.5rem;
+    }
+
+    .complete-seal {
+        flex-basis: 4.5rem;
+        width: 4.5rem;
+        height: 4.5rem;
+    }
+
+    .demo-page .review .complete-card .complete-score {
+        font-size: 2.15rem;
+    }
+}
+
+@media (forced-colors: active) {
+    .complete-card {
+        background: Canvas !important;
+        background-image: none !important;
+        box-shadow: none;
+        border: 1px solid CanvasText;
+    }
+
+    .complete-card::before,
+    .complete-seal::before {
+        display: none;
+    }
+
+    .demo-page .review .complete-card .complete-kicker,
+    .demo-page .review .complete-card .complete-title,
+    .demo-page .review .complete-card .complete-finish,
+    .demo-page .review .complete-card .complete-track,
+    .demo-page .review .complete-card .complete-date,
+    .demo-page .review .complete-card .complete-score,
+    .complete-score-of,
+    .complete-seal,
+    .complete-seal-word {
+        color: CanvasText !important;
+    }
+
+    .complete-seal {
+        border-color: CanvasText;
+    }
+
+    .complete-download {
+        border: 1px solid ButtonText;
+        background: ButtonFace;
+        color: ButtonText;
+    }
+}
+
+.review-stem {
+    margin-bottom: 0.85rem;
+    font-weight: bold;
+}
+
+.answer-block {
+    margin: 0.55rem 0 0;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #000000;
+    background: #ffffff;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+}
+
+.answer-block .k {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.65rem;
+    margin-bottom: 0.2rem;
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.review .answer-block.is-correct {
+    border-color: #0b5f1e;
+    background: #e7f6ea;
+    color: #0b5f1e;
+}
+
+.review .answer-block.is-incorrect {
+    border-color: #8e1212;
+    background: #fde8e8;
+    color: #8e1212;
+}
+
+.section-heading {
+    margin: 0.15rem 0 0.3rem;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.section-line + .section-line {
+    margin-top: 0.15rem;
+}
+
+.score-note,
+.source {
+    margin-top: 0.85rem;
+}
+
+@media (forced-colors: active) {
+    .review .answer-block.is-correct,
+    .review .answer-block.is-incorrect {
+        border-color: CanvasText;
+        background: Canvas;
+        color: CanvasText;
+    }
+}
+
+.source a {
+    color: #000000;
+    font-weight: bold;
+}
+
+/*
+ * Three equal slots on a wide card: Previous, Next, and Try
+ * again. The third slot stays in the layout when Try again is
+ * not shown, so Next does not move. A narrow card stacks the
+ * same three slots and keeps that taller bar on every step.
+ */
+.nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    flex: 0 0 auto;
+    gap: 0.55rem;
+    margin-top: 1rem;
+}
+
+.nav .demo-btn {
+    width: 100%;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+.nav .demo-btn.is-reserved {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.nav .demo-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.nav .demo-btn:disabled:hover {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+.nav .demo-btn.demo-btn-primary:disabled:hover {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+.hint[hidden] {
+    display: none !important;
+}
+
+.needs-js {
+    margin: 1rem 0 0;
+    line-height: 1.45;
+}
+
+@media (max-width: 736px), (pointer: coarse) {
+    .choice,
+    .nav .demo-btn,
+    .source a,
+    .complete-download {
+        min-height: 44px;
+    }
+
+    .nav {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .nav .demo-btn {
+        width: 100%;
+    }
+
+    .source a {
+        display: inline-flex;
+        align-items: center;
+    }
+}

@@ -40,7 +40,7 @@
     {
       "id": "center-and-spread",
       "title": "Center and spread",
-      "summary": "This path is for where a set of numbers sits and how wide they are. By the end you can read the mean, the median, and the mode, treat higher moments as averages of spread and skew, and see why a sample variance divides by n − 1. A short check then asks you to move those pictures. The track ends after the check.",
+      "summary": "This path is for where a set of numbers sits and how wide they are. By the end you can read the mean, the median, and the mode, treat higher moments as averages of spread and skew, and see why a sample variance divides by n − 1. A short review then asks ten questions on those averages. The track ends after the review.",
       "steps": [
         {
           "href": "statistics/mean_mode_median_dot_plot.html",
@@ -84,19 +84,18 @@
           "imageAlt": "Two bars for the average variance estimate from 8000 samples of size 10, drawn from a population whose variance is 100. Dividing by n averages about 90.2, below the true-variance line. Dividing by n − 1 averages about 100.2, on that line."
         },
         {
-          "href": "statistics/center_and_spread_check.html",
-          "title": "Center and spread check",
-          "connectionTitle": "A check of these pictures",
-          "closingHeading": "The check, then the track ends",
-          "note": "The three demonstrations are done. Mean, median, and mode were three lines on one dot plot. Higher moments made spread and skew into averages of powers of the deviations. The last demonstration showed why a sample variance divides by n − 1. The page after this figure is a short check of that dot plot and of that divisor. When the check is done, the track ends.",
-          "demoDescription": "Drag the high point until the mean meets its mark, and slide the divisor until the variance bar meets the true-variance line. The gap on each picture shows whether you are closer.",
+          "href": "statistics/center_and_spread_review.html",
+          "title": "Self-test: Center and spread",
+          "connectionTitle": "Ten questions on those averages",
+          "closingHeading": "The review, then the track ends",
+          "note": "The three demonstrations are done. The mean, the median, and the mode are three answers to where a set of numbers sits. They line up when the numbers are roughly balanced, and they pull apart when the shape is not. Higher moments are averages of powers of the deviations: the second is a number for spread, and the third is a number for skew. A sample variance that divides by n is a little too small, because the sample mean came from those same values. Dividing by n − 1 corrects for that. The page after this note asks ten questions on those averages.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
           "formulae": [
             "x̄ = (Σ xᵢ) / n — the mean: add the scores and divide by how many. xᵢ is one score, n is how many, and Σ adds them.",
-            "median = 6.5 and mode = 4 while the point stays to the right",
-            "Σ (xᵢ − x̄)² / (n − 1) = 100 — the sample variance meets the true variance when the divisor is n − 1. xᵢ is one score, x̄ the mean, n how many, Σ adds the squared deviations, and 100 is that true variance."
-          ],
-          "image": "tracks/images/describing-data/10-center-spread-check.png",
-          "imageAlt": "Two panels of the check at its start. Left: dots at 4, 4, and 9, and one open point at 24. A dotted line marks the mode at 4, a dashed line marks the median at 6.5, a solid line marks the mean at 10.25, and a dash-dot line marks the target mean at 8. Right: one bar at 90, under a dashed line at the true variance 100, while the divisor is still n."
+            "m₂ = Σ (xᵢ − x̄)² / n — the second moment: an average of squared deviations, a number for spread. xᵢ is one score, x̄ the mean, n how many, and Σ adds them.",
+            "m₃ = Σ (xᵢ − x̄)³ / n — the third moment: an average of cubed deviations, a number for skew. xᵢ is one score, x̄ the mean, n how many, and Σ adds them.",
+            "s² = Σ (xᵢ − x̄)² / (n − 1) — the sample variance. Dividing by n − 1 instead of n corrects for using the sample mean. xᵢ is one score, x̄ that mean, n how many, and Σ adds them."
+          ]
         }
       ]
     },
@@ -177,7 +176,7 @@
     {
       "id": "same-summaries-different-graphs",
       "title": "Same summaries, different graphs",
-      "summary": "This path is for when the numbers match and the picture does not. By the end you can use a Q–Q plot to compare a sample with a reference curve, and see why the same means, spreads, and correlation can still hide a different graph.",
+      "summary": "This path is for when the numbers match and the picture does not. By the end you can use a Q–Q plot to compare a sample with a reference curve, and see why the same means, spreads, and correlation can still hide a different graph. A short review then asks ten questions on the graph those numbers can hide. The track ends after the review.",
       "steps": [
         {
           "href": "statistics/q_q_plot.html",
@@ -202,13 +201,25 @@
           ],
           "image": "tracks/images/describing-data/09-same-stats-different-graphs.png",
           "imageAlt": "Four scatter plots of Anscombe’s quartet. Panel I is a noisy line, II a curve, III a line with one high point, and IV a vertical stack with one point far to the right. The same dashed regression line is drawn on each panel. Every panel has mean x 9.00, mean y 7.50, standard deviations 3.32 and 2.03, and correlation 0.82."
+        },
+        {
+          "href": "statistics/same_summaries_different_graphs_review.html",
+          "title": "Self-test: Same summaries, different graphs",
+          "connectionTitle": "Ten questions on the graph behind the averages",
+          "closingHeading": "The review, then the track ends",
+          "note": "The two demonstrations are done. A Q–Q plot lines a sample’s quantiles up against a reference distribution. Points that stay near the straight line mean the shapes agree, and a curve away from that line means they differ. Means, standard deviations, and a correlation can still match while the graph changes, from a line to a curve, a stack, a star, or a dinosaur. When the averages match, the graph is still part of the description. The page after this note asks ten questions on that graph.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
+          "formulae": [
+            "plot (theoretical quantile, sample quantile) for each order statistic — one point for each sorted place. A quantile is the value that cuts off a given share. An order statistic is the sample lined up from smallest to largest.",
+            "same x̄, sₓ, ȳ, sᵧ, and r across shapes — those summaries can match while the picture changes. x̄ and ȳ are the two means, sₓ and sᵧ the two standard deviations, and r the correlation."
+          ]
         }
       ]
     },
     {
       "id": "from-process-to-distribution",
       "title": "From process to distribution",
-      "summary": "This path is for how a statistical claim is built, from a process to a curve. By the end you can name the levels from a parameter to inference, see what fixes a normal curve, and place that curve among the distributions it connects to.",
+      "summary": "This path is for how a statistical claim is built, from a process to a curve. By the end you can name the levels from a parameter to inference, see what fixes a normal curve, and place that curve among the distributions it connects to. A short review then asks ten questions on that path. The track ends after the review.",
       "steps": [
         {
           "href": "statistics/stats_conceptual_hierarchy.html",
@@ -252,13 +263,27 @@
           ],
           "image": "tracks/images/statistical-reasoning/01b-distributions-map.png",
           "imageAlt": "Sixteen distributions in five neighborhoods: coin flip, arrivals, boundaries, the natural world, and the toolbelt. Solid arrows are special cases, dashed arrows are limits, and dotted arrows are transforms. Normal is shaded, and the side panel is its density with mean 0 and standard deviation 1."
+        },
+        {
+          "href": "statistics/from_process_to_distribution_review.html",
+          "title": "Self-test: From process to distribution",
+          "connectionTitle": "Ten questions on the path to a curve",
+          "closingHeading": "The review, then the track ends",
+          "note": "The three demonstrations are done. A statistical claim is built in levels: a parameter fixes the process, a random variable turns an outcome into a number, the distribution is the pattern of those numbers, and inference speaks about the parameter you cannot see. A normal curve is one such distribution, fixed by a center and a spread. The map places that curve among the others: a single binomial trial is Bernoulli, a binomial count approaches Poisson as the mean settles, and with many trials the same count approaches a normal curve. The page after this note asks ten questions on that path.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
+          "formulae": [
+            "parameter θ fixes the process",
+            "f(x) = (1 / (σ√(2π))) exp(−(x − μ)² / (2σ²)) — the height of the normal curve at x. x is a point on the axis, μ the center, σ the spread, π is pi, and exp is the exponential.",
+            "Binomial(1, p) = Bernoulli(p) — one trial with success chance p is a Bernoulli trial. p is that chance.",
+            "Binomial(n, p) → Normal as n → ∞ (de Moivre–Laplace) — with many trials the same count approaches a normal curve. n is how many trials, and p is the success chance."
+          ]
         }
       ]
     },
     {
       "id": "counts-arrivals-and-the-board",
       "title": "Counts, arrivals, and the board",
-      "summary": "This path is for counts of coin tosses and of arrivals, and the board that piles those counts into a bell. By the end you can read a binomial count, a Poisson count, and the same kind of sum as bins on a Galton board.",
+      "summary": "This path is for counts of coin tosses and of arrivals, and the board that piles those counts into a bell. By the end you can read a binomial count, a Poisson count, and the same kind of sum as bins on a Galton board. A short review then asks ten questions on those counts. The track ends after the review.",
       "steps": [
         {
           "href": "statistics/binomial_bernoulli.html",
@@ -303,13 +328,28 @@
           ],
           "image": "tracks/images/statistical-reasoning/04-galton-board.png",
           "imageAlt": "Left: a board of 12 rows of pegs. One bead takes six right bounces, then six left bounces, and ends in bin 6. Ticks mark bins 0, 6, and 12. Right: binomial probabilities for n = 12 and p = 1/2. The bars peak at k = 6. A normal curve sits on them, with a dashed line at μ = 6 and dotted lines at μ ± σ."
+        },
+        {
+          "href": "statistics/counts_arrivals_and_the_board_review.html",
+          "title": "Self-test: Counts, arrivals, and the board",
+          "connectionTitle": "Ten questions on counts and the bell",
+          "closingHeading": "The review, then the track ends",
+          "note": "The three demonstrations are done. A Bernoulli trial has two outcomes, the same chance every time, and no memory of the trials before it. A binomial count is the number of successes in a fixed number of those trials. A Poisson count fixes a stretch of time instead, and counts arrivals that have no memory of one another. The waiting time between arrivals is exponential with the same rate. As the bins of that window get finer, the binomial count approaches the Poisson count. On a Galton board the bin is a count of right bounces, and more rows pile those counts into a bell. The page after this note asks ten questions on those counts.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
+          "formulae": [
+            "X = X₁ + … + Xₙ ~ Binomial(n, p) — the count of successes in n trials. Each Xᵢ is one trial, n is how many, and p is the chance of success on each.",
+            "μ = np,  σ = √(np(1 − p)) — the mean and the standard deviation of that count. n is how many trials, and p is the chance of success.",
+            "N(t) ~ Poisson(λt) — the number of arrivals in a window of length t. λ is the rate, arrivals per unit of time.",
+            "Binomial(n, μ/n) → Poisson(μ) as n → ∞ — split the window into n bins and the binomial count approaches the Poisson count. μ is the mean count, and n is how many bins.",
+            "P(X = k) ≈ (1 / (σ√(2π))) exp(−(k − μ)² / (2σ²)) — with many rows, the chance of bin k is about this normal height. k is the bin, μ the mean count, σ its spread, π is pi, and exp is the exponential."
+          ]
         }
       ]
     },
     {
       "id": "sampling-distributions-and-intervals",
       "title": "Sampling distributions and intervals",
-      "summary": "This path is for what repeated samples do to a summary. By the end you can see sample means settle toward a normal curve, a chi-square as a sum of squared standard normals, and a confidence interval as long-run coverage, not a chance for one interval.",
+      "summary": "This path is for what repeated samples do to a summary. By the end you can see sample means settle toward a normal curve, a chi-square as a sum of squared standard normals, and a confidence interval as long-run coverage, not a chance for one interval. A short review then asks ten questions on those repeated samples. The track ends after the review.",
       "steps": [
         {
           "href": "statistics/central_limit_theorem.html",
@@ -361,13 +401,27 @@
           ],
           "image": "tracks/images/statistical-reasoning/07-confidence-intervals.png",
           "imageAlt": "Twenty horizontal intervals of equal width aimed at a dashed line, the true value. Nineteen solid intervals cross that line. The top interval is dotted, lies entirely to the right, and is labeled miss."
+        },
+        {
+          "href": "statistics/sampling_distributions_and_intervals_review.html",
+          "title": "Self-test: Sampling distributions and intervals",
+          "connectionTitle": "Ten questions on repeated samples",
+          "closingHeading": "The review, then the track ends",
+          "note": "The four demonstrations are done. Draw many samples of the same size and the means themselves form a distribution. As each sample gets larger, that distribution settles toward a normal curve, and its spread is the standard error. Watching those means accumulate shows the same normal shape, and each sample’s s / √n estimates that spread. Square independent standard normals and add them, and the sum follows a chi-square, the usual sampling model for a variance. A confidence interval is a range from one sample. The stated percentage describes the procedure over many samples, not the chance that this one interval covers the fixed value. The page after this note asks ten questions on those repeated samples.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
+          "formulae": [
+            "X̄ ≈ N(μ, σ²/n) for large n — the distribution of the sample mean is about normal. X̄ is that mean, μ and σ the population mean and standard deviation, n the sample size, and N(mean, variance) a normal curve.",
+            "SE = σ / √n — the standard error: how widely those means spread. σ is the population standard deviation, and n is the sample size.",
+            "χ²_ν = Z₁² + … + Z_ν² — a chi-square value is this sum of squared standard normals. ν is how many squares, and each Z is one standard normal.",
+            "coverage ≈ 1 − α over repeated samples — the share of repeated intervals that hit the fixed value. α is the share that miss."
+          ]
         }
       ]
     },
     {
       "id": "from-chi-square-to-goodness-of-fit",
       "title": "From chi-square to goodness-of-fit",
-      "summary": "This path is for the chi-square curve, the goodness-of-fit test that uses it, and the same formula read as a test of independence. By the end you can read that curve as a sum of squared standard normals, see the sum as squared distance from a bullseye, follow a count from a z score to Pearson’s statistic, test observed counts against the counts a known model expects, and tell that reading from one whose expected counts come from the sample margins.",
+      "summary": "This path is for the chi-square curve, the goodness-of-fit test that uses it, and the same formula read as a test of independence. By the end you can read that curve as a sum of squared standard normals, see the sum as squared distance from a bullseye, follow a count from a z score to Pearson’s statistic, test observed counts against the counts a known model expects, and tell that reading from one whose expected counts come from the sample margins. A short review then asks ten questions on that sum. The track ends after the review.",
       "steps": [
         {
           "href": "statistics/chi_square_distribution.html",
@@ -444,13 +498,28 @@
           ],
           "image": "tracks/images/statistical-reasoning/11-fit-or-independence.png",
           "imageAlt": "Two panels under the caption Same observed counts. Both use hatched bars of 16, 8, 4, and 12 for cells labeled 1, 1; 1, 2; 2, 1; and 2, 2. Left, titled χ² = 8.0, df = 3: every open expected bar is 10, and the axis reads known model, each p = 1/4. Right, titled χ² = 6.67, df = 1: the open expected bars are 12, 12, 8, and 8, and the axis reads E = row total × column total / n."
+        },
+        {
+          "href": "statistics/from_chi_square_to_goodness_of_fit_review.html",
+          "title": "Self-test: From chi-square to goodness-of-fit",
+          "connectionTitle": "Ten questions on the chi-square sum",
+          "closingHeading": "The review, then the track ends",
+          "note": "The five demonstrations are done. A chi-square curve is a sum of squared standard normals, and the degrees of freedom are how many squares went in. One square spikes at zero, and further squares move the curve to the right. Give each axis its own spread and the sum is squared distance from a bullseye. A category count can be scaled into a z, and Pearson’s cell is (O − E)² / E. The cells add to a goodness-of-fit statistic with k − 1 degrees of freedom when the model’s probabilities are known. Past the critical value, the counts are surprising if that model is true. The same sum is a test of independence when the expected counts come from the sample margins. The page after this note asks ten questions on that sum.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
+          "formulae": [
+            "χ²_ν = Z₁² + … + Z_ν² — a chi-square value is this sum of squared standard normals. ν is how many squares, and each Z is one standard normal.",
+            "equal spreads: Q = σ² χ²_ν — when every axis has the same spread, the distance is that variance times a standard chi-square. σ² is the shared variance, and ν is how many axes.",
+            "Pearson cell = (Oᵢ − Eᵢ)² / Eᵢ — that category’s contribution to the chi-square. Oᵢ is the observed count, and Eᵢ is the expected count.",
+            "df = k − 1 — degrees of freedom, one less than the number of categories. k is how many categories.",
+            "2×2: df = 3 when pᵢ is known, and df = 1 from the margins — four cells, judged on 3 degrees of freedom when the chances are known and on 1 when the margins supply the expected counts. df is degrees of freedom, and pᵢ is a chance stated in advance."
+          ]
         }
       ]
     },
     {
       "id": "t-test",
       "title": "t-test",
-      "summary": "This path is for comparing two means when the spread is estimated, so the reference curve has heavier tails. By the end you can say whether the scores come from two groups or the same people.",
+      "summary": "This path is for comparing two means when the spread is estimated, so the reference curve has heavier tails. By the end you can say whether the scores come from two groups or the same people. A short review then asks ten questions on that comparison. The track ends after the review.",
       "steps": [
         {
           "href": "statistics/z_distribution_vs_t_distribution.html",
@@ -493,13 +562,26 @@
           ],
           "image": "tracks/images/t-test/03-paired-t.png",
           "imageAlt": "Left: eight before-and-after pairs joined by lines. Right: those eight differences, with a dashed line at the mean difference of 5. The two differences equal to 7 are drawn side by side."
+        },
+        {
+          "href": "statistics/t_test_review.html",
+          "title": "Self-test: t-test",
+          "connectionTitle": "Ten questions on the two designs",
+          "closingHeading": "The review, then the track ends",
+          "note": "The three demonstrations are done. A z statistic uses a known spread. A t statistic estimates that spread from the same data, so the tails are heavier, and a small estimate pushes the statistic farther out. For one sample the degrees of freedom are n − 1. An independent-samples comparison uses two groups that do not share people, and the standard error pools the two spreads. A paired comparison turns each person’s two scores into one difference, which sets person-to-person variation aside before the mean difference meets the same kind of curve. The page after this note asks ten questions on those comparisons.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
+          "formulae": [
+            "t = (X̄ − μ) / (s / √n) — the same comparison when the spread is estimated from the sample, so the tails are heavier. X̄ is the sample mean, μ the comparison value, s the sample standard deviation, and n the sample size.",
+            "SE = √(s_p² (1/n₁ + 1/n₂)) — that standard error, from one pooled variance. s_p² is the pooled variance, and n₁ and n₂ are the two sample sizes.",
+            "t = d̄ / (s_d / √n), with μ₀ = 0 — the mean change set against a t curve, for a hypothesized change of zero. d̄ is the mean difference, s_d its standard deviation, n how many pairs, and μ₀ that hypothesized mean."
+          ]
         }
       ]
     },
     {
       "id": "statistical-power",
       "title": "Statistical power",
-      "summary": "This path is for the chance of detecting a real effect, from the definition to how that chance grows. By the end you can say what power is and what a larger effect or sample does to it.",
+      "summary": "This path is for the chance of detecting a real effect, from the definition to how that chance grows. By the end you can say what power is and what a larger effect or sample does to it. A short review then asks ten questions on that chance. The track ends after the review.",
       "steps": [
         {
           "href": "statistics/statistical_power.html",
@@ -526,13 +608,27 @@
           ],
           "image": "tracks/images/statistical-power/02-power-curve.png",
           "imageAlt": "Power of a two-sided, equal-group t test against total sample size, for Cohen's d = 0.50 and α = 0.05. Dashed guides mark the operating point where power first reaches 0.80, at total N = 128."
+        },
+        {
+          "href": "statistics/statistical_power_review.html",
+          "title": "Self-test: Statistical power",
+          "connectionTitle": "Ten questions on detecting an effect",
+          "closingHeading": "The review, then the track ends",
+          "note": "The two demonstrations are done. Power is the chance of detecting an effect that is really there: the share of the alternative distribution that lands beyond the cutoff set under the null. The significance level is the chance of rejecting the null when it is true. Power is not a fixed number. A larger effect or a larger sample moves more of the alternative past the cutoff, and the standard error of a mean shrinks as 1/√n. The page after this note asks ten questions on that chance.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
+          "formulae": [
+            "power = P(reject H₀ | H₁ true) — the chance of detecting an effect that is really there. H₀ is the null, no effect, and H₁ is the alternative, a real effect.",
+            "α = P(reject H₀ | H₀ true) — the chance of a false detection when there is no effect. α is that rate, and H₀ is the null.",
+            "power rises with |effect| and with n — a larger effect or a larger sample makes a real effect easier to detect. n is the sample size, and |effect| is the size of the effect, ignoring its sign.",
+            "SE shrinks as 1/√n — the standard error gets smaller as the sample grows, in proportion to one over the square root of n. SE is that standard error, and n is the sample size."
+          ]
         }
       ]
     },
     {
       "id": "anova",
       "title": "ANOVA",
-      "summary": "This path is for comparing means, from separate groups to the same people and a split of variation, then that split drawn as a fitted line or plane. By the end you can say where the variation comes from, read the design as one linear model, and say what the usual reading assumes.",
+      "summary": "This path is for comparing means, from separate groups to the same people and a split of variation, then that split drawn as a fitted line or plane. By the end you can say where the variation comes from, read the design as one linear model, and say what the usual reading assumes. A short review then asks ten questions on that split. The track ends after the review.",
       "steps": [
         {
           "href": "statistics/t_test_to_anova.html",
@@ -632,13 +728,29 @@
           ],
           "image": "tracks/images/anova/04-assumptions.png",
           "imageAlt": "Left: a Q–Q plot of standardized residuals from three groups, close to a straight reference line. Right: those groups as dot plots, with means near 20, 32, and 42 and similar vertical spread."
+        },
+        {
+          "href": "statistics/anova_review.html",
+          "title": "Self-test: ANOVA",
+          "connectionTitle": "Ten questions on where variation sits",
+          "closingHeading": "The review, then the track ends",
+          "note": "The seven demonstrations are done. ANOVA asks whether variation among means is large relative to variation inside groups, and for two groups the squared t equals that F. When the same people are measured again, a positive association shrinks the difference-score spread and the residual, and it enlarges the subjects sum of squares. With more factors the total splits into main effects, interactions, and an error term that matches the stratum. A between-subjects design reads as one fitted line, a within-subjects design as a line for each person, and a mixed design as two cohorts. The usual reading wants residuals that are roughly normal, groups with similar spread, and independent observations. The page after this note asks ten questions on that split.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
+          "formulae": [
+            "F = MS_between / MS_within — variation among the means, relative to variation inside the groups. MS_between and MS_within are those mean squares: a sum of squares divided by its degrees of freedom.",
+            "for two groups, t² = F — the squared two-group t equals this F. t is that t statistic, and F is the ratio of the mean squares.",
+            "s_D² = s₁² + s₂² − 2 r s₁ s₂ — the variance of the person-by-person differences. s₁ and s₂ are the standard deviations at the two times, and r is their correlation.",
+            "SS_total = SS_A + SS_B + SS_AB + SS_error — the total sum of squares splits into factor A, factor B, their interaction, and error. Each SS is a sum of squares.",
+            "F_group = MS_group / MS_error(between) — the group effect, tested against differences between people. Each MS is a mean square: a sum of squares divided by its degrees of freedom.",
+            "residuals ≈ normal"
+          ]
         }
       ]
     },
     {
       "id": "association",
       "title": "Association",
-      "summary": "This path is for how variables move together, from shared movement to the straight line that minimizes squared error, then to the plane that splits the same total into model and error. Coding a predictor as 0 or 1 turns that same linear model into an analysis of covariance, a 2×2 ANOVA, or a one-way ANOVA. The path then turns a correlation into a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference.",
+      "summary": "This path is for how variables move together, from shared movement to the straight line that minimizes squared error, then to the plane that splits the same total into model and error. Coding a predictor as 0 or 1 turns that same linear model into an analysis of covariance, a 2×2 ANOVA, or a one-way ANOVA. The path then turns a correlation into a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference. A short review then asks ten questions on that shared movement. The track ends after the review.",
       "steps": [
         {
           "href": "statistics/covariance_and_correlation.html",
@@ -728,6 +840,22 @@
           ],
           "image": "tracks/images/association/04-additivity.png",
           "imageAlt": "Three bars. Var(X) and Var(Y) are each 1. The third bar stacks those two parts into Var(X+Y) = 2. A note says the covariance term is 0."
+        },
+        {
+          "href": "statistics/association_review.html",
+          "title": "Self-test: Association",
+          "connectionTitle": "Ten questions on moving together",
+          "closingHeading": "The review, then the track ends",
+          "note": "The six demonstrations are done. Covariance records shared movement in the units of both variables, and dividing by the two standard deviations puts it on a scale from −1 to 1. Ordinary least squares chooses the line that makes the squared vertical gaps as small as they can be, and that line splits the total sum of squares into a part it accounts for and a part left over. Two predictors fit a plane, with the same kind of split. Coding a predictor as 0 or 1 turns that equation into an analysis of covariance, a 2×2 ANOVA, or a one-way ANOVA. Squaring a correlation turns it into a share of variance. A positive correlation widens a sum and narrows a difference. The page after this note asks ten questions on that shared movement.",
+          "demoDescription": "Ten questions from this track. The questions are in Learn.",
+          "formulae": [
+            "r = cov(X, Y) / (s_x s_y) — that shared movement on a scale from −1 to 1. s_x and s_y are the two standard deviations.",
+            "SST = SSR + SSE — the total sum of squares splits into the part the line accounts for and the part left over. SST is the total, SSR the regression sum of squares, and SSE the error sum of squares.",
+            "SST = SSM + SSE — the total is the plane’s share plus the leftover. SST is the total sum of squares, SSM the model sum of squares, and SSE the error sum of squares.",
+            "R² = r² — square the correlation and the result is a share of variance. r is the correlation, and R² is that share.",
+            "Var(X + Y) = Var(X) + Var(Y) + 2 Cov(X, Y) — the variance of a sum. A positive covariance widens it. Var is a variance, and Cov is the covariance.",
+            "Var(X − Y) = Var(X) + Var(Y) − 2 Cov(X, Y) — the variance of a difference. A positive covariance narrows it. Var is a variance, and Cov is the covariance."
+          ]
         }
       ]
     }

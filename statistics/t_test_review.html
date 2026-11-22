@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Self-test: t-test</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <link rel="stylesheet" href="../assets/track-review.css">
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Self-test: t-test</h1>
+        </header>
+
+        <div id="review-slot" class="review-slot">
+            <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
+            <div id="review" class="review demo-card" data-teach="detail"></div>
+        </div>
+        <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
+    </div>
+
+    <script src="../assets/shape-complete-pdf.js"></script>
+    <script src="../assets/track-review.js"></script>
+    <script>
+        TrackReview.start(
+        {
+            "trackTitle": "t-test",
+            "filename": "project-viz-t-test-complete.pdf",
+            "questions": [
+                {
+                    "demo": "z_distribution_vs_t_distribution.html",
+                    "demoTitle": "z-Distribution vs t-Distribution",
+                    "stem": "A z statistic for a sample mean puts which spread in the denominator?",
+                    "choices": [
+                        "The known population standard deviation, divided by the square root of the sample size.",
+                        "The sample standard deviation, divided by the square root of the sample size.",
+                        "The difference of two sample sizes.",
+                        "The correlation of two scores from one person."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "z_distribution_vs_t_distribution.html",
+                    "demoTitle": "z-Distribution vs t-Distribution",
+                    "stem": "A one-sample t statistic puts which spread in the denominator?",
+                    "choices": [
+                        "The sample standard deviation, divided by the square root of the sample size.",
+                        "The known population standard deviation only.",
+                        "The range of the sample.",
+                        "The most frequent value."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "z_distribution_vs_t_distribution.html",
+                    "demoTitle": "z-Distribution vs t-Distribution",
+                    "stem": "Why are the tails of t heavier than the tails of z?",
+                    "choices": [
+                        "The spread is estimated from the same data, so there is extra uncertainty. A small estimate of the spread pushes the statistic farther into the tail.",
+                        "t is computed on a larger population, so the curve is wider by a fixed amount.",
+                        "t squares every observation, and z does not.",
+                        "The mean is replaced by the median."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "z_distribution_vs_t_distribution.html",
+                    "demoTitle": "z-Distribution vs t-Distribution",
+                    "stem": "For one sample of size n, the degrees of freedom of this t are what?",
+                    "choices": [
+                        "n − 1.",
+                        "n.",
+                        "n + 1.",
+                        "Twice n."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "independent_t_test_simulation.html",
+                    "demoTitle": "Independent Samples t-Test",
+                    "stem": "An independent-samples t compares means from which design?",
+                    "choices": [
+                        "Two groups that do not share people. Each person is in one group only.",
+                        "Two scores from the same person.",
+                        "One group compared with a known mean, using a known population standard deviation.",
+                        "More than two factors at once."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "independent_t_test_simulation.html",
+                    "demoTitle": "Independent Samples t-Test",
+                    "stem": "In the equal-variance form, the standard error of the difference of two independent means uses what?",
+                    "choices": [
+                        "One pooled variance, inside a square root with (1/n₁ + 1/n₂).",
+                        "The standard deviation of person-by-person differences, divided by the square root of the number of pairs.",
+                        "A known population standard deviation, with no sample variance.",
+                        "The correlation of the two groups."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "independent_t_test_simulation.html",
+                    "demoTitle": "Independent Samples t-Test",
+                    "stem": "That pooled variance weights the two group variances by what?",
+                    "choices": [
+                        "Each group’s degrees of freedom, n − 1, over the sum of those degrees of freedom.",
+                        "The two sample means.",
+                        "The larger variance only. The smaller one is dropped.",
+                        "The sum of the sample sizes, with nothing subtracted."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "paired_t_test_simulation.html",
+                    "demoTitle": "Paired Sample t-Test",
+                    "stem": "Turning each person’s two scores into one difference removes what before the mean change is tested?",
+                    "choices": [
+                        "Person-to-person variation. The test uses the changes.",
+                        "The mean difference, so only a correlation remains.",
+                        "Every difference that is not zero.",
+                        "The estimate of the spread, so the reference curve is a z curve."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "paired_t_test_simulation.html",
+                    "demoTitle": "Paired Sample t-Test",
+                    "stem": "For a hypothesized mean change of zero, the paired statistic is what?",
+                    "choices": [
+                        "The mean of the differences, divided by the standard deviation of those differences over the square root of the number of pairs.",
+                        "The difference of two pooled variances.",
+                        "The larger of the two raw means, divided by the number of people.",
+                        "The correlation times the number of pairs."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "paired_t_test_simulation.html",
+                    "demoTitle": "Paired Sample t-Test",
+                    "stem": "The degrees of freedom for a paired t on n pairs are what?",
+                    "choices": [
+                        "n − 1, one less than the number of pairs.",
+                        "One less than the number of raw scores, counting both times.",
+                        "Always 2.",
+                        "The sum of two group sizes, minus 2."
+                    ],
+                    "answer": 0
+                }
+            ]
+        }
+        );
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

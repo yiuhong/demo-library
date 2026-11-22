@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Self-test: From chi-square to goodness-of-fit</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <link rel="stylesheet" href="../assets/track-review.css">
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Self-test: From chi-square to goodness-of-fit</h1>
+        </header>
+
+        <div id="review-slot" class="review-slot">
+            <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
+            <div id="review" class="review demo-card" data-teach="detail"></div>
+        </div>
+        <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
+    </div>
+
+    <script src="../assets/shape-complete-pdf.js"></script>
+    <script src="../assets/track-review.js"></script>
+    <script>
+        TrackReview.start(
+        {
+            "trackTitle": "From chi-square to goodness-of-fit",
+            "filename": "project-viz-from-chi-square-to-goodness-of-fit-complete.pdf",
+            "questions": [
+                {
+                    "demo": "chi_square_distribution.html",
+                    "demoTitle": "Chi-Square Distribution",
+                    "stem": "The degrees of freedom of a chi-square made from squared standard normals count what?",
+                    "choices": [
+                        "How many independent squares were added.",
+                        "The sample size minus a correlation.",
+                        "The number of histogram bins.",
+                        "Always 1, however many squares are added."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "chi_square_distribution.html",
+                    "demoTitle": "Chi-Square Distribution",
+                    "stem": "A chi-square built from one squared standard normal has what shape, and what do further squares do?",
+                    "choices": [
+                        "It spikes at zero. Further squares move the curve to the right.",
+                        "It is a symmetric bell centered at zero. Further squares make it spike at zero.",
+                        "It is flat from −1 to 1.",
+                        "It is a straight line through the origin."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "chi_square_squared_distance.html",
+                    "demoTitle": "Chi-Square as Squared Distance",
+                    "stem": "When each axis has its own spread, a sum of squared normals is what?",
+                    "choices": [
+                        "Squared distance from a bullseye, a generalized chi-square.",
+                        "A correlation on the scale from −1 to 1.",
+                        "A sample mean.",
+                        "The width of the middle half of a sample."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "chi_square_squared_distance.html",
+                    "demoTitle": "Chi-Square as Squared Distance",
+                    "stem": "When every axis has the same spread, that squared distance equals what?",
+                    "choices": [
+                        "The shared variance times a standard chi-square. Dividing each axis by its spread returns the standard chi-square.",
+                        "The sum of the raw coordinates, with no squares.",
+                        "A binomial count.",
+                        "The difference of the spreads."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "binomial_counts_to_chi_square.html",
+                    "demoTitle": "From Binomial Counts to Chi-Square",
+                    "stem": "Pearson’s contribution from one category is what?",
+                    "choices": [
+                        "(O − E)² / E, the squared gap divided by the expected count.",
+                        "(O − E) / n, with no square and no expected count in the denominator.",
+                        "The expected count alone.",
+                        "The product of the observed count and the expected count."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "binomial_counts_to_chi_square.html",
+                    "demoTitle": "From Binomial Counts to Chi-Square",
+                    "stem": "With two categories, a squared z equals Pearson’s chi-square. With more than two, why is one category’s squared z not that category’s Pearson cell?",
+                    "choices": [
+                        "The squared z divides by the binomial variance, E times (1 − p). The Pearson cell divides by E.",
+                        "The squared z uses the median, and the cell uses the mode.",
+                        "They differ only in the order the categories are written.",
+                        "More categories make the degrees of freedom one more than the number of categories, so the two formulas swap."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "chi_square_goodness_of_fit.html",
+                    "demoTitle": "Pearson’s χ² Goodness-of-Fit",
+                    "stem": "When a goodness-of-fit model states the category probabilities in advance, the degrees of freedom are what?",
+                    "choices": [
+                        "One less than the number of categories.",
+                        "The number of categories.",
+                        "Always 1, however many categories there are.",
+                        "One less than the number of observations."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "chi_square_goodness_of_fit.html",
+                    "demoTitle": "Pearson’s χ² Goodness-of-Fit",
+                    "stem": "A goodness-of-fit chi-square that falls past the critical value means what?",
+                    "choices": [
+                        "The counts are surprising if the stated model is true.",
+                        "The model has been proved true.",
+                        "The correlation of the categories is zero.",
+                        "The reference curve is at its most trustworthy, because an expected count may sit below 5."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "chi_square_independence_2x2.html",
+                    "demoTitle": "χ² Roulette: Goodness-of-Fit vs Independence",
+                    "stem": "For a 2×2 table read as goodness-of-fit, where do the expected counts come from, and what are the degrees of freedom?",
+                    "choices": [
+                        "From probabilities stated before the sample. Nothing is estimated from the data, so there are 3 degrees of freedom.",
+                        "From the sample’s row and column totals, so there is 1 degree of freedom.",
+                        "From the correlation of the two factors, so there are 2 degrees of freedom.",
+                        "From a standard normal table, so there are 4 degrees of freedom."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "chi_square_independence_2x2.html",
+                    "demoTitle": "χ² Roulette: Goodness-of-Fit vs Independence",
+                    "stem": "For the same four cells read as a test of independence, where do the expected counts come from, and what are the degrees of freedom?",
+                    "choices": [
+                        "From the sample’s row and column totals. Estimating those margins leaves 1 degree of freedom. The form of the sum does not change.",
+                        "From probabilities stated in advance, so there are 3 degrees of freedom.",
+                        "From the larger of the two margins, so there are n − 1 degrees of freedom.",
+                        "The sum changes its form, and the degrees of freedom stay at 3."
+                    ],
+                    "answer": 0
+                }
+            ]
+        }
+        );
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

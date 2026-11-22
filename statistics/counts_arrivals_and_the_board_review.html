@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Self-test: Counts, arrivals, and the board</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <link rel="stylesheet" href="../assets/track-review.css">
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Self-test: Counts, arrivals, and the board</h1>
+        </header>
+
+        <div id="review-slot" class="review-slot">
+            <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
+            <div id="review" class="review demo-card" data-teach="detail"></div>
+        </div>
+        <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
+    </div>
+
+    <script src="../assets/shape-complete-pdf.js"></script>
+    <script src="../assets/track-review.js"></script>
+    <script>
+        TrackReview.start(
+        {
+            "trackTitle": "Counts, arrivals, and the board",
+            "filename": "project-viz-counts-arrivals-and-the-board-complete.pdf",
+            "questions": [
+                {
+                    "demo": "binomial_bernoulli.html",
+                    "demoTitle": "Binomial Distribution & Bernoulli Process",
+                    "stem": "A Bernoulli trial is which kind of trial?",
+                    "choices": [
+                        "Two outcomes, the same chance of success every time, and no memory of earlier trials.",
+                        "A count of arrivals in a stretch of time.",
+                        "A sum of squared standard normals.",
+                        "Two scores from the same person."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "binomial_bernoulli.html",
+                    "demoTitle": "Binomial Distribution & Bernoulli Process",
+                    "stem": "A binomial count is what?",
+                    "choices": [
+                        "The number of successes in a fixed number of independent Bernoulli trials.",
+                        "The waiting time between arrivals.",
+                        "The mean of many sample means.",
+                        "Squared distance from a point."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "binomial_bernoulli.html",
+                    "demoTitle": "Binomial Distribution & Bernoulli Process",
+                    "stem": "For n trials and success chance p, the mean and the standard deviation of a binomial count are what?",
+                    "choices": [
+                        "Mean np, and standard deviation the square root of np(1 − p).",
+                        "Mean n − p, and standard deviation p.",
+                        "Mean p / n, and standard deviation n.",
+                        "Mean equal to the length of a time window, and standard deviation equal to the rate."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "binomial_bernoulli.html",
+                    "demoTitle": "Binomial Distribution & Bernoulli Process",
+                    "stem": "The probability of exactly k successes in n trials is built from what?",
+                    "choices": [
+                        "The number of ways to place those k successes, times p to the power k, times (1 − p) to the power of the remaining trials.",
+                        "An exponential decay in the mean count, times that mean to the power k, divided by k factorial.",
+                        "A normal density with mean 0 and variance 1, for every n and p.",
+                        "The sample variance divided by n − 1."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "poisson_point_process.html",
+                    "demoTitle": "Poisson Distribution & Poisson Point Process",
+                    "stem": "A Poisson count fixes what, and counts what?",
+                    "choices": [
+                        "A stretch of time, and the arrivals in it. The arrivals have no memory of one another.",
+                        "A fixed number of coin tosses, and the heads among them.",
+                        "A sample of people, and their mean score.",
+                        "The bins a bead can reach after a fixed number of bounces."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "poisson_point_process.html",
+                    "demoTitle": "Poisson Distribution & Poisson Point Process",
+                    "stem": "At rate λ, the count in an interval of length t has what mean, and what law do the gaps between arrivals follow?",
+                    "choices": [
+                        "The mean count is λt. The gaps are exponential with that same rate.",
+                        "The mean count is λ / t. The gaps are normal.",
+                        "The mean count is t − λ. The gaps are binomial.",
+                        "The mean count is the square root of λ. The gaps are chi-square."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "poisson_point_process.html",
+                    "demoTitle": "Poisson Distribution & Poisson Point Process",
+                    "stem": "Chop a time window into many short bins, each nearly a Bernoulli trial. As those bins get finer, the binomial count approaches what?",
+                    "choices": [
+                        "The Poisson count with the same mean.",
+                        "A chi-square with one degree of freedom.",
+                        "The sample median.",
+                        "A paired difference of two scores."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "galton_board.html",
+                    "demoTitle": "Galton Board",
+                    "stem": "The bin reached after a run of left and right bounces is which count?",
+                    "choices": [
+                        "The number of right bounces, a binomial sum of independent steps.",
+                        "The waiting time since the previous arrival.",
+                        "The number of rows minus one.",
+                        "One standard normal draw."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "galton_board.html",
+                    "demoTitle": "Galton Board",
+                    "stem": "With more rows of bounces, those counts do what?",
+                    "choices": [
+                        "They pile into a bell, and the binomial probabilities sit close to a normal curve.",
+                        "They become a single Bernoulli trial.",
+                        "They stay flat, with one outcome in every bin, however many rows there are.",
+                        "They follow a chi-square with one less than the number of rows."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "galton_board.html",
+                    "demoTitle": "Galton Board",
+                    "stem": "The mean and the standard deviation of a count of right bounces are what?",
+                    "choices": [
+                        "Mean np and standard deviation the square root of np(1 − p), with n the number of rows and p the chance of a right bounce.",
+                        "Mean n − 1 and standard deviation p.",
+                        "Mean equal to the rate times the time, and standard deviation equal to the rate.",
+                        "Mean 0 and standard deviation 1, for any number of rows and any chance."
+                    ],
+                    "answer": 0
+                }
+            ]
+        }
+        );
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

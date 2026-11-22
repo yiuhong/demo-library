@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Self-test: ANOVA</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <link rel="stylesheet" href="../assets/track-review.css">
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Self-test: ANOVA</h1>
+        </header>
+
+        <div id="review-slot" class="review-slot">
+            <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
+            <div id="review" class="review demo-card" data-teach="detail"></div>
+        </div>
+        <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
+    </div>
+
+    <script src="../assets/shape-complete-pdf.js"></script>
+    <script src="../assets/track-review.js"></script>
+    <script>
+        TrackReview.start(
+        {
+            "trackTitle": "ANOVA",
+            "filename": "project-viz-anova-complete.pdf",
+            "questions": [
+                {
+                    "demo": "t_test_to_anova.html",
+                    "demoTitle": "From t-Test to ANOVA",
+                    "stem": "When there may be more than two means, the ANOVA question is what?",
+                    "choices": [
+                        "Whether the variation among the means is large relative to the variation left inside the groups.",
+                        "Whether each person was measured twice.",
+                        "Whether the residuals follow a count of arrivals.",
+                        "Whether a correlation is exactly 1."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "t_test_to_anova.html",
+                    "demoTitle": "From t-Test to ANOVA",
+                    "stem": "For two groups, the squared t statistic and the ANOVA F are related how?",
+                    "choices": [
+                        "The squared t equals F.",
+                        "t equals F divided by the sample size.",
+                        "They share no algebraic relation.",
+                        "F equals t divided by 2."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "paired_t_to_rm_anova.html",
+                    "demoTitle": "From Paired t-Test to RM-ANOVA",
+                    "stem": "A more positive correlation between two times does what to the variance of the person-by-person differences?",
+                    "choices": [
+                        "It shrinks that variance. Scores that move together leave small changes.",
+                        "It enlarges that variance.",
+                        "It leaves the difference-score variance unchanged.",
+                        "It removes the time effect from the data."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "paired_t_to_rm_anova.html",
+                    "demoTitle": "From Paired t-Test to RM-ANOVA",
+                    "stem": "That same positive association does what to the scatter around the timepoint means?",
+                    "choices": [
+                        "It enlarges the subjects sum of squares and shrinks the residual.",
+                        "It enlarges the residual and shrinks the subjects sum of squares.",
+                        "It folds both pieces into the error of a test that ignores the pairing.",
+                        "It removes the difference between the timepoint means."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "partitioning_sum_of_squares_anova.html",
+                    "demoTitle": "Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA",
+                    "stem": "With one factor, the total sum of squares splits into which parts?",
+                    "choices": [
+                        "A part between groups and a part left inside groups.",
+                        "A main effect and an interaction only, with no remainder.",
+                        "Only a residual, with nothing for the factor.",
+                        "The covariance of two predictors."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "two_way_anova.html",
+                    "demoTitle": "Two-Way ANOVA",
+                    "stem": "In a design with two factors, a main effect and an interaction differ how?",
+                    "choices": [
+                        "A main effect is one factor’s pattern on its own. The interaction is the pattern that appears only when the factors are combined.",
+                        "A main effect is the residual. The interaction is the grand mean.",
+                        "They are two names for the same sum of squares.",
+                        "An interaction is defined only when there is a single factor."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "mixed_anova_2x2.html",
+                    "demoTitle": "2×2 Mixed ANOVA",
+                    "stem": "In a mixed design with one grouping factor and one repeated factor, the group effect is tested against what?",
+                    "choices": [
+                        "Differences between people.",
+                        "How people vary in their change from one time to the next.",
+                        "The interaction alone, with no error term.",
+                        "A known population variance, and no sample residual."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "mixed_anova_2x2.html",
+                    "demoTitle": "2×2 Mixed ANOVA",
+                    "stem": "In that mixed design, the time effect and the group-by-time interaction are tested against what?",
+                    "choices": [
+                        "How people vary in their change.",
+                        "Differences between people, the same error as the group effect.",
+                        "The grand mean.",
+                        "A chi-square with one degree of freedom."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "geometric_anova_regression.html",
+                    "demoTitle": "Geometric ANOVA Regression",
+                    "stem": "Read as one linear model, a between-subjects design, a within-subjects design, and a mixed design fit what?",
+                    "choices": [
+                        "One line across separate groups, a line for each person, and two cohorts of lines whose slopes need not match.",
+                        "A chi-square distance, a Poisson count, and a comparison of quantiles.",
+                        "Three correlations, and no residual.",
+                        "The same residual line in every design, with no change in what is set aside."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "anova_assumptions.html",
+                    "demoTitle": "ANOVA Assumptions",
+                    "stem": "The usual reading of these F ratios wants which conditions on the data?",
+                    "choices": [
+                        "Residuals roughly normal, groups with similar spread, and observations independent of one another.",
+                        "A correlation of exactly 1, equal means, and a known standard deviation.",
+                        "Binomial counts, a Poisson rate, and a normal limit for a count.",
+                        "A bent comparison of quantiles, a kernel bandwidth, and a fence around the middle half."
+                    ],
+                    "answer": 0
+                }
+            ]
+        }
+        );
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

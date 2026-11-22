@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Self-test: Same summaries, different graphs</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <link rel="stylesheet" href="../assets/track-review.css">
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Self-test: Same summaries, different graphs</h1>
+        </header>
+
+        <div id="review-slot" class="review-slot">
+            <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
+            <div id="review" class="review demo-card" data-teach="detail"></div>
+        </div>
+        <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
+    </div>
+
+    <script src="../assets/shape-complete-pdf.js"></script>
+    <script src="../assets/track-review.js"></script>
+    <script>
+        TrackReview.start(
+        {
+            "trackTitle": "Same summaries, different graphs",
+            "filename": "project-viz-same-summaries-different-graphs-complete.pdf",
+            "questions": [
+                {
+                    "demo": "q_q_plot.html",
+                    "demoTitle": "Q–Q Plot",
+                    "stem": "A Q–Q plot compares a sample with a reference distribution by plotting what?",
+                    "choices": [
+                        "Each sample quantile against the matching quantile of the reference.",
+                        "The sample mean against the sample standard deviation.",
+                        "The correlation against the sample size.",
+                        "Bin counts against a bandwidth."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "q_q_plot.html",
+                    "demoTitle": "Q–Q Plot",
+                    "stem": "A quantile, in that comparison, is what?",
+                    "choices": [
+                        "The value that cuts off a given share of the distribution.",
+                        "The most frequent value.",
+                        "The average of the squared deviations.",
+                        "The number of observations."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "q_q_plot.html",
+                    "demoTitle": "Q–Q Plot",
+                    "stem": "An order statistic, in that comparison, is what?",
+                    "choices": [
+                        "The sample lined up from smallest to largest.",
+                        "The slope of a least-squares line.",
+                        "The population variance.",
+                        "A count of arrivals in a fixed window."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "q_q_plot.html",
+                    "demoTitle": "Q–Q Plot",
+                    "stem": "Points that stay close to the straight reference line mean what?",
+                    "choices": [
+                        "The sample’s quantiles match the reference distribution’s quantiles, so the shapes agree.",
+                        "The sample mean equals the sample size.",
+                        "Every point is an outlier.",
+                        "The correlation has been fixed at zero."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "q_q_plot.html",
+                    "demoTitle": "Q–Q Plot",
+                    "stem": "A curve that bends away from the straight reference line means what?",
+                    "choices": [
+                        "The sample’s shape and the reference shape differ.",
+                        "The means have changed and the standard deviations have not.",
+                        "The sample has exactly two observations.",
+                        "The correlation is locked, so the picture cannot change."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "limitations_of_summary_statistics.html",
+                    "demoTitle": "Limitations of summary statistics",
+                    "stem": "Which summaries can stay fixed while a graph changes from a line to a curve, a stack, a star, or a dinosaur?",
+                    "choices": [
+                        "The means, the standard deviations, and the correlation.",
+                        "Only the sample size.",
+                        "The bin edges and a bandwidth.",
+                        "The degrees of freedom of a chi-square."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "limitations_of_summary_statistics.html",
+                    "demoTitle": "Limitations of summary statistics",
+                    "stem": "Anscombe’s quartet and the Datasaurus dozen are examples of what?",
+                    "choices": [
+                        "Different pictures that share the same means, the same standard deviations, and the same correlation.",
+                        "Samples whose shapes match a normal curve on a Q–Q plot.",
+                        "Sets of numbers whose means differ and whose graphs match.",
+                        "Counts of arrivals in a fixed window of time."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "limitations_of_summary_statistics.html",
+                    "demoTitle": "Limitations of summary statistics",
+                    "stem": "When the means, the spreads, and the correlation match and the pictures do not, what is still part of the description?",
+                    "choices": [
+                        "The graph.",
+                        "A larger divisor, n in place of n − 1.",
+                        "A new population mean.",
+                        "The mode of a single variable."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "limitations_of_summary_statistics.html",
+                    "demoTitle": "Limitations of summary statistics",
+                    "stem": "Moving one point in such a picture does what to summaries that had matched?",
+                    "choices": [
+                        "It can move the means, the standard deviations, and the correlation.",
+                        "It leaves those summaries locked, whatever the point does.",
+                        "It changes only the sample size.",
+                        "It turns the picture into a Q–Q plot."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "limitations_of_summary_statistics.html",
+                    "demoTitle": "Limitations of summary statistics",
+                    "stem": "A different picture can be built so those summaries return to the same values. What does that show?",
+                    "choices": [
+                        "The same means, spreads, and correlation can belong to a strange picture again.",
+                        "A Q–Q plot and a scatter of paired values are the same comparison.",
+                        "Once a point moves, no picture can carry the original summaries.",
+                        "The reference line of a Q–Q plot is the correlation."
+                    ],
+                    "answer": 0
+                }
+            ]
+        }
+        );
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>

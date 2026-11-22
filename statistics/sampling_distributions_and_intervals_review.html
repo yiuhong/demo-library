@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Self-test: Sampling distributions and intervals</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <link rel="stylesheet" href="../assets/track-review.css">
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Self-test: Sampling distributions and intervals</h1>
+        </header>
+
+        <div id="review-slot" class="review-slot">
+            <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
+            <div id="review" class="review demo-card" data-teach="detail"></div>
+        </div>
+        <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
+    </div>
+
+    <script src="../assets/shape-complete-pdf.js"></script>
+    <script src="../assets/track-review.js"></script>
+    <script>
+        TrackReview.start(
+        {
+            "trackTitle": "Sampling distributions and intervals",
+            "filename": "project-viz-sampling-distributions-and-intervals-complete.pdf",
+            "questions": [
+                {
+                    "demo": "central_limit_theorem.html",
+                    "demoTitle": "Central Limit Theorem (CLT)",
+                    "stem": "The central limit theorem is a statement about which distribution?",
+                    "choices": [
+                        "The distribution of the sample mean as the sample gets larger.",
+                        "The distribution of one person’s two scores.",
+                        "The distribution of the widths of histogram bins.",
+                        "The distribution of a single most-frequent value."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "central_limit_theorem.html",
+                    "demoTitle": "Central Limit Theorem (CLT)",
+                    "stem": "As each sample gets larger, the distribution of the sample mean does what?",
+                    "choices": [
+                        "It settles toward a normal curve, whatever shape the raw observations had, and the means pull in tighter.",
+                        "It keeps the skew of the raw observations, however large the sample.",
+                        "It becomes a chi-square with degrees of freedom equal to the sample size.",
+                        "Its center moves to zero for every population."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "central_limit_theorem.html",
+                    "demoTitle": "Central Limit Theorem (CLT)",
+                    "stem": "When the population standard deviation σ is known, the standard error of the mean is what?",
+                    "choices": [
+                        "σ / √n. A larger sample makes that spread smaller.",
+                        "σ times √n.",
+                        "The sample standard deviation times n.",
+                        "The population mean divided by n."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "horowitz_1974_simulation_CLT.html",
+                    "demoTitle": "Horowitz (1974) CLT Simulation",
+                    "stem": "Repeated samples of one fixed size, drawn from one pool of scores, produce a collection of means with what shape?",
+                    "choices": [
+                        "A normal shape.",
+                        "A uniform shape, one mean in every bin.",
+                        "A spike at zero.",
+                        "Two peaks, one above the pool’s mean and one below it."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "horowitz_1974_simulation_CLT.html",
+                    "demoTitle": "Horowitz (1974) CLT Simulation",
+                    "stem": "Each of those samples can estimate the spread of the means by what?",
+                    "choices": [
+                        "s / √n, the sample standard deviation divided by the square root of the sample size. The average of those estimates settles near σ / √n.",
+                        "The range of the whole pool divided by the sample size. That average settles near zero.",
+                        "The median of one sample. That average settles at the population mean.",
+                        "n − 1, with no square root."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "chi_square_distribution.html",
+                    "demoTitle": "Chi-Square Distribution",
+                    "stem": "A chi-square value with ν degrees of freedom is what?",
+                    "choices": [
+                        "The sum of ν squared independent standard normals.",
+                        "The difference of two means, divided by a standard error.",
+                        "A correlation squared.",
+                        "The count of successes in ν trials."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "chi_square_distribution.html",
+                    "demoTitle": "Chi-Square Distribution",
+                    "stem": "A sum of squared independent standard normals is the usual sampling model for what?",
+                    "choices": [
+                        "A variance.",
+                        "A median.",
+                        "The sign of a correlation.",
+                        "A single trial with two outcomes."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "target_analogy_confidence_intervals.html",
+                    "demoTitle": "Target Analogy of Confidence Intervals",
+                    "stem": "In the target analogy for a confidence interval, which piece stays fixed, and what is each interval?",
+                    "choices": [
+                        "The unknown value stays fixed. Each interval is a shot computed from a new sample.",
+                        "The unknown value moves with every sample, and the interval stays put.",
+                        "Both the value and the interval are the population standard deviation.",
+                        "The interval is the parameter, and the shot is the sample size."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "target_analogy_confidence_intervals.html",
+                    "demoTitle": "Target Analogy of Confidence Intervals",
+                    "stem": "The stated percentage of a confidence interval describes what?",
+                    "choices": [
+                        "The procedure over many samples: the share of intervals that hit the fixed value.",
+                        "The chance that this one interval covers the value.",
+                        "The probability that a null hypothesis is true.",
+                        "The share of one sample that sits inside the middle half."
+                    ],
+                    "answer": 0
+                },
+                {
+                    "demo": "target_analogy_confidence_intervals.html",
+                    "demoTitle": "Target Analogy of Confidence Intervals",
+                    "stem": "An interval misses, in that analogy, when it does what?",
+                    "choices": [
+                        "It fails to cross the fixed value.",
+                        "It uses the median instead of the mean.",
+                        "It has width zero.",
+                        "It was computed from the whole population rather than from a sample."
+                    ],
+                    "answer": 0
+                }
+            ]
+        }
+        );
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>
