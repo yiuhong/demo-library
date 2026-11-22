@@ -18,7 +18,10 @@
          * the tallest Learn state, so a shorter state leaves empty
          * space inside the card and the page length stays put. Teach
          * hides the questions and keeps the same slot, with the notice
-         * at the top. The page is the scroller. The card does not scroll.
+         * at the top. Previous, Next, and a slot for Try again are the
+         * last row of that card, so the text above them can change
+         * without moving the buttons. The page is the scroller. The
+         * card does not scroll.
          */
         body.demo-page {
             margin: 0;
@@ -66,6 +69,8 @@
         }
 
         .review {
+            display: flex;
+            flex-direction: column;
             margin: 0;
             padding: 1rem 1rem 1.1rem;
             overflow: visible;
@@ -74,6 +79,15 @@
 
         #review {
             align-self: stretch;
+        }
+
+        .review-body {
+            flex: 0 1 auto;
+            min-width: 0;
+        }
+
+        #review > .review-body {
+            flex: 1 1 auto;
         }
 
         .review-sizer {
@@ -260,15 +274,29 @@
             font-weight: bold;
         }
 
+        /*
+         * Three equal slots on a wide card: Previous, Next, and Try
+         * again. The third slot stays in the layout when Try again is
+         * not shown, so Next does not move. A narrow card stacks the
+         * same three slots and keeps that taller bar on every step.
+         */
         .nav {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            flex: 0 0 auto;
             gap: 0.55rem;
             margin-top: 1rem;
         }
 
         .nav .demo-btn {
-            flex: 1 1 8.5rem;
+            width: 100%;
+            min-width: 0;
+            white-space: nowrap;
+        }
+
+        .nav .demo-btn.is-reserved {
+            visibility: hidden;
+            pointer-events: none;
         }
 
         .nav .demo-btn:disabled {
@@ -286,7 +314,6 @@
             color: #ffffff !important;
         }
 
-        .nav .demo-btn[hidden],
         .hint[hidden] {
             display: none !important;
         }
@@ -304,11 +331,10 @@
             }
 
             .nav {
-                flex-direction: column;
+                grid-template-columns: minmax(0, 1fr);
             }
 
             .nav .demo-btn {
-                flex: 0 0 auto;
                 width: 100%;
             }
 
@@ -594,18 +620,26 @@
             /*
              * Try again shows on the score and on the last review
              * item (Review 10 of 10). Earlier review items and the
-             * questions do not show it.
+             * questions do not show it. The button stays in the bar
+             * either way, so Previous and Next do not move.
              */
             function tryAgainHere() {
                 return cursor === SCORE || cursor === REVIEW + LAST;
             }
 
-            function navBar(nextLabel, includeAgain) {
+            function navBar(nextLabel) {
                 var bar = el("div", { "class": "nav" });
                 bar.appendChild(button("prev", "Previous", false));
                 bar.appendChild(button("next", nextLabel, true));
-                if (includeAgain) bar.appendChild(button("again", "Try again", false));
+                bar.appendChild(button("again", "Try again", false));
                 return bar;
+            }
+
+            function mount(parent, nextLabel, fill) {
+                var body = el("div", { "class": "review-body" });
+                fill(body);
+                parent.appendChild(body);
+                parent.appendChild(navBar(nextLabel));
             }
 
             function stepHeading(parent, text, live) {
@@ -617,72 +651,75 @@
             }
 
             function fillQuiz(parent, index, hintText, live) {
-                var item = QUESTIONS[index];
-                stepHeading(parent, "Question " + (index + 1) + " of 10", live);
-                var field = el("fieldset", { "class": "ask" });
-                var legend = el("legend");
-                legend.textContent = item.stem;
-                field.appendChild(legend);
-                item.choices.forEach(function (choice, choiceIndex) {
-                    var label = el("label", { "class": "choice" });
-                    var input = el("input", {
-                        type: "radio",
-                        name: live ? "shape-review-answer" : "shape-review-sizer-" + index,
-                        value: String(choiceIndex)
+                mount(parent, index === LAST ? "Score" : "Next", function (body) {
+                    var item = QUESTIONS[index];
+                    stepHeading(body, "Question " + (index + 1) + " of 10", live);
+                    var field = el("fieldset", { "class": "ask" });
+                    var legend = el("legend");
+                    legend.textContent = item.stem;
+                    field.appendChild(legend);
+                    item.choices.forEach(function (choice, choiceIndex) {
+                        var label = el("label", { "class": "choice" });
+                        var input = el("input", {
+                            type: "radio",
+                            name: live ? "shape-review-answer" : "shape-review-sizer-" + index,
+                            value: String(choiceIndex)
+                        });
+                        if (live && selections[index] === choiceIndex) {
+                            input.checked = true;
+                            label.classList.add("is-selected");
+                        }
+                        var text = el("span", { "class": "choice-text" });
+                        text.textContent = choice;
+                        label.appendChild(input);
+                        label.appendChild(text);
+                        field.appendChild(label);
                     });
-                    if (live && selections[index] === choiceIndex) {
-                        input.checked = true;
-                        label.classList.add("is-selected");
-                    }
-                    var text = el("span", { "class": "choice-text" });
-                    text.textContent = choice;
-                    label.appendChild(input);
-                    label.appendChild(text);
-                    field.appendChild(label);
+                    body.appendChild(field);
+                    var hint = addText(body, "p", "hint", hintText);
+                    hint.setAttribute("data-role", "hint");
+                    if (!hintText) hint.hidden = true;
                 });
-                parent.appendChild(field);
-                var hint = addText(parent, "p", "hint", hintText);
-                hint.setAttribute("data-role", "hint");
-                if (!hintText) hint.hidden = true;
-                parent.appendChild(navBar(index === LAST ? "Score" : "Next", false));
             }
 
             function fillScore(parent, scoreLabel, lines, live) {
-                stepHeading(parent, "Score", live);
-                var number = addText(parent, "p", "score", scoreLabel);
-                if (live) number.setAttribute("aria-live", "polite");
-                addText(parent, "h3", "section-heading", "Breakdown");
-                var i;
-                for (i = 0; i < lines.length; i++) {
-                    addText(parent, "p", "section-line", lines[i]);
-                }
-                addText(parent, "p", "score-note", "Next reviews the answers.");
-                parent.appendChild(navBar("Next", true));
+                mount(parent, "Next", function (body) {
+                    stepHeading(body, "Score", live);
+                    var number = addText(body, "p", "score", scoreLabel);
+                    if (live) number.setAttribute("aria-live", "polite");
+                    addText(body, "h3", "section-heading", "Breakdown");
+                    var i;
+                    for (i = 0; i < lines.length; i++) {
+                        addText(body, "p", "section-line", lines[i]);
+                    }
+                    addText(body, "p", "score-note", "Next reviews the answers.");
+                });
             }
 
             function fillReview(parent, index, picked, live) {
-                var item = QUESTIONS[index];
-                stepHeading(parent, "Review " + (index + 1) + " of 10", live);
-                addText(parent, "p", "score-line", "Score: " + (live ? scoreText() : "10 out of 10"));
-                addText(parent, "p", "review-stem", item.stem);
-                if (picked === item.answer) {
-                    parent.appendChild(answerBlock("correct", "YOUR ANSWER IS CORRECT", item.choices[picked]));
-                } else {
-                    parent.appendChild(answerBlock(
-                        "incorrect",
-                        "YOUR ANSWER IS INCORRECT",
-                        picked == null ? "No answer selected." : item.choices[picked]
-                    ));
-                    parent.appendChild(answerBlock("correct", "Correct answer", item.choices[item.answer]));
-                }
-                var source = el("p", { "class": "source" });
-                source.appendChild(document.createTextNode("Demonstration: "));
-                var link = el("a", { href: live ? withEmbed(item.demo) : item.demo });
-                link.textContent = item.demoTitle;
-                if (!live) link.tabIndex = -1;
-                source.appendChild(link);
-                parent.appendChild(source);
-                parent.appendChild(navBar("Next", index === LAST));
+                mount(parent, "Next", function (body) {
+                    var item = QUESTIONS[index];
+                    stepHeading(body, "Review " + (index + 1) + " of 10", live);
+                    addText(body, "p", "score-line", "Score: " + (live ? scoreText() : "10 out of 10"));
+                    addText(body, "p", "review-stem", item.stem);
+                    if (picked === item.answer) {
+                        body.appendChild(answerBlock("correct", "YOUR ANSWER IS CORRECT", item.choices[picked]));
+                    } else {
+                        body.appendChild(answerBlock(
+                            "incorrect",
+                            "YOUR ANSWER IS INCORRECT",
+                            picked == null ? "No answer selected." : item.choices[picked]
+                        ));
+                        body.appendChild(answerBlock("correct", "Correct answer", item.choices[item.answer]));
+                    }
+                    var source = el("p", { "class": "source" });
+                    source.appendChild(document.createTextNode("Demonstration: "));
+                    var link = el("a", { href: live ? withEmbed(item.demo) : item.demo });
+                    link.textContent = item.demoTitle;
+                    if (!live) link.tabIndex = -1;
+                    source.appendChild(link);
+                    body.appendChild(source);
+                });
             }
 
             function addSizer(kind, index, picked, hintText) {
@@ -705,9 +742,11 @@
 
             /*
              * One sizer for each question (with the hint that can show),
-             * each wrong-answer review (the correct answer, the
-             * demonstration link, and Try again on the last item), and
-             * the score. The slot is as tall as the tallest of these.
+             * each wrong-answer review (the correct answer and the
+             * demonstration link), and the score. Every sizer includes
+             * the three-slot action bar, so the reserved height covers
+             * Try again on the score and on the last item. The slot is
+             * as tall as the tallest of these.
              */
             function buildSizers() {
                 var q;
@@ -735,7 +774,12 @@
                 var again = review.querySelector("[data-action='again']");
                 if (prev) prev.disabled = cursor === 0;
                 if (next) next.disabled = !canForward();
-                if (again) again.hidden = !tryAgainHere();
+                if (again) {
+                    var showAgain = tryAgainHere();
+                    again.classList.toggle("is-reserved", !showAgain);
+                    again.disabled = !showAgain;
+                    again.setAttribute("aria-hidden", showAgain ? "false" : "true");
+                }
                 if (cursor > LAST) return;
                 var hint = review.querySelector("[data-role='hint']");
                 var message = "";
