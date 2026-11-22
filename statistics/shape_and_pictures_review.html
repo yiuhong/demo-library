@@ -7,15 +7,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
-    <title>Shape and pictures review</title>
+    <title>Self-test: Shape and pictures</title>
     <link rel="stylesheet" href="../assets/stats-demo-theme.css">
     <link rel="stylesheet" href="../assets/site-oer-footer.css">
     <style>
         /*
-         * End-of-track review for Shape and pictures. Questions, the
-         * score, and the item review are one commentary panel. Teach
-         * hides that panel and does not touch the answers. The notice
-         * below the title is the Teach state. The page is the scroller.
+         * End-of-track self-test for Shape and pictures. Questions, the
+         * score, and the item review are one commentary card. Hidden
+         * sizers share that card's grid cell and reserve the height of
+         * the tallest Learn state, so a shorter state leaves empty
+         * space inside the card and the page length stays put. Teach
+         * hides the questions and keeps the same slot, with the notice
+         * at the top. The page is the scroller. The card does not scroll.
          */
         body.demo-page {
             margin: 0;
@@ -39,10 +42,23 @@
             margin-bottom: 0;
         }
 
-        .mode-notice {
+        .review-slot {
+            display: grid;
             margin: 1rem 0 0;
+        }
+
+        .review-slot > .mode-notice,
+        .review-slot > .review {
+            grid-area: 1 / 1;
+        }
+
+        .mode-notice {
+            align-self: start;
+            justify-self: stretch;
+            margin: 0;
             padding: 0.9rem 1rem;
             line-height: 1.45;
+            z-index: 1;
         }
 
         html:not(.viz-teach) .mode-notice {
@@ -50,8 +66,22 @@
         }
 
         .review {
-            margin: 1rem 0 0;
+            margin: 0;
             padding: 1rem 1rem 1.1rem;
+            overflow: visible;
+            min-width: 0;
+        }
+
+        #review {
+            align-self: stretch;
+        }
+
+        .review-sizer {
+            visibility: hidden;
+            align-self: start;
+            justify-self: stretch;
+            pointer-events: none;
+            user-select: none;
             overflow: visible;
         }
 
@@ -296,12 +326,13 @@
         </div>
 
         <header class="demo-header page-title">
-            <h1>Shape and pictures review</h1>
+            <h1>Self-test: Shape and pictures</h1>
         </header>
 
-        <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
-
-        <div id="review" class="review demo-card" data-teach="detail"></div>
+        <div id="review-slot" class="review-slot">
+            <p class="mode-notice demo-card" data-teach="essential">Switch to Learn mode for self-test questions.</p>
+            <div id="review" class="review demo-card" data-teach="detail"></div>
+        </div>
         <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
     </div>
 
@@ -309,9 +340,11 @@
         (function () {
             /*
              * selections, cursor, and finished are the attempt.
-             * Teach only hides #review. This script does not read
-             * viz-teach, and it does not clear the attempt when the
-             * mode changes. Try again is the reset.
+             * Teach only hides #review. The slot and its sizers stay,
+             * so the page length does not change, and the questions
+             * stay hidden. This script does not read viz-teach, and
+             * it does not clear the attempt when the mode changes.
+             * Try again is the reset. Nothing is stored.
              */
             var QUESTIONS = [
                 {
@@ -443,6 +476,7 @@
             var cursor = 0;
             var finished = false;
             var review = document.getElementById("review");
+            var slot = document.getElementById("review-slot");
 
             function el(name, attrs) {
                 var node = document.createElement(name);
@@ -525,6 +559,13 @@
                 return block;
             }
 
+            function widestSectionLines() {
+                return sectionGroups().map(function (group) {
+                    var count = group.indexes.length;
+                    return group.title + ": " + count + "/" + count;
+                });
+            }
+
             function maxCursor() {
                 return finished ? REVIEW + LAST : LAST;
             }
@@ -559,13 +600,133 @@
                 return cursor === SCORE || cursor === REVIEW + LAST;
             }
 
-            function nav() {
+            function navBar(nextLabel, includeAgain) {
                 var bar = el("div", { "class": "nav" });
                 bar.appendChild(button("prev", "Previous", false));
-                var nextLabel = cursor === LAST ? "Score" : "Next";
                 bar.appendChild(button("next", nextLabel, true));
-                if (tryAgainHere()) bar.appendChild(button("again", "Try again", false));
+                if (includeAgain) bar.appendChild(button("again", "Try again", false));
                 return bar;
+            }
+
+            function stepHeading(parent, text, live) {
+                var node = addText(parent, "h2", "step-kicker", text);
+                if (!live) return node;
+                node.id = "review-heading";
+                node.tabIndex = -1;
+                return node;
+            }
+
+            function fillQuiz(parent, index, hintText, live) {
+                var item = QUESTIONS[index];
+                stepHeading(parent, "Question " + (index + 1) + " of 10", live);
+                var field = el("fieldset", { "class": "ask" });
+                var legend = el("legend");
+                legend.textContent = item.stem;
+                field.appendChild(legend);
+                item.choices.forEach(function (choice, choiceIndex) {
+                    var label = el("label", { "class": "choice" });
+                    var input = el("input", {
+                        type: "radio",
+                        name: live ? "shape-review-answer" : "shape-review-sizer-" + index,
+                        value: String(choiceIndex)
+                    });
+                    if (live && selections[index] === choiceIndex) {
+                        input.checked = true;
+                        label.classList.add("is-selected");
+                    }
+                    var text = el("span", { "class": "choice-text" });
+                    text.textContent = choice;
+                    label.appendChild(input);
+                    label.appendChild(text);
+                    field.appendChild(label);
+                });
+                parent.appendChild(field);
+                var hint = addText(parent, "p", "hint", hintText);
+                hint.setAttribute("data-role", "hint");
+                if (!hintText) hint.hidden = true;
+                parent.appendChild(navBar(index === LAST ? "Score" : "Next", false));
+            }
+
+            function fillScore(parent, scoreLabel, lines, live) {
+                stepHeading(parent, "Score", live);
+                var number = addText(parent, "p", "score", scoreLabel);
+                if (live) number.setAttribute("aria-live", "polite");
+                addText(parent, "h3", "section-heading", "Breakdown");
+                var i;
+                for (i = 0; i < lines.length; i++) {
+                    addText(parent, "p", "section-line", lines[i]);
+                }
+                addText(parent, "p", "score-note", "Next reviews the answers.");
+                parent.appendChild(navBar("Next", true));
+            }
+
+            function fillReview(parent, index, picked, live) {
+                var item = QUESTIONS[index];
+                stepHeading(parent, "Review " + (index + 1) + " of 10", live);
+                addText(parent, "p", "score-line", "Score: " + (live ? scoreText() : "10 out of 10"));
+                addText(parent, "p", "review-stem", item.stem);
+                if (picked === item.answer) {
+                    parent.appendChild(answerBlock("correct", "YOUR ANSWER IS CORRECT", item.choices[picked]));
+                } else {
+                    parent.appendChild(answerBlock(
+                        "incorrect",
+                        "YOUR ANSWER IS INCORRECT",
+                        picked == null ? "No answer selected." : item.choices[picked]
+                    ));
+                    parent.appendChild(answerBlock("correct", "Correct answer", item.choices[item.answer]));
+                }
+                var source = el("p", { "class": "source" });
+                source.appendChild(document.createTextNode("Demonstration: "));
+                var link = el("a", { href: live ? withEmbed(item.demo) : item.demo });
+                link.textContent = item.demoTitle;
+                if (!live) link.tabIndex = -1;
+                source.appendChild(link);
+                parent.appendChild(source);
+                parent.appendChild(navBar("Next", index === LAST));
+            }
+
+            function addSizer(kind, index, picked, hintText) {
+                var node = el("div", {
+                    "class": "review review-sizer demo-card",
+                    "aria-hidden": "true"
+                });
+                node.inert = true;
+                if (kind === "quiz") fillQuiz(node, index, hintText, false);
+                else if (kind === "score") fillScore(node, "10 out of 10", widestSectionLines(), false);
+                else fillReview(node, index, picked, false);
+                var controls = node.querySelectorAll("button, input, a");
+                var i;
+                for (i = 0; i < controls.length; i++) {
+                    controls[i].tabIndex = -1;
+                    if (controls[i].tagName !== "A") controls[i].disabled = true;
+                }
+                slot.appendChild(node);
+            }
+
+            /*
+             * One sizer for each question (with the hint that can show),
+             * each wrong-answer review (the correct answer, the
+             * demonstration link, and Try again on the last item), and
+             * the score. The slot is as tall as the tallest of these.
+             */
+            function buildSizers() {
+                var q;
+                var i;
+                for (q = 0; q < QUESTIONS.length; q++) {
+                    addSizer(
+                        "quiz",
+                        q,
+                        null,
+                        q === LAST
+                            ? "Answer all ten questions to see the score."
+                            : "Select an answer, then Next."
+                    );
+                    for (i = 0; i < QUESTIONS[q].choices.length; i++) {
+                        if (i === QUESTIONS[q].answer) continue;
+                        addSizer("review", q, i, "");
+                    }
+                }
+                addSizer("score", 0, null, "");
             }
 
             function syncChrome() {
@@ -597,88 +758,11 @@
                 }
             }
 
-            function renderQuiz() {
-                var item = QUESTIONS[cursor];
-                var heading = addText(review, "h2", "step-kicker", "Question " + (cursor + 1) + " of 10");
-                heading.id = "review-heading";
-                heading.tabIndex = -1;
-                var field = el("fieldset", { "class": "ask" });
-                var legend = el("legend");
-                legend.textContent = item.stem;
-                field.appendChild(legend);
-                item.choices.forEach(function (choice, index) {
-                    var label = el("label", { "class": "choice" });
-                    var input = el("input", {
-                        type: "radio",
-                        name: "shape-review-answer",
-                        value: String(index)
-                    });
-                    if (selections[cursor] === index) {
-                        input.checked = true;
-                        label.classList.add("is-selected");
-                    }
-                    var text = el("span", { "class": "choice-text" });
-                    text.textContent = choice;
-                    label.appendChild(input);
-                    label.appendChild(text);
-                    field.appendChild(label);
-                });
-                review.appendChild(field);
-                var hint = addText(review, "p", "hint", "");
-                hint.setAttribute("data-role", "hint");
-                review.appendChild(hint);
-                review.appendChild(nav());
-            }
-
-            function renderScore() {
-                var heading = addText(review, "h2", "step-kicker", "Score");
-                heading.id = "review-heading";
-                heading.tabIndex = -1;
-                var number = addText(review, "p", "score", scoreText());
-                number.setAttribute("aria-live", "polite");
-                addText(review, "h3", "section-heading", "Breakdown");
-                var lines = sectionLines();
-                var i;
-                for (i = 0; i < lines.length; i++) {
-                    addText(review, "p", "section-line", lines[i]);
-                }
-                addText(review, "p", "score-note", "Next reviews the answers.");
-                review.appendChild(nav());
-            }
-
-            function renderReview() {
-                var index = cursor - REVIEW;
-                var item = QUESTIONS[index];
-                var picked = selections[index];
-                var heading = addText(review, "h2", "step-kicker", "Review " + (index + 1) + " of 10");
-                heading.id = "review-heading";
-                heading.tabIndex = -1;
-                addText(review, "p", "score-line", "Score: " + scoreText());
-                addText(review, "p", "review-stem", item.stem);
-                if (picked === item.answer) {
-                    review.appendChild(answerBlock("correct", "YOUR ANSWER IS CORRECT", item.choices[picked]));
-                } else {
-                    review.appendChild(answerBlock(
-                        "incorrect",
-                        "YOUR ANSWER IS INCORRECT",
-                        picked == null ? "No answer selected." : item.choices[picked]
-                    ));
-                    review.appendChild(answerBlock("correct", "Correct answer", item.choices[item.answer]));
-                }
-                var source = el("p", { "class": "source" });
-                source.appendChild(document.createTextNode("Demonstration: "));
-                var link = el("a", { href: withEmbed(item.demo) });
-                link.textContent = item.demoTitle;
-                source.appendChild(link);
-                review.appendChild(source);
-                review.appendChild(nav());
-            }
-
             function render(moveFocus) {
                 while (review.firstChild) review.removeChild(review.firstChild);
-                if (cursor < SCORE) renderQuiz();
-                else if (cursor === SCORE) renderScore();
-                else renderReview();
+                if (cursor < SCORE) fillQuiz(review, cursor, "", true);
+                else if (cursor === SCORE) fillScore(review, scoreText(), sectionLines(), true);
+                else fillReview(review, cursor - REVIEW, selections[cursor - REVIEW], true);
                 syncChrome();
                 if (!moveFocus) return;
                 var heading = document.getElementById("review-heading");
@@ -721,6 +805,7 @@
                 }
             });
 
+            buildSizers();
             render(false);
         })();
     </script>
