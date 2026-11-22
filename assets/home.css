@@ -2,7 +2,7 @@
  * Home page. A short hero and one featured plate. The plate cycles
  * three existing demonstrations. Each plate reads title, description,
  * figure, then Open the demo. Motion stays in the figure.
- * A short feature list sits under the hero, in the same reading column.
+ * A short feature list sits under the hero and spans the same content width.
  * Its three titles are Crimson Text italic. The sentences stay Arial.
  * The menu is the shared .viz-topbar from shell.css. This page scrolls.
  * It is not the Catalog two-pane shell.
@@ -341,7 +341,6 @@ a.library-full-cite {
 }
 
 .home-features {
-    max-width: 44rem;
     margin-top: 3.25rem;
 }
 
@@ -387,7 +386,6 @@ a.library-full-cite {
 }
 
 #intro .home-features .home-features-note {
-    max-width: 40rem;
     margin-top: 1.35rem;
 }
 
