@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
+    <script src="../assets/teach.js"></script>
+    <link rel="stylesheet" href="../assets/teach.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
+    <title>Shape and pictures review</title>
+    <link rel="stylesheet" href="../assets/stats-demo-theme.css">
+    <link rel="stylesheet" href="../assets/site-oer-footer.css">
+    <style>
+        /*
+         * End-of-track review for Shape and pictures. Questions, the
+         * score, and the item review are one commentary panel. Teach
+         * hides that panel and does not touch the answers. The notice
+         * below the title is the Teach state. The page is the scroller.
+         */
+        body.demo-page {
+            margin: 0;
+        }
+
+        .page {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 40rem;
+            margin: 0 auto;
+            padding: 1rem 1rem 2.5rem;
+        }
+
+        .page *,
+        .page *::before,
+        .page *::after {
+            box-sizing: border-box;
+        }
+
+        .page-title {
+            margin-bottom: 0;
+        }
+
+        .mode-notice {
+            margin: 1rem 0 0;
+            padding: 0.9rem 1rem;
+            line-height: 1.45;
+        }
+
+        html:not(.viz-teach) .mode-notice {
+            display: none;
+        }
+
+        .review {
+            margin: 1rem 0 0;
+            padding: 1rem 1rem 1.1rem;
+            overflow: visible;
+        }
+
+        .review-intro,
+        .review-stem,
+        .hint,
+        .score-note,
+        .match,
+        .source {
+            margin: 0;
+            line-height: 1.45;
+            overflow-wrap: break-word;
+        }
+
+        .review-intro {
+            margin-bottom: 0.9rem;
+        }
+
+        .step-kicker {
+            margin: 0 0 0.45rem;
+            font-size: 0.82rem;
+            font-weight: bold;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .step-kicker:focus,
+        .step-kicker:focus-visible {
+            outline: none;
+        }
+
+        .ask {
+            width: 100%;
+            min-width: 0;
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+
+        .ask legend {
+            display: block;
+            width: 100%;
+            margin: 0 0 0.85rem;
+            padding: 0;
+            font-size: 1.05rem;
+            font-weight: bold;
+            line-height: 1.4;
+            overflow-wrap: break-word;
+        }
+
+        .choice {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            width: 100%;
+            margin: 0.45rem 0 0;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid #000000;
+            background: #ffffff;
+            color: #000000;
+            font-size: 1rem;
+            line-height: 1.4;
+            cursor: pointer;
+            overflow-wrap: break-word;
+        }
+
+        .choice input {
+            appearance: none;
+            flex: 0 0 auto;
+            width: 1.25rem;
+            height: 1.25rem;
+            margin: 0.15rem 0 0;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            background: #ffffff;
+        }
+
+        .choice.is-selected {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .choice.is-selected input {
+            border-color: #ffffff;
+            background: #ffffff;
+            box-shadow: inset 0 0 0 0.28rem #000000;
+        }
+
+        .choice:focus-within {
+            outline: 2px solid #000000;
+            outline-offset: 3px;
+        }
+
+        .choice-text {
+            min-width: 0;
+        }
+
+        .hint {
+            margin-top: 0.85rem;
+        }
+
+        .score-line {
+            margin: 0 0 0.85rem;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .score {
+            margin: 0.2rem 0 0.75rem;
+            font-size: 1.75rem;
+            font-weight: bold;
+            line-height: 1.2;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .review-stem {
+            margin-bottom: 0.85rem;
+            font-weight: bold;
+        }
+
+        .answer-block {
+            margin: 0.55rem 0 0;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid #000000;
+            background: #ffffff;
+            line-height: 1.4;
+            overflow-wrap: break-word;
+        }
+
+        .answer-block .k {
+            display: block;
+            margin-bottom: 0.2rem;
+            font-size: 0.78rem;
+            font-weight: bold;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .match,
+        .source {
+            margin-top: 0.85rem;
+        }
+
+        .source a {
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+            margin-top: 1rem;
+        }
+
+        .nav .demo-btn {
+            flex: 1 1 8.5rem;
+        }
+
+        .nav .demo-btn:disabled {
+            opacity: 0.45;
+            cursor: default;
+        }
+
+        .nav .demo-btn:disabled:hover {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        .nav .demo-btn.demo-btn-primary:disabled:hover {
+            background: #000000 !important;
+            color: #ffffff !important;
+        }
+
+        .nav .demo-btn[hidden],
+        .hint[hidden] {
+            display: none !important;
+        }
+
+        .needs-js {
+            margin: 1rem 0 0;
+            line-height: 1.45;
+        }
+
+        @media (max-width: 736px), (pointer: coarse) {
+            .choice,
+            .nav .demo-btn,
+            .source a {
+                min-height: 44px;
+            }
+
+            .nav {
+                flex-direction: column;
+            }
+
+            .nav .demo-btn {
+                flex: 0 0 auto;
+                width: 100%;
+            }
+
+            .source a {
+                display: inline-flex;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body class="demo-page">
+    <div class="page">
+        <div class="demo-topbar">
+            <a class="demo-back" href="../index.html">← Project Viz</a>
+        </div>
+
+        <header class="demo-header page-title">
+            <h1>Shape and pictures review</h1>
+        </header>
+
+        <p class="mode-notice demo-card" data-teach="essential">These questions are in Learn. Teach hides them and keeps your answers.</p>
+
+        <div id="review" class="review demo-card" data-teach="detail"></div>
+        <noscript><p class="needs-js">This review needs JavaScript.</p></noscript>
+    </div>
+
+    <script>
+        (function () {
+            /*
+             * selections, cursor, and finished are the attempt.
+             * Teach only hides #review. This script does not read
+             * viz-teach, and it does not clear the attempt when the
+             * mode changes. Try again is the reset.
+             */
+            var QUESTIONS = [
+                {
+                    demo: "skewed_distribution.html",
+                    demoTitle: "Skewed Distribution",
+                    stem: "A long tail on one side of a set of numbers pulls which average toward itself?",
+                    choices: [
+                        "The mean, so the mean, the median, and the mode sit in different places.",
+                        "The median only, so the mean and the mode stay together.",
+                        "The mode only, so the mean stays at the center of the tail.",
+                        "None of them. The three averages stay in one place."
+                    ],
+                    answer: 0
+                },
+                {
+                    demo: "skewed_distribution.html",
+                    demoTitle: "Skewed Distribution",
+                    stem: "On this track, the number for skew is which average?",
+                    choices: [
+                        "The interquartile range, Q₃ − Q₁.",
+                        "The bandwidth h of a kernel.",
+                        "The average of cubed standardized deviations, (1/n) Σ ((xᵢ − x̄) / σ)³.",
+                        "The distance from a point to the nearer 1.5 × IQR fence."
+                    ],
+                    answer: 2
+                },
+                {
+                    demo: "skewed_distribution.html",
+                    demoTitle: "Skewed Distribution",
+                    stem: "On the Skewed Distribution page, a Q–Q plot that curves upward in positive skew is driven by what?",
+                    choices: [
+                        "The red density curve being taller than the blue density curve.",
+                        "The horizontal gap on the CDF widening as you move up the percentiles.",
+                        "The histogram bin edges moving.",
+                        "The bandwidth of the kernel increasing."
+                    ],
+                    answer: 1
+                },
+                {
+                    demo: "boxplot_histogram.html",
+                    demoTitle: "Boxplot and Histogram",
+                    stem: "For one sample, what do the histogram and the boxplot show?",
+                    choices: [
+                        "The histogram shows how the values pile up. The boxplot packs the center and the spread into a box and whiskers.",
+                        "The histogram is a smooth kernel density. The boxplot is a Q–Q plot.",
+                        "Both pictures mark 1.5 × IQR fences and nothing else.",
+                        "The boxplot shows bin counts. The histogram shows only the median."
+                    ],
+                    answer: 0
+                },
+                {
+                    demo: "boxplot_histogram.html",
+                    demoTitle: "Boxplot and Histogram",
+                    stem: "The interquartile range on this track is which difference?",
+                    choices: [
+                        "The maximum minus the minimum.",
+                        "The mean minus the median.",
+                        "The upper fence minus the lower fence.",
+                        "Q₃ − Q₁."
+                    ],
+                    answer: 3
+                },
+                {
+                    demo: "boxplot_outliers.html",
+                    demoTitle: "Boxplot and Outliers",
+                    stem: "A point counts as an outlier on this track when it falls where?",
+                    choices: [
+                        "More than one bin away from the tallest bar.",
+                        "Past the fence Q₁ − 1.5 × IQR, or past the fence Q₃ + 1.5 × IQR.",
+                        "Outside the bandwidth of the Gaussian kernel.",
+                        "Anywhere the density is lower than a normal curve."
+                    ],
+                    answer: 1
+                },
+                {
+                    demo: "boxplot_outliers.html",
+                    demoTitle: "Boxplot and Outliers",
+                    stem: "The Boxplot and outliers page draws the whiskers and the far points how?",
+                    choices: [
+                        "The whiskers stop at Tukey’s fences, and points past the fences are drawn on their own.",
+                        "The whiskers run from the smallest value to the largest value, and no point is drawn apart.",
+                        "The whiskers are the kernel on each point, and the box is the bandwidth.",
+                        "The whiskers mark the mean and the mode."
+                    ],
+                    answer: 0
+                },
+                {
+                    demo: "kde_plots.html",
+                    demoTitle: "Kernel Density Estimate (KDE)",
+                    stem: "If the histogram’s bin edges move and the numbers stay the same, what happens?",
+                    choices: [
+                        "The bars stay fixed, and the kernel density curve moves with the bin edges.",
+                        "Both the bars and the kernel density curve are drawn from a new sample.",
+                        "The bars can change height, and the kernel density curve stays as it is.",
+                        "The quartiles in the box move with the bin edges."
+                    ],
+                    answer: 2
+                },
+                {
+                    demo: "kde_plots.html",
+                    demoTitle: "Kernel Density Estimate (KDE)",
+                    stem: "On the kernel density estimate, the bandwidth h is what?",
+                    choices: [
+                        "The number of bins in the histogram.",
+                        "How wide each kernel is. A narrow kernel keeps the spikes, and a wide one flattens them.",
+                        "The sample size n.",
+                        "The multiple 1.5 in the Tukey fence."
+                    ],
+                    answer: 1
+                },
+                {
+                    demo: "kde_plots.html",
+                    demoTitle: "Kernel Density Estimate (KDE)",
+                    stem: "The connection note for the kernel density estimate says the violin and the raincloud are what?",
+                    choices: [
+                        "A second sample, drawn again with a new seed.",
+                        "The Q–Q plot of the skewed distribution against a normal curve.",
+                        "The fences, drawn as a curve instead of as dashed lines.",
+                        "The same smooth curve. The violin is that curve, and a half of it is the cloud in a raincloud plot."
+                    ],
+                    answer: 3
+                }
+            ];
+
+            var LAST = QUESTIONS.length - 1;
+            var SCORE = QUESTIONS.length;
+            var REVIEW = QUESTIONS.length + 1;
+            var selections = QUESTIONS.map(function () { return null; });
+            var cursor = 0;
+            var finished = false;
+            var review = document.getElementById("review");
+
+            function el(name, attrs) {
+                var node = document.createElement(name);
+                if (!attrs) return node;
+                Object.keys(attrs).forEach(function (key) {
+                    if (key === "class") node.className = attrs[key];
+                    else node.setAttribute(key, attrs[key]);
+                });
+                return node;
+            }
+
+            function addText(parent, tag, className, text) {
+                var node = el(tag, className ? { "class": className } : null);
+                node.textContent = text;
+                parent.appendChild(node);
+                return node;
+            }
+
+            function allAnswered() {
+                var i;
+                for (i = 0; i < selections.length; i++) {
+                    if (selections[i] == null) return false;
+                }
+                return true;
+            }
+
+            function score() {
+                var n = 0;
+                var i;
+                for (i = 0; i < QUESTIONS.length; i++) {
+                    if (selections[i] === QUESTIONS[i].answer) n += 1;
+                }
+                return n;
+            }
+
+            function scoreText() {
+                return score() + " out of 10";
+            }
+
+            function maxCursor() {
+                return finished ? REVIEW + LAST : LAST;
+            }
+
+            function canForward() {
+                if (cursor < LAST) return selections[cursor] != null;
+                if (cursor === LAST) return allAnswered();
+                return finished && cursor < REVIEW + LAST;
+            }
+
+            function withEmbed(href) {
+                if (!/[?&]embed=shell(?:&|$)/.test(location.search)) return href;
+                return href + (href.indexOf("?") === -1 ? "?" : "&") + "embed=shell";
+            }
+
+            function button(action, label, primary) {
+                var node = el("button", {
+                    type: "button",
+                    "class": primary ? "demo-btn demo-btn-primary" : "demo-btn",
+                    "data-action": action
+                });
+                node.textContent = label;
+                return node;
+            }
+
+            function nav() {
+                var bar = el("div", { "class": "nav" });
+                bar.appendChild(button("prev", "Previous", false));
+                var nextLabel = cursor === LAST ? "Score" : "Next";
+                bar.appendChild(button("next", nextLabel, true));
+                var again = button("again", "Try again", false);
+                if (!finished) again.hidden = true;
+                bar.appendChild(again);
+                return bar;
+            }
+
+            function syncChrome() {
+                var prev = review.querySelector("[data-action='prev']");
+                var next = review.querySelector("[data-action='next']");
+                var again = review.querySelector("[data-action='again']");
+                if (prev) prev.disabled = cursor === 0;
+                if (next) next.disabled = !canForward();
+                if (again) again.hidden = !finished;
+                if (cursor > LAST) return;
+                var hint = review.querySelector("[data-role='hint']");
+                var message = "";
+                if (selections[cursor] == null) message = "Select an answer, then Next.";
+                else if (cursor === LAST && !allAnswered()) message = "Answer all ten questions to see the score.";
+                else if (cursor === LAST && finished) message = "Next returns to the score.";
+                else if (cursor === LAST) message = "Next shows the score.";
+                if (hint) {
+                    hint.hidden = !message;
+                    hint.textContent = message;
+                }
+            }
+
+            function paintSelected() {
+                var labels = review.querySelectorAll(".choice");
+                var i;
+                for (i = 0; i < labels.length; i++) {
+                    var input = labels[i].querySelector("input");
+                    var on = Number(input.value) === selections[cursor];
+                    input.checked = on;
+                    labels[i].classList.toggle("is-selected", on);
+                }
+            }
+
+            function renderQuiz() {
+                var item = QUESTIONS[cursor];
+                if (cursor === 0) {
+                    addText(review, "p", "review-intro", "Ten questions from this track, one at a time. Choose an answer and press Next. The score waits until all ten are answered.");
+                }
+                var heading = addText(review, "h2", "step-kicker", "Question " + (cursor + 1) + " of 10");
+                heading.id = "review-heading";
+                heading.tabIndex = -1;
+                var field = el("fieldset", { "class": "ask" });
+                var legend = el("legend");
+                legend.textContent = item.stem;
+                field.appendChild(legend);
+                item.choices.forEach(function (choice, index) {
+                    var label = el("label", { "class": "choice" });
+                    var input = el("input", {
+                        type: "radio",
+                        name: "shape-review-answer",
+                        value: String(index)
+                    });
+                    if (selections[cursor] === index) {
+                        input.checked = true;
+                        label.classList.add("is-selected");
+                    }
+                    var text = el("span", { "class": "choice-text" });
+                    text.textContent = choice;
+                    label.appendChild(input);
+                    label.appendChild(text);
+                    field.appendChild(label);
+                });
+                review.appendChild(field);
+                var hint = addText(review, "p", "hint", "");
+                hint.setAttribute("data-role", "hint");
+                review.appendChild(hint);
+                review.appendChild(nav());
+            }
+
+            function renderScore() {
+                var heading = addText(review, "h2", "step-kicker", "Score");
+                heading.id = "review-heading";
+                heading.tabIndex = -1;
+                var number = addText(review, "p", "score", scoreText());
+                number.setAttribute("aria-live", "polite");
+                addText(review, "p", "score-note", "Next walks through each question: your answer, the correct answer, and the demonstration it comes from. Previous returns to the questions. The score stays until Try again.");
+                review.appendChild(nav());
+            }
+
+            function renderReview() {
+                var index = cursor - REVIEW;
+                var item = QUESTIONS[index];
+                var picked = selections[index];
+                var heading = addText(review, "h2", "step-kicker", "Review " + (index + 1) + " of 10");
+                heading.id = "review-heading";
+                heading.tabIndex = -1;
+                addText(review, "p", "score-line", "Score: " + scoreText());
+                addText(review, "p", "review-stem", item.stem);
+                var yours = el("div", { "class": "answer-block" });
+                addText(yours, "span", "k", "Your answer");
+                addText(yours, "span", null, picked == null ? "No answer selected." : item.choices[picked]);
+                var correct = el("div", { "class": "answer-block" });
+                addText(correct, "span", "k", "Correct answer");
+                addText(correct, "span", null, item.choices[item.answer]);
+                review.appendChild(yours);
+                review.appendChild(correct);
+                addText(
+                    review,
+                    "p",
+                    "match",
+                    picked === item.answer
+                        ? "Your answer matches the correct answer."
+                        : "Your answer does not match the correct answer."
+                );
+                var source = el("p", { "class": "source" });
+                source.appendChild(document.createTextNode("Demonstration: "));
+                var link = el("a", { href: withEmbed(item.demo) });
+                link.textContent = item.demoTitle;
+                source.appendChild(link);
+                review.appendChild(source);
+                review.appendChild(nav());
+            }
+
+            function render(moveFocus) {
+                while (review.firstChild) review.removeChild(review.firstChild);
+                if (cursor < SCORE) renderQuiz();
+                else if (cursor === SCORE) renderScore();
+                else renderReview();
+                syncChrome();
+                if (!moveFocus) return;
+                var heading = document.getElementById("review-heading");
+                if (heading) heading.focus();
+            }
+
+            function go(delta) {
+                if (delta > 0 && !canForward()) return;
+                var next = cursor + delta;
+                if (next < 0) return;
+                if (cursor === LAST && next === SCORE && allAnswered()) finished = true;
+                if (next > maxCursor()) return;
+                cursor = next;
+                render(true);
+            }
+
+            review.addEventListener("change", function (event) {
+                var input = event.target;
+                if (!input || input.name !== "shape-review-answer") return;
+                if (cursor > LAST) return;
+                var value = Number(input.value);
+                if (value !== value || value < 0 || value >= QUESTIONS[cursor].choices.length) return;
+                selections[cursor] = value;
+                paintSelected();
+                syncChrome();
+            });
+
+            review.addEventListener("click", function (event) {
+                var target = event.target;
+                var control = target && target.closest ? target.closest("[data-action]") : null;
+                if (!control || !review.contains(control)) return;
+                var action = control.getAttribute("data-action");
+                if (action === "prev") go(-1);
+                else if (action === "next") go(1);
+                else if (action === "again") {
+                    selections = QUESTIONS.map(function () { return null; });
+                    finished = false;
+                    cursor = 0;
+                    render(true);
+                }
+            });
+
+            render(false);
+        })();
+    </script>
+    <script src="../assets/site-meta.js"></script>
+    <script src="../assets/site-oer-footer.js"></script>
+</body>
+</html>
