@@ -377,8 +377,20 @@ a.demo-card:focus-visible .demo-tag.is-draft {
     margin-bottom: 1rem;
 }
 
+.catalog-anchor {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    scroll-margin-top: 0.75rem;
+}
+
 .catalog-topic {
     margin: 0 0 1.35rem;
+}
+
+.catalog-topic[id] {
+    scroll-margin-top: 0.75rem;
 }
 
 .catalog-topic > h3,

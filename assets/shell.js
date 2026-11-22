@@ -28,11 +28,11 @@
  * shows the topic tree until a track is open. Choosing a topic zooms
  * that subtree. Back from a demonstration returns to that track, and
  * Back in the rail returns to the focused topic or the full overview.
- * A phone shows the tree first. On Catalog the desktop rail is
- * categories until a demonstration is open, and the pane holds that
- * category's cards. Back to browse restores the grid. On a phone,
- * Back from a demonstration returns to that category, and Back in the
- * rail returns to the category list.
+ * A phone shows the tree first. On Catalog the desktop rail lists the
+ * curriculum groups, and the pane holds every group's cards. Search
+ * covers the whole catalog. Back to browse restores the grid. On a
+ * phone the groups and cards are the first screen. Back from a
+ * demonstration returns to them.
  */
 (function () {
     var page = document.body.getAttribute("data-viz-page");
@@ -203,10 +203,6 @@
             return window.ProjectVizCatalog.currentId() || "";
         }
         return "";
-    }
-
-    function catalogExplicit() {
-        return !!(window.ProjectVizCatalog && window.ProjectVizCatalog.explicit && window.ProjectVizCatalog.explicit());
     }
 
     function catalogExplicitFromLocation() {
@@ -628,6 +624,10 @@
         }
         document.body.classList.toggle("is-demo-open", !!open);
         if (!open) document.documentElement.classList.remove("viz-deep-demo");
+        if (page === "catalog") {
+            var pane = document.getElementById("viz-pane");
+            if (pane) pane.setAttribute("aria-label", open ? "Demonstration" : "Catalog");
+        }
         if (titleNode && open) titleNode.textContent = title || "Demonstration";
         if (!open && page === "tracks") refreshTracksIdle();
         else if (titleNode && !open && page === "catalog" && window.ProjectVizCatalog && window.ProjectVizCatalog.stageTitle) {
@@ -702,9 +702,8 @@
         if (page === "catalog") {
             url.searchParams.delete("step");
             url.searchParams.delete("track");
-            var category = catalogCategory();
-            if (category && (href || catalogExplicit())) url.searchParams.set("category", category);
-            else url.searchParams.delete("category");
+            url.searchParams.delete("category");
+            if (href) url.hash = "";
         }
         return url;
     }
@@ -761,7 +760,7 @@
             return {
                 vizShell: "demo",
                 demo: href,
-                category: catalogCategory(),
+                category: "",
                 pushed: true
             };
         }
@@ -884,17 +883,18 @@
         listUrl.searchParams.delete("demo");
         listUrl.searchParams.delete("step");
         if (page === "catalog") {
-            var category = catalogCategory();
+            listUrl.searchParams.delete("category");
+            listUrl.hash = "";
             history.replaceState({
-                vizShell: category ? "category" : "categories",
-                category: category || "",
+                vizShell: "catalog",
+                category: "",
                 demo: "",
                 pushed: false
             }, "", listUrl);
             history.pushState({
                 vizShell: "demo",
                 demo: currentHref,
-                category: category || "",
+                category: "",
                 pushed: true
             }, "", demoUrl);
             return;
@@ -967,8 +967,8 @@
             if (window.location.href !== next.href) {
                 if (page === "catalog") {
                     history.pushState({
-                        vizShell: catalogCategory() ? "category" : "categories",
-                        category: catalogCategory(),
+                        vizShell: "catalog",
+                        category: "",
                         demo: "",
                         pushed: true
                     }, "", next);
@@ -1079,67 +1079,54 @@
 
     function openCategory(id, options) {
         options = options || {};
-        id = safeTrackId(id);
-        if (!id || !window.ProjectVizCatalog || !window.ProjectVizCatalog.has || !window.ProjectVizCatalog.has(id)) return;
-        var browsingSame = window.ProjectVizCatalog.currentId() === id && !currentHref;
-        if (browsingSame && !options.replace) return;
         if (currentHref) {
             currentHref = "";
             highlight("");
         }
-        window.ProjectVizCatalog.sync({ category: id, demoOpen: false, explicit: true });
-        showDemoChrome(false);
-        var next = buildUrl("");
-        var state = {
-            vizShell: "category",
-            category: id,
-            demo: "",
-            pushed: !options.replace
-        };
-        if (!options.replace && window.location.href !== next.href) history.pushState(state, "", next);
-        else history.replaceState(state, "", next);
-        if (isPhone()) {
-            var back = document.getElementById("catalog-back");
-            if (back && !back.hidden) back.focus();
+        var url = new URL(window.location.href);
+        url.searchParams.delete("demo");
+        url.searchParams.delete("category");
+        url.searchParams.delete("step");
+        url.searchParams.delete("track");
+        var token = typeof id === "string" ? id.trim() : "";
+        if (/^[A-Za-z][\w-]*$/.test(token) && document.getElementById(token)) url.hash = token;
+        var state = { vizShell: "catalog", category: "", demo: "", pushed: !options.replace };
+        if (!options.replace && window.location.href !== url.href) history.pushState(state, "", url);
+        else history.replaceState(state, "", url);
+        if (window.ProjectVizCatalog && window.ProjectVizCatalog.sync) {
+            window.ProjectVizCatalog.sync({ demoOpen: false, explicit: false });
         }
+        showDemoChrome(false);
     }
 
     function retreatCatalogDemo() {
-        var category = catalogCategory();
         currentHref = "";
         if (window.ProjectVizCatalog && window.ProjectVizCatalog.sync) {
-            window.ProjectVizCatalog.sync({ category: category, demoOpen: false });
+            window.ProjectVizCatalog.sync({ demoOpen: false, explicit: false });
         }
         showDemoChrome(false);
         highlight("");
         history.replaceState({
-            vizShell: category ? "category" : "categories",
-            category: category || "",
+            vizShell: "catalog",
+            category: "",
             demo: "",
             pushed: false
         }, "", buildUrl(""));
     }
 
     function retreatCatalogCategories() {
-        var focusId = catalogCategory();
         currentHref = "";
         if (window.ProjectVizCatalog && window.ProjectVizCatalog.sync) {
-            window.ProjectVizCatalog.sync({ category: "", demoOpen: false, explicit: false });
+            window.ProjectVizCatalog.sync({ demoOpen: false, explicit: false });
         }
         showDemoChrome(false);
         highlight("");
-        var url = new URL(window.location.href);
-        url.searchParams.delete("demo");
-        url.searchParams.delete("category");
-        url.searchParams.delete("step");
-        url.hash = "";
-        var state = { vizShell: "categories", category: "", demo: "", pushed: true };
-        if (window.location.href !== url.href) history.pushState(state, "", url);
-        else history.replaceState(state, "", url);
-        if (isPhone() && focusId && rail) {
-            var choice = rail.querySelector('a.catalog-choice[data-category="' + focusId + '"]');
-            if (choice) choice.focus();
-        }
+        history.replaceState({
+            vizShell: "catalog",
+            category: "",
+            demo: "",
+            pushed: false
+        }, "", buildUrl(""));
     }
 
     function backCatalog() {
@@ -1151,7 +1138,7 @@
             return;
         }
         var state = history.state || {};
-        if (state.vizShell === "category" && state.pushed) {
+        if (state.pushed && (state.vizShell === "category" || state.vizShell === "categories" || state.vizShell === "catalog")) {
             traverseHistory(-1);
             return;
         }
@@ -1187,8 +1174,8 @@
         if (demo) openDemo(demo, { mode: seeded ? "replace" : "seed", category: category });
         else {
             history.replaceState({
-                vizShell: category ? "category" : "categories",
-                category: category || "",
+                vizShell: "catalog",
+                category: "",
                 demo: "",
                 pushed: false
             }, "", buildUrl(""));
@@ -1381,7 +1368,7 @@
                 ? topicState(openingTopic, false)
                 : tracksState();
         history.replaceState(openingState, "", window.location.href);
-    } else history.replaceState({ vizShell: page === "catalog" ? "categories" : "list", category: "", demo: "", pushed: false }, "", window.location.href);
+    } else history.replaceState({ vizShell: page === "catalog" ? "catalog" : "list", category: "", demo: "", pushed: false }, "", window.location.href);
     document.body.classList.add("viz-shell-ready");
     if (page === "catalog") {
         window.ProjectVizShell = {
