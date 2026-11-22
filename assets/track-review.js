@@ -12,28 +12,79 @@
         var PDF_NAME = config.filename;
 
         /*
-         * selections, cursor, and finished are the attempt.
-         * Teach only hides #review. The slot and its sizers stay,
-         * so the page length does not change, and the questions
-         * stay hidden. This script does not read viz-teach, and
-         * it does not clear the attempt when the mode changes.
-         * Try again is the reset. Nothing is stored. A high score
-         * can download a PDF; that file is the only record.
+         * QUESTIONS, selections, cursor, and finished are the attempt.
+         * Each attempt copies the bank, shuffles the question order,
+         * and shuffles each question's choices. That order stays until
+         * Try again. Teach only hides #review. The slot and its sizers
+         * stay, so the page length does not change, and the questions
+         * stay hidden. This script does not read viz-teach, and it does
+         * not reshuffle or clear the attempt when the mode changes.
+         * Nothing is stored. A high score can download a PDF; that file
+         * is the only record.
          */
 
-        var LAST = QUESTIONS.length - 1;
-        var SCORE = QUESTIONS.length;
-        var REVIEW = QUESTIONS.length + 1;
         var PASS = 8;
         var MONTHS = [
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
-        var selections = QUESTIONS.map(function () { return null; });
-        var cursor = 0;
-        var finished = false;
-        var attemptWhen = null;
-        var pdfBusy = false;
+        var selections;
+        var cursor;
+        var finished;
+        var attemptWhen;
+        var pdfBusy;
+
+        function shuffle(list) {
+            var i, j, tmp;
+            for (i = list.length - 1; i > 0; i--) {
+                j = Math.floor(Math.random() * (i + 1));
+                tmp = list[i];
+                list[i] = list[j];
+                list[j] = tmp;
+            }
+            return list;
+        }
+
+        function shuffledQuestion(source) {
+            var positions = [];
+            var choices = [];
+            var answer = 0;
+            var i;
+            for (i = 0; i < source.choices.length; i++) positions.push(i);
+            shuffle(positions);
+            for (i = 0; i < positions.length; i++) {
+                choices.push(source.choices[positions[i]]);
+                if (positions[i] === source.answer) answer = i;
+            }
+            return {
+                demo: source.demo,
+                demoTitle: source.demoTitle,
+                stem: source.stem,
+                choices: choices,
+                answer: answer
+            };
+        }
+
+        function beginAttempt() {
+            var order = [];
+            var i;
+            for (i = 0; i < config.questions.length; i++) order.push(i);
+            shuffle(order);
+            QUESTIONS = [];
+            for (i = 0; i < order.length; i++) {
+                QUESTIONS.push(shuffledQuestion(config.questions[order[i]]));
+            }
+            selections = QUESTIONS.map(function () { return null; });
+            cursor = 0;
+            finished = false;
+            attemptWhen = null;
+            pdfBusy = false;
+        }
+
+        beginAttempt();
+        var LAST = QUESTIONS.length - 1;
+        var SCORE = QUESTIONS.length;
+        var REVIEW = QUESTIONS.length + 1;
         var review = document.getElementById("review");
         var slot = document.getElementById("review-slot");
 
@@ -85,20 +136,25 @@
         }
 
         /*
-         * The four demonstrations are the sections. Each line is
-         * that demonstration's count correct over its questions.
+         * Sections follow the bank, one line per demonstration.
+         * The attempt's shuffled order does not reorder the lines.
+         * Each line is that demonstration's count correct over its
+         * questions.
          */
         function sectionGroups() {
             var groups = [];
             var byTitle = {};
             var i;
-            for (i = 0; i < QUESTIONS.length; i++) {
-                var title = QUESTIONS[i].demoTitle;
+            var title;
+            for (i = 0; i < config.questions.length; i++) {
+                title = config.questions[i].demoTitle;
                 if (!byTitle[title]) {
                     byTitle[title] = { title: title, indexes: [] };
                     groups.push(byTitle[title]);
                 }
-                byTitle[title].indexes.push(i);
+            }
+            for (i = 0; i < QUESTIONS.length; i++) {
+                byTitle[QUESTIONS[i].demoTitle].indexes.push(i);
             }
             return groups;
         }
@@ -332,9 +388,9 @@
         /*
          * One sizer for each question, each wrong-answer review
          * (the correct answer and the demonstration link), and the
-         * score. The last question's sizer includes the line that
-         * can show when that answer is in and earlier ones are not.
-         * Other questions do not reserve a line under the choices.
+         * score. Every question sizer includes the line that can
+         * show on the last question, because a shuffle can put any
+         * question last. The line itself still shows only then.
          * Every sizer includes the three-slot action bar, so the
          * reserved height covers Try again on the score and on the
          * last item, and the completion card on the score. The slot
@@ -348,7 +404,7 @@
                     "quiz",
                     q,
                     null,
-                    q === LAST ? "Answer all ten questions to see the score." : ""
+                    "Answer all ten questions to see the score."
                 );
                 for (i = 0; i < QUESTIONS[q].choices.length; i++) {
                     if (i === QUESTIONS[q].answer) continue;
@@ -436,11 +492,7 @@
             if (action === "prev") go(-1);
             else if (action === "next") go(1);
             else if (action === "again") {
-                selections = QUESTIONS.map(function () { return null; });
-                finished = false;
-                attemptWhen = null;
-                pdfBusy = false;
-                cursor = 0;
+                beginAttempt();
                 render(true);
             } else if (action === "pdf") downloadCompletion();
         });
