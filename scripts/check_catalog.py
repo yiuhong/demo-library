@@ -1207,12 +1207,21 @@ def check_connection_notation(problems: list[str]) -> None:
             'prose("p", "connection-note", note)',
             'prose("li", null, formula)',
             'prose("p", "connection-demo", demo)',
+            "connection-formula-line",
+            "connection-gloss-line",
         ):
             if needle not in script:
                 problems.append(f"assets/connection-page.js: missing {needle}")
     sheet = read_text(ROOT / "assets" / "connection-page.css")
     if sheet is None or ".connection-formulae sub" not in sheet or ".connection-formulae sup" not in sheet:
         problems.append("assets/connection-page.css: formula sub and sup need a line-box tweak")
+    elif not re.search(
+        r"\.connection-formula-line\s*\{[^}]*font-weight:\s*bold",
+        sheet,
+    ):
+        problems.append(
+            "assets/connection-page.css: a glossed formula line should be bold on its own line"
+        )
 
     tracks, error = load_json(TRACKS_PATH)
     entries = None if error else track_entries(tracks)

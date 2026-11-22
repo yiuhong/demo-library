@@ -16,6 +16,10 @@
  * A trailing _word, _word(note), _{word}, ^word, or ^{word} in the note,
  * the formulae, or the demo description is drawn as sub or sup. The source
  * stays plain text. Keep that grammar in step with check_catalog.py.
+ * A formula line that carries a gloss uses an em dash. The formula is
+ * bold on its own line, then the description, then the symbol sentence
+ * when the gloss has more than one sentence. A line with no gloss stays
+ * one line. That layout is part of the Key points, in Teach and in Learn.
  */
 (function () {
     var root = document.getElementById("connection-root");
@@ -242,6 +246,50 @@
         return node;
     }
 
+    /* "formula — description. Symbols." The em dash is the only split.
+     * The last sentence is the symbol line when the gloss has more than
+     * one. Text is never parsed as HTML. */
+    function glossParts(text) {
+        var mark = " \u2014 ";
+        var at = text.indexOf(mark);
+        if (at <= 0) return null;
+        var formula = text.slice(0, at).trim();
+        var gloss = text.slice(at + mark.length).trim();
+        if (!formula || !gloss) return null;
+        var sentences = [];
+        var rest = gloss;
+        while (rest) {
+            var dot = rest.indexOf(". ");
+            if (dot === -1) {
+                sentences.push(rest);
+                break;
+            }
+            sentences.push(rest.slice(0, dot + 1));
+            rest = rest.slice(dot + 2).trim();
+        }
+        if (sentences.length < 2) {
+            return { formula: formula, description: gloss, symbols: "" };
+        }
+        var symbols = sentences.pop();
+        return {
+            formula: formula,
+            description: sentences.join(" "),
+            symbols: symbols
+        };
+    }
+
+    function keyPoint(formula) {
+        var parts = glossParts(formula);
+        if (!parts) return prose("li", null, formula);
+        var item = el("li");
+        item.appendChild(prose("span", "connection-formula-line", parts.formula));
+        item.appendChild(prose("span", "connection-gloss-line", parts.description));
+        if (parts.symbols) {
+            item.appendChild(prose("span", "connection-symbols-line", parts.symbols));
+        }
+        return item;
+    }
+
     function render(step) {
         var heading = connectionTitleOf(step.connectionTitle);
         var note = proseOf(step.note, 4000);
@@ -279,7 +327,7 @@
             list.setAttribute("data-teach", "essential");
             list.setAttribute("aria-labelledby", "connection-key-points");
             formulae.forEach(function (formula) {
-                list.appendChild(prose("li", null, formula));
+                list.appendChild(keyPoint(formula));
             });
             lead.appendChild(points);
             lead.appendChild(list);

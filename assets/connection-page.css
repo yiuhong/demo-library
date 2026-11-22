@@ -51,11 +51,24 @@
 
 .connection-formulae li {
     margin: 0;
-    padding: 0.12rem 0;
+    padding: 0.38rem 0;
     font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
     font-size: 0.92rem;
     line-height: 1.45;
     white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
+/* A glossed formula is three blocks: the equation, the description,
+ * then the symbol sentence. A line with no gloss stays one line of text. */
+.connection-formula-line,
+.connection-gloss-line,
+.connection-symbols-line {
+    display: block;
+}
+
+.connection-formula-line {
+    font-weight: bold;
 }
 
 /* sub and sup stay on the line box. The shift is visual only, so a
