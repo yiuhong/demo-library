@@ -476,9 +476,7 @@
                 bar.appendChild(button("prev", "Previous", false));
                 var nextLabel = cursor === LAST ? "Score" : "Next";
                 bar.appendChild(button("next", nextLabel, true));
-                var again = button("again", "Try again", false);
-                if (!finished) again.hidden = true;
-                bar.appendChild(again);
+                if (cursor === SCORE) bar.appendChild(button("again", "Try again", false));
                 return bar;
             }
 
@@ -488,7 +486,7 @@
                 var again = review.querySelector("[data-action='again']");
                 if (prev) prev.disabled = cursor === 0;
                 if (next) next.disabled = !canForward();
-                if (again) again.hidden = !finished;
+                if (again) again.hidden = cursor !== SCORE;
                 if (cursor > LAST) return;
                 var hint = review.querySelector("[data-role='hint']");
                 var message = "";

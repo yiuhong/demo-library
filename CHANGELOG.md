@@ -63,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Try again on Shape and pictures review stays on the score. The review of each question keeps Previous and Next, and it does not show Try again. Those controls still move between the score and the questions without clearing the attempt. The citation version is unchanged.
+
 - Shape and pictures review drops the how-to that restated Next and the score. A hint stays only while Next is off. The connection line for that step no longer describes the clicks, and the note no longer says the track ends again. The questions, the score, and the citation version are unchanged.
 
 - Shape and pictures, a first draft on this track only, ends with a Learn-only review after Kernel Density Estimate. The new step is Shape and pictures review. Previous and Next reach it like any other step: the connection page, then the review. Ten multiple-choice questions appear one at a time. The score, out of 10, appears after the last answer. Each review item then shows the selected answer, the correct answer, and a link back to its demonstration. Previous and Next keep the selections and the finished score. Try again clears them. Teach hides the questions and does not clear the answers. A short notice stays so the page is not blank. The four existing demonstrations are unchanged. The review is not in the catalog. The citation version is unchanged.
