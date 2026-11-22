@@ -11,8 +11,8 @@
     var meta = {
         // Formal citation title, in APA sentence case. Nav labels and page
         // headings stay the short wordmark "Project Viz".
-        title: "Project Viz: A visualization demo library for teaching",
-        titleApa: "Project Viz: A visualization demo library for teaching",
+        title: "Project Viz: A visual library for teaching and learning statistics",
+        titleApa: "Project Viz: A visual library for teaching and learning statistics",
         author: "Yiu Hong Ko",
         authorApa: "Ko, Y. H.",
         authorBibtex: "Ko, Yiu Hong",
