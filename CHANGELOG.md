@@ -63,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Try again on Shape and pictures review is on the score and on the last review step, Review 10 of 10. It stays off the ten questions and off Review 1 of 10 through Review 9 of 10. Previous and Next still move between the score and the review items without clearing the attempt. Try again, from the score or from that last step, still clears the selections and the score and returns to question 1. Switching Teach and Learn still does not clear the attempt. The citation version is unchanged.
+
 - Shape and pictures review puts Breakdown above the section scores. Each line stays the demonstration and its n/N. The stronger, weaker, and even-result sentences are gone. Next reviews the answers stays on the score. Each review step states YOUR ANSWER IS CORRECT or YOUR ANSWER IS INCORRECT. A correct selected answer is shown once, in green. A wrong selected answer is red, and the correct answer is green. Try again stays on the score. The citation version is unchanged.
 
 - Shape and pictures review, on the score only, says Next reviews the answers and names the stronger and weaker demonstrations by the share correct, each as n/N. A correct review item is shown once, in green, with the word Correct. A wrong selected answer is red, with the word Incorrect, and the correct answer is green. The citation version is unchanged.
