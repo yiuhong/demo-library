@@ -37,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- The home Features note now reads “Guided Tracks follow a sequence of demonstrations and end with a self-test. Score 8 or more out of 10 to get a completion card you can download.” The five feature cards and the citation version are unchanged.
+- The home Features note now reads “Guided Tracks follow a sequence of demonstrations and, in Learn mode, end with a self-test. Score 8 or more out of 10 to get a collectible completion card you can download.” The five feature cards and the citation version are unchanged.
 
 - Guided Track self-tests, in Learn, open question 1 with “Score 8 or more out of 10 to get a completion card you can download.” The sentence is gone after question 1, including on the score and the review. Try again starts again at question 1, so the sentence shows again. Teach still shows only “Switch to Learn mode for self-test questions.” Shape and pictures uses the same sentence. The questions and the citation version are unchanged.
 
