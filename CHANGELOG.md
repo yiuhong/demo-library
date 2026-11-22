@@ -63,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The Teach notice on Shape and pictures review says to switch to Learn for the self-test questions. The page stays in Teach. Switching Teach and Learn does not clear the attempt. The citation version is unchanged.
+
 - Try again on Shape and pictures review stays on the score. The review of each question keeps Previous and Next, and it does not show Try again. Those controls still move between the score and the questions without clearing the attempt. The citation version is unchanged.
 
 - Shape and pictures review drops the how-to that restated Next and the score. A hint stays only while Next is off. The connection line for that step no longer describes the clicks, and the note no longer says the track ends again. The questions, the score, and the citation version are unchanged.
