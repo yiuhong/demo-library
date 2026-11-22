@@ -3,8 +3,9 @@
  * than Shape and pictures. Questions, the score, and the item review
  * are one commentary card. Hidden sizers share that card's grid cell
  * and reserve the height of the tallest Learn state, including the
- * completion card, so a shorter state leaves empty space and the page
- * length stays put. Teach hides the questions and keeps the same slot.
+ * completion card and question 1 with its opening note, so a shorter
+ * state leaves empty space and the page length stays put. Teach hides
+ * the questions and keeps the same slot.
  * Previous, Next, and a slot for Try again are the last row of that
  * card. The page is the scroller. The card does not scroll.
  *
@@ -96,6 +97,21 @@ html:not(.viz-teach) .mode-notice {
     margin: 0;
     line-height: 1.45;
     overflow-wrap: break-word;
+}
+
+.opening-note {
+    margin: 0 0 0.85rem;
+    line-height: 1.45;
+    overflow-wrap: break-word;
+}
+
+/*
+ * The opening note is commentary, so Teach hides it on the live card.
+ * The hidden sizer keeps that line in the flow. The reserved height
+ * still includes question 1 with the note, and the page does not jump.
+ */
+html.viz-teach .review-sizer .opening-note {
+    display: block !important;
 }
 
 .step-kicker {
