@@ -225,291 +225,12 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /*
-         * High score only. Cream sheet, blue rules, red margin.
-         * The faces are the OFL subsets also embedded in the PDF.
-         * Download sits on the sheet, not in the action bar.
-         */
-        @font-face {
-            font-family: "Complete Display";
-            src: url("../assets/fonts/shape-complete/fraunces-560.ttf") format("truetype");
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "Complete Score";
-            src: url("../assets/fonts/shape-complete/fraunces-500.ttf") format("truetype");
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "Complete Text";
-            src: url("../assets/fonts/shape-complete/sourceserif-400.ttf") format("truetype");
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "Complete Script";
-            src: url("../assets/fonts/shape-complete/caveat-500.ttf") format("truetype");
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "Complete Caps";
-            src: url("../assets/fonts/shape-complete/cormorant.ttf") format("truetype");
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        .complete-card {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            margin: 0.15rem 0 0.95rem;
-            padding: 1.35rem 1.15rem 1rem 3.6rem;
-            border-radius: 6px;
-            background-color: #fbf7ee;
-            background-image:
-                linear-gradient(to right, transparent 2.55rem, #c96a6a 2.55rem, #c96a6a calc(2.55rem + 2px), transparent calc(2.55rem + 2px)),
-                repeating-linear-gradient(to bottom, transparent 0 calc(1.75rem - 1px), #d5e0ee calc(1.75rem - 1px) 1.75rem);
-            color: #241f1a;
-            box-shadow: 0 10px 24px rgba(36, 31, 26, 0.10), 0 1px 3px rgba(36, 31, 26, 0.06);
-            font-synthesis: none;
-        }
-
-        .complete-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            pointer-events: none;
-            opacity: 0.14;
-            mix-blend-mode: multiply;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
-        }
-
-        .complete-card > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .demo-page .review .complete-card .complete-kicker {
-            margin: 0 0 0.3rem;
-            font-family: "Complete Caps", Georgia, "Times New Roman", serif;
-            font-size: 0.82rem;
-            font-weight: 400;
-            letter-spacing: 0.18em;
-            line-height: 1.2;
-            text-transform: uppercase;
-            color: #241f1a;
-        }
-
-        .demo-page .review .complete-card .complete-title {
-            margin: 0 0 0.35rem;
-            font-family: "Complete Display", Georgia, "Times New Roman", serif;
-            font-size: 1.75rem;
-            font-weight: 400;
-            letter-spacing: -0.02em;
-            line-height: 1.15;
-            color: #241f1a;
-        }
-
-        .demo-page .review .complete-card .complete-finish {
-            margin: 0;
-            font-family: "Complete Text", Georgia, "Times New Roman", serif;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.35;
-            color: #241f1a;
-        }
-
-        .demo-page .review .complete-card .complete-track {
-            margin: 0 0 0.3rem;
-            font-family: "Complete Display", Georgia, "Times New Roman", serif;
-            font-size: 1.25rem;
-            font-weight: 400;
-            letter-spacing: -0.02em;
-            line-height: 1.2;
-            color: #241f1a;
-        }
-
-        .demo-page .review .complete-card .complete-date {
-            margin: 0;
-            font-family: "Complete Script", "Segoe Script", cursive;
-            font-size: 1.38rem;
-            font-weight: 400;
-            line-height: 1.15;
-            color: #3d4a62;
-        }
-
-        .complete-score-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            margin-top: 0.9rem;
-        }
-
-        .demo-page .review .complete-card .complete-score {
-            margin: 0;
-            font-family: "Complete Score", Georgia, "Times New Roman", serif;
-            font-size: 2.6rem;
-            font-weight: 400;
-            letter-spacing: -0.03em;
-            line-height: 1;
-            white-space: nowrap;
-            color: #241f1a;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .complete-score-of {
-            font-size: 1.25rem;
-            letter-spacing: -0.02em;
-            color: #5a534c;
-        }
-
-        .complete-seal {
-            position: relative;
-            flex: 0 0 5.375rem;
-            width: 5.375rem;
-            height: 5.375rem;
-            border: 2px solid #7a3b3b;
-            border-radius: 50%;
-            color: #7a3b3b;
-            display: grid;
-            place-items: center;
-        }
-
-        .complete-seal::before {
-            content: "";
-            position: absolute;
-            inset: 5px;
-            border: 1px dashed #7a3b3b;
-            border-radius: 50%;
-        }
-
-        .complete-seal-word {
-            position: relative;
-            z-index: 1;
-            font-family: "Complete Score", Georgia, "Times New Roman", serif;
-            font-size: 0.84rem;
-            font-weight: 400;
-            letter-spacing: 0.01em;
-            line-height: 1;
-        }
-
-        .complete-download {
-            appearance: none;
-            -webkit-appearance: none;
-            align-self: flex-start;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 44px;
-            margin: 0.8rem 0 0.1rem;
-            padding: 0.35rem 1.05rem;
-            border: 1px solid #241f1a;
-            border-radius: 999px;
-            background: transparent;
-            color: #241f1a;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 0.82rem;
-            font-weight: bold;
-            letter-spacing: 0.01em;
-            line-height: 1.2;
-            cursor: pointer;
-        }
-
-        .complete-download:focus {
-            outline: none;
-        }
-
-        .complete-download:focus-visible {
-            outline: 2px solid #241f1a;
-            outline-offset: 3px;
-        }
 
         .score-encourage {
             margin: 0 0 0.85rem;
             max-width: 28em;
             font-size: 1.05rem;
             line-height: 1.45;
-        }
-
-        @media (hover: hover) and (pointer: fine) {
-            .complete-download:hover {
-                background: #241f1a;
-                color: #fbf7ee;
-            }
-        }
-
-        @media (max-width: 736px) {
-            .complete-card {
-                padding: 0.95rem 0.75rem 0.8rem 2.45rem;
-                background-image:
-                    linear-gradient(to right, transparent 1.55rem, #c96a6a 1.55rem, #c96a6a calc(1.55rem + 2px), transparent calc(1.55rem + 2px)),
-                    repeating-linear-gradient(to bottom, transparent 0 calc(1.75rem - 1px), #d5e0ee calc(1.75rem - 1px) 1.75rem);
-            }
-
-            .demo-page .review .complete-card .complete-title {
-                font-size: 1.5rem;
-            }
-
-            .complete-seal {
-                flex-basis: 4.5rem;
-                width: 4.5rem;
-                height: 4.5rem;
-            }
-
-            .demo-page .review .complete-card .complete-score {
-                font-size: 2.15rem;
-            }
-        }
-
-        @media (forced-colors: active) {
-            .complete-card {
-                background: Canvas !important;
-                background-image: none !important;
-                box-shadow: none;
-                border: 1px solid CanvasText;
-            }
-
-            .complete-card::before,
-            .complete-seal::before {
-                display: none;
-            }
-
-            .demo-page .review .complete-card .complete-kicker,
-            .demo-page .review .complete-card .complete-title,
-            .demo-page .review .complete-card .complete-finish,
-            .demo-page .review .complete-card .complete-track,
-            .demo-page .review .complete-card .complete-date,
-            .demo-page .review .complete-card .complete-score,
-            .complete-score-of,
-            .complete-seal,
-            .complete-seal-word {
-                color: CanvasText !important;
-            }
-
-            .complete-seal {
-                border-color: CanvasText;
-            }
-
-            .complete-download {
-                border: 1px solid ButtonText;
-                background: ButtonFace;
-                color: ButtonText;
-            }
         }
 
         .review-stem {
@@ -649,6 +370,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="../assets/completion-card.css">
 </head>
 <body class="demo-page">
     <div class="page">
@@ -1018,11 +740,12 @@
 
             function completionCard(n, dateText, live) {
                 var card = el("article", { "class": "complete-card" });
-                addText(card, "p", "complete-kicker", "Project Viz");
-                addText(card, "h3", "complete-title", "Well done!");
-                addText(card, "p", "complete-finish", "You have finished the track:");
-                addText(card, "p", "complete-track", "Shape and pictures");
-                addText(card, "p", "complete-date", dateText);
+                var sheet = el("div", { "class": "complete-sheet" });
+                addText(sheet, "p", "complete-kicker", "Project Viz");
+                addText(sheet, "h3", "complete-title", "Well done!");
+                addText(sheet, "p", "complete-finish", "You have finished the track:");
+                addText(sheet, "p", "complete-track", "Shape and pictures");
+                addText(sheet, "p", "complete-date", dateText);
                 var row = el("div", { "class": "complete-score-row" });
                 var scoreLine = el("p", { "class": "complete-score" });
                 var number = el("span", { "class": "complete-score-n" });
@@ -1034,9 +757,12 @@
                 if (live) scoreLine.setAttribute("aria-live", "polite");
                 row.appendChild(scoreLine);
                 var stamp = el("div", { "class": "complete-seal" });
-                addText(stamp, "span", "complete-seal-word", "Complete");
+                var img = el("img", { "class": "complete-seal-img", alt: "", "aria-hidden": "true" });
+                stamp.appendChild(img);
+                addText(stamp, "span", "complete-seal-word", "COMPLETED");
                 row.appendChild(stamp);
-                card.appendChild(row);
+                sheet.appendChild(row);
+                card.appendChild(sheet);
                 var download = el("button", {
                     type: "button",
                     "class": "complete-download",
@@ -1044,6 +770,9 @@
                 });
                 download.textContent = "Download as PDF";
                 card.appendChild(download);
+                if (window.ShapeCompletePdf && window.ShapeCompletePdf.applyCard) {
+                    window.ShapeCompletePdf.applyCard(card, "shape-and-pictures");
+                }
                 return card;
             }
 
@@ -1245,7 +974,11 @@
                 var pdf = window.ShapeCompletePdf;
                 var button = review.querySelector("[data-action='pdf']");
                 if (!pdf || !button) return;
-                var info = { date: attemptDateText(), score: score() };
+                var info = {
+                    date: attemptDateText(),
+                    score: score(),
+                    trackId: "shape-and-pictures"
+                };
                 function write(fonts) {
                     pdf.save(pdf.build(info, fonts));
                 }

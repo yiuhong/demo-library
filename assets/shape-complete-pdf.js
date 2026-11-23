@@ -1,12 +1,16 @@
 /*
- * One-page PDF of the Shape and pictures completion card.
+ * One-page PDF of a Guided Track completion card.
  *
- * The page builds the file itself: vector rules, a vector seal, and
- * real text in the same OFL faces the card uses on screen. Nothing is
- * uploaded, and the attempt is not stored. Subsets and licenses live
- * in assets/fonts/shape-complete/.
+ * The page builds the file itself: rules, a raster COMPLETED stamp,
+ * and real text in the same OFL faces the card uses on screen. Nothing
+ * is uploaded, and the attempt is not stored. Subsets and licenses live
+ * in assets/fonts/shape-complete/. Anton Regular (SIL OFL 1.1) is the
+ * stamp word. Fraunces, Source Serif 4, Caveat, and Cormorant SC are
+ * the rest of the sheet. U+0020–U+007E.
  *
- * Fraunces, Source Serif 4, Caveat, and Cormorant SC. U+0020–U+007E.
+ * One palette and one stamp per topic. Track membership is read from
+ * tracks.json. Tracks in a topic share that sheet. Omitting the track
+ * id keeps the original Shape and pictures card, which is Describing data.
  */
 (function (root, factory) {
     var api = factory();
@@ -19,7 +23,8 @@
         score: "fraunces-500.ttf",
         text: "sourceserif-400.ttf",
         script: "caveat-500.ttf",
-        caps: "cormorant.ttf"
+        caps: "cormorant.ttf",
+        stamp: "anton-regular.ttf"
     };
 
     var fontDirectory = "";
@@ -323,27 +328,28 @@
      * The sheet matches the on-screen card, without the download control.
      * Rules are every 28px. The margin sits left of the type.
      */
-    function cardStream(fonts, res, info) {
+    function cardStream(fonts, res, info, palette) {
         /*
          * Measured from the on-screen sheet at the review column width,
          * without the download control. The score sits with the seal,
          * a short gap under the date.
          */
         var scale = 1.2;
-        var cardW = 574;
-        var cardH = 278;
+        var cardW = CARD_W;
+        var cardH = CARD_H;
         var pageW = cardW * scale;
         var pageH = cardH * scale;
         function X(px) { return px * scale; }
         function Y(pxFromTop) { return pageH - pxFromTop * scale; }
         function S(px) { return px * scale; }
+        var colors = palette || {};
         var ink = rgb("#241F1A");
-        var soft = rgb("#5A534C");
-        var navy = rgb("#3D4A62");
-        var rule = rgb("#D5E0EE");
-        var margin = rgb("#C96A6A");
-        var paper = rgb("#FBF7EE");
-        var seal = rgb("#7A3B3B");
+        var soft = rgb(colors.soft || "#5A534C");
+        var navy = rgb(colors.date || "#3D4A62");
+        var rule = rgb(colors.rule || "#D5E0EE");
+        var margin = rgb(colors.margin || "#C96A6A");
+        var paper = rgb(colors.paper || "#FBF7EE");
+        var seal = rgb(colors.seal || "#7A3B3B");
         var ops = [];
 
         ops.push(paper + " rg");
@@ -364,14 +370,17 @@
         var marginX = X(42);
         ops.push(num(marginX) + " 0 m " + num(marginX) + " " + num(pageH) + " l S");
 
-        function textAt(fontKey, text, xPx, baselinePx, sizePx, color, tracking) {
+        function textAt(fontKey, text, xPx, baselinePx, sizePx, color, tracking, renderMode) {
             var font = fonts[fontKey];
             ops.push("BT");
             ops.push("/" + res[fontKey] + " " + num(S(sizePx)) + " Tf");
+            if (renderMode != null) ops.push(num(renderMode) + " Tr");
             ops.push(color + " rg");
             ops.push("1 0 0 1 " + num(X(xPx)) + " " + num(Y(baselinePx)) + " Tm");
             ops.push(showText(text, font, tracking || 0));
             ops.push("ET");
+            /* Tr is part of the graphics state and survives ET; reset after a non-default mode. */
+            if (renderMode != null) ops.push("0 Tr");
         }
 
         /*
@@ -390,13 +399,29 @@
         textAt("display", trackName, 58, 121, 20, ink, -0.02);
         textAt("script", info.date, 58, 150, 22, navy, 0);
 
-        var sealSize = 86;
-        var sealLeft = 470;
-        var sealTop = 170;
-        var sealCx = sealLeft + sealSize / 2;
-        var sealCy = sealTop + sealSize / 2;
-        var outerR = 47 / 100 * sealSize;
-        var innerR = 41 / 100 * sealSize;
+        var stamp = info.stamp || "circle";
+        /*
+         * Larger, more realistic rubber/wax stamps. Shared centre sits to
+         * the right of the score, with a clear gap to long track titles,
+         * the card edge, and the bottom. COMPLETED is set in a heavy
+         * condensed gothic when that face is provided.
+         */
+        var sealCx = 498;
+        var sealCy = 208;
+        var sealSize = 116;
+        var circleOuter = 58;
+        var circleInner = 51;
+        var rectHalfW = 70;
+        var rectHalfH = 36;
+        var rectCorner = 11;
+        var rectInset = 7;
+        var starOuter = 72;
+        var starInnerRatio = 0.55;
+        var starCorner = 6;
+        var starInset = 7;
+        var ovalRx = 72;
+        var ovalRy = 47;
+        var ovalInset = 7;
 
         function circle(cx, cy, r) {
             var k = 0.5517847498;
@@ -411,23 +436,211 @@
             ops.push(num(px + c) + " " + num(py - rr) + " " + num(px + rr) + " " + num(py - c) + " " + num(px + rr) + " " + num(py) + " c");
         }
 
-        ops.push(seal + " RG");
-        ops.push("1 J");
-        ops.push("[] 0 d");
-        ops.push(num(S(2.2 / 100 * sealSize)) + " w");
-        circle(sealCx, sealCy, outerR);
-        ops.push("s");
-        ops.push("[" + num(S(1.6 / 100 * sealSize)) + " " + num(S(1.8 / 100 * sealSize)) + "] 0 d");
-        ops.push(num(Math.max(0.8, S(0.9 / 100 * sealSize))) + " w");
-        circle(sealCx, sealCy, innerR);
-        ops.push("s");
-        ops.push("[] 0 d");
+        function ellipse(cx, cy, rx, ry) {
+            var k = 0.5517847498;
+            var px = X(cx);
+            var py = Y(cy);
+            var rxp = S(rx);
+            var ryp = S(ry);
+            var cxk = k * rxp;
+            var cyk = k * ryp;
+            ops.push(num(px + rxp) + " " + num(py) + " m");
+            ops.push(num(px + rxp) + " " + num(py + cyk) + " " + num(px + cxk) + " " + num(py + ryp) + " " + num(px) + " " + num(py + ryp) + " c");
+            ops.push(num(px - cxk) + " " + num(py + ryp) + " " + num(px - rxp) + " " + num(py + cyk) + " " + num(px - rxp) + " " + num(py) + " c");
+            ops.push(num(px - rxp) + " " + num(py - cyk) + " " + num(px - cxk) + " " + num(py - ryp) + " " + num(px) + " " + num(py - ryp) + " c");
+            ops.push(num(px + cxk) + " " + num(py - ryp) + " " + num(px + rxp) + " " + num(py - cyk) + " " + num(px + rxp) + " " + num(py) + " c");
+        }
 
-        var sealWord = "Complete";
-        var sealFontSize = 13.5;
-        var sealWidth = measure(sealWord, S(sealFontSize), fonts.score, 0.01);
-        textAt("score", sealWord, sealCx - sealWidth / S(1) / 2, sealCy + sealFontSize * 0.34, sealFontSize, seal, 0.01);
+        function pt(x, y) {
+            return num(X(x)) + " " + num(Y(y));
+        }
+        function moveTo(x, y) { ops.push(pt(x, y) + " m"); }
+        function lineTo(x, y) { ops.push(pt(x, y) + " l"); }
+        function curveTo(x1, y1, x2, y2, x3, y3) {
+            ops.push(pt(x1, y1) + " " + pt(x2, y2) + " " + pt(x3, y3) + " c");
+        }
+        function add(a, b) { return { x: a.x + b.x, y: a.y + b.y }; }
+        function sub(a, b) { return { x: a.x - b.x, y: a.y - b.y }; }
+        function mul(a, s) { return { x: a.x * s, y: a.y * s }; }
+        function vecLen(a) { return Math.sqrt(a.x * a.x + a.y * a.y); }
+        function norm(a) {
+            var L = vecLen(a);
+            return L ? { x: a.x / L, y: a.y / L } : { x: 0, y: 0 };
+        }
+        function dot(a, b) { return a.x * b.x + a.y * b.y; }
 
+        function arcCorner(center, start, end, r) {
+            var a0 = Math.atan2(start.y - center.y, start.x - center.x);
+            var a1 = Math.atan2(end.y - center.y, end.x - center.x);
+            var cr = (start.x - center.x) * (end.y - center.y) - (start.y - center.y) * (end.x - center.x);
+            var sweep = a1 - a0;
+            while (sweep <= -Math.PI) sweep += 2 * Math.PI;
+            while (sweep > Math.PI) sweep -= 2 * Math.PI;
+            if (cr > 0 && sweep < 0) sweep += 2 * Math.PI;
+            if (cr < 0 && sweep > 0) sweep -= 2 * Math.PI;
+            var segments = Math.max(1, Math.ceil(Math.abs(sweep) / (Math.PI / 2) - 1e-9));
+            var s;
+            for (s = 0; s < segments; s++) {
+                var t0 = a0 + sweep * (s / segments);
+                var t1 = a0 + sweep * ((s + 1) / segments);
+                var ph = t1 - t0;
+                var k = (4 / 3) * Math.tan(ph / 4);
+                var p0x = center.x + r * Math.cos(t0);
+                var p0y = center.y + r * Math.sin(t0);
+                var p3x = center.x + r * Math.cos(t1);
+                var p3y = center.y + r * Math.sin(t1);
+                curveTo(
+                    p0x - k * r * Math.sin(t0),
+                    p0y + k * r * Math.cos(t0),
+                    p3x + k * r * Math.sin(t1),
+                    p3y - k * r * Math.cos(t1),
+                    p3x,
+                    p3y
+                );
+            }
+        }
+
+        function roundedPolygon(vertices, radius) {
+            var n = vertices.length;
+            var corners = [];
+            var i;
+            for (i = 0; i < n; i++) {
+                var prev = vertices[(i + n - 1) % n];
+                var p = vertices[i];
+                var next = vertices[(i + 1) % n];
+                var inDir = norm(sub(p, prev));
+                var outDir = norm(sub(next, p));
+                var back = { x: -inDir.x, y: -inDir.y };
+                var cosA = Math.max(-1, Math.min(1, dot(back, outDir)));
+                var interior = Math.acos(cosA);
+                var r = radius;
+                var cut = r / Math.tan(interior / 2);
+                var maxCut = Math.min(vecLen(sub(p, prev)), vecLen(sub(next, p))) * 0.45;
+                if (cut > maxCut) {
+                    cut = maxCut;
+                    r = cut * Math.tan(interior / 2);
+                }
+                var start = sub(p, mul(inDir, cut));
+                var end = add(p, mul(outDir, cut));
+                var bisector = norm(add(back, outDir));
+                var center = add(p, mul(bisector, r / Math.sin(interior / 2)));
+                corners.push({ start: start, end: end, center: center, r: r });
+            }
+            moveTo(corners[0].start.x, corners[0].start.y);
+            for (i = 0; i < n; i++) {
+                var c = corners[i];
+                arcCorner(c.center, c.start, c.end, c.r);
+                var nxt = corners[(i + 1) % n];
+                lineTo(nxt.start.x, nxt.start.y);
+            }
+        }
+
+        function rectVertices(cx, cy, halfW, halfH) {
+            return [
+                { x: cx - halfW, y: cy - halfH },
+                { x: cx + halfW, y: cy - halfH },
+                { x: cx + halfW, y: cy + halfH },
+                { x: cx - halfW, y: cy + halfH }
+            ];
+        }
+
+        function starVertices(cx, cy, outer, inner) {
+            var pts = [];
+            var i;
+            for (i = 0; i < 10; i++) {
+                var radius = (i % 2 === 0) ? outer : inner;
+                var a = -Math.PI / 2 + i * Math.PI / 5;
+                pts.push({
+                    x: cx + radius * Math.cos(a),
+                    y: cy + radius * Math.sin(a)
+                });
+            }
+            return pts;
+        }
+
+        function drawStamp(kind, role) {
+            var inner = role === "inner";
+            if (kind === "circle") {
+                circle(sealCx, sealCy, inner ? circleInner : circleOuter);
+                return;
+            }
+            if (kind === "oval") {
+                ellipse(
+                    sealCx,
+                    sealCy,
+                    inner ? ovalRx - ovalInset : ovalRx,
+                    inner ? ovalRy - ovalInset : ovalRy
+                );
+                return;
+            }
+            if (kind === "roundedRect") {
+                var hw = inner ? rectHalfW - rectInset : rectHalfW;
+                var hh = inner ? rectHalfH - rectInset : rectHalfH;
+                var cr = inner ? Math.max(1, rectCorner - rectInset) : rectCorner;
+                roundedPolygon(rectVertices(sealCx, sealCy, hw, hh), cr);
+                return;
+            }
+            if (kind === "star") {
+                var ro = inner ? starOuter - starInset : starOuter;
+                var ri = ro * starInnerRatio;
+                var cs = inner ? starCorner * ((starOuter - starInset) / starOuter) : starCorner;
+                roundedPolygon(starVertices(sealCx, sealCy, ro, ri), cs);
+                return;
+            }
+            circle(sealCx, sealCy, inner ? circleInner : circleOuter);
+        }
+
+        var sealWord = "COMPLETED";
+        var sealFontKey = fonts.stamp ? "stamp" : "caps";
+        var sealFont = fonts[sealFontKey];
+
+        if (info.stampImage) {
+            var img = info.stampImage;
+            var placeW = img.placeW;
+            var placeH = img.placeH;
+            var imgCx = img.cx;
+            var imgCy = img.cy;
+            var pdfX = X(imgCx - placeW / 2);
+            var pdfY = Y(imgCy + placeH / 2);
+            var pdfW = S(placeW);
+            var pdfH = S(placeH);
+            ops.push("q");
+            ops.push(num(pdfW) + " 0 0 " + num(pdfH) + " " + num(pdfX) + " " + num(pdfY) + " cm");
+            ops.push("/ImStamp Do");
+            ops.push("Q");
+            /* Invisible COMPLETED so the file still has extractable text. */
+            var hideSize = 18;
+            var hideWidth = measure(sealWord, S(hideSize), sealFont, 0);
+            textAt(sealFontKey, sealWord, imgCx - hideWidth / S(1) / 2, imgCy, hideSize, seal, 0, 3);
+        } else {
+            ops.push(seal + " RG");
+            ops.push("1 J");
+            ops.push("[] 0 d");
+            ops.push(num(S(2.2 / 100 * sealSize)) + " w");
+            drawStamp(stamp, "outer");
+            ops.push("s");
+            ops.push("[" + num(S(1.6 / 100 * sealSize)) + " " + num(S(1.8 / 100 * sealSize)) + "] 0 d");
+            ops.push(num(Math.max(0.8, S(0.9 / 100 * sealSize))) + " w");
+            drawStamp(stamp, "inner");
+            ops.push("s");
+            ops.push("[] 0 d");
+
+            var sealFontSize = 18;
+            var sealTracking = -0.015;
+            var sealWidth = measure(sealWord, S(sealFontSize), sealFont, sealTracking);
+            var capPx = (sealFont.capHeight || 700) / 1000 * sealFontSize;
+            var sealBaseline = sealCy + capPx * 0.5;
+            if (stamp === "star") sealBaseline -= 5;
+            textAt(sealFontKey, sealWord, sealCx - sealWidth / S(1) / 2, sealBaseline, sealFontSize, seal, sealTracking);
+        }
+
+
+        /*
+         * Text rendering mode is graphics state and survives ET.
+         * The stamp word may have been drawn in mode 3 (invisible).
+         * Reset before the score, or 10/10 is invisible too.
+         */
+        ops.push("0 Tr");
         var scoreText = String(info.score);
         var scoreSize = 42;
         var ofSize = 20;
@@ -467,6 +680,36 @@
         };
     }
 
+    function deflateBytes(bytes) {
+        var input = bytesOf(bytes);
+        if (typeof require === "function") {
+            try {
+                var zlib = require("zlib");
+                var out = zlib.deflateSync(Buffer.from(input.buffer, input.byteOffset, input.byteLength));
+                return new Uint8Array(out.buffer, out.byteOffset, out.byteLength);
+            } catch (error) {
+                /* The browser has no Node zlib. Stamps are compressed in load(). */
+            }
+        }
+        throw new Error("Stamp image is not compressed");
+    }
+
+    function imageObjects(img, imageId, smaskId) {
+        var rgb = img.rgbDeflated ? bytesOf(img.rgbDeflated) : deflateBytes(img.rgb);
+        var alpha = img.alphaDeflated ? bytesOf(img.alphaDeflated) : deflateBytes(img.alpha);
+        var image = streamObject(
+            "/Type /XObject /Subtype /Image /Width " + img.width + " /Height " + img.height +
+            " /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /SMask " + smaskId + " 0 R",
+            rgb
+        );
+        var smask = streamObject(
+            "/Type /XObject /Subtype /Image /Width " + img.width + " /Height " + img.height +
+            " /ColorSpace /DeviceGray /BitsPerComponent 8 /Filter /FlateDecode",
+            alpha
+        );
+        return { image: image, smask: smask };
+    }
+
     function assemble(bodies) {
         var chunks = [];
         var offset = 0;
@@ -496,7 +739,12 @@
         return concat(chunks);
     }
 
-    function build(info, rawFonts) {
+    function build(info, rawFonts, palette) {
+        info = info || {};
+        var topicId = resolvedTopic(info);
+        var colors = palette || info.palette || paletteFor(topicId);
+        var stampMeta = STAMP_META[topicId] || STAMP_META["describing-data"];
+        var stampImage = info.stampImage || (stampImages && stampImages[topicId]) || null;
         var fonts = {
             display: parseFont(rawFonts.display, true),
             score: parseFont(rawFonts.score, true),
@@ -505,6 +753,10 @@
             caps: parseFont(rawFonts.caps, true)
         };
         var keys = ["display", "score", "text", "script", "caps"];
+        if (rawFonts.stamp) {
+            fonts.stamp = parseFont(rawFonts.stamp, false);
+            keys = keys.concat(["stamp"]);
+        }
         var ids = {};
         var next = 5;
         keys.forEach(function (key) {
@@ -525,17 +777,28 @@
         var card = cardStream(fonts, res, {
             date: String(info.date || ""),
             score: info.score,
-            track: info.track
-        });
+            track: info.track,
+            stamp: info.stamp || stampMeta.stamp,
+            stampImage: stampImage
+        }, colors);
         var fontRes = keys.map(function (key, index) {
             return "/F" + (index + 1) + " " + ids[key].type0 + " 0 R";
         }).join(" ");
+        var imageId = 0;
+        var smaskId = 0;
+        var xobjRes = "";
+        if (stampImage) {
+            imageId = infoId;
+            smaskId = infoId + 1;
+            infoId = infoId + 2;
+            xobjRes = " /XObject << /ImStamp " + imageId + " 0 R >>";
+        }
         var bodies = [];
         bodies[0] = latin1("<< /Type /Catalog /Pages 2 0 R >>");
         bodies[1] = latin1("<< /Type /Pages /Count 1 /Kids [3 0 R] >>");
         bodies[2] = latin1(
             "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + num(card.width) + " " + num(card.height) +
-            "] /Contents 4 0 R /Resources << /Font << " + fontRes + " >> >> >>"
+            "] /Contents 4 0 R /Resources << /Font << " + fontRes + " >>" + xobjRes + " >> >>"
         );
         bodies[3] = streamObject("", latin1(card.stream));
         keys.forEach(function (key) {
@@ -546,6 +809,11 @@
             bodies[ids[key].file - 1] = made.file;
             bodies[ids[key].uni - 1] = made.uni;
         });
+        if (stampImage) {
+            var madeImg = imageObjects(stampImage, imageId, smaskId);
+            bodies[imageId - 1] = madeImg.image;
+            bodies[smaskId - 1] = madeImg.smask;
+        }
         var trackName = info.track || "Shape and pictures";
         var docTitle = pdfLiteral("Project Viz - " + trackName);
         bodies[infoId - 1] = latin1(
@@ -555,23 +823,13 @@
     }
 
     function load() {
-        if (cached) return Promise.resolve(cached);
+        if (cached && stampImages && trackTopic) return Promise.resolve(cached);
         if (loading) return loading;
         if (!fontDirectory) return Promise.reject(new Error("Font directory is missing"));
-        var keys = Object.keys(FONT_FILES);
-        loading = Promise.all(keys.map(function (key) {
-            return fetch(fontDirectory + FONT_FILES[key]).then(function (response) {
-                if (!response.ok) throw new Error("Font failed to load");
-                return response.arrayBuffer();
-            }).then(function (buffer) {
-                return { key: key, bytes: new Uint8Array(buffer) };
-            });
-        })).then(function (list) {
-            var fonts = {};
-            list.forEach(function (item) { fonts[item.key] = item.bytes; });
-            cached = fonts;
+        loading = Promise.all([loadFonts(), loadStamps(), fetchTopics()]).then(function (parts) {
+            cached = parts[0];
             loading = null;
-            return fonts;
+            return cached;
         }).catch(function (error) {
             loading = null;
             throw error;
@@ -596,13 +854,343 @@
         setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
     }
 
+    /*
+     * Topic color and stamp geometry. Track membership is not listed
+     * here. load() reads it from tracks.json. Place sizes and centres
+     * match assets/stamps/stamps.json. The sheet is CARD_W by CARD_H.
+     */
+    var CARD_W = 574;
+    var CARD_H = 278;
+    var PALETTES = {
+        "describing-data": {
+            paper: "#FBF7EE",
+            rule: "#D5E0EE",
+            margin: "#C96A6A",
+            seal: "#7A3B3B",
+            date: "#3D4A62",
+            soft: "#5A534C"
+        },
+        "probability-and-sampling": {
+            paper: "#F4F6FA",
+            rule: "#D3DCEB",
+            margin: "#5C73A8",
+            seal: "#33416C",
+            date: "#3D4A62",
+            soft: "#53565C"
+        },
+        "comparing-means": {
+            paper: "#F4F6F1",
+            rule: "#D2DDD0",
+            margin: "#3F6B52",
+            seal: "#244033",
+            date: "#2A4034",
+            soft: "#4C554E"
+        },
+        association: {
+            paper: "#F8F3F5",
+            rule: "#E4D4DA",
+            margin: "#8E4E6A",
+            seal: "#5A2E42",
+            date: "#4A3040",
+            soft: "#585056"
+        }
+    };
+    var STAMP_META = {
+        "describing-data": {
+            stamp: "circle",
+            width: 1080,
+            height: 1080,
+            placeW: 135,
+            placeH: 135,
+            cx: 492,
+            cy: 204.5
+        },
+        "probability-and-sampling": {
+            stamp: "roundedRect",
+            width: 1121,
+            height: 573,
+            placeW: 140.125,
+            placeH: 71.625,
+            cx: 492,
+            cy: 206
+        },
+        "comparing-means": {
+            stamp: "star",
+            width: 1281,
+            height: 1264,
+            placeW: 160.125,
+            placeH: 158,
+            cx: 485.9375,
+            cy: 193
+        },
+        association: {
+            stamp: "oval",
+            width: 1212,
+            height: 676,
+            placeW: 151.5,
+            placeH: 84.5,
+            cx: 490.25,
+            cy: 206
+        }
+    };
+
+    var trackTopic = null;
+    var topicsPromise = null;
+    var stampImages = null;
+
+    function paletteFor(topicId) {
+        return PALETTES[topicId] || PALETTES["describing-data"];
+    }
+
+    function resolvedTopic(info) {
+        if (info.topicId && PALETTES[info.topicId]) return info.topicId;
+        if (info.trackId && trackTopic && PALETTES[trackTopic[info.trackId]]) {
+            return trackTopic[info.trackId];
+        }
+        return "describing-data";
+    }
+
+    function stampPngUrl(topicId) {
+        if (!fontDirectory) return "";
+        return new URL("../../stamps/" + topicId + ".png", fontDirectory).href;
+    }
+
+    function tracksJsonUrl() {
+        if (!fontDirectory) return "";
+        return new URL("../../../tracks.json", fontDirectory).href;
+    }
+
+    function fetchTopics() {
+        if (trackTopic) return Promise.resolve(trackTopic);
+        if (topicsPromise) return topicsPromise;
+        var url = tracksJsonUrl();
+        if (!url) return Promise.reject(new Error("Topic list is missing"));
+        topicsPromise = fetch(url).then(function (response) {
+            if (!response.ok) throw new Error("Topic list failed to load");
+            return response.json();
+        }).then(function (data) {
+            var map = {};
+            var topics = data && data.topics || [];
+            var i;
+            var j;
+            for (i = 0; i < topics.length; i++) {
+                var topic = topics[i];
+                if (!topic || !PALETTES[topic.id]) continue;
+                var ids = topic.tracks || [];
+                for (j = 0; j < ids.length; j++) map[ids[j]] = topic.id;
+            }
+            trackTopic = map;
+            topicsPromise = null;
+            return map;
+        }).catch(function (error) {
+            topicsPromise = null;
+            throw error;
+        });
+        return topicsPromise;
+    }
+
+    function applyCard(card, trackId) {
+        function paint() {
+            var topicId = "describing-data";
+            if (trackId) {
+                if (!trackTopic || !PALETTES[trackTopic[trackId]]) return;
+                topicId = trackTopic[trackId];
+            }
+            var palette = paletteFor(topicId);
+            var stamp = STAMP_META[topicId];
+            card.style.setProperty("--complete-paper", palette.paper);
+            card.style.setProperty("--complete-rule", palette.rule);
+            card.style.setProperty("--complete-margin", palette.margin);
+            card.style.setProperty("--complete-date", palette.date);
+            card.style.setProperty("--complete-soft", palette.soft);
+            card.setAttribute("data-topic", topicId);
+            if (stamp) {
+                card.style.setProperty("--stamp-x", ((stamp.cx - stamp.placeW / 2) / CARD_W * 100) + "%");
+                card.style.setProperty("--stamp-y", ((stamp.cy - stamp.placeH / 2) / CARD_H * 100) + "%");
+                card.style.setProperty("--stamp-w", (stamp.placeW / CARD_W * 100) + "%");
+                card.style.setProperty("--stamp-h", (stamp.placeH / CARD_H * 100) + "%");
+            }
+            var img = card.querySelector(".complete-seal-img");
+            var url = stampPngUrl(topicId);
+            if (img && url && img.getAttribute("src") !== url) img.src = url;
+        }
+        if (!trackId || (trackTopic && trackTopic[trackId])) paint();
+        else fetchTopics().then(paint).catch(function () {});
+    }
+
+    function paeth(a, b, c) {
+        var p = a + b - c;
+        var pa = Math.abs(p - a);
+        var pb = Math.abs(p - b);
+        var pc = Math.abs(p - c);
+        if (pa <= pb && pa <= pc) return a;
+        if (pb <= pc) return b;
+        return c;
+    }
+
+    function inflateZlib(bytes) {
+        var input = bytesOf(bytes);
+        if (typeof DecompressionStream === "function") {
+            var stream = new Blob([input]).stream().pipeThrough(new DecompressionStream("deflate"));
+            return new Response(stream).arrayBuffer().then(function (buf) {
+                return new Uint8Array(buf);
+            });
+        }
+        if (typeof require === "function") {
+            var zlib = require("zlib");
+            var out = zlib.inflateSync(Buffer.from(input.buffer, input.byteOffset, input.byteLength));
+            return Promise.resolve(new Uint8Array(out.buffer, out.byteOffset, out.byteLength));
+        }
+        return Promise.reject(new Error("Cannot inflate stamp"));
+    }
+
+    function deflateAsync(bytes) {
+        var input = bytesOf(bytes);
+        if (typeof CompressionStream === "function") {
+            var stream = new Blob([input]).stream().pipeThrough(new CompressionStream("deflate"));
+            return new Response(stream).arrayBuffer().then(function (buf) {
+                return new Uint8Array(buf);
+            });
+        }
+        if (typeof require === "function") {
+            var zlib = require("zlib");
+            var out = zlib.deflateSync(Buffer.from(input.buffer, input.byteOffset, input.byteLength));
+            return Promise.resolve(new Uint8Array(out.buffer, out.byteOffset, out.byteLength));
+        }
+        return Promise.reject(new Error("Cannot compress stamp"));
+    }
+
+    function decodePng(bytes) {
+        var data = bytesOf(bytes);
+        if (data.length < 8 || data[0] !== 137 || data[1] !== 80) throw new Error("Stamp is not a PNG");
+        var view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+        var offset = 8;
+        var width = 0;
+        var height = 0;
+        var idat = [];
+        while (offset + 12 <= data.length) {
+            var length = view.getUint32(offset);
+            var type = tagAt(data, offset + 4);
+            var start = offset + 8;
+            if (start + length + 4 > data.length) throw new Error("Stamp PNG is truncated");
+            if (type === "IHDR") {
+                width = view.getUint32(start);
+                height = view.getUint32(start + 4);
+                if (data[start + 8] !== 8 || data[start + 9] !== 6 || data[start + 12] !== 0) {
+                    throw new Error("Unsupported stamp PNG");
+                }
+            } else if (type === "IDAT") {
+                idat.push(data.subarray(start, start + length));
+            } else if (type === "IEND") {
+                break;
+            }
+            offset = start + length + 4;
+        }
+        if (!width || !height || !idat.length) throw new Error("Stamp PNG is incomplete");
+        return inflateZlib(concat(idat)).then(function (raw) {
+            var stride = width * 4;
+            var rowBytes = stride + 1;
+            if (raw.length < height * rowBytes) throw new Error("Stamp PNG data is short");
+            var rgb = new Uint8Array(width * height * 3);
+            var alpha = new Uint8Array(width * height);
+            var prev = new Uint8Array(stride);
+            var row = new Uint8Array(stride);
+            var src = 0;
+            var y;
+            var x;
+            var i;
+            for (y = 0; y < height; y++) {
+                var filter = raw[src++];
+                for (i = 0; i < stride; i++) {
+                    var v = raw[src++];
+                    var left = i >= 4 ? row[i - 4] : 0;
+                    var up = prev[i];
+                    var ul = i >= 4 ? prev[i - 4] : 0;
+                    if (filter === 1) v = (v + left) & 255;
+                    else if (filter === 2) v = (v + up) & 255;
+                    else if (filter === 3) v = (v + ((left + up) >> 1)) & 255;
+                    else if (filter === 4) v = (v + paeth(left, up, ul)) & 255;
+                    else if (filter !== 0) throw new Error("Bad PNG filter");
+                    row[i] = v;
+                }
+                for (x = 0; x < width; x++) {
+                    var pixel = y * width + x;
+                    var sample = x * 4;
+                    rgb[pixel * 3] = row[sample];
+                    rgb[pixel * 3 + 1] = row[sample + 1];
+                    rgb[pixel * 3 + 2] = row[sample + 2];
+                    alpha[pixel] = row[sample + 3];
+                }
+                prev.set(row);
+            }
+            return { width: width, height: height, rgb: rgb, alpha: alpha };
+        });
+    }
+
+    function loadStamps() {
+        var ids = Object.keys(STAMP_META);
+        return Promise.all(ids.map(function (id) {
+            return fetch(stampPngUrl(id)).then(function (response) {
+                if (!response.ok) throw new Error("Stamp failed to load");
+                return response.arrayBuffer();
+            }).then(function (buffer) {
+                return decodePng(new Uint8Array(buffer));
+            }).then(function (image) {
+                var meta = STAMP_META[id];
+                if (image.width !== meta.width || image.height !== meta.height) {
+                    throw new Error("Stamp size mismatch");
+                }
+                return Promise.all([deflateAsync(image.rgb), deflateAsync(image.alpha)]).then(function (pair) {
+                    return {
+                        id: id,
+                        image: {
+                            width: image.width,
+                            height: image.height,
+                            rgbDeflated: pair[0],
+                            alphaDeflated: pair[1],
+                            placeW: meta.placeW,
+                            placeH: meta.placeH,
+                            cx: meta.cx,
+                            cy: meta.cy,
+                            stamp: meta.stamp
+                        }
+                    };
+                });
+            });
+        })).then(function (list) {
+            var map = {};
+            list.forEach(function (item) { map[item.id] = item.image; });
+            stampImages = map;
+            return map;
+        });
+    }
+
+    function loadFonts() {
+        var keys = Object.keys(FONT_FILES);
+        return Promise.all(keys.map(function (key) {
+            return fetch(fontDirectory + FONT_FILES[key]).then(function (response) {
+                if (!response.ok) throw new Error("Font failed to load");
+                return response.arrayBuffer();
+            }).then(function (buffer) {
+                return { key: key, bytes: new Uint8Array(buffer) };
+            });
+        })).then(function (list) {
+            var fonts = {};
+            list.forEach(function (item) { fonts[item.key] = item.bytes; });
+            return fonts;
+        });
+    }
+
+    if (typeof document !== "undefined" && fontDirectory) fetchTopics();
+
     return {
         filename: FILENAME,
         parseFont: parseFont,
         measure: measure,
         build: build,
         load: load,
-        ready: function () { return cached; },
-        save: save
+        ready: function () { return cached && stampImages && trackTopic ? cached : null; },
+        save: save,
+        applyCard: applyCard
     };
 });
