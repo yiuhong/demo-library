@@ -316,7 +316,6 @@ button.home-dot:focus-visible {
 }
 
 p.library-preferred-cite {
-    max-width: 42rem;
     margin: 0 0 1.5em 0;
     padding: 0.85em 1em;
     background: #ffffff !important;
