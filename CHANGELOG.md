@@ -71,6 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The shared footer uses fewer lines on a phone. Under 480px each item in the footer menu was its own line, so Home, Cite & reuse, and Licenses stacked nine rows, and the section pad above that menu was the same tall pad as a page section. The items now sit beside one another and wrap when the line is full, and that pad is shorter, through the 736px phone width. Catalog and Guided Tracks already wrap this menu in the app shell, and that footer is unchanged. Wider windows keep the same footer. No link is removed. The wording, the date, and the citation version are unchanged.
+
 - The Teach and Learn card on the home Features list now reads “Learn is the full detailed view, including self-tests with collectible completion cards. Teach is a quieter class view: the figure, the live equation, and the controls stay, and the longer notes are hidden.” It no longer says that Learn is the default. The Features note now reads “Guided Tracks follow a sequence of demonstrations and, in Learn mode, end with a self-test.” Guided Tracks still links to tracks.html. Coverage, Interactive figures, References, Open source, the Features layout, and the citation version are unchanged.
 
 - Home Features uses the content width under the hero on a wide window. The list was capped at 44rem, and the Guided Tracks note at 40rem, so both stayed in the left reading column while the hero ran in two columns from 1280px. The section and the note now span the same width as the hero. Each row is still a title beside its sentence. At 736px the title still stacks over the sentence. The Crimson Text italic titles, the sentences, the hero, and the citation version are unchanged.

@@ -247,14 +247,31 @@ ul li {
     margin-left: 0;
 }
 
-@media screen and (max-width: 480px) {
-    #footer ul.menu > li {
-        display: block;
-        margin: 0.5em 0 0;
+/* Under 736px the reading column uses a tall pad, and under 480px
+   each footer item was its own line. Share a line when the items
+   fit, and shorten only this footer's vertical pad. The side inset
+   stays the column's. Wider than 736px is unchanged. Catalog and
+   Guided Tracks paint this same menu in shell.css. */
+
+@media screen and (max-width: 736px) {
+    #footer.viz-section > .inner {
+        padding-top: 1.15em;
+        padding-bottom: 0.85em;
     }
 
-    #footer ul.menu > li:first-child {
-        margin-top: 0;
+    #footer ul.menu {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        column-gap: 0.9em;
+        row-gap: 0.28em;
+        line-height: 1.5;
+    }
+
+    #footer ul.menu > li {
+        min-width: 0;
+        max-width: 100%;
+        margin: 0;
     }
 }
 
