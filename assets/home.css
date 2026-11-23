@@ -27,11 +27,16 @@
     align-items: start;
 }
 
-.home-lead p.library-about {
+.home-lead p.library-about,
+.home-lead p.library-audience {
     max-width: 36rem;
     margin: 0 0 1.5rem 0;
     font-size: 1.15rem;
     line-height: 1.45;
+}
+
+.home-lead p.library-about {
+    margin-bottom: 0.45rem;
 }
 
 .home-hero h1.project-viz-wordmark {

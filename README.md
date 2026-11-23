@@ -1,6 +1,10 @@
+<p><a href="https://yiuhong.github.io/demo-library/"><img src="images/project-viz-wordmark.svg" alt="Project Viz" width="440"></a></p>
+
 # Project Viz
 
 A visual library for teaching and learning statistics through interactive demonstrations.
+
+Designed for everyone — from absolute beginners and high school students to undergraduates, postgraduates, and researchers.
 
 **🌟 [View Project Viz](https://yiuhong.github.io/demo-library/)**
 
