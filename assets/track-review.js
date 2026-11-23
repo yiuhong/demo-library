@@ -11,6 +11,11 @@
         var QUESTIONS = config.questions;
         var TRACK = config.trackTitle;
         var PDF_NAME = config.filename;
+        var TRACK_ID = config.trackId || "";
+        if (!TRACK_ID && PDF_NAME) {
+            var idMatch = /^project-viz-(.+)-complete\.pdf$/.exec(PDF_NAME);
+            if (idMatch) TRACK_ID = idMatch[1];
+        }
 
         /*
          * QUESTIONS, selections, cursor, and finished are the attempt.
@@ -294,11 +299,12 @@
 
         function completionCard(n, dateText, live) {
             var card = el("article", { "class": "complete-card" });
-            addText(card, "p", "complete-kicker", "Project Viz");
-            addText(card, "h3", "complete-title", "Well done!");
-            addText(card, "p", "complete-finish", "You have finished the track:");
-            addText(card, "p", "complete-track", TRACK);
-            addText(card, "p", "complete-date", dateText);
+            var sheet = el("div", { "class": "complete-sheet" });
+            addText(sheet, "p", "complete-kicker", "Project Viz");
+            addText(sheet, "h3", "complete-title", "Well done!");
+            addText(sheet, "p", "complete-finish", "You have finished the track:");
+            addText(sheet, "p", "complete-track", TRACK);
+            addText(sheet, "p", "complete-date", dateText);
             var row = el("div", { "class": "complete-score-row" });
             var scoreLine = el("p", { "class": "complete-score" });
             var number = el("span", { "class": "complete-score-n" });
@@ -310,9 +316,12 @@
             if (live) scoreLine.setAttribute("aria-live", "polite");
             row.appendChild(scoreLine);
             var stamp = el("div", { "class": "complete-seal" });
-            addText(stamp, "span", "complete-seal-word", "Complete");
+            var img = el("img", { "class": "complete-seal-img", alt: "", "aria-hidden": "true" });
+            stamp.appendChild(img);
+            addText(stamp, "span", "complete-seal-word", "COMPLETED");
             row.appendChild(stamp);
-            card.appendChild(row);
+            sheet.appendChild(row);
+            card.appendChild(sheet);
             var download = el("button", {
                 type: "button",
                 "class": "complete-download",
@@ -320,6 +329,9 @@
             });
             download.textContent = "Download as PDF";
             card.appendChild(download);
+            if (window.ShapeCompletePdf && window.ShapeCompletePdf.applyCard) {
+                window.ShapeCompletePdf.applyCard(card, TRACK_ID);
+            }
             return card;
         }
 
@@ -519,7 +531,12 @@
             var pdf = window.ShapeCompletePdf;
             var button = review.querySelector("[data-action='pdf']");
             if (!pdf || !button) return;
-            var info = { date: attemptDateText(), score: score(), track: TRACK };
+            var info = {
+                date: attemptDateText(),
+                score: score(),
+                track: TRACK,
+                trackId: TRACK_ID
+            };
             function write(fonts) {
                 pdf.save(pdf.build(info, fonts), PDF_NAME);
             }
