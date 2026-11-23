@@ -75,9 +75,13 @@
 p.hub-section-note,
 p.hub-quiet,
 p.hub-colophon-lead {
-    max-width: 40rem;
     margin: 0 0 1rem 0;
     color: #222222 !important;
+}
+
+p.hub-section-note,
+p.hub-quiet {
+    max-width: 40rem;
 }
 
 p.hub-quiet {
