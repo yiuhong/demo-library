@@ -24,11 +24,15 @@
  * a second scroller. Exit, Back, and Escape restore the chrome. iPad
  * Safari in a browser tab still uses the Fullscreen API when it is
  * available.
- * On Guided Tracks the desktop rail lists topics and the pane
- * shows the topic tree until a track is open. Choosing a topic zooms
- * that subtree. Back from a demonstration returns to that track, and
- * Back in the rail returns to the focused topic or the full overview.
- * A phone shows the tree first. On Catalog the desktop rail lists the
+ * On Guided Tracks the desktop rail lists topics. The pane keeps the
+ * short note, the topic tree, and the plates until a demonstration is
+ * open, including while a track's playlist is in the rail. Choosing a
+ * topic zooms that subtree and marks it. An open track marks that
+ * topic and track. Back from a demonstration returns to that track,
+ * and Back in the rail returns to the focused topic or the full overview.
+ * A phone shows the tree in the rail while browsing. With a track open,
+ * the playlist stays in the rail and the pane shows the same note, tree,
+ * and plates. On Catalog the desktop rail lists the
  * curriculum groups, and the pane holds every group's cards. Search
  * covers the whole catalog. Back to browse restores the grid. On a
  * phone the groups and cards are the first screen. Back from a
@@ -634,8 +638,8 @@
             titleNode.textContent = window.ProjectVizCatalog.stageTitle() || "Catalog";
         } else if (titleNode && !open) titleNode.textContent = "Select a demonstration";
         if (empty) {
-            var topicMap = page === "tracks" && !open && tracksBrowsing() && !isPhone();
-            empty.hidden = !!open || (page === "catalog" && catalogBrowsing()) || topicMap;
+            var topicMap = page === "tracks" && !open && tracksShowOrientation();
+            empty.hidden = !!open || page === "tracks" || (page === "catalog" && catalogBrowsing()) || topicMap;
         }
         if (frame) {
             frame.hidden = !open;
@@ -782,22 +786,27 @@
             && !!(window.ProjectVizTracks && window.ProjectVizTracks.browsing && window.ProjectVizTracks.browsing());
     }
 
+    function tracksShowOrientation() {
+        if (page !== "tracks" || currentHref) return false;
+        var overview = document.getElementById("viz-overview");
+        if (!overview || !overview.childNodes.length) return false;
+        /* Browsing on a phone draws the tree in the rail. Leave the pane
+           empty so the same tree is not shown twice. */
+        if (isPhone() && tracksBrowsing()) return false;
+        return true;
+    }
+
     function syncTracksChrome() {
         if (page !== "tracks") return;
         var overview = document.getElementById("viz-overview");
-        var showMap = tracksBrowsing() && !isPhone();
-        if (overview) overview.hidden = !showMap;
-        if (empty) empty.hidden = !!currentHref || showMap;
+        var showMap = tracksShowOrientation();
+        if (overview && currentHref) overview.hidden = true;
+        else if (overview && showMap) overview.hidden = false;
+        if (empty) empty.hidden = true;
         var pane = document.getElementById("viz-pane");
         if (pane) pane.setAttribute("aria-label", showMap ? "Topic overview" : "Demonstration");
         if (currentHref || !titleNode) return;
-        var inTrack = window.ProjectVizTracks && window.ProjectVizTracks.currentId
-            ? window.ProjectVizTracks.currentId()
-            : "";
-        if (inTrack) {
-            titleNode.textContent = "Select a demonstration";
-            if (empty) empty.textContent = "Select a step.";
-        } else if (window.ProjectVizTracks && window.ProjectVizTracks.stageTitle) {
+        if (window.ProjectVizTracks && window.ProjectVizTracks.stageTitle) {
             titleNode.textContent = window.ProjectVizTracks.stageTitle() || "All topics";
         } else {
             titleNode.textContent = "All topics";

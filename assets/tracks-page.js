@@ -1,21 +1,26 @@
 /*
  * Guided Tracks page.
  * Topics come from tracks.json. The desktop rail lists All topics and
- * each topic. The right pane draws one tree. All topics shows Guided
- * Tracks and the topics only: no track children on that overview.
- * Choosing a topic zooms that subtree, and the tracks appear there.
+ * each topic. The pane is the first page: a short note on what Guided
+ * Tracks are, then one tree, with the plates already drawn on that tree.
+ * All topics shows Guided Tracks and the topics only: no track children
+ * on that overview. Choosing a topic zooms that subtree, and the tracks
+ * appear there. The note stays, in Teach and in Learn.
  * Each topic has a small animated plate on that overview, and again
  * above its own tree. Each track on that tree has its own plate,
  * in the same frame. The topic drawings are not reused as track drawings.
- * Choosing a track replaces the rail with the playlist: when a step has
+ * Choosing a track replaces the rail with the playlist. The pane keeps
+ * the note, the tree, and the plates, and marks the open topic and track,
+ * until a demonstration or a connection page is open. When a step has
  * a note, formulae, a demo description, or a figure, its connectionTitle
  * is a link immediately before that demonstration. The link opens
  * tracks/connection.html, which reads the same step from tracks.json.
  * step= is that step's index.
  * Back returns to the focused topic, or to the full overview.
- * A phone shows the tree in the rail first, then the playlist, then the
- * demonstration. Family concept maps stay in families.json and are not
- * mounted here.
+ * A phone shows the tree in the rail while browsing, so the pane does
+ * not draw it again. A track keeps the playlist in the rail and shows
+ * the note, the tree, and the plates in the pane, then the demonstration.
+ * Family concept maps stay in families.json and are not mounted here.
  * The tree paints when tracks.json arrives, even if the shell is late.
  * A hung or failed fetch shows an error and Retry. The shell still
  * attaches navigation when it loads.
@@ -209,6 +214,28 @@
         return null;
     }
 
+    function topicForTrack(track) {
+        var i;
+        var j;
+        if (!track) return null;
+        for (i = 0; i < topics.length; i++) {
+            var children = topics[i].tracks;
+            for (j = 0; j < children.length; j++) {
+                if (children[j].id === track.id) return topics[i];
+            }
+        }
+        return null;
+    }
+
+    function topicOwns(topic, track) {
+        var i;
+        if (!topic || !track) return false;
+        for (i = 0; i < topic.tracks.length; i++) {
+            if (topic.tracks[i].id === track.id) return true;
+        }
+        return false;
+    }
+
     function trackForHref(href) {
         if (typeof href !== "string" || !href) return "";
         var parts = /^tracks\/connection\.html\?track=([a-z][a-z0-9-]*)&step=([0-9]{1,3})$/.exec(href);
@@ -286,11 +313,6 @@
         });
         map.appendChild(list);
         return map;
-    }
-
-    function setLeadVisible(show) {
-        var lead = rail ? rail.querySelector(".page-lead") : null;
-        if (lead) lead.hidden = !show;
     }
 
     function placeBack(show, label) {
@@ -407,7 +429,9 @@
         if (topic) {
             var focused = topicPlate(topic.id);
             if (focused) nav.appendChild(focused);
-            nav.appendChild(el("p", "overview-root is-current", topic.title));
+            var label = el("p", "overview-root is-current", topic.title);
+            label.setAttribute("aria-current", "true");
+            nav.appendChild(label);
             nav.appendChild(trackBranch(topic.tracks));
             return nav;
         }
@@ -434,24 +458,63 @@
         return nav;
     }
 
+    function demoRequested() {
+        return document.body.classList.contains("is-demo-open") || !!requestedParam("demo");
+    }
+
+    function setTrackOpen(open) {
+        document.body.classList.toggle("is-track-open", !!open);
+    }
+
+    function orientationNote() {
+        var note = el("p", "tracks-orientation-note");
+        note.appendChild(document.createTextNode("Guided Tracks are sequences of demonstrations in a topic."));
+        note.appendChild(document.createElement("br"));
+        note.appendChild(document.createTextNode("Each track ends with a self-test."));
+        return note;
+    }
+
+    function markOpenTrack(tree, track) {
+        if (!tree || !track) return;
+        var id = safeSlug(track.id);
+        if (!id) return;
+        var links = tree.querySelectorAll("a.overview-node.is-track");
+        var i;
+        for (i = 0; i < links.length; i++) {
+            if (links[i].getAttribute("data-track") !== id) continue;
+            links[i].classList.add("is-current");
+            links[i].setAttribute("aria-current", "true");
+            return;
+        }
+    }
+
+    function orientation(topic, track) {
+        var wrap = el("div", "tracks-orientation");
+        wrap.appendChild(orientationNote());
+        var tree = buildTree(topic);
+        markOpenTrack(tree, track);
+        wrap.appendChild(tree);
+        return wrap;
+    }
+
     function hideOverview() {
         if (!overview) return;
         overview.hidden = true;
         clear(overview);
     }
 
-    function showOverview(topic) {
+    function showOverview(topic, track) {
         if (!overview) return;
         clear(overview);
-        overview.hidden = document.body.classList.contains("is-demo-open");
-        overview.appendChild(buildTree(topic));
+        overview.hidden = demoRequested();
+        overview.appendChild(orientation(topic, track));
     }
 
     function renderBrowse(missingTrack, missingTopic, topic) {
         clear(root);
         var phone = isPhone();
+        setTrackOpen(false);
         placeBack(phone && !!topic, "Back to all topics");
-        setLeadVisible(true);
         if (missing) {
             missing.hidden = !missingTrack && !missingTopic;
             if (missingTrack) missing.textContent = "That track was not found.";
@@ -466,7 +529,7 @@
             return;
         }
         if (phone) {
-            root.appendChild(buildTree(topic));
+            root.appendChild(orientation(topic, null));
             hideOverview();
             return;
         }
@@ -487,21 +550,22 @@
             ));
         });
         root.appendChild(list);
-        showOverview(topic);
+        showOverview(topic, null);
     }
 
     function renderTrack(track, topic) {
         clear(root);
         currentId = safeSlug(track.id);
         currentTopicId = topic ? topic.id : "";
+        setTrackOpen(true);
         placeBack(true, topic ? "Back to " + topic.title : "Back to all topics");
-        setLeadVisible(false);
         if (missing) missing.hidden = true;
         document.title = track.title + " - Guided Tracks";
-        hideOverview();
         var block = el("div", "track-block");
         block.appendChild(trackPlaylist(track));
         root.appendChild(block);
+        var focus = topicOwns(topic, track) ? topic : topicForTrack(track);
+        showOverview(focus, track);
     }
 
     function focusChoice(id) {
@@ -531,7 +595,10 @@
     }
 
     function stageTitle() {
-        if (currentId) return "Select a demonstration";
+        if (currentId) {
+            var track = findTrack(currentId);
+            if (track) return track.title;
+        }
         if (currentTopicId) {
             var topic = findTopic(currentTopicId);
             if (topic) return topic.title;
@@ -575,6 +642,7 @@
 
     function showLoading() {
         clear(root);
+        setTrackOpen(false);
         hideOverview();
         if (!root) return;
         var status = el("p", "hub-quiet", "Loading tracks…");
@@ -584,6 +652,7 @@
 
     function showError() {
         clear(root);
+        setTrackOpen(false);
         hideOverview();
         if (!root) return;
         root.appendChild(el("p", "hub-quiet", "Guided tracks could not be loaded."));

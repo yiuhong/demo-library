@@ -175,7 +175,7 @@ html.viz-notebook body.viz-app .viz-pane-chrome::before {
     }
 }
 
-/* The stage is a plain white well: the topic tree, “Select a step.”,
+/* The stage is a plain white well: the Guided Tracks note and tree,
  * and the Catalog card grid. Cover the page sheet so no graph paper,
  * margin, or ruler shows in that pane. */
 
