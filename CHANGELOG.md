@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The GitHub README shows the Project Viz wordmark above the title, linked to the library, and adds “Designed for everyone — from absolute beginners and high school students to undergraduates, postgraduates, and researchers.” under the tagline. The Coverage card on the homepage reads “The demonstrations cover content from introductory to advanced topics in statistics. Designed for everyone — from absolute beginners and high school students to undergraduates, postgraduates, and researchers.” The heading, the tagline, and the citation version are unchanged.
+
 - The home Features note now reads “Guided Tracks follow a sequence of demonstrations and, in Learn mode, end with a self-test.” The citation version is unchanged.
 
 - Guided Track self-tests, in Learn, open question 1 with “Score 8 or more out of 10 to get a completion card you can download.” The sentence is gone after question 1, including on the score and the review. Try again starts again at question 1, so the sentence shows again. Teach still shows only “Switch to Learn mode for self-test questions.” Shape and pictures uses the same sentence. The questions and the citation version are unchanged.
