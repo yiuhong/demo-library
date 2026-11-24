@@ -37,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- The GitHub README shows the Project Viz wordmark above the title, linked to the library. The homepage lead and the README add “Designed for everyone — from absolute beginners and high school students to undergraduates, postgraduates, and researchers.” under the tagline. The heading, the tagline, and the citation version are unchanged.
+- The GitHub README shows the Project Viz wordmark above the title, linked to the library, and adds “Designed for everyone — from absolute beginners and high school students to undergraduates, postgraduates, and researchers.” under the tagline. The Coverage card on the homepage reads “The demonstrations cover content from introductory to advanced topics in statistics. Designed for everyone — from absolute beginners and high school students to undergraduates, postgraduates, and researchers.” The heading, the tagline, and the citation version are unchanged.
 
 - The home Features note now reads “Guided Tracks follow a sequence of demonstrations and, in Learn mode, end with a self-test.” The citation version is unchanged.
 
