@@ -1,4 +1,4 @@
-<p><a href="https://yiuhong.github.io/demo-library/"><img src="images/project-viz-wordmark.svg" alt="Project Viz" width="440"></a></p>
+<p><a href="https://yiuhong.github.io/demo-library/"><img src="images/project-viz-wordmark.svg#gh-light-mode-only" alt="Project Viz" width="440"><img src="images/project-viz-wordmark-dark.svg#gh-dark-mode-only" alt="Project Viz" width="440"></a></p>
 
 # Project Viz
 
