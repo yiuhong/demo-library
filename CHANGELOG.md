@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Chapter 1, Describing data, has a draft book preview at [`book/chapter-1.html`](book/chapter-1.html). The page is the 25 November 2026 narrative for Volume 1: learning goals, the three sub-paths (Center and spread, Shape and pictures, and Same summaries, different graphs), and the chapter wrap. Each of the nine demonstrations shows its Guided Tracks still until a tap or click loads that same demonstration in the frame. A wide window pages one text leaf beside the still. A phone stacks the text and then the still. Self-tests link to the existing review pages and are not copied onto the chapter. The page is not linked from Home. The citation version is unchanged.
+
 - The GitHub README wordmark stays readable in dark mode. `images/project-viz-wordmark-dark.svg` is the same mark with white ink on a transparent background. The README shows the black mark in the light theme and the light-ink mark in the dark theme. The homepage still uses the black mark. The citation version is unchanged.
 
 - The GitHub README shows the Project Viz wordmark above the title, linked to the library, and adds “Designed for everyone — from absolute beginners and high school students to undergraduates, postgraduates, and researchers.” under the tagline. The Coverage card on the homepage reads “The demonstrations cover content from introductory to advanced topics in statistics. Designed for everyone — from absolute beginners and high school students to undergraduates, postgraduates, and researchers.” The heading, the tagline, and the citation version are unchanged.
