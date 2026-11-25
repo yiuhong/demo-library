@@ -10,10 +10,25 @@
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
     <script>
         (function () {
-            var demo = "";
+            var params;
             try {
-                demo = (new URLSearchParams(window.location.search).get("demo") || "").trim();
-            } catch (err) {}
+                params = new URLSearchParams(window.location.search);
+            } catch (err) {
+                params = new URLSearchParams();
+            }
+            var topic = (params.get("topic") || "").trim();
+            var track = (params.get("track") || "").trim();
+            var bookSections = {
+                "center-and-spread": true,
+                "shape-and-pictures": true,
+                "same-summaries-different-graphs": true
+            };
+            if (topic === "describing-data" || bookSections[track]) {
+                var section = bookSections[track] ? track : "describing-data";
+                window.location.replace("book/chapter-1.html#" + section);
+                return;
+            }
+            var demo = (params.get("demo") || "").trim();
             if (!demo || demo.length > 300 || /[\s\\]/.test(demo)) return;
             if (/^[a-z][a-z0-9+.-]*:/i.test(demo) || demo.indexOf("..") !== -1 || demo.charAt(0) === "/") return;
             if (!/^[a-z0-9_./-]+\.html$/i.test(demo)) return;

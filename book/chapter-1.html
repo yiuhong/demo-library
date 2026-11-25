@@ -4,18 +4,33 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <title>Chapter 1 – Describing data (draft) - Project Viz</title>
-    <meta name="description" content="Draft preview of Volume 1, Chapter 1, Describing data.">
+    <title>Book mode · Chapter 1 – Describing data (draft) - Project Viz</title>
+    <meta name="description" content="Draft Book mode preview of Volume 1, Chapter 1, Describing data.">
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../assets/foundation.css">
     <link rel="stylesheet" href="../assets/library-nav.css">
     <link rel="stylesheet" href="../assets/shell.css">
+    <link rel="stylesheet" href="../assets/teach.css">
+    <link rel="stylesheet" href="../assets/connection-page.css">
     <link rel="stylesheet" href="chapter-1.css">
     <script>
         if (window.matchMedia("(min-width: 960px)").matches) {
             document.documentElement.classList.add("book-paged");
         }
     </script>
+    <script>
+        (function () {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                if (!params.has("teach") && !params.has("learn")) {
+                    params.set("teach", "1");
+                    var next = window.location.pathname + "?" + params.toString() + window.location.hash;
+                    history.replaceState(null, "", next);
+                }
+            } catch (err) {}
+        })();
+    </script>
+    <script src="../assets/teach.js"></script>
 </head>
 <body class="book-page">
     <header class="viz-topbar">
@@ -29,9 +44,10 @@
         </nav>
     </header>
     <p class="book-banner" role="note">Draft preview — not published</p>
-    <main class="book-stage" aria-label="Chapter 1, Describing data">
-<article class="book-spread book-spread--open is-active" id="chapter-opening" data-book-spread>
+    <main class="book-flow" aria-label="Book mode, Chapter 1, Describing data">
+<article class="book-spread book-spread--open is-active" id="describing-data" data-book-spread data-label="Chapter 1">
 <div class="book-leaf book-text">
+<p class="book-mode-name">Book mode</p>
 <h1>Chapter 1 – Describing data (draft)</h1>
 <p class="book-status"><em>Yiu Hong Ko · Volume 1 draft · living draft aligned with <a href="../index.html">demo-library</a> · as of 25 Nov 2026 HKT · status: Draft for YH review</em></p>
 <h2>Chapter learning goals</h2>
@@ -42,26 +58,32 @@
 <h2>Why describe data first?</h2>
 <p>Before you test a hypothesis or build a model, you need a clear picture of the numbers in front of you. Descriptive summaries answer three everyday questions: <em>Where do the values sit?</em> <em>How spread out are they?</em> <em>What shape do they make?</em> Those answers are not busywork. They decide whether a mean is a fair summary, whether a long tail is pulling the story, whether a few extreme scores deserve a second look, and — by the end of the track — why a matching set of summaries can still hide a different graph.</p>
 <p>In psychology and methods courses, the temptation is to jump straight to testing and inference. Hold off for a moment. A careful description of the sample is the foundation for honest claims later: if the shape is skewed, if outliers crowd one side, or if the sample looks nothing like the reference distribution you assumed, later analyses will be shaky even if the software runs cleanly.</p>
-<p>This chapter follows the live topic Describing data in Project Viz, now organized as three sub-paths: Center and spread, Shape and pictures, and Same summaries, different graphs. Work the demos in order. Each Guided Track now ends with a 10-question Learn-mode self-test (not a catalog item). Each section below has a short Why, concrete Try this moves, a Bridge to the next idea, and a quick Check your understanding. Open the track hub here: <a href="../tracks.html?topic=describing-data">Guided Tracks</a>.</p>
+<p>This chapter follows the live topic Describing data in Project Viz, now organized as three sub-paths: Center and spread, Shape and pictures, and Same summaries, different graphs. Work the demos in order. Each Guided Track now ends with a 10-question Learn-mode self-test (not a catalog item). Each section below has a short Why, concrete Try this moves, a Bridge to the next idea, and a quick Check your understanding. The sections of this chapter are <a href="#center-and-spread">Center and spread</a>, <a href="#shape-and-pictures">Shape and pictures</a>, and <a href="#same-summaries-different-graphs">Same summaries, different graphs</a>.</p>
 </div>
 </article>
 
-<article class="book-spread book-spread--break" id="center-and-spread" data-book-spread data-track="center-and-spread">
+<article class="book-spread book-spread--break" id="center-and-spread" data-book-spread data-label="Center and spread">
 <div class="book-leaf book-text">
 <h2>Center and spread</h2>
 <p>This first sub-path is about where a set of numbers sits and how wide they are: three kinds of average, moments as averages of spread and skew, and why a sample variance divides by n − 1.</p>
 </div>
 </article>
 
-<article class="book-spread book-spread--demo" id="demo-mean-mode-median-dot-plot" data-book-spread data-track="center-and-spread">
+<div class="book-group">
+<article class="book-spread book-spread--text" id="demo-mean-mode-median-dot-plot" data-book-spread data-label="Center and spread" data-demo-slot="statistics/mean_mode_median_dot_plot.html">
 <div class="book-leaf book-text">
 <p class="book-kicker">Center and spread</p>
-<h2>1. Mean, Median, and Mode</h2>
-<p class="book-subhead">Three kinds of average</p>
+<h2>Mean, Median, and Mode</h2>
+<div class="book-connection" data-href="statistics/mean_mode_median_dot_plot.html"></div>
+</div>
+</article>
+<article class="book-spread book-spread--text" id="practice-mean-mode-median-dot-plot" data-book-spread data-label="Center and spread" data-demo-slot="statistics/mean_mode_median_dot_plot.html">
+<div class="book-leaf book-text">
+<p class="book-kicker">Center and spread</p>
+<h2>Mean, Median, and Mode</h2>
 <p><strong>Live demo:</strong> <a href="../statistics/mean_mode_median_dot_plot.html">Mean, Median, and Mode</a></p>
 <h3>Why</h3>
-<p>We often describe data by their averages: numerical summaries that answer where the numbers sit. The <strong>mean</strong>, the <strong>median</strong>, and the <strong>mode</strong> are three such answers. They line up when the numbers are roughly balanced, and they pull apart when the shape is not. Learning to watch them move — not only to compute them — is the first step toward reading a distribution rather than a single number.</p>
-<p>Light formulae from the track: x̄ = (Σ xᵢ) / n; median = middle value after sorting; mode = most frequent value.</p>
+<p>Learning to watch them move — not only to compute them — is the first step toward reading a distribution rather than a single number.</p>
 <h3>Try this</h3>
 <ol><li>Open the demo and notice where the three averages sit on the current dot plot.</li><li>Drag one or two points toward a long right-hand tail. Watch which average moves farthest.</li><li>Pull points back into a tight, roughly symmetric clump. Confirm that mean, median, and mode come close again.</li><li>Ask yourself: if you had to report <em>one</em> center for a skewed sample, which average would you defend — and why?</li></ol>
 <h3>Check your understanding</h3>
@@ -71,26 +93,40 @@
 <p>When mean, median, and mode disagree, center alone is not enough. The next question is what other kinds of average can capture <strong>spread</strong> and <strong>shape</strong>, not only where the pile sits. That leads to moments.</p>
 </div>
 </div>
-<div class="book-leaf book-plate">
-<figure class="book-figure">
-<figcaption>Mean, Median, and Mode</figcaption>
-<button type="button" class="book-wake" data-demo="../statistics/mean_mode_median_dot_plot.html" aria-controls="book-frame-mean-mode-median-dot-plot" aria-pressed="false">
-<img src="../tracks/images/describing-data/01-mean-median-mode.png" alt="Dot plot of a mildly right-skewed sample. A dotted line marks the mode at 5, a dashed line marks the median at 6, and a solid line marks the mean at 6.94, pulled right by the tail.">
-</button>
-<iframe class="book-frame" id="book-frame-mean-mode-median-dot-plot" title="Mean, Median, and Mode" hidden></iframe>
-</figure>
-</div>
 </article>
+<div class="book-demo-slot" data-demo-slot="statistics/mean_mode_median_dot_plot.html">
+<section class="viz-pane" aria-label="Mean, Median, and Mode">
+<div class="viz-pane-chrome">
+<h2>Mean, Median, and Mode</h2>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-fullscreen" aria-pressed="false">Fullscreen</button>
+<button type="button" class="viz-chrome-btn book-exit" hidden>Exit</button>
+</div>
+<div class="viz-pane-stage">
+<iframe title="Mean, Median, and Mode" src="../statistics/mean_mode_median_dot_plot.html?embed=shell&amp;teach=1" allow="fullscreen" allowfullscreen></iframe>
+</div>
+</section>
+</div>
+</div>
 
-<article class="book-spread book-spread--demo" id="demo-moments-as-averages" data-book-spread data-track="center-and-spread">
+<div class="book-group">
+<article class="book-spread book-spread--text" id="demo-moments-as-averages" data-book-spread data-label="Center and spread" data-demo-slot="statistics/moments_as_averages.html">
 <div class="book-leaf book-text">
 <p class="book-kicker">Center and spread</p>
-<h2>2. Moments</h2>
-<p class="book-subhead">Averages of spread and skew</p>
+<h2>Moments</h2>
+<div class="book-connection" data-href="statistics/moments_as_averages.html"></div>
+</div>
+</article>
+<article class="book-spread book-spread--text" id="practice-moments-as-averages" data-book-spread data-label="Center and spread" data-demo-slot="statistics/moments_as_averages.html">
+<div class="book-leaf book-text">
+<p class="book-kicker">Center and spread</p>
+<h2>Moments</h2>
 <p><strong>Live demo:</strong> <a href="../statistics/moments_as_averages.html">Moments</a></p>
 <h3>Why</h3>
-<p>There are different types of averages. In statistics, averages of powers of the values (or of their deviations from the mean) are called <strong>moments</strong>. The mean is the first moment; higher moments give numbers for spread and for skew. Seeing moments as “averages of powers” keeps the idea concrete: you are still summarising the same sample, just asking a richer question of it.</p>
-<p>Light formulae: m₁ = x̄; m₂ = Σ (xᵢ − x̄)² / n; m₃ = Σ (xᵢ − x̄)³ / n.</p>
+<p>In statistics, averages of powers of the values (or of their deviations from the mean) are called <strong>moments</strong>. Seeing moments as “averages of powers” keeps the idea concrete: you are still summarising the same sample, just asking a richer question of it.</p>
 <h3>Try this</h3>
 <ol><li>Start with a small sample and note the first, second, and third moments.</li><li>Move one extreme point farther out. Compare how m₂ (spread) and m₃ (skew-related) respond.</li><li>Notice that these calculations treat the sample mean as if it were already known — a quiet assumption that matters once you estimate variance from the same data.</li></ol>
 <h3>Check your understanding</h3>
@@ -100,26 +136,40 @@
 <p>That last point is easy to miss. When the mean is estimated from the sample itself, the usual average of squared deviations is a little too small. Correcting that bias is Bessel’s correction — next.</p>
 </div>
 </div>
-<div class="book-leaf book-plate">
-<figure class="book-figure">
-<figcaption>Moments</figcaption>
-<button type="button" class="book-wake" data-demo="../statistics/moments_as_averages.html" aria-controls="book-frame-moments-as-averages" aria-pressed="false">
-<img src="../tracks/images/describing-data/02-moments.png" alt="Three panels of one sample, 1, 2, 3, 4, 5, 9. The first marks the mean at 4. The second shows squared deviations from that mean, which average to 6.67. The third shows cubed deviations, where the value 9 produces a cube of 125 and the average is 15.">
-</button>
-<iframe class="book-frame" id="book-frame-moments-as-averages" title="Moments" hidden></iframe>
-</figure>
-</div>
 </article>
+<div class="book-demo-slot" data-demo-slot="statistics/moments_as_averages.html">
+<section class="viz-pane" aria-label="Moments">
+<div class="viz-pane-chrome">
+<h2>Moments</h2>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-fullscreen" aria-pressed="false">Fullscreen</button>
+<button type="button" class="viz-chrome-btn book-exit" hidden>Exit</button>
+</div>
+<div class="viz-pane-stage">
+<iframe title="Moments" src="../statistics/moments_as_averages.html?embed=shell&amp;teach=1" allow="fullscreen" allowfullscreen></iframe>
+</div>
+</section>
+</div>
+</div>
 
-<article class="book-spread book-spread--demo" id="demo-bessels-correction-simulation" data-book-spread data-track="center-and-spread">
+<div class="book-group">
+<article class="book-spread book-spread--text" id="demo-bessels-correction-simulation" data-book-spread data-label="Center and spread" data-demo-slot="statistics/bessels_correction_simulation.html">
 <div class="book-leaf book-text">
 <p class="book-kicker">Center and spread</p>
-<h2>3. Bessel&#x27;s Correction</h2>
-<p class="book-subhead">Why divide by n − 1</p>
+<h2>Bessel&#x27;s Correction</h2>
+<div class="book-connection" data-href="statistics/bessels_correction_simulation.html"></div>
+</div>
+</article>
+<article class="book-spread book-spread--text" id="practice-bessels-correction-simulation" data-book-spread data-label="Center and spread" data-demo-slot="statistics/bessels_correction_simulation.html">
+<div class="book-leaf book-text">
+<p class="book-kicker">Center and spread</p>
+<h2>Bessel&#x27;s Correction</h2>
 <p><strong>Live demo:</strong> <a href="../statistics/bessels_correction_simulation.html">Bessel&#x27;s Correction</a></p>
 <h3>Why</h3>
-<p>When we use the data to estimate how spread out they are, dividing the sum of squared deviations by (n) tends to undershoot the true variance, because the sample mean was taken from those same values. Dividing by (n - 1) instead corrects for that. The demo lets you see the difference across many simulated samples, not just in a formula.</p>
-<p>Light formulae: s² = Σ (xᵢ − x̄)² / (n − 1); s = √(s²).</p>
+<p>Dividing by (n - 1) instead corrects for that. The demo lets you see the difference across many simulated samples, not just in a formula.</p>
 <h3>Try this</h3>
 <ol><li>Run the simulation and compare the average variance estimate when dividing by (n) versus (n - 1).</li><li>Note where each average sits relative to the true variance line.</li><li>Change sample size if the controls allow, and ask whether the gap between the two divisors shrinks as (n) grows.</li></ol>
 <h3>Check your understanding</h3>
@@ -129,39 +179,54 @@
 <p>With a fairer number for spread, you can ask a new question about shape: is the distribution pulled one way rather than balanced? That imbalance is <strong>skew</strong>.</p>
 </div>
 </div>
-<div class="book-leaf book-plate">
-<figure class="book-figure">
-<figcaption>Bessel&#x27;s Correction</figcaption>
-<button type="button" class="book-wake" data-demo="../statistics/bessels_correction_simulation.html" aria-controls="book-frame-bessels-correction-simulation" aria-pressed="false">
-<img src="../tracks/images/describing-data/03-bessels-correction.png" alt="Two bars for the average variance estimate from 8000 samples of size 10, drawn from a population whose variance is 100. Dividing by n averages about 90.2, below the true-variance line. Dividing by n − 1 averages about 100.2, on that line.">
-</button>
-<iframe class="book-frame" id="book-frame-bessels-correction-simulation" title="Bessel&#x27;s Correction" hidden></iframe>
-</figure>
-</div>
 </article>
+<div class="book-demo-slot" data-demo-slot="statistics/bessels_correction_simulation.html">
+<section class="viz-pane" aria-label="Bessel&#x27;s Correction">
+<div class="viz-pane-chrome">
+<h2>Bessel&#x27;s Correction</h2>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-fullscreen" aria-pressed="false">Fullscreen</button>
+<button type="button" class="viz-chrome-btn book-exit" hidden>Exit</button>
+</div>
+<div class="viz-pane-stage">
+<iframe title="Bessel&#x27;s Correction" src="../statistics/bessels_correction_simulation.html?embed=shell&amp;teach=1" allow="fullscreen" allowfullscreen></iframe>
+</div>
+</section>
+</div>
+</div>
 
-<article class="book-spread book-spread--break" id="self-test-center-and-spread" data-book-spread data-track="center-and-spread">
+<article class="book-spread book-spread--solo" id="self-test-center-and-spread" data-book-spread data-label="Center and spread">
 <div class="book-leaf book-text">
+<p class="book-kicker">Center and spread</p>
 <h2><a href="../statistics/center_and_spread_review.html?learn=1">Self-test: Center and spread</a></h2>
 </div>
 </article>
 
-<article class="book-spread book-spread--break" id="shape-and-pictures" data-book-spread data-track="shape-and-pictures">
+<article class="book-spread book-spread--break" id="shape-and-pictures" data-book-spread data-label="Shape and pictures">
 <div class="book-leaf book-text">
 <h2>Shape and pictures</h2>
 <p>The next sub-path turns to shape: a long tail that pulls the averages apart, then pictures of the same pile — histogram and boxplot, fences for unusual points, and a smooth density curve.</p>
 </div>
 </article>
 
-<article class="book-spread book-spread--demo" id="demo-skewed-distribution" data-book-spread data-track="shape-and-pictures">
+<div class="book-group">
+<article class="book-spread book-spread--text" id="demo-skewed-distribution" data-book-spread data-label="Shape and pictures" data-demo-slot="statistics/skewed_distribution.html">
 <div class="book-leaf book-text">
 <p class="book-kicker">Shape and pictures</p>
-<h2>4. Skewed Distribution</h2>
-<p class="book-subhead">When a long tail pulls the mean</p>
+<h2>Skewed Distribution</h2>
+<div class="book-connection" data-href="statistics/skewed_distribution.html"></div>
+</div>
+</article>
+<article class="book-spread book-spread--text" id="practice-skewed-distribution" data-book-spread data-label="Shape and pictures" data-demo-slot="statistics/skewed_distribution.html">
+<div class="book-leaf book-text">
+<p class="book-kicker">Shape and pictures</p>
+<h2>Skewed Distribution</h2>
 <p><strong>Live demo:</strong> <a href="../statistics/skewed_distribution.html">Skewed Distribution</a></p>
 <h3>Why</h3>
-<p>Not every set of numbers is balanced around its center. A long tail on one side pulls the mean toward itself, so mean, median, and mode sit in different places. That imbalance is <strong>skew</strong>. A single skew number is useful, but the same idea is often clearer when you watch the three averages separate as the shape changes.</p>
-<p>Light formulae: skew = (1/n) Σ ((xᵢ − x̄) / σ)³; σ² = Σ (xᵢ − x̄)² / n.</p>
+<p>A single skew number is useful, but the same idea is often clearer when you watch the three averages separate as the shape changes.</p>
 <h3>Try this</h3>
 <ol><li>Drag the skew control from near-symmetric toward a strong right skew. Watch mean, median, and mode separate.</li><li>Flip or reverse toward left skew if available, and confirm the mean moves into the long tail again.</li><li>Pause on a moderately skewed shape and decide which average you would quote in a methods section — and what caveat you would add.</li></ol>
 <h3>Check your understanding</h3>
@@ -171,26 +236,40 @@
 <p>A number for skew is helpful, but the same shape is easier to <em>see</em> in a picture of how values pile up and where the middle of the data sits. Histograms and boxplots are next.</p>
 </div>
 </div>
-<div class="book-leaf book-plate">
-<figure class="book-figure">
-<figcaption>Skewed Distribution</figcaption>
-<button type="button" class="book-wake" data-demo="../statistics/skewed_distribution.html" aria-controls="book-frame-skewed-distribution" aria-pressed="false">
-<img src="../tracks/images/describing-data/04-skew.png" alt="A right-skewed density curve. A dotted line marks the mode at 0.49, a dashed line marks the median at 1.00, and a solid line marks the mean at 1.44, farther into the long tail.">
-</button>
-<iframe class="book-frame" id="book-frame-skewed-distribution" title="Skewed Distribution" hidden></iframe>
-</figure>
-</div>
 </article>
+<div class="book-demo-slot" data-demo-slot="statistics/skewed_distribution.html">
+<section class="viz-pane" aria-label="Skewed Distribution">
+<div class="viz-pane-chrome">
+<h2>Skewed Distribution</h2>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-fullscreen" aria-pressed="false">Fullscreen</button>
+<button type="button" class="viz-chrome-btn book-exit" hidden>Exit</button>
+</div>
+<div class="viz-pane-stage">
+<iframe title="Skewed Distribution" src="../statistics/skewed_distribution.html?embed=shell&amp;teach=1" allow="fullscreen" allowfullscreen></iframe>
+</div>
+</section>
+</div>
+</div>
 
-<article class="book-spread book-spread--demo" id="demo-boxplot-histogram" data-book-spread data-track="shape-and-pictures">
+<div class="book-group">
+<article class="book-spread book-spread--text" id="demo-boxplot-histogram" data-book-spread data-label="Shape and pictures" data-demo-slot="statistics/boxplot_histogram.html">
 <div class="book-leaf book-text">
 <p class="book-kicker">Shape and pictures</p>
-<h2>5. Boxplot and Histogram</h2>
-<p class="book-subhead">The pile beside the box</p>
+<h2>Boxplot and Histogram</h2>
+<div class="book-connection" data-href="statistics/boxplot_histogram.html"></div>
+</div>
+</article>
+<article class="book-spread book-spread--text" id="practice-boxplot-histogram" data-book-spread data-label="Shape and pictures" data-demo-slot="statistics/boxplot_histogram.html">
+<div class="book-leaf book-text">
+<p class="book-kicker">Shape and pictures</p>
+<h2>Boxplot and Histogram</h2>
 <p><strong>Live demo:</strong> <a href="../statistics/boxplot_histogram.html">Boxplot and Histogram</a></p>
 <h3>Why</h3>
-<p>Numbers for center, spread, and skew summarise a shape; <strong>pictures</strong> show that shape directly. A histogram shows how values pile up across bins. A boxplot packs the center and spread of the same data into a box and whiskers (quartiles and the range of typical values). Reading both together on one sample trains you to match a pile of bars to a five-number story.</p>
-<p>Light formulae: Q₁, Q₂ (median), Q₃; IQR = Q₃ − Q₁.</p>
+<p>Numbers for center, spread, and skew summarise a shape; <strong>pictures</strong> show that shape directly. Reading both together on one sample trains you to match a pile of bars to a five-number story.</p>
 <h3>Try this</h3>
 <ol><li>Look at the histogram first: where is the tallest bar, and is there a visible tail?</li><li>Match that picture to the boxplot: locate the median line and the box edges (Q₁, Q₃).</li><li>Trace the whiskers and ask how they relate to the outer values in the histogram.</li><li>Mentally sketch what would change if a few extreme scores appeared on one side.</li></ol>
 <h3>Check your understanding</h3>
@@ -200,26 +279,40 @@
 <p>Reading both displays together also raises a sharper question: how far can a point sit before it looks <em>unusual</em> against the middle of the data? That is the job of fences and outlier rules.</p>
 </div>
 </div>
-<div class="book-leaf book-plate">
-<figure class="book-figure">
-<figcaption>Boxplot and Histogram</figcaption>
-<button type="button" class="book-wake" data-demo="../statistics/boxplot_histogram.html" aria-controls="book-frame-boxplot-histogram" aria-pressed="false">
-<img src="../tracks/images/describing-data/05-boxplot-histogram.png" alt="Histogram and boxplot of the same 44 values. The tallest bar is at 5. Dashed lines mark the first quartile at 5, the median at 6, and the third quartile at 8. Whiskers run from 3 to 12.">
-</button>
-<iframe class="book-frame" id="book-frame-boxplot-histogram" title="Boxplot and Histogram" hidden></iframe>
-</figure>
-</div>
 </article>
+<div class="book-demo-slot" data-demo-slot="statistics/boxplot_histogram.html">
+<section class="viz-pane" aria-label="Boxplot and Histogram">
+<div class="viz-pane-chrome">
+<h2>Boxplot and Histogram</h2>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-fullscreen" aria-pressed="false">Fullscreen</button>
+<button type="button" class="viz-chrome-btn book-exit" hidden>Exit</button>
+</div>
+<div class="viz-pane-stage">
+<iframe title="Boxplot and Histogram" src="../statistics/boxplot_histogram.html?embed=shell&amp;teach=1" allow="fullscreen" allowfullscreen></iframe>
+</div>
+</section>
+</div>
+</div>
 
-<article class="book-spread book-spread--demo" id="demo-boxplot-outliers" data-book-spread data-track="shape-and-pictures">
+<div class="book-group">
+<article class="book-spread book-spread--text" id="demo-boxplot-outliers" data-book-spread data-label="Shape and pictures" data-demo-slot="statistics/boxplot_outliers.html">
 <div class="book-leaf book-text">
 <p class="book-kicker">Shape and pictures</p>
-<h2>6. Boxplot and Outliers</h2>
-<p class="book-subhead">Points past the fence</p>
+<h2>Boxplot and Outliers</h2>
+<div class="book-connection" data-href="statistics/boxplot_outliers.html"></div>
+</div>
+</article>
+<article class="book-spread book-spread--text" id="practice-boxplot-outliers" data-book-spread data-label="Shape and pictures" data-demo-slot="statistics/boxplot_outliers.html">
+<div class="book-leaf book-text">
+<p class="book-kicker">Shape and pictures</p>
+<h2>Boxplot and Outliers</h2>
 <p><strong>Live demo:</strong> <a href="../statistics/boxplot_outliers.html">Boxplot and Outliers</a></p>
 <h3>Why</h3>
-<p>Once you can see the middle of the data in a boxplot, the next question is which points sit so far out that they count as unusual. <strong>Tukey fences</strong> mark how far a point can sit from the quartiles before it counts as an outlier: typically 1.5 × IQR beyond Q₁ or Q₃. The whiskers stop at the farthest non-outlier; points beyond the fences are flagged.</p>
-<p>Light formulae: lower fence = Q₁ − 1.5 × IQR; upper fence = Q₃ + 1.5 × IQR.</p>
+<p>The whiskers stop at the farthest non-outlier; points beyond the fences are flagged.</p>
 <h3>Try this</h3>
 <ol><li>Identify Q₁, the median, Q₃, and the dashed fence lines on the plot.</li><li>Add or move an extreme point and watch whether it falls outside the fences.</li><li>Notice that a point can sit past the whisker tip and still be inside — or outside — the fence rule, depending on the sample.</li><li>Ask: would you drop that point, winsorise it, or keep it and discuss it? (The demo shows the flag; your methods section decides the policy.)</li></ol>
 <h3>Check your understanding</h3>
@@ -229,26 +322,40 @@
 <p>The histogram’s bars still depend on where the bin edges fall. A smooth curve can follow the same pile without those cuts. That smooth picture is the kernel density estimate.</p>
 </div>
 </div>
-<div class="book-leaf book-plate">
-<figure class="book-figure">
-<figcaption>Boxplot and Outliers</figcaption>
-<button type="button" class="book-wake" data-demo="../statistics/boxplot_outliers.html" aria-controls="book-frame-boxplot-outliers" aria-pressed="false">
-<img src="../tracks/images/describing-data/06-boxplot-fences.png" alt="Vertical boxplot for one sample. The box runs from the first quartile at 20 to the third quartile at 40, with the median at 30. Dashed Tukey fences sit at −10 and 70. The upper whisker stops at 44, inside the fence, and a point at 80 is marked as an outlier.">
-</button>
-<iframe class="book-frame" id="book-frame-boxplot-outliers" title="Boxplot and Outliers" hidden></iframe>
-</figure>
-</div>
 </article>
+<div class="book-demo-slot" data-demo-slot="statistics/boxplot_outliers.html">
+<section class="viz-pane" aria-label="Boxplot and Outliers">
+<div class="viz-pane-chrome">
+<h2>Boxplot and Outliers</h2>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-fullscreen" aria-pressed="false">Fullscreen</button>
+<button type="button" class="viz-chrome-btn book-exit" hidden>Exit</button>
+</div>
+<div class="viz-pane-stage">
+<iframe title="Boxplot and Outliers" src="../statistics/boxplot_outliers.html?embed=shell&amp;teach=1" allow="fullscreen" allowfullscreen></iframe>
+</div>
+</section>
+</div>
+</div>
 
-<article class="book-spread book-spread--demo" id="demo-kde-plots" data-book-spread data-track="shape-and-pictures">
+<div class="book-group">
+<article class="book-spread book-spread--text" id="demo-kde-plots" data-book-spread data-label="Shape and pictures" data-demo-slot="statistics/kde_plots.html">
 <div class="book-leaf book-text">
 <p class="book-kicker">Shape and pictures</p>
-<h2>7. Kernel Density Estimate (KDE)</h2>
-<p class="book-subhead">A smooth curve, not bin edges</p>
+<h2>Kernel Density Estimate (KDE)</h2>
+<div class="book-connection" data-href="statistics/kde_plots.html"></div>
+</div>
+</article>
+<article class="book-spread book-spread--text" id="practice-kde-plots" data-book-spread data-label="Shape and pictures" data-demo-slot="statistics/kde_plots.html">
+<div class="book-leaf book-text">
+<p class="book-kicker">Shape and pictures</p>
+<h2>Kernel Density Estimate (KDE)</h2>
 <p><strong>Live demo:</strong> <a href="../statistics/kde_plots.html">Kernel Density Estimate (KDE)</a></p>
 <h3>Why</h3>
-<p>A histogram’s bars move when the bin edges move, even though the numbers have not. A <strong>kernel density estimate</strong> places a small kernel on each point and adds those kernels, so the same pile becomes a smooth curve. The <strong>bandwidth</strong> (h) is how wide each kernel is: a narrow kernel keeps the spikes; a wide one flattens them. The same smooth curve underlies violin plots, and a half of it is the cloud in a raincloud plot — so once you can read a KDE, those modern displays feel less mysterious.</p>
-<p>Light formulae: f̂(x) = (1/(n h)) Σ K((x − xᵢ) / h); h = bandwidth.</p>
+<p>The same smooth curve underlies violin plots, and a half of it is the cloud in a raincloud plot — so once you can read a KDE, those modern displays feel less mysterious.</p>
 <h3>Try this</h3>
 <ol><li>Compare the histogram and the smooth KDE on the same sample. Where do they agree?</li><li>Change the bandwidth: try a narrow h (spiky) and a wide h (over-smoothed). Find a middle setting that still shows the main peak without inventing noise.</li><li>If kernel shape options appear (Gaussian, Epanechnikov, boxcar), switch among them and notice that bandwidth usually matters more than the exact kernel for a first look.</li><li>Mentally link the curve to a violin or raincloud: same density idea, different packaging beside a box.</li></ol>
 <h3>Check your understanding</h3>
@@ -258,39 +365,54 @@
 <p>Outliers are one kind of mismatch with a simple shape. Another is whether the <em>whole</em> set of numbers matches a reference distribution — often the normal. Q–Q plots make that comparison visual.</p>
 </div>
 </div>
-<div class="book-leaf book-plate">
-<figure class="book-figure">
-<figcaption>Kernel Density Estimate (KDE)</figcaption>
-<button type="button" class="book-wake" data-demo="../statistics/kde_plots.html" aria-controls="book-frame-kde-plots" aria-pressed="false">
-<img src="../tracks/images/describing-data/07-kernel-density.png" alt="Histogram and Gaussian kernel density of the same 44 values as the boxplot figure. Bars are one unit wide and the tallest is at 5. The smooth curve peaks near 5.4. The bandwidth is h = 0.95.">
-</button>
-<iframe class="book-frame" id="book-frame-kde-plots" title="Kernel Density Estimate (KDE)" hidden></iframe>
-</figure>
-</div>
 </article>
+<div class="book-demo-slot" data-demo-slot="statistics/kde_plots.html">
+<section class="viz-pane" aria-label="Kernel Density Estimate (KDE)">
+<div class="viz-pane-chrome">
+<h2>Kernel Density Estimate (KDE)</h2>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-fullscreen" aria-pressed="false">Fullscreen</button>
+<button type="button" class="viz-chrome-btn book-exit" hidden>Exit</button>
+</div>
+<div class="viz-pane-stage">
+<iframe title="Kernel Density Estimate (KDE)" src="../statistics/kde_plots.html?embed=shell&amp;teach=1" allow="fullscreen" allowfullscreen></iframe>
+</div>
+</section>
+</div>
+</div>
 
-<article class="book-spread book-spread--break" id="self-test-shape-and-pictures" data-book-spread data-track="shape-and-pictures">
+<article class="book-spread book-spread--solo" id="self-test-shape-and-pictures" data-book-spread data-label="Shape and pictures">
 <div class="book-leaf book-text">
+<p class="book-kicker">Shape and pictures</p>
 <h2><a href="../statistics/shape_and_pictures_review.html?learn=1">Self-test: Shape and pictures</a></h2>
 </div>
 </article>
 
-<article class="book-spread book-spread--break" id="same-summaries-different-graphs" data-book-spread data-track="same-summaries-different-graphs">
+<article class="book-spread book-spread--break" id="same-summaries-different-graphs" data-book-spread data-label="Same summaries, different graphs">
 <div class="book-leaf book-text">
 <h2>Same summaries, different graphs</h2>
 <p>The last sub-path asks when a description still misleads: a Q–Q plot compares the sample with a reference curve, and Anscombe / Datasaurus show why matching summaries can hide very different graphs.</p>
 </div>
 </article>
 
-<article class="book-spread book-spread--demo" id="demo-q-q-plot" data-book-spread data-track="same-summaries-different-graphs">
+<div class="book-group">
+<article class="book-spread book-spread--text" id="demo-q-q-plot" data-book-spread data-label="Same summaries, different graphs" data-demo-slot="statistics/q_q_plot.html">
 <div class="book-leaf book-text">
 <p class="book-kicker">Same summaries, different graphs</p>
-<h2>8. Q–Q Plot</h2>
-<p class="book-subhead">The sample against a reference curve</p>
+<h2>Q–Q Plot</h2>
+<div class="book-connection" data-href="statistics/q_q_plot.html"></div>
+</div>
+</article>
+<article class="book-spread book-spread--text" id="practice-q-q-plot" data-book-spread data-label="Same summaries, different graphs" data-demo-slot="statistics/q_q_plot.html">
+<div class="book-leaf book-text">
+<p class="book-kicker">Same summaries, different graphs</p>
+<h2>Q–Q Plot</h2>
 <p><strong>Live demo:</strong> <a href="../statistics/q_q_plot.html">Q–Q Plot</a></p>
 <h3>Why</h3>
-<p>A few extreme points are one way a set of numbers can look unusual; another is that the overall shape does not match a familiar reference curve. A <strong>Q–Q plot</strong> lines the sample’s quantiles up against a reference distribution, often the normal. Points near a straight line suggest a good match; a systematic curve away from the line means the sample’s shape and the reference shape differ. It is a last check on whether the description you built fits a familiar model.</p>
-<p>Light formula idea: plot (theoretical quantile, sample quantile) for each order statistic.</p>
+<p>Points near a straight line suggest a good match; a systematic curve away from the line means the sample’s shape and the reference shape differ. It is a last check on whether the description you built fits a familiar model.</p>
 <h3>Try this</h3>
 <ol><li>Open the demo and compare sample quantiles to the reference line.</li><li>Note where points sit in the middle versus the tails — tails often peel away first.</li><li>Ask what a banana-shaped departure (or an S-curve) would imply about skew or heavy tails relative to the reference.</li><li>Tie it back: if the Q–Q plot looks poor, revisit skew, outliers, and whether a mean-based summary is still your best friend.</li></ol>
 <h3>Check your understanding</h3>
@@ -300,26 +422,40 @@
 <p>Matching a reference shape is one check. Another is whether summaries of center, spread, and association can still hide very different graphs. Anscombe’s quartet and the Datasaurus dozen make that limitation vivid — next.</p>
 </div>
 </div>
-<div class="book-leaf book-plate">
-<figure class="book-figure">
-<figcaption>Q–Q Plot</figcaption>
-<button type="button" class="book-wake" data-demo="../statistics/q_q_plot.html" aria-controls="book-frame-q-q-plot" aria-pressed="false">
-<img src="../tracks/images/describing-data/08-qq-plot.png" alt="Q–Q plot of one sample of 40 standard normal draws. Ordered sample quantiles are plotted against normal theoretical quantiles and lie close to a straight reference line.">
-</button>
-<iframe class="book-frame" id="book-frame-q-q-plot" title="Q–Q Plot" hidden></iframe>
-</figure>
-</div>
 </article>
+<div class="book-demo-slot" data-demo-slot="statistics/q_q_plot.html">
+<section class="viz-pane" aria-label="Q–Q Plot">
+<div class="viz-pane-chrome">
+<h2>Q–Q Plot</h2>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-fullscreen" aria-pressed="false">Fullscreen</button>
+<button type="button" class="viz-chrome-btn book-exit" hidden>Exit</button>
+</div>
+<div class="viz-pane-stage">
+<iframe title="Q–Q Plot" src="../statistics/q_q_plot.html?embed=shell&amp;teach=1" allow="fullscreen" allowfullscreen></iframe>
+</div>
+</section>
+</div>
+</div>
 
-<article class="book-spread book-spread--demo" id="demo-limitations-of-summary-statistics" data-book-spread data-track="same-summaries-different-graphs">
+<div class="book-group">
+<article class="book-spread book-spread--text" id="demo-limitations-of-summary-statistics" data-book-spread data-label="Same summaries, different graphs" data-demo-slot="statistics/limitations_of_summary_statistics.html">
 <div class="book-leaf book-text">
 <p class="book-kicker">Same summaries, different graphs</p>
-<h2>9. Limitations of summary statistics</h2>
-<p class="book-subhead">Same summaries, different pictures</p>
+<h2>Limitations of summary statistics</h2>
+<div class="book-connection" data-href="statistics/limitations_of_summary_statistics.html"></div>
+</div>
+</article>
+<article class="book-spread book-spread--text" id="practice-limitations-of-summary-statistics" data-book-spread data-label="Same summaries, different graphs" data-demo-slot="statistics/limitations_of_summary_statistics.html">
+<div class="book-leaf book-text">
+<p class="book-kicker">Same summaries, different graphs</p>
+<h2>Limitations of summary statistics</h2>
 <p><strong>Live demo:</strong> <a href="../statistics/limitations_of_summary_statistics.html">Limitations of summary statistics</a></p>
 <h3>Why</h3>
-<p>A Q–Q plot can show that a sample’s shape and a reference shape differ. Summaries of center, spread, and correlation can still agree while the pictures do not. <strong>Anscombe’s quartet</strong> and the <strong>Datasaurus dozen</strong> keep the means, the standard deviations, and r fixed, and the graph changes from a line to a curve, a stack, a star, or a dinosaur. Switch shapes and those summaries stay put. Drag a point and they move. Re-lock them and the strange picture can return with the same numbers. When the averages match, the graph is still part of the description.</p>
-<p>Light formula idea: same x̄, sₓ, ȳ, sᵧ, and r across shapes.</p>
+<p>Switch shapes and those summaries stay put. Drag a point and they move. Re-lock them and the strange picture can return with the same numbers.</p>
 <h3>Try this</h3>
 <ol><li>Open the demo and switch among Anscombe panels or Datasaurus shapes. Confirm the shared summaries while the scatter changes.</li><li>Drag a point and watch the means, SDs, and correlation move.</li><li>Re-lock the summaries if the controls allow, and see whether a strange picture can return with the same numbers.</li><li>Ask: if a paper reported only those summaries, what would a reader miss about the relationship?</li></ol>
 <h3>Check your understanding</h3>
@@ -329,24 +465,33 @@
 <p>You now have a toolkit for describing a sample — centers, moments and corrected spread, skew, pictures (histogram, boxplot, KDE), outlier fences, a check against a reference shape, and a closing reminder that matching summaries are not the same as matching graphs. Chapter 2 turns from description toward probability and sampling — how samples behave when you draw them again and again.</p>
 </div>
 </div>
-<div class="book-leaf book-plate">
-<figure class="book-figure">
-<figcaption>Limitations of summary statistics</figcaption>
-<button type="button" class="book-wake" data-demo="../statistics/limitations_of_summary_statistics.html" aria-controls="book-frame-limitations-of-summary-statistics" aria-pressed="false">
-<img src="../tracks/images/describing-data/09-same-stats-different-graphs.png" alt="Four scatter plots of Anscombe’s quartet. Panel I is a noisy line, II a curve, III a line with one high point, and IV a vertical stack with one point far to the right. The same dashed regression line is drawn on each panel. Every panel has mean x 9.00, mean y 7.50, standard deviations 3.32 and 2.03, and correlation 0.82.">
-</button>
-<iframe class="book-frame" id="book-frame-limitations-of-summary-statistics" title="Limitations of summary statistics" hidden></iframe>
-</figure>
-</div>
 </article>
+<div class="book-demo-slot" data-demo-slot="statistics/limitations_of_summary_statistics.html">
+<section class="viz-pane" aria-label="Limitations of summary statistics">
+<div class="viz-pane-chrome">
+<h2>Limitations of summary statistics</h2>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-fullscreen" aria-pressed="false">Fullscreen</button>
+<button type="button" class="viz-chrome-btn book-exit" hidden>Exit</button>
+</div>
+<div class="viz-pane-stage">
+<iframe title="Limitations of summary statistics" src="../statistics/limitations_of_summary_statistics.html?embed=shell&amp;teach=1" allow="fullscreen" allowfullscreen></iframe>
+</div>
+</section>
+</div>
+</div>
 
-<article class="book-spread book-spread--break" id="self-test-same-summaries-different-graphs" data-book-spread data-track="same-summaries-different-graphs">
+<article class="book-spread book-spread--solo" id="self-test-same-summaries-different-graphs" data-book-spread data-label="Same summaries, different graphs">
 <div class="book-leaf book-text">
+<p class="book-kicker">Same summaries, different graphs</p>
 <h2><a href="../statistics/same_summaries_different_graphs_review.html?learn=1">Self-test: Same summaries, different graphs</a></h2>
 </div>
 </article>
 
-<article class="book-spread book-spread--break" id="chapter-wrap" data-book-spread>
+<article class="book-spread book-spread--solo" id="chapter-wrap" data-book-spread data-label="Chapter 1">
 <div class="book-leaf book-text">
 <h2>Chapter wrap</h2>
 <p>You can now look at a dataset and say more than “the average is…”. You can choose among mean, median, and mode; connect higher moments and Bessel’s correction to a fairer sense of spread; name skew when the three averages separate; and read that shape in a histogram, boxplot, KDE, and Q–Q plot, including Tukey fences for unusual points. You also know why matching means, SDs, and correlation (Anscombe / Datasaurus) are not enough without the graph. That descriptive fluency is what honest inference needs next.</p>
@@ -355,9 +500,9 @@
 </article>
     </main>
     <nav class="book-pager" aria-label="Pages">
-        <button type="button" id="book-prev">Previous</button>
+        <button type="button" class="viz-chrome-btn" id="book-prev">Previous</button>
         <p class="book-position" id="book-position"></p>
-        <button type="button" id="book-next">Next</button>
+        <button type="button" class="viz-chrome-btn" id="book-next">Next</button>
     </nav>
     <script src="chapter-1.js"></script>
 </body>
