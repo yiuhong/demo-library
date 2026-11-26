@@ -223,9 +223,44 @@ button.book-menu-toggle {
     border-top: 1px solid #000000;
 }
 
-.book-selftest {
+a.book-selftest {
+    -webkit-appearance: none;
+    appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 44px;
     margin: 1.6rem 0 0;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid #000000;
+    border-radius: 0;
+    background: #ffffff;
+    color: #000000;
     font-weight: bold;
+    line-height: 1.3;
+    text-decoration: none;
+    scroll-margin-top: 4.5rem;
+    touch-action: manipulation;
+}
+
+.book-page a.book-selftest:hover,
+.book-page a.book-selftest:focus,
+.book-page a.book-selftest:focus-visible {
+    color: #000000;
+    border: 1px solid #000000;
+    text-decoration: none;
+}
+
+a.book-selftest:focus {
+    outline: none;
+}
+
+a.book-selftest:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
 }
 
 .book-figure {
