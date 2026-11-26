@@ -18,14 +18,31 @@
             }
             var topic = (params.get("topic") || "").trim();
             var track = (params.get("track") || "").trim();
-            var bookSections = {
-                "center-and-spread": true,
-                "shape-and-pictures": true,
-                "same-summaries-different-graphs": true
+            var bookChapters = {
+                "describing-data": "book/chapter-1.html",
+                "probability-and-sampling": "book/chapter-2.html",
+                "comparing-means": "book/chapter-3.html",
+                "association": "book/chapter-4.html"
             };
-            if (topic === "describing-data" || bookSections[track]) {
-                var section = bookSections[track] ? track : "describing-data";
-                window.location.replace("book/chapter-1.html#" + section);
+            var bookSections = {
+                "center-and-spread": "book/chapter-1.html",
+                "shape-and-pictures": "book/chapter-1.html",
+                "same-summaries-different-graphs": "book/chapter-1.html",
+                "from-process-to-distribution": "book/chapter-2.html",
+                "counts-arrivals-and-the-board": "book/chapter-2.html",
+                "sampling-distributions-and-intervals": "book/chapter-2.html",
+                "from-chi-square-to-goodness-of-fit": "book/chapter-2.html",
+                "t-test": "book/chapter-3.html",
+                "statistical-power": "book/chapter-3.html",
+                "anova": "book/chapter-3.html",
+                "association": "book/chapter-4.html"
+            };
+            if (bookSections[track]) {
+                window.location.replace(bookSections[track] + "#" + track);
+                return;
+            }
+            if (bookChapters[topic]) {
+                window.location.replace(bookChapters[topic] + "#" + topic);
                 return;
             }
             var demo = (params.get("demo") || "").trim();

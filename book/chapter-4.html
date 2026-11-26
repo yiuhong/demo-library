@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Book view · Chapter 4 – Association (draft) - Project Viz</title>
+    <meta name="description" content="Draft preview of Book view for Volume 1, Chapter 4, Association. Not published.">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/foundation.css">
+    <link rel="stylesheet" href="../assets/library-nav.css">
+    <link rel="stylesheet" href="../assets/shell.css">
+    <link rel="stylesheet" href="../assets/teach.css">
+    <link rel="stylesheet" href="../assets/connection-page.css">
+    <link rel="stylesheet" href="book.css">
+    <script>
+        (function () {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                if (!params.has("teach") && !params.has("learn")) {
+                    params.set("teach", "1");
+                    history.replaceState(null, "", window.location.pathname + "?" + params.toString() + window.location.hash);
+                }
+            } catch (err) {}
+        })();
+    </script>
+    <script src="../assets/teach.js"></script>
+</head>
+<body class="book-page">
+    <header class="viz-topbar">
+        <nav aria-label="Library">
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../catalog.html">Catalog</a></li>
+                <li><a href="../tracks.html">Book view</a></li>
+                <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="book-shell">
+<nav class="book-menu" aria-label="Chapter sections">
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide sections"><span class="book-menu-arrow" aria-hidden="true"></span></button>
+<div id="book-menu-panel">
+<p class="book-menu-chapter"><a href="#association">Chapter 4 · Association (draft)</a></p>
+<a class="book-section-link" href="#association">Association</a>
+<ul>
+<li><a class="book-demo-link" href="#demo-covariance-and-correlation">Covariance and Correlation</a></li>
+<li><a class="book-demo-link" href="#demo-ols-simple-linear-regression">Ordinary Least Squares (OLS)</a></li>
+<li><a class="book-demo-link" href="#demo-multiple-regression-sst-ssm-sse">Multiple Regression</a></li>
+<li><a class="book-demo-link" href="#demo-multiple-regression-anova-equivalence">Multiple Regression and ANOVA Equivalence</a></li>
+<li><a class="book-demo-link" href="#demo-variance-explained">Variance Explained</a></li>
+<li><a class="book-demo-link" href="#demo-additivity-of-variance">Additivity of Variance &amp; SS</a></li>
+<li><a class="book-selftest-link" href="#self-test-association"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Association</a></li>
+</ul>
+</div>
+</nav>
+<script>
+    (function () {
+        var menu = document.querySelector(".book-menu");
+        var button = document.getElementById("book-menu-toggle");
+        var open = window.matchMedia("(min-width: 960px)").matches;
+        if (!menu || !button) return;
+        menu.classList.toggle("is-collapsed", !open);
+        var shell = document.querySelector(".book-shell");
+        if (shell) shell.classList.toggle("is-menu-collapsed", !open);
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+        button.setAttribute("aria-label", open ? "Hide sections" : "Show sections");
+    })();
+</script>
+    <article class="book-doc" aria-label="Book view, Chapter 4, Association, draft">
+<p class="book-draft-banner" role="status">Draft preview — not published</p>
+<section class="book-section" id="association" data-book-section>
+<h1>Chapter 4 – Association (draft)</h1>
+<p class="book-status"><em>Yiu Hong Ko · Volume 1 · aligned with <a href="../index.html">demo-library</a> · draft preview</em></p>
+<p>This chapter follows the live topic Association in Project Viz. The section of this chapter is <a href="#association">Association</a>.</p>
+<h2>Association</h2>
+<p>This path is for how variables move together, from shared movement to the straight line that minimizes squared error, then to the plane that splits the same total into model and error. Coding a predictor as 0 or 1 turns that same linear model into an analysis of covariance, a 2×2 ANOVA, or a one-way ANOVA. The path then turns a correlation into a share of variance. By the end, sum of squares is the same idea as variance, and positive correlation widens a sum and narrows a difference. A short review then asks ten questions on that shared movement. The track ends after the review.</p>
+<section class="book-demo" id="demo-covariance-and-correlation" data-book-section>
+<h3>Covariance and Correlation</h3>
+<p class="book-subhead">Shared movement on a common scale</p>
+<p class="book-label">Why</p>
+<p>When two variables are measured together, a natural question is whether they tend to move in the same direction. Covariance records that shared movement in the units of both variables; dividing by the two standard deviations turns the record into a correlation on a scale from negative one to one. The size of that correlation also has a meaning in units of variance.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">cov(X, Y) = Σ (xᵢ − x̄)(yᵢ − ȳ) / (n − 1)</span><span class="connection-gloss-line">shared movement, in the units of both variables.</span><span class="connection-symbols-line">xᵢ and yᵢ are one pair, x̄ and ȳ their means, n how many pairs, and Σ adds the pairs.</span></li>
+<li><span class="connection-formula-line">r = cov(X, Y) / (s<sub>x</sub> s<sub>y</sub>)</span><span class="connection-gloss-line">that shared movement on a scale from −1 to 1.</span><span class="connection-symbols-line">s<sub>x</sub> and s<sub>y</sub> are the two standard deviations.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Drag the points and watch the covariance and the correlation change.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/covariance_and_correlation.html">
+<span class="book-still-media">
+<img src="stills/covariance-correlation.png" width="2024" height="1764" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Covariance and Correlation</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Covariance and Correlation" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Covariance and Correlation</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<section class="book-demo" id="demo-ols-simple-linear-regression" data-book-section>
+<h3>Ordinary Least Squares (OLS)</h3>
+<p class="book-subhead">The smallest squared gaps</p>
+<p class="book-label">Why</p>
+<p>A straight line through paired measurements is a claim about how one variable changes with the other. Ordinary least squares chooses the intercept and the slope that make the squared vertical gaps as small as they can be. That minimum is the error sum of squares. The same line splits the total sum of squares into a part the line accounts for and a part left over. The share the line accounts for is the proportion of variance in the outcome that the straight line explains.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">SSE(b₀, b₁) = Σ (yᵢ − b₀ − b₁ xᵢ)²</span><span class="connection-gloss-line">the sum of squared vertical gaps for a chosen line.</span><span class="connection-symbols-line">yᵢ is an outcome, xᵢ its predictor, b₀ the intercept, b₁ the slope, and Σ adds the gaps.</span></li>
+<li><span class="connection-formula-line">β̂₁ = Σ (xᵢ − x̄)(yᵢ − ȳ) / Σ (xᵢ − x̄)²</span><span class="connection-gloss-line">the slope that makes those squared gaps as small as they can be.</span><span class="connection-symbols-line">xᵢ and yᵢ are one pair, and x̄ and ȳ are the means.</span></li>
+<li><span class="connection-formula-line">β̂₀ = ȳ − β̂₁ x̄</span><span class="connection-gloss-line">the intercept that goes with that slope.</span><span class="connection-symbols-line">ȳ and x̄ are the means, and β̂₁ is the fitted slope.</span></li>
+<li><span class="connection-formula-line">SST = SSR + SSE</span><span class="connection-gloss-line">the total sum of squares splits into the part the line accounts for and the part left over.</span><span class="connection-symbols-line">SST is the total, SSR the regression sum of squares, and SSE the error sum of squares.</span></li>
+<li><span class="connection-formula-line">R² = SSR / SST</span><span class="connection-gloss-line">the share of the total that the line accounts for.</span><span class="connection-symbols-line">SSR is the regression sum of squares, and SST is the total.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Choose the intercept and slope that make the squared vertical gaps as small as they can be, and see the total sum of squares split into the part the line accounts for and the part left over.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/ols_simple_linear_regression.html">
+<span class="book-still-media">
+<img src="stills/ols.png" width="1378" height="1200" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Ordinary Least Squares (OLS)</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Ordinary Least Squares (OLS)" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Ordinary Least Squares (OLS)</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<section class="book-demo" id="demo-multiple-regression-sst-ssm-sse" data-book-section>
+<h3>Multiple Regression</h3>
+<p class="book-subhead">From a line to a plane</p>
+<p class="book-label">Why</p>
+<p>Ordinary least squares on one predictor draws a line and splits the total sum of squares into the part that line accounts for and the part left over: SST = SSR + SSE. With two predictors the fitted surface is a plane, and the same split is written SST = SSM + SSE. SSM is the sum of squared distances from the fitted values to the mean of Y, and SSE is the sum of squared vertical gaps the plane does not close. R² is the share SSM takes of SST.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">Ŷ = b₀ + b₁X₁ + b₂X₂</span><span class="connection-gloss-line">the fitted plane.</span><span class="connection-symbols-line">Ŷ is a fitted value, b₀ the intercept, and b₁ and b₂ the slopes on the predictors X₁ and X₂.</span></li>
+<li><span class="connection-formula-line">SST = Σ (Yᵢ − Ȳ)²</span><span class="connection-gloss-line">the total sum of squared deviations from the mean of Y.</span><span class="connection-symbols-line">Yᵢ is one outcome, Ȳ that mean, and Σ adds them.</span></li>
+<li><span class="connection-formula-line">SSM = Σ (Ŷᵢ − Ȳ)²</span><span class="connection-gloss-line">the part the plane accounts for: squared distances from the fitted values to the mean.</span><span class="connection-symbols-line">Ŷᵢ is a fitted value, and Ȳ is the mean of Y.</span></li>
+<li><span class="connection-formula-line">SSE = Σ (Yᵢ − Ŷᵢ)²</span><span class="connection-gloss-line">the squared vertical gaps the plane does not close.</span><span class="connection-symbols-line">Yᵢ is an outcome, and Ŷᵢ is its fitted value.</span></li>
+<li><span class="connection-formula-line">SST = SSM + SSE</span><span class="connection-gloss-line">the total is the plane’s share plus the leftover.</span><span class="connection-symbols-line">SST is the total sum of squares, SSM the model sum of squares, and SSE the error sum of squares.</span></li>
+<li><span class="connection-formula-line">R² = SSM / SST</span><span class="connection-gloss-line">the share of the total that the plane accounts for.</span><span class="connection-symbols-line">SSM is the model sum of squares, and SST is the total.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Fit a plane to two predictors and see the total sum of squares split into the part the plane accounts for and the part left as vertical gaps.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/multiple_regression_sst_ssm_sse.html">
+<span class="book-still-media">
+<img src="stills/multiple-regression.png" width="2040" height="1928" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Multiple Regression</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Multiple Regression" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Multiple Regression</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<section class="book-demo" id="demo-multiple-regression-anova-equivalence" data-book-section>
+<h3>Multiple Regression and ANOVA Equivalence</h3>
+<p class="book-subhead">The same line, with a 0 and a 1</p>
+<p class="book-label">Why</p>
+<p>A plane fitted to two continuous predictors is still ordinary least squares: Ŷ = b₀ + b₁X₁ + b₂X₂, and a product term b₃X₁X₂ bends that plane when the slope of one predictor depends on the other. Coding one predictor as 0 or 1 turns the same equation into an analysis of covariance: one slope for each group, and b₃ is the difference between those slopes. Coding both predictors as 0 or 1 is a 2×2 ANOVA, and the same product is the interaction. Dummy codes for three groups use two 0/1 predictors and no product term. That fit is a one-way ANOVA: the intercept is the reference mean, and each coefficient is a difference between a group mean and that reference.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">Ŷ = b₀ + b₁X₁ + b₂X₂ + b₃X₁X₂</span><span class="connection-gloss-line">a plane, plus a product so one slope can depend on the other predictor.</span><span class="connection-symbols-line">Ŷ is the fitted value, b₀ the intercept, b₁ and b₂ the slopes, and b₃ how much one slope changes with the other predictor.</span></li>
+<li>X₂ is 0 or 1, and b₃ is the difference in slopes</li>
+<li>both predictors are 0 or 1: a 2×2 ANOVA</li>
+<li><span class="connection-formula-line">Ŷ = b₀ + b₁D₁ + b₂D₂</span><span class="connection-gloss-line">dummy codes for three groups, the same fit as a one-way ANOVA.</span><span class="connection-symbols-line">D₁ and D₂ are 0 or 1, b₀ is the reference group’s mean, and each other coefficient is a difference from that mean.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Move from two continuous predictors to one binary predictor, then to two binary factors, then to dummy codes for three groups, and morph each 3D fit into the matching 2D plot.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/multiple_regression_anova_equivalence.html">
+<span class="book-still-media">
+<img src="stills/regression-anova.png" width="2120" height="1750" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Multiple Regression and ANOVA Equivalence</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Multiple Regression and ANOVA Equivalence" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Multiple Regression and ANOVA Equivalence</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<section class="book-demo" id="demo-variance-explained" data-book-section>
+<h3>Variance Explained</h3>
+<p class="book-subhead">A correlation turned into a share</p>
+<p class="book-label">Why</p>
+<p>A correlation says how strongly two variables line up; squaring it turns that strength into a share of variance. That square is the same kind of share the linear model calls R²: the proportion of variance in one variable that a straight-line relationship with the other accounts for.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">R² = r²</span><span class="connection-gloss-line">square the correlation and the result is a share of variance.</span><span class="connection-symbols-line">r is the correlation, and R² is that share.</span></li>
+<li><span class="connection-formula-line">R² = SS<sub>line</sub> / SS<sub>total</sub></span><span class="connection-gloss-line">the same share: the part a straight line accounts for, over the total.</span><span class="connection-symbols-line">SS<sub>line</sub> is the line’s sum of squares, and SS<sub>total</sub> is the total.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Square a correlation and see that share of variance as the part a straight-line relationship accounts for.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/variance_explained.html">
+<span class="book-still-media">
+<img src="stills/variance-explained.png" width="1238" height="850" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Variance Explained</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Variance Explained" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Variance Explained</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The last step stays with variance and asks what happens when sources do not share anything.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-additivity-of-variance" data-book-section>
+<h3>Additivity of Variance &amp; SS</h3>
+<p class="book-subhead">Adding squares, and the correlation</p>
+<p class="book-label">Why</p>
+<p>Sum of squares is simply another way to measure deviation — the same idea as variance, kept as a total rather than an average. Because squared deviations are always positive, those totals add cleanly. The catch is mild: since they are squares, adding or subtracting two variables still has to carry their correlation, which widens a sum and narrows a difference when the association is positive.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">Var(X + Y) = Var(X) + Var(Y) + 2 Cov(X, Y)</span><span class="connection-gloss-line">the variance of a sum. A positive covariance widens it.</span><span class="connection-symbols-line">Var is a variance, and Cov is the covariance.</span></li>
+<li><span class="connection-formula-line">Var(X − Y) = Var(X) + Var(Y) − 2 Cov(X, Y)</span><span class="connection-gloss-line">the variance of a difference. A positive covariance narrows it.</span><span class="connection-symbols-line">Var is a variance, and Cov is the covariance.</span></li>
+<li><span class="connection-formula-line">SS(X + Y) = SS(X) + SS(Y) + 2 SP(X, Y)</span><span class="connection-gloss-line">the same relation for totals rather than averages.</span><span class="connection-symbols-line">SS is a sum of squares, and SP is the sum of products of the paired deviations.</span></li>
+<li><span class="connection-formula-line">SS(X − Y) = SS(X) + SS(Y) − 2 SP(X, Y)</span><span class="connection-gloss-line">a positive sum of products narrows the difference.</span><span class="connection-symbols-line">SS is a sum of squares, and SP is the sum of products of the paired deviations.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Add or subtract two variables and see a positive correlation widen the sum and narrow the difference.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/additivity_of_variance.html">
+<span class="book-still-media">
+<img src="stills/additivity.png" width="1514" height="2070" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Additivity of Variance &amp; SS</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Additivity of Variance &amp; SS" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Additivity of Variance &amp; SS</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<a class="book-selftest" id="self-test-association" href="../statistics/association_review.html?learn=1"><span class="book-selftest-label"><span class="book-selftest-mark" aria-hidden="true">🔖</span><span class="book-selftest-name">Self-test: Association</span></span><span class="book-still-arrow" aria-hidden="true"></span></a>
+</section>
+    </article>
+    </div>
+    <script src="book.js"></script>
+</body>
+</html>
