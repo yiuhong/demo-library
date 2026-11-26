@@ -1,6 +1,6 @@
 /*
  * Book view chapters. One scrolling document on a phone and on a
- * wide screen. The side menu jumps to section heads. Each live
+ * wide screen. The side menu is the table of contents. Each live
  * demonstration sits in the flow at a fixed reading size. It does
  * not fill the viewport unless the card is opened.
  */
@@ -127,8 +127,15 @@ button.book-menu-toggle {
     padding: 0;
 }
 
-.book-menu a[aria-current="true"] {
+.book-menu a[aria-current="true"],
+.book-menu a[aria-current="page"] {
     box-shadow: inset 3px 0 0 #000000;
+}
+
+.book-toc-chapter + .book-toc-chapter {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid #000000;
 }
 
 .book-doc {

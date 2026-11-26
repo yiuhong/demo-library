@@ -37,35 +37,9 @@
         </nav>
     </header>
     <div class="book-shell">
-<nav class="book-menu" aria-label="Chapter sections">
-<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide sections"><span class="book-menu-arrow" aria-hidden="true"></span></button>
-<div id="book-menu-panel">
-<p class="book-menu-chapter"><a href="#comparing-means">Chapter 3 · Comparing means</a></p>
-<a class="book-section-link" href="#t-test">t-test</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-z-distribution-vs-t-distribution">z-Distribution vs t-Distribution</a></li>
-<li><a class="book-demo-link" href="#demo-independent-t-test-simulation">Independent Samples t-Test</a></li>
-<li><a class="book-demo-link" href="#demo-paired-t-test-simulation">Paired Sample t-Test</a></li>
-<li><a class="book-selftest-link" href="#self-test-t-test"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: t-test</a></li>
-</ul>
-<a class="book-section-link" href="#statistical-power">Statistical power</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-statistical-power">Statistical Power</a></li>
-<li><a class="book-demo-link" href="#demo-power-curve">Power Curve</a></li>
-<li><a class="book-selftest-link" href="#self-test-statistical-power"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Statistical power</a></li>
-</ul>
-<a class="book-section-link" href="#anova">ANOVA</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-t-test-to-anova">From t-Test to ANOVA</a></li>
-<li><a class="book-demo-link" href="#demo-paired-t-to-rm-anova">From Paired t-Test to RM-ANOVA</a></li>
-<li><a class="book-demo-link" href="#demo-partitioning-sum-of-squares-anova">Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA</a></li>
-<li><a class="book-demo-link" href="#demo-two-way-anova">Two-Way ANOVA</a></li>
-<li><a class="book-demo-link" href="#demo-mixed-anova-2x2">2×2 Mixed ANOVA</a></li>
-<li><a class="book-demo-link" href="#demo-geometric-anova-regression">Geometric ANOVA Regression</a></li>
-<li><a class="book-demo-link" href="#demo-anova-assumptions">ANOVA Assumptions</a></li>
-<li><a class="book-selftest-link" href="#self-test-anova"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: ANOVA</a></li>
-</ul>
-</div>
+<nav class="book-menu" aria-label="Table of contents">
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide contents"><span class="book-menu-arrow" aria-hidden="true"></span></button>
+<div id="book-menu-panel"></div>
 </nav>
 <script>
     (function () {
@@ -77,9 +51,10 @@
         var shell = document.querySelector(".book-shell");
         if (shell) shell.classList.toggle("is-menu-collapsed", !open);
         button.setAttribute("aria-expanded", open ? "true" : "false");
-        button.setAttribute("aria-label", open ? "Hide sections" : "Show sections");
+        button.setAttribute("aria-label", open ? "Hide contents" : "Show contents");
     })();
 </script>
+<script src="book.js"></script>
     <article class="book-doc" aria-label="Book view, Chapter 3, Comparing means">
 <header id="comparing-means" data-book-section>
 <h1>Chapter 3 – Comparing means</h1>
@@ -538,6 +513,5 @@
 </section>
     </article>
     </div>
-    <script src="book.js"></script>
 </body>
 </html>

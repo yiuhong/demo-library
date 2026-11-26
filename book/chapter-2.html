@@ -37,42 +37,9 @@
         </nav>
     </header>
     <div class="book-shell">
-<nav class="book-menu" aria-label="Chapter sections">
-<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide sections"><span class="book-menu-arrow" aria-hidden="true"></span></button>
-<div id="book-menu-panel">
-<p class="book-menu-chapter"><a href="#probability-and-sampling">Chapter 2 · Probability &amp; sampling</a></p>
-<a class="book-section-link" href="#from-process-to-distribution">From process to distribution</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-stats-conceptual-hierarchy">The 5-Level Conceptual Hierarchy of Statistics</a></li>
-<li><a class="book-demo-link" href="#demo-building-normal-distribution">Building the Normal Distribution</a></li>
-<li><a class="book-demo-link" href="#demo-probability-distributions-map">Probability Distributions Map</a></li>
-<li><a class="book-selftest-link" href="#self-test-from-process-to-distribution"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: From process to distribution</a></li>
-</ul>
-<a class="book-section-link" href="#counts-arrivals-and-the-board">Counts, arrivals, and the board</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-binomial-bernoulli">Binomial Distribution &amp; Bernoulli Process</a></li>
-<li><a class="book-demo-link" href="#demo-poisson-point-process">Poisson Distribution &amp; Poisson Point Process</a></li>
-<li><a class="book-demo-link" href="#demo-galton-board">Galton Board</a></li>
-<li><a class="book-selftest-link" href="#self-test-counts-arrivals-and-the-board"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Counts, arrivals, and the board</a></li>
-</ul>
-<a class="book-section-link" href="#sampling-distributions-and-intervals">Sampling distributions and intervals</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-central-limit-theorem">Central Limit Theorem (CLT)</a></li>
-<li><a class="book-demo-link" href="#demo-horowitz-1974-simulation-CLT">Horowitz (1974) CLT Simulation</a></li>
-<li><a class="book-demo-link" href="#demo-chi-square-distribution">Chi-Square Distribution</a></li>
-<li><a class="book-demo-link" href="#demo-target-analogy-confidence-intervals">Target Analogy of Confidence Intervals</a></li>
-<li><a class="book-selftest-link" href="#self-test-sampling-distributions-and-intervals"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Sampling distributions and intervals</a></li>
-</ul>
-<a class="book-section-link" href="#from-chi-square-to-goodness-of-fit">From chi-square to goodness-of-fit</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-chi-square-distribution-2">Chi-Square Distribution</a></li>
-<li><a class="book-demo-link" href="#demo-chi-square-squared-distance">Chi-Square as Squared Distance</a></li>
-<li><a class="book-demo-link" href="#demo-binomial-counts-to-chi-square">From Binomial Counts to Chi-Square</a></li>
-<li><a class="book-demo-link" href="#demo-chi-square-goodness-of-fit">Pearson’s χ² Goodness-of-Fit</a></li>
-<li><a class="book-demo-link" href="#demo-chi-square-independence-2x2">χ² Roulette: Goodness-of-Fit vs Independence</a></li>
-<li><a class="book-selftest-link" href="#self-test-from-chi-square-to-goodness-of-fit"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: From chi-square to goodness-of-fit</a></li>
-</ul>
-</div>
+<nav class="book-menu" aria-label="Table of contents">
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide contents"><span class="book-menu-arrow" aria-hidden="true"></span></button>
+<div id="book-menu-panel"></div>
 </nav>
 <script>
     (function () {
@@ -84,9 +51,10 @@
         var shell = document.querySelector(".book-shell");
         if (shell) shell.classList.toggle("is-menu-collapsed", !open);
         button.setAttribute("aria-expanded", open ? "true" : "false");
-        button.setAttribute("aria-label", open ? "Hide sections" : "Show sections");
+        button.setAttribute("aria-label", open ? "Hide contents" : "Show contents");
     })();
 </script>
+<script src="book.js"></script>
     <article class="book-doc" aria-label="Book view, Chapter 2, Probability &amp; sampling">
 <header id="probability-and-sampling" data-book-section>
 <h1>Chapter 2 – Probability &amp; sampling</h1>
@@ -670,6 +638,5 @@
 </section>
     </article>
     </div>
-    <script src="book.js"></script>
 </body>
 </html>
