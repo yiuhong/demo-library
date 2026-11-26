@@ -38,13 +38,6 @@
             || null;
     }
 
-    function homeScreenWebApp() {
-        if (typeof navigator !== "undefined" && navigator.standalone === true) return true;
-        if (!window.matchMedia) return false;
-        return window.matchMedia("(display-mode: standalone)").matches
-            || window.matchMedia("(display-mode: minimal-ui)").matches;
-    }
-
     function requestFullscreen(el) {
         var names = ["requestFullscreen", "webkitRequestFullscreen", "webkitRequestFullScreen", "mozRequestFullScreen", "msRequestFullscreen"];
         var i;
@@ -71,6 +64,35 @@
         return Promise.resolve();
     }
 
+    /* Scroll position before an in-page fullscreen, so Exit can put the
+       reader back in the chapter. A phone often ignores overflow:hidden
+       unless the body is fixed. */
+    var savedScroll = 0;
+    var scrollLocked = false;
+
+    function lockScroll() {
+        if (scrollLocked) return;
+        savedScroll = window.scrollY || document.documentElement.scrollTop || 0;
+        scrollLocked = true;
+        document.body.style.position = "fixed";
+        document.body.style.top = "-" + savedScroll + "px";
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.width = "100%";
+    }
+
+    function unlockScroll() {
+        if (!scrollLocked) return;
+        var y = savedScroll;
+        scrollLocked = false;
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.width = "";
+        window.scrollTo(0, y);
+    }
+
     function syncPane(pane) {
         if (!pane) return;
         var on = activeFullscreen() === pane || pane.classList.contains("is-immersive-pane");
@@ -92,27 +114,63 @@
         if (fill > 0) frame.style.height = fill + "px";
     }
 
-    function enterPane(pane) {
-        if (homeScreenWebApp()) {
-            requestFullscreen(pane).then(function () {
-                if (activeFullscreen() !== pane) {
-                    document.body.classList.add("is-immersive");
-                    pane.classList.add("is-immersive-pane");
-                }
-                syncPane(pane);
-            }).catch(function () {
-                document.body.classList.add("is-immersive");
-                pane.classList.add("is-immersive-pane");
-                syncPane(pane);
-            });
-            return;
+    /* The browser Fullscreen API often refuses a div that holds an iframe
+       in a normal phone tab. The button then fills the screen in the page. */
+    function applyImmersive(pane) {
+        if (activeFullscreen() === pane) return;
+        lockScroll();
+        document.body.classList.add("is-immersive");
+        pane.classList.add("is-immersive-pane");
+        syncPane(pane);
+        var exit = pane.querySelector(".book-exit");
+        if (exit && exit.focus) exit.focus();
+        if (!pane.hasAttribute("data-book-immersive-history")) {
+            try {
+                history.pushState({ bookImmersive: 1 }, "", window.location.href);
+                pane.setAttribute("data-book-immersive-history", "1");
+            } catch (err) {}
         }
-        requestFullscreen(pane).then(function () { syncPane(pane); }).catch(function () {});
+    }
+
+    function clearImmersive(pane, fromPop) {
+        if (!pane) pane = document.querySelector(".book-figure .viz-pane.is-immersive-pane");
+        var pushed = pane && pane.hasAttribute("data-book-immersive-history");
+        if (pane) {
+            pane.removeAttribute("data-book-immersive-history");
+            pane.classList.remove("is-immersive-pane");
+            syncPane(pane);
+        }
+        if (!document.querySelector(".book-figure .viz-pane.is-immersive-pane")) {
+            document.body.classList.remove("is-immersive");
+            unlockScroll();
+        }
+        if (pushed && !fromPop) {
+            try {
+                history.back();
+            } catch (err) {}
+        }
+    }
+
+    function enterPane(pane) {
+        function settled() {
+            if (activeFullscreen() === pane) {
+                clearImmersive(pane, true);
+                document.body.classList.remove("is-immersive");
+                syncPane(pane);
+                return;
+            }
+            applyImmersive(pane);
+        }
+        requestFullscreen(pane).then(function () {
+            window.requestAnimationFrame(settled);
+        }).catch(function () {
+            settled();
+        });
     }
 
     function leavePane(pane) {
-        document.body.classList.remove("is-immersive");
-        if (pane) pane.classList.remove("is-immersive-pane");
+        var wasImmersive = pane && pane.classList.contains("is-immersive-pane");
+        if (wasImmersive) clearImmersive(pane, false);
         exitFullscreen().then(function () { syncPane(pane); }).catch(function () { syncPane(pane); });
     }
 
@@ -125,6 +183,20 @@
         event.preventDefault();
         if (exit || activeFullscreen() === pane || pane.classList.contains("is-immersive-pane")) leavePane(pane);
         else enterPane(pane);
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") return;
+        var pane = document.querySelector(".book-figure .viz-pane.is-immersive-pane");
+        if (!pane) return;
+        event.preventDefault();
+        leavePane(pane);
+    });
+
+    window.addEventListener("popstate", function () {
+        var pane = document.querySelector(".book-figure .viz-pane.is-immersive-pane");
+        if (!pane) return;
+        clearImmersive(pane, true);
     });
 
     document.addEventListener("fullscreenchange", function () {

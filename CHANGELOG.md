@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fullscreen in Chapter 1 Book mode works on a phone. A tap still uses the browser Fullscreen API when that request succeeds. When a phone tab refuses fullscreen on the demonstration, the same button fills the screen with that demonstration in the page. Exit, Escape, or Back returns to the same place in the scrolling chapter. The demonstration does not open fullscreen on its own. Guided Tracks and Catalog fullscreen are unchanged. The citation version is unchanged.
+
 - Partitioning Sum of Squares fits its tree on a phone. The chart was centered at a fixed width, 680px, or 1180px when a design had ten or more leaves, so a narrow panel clipped the left side and scrolled the right. Under the phone shell (736px) that minimum is gone. A short tree stays horizontal and uses the panel width. A tree whose boxes would be narrower than about 128px stacks: each box uses the panel, children sit under the parent, and the page is the scroller. The cards under the tree shrink with the panel, so a long F table does not widen the page. Wider windows keep the horizontal chart. The sums of squares, Teach and Learn, and the citation version are unchanged.
 
 - Guided Tracks on a phone lines up the Back, Previous, and Next labels. Those three controls already share one line height, one padding, and a 44px box. Back is a flex box, so its label sat on the top of that box, while Previous and Next stayed ordinary buttons and centered their labels. The same centering now applies to all three, including when Previous or Next is unavailable. The pane title stays hidden, Teach and Learn are unchanged, and a wider screen is unchanged. The citation version is unchanged.
