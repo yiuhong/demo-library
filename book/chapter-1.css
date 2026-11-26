@@ -95,16 +95,11 @@
     display: none;
 }
 
-.book-mode-name,
 .book-menu-chapter {
-    margin: 0 0 0.35rem;
-    font-size: 0.82rem;
+    margin: 0 0 0.75rem;
+    font-size: 1.05em;
     font-weight: bold;
     line-height: 1.35;
-}
-
-.book-menu-chapter {
-    margin-bottom: 0.75rem;
 }
 
 .book-menu a {
@@ -142,10 +137,6 @@
 
 .book-doc {
     padding: 1.25rem 1.15rem 3rem;
-}
-
-.book-doc :is(p, ul, ol, h1, h2, h3, .book-label, .book-subhead) {
-    max-width: 40rem;
 }
 
 .book-figure,
