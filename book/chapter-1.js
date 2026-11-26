@@ -5,6 +5,37 @@
  */
 (function () {
     var menu = document.querySelector(".book-menu");
+    var menuButton = document.getElementById("book-menu-toggle");
+    var menuShell = document.querySelector(".book-shell");
+    var menuWide = window.matchMedia("(min-width: 960px)");
+    var menuChosen = false;
+
+    function setMenu(open) {
+        if (!menu || !menuButton) return;
+        menu.classList.toggle("is-collapsed", !open);
+        if (menuShell) menuShell.classList.toggle("is-menu-collapsed", !open);
+        menuButton.setAttribute("aria-expanded", open ? "true" : "false");
+        menuButton.textContent = open ? "Hide sections" : "Show sections";
+    }
+
+    if (menuButton) {
+        setMenu(menuWide.matches);
+        menuButton.addEventListener("click", function () {
+            menuChosen = true;
+            setMenu(menuButton.getAttribute("aria-expanded") !== "true");
+        });
+        if (typeof menuWide.addEventListener === "function") {
+            menuWide.addEventListener("change", function () {
+                if (!menuChosen) setMenu(menuWide.matches);
+            });
+        }
+        menu.addEventListener("click", function (event) {
+            var link = event.target.closest && event.target.closest("a[href^='#']");
+            if (!link || menuWide.matches) return;
+            setMenu(false);
+        });
+    }
+
     var sections = Array.prototype.slice.call(document.querySelectorAll(".book-doc [data-book-section], #describing-data, #chapter-wrap"));
     if (menu && sections.length && "IntersectionObserver" in window) {
         var links = {};
@@ -93,6 +124,108 @@
         window.scrollTo(0, y);
     }
 
+    /* Let a viewport-locked demo size to its content inside the chapter.
+       100vh and min-height: 100vh would otherwise follow the iframe and
+       either crop the page or grow without a stop. */
+    /* Teach stays on, so the longer notes are already hidden. The book
+       embed also drops the page title and the cite strip, which repeat
+       the chapter. The figure, its controls, and the short Teach labels
+       stay, and the page is allowed to grow to that content. */
+    var BOOK_FIT_CSS = [
+        "html.viz-book, html.viz-book body {",
+        "  height: auto !important;",
+        "  min-height: 0 !important;",
+        "  max-height: none !important;",
+        "  overflow: visible !important;",
+        "}",
+        "html.viz-book body.demo-page {",
+        "  overflow-x: clip !important;",
+        "  overflow-y: visible !important;",
+        "}",
+        "html.viz-book h1,",
+        "html.viz-book .demo-topbar,",
+        "html.viz-book .site-oer-strip {",
+        "  display: none !important;",
+        "}",
+        "html.viz-book .kde-app .demo-card,",
+        "html.viz-book .kde-app main,",
+        "html.viz-book .kde-app aside {",
+        "  height: auto !important;",
+        "  max-height: none !important;",
+        "  overflow: visible !important;",
+        "}",
+        "html.viz-book .kde-canvas,",
+        "html.viz-book #canvas-top,",
+        "html.viz-book #canvas-bottom {",
+        "  min-height: 220px !important;",
+        "}"
+    ].join("\n");
+
+    function frameDocument(frame) {
+        try {
+            return frame.contentDocument;
+        } catch (err) {
+            return null;
+        }
+    }
+
+    function ensureBookFit(doc) {
+        if (!doc || !doc.head || !doc.body) return;
+        doc.documentElement.classList.add("viz-book");
+        if (doc.getElementById("viz-book-fit")) return;
+        var style = doc.createElement("style");
+        style.id = "viz-book-fit";
+        style.textContent = BOOK_FIT_CSS;
+        doc.head.appendChild(style);
+    }
+
+    function contentHeight(doc) {
+        var body = doc.body;
+        var root = doc.documentElement;
+        return Math.max(
+            body ? body.scrollHeight : 0,
+            body ? body.offsetHeight : 0,
+            root ? root.scrollHeight : 0,
+            root ? root.offsetHeight : 0
+        );
+    }
+
+    function fitFrame(frame) {
+        if (!frame) return;
+        var pane = frame.closest ? frame.closest(".viz-pane") : null;
+        if (!pane) return;
+        if (pane.classList.contains("is-immersive-pane") || activeFullscreen() === pane) return;
+        var doc = frameDocument(frame);
+        if (!doc || !doc.body) return;
+        ensureBookFit(doc);
+        var next = Math.ceil(contentHeight(doc));
+        if (next < 1) return;
+        var current = Math.round(frame.getBoundingClientRect().height);
+        if (Math.abs(current - next) <= 2) return;
+        frame.style.height = next + "px";
+    }
+
+    function bindFrame(frame) {
+        function ready() {
+            fitFrame(frame);
+            var doc = frameDocument(frame);
+            if (!doc || !doc.body || frame.getAttribute("data-book-fit") === "1") return;
+            frame.setAttribute("data-book-fit", "1");
+            if (window.ResizeObserver) {
+                var observer = new ResizeObserver(function () { fitFrame(frame); });
+                observer.observe(doc.body);
+            }
+            window.setTimeout(function () { fitFrame(frame); }, 400);
+        }
+        frame.addEventListener("load", ready);
+        if (frame.contentDocument && frame.contentDocument.readyState === "complete") ready();
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll(".book-figure iframe"), bindFrame);
+    window.addEventListener("resize", function () {
+        Array.prototype.forEach.call(document.querySelectorAll(".book-figure iframe"), fitFrame);
+    });
+
     function syncPane(pane) {
         if (!pane) return;
         var on = activeFullscreen() === pane || pane.classList.contains("is-immersive-pane");
@@ -106,7 +239,8 @@
         var frame = pane.querySelector("iframe");
         if (!frame) return;
         if (activeFullscreen() !== pane) {
-            frame.style.height = "";
+            if (pane.classList.contains("is-immersive-pane")) frame.style.height = "";
+            else fitFrame(frame);
             return;
         }
         var chrome = pane.querySelector(".viz-pane-chrome");

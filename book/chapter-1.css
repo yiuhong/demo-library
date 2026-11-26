@@ -35,6 +35,40 @@
     background: #ffffff;
 }
 
+.book-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0 0 0.65rem;
+    padding: 0.4rem 0.95rem;
+    border: 1px solid #000000;
+    border-radius: 3em;
+    background: #ffffff;
+    color: #000000;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: bold;
+    line-height: 1.2;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.book-menu-toggle:focus {
+    outline: none;
+}
+
+.book-menu-toggle:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+.book-menu.is-collapsed #book-menu-panel {
+    display: none;
+}
+
 .book-mode-name,
 .book-menu-chapter {
     margin: 0 0 0.35rem;
@@ -130,9 +164,19 @@
     font-size: 0.95em;
 }
 
-.book-subhead {
+.book-subhead,
+.book-label {
     margin-top: 0;
     font-weight: bold;
+    line-height: 1.35;
+}
+
+.book-label {
+    margin: 1.15em 0 0.4em;
+}
+
+.book-bridge .book-label {
+    margin-top: 0;
 }
 
 .book-section {
@@ -165,8 +209,21 @@
     background: #ffffff !important;
 }
 
+/* The stage follows the iframe. The iframe height is the demo
+   document, set from the chapter script. It is not a fixed window. */
 .book-figure .viz-pane-stage {
-    height: 30rem;
+    height: auto;
+    position: relative;
+}
+
+.book-figure .viz-pane-stage iframe {
+    position: relative;
+    inset: auto;
+    display: block;
+    width: 100%;
+    height: 1px;
+    border: 0;
+    background: #ffffff;
 }
 
 .book-pane-title {
@@ -207,7 +264,8 @@
     }
 
     .book-menu a:hover,
-    .book-menu a:focus-visible {
+    .book-menu a:focus-visible,
+    .book-menu-toggle:hover {
         background: #000000;
         color: #ffffff;
     }
@@ -223,6 +281,10 @@
         display: grid;
         grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
         align-items: start;
+    }
+
+    .book-shell.is-menu-collapsed {
+        grid-template-columns: auto minmax(0, 1fr);
     }
 
     .book-menu {
@@ -272,8 +334,19 @@ body.book-page.is-immersive .book-menu {
     background: #ffffff !important;
 }
 
-.book-figure .viz-pane.is-immersive-pane .viz-pane-stage {
+.book-figure .viz-pane.is-immersive-pane .viz-pane-stage,
+.book-figure .viz-pane:fullscreen .viz-pane-stage,
+.book-figure .viz-pane:-webkit-full-screen .viz-pane-stage {
     flex: 1 1 auto;
     height: auto;
     min-height: 0;
+}
+
+.book-figure .viz-pane.is-immersive-pane .viz-pane-stage iframe,
+.book-figure .viz-pane:fullscreen .viz-pane-stage iframe,
+.book-figure .viz-pane:-webkit-full-screen .viz-pane-stage iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
 }

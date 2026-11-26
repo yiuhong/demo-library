@@ -40,6 +40,8 @@
     <p class="book-banner" role="note">Draft preview — not published</p>
     <div class="book-shell">
 <nav class="book-menu" aria-label="Chapter sections">
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel">Hide sections</button>
+<div id="book-menu-panel">
 <p class="book-mode-name">Book mode</p>
 <p class="book-menu-chapter"><a href="#describing-data">Chapter 1 · Describing data</a></p>
 <a class="book-section-link" href="#center-and-spread">Center and spread</a>
@@ -63,7 +65,21 @@
 <li><a class="book-demo-link" href="#demo-limitations-of-summary-statistics">Limitations of summary statistics</a></li>
 <li><a class="book-selftest-link" href="#self-test-same-summaries-different-graphs">Self-test: Same summaries, different graphs</a></li>
 </ul>
+</div>
 </nav>
+<script>
+    (function () {
+        var menu = document.querySelector(".book-menu");
+        var button = document.getElementById("book-menu-toggle");
+        var open = window.matchMedia("(min-width: 960px)").matches;
+        if (!menu || !button) return;
+        menu.classList.toggle("is-collapsed", !open);
+        var shell = document.querySelector(".book-shell");
+        if (shell) shell.classList.toggle("is-menu-collapsed", !open);
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+        button.textContent = open ? "Hide sections" : "Show sections";
+    })();
+</script>
     <article class="book-doc" aria-label="Book mode, Chapter 1, Describing data">
 <header id="describing-data" data-book-section>
 <p class="book-mode-name">Book mode</p>
@@ -83,16 +99,16 @@
 <section class="book-demo" id="demo-mean-mode-median-dot-plot" data-book-section>
 <h3>Mean, Median, and Mode</h3>
 <p class="book-subhead">Three kinds of average</p>
-<h4>Why</h4>
+<p class="book-label">Why</p>
 <p>We often describe data by their averages: numerical summaries that answer where the numbers sit. The mean, the median, and the mode are three such answers; they line up when the numbers are roughly balanced, and they pull apart when the shape is not. When they disagree, the next question is what other kinds of average can capture spread and shape, not only center.</p>
 <p>Learning to watch them move — not only to compute them — is the first step toward reading a distribution rather than a single number.</p>
-<h4>Key points</h4>
+<p class="book-label">Key points</p>
 <ul class="connection-formulae">
 <li><span class="connection-formula-line">x̄ = (Σ xᵢ) / n</span><span class="connection-gloss-line">the mean: add the scores and divide by how many.</span><span class="connection-symbols-line">xᵢ is one score, n is how many, and Σ adds them.</span></li>
 <li>median = middle after sorting</li>
 <li>mode = most frequent value</li>
 </ul>
-<h4>Try this</h4>
+<p class="book-label">Try this</p>
 <ol><li>Open the demo and notice where the three averages sit on the current dot plot.</li><li>Drag one or two points toward a long right-hand tail. Watch which average moves farthest.</li><li>Pull points back into a tight, roughly symmetric clump. Confirm that mean, median, and mode come close again.</li><li>Ask yourself: if you had to report <em>one</em> center for a skewed sample, which average would you defend — and why?</li></ol>
 <p>Move the points and watch which average shifts.</p>
 <div class="book-figure">
@@ -111,26 +127,26 @@
 </div>
 </section>
 </div>
-<h4>Check your understanding</h4>
+<p class="book-label">Check your understanding</p>
 <ol><li>For a right-skewed sample of reaction times, which tends to sit farthest into the long tail — mean, median, or mode — and why?</li><li>Name one research situation where the median might be a fairer “typical” value than the mean.</li></ol>
 <div class="book-bridge">
-<h4>Bridge</h4>
+<p class="book-label">Bridge</p>
 <p>When mean, median, and mode disagree, center alone is not enough. The next question is what other kinds of average can capture <strong>spread</strong> and <strong>shape</strong>, not only where the pile sits. That leads to moments.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-moments-as-averages" data-book-section>
 <h3>Moments</h3>
 <p class="book-subhead">Averages of spread and skew</p>
-<h4>Why</h4>
+<p class="book-label">Why</p>
 <p>There are different types of averages, and in statistics those averages of powers of the values (or of their deviations) are called moments. The mean is the first moment; higher moments give numbers for spread and for skew. Raising the deviations to a higher power, or changing the center and the scale, is what turns that average into the variance, the skewness, or the kurtosis. Those numbers still treat the sample mean as if it were already known, which matters once variance is estimated from the same data.</p>
 <p>Seeing moments as “averages of powers” keeps the idea concrete: you are still summarising the same sample, just asking a richer question of it.</p>
-<h4>Key points</h4>
+<p class="book-label">Key points</p>
 <ul class="connection-formulae">
 <li><span class="connection-formula-line">m₁ = x̄</span><span class="connection-gloss-line">the first moment is the mean.</span><span class="connection-symbols-line">m₁ is that moment, and x̄ is the mean.</span></li>
 <li><span class="connection-formula-line">m₂ = Σ (xᵢ − x̄)² / n</span><span class="connection-gloss-line">the second moment: an average of squared deviations, a number for spread.</span><span class="connection-symbols-line">xᵢ is one score, x̄ the mean, n how many, and Σ adds them.</span></li>
 <li><span class="connection-formula-line">m₃ = Σ (xᵢ − x̄)³ / n</span><span class="connection-gloss-line">the third moment: an average of cubed deviations, a number for skew.</span><span class="connection-symbols-line">xᵢ is one score, x̄ the mean, n how many, and Σ adds them.</span></li>
 </ul>
-<h4>Try this</h4>
+<p class="book-label">Try this</p>
 <ol><li>Start with a small sample and note the first, second, and third moments.</li><li>Move one extreme point farther out. Compare how m₂ (spread) and m₃ (skew-related) respond.</li><li>Notice that these calculations treat the sample mean as if it were already known — a quiet assumption that matters once you estimate variance from the same data.</li></ol>
 <p>Change the sample and compare how each moment responds.</p>
 <div class="book-figure">
@@ -149,25 +165,25 @@
 </div>
 </section>
 </div>
-<h4>Check your understanding</h4>
+<p class="book-label">Check your understanding</p>
 <ol><li>In one sentence, what does the second moment measure that the first moment does not?</li><li>Why does it matter that moments built around x̄ treat that mean as “known”?</li></ol>
 <div class="book-bridge">
-<h4>Bridge</h4>
+<p class="book-label">Bridge</p>
 <p>That last point is easy to miss. When the mean is estimated from the sample itself, the usual average of squared deviations is a little too small. Correcting that bias is Bessel’s correction — next.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-bessels-correction-simulation" data-book-section>
 <h3>Bessel&#x27;s Correction</h3>
 <p class="book-subhead">Why divide by n − 1</p>
-<h4>Why</h4>
+<p class="book-label">Why</p>
 <p>When we use the data to estimate how spread out they are, the usual average of squared deviations is a little too small, because the sample mean was taken from those same values. Dividing by n − 1 instead of n corrects for that.</p>
 <p>Dividing the sum of squared deviations by (n) tends to undershoot the true variance. The demo lets you see the difference across many simulated samples, not just in a formula.</p>
-<h4>Key points</h4>
+<p class="book-label">Key points</p>
 <ul class="connection-formulae">
 <li><span class="connection-formula-line">s² = Σ (xᵢ − x̄)² / (n − 1)</span><span class="connection-gloss-line">the sample variance. Dividing by n − 1 instead of n corrects for using the sample mean.</span><span class="connection-symbols-line">xᵢ is one score, x̄ that mean, n how many, and Σ adds them.</span></li>
 <li><span class="connection-formula-line">s = √(s²)</span><span class="connection-gloss-line">the sample standard deviation, the square root of the sample variance.</span><span class="connection-symbols-line">s² is that variance.</span></li>
 </ul>
-<h4>Try this</h4>
+<p class="book-label">Try this</p>
 <ol><li>Run the simulation and compare the average variance estimate when dividing by (n) versus (n - 1).</li><li>Note where each average sits relative to the true variance line.</li><li>Change sample size if the controls allow, and ask whether the gap between the two divisors shrinks as (n) grows.</li></ol>
 <p>Run many samples and see which divisor lands nearer the true variance on average.</p>
 <div class="book-figure">
@@ -186,10 +202,10 @@
 </div>
 </section>
 </div>
-<h4>Check your understanding</h4>
+<p class="book-label">Check your understanding</p>
 <ol><li>Why does dividing by (n) tend to produce a variance estimate that is a little too small?</li><li>In your own words, what does Bessel’s correction buy you when you report sample standard deviation?</li></ol>
 <div class="book-bridge">
-<h4>Bridge</h4>
+<p class="book-label">Bridge</p>
 <p>With a fairer number for spread, you can ask a new question about shape: is the distribution pulled one way rather than balanced? That imbalance is <strong>skew</strong>.</p>
 </div>
 </section>
@@ -201,15 +217,15 @@
 <section class="book-demo" id="demo-skewed-distribution" data-book-section>
 <h3>Skewed Distribution</h3>
 <p class="book-subhead">When a long tail pulls the mean</p>
-<h4>Why</h4>
+<p class="book-label">Why</p>
 <p>Not every set of numbers is balanced around its center; a long tail on one side pulls the mean toward itself, so mean, median, and mode sit in different places. That imbalance is skew. A number for skew is useful, but the same shape is easier to see in a picture of how the values pile up and where the middle of the data sits.</p>
 <p>A single skew number is useful, but the same idea is often clearer when you watch the three averages separate as the shape changes.</p>
-<h4>Key points</h4>
+<p class="book-label">Key points</p>
 <ul class="connection-formulae">
 <li><span class="connection-formula-line">skew = (1/n) Σ ((xᵢ − x̄) / σ)³</span><span class="connection-gloss-line">average cubed deviation, after scaling by the spread. Positive when the long tail is on the right.</span><span class="connection-symbols-line">xᵢ is one score, x̄ the mean, σ the spread, n how many, and Σ adds them.</span></li>
 <li><span class="connection-formula-line">σ² = Σ (xᵢ − x̄)² / n</span><span class="connection-gloss-line">the average squared deviation that scales the skew.</span><span class="connection-symbols-line">xᵢ is one score, x̄ the mean, n how many, σ² that average, and Σ adds them.</span></li>
 </ul>
-<h4>Try this</h4>
+<p class="book-label">Try this</p>
 <ol><li>Drag the skew control from near-symmetric toward a strong right skew. Watch mean, median, and mode separate.</li><li>Flip or reverse toward left skew if available, and confirm the mean moves into the long tail again.</li><li>Pause on a moderately skewed shape and decide which average you would quote in a methods section — and what caveat you would add.</li></ol>
 <p>Drag the skew and watch the three averages separate.</p>
 <div class="book-figure">
@@ -228,25 +244,25 @@
 </div>
 </section>
 </div>
-<h4>Check your understanding</h4>
+<p class="book-label">Check your understanding</p>
 <ol><li>In a right-skewed distribution, where does the mean typically sit relative to the median?</li><li>Why might reporting only the mean be misleading for a strongly skewed outcome measure?</li></ol>
 <div class="book-bridge">
-<h4>Bridge</h4>
+<p class="book-label">Bridge</p>
 <p>A number for skew is helpful, but the same shape is easier to <em>see</em> in a picture of how values pile up and where the middle of the data sits. Histograms and boxplots are next.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-boxplot-histogram" data-book-section>
 <h3>Boxplot and Histogram</h3>
 <p class="book-subhead">The pile beside the box</p>
-<h4>Why</h4>
+<p class="book-label">Why</p>
 <p>Numbers for center, spread, and skew summarize a shape; pictures show that shape directly. A histogram shows how values pile up; a boxplot packs the center and spread of the same data into a box and whiskers. Reading both together also shows how far a point can sit before it looks unusual against the middle of the data.</p>
 <p>Reading both together on one sample trains you to match a pile of bars to a five-number story.</p>
-<h4>Key points</h4>
+<p class="book-label">Key points</p>
 <ul class="connection-formulae">
 <li><span class="connection-formula-line">Q₁, Q₂ (median), Q₃</span><span class="connection-gloss-line">the first quartile, the median, and the third quartile.</span><span class="connection-symbols-line">About a quarter of the sorted values sit at or below Q₁, and about three quarters at or below Q₃.</span></li>
 <li><span class="connection-formula-line">IQR = Q₃ − Q₁</span><span class="connection-gloss-line">the interquartile range, the width of the middle half.</span><span class="connection-symbols-line">Q₁ is the first quartile, and Q₃ is the third.</span></li>
 </ul>
-<h4>Try this</h4>
+<p class="book-label">Try this</p>
 <ol><li>Look at the histogram first: where is the tallest bar, and is there a visible tail?</li><li>Match that picture to the boxplot: locate the median line and the box edges (Q₁, Q₃).</li><li>Trace the whiskers and ask how they relate to the outer values in the histogram.</li><li>Mentally sketch what would change if a few extreme scores appeared on one side.</li></ol>
 <p>Read the pile and the box together on one sample.</p>
 <div class="book-figure">
@@ -265,25 +281,25 @@
 </div>
 </section>
 </div>
-<h4>Check your understanding</h4>
+<p class="book-label">Check your understanding</p>
 <ol><li>What does the width of the box (the IQR) tell you that the median alone does not?</li><li>Give one advantage of the histogram and one advantage of the boxplot for the same sample.</li></ol>
 <div class="book-bridge">
-<h4>Bridge</h4>
+<p class="book-label">Bridge</p>
 <p>Reading both displays together also raises a sharper question: how far can a point sit before it looks <em>unusual</em> against the middle of the data? That is the job of fences and outlier rules.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-boxplot-outliers" data-book-section>
 <h3>Boxplot and Outliers</h3>
 <p class="book-subhead">Points past the fence</p>
-<h4>Why</h4>
+<p class="book-label">Why</p>
 <p>Once you can see the middle of the data in a boxplot, the next question is which points sit so far out that they count as unusual. The whiskers mark how far a point can sit from the quartiles before it counts as an outlier; the fence is a multiple of the spread inside the box. Those 1.5 × IQR fences are Tukey (1977), Exploratory data analysis. The histogram’s bars still depend on where the bin edges fall. A smooth curve can follow the same pile without those cuts.</p>
 <p>The whiskers stop at the farthest non-outlier; points beyond the fences are flagged.</p>
-<h4>Key points</h4>
+<p class="book-label">Key points</p>
 <ul class="connection-formulae">
 <li><span class="connection-formula-line">lower fence = Q₁ − 1.5 × IQR</span><span class="connection-gloss-line">a point below this is marked unusual.</span><span class="connection-symbols-line">Q₁ is the first quartile, and IQR is the middle half, Q₃ − Q₁.</span></li>
 <li><span class="connection-formula-line">upper fence = Q₃ + 1.5 × IQR</span><span class="connection-gloss-line">a point above this is marked unusual.</span><span class="connection-symbols-line">Q₃ is the third quartile, and IQR is the middle half, Q₃ − Q₁.</span></li>
 </ul>
-<h4>Try this</h4>
+<p class="book-label">Try this</p>
 <ol><li>Identify Q₁, the median, Q₃, and the dashed fence lines on the plot.</li><li>Add or move an extreme point and watch whether it falls outside the fences.</li><li>Notice that a point can sit past the whisker tip and still be inside — or outside — the fence rule, depending on the sample.</li><li>Ask: would you drop that point, winsorise it, or keep it and discuss it? (The demo shows the flag; your methods section decides the policy.)</li></ol>
 <p>Add extreme points and watch which ones fall outside the fences.</p>
 <div class="book-figure">
@@ -302,25 +318,25 @@
 </div>
 </section>
 </div>
-<h4>Check your understanding</h4>
+<p class="book-label">Check your understanding</p>
 <ol><li>In words, how is a Tukey fence built from the quartiles and the IQR?</li><li>Why is “outside the fence” a useful alert rather than an automatic reason to delete a score?</li></ol>
 <div class="book-bridge">
-<h4>Bridge</h4>
+<p class="book-label">Bridge</p>
 <p>The histogram’s bars still depend on where the bin edges fall. A smooth curve can follow the same pile without those cuts. That smooth picture is the kernel density estimate.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-kde-plots" data-book-section>
 <h3>Kernel Density Estimate (KDE)</h3>
 <p class="book-subhead">A smooth curve, not bin edges</p>
-<h4>Why</h4>
+<p class="book-label">Why</p>
 <p>A histogram’s bars move when the bin edges move, even though the numbers have not. A kernel density estimate sets a small kernel on each point and adds those kernels, so the same pile becomes a smooth curve. The bandwidth h is how wide each kernel is: a narrow kernel keeps the spikes, and a wide one flattens them. The kernel’s shape — Gaussian, Epanechnikov, or boxcar — is how the weights fall away from each point. The estimate is the kernel density in Rosenblatt (1956), Remarks on some nonparametric estimates of a density function, and Parzen (1962), On estimation of a probability density function and mode. The parabolic kernel is Epanechnikov (1969), Non-parametric estimation of a multivariate probability density. That same curve is the violin, and a half of it is the cloud in a raincloud plot. The box beside them is still the five-number summary, which is what makes an extreme point look unusual.</p>
 <p>The same smooth curve underlies violin plots, and a half of it is the cloud in a raincloud plot — so once you can read a KDE, those modern displays feel less mysterious.</p>
-<h4>Key points</h4>
+<p class="book-label">Key points</p>
 <ul class="connection-formulae">
 <li><span class="connection-formula-line">f̂(x) = (1/(n h)) Σ K((x − xᵢ) / h)</span><span class="connection-gloss-line">the smooth density at x: average a kernel placed on every point.</span><span class="connection-symbols-line">x is a place on the axis, xᵢ one point, n how many, h the bandwidth, K the kernel, and Σ adds them.</span></li>
 <li>h = bandwidth</li>
 </ul>
-<h4>Try this</h4>
+<p class="book-label">Try this</p>
 <ol><li>Compare the histogram and the smooth KDE on the same sample. Where do they agree?</li><li>Change the bandwidth: try a narrow h (spiky) and a wide h (over-smoothed). Find a middle setting that still shows the main peak without inventing noise.</li><li>If kernel shape options appear (Gaussian, Epanechnikov, boxcar), switch among them and notice that bandwidth usually matters more than the exact kernel for a first look.</li><li>Mentally link the curve to a violin or raincloud: same density idea, different packaging beside a box.</li></ol>
 <p>Change the sample, the bandwidth, and the kernel. The histogram, the smooth curve, the violin, and the raincloud update together.</p>
 <div class="book-figure">
@@ -339,10 +355,10 @@
 </div>
 </section>
 </div>
-<h4>Check your understanding</h4>
+<p class="book-label">Check your understanding</p>
 <ol><li>What problem with histograms does a KDE try to soften?</li><li>What happens to the density curve if you choose a bandwidth that is much too large?</li></ol>
 <div class="book-bridge">
-<h4>Bridge</h4>
+<p class="book-label">Bridge</p>
 <p>Outliers are one kind of mismatch with a simple shape. Another is whether the <em>whole</em> set of numbers matches a reference distribution — often the normal. Q–Q plots make that comparison visual.</p>
 </div>
 </section>
@@ -354,14 +370,14 @@
 <section class="book-demo" id="demo-q-q-plot" data-book-section>
 <h3>Q–Q Plot</h3>
 <p class="book-subhead">The sample against a reference curve</p>
-<h4>Why</h4>
+<p class="book-label">Why</p>
 <p>A few extreme points are one way a set of numbers can look unusual; another is that the overall shape does not match a familiar reference curve. A Q–Q plot lines the sample’s quantiles up against a reference distribution, often the normal. A curve away from the straight line means the sample’s shape and the reference shape differ. That check still describes one sample. The next question is whether another picture could carry the same means, the same spread, and the same correlation.</p>
 <p>Points near a straight line suggest a good match. It is a last check on whether the description you built fits a familiar model.</p>
-<h4>Key points</h4>
+<p class="book-label">Key points</p>
 <ul class="connection-formulae">
 <li><span class="connection-formula-line">plot (theoretical quantile, sample quantile) for each order statistic</span><span class="connection-gloss-line">one point for each sorted place. A quantile is the value that cuts off a given share.</span><span class="connection-symbols-line">An order statistic is the sample lined up from smallest to largest.</span></li>
 </ul>
-<h4>Try this</h4>
+<p class="book-label">Try this</p>
 <ol><li>Open the demo and compare sample quantiles to the reference line.</li><li>Note where points sit in the middle versus the tails — tails often peel away first.</li><li>Ask what a banana-shaped departure (or an S-curve) would imply about skew or heavy tails relative to the reference.</li><li>Tie it back: if the Q–Q plot looks poor, revisit skew, outliers, and whether a mean-based summary is still your best friend.</li></ol>
 <div class="book-figure">
 <section class="viz-pane" aria-label="Q–Q Plot">
@@ -379,24 +395,24 @@
 </div>
 </section>
 </div>
-<h4>Check your understanding</h4>
+<p class="book-label">Check your understanding</p>
 <ol><li>If points in a normal Q–Q plot bend upward in the right tail, what does that suggest about the sample relative to a normal reference?</li><li>How does a Q–Q plot complement (not replace) a boxplot-and-outlier display?</li></ol>
 <div class="book-bridge">
-<h4>Bridge</h4>
+<p class="book-label">Bridge</p>
 <p>Matching a reference shape is one check. Another is whether summaries of center, spread, and association can still hide very different graphs. Anscombe’s quartet and the Datasaurus dozen make that limitation vivid — next.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-limitations-of-summary-statistics" data-book-section>
 <h3>Limitations of summary statistics</h3>
 <p class="book-subhead">Same summaries, different pictures</p>
-<h4>Why</h4>
+<p class="book-label">Why</p>
 <p>A Q–Q plot can show that a sample’s shape and a reference shape differ. Summaries of center, spread, and correlation can still agree while the pictures do not. Anscombe’s quartet (Anscombe, 1973) and the Datasaurus dozen (Matejka &amp; Fitzmaurice, 2017) keep the means, the standard deviations, and r fixed, and the graph changes from a line to a curve, a stack, a star, or a dinosaur. When the averages match, the graph is still part of the description.</p>
 <p>Switch shapes and those summaries stay put. Drag a point and they move. Re-lock them and the strange picture can return with the same numbers.</p>
-<h4>Key points</h4>
+<p class="book-label">Key points</p>
 <ul class="connection-formulae">
 <li><span class="connection-formula-line">same x̄, sₓ, ȳ, sᵧ, and r across shapes</span><span class="connection-gloss-line">those summaries can match while the picture changes.</span><span class="connection-symbols-line">x̄ and ȳ are the two means, sₓ and sᵧ the two standard deviations, and r the correlation.</span></li>
 </ul>
-<h4>Try this</h4>
+<p class="book-label">Try this</p>
 <ol><li>Open the demo and switch among Anscombe panels or Datasaurus shapes. Confirm the shared summaries while the scatter changes.</li><li>Drag a point and watch the means, SDs, and correlation move.</li><li>Re-lock the summaries if the controls allow, and see whether a strange picture can return with the same numbers.</li><li>Ask: if a paper reported only those summaries, what would a reader miss about the relationship?</li></ol>
 <div class="book-figure">
 <section class="viz-pane" aria-label="Limitations of summary statistics">
@@ -414,10 +430,10 @@
 </div>
 </section>
 </div>
-<h4>Check your understanding</h4>
+<p class="book-label">Check your understanding</p>
 <ol><li>What do Anscombe’s quartet and the Datasaurus dozen hold fixed across panels that the scatter plots do not?</li><li>Why is “same means and correlation” not enough to claim two bivariate samples tell the same story?</li></ol>
 <div class="book-bridge">
-<h4>Bridge</h4>
+<p class="book-label">Bridge</p>
 <p>You now have a toolkit for describing a sample — centers, moments and corrected spread, skew, pictures (histogram, boxplot, KDE), outlier fences, a check against a reference shape, and a closing reminder that matching summaries are not the same as matching graphs. Chapter 2 turns from description toward probability and sampling — how samples behave when you draw them again and again.</p>
 </div>
 </section>
