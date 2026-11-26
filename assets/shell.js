@@ -728,15 +728,39 @@
         }
     }
 
-    /* A topic or section that has a chapter page. The head of tracks.html
-       publishes the same map. A click must not stay on the playlist, and
-       a pasted address must still leave after this file runs. */
+    /* Keep this list with the head of tracks.html. openTopic and openTrack
+       use it, so a Book view click does not stay on the playlist. */
+    var BOOK_CHAPTERS = {
+        "describing-data": "book/chapter-1.html",
+        "probability-and-sampling": "book/chapter-2.html",
+        "comparing-means": "book/chapter-3.html",
+        "association": "book/chapter-4.html"
+    };
+    var BOOK_SECTIONS = {
+        "center-and-spread": "book/chapter-1.html",
+        "shape-and-pictures": "book/chapter-1.html",
+        "same-summaries-different-graphs": "book/chapter-1.html",
+        "from-process-to-distribution": "book/chapter-2.html",
+        "counts-arrivals-and-the-board": "book/chapter-2.html",
+        "sampling-distributions-and-intervals": "book/chapter-2.html",
+        "from-chi-square-to-goodness-of-fit": "book/chapter-2.html",
+        "t-test": "book/chapter-3.html",
+        "statistical-power": "book/chapter-3.html",
+        "anova": "book/chapter-3.html",
+        "association": "book/chapter-4.html"
+    };
     var leftForChapter = false;
 
     function bookChapterHref(topic, track) {
+        if (track && BOOK_SECTIONS[track]) return BOOK_SECTIONS[track] + "#" + track;
+        if (topic && BOOK_CHAPTERS[topic]) return BOOK_CHAPTERS[topic] + "#" + topic;
         var book = window.ProjectVizBook;
         if (!book || typeof book.href !== "function") return "";
         return book.href(topic, track) || "";
+    }
+
+    function isChapterPageHref(href) {
+        return /^book\/chapter-[1-9][0-9]*\.html(?:#|$)/.test(href || "");
     }
 
     function leaveForBookChapter() {
@@ -1019,6 +1043,11 @@
 
     function openTopic(id) {
         id = safeTrackId(id);
+        var chapter = bookChapterHref(id, "");
+        if (chapter) {
+            window.location.assign(chapter);
+            return;
+        }
         if (id && (!window.ProjectVizTracks || !window.ProjectVizTracks.hasTopic || !window.ProjectVizTracks.hasTopic(id))) return;
         if (!id && !trackFromLocation() && !topicFromLocation() && !currentHref) return;
         if (id && id === topicFromLocation() && !trackFromLocation() && !currentHref) return;
@@ -1038,6 +1067,11 @@
     function openTrack(id) {
         id = safeTrackId(id);
         if (!id) return;
+        var chapter = bookChapterHref("", id);
+        if (chapter) {
+            window.location.assign(chapter);
+            return;
+        }
         var next = trackUrl(id);
         var state = trackState(id, true);
         if (window.location.href !== next.href) history.pushState(state, "", next);
@@ -1287,27 +1321,16 @@
             ? event.target.closest("a.topic-choice, a.overview-node.is-topic")
             : null;
         if (topicLink && inTracksSurface(topicLink)) {
-            var topicId = topicLink.getAttribute("data-topic") || "";
-            var topicChapter = bookChapterHref(topicId, "");
-            if (topicChapter) {
-                event.preventDefault();
-                window.location.assign(topicChapter);
-                return;
-            }
+            if (isChapterPageHref(topicLink.getAttribute("href") || "")) return;
             event.preventDefault();
-            openTopic(topicId);
+            openTopic(topicLink.getAttribute("data-topic") || "");
             return;
         }
         var choice = event.target.closest ? event.target.closest("a.overview-node.is-track") : null;
         if (!choice || !inTracksSurface(choice)) return;
+        if (isChapterPageHref(choice.getAttribute("href") || "")) return;
         var chosen = safeTrackId(choice.getAttribute("data-track") || "");
         if (!chosen) return;
-        var sectionChapter = bookChapterHref("", chosen);
-        if (sectionChapter) {
-            event.preventDefault();
-            window.location.assign(sectionChapter);
-            return;
-        }
         event.preventDefault();
         openTrack(chosen);
     });
