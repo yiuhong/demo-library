@@ -24,10 +24,12 @@
  * a second scroller. Exit, Back, and Escape restore the chrome. iPad
  * Safari in a browser tab still uses the Fullscreen API when it is
  * available.
- * On Guided Tracks the desktop rail lists topics and the pane
- * shows the topic tree until a track is open. Choosing a topic zooms
- * that subtree. Back from a demonstration returns to that track, and
- * Back in the rail returns to the focused topic or the full overview.
+ * On Book view the desktop rail lists topics and the pane shows the
+ * topic tree until a track is open. Choosing a topic zooms that
+ * subtree, unless that topic or section already has a chapter page.
+ * Those clicks, and a pasted topic or track address, leave for the
+ * chapter. Back from a demonstration returns to that track, and Back
+ * in the rail returns to the focused topic or the full overview.
  * A phone shows the tree first. On Catalog the desktop rail lists the
  * curriculum groups, and the pane holds every group's cards. Search
  * covers the whole catalog. Back to browse restores the grid. On a
@@ -726,6 +728,27 @@
         }
     }
 
+    /* A topic or section that has a chapter page. The head of tracks.html
+       publishes the same map. A click must not stay on the playlist, and
+       a pasted address must still leave after this file runs. */
+    var leftForChapter = false;
+
+    function bookChapterHref(topic, track) {
+        var book = window.ProjectVizBook;
+        if (!book || typeof book.href !== "function") return "";
+        return book.href(topic, track) || "";
+    }
+
+    function leaveForBookChapter() {
+        if (page !== "tracks") return false;
+        if (leftForChapter) return true;
+        var href = bookChapterHref(topicFromLocation(), trackFromLocation());
+        if (!href) return false;
+        leftForChapter = true;
+        window.location.replace(href);
+        return true;
+    }
+
     function topicUrl(id) {
         var url = new URL(window.location.href);
         url.searchParams.delete("track");
@@ -1156,6 +1179,7 @@
     }
 
     function syncFromLocation() {
+        if (leaveForBookChapter()) return;
         var demo = readDemo();
         var focusChoice = "";
         if (page === "tracks" && !trackFromLocation()) focusChoice = pendingTrackFocus;
@@ -1197,6 +1221,7 @@
         // Same latch rule as the catalog. Tracks paint themselves; this
         // hook attaches history and the open demonstration.
         if (page !== "tracks" || scoped) return;
+        if (leaveForBookChapter()) return;
         if (!window.ProjectVizTracks || !window.ProjectVizTracks.ready || !window.ProjectVizTracks.ready()) return;
         scoped = true;
         var demo = readDemo();
@@ -1262,14 +1287,27 @@
             ? event.target.closest("a.topic-choice, a.overview-node.is-topic")
             : null;
         if (topicLink && inTracksSurface(topicLink)) {
+            var topicId = topicLink.getAttribute("data-topic") || "";
+            var topicChapter = bookChapterHref(topicId, "");
+            if (topicChapter) {
+                event.preventDefault();
+                window.location.assign(topicChapter);
+                return;
+            }
             event.preventDefault();
-            openTopic(topicLink.getAttribute("data-topic") || "");
+            openTopic(topicId);
             return;
         }
         var choice = event.target.closest ? event.target.closest("a.overview-node.is-track") : null;
         if (!choice || !inTracksSurface(choice)) return;
         var chosen = safeTrackId(choice.getAttribute("data-track") || "");
         if (!chosen) return;
+        var sectionChapter = bookChapterHref("", chosen);
+        if (sectionChapter) {
+            event.preventDefault();
+            window.location.assign(sectionChapter);
+            return;
+        }
         event.preventDefault();
         openTrack(chosen);
     });
@@ -1368,7 +1406,10 @@
     });
 
     var initial = readDemo();
-    if (initial) openDemo(initial, { mode: "none", focus: isPhone() });
+    if (page === "tracks" && leaveForBookChapter()) {
+        /* The chapter page replaces this playlist, including when a
+           demonstration was named on the same address. */
+    } else if (initial) openDemo(initial, { mode: "none", focus: isPhone() });
     else if (page === "tracks") {
         var openingTrack = trackFromLocation();
         var openingTopic = topicFromLocation();

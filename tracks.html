@@ -37,12 +37,17 @@
                 "anova": "book/chapter-3.html",
                 "association": "book/chapter-4.html"
             };
-            if (bookSections[track]) {
-                window.location.replace(bookSections[track] + "#" + track);
-                return;
+            function bookHref(topicId, trackId) {
+                if (trackId && bookSections[trackId]) return bookSections[trackId] + "#" + trackId;
+                if (topicId && bookChapters[topicId]) return bookChapters[topicId] + "#" + topicId;
+                return "";
             }
-            if (bookChapters[topic]) {
-                window.location.replace(bookChapters[topic] + "#" + topic);
+            window.ProjectVizBook = {
+                href: bookHref
+            };
+            var chapter = bookHref(topic, track);
+            if (chapter) {
+                window.location.replace(chapter);
                 return;
             }
             var demo = (params.get("demo") || "").trim();
