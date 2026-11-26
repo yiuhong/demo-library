@@ -263,6 +263,20 @@ a.book-selftest:focus-visible {
     outline-offset: 3px;
 }
 
+.book-selftest-label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.book-selftest-mark {
+    flex: 0 0 auto;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+}
+
 .book-figure {
     margin: 1.1rem 0 1.4rem;
 }

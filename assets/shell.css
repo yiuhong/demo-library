@@ -1155,18 +1155,42 @@ body.viz-app #footer ul.menu > li {
         display: inline-flex;
     }
 
-    /* Guided Tracks only. Back, Previous, and Next already share a
-     * line height, padding, and the 44px target. Back is a flex box,
-     * so its label sits on the top of that box. Previous and Next stay
-     * ordinary buttons, so the extra space centers their labels.
-     * One centered row puts the three labels on the same line. Catalog
-     * has no Previous or Next, and its Back stays as it was. */
+    /* Back is a flex box, so its label sits on the top of that box
+     * unless the row centers it. Guided Tracks centers Back, Previous,
+     * and Next. Catalog centers Back, Fullscreen, and Exit, and keeps
+     * the Teach / Learn pill compact on that same line. */
     body.viz-app[data-viz-page="tracks"] button.viz-back,
     body.viz-app[data-viz-page="tracks"] #viz-prev,
-    body.viz-app[data-viz-page="tracks"] #viz-next {
+    body.viz-app[data-viz-page="tracks"] #viz-next,
+    body.viz-app[data-viz-page="catalog"] button.viz-back,
+    body.viz-app[data-viz-page="catalog"] #viz-fullscreen,
+    body.viz-app[data-viz-page="catalog"] #viz-exit {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        padding-left: 0.45rem !important;
+        padding-right: 0.45rem !important;
+    }
+
+    body.viz-app[data-viz-page="catalog"] .viz-pane-chrome {
+        gap: 0.35rem;
+        padding-left: 0.4rem;
+        padding-right: 0.4rem;
+    }
+
+    body.viz-app[data-viz-page="catalog"] #viz-teach {
+        align-self: center;
+        min-height: 0;
+        padding: 0.1rem !important;
+    }
+
+    body.viz-app[data-viz-page="catalog"] #viz-teach button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.25rem;
+        padding-left: 0.45rem;
+        padding-right: 0.45rem;
     }
 
     #viz-prev,
@@ -1199,7 +1223,9 @@ body.viz-app #footer ul.menu > li {
  * not hide either control. */
 
 @media screen and (max-width: 479px) {
-    #viz-fullscreen {
+    /* Guided Tracks only. Back, Previous, and Next already fill that
+       bar. Catalog keeps Fullscreen. */
+    body.viz-app[data-viz-page="tracks"] #viz-fullscreen {
         display: none !important;
     }
 }

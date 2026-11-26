@@ -74,8 +74,18 @@
         return phoneQuery.matches;
     }
 
+    /* Guided Tracks hides Fullscreen on a narrow phone because Back,
+       Previous, and Next already fill that bar. Catalog has no step
+       buttons, so the enter control stays. */
     function hidesFullscreen() {
-        return hidesFullscreenQuery.matches;
+        return page === "tracks" && hidesFullscreenQuery.matches;
+    }
+
+    /* A phone tab often refuses the Fullscreen API. Catalog then fills
+       the screen in the page. Guided Tracks keeps that fallback for a
+       home-screen app only. */
+    function immersiveOnReject() {
+        return homeScreenWebApp() || page === "catalog";
     }
 
     function safeTrackId(value) {
@@ -604,16 +614,16 @@
         }
         /* No API in this window. Waiting on the request leaves the
            button looking dead when the promise never settles. */
-        if (homeScreenWebApp() && !fullscreenApiEnabled()) {
+        if (immersiveOnReject() && !fullscreenApiEnabled()) {
             applyImmersive(true);
             return;
         }
         requestFullscreen(fullscreenHost()).then(function () {
             if (activeFullscreen()) document.body.classList.remove("is-immersive");
-            else if (homeScreenWebApp()) applyImmersive(true);
+            else if (immersiveOnReject()) applyImmersive(true);
             syncExpanded();
         }).catch(function () {
-            if (!activeFullscreen() && homeScreenWebApp()) applyImmersive(true);
+            if (!activeFullscreen() && immersiveOnReject()) applyImmersive(true);
             applyExpanded(!!activeFullscreen());
         });
     }
@@ -1335,7 +1345,7 @@
     });
     ["fullscreenerror", "webkitfullscreenerror", "mozfullscreenerror", "MSFullscreenError"].forEach(function (name) {
         document.addEventListener(name, function () {
-            if (!activeFullscreen() && homeScreenWebApp()) applyImmersive(true);
+            if (!activeFullscreen() && immersiveOnReject()) applyImmersive(true);
             applyExpanded(!!activeFullscreen());
         });
     });
