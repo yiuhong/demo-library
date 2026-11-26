@@ -1,6 +1,6 @@
 # Phone, tablet, and desktop audit
 
-Audited `main` at `02acb1c` (4 Nov 2026). Every HTML demo and the hub pages (home, catalog, guided tracks, cite, licenses) were code-reviewed, then measured in headless Chrome at 390×844 (phone) and 768×1024 (tablet). The three layout fixes were rechecked at those widths, and the mixed-ANOVA drag was rechecked with a synthesized touch. This was not a physical phone or tablet, so iOS sticky-hover and iOS fullscreen were not exercised on hardware.
+Audited `main` at `02acb1c` (4 Nov 2026). Every HTML demo and the hub pages (home, catalog, Book view, cite, licenses) were code-reviewed, then measured in headless Chrome at 390×844 (phone) and 768×1024 (tablet). The three layout fixes were rechecked at those widths, and the mixed-ANOVA drag was rechecked with a synthesized touch. This was not a physical phone or tablet, so iOS sticky-hover and iOS fullscreen were not exercised on hardware.
 
 House rule checked against `main`: Covariance and Correlation still has press-and-hold to remove and does **not** yet add a point on a tap in empty space. Draft PR [#72](https://github.com/yiuhong/demo-library/pull/72) (`cursor/covariance-click-to-add-b88e`) is still open and still needed for that gesture.
 

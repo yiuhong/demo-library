@@ -22,7 +22,7 @@ Do not introduce Plotly, Vega-Lite, Observable Plot, or any other plotting libra
 
 ## Pins
 
-New work loads a library from the registry. The tag is a normal blocking script, with a path relative to the page. Catalog and Guided Tracks open the demonstration in an iframe, and that relative path still resolves:
+New work loads a library from the registry. The tag is a normal blocking script, with a path relative to the page. Catalog and Book view open the demonstration in an iframe, and that relative path still resolves:
 
 ```html
 <script src="../assets/vendor-loader.js" data-libs="d3"></script>
@@ -101,7 +101,7 @@ Mark these `data-teach="essential"`. They stay in Teach and in Learn:
 - the live equation or readout
 - the controls that change the figure
 - a short how-to for using the figure in class, such as “drag the handles” or “slide the correlation”
-- Key points on a Guided Tracks connection page
+- Key points on a Book view connection page
 
 When the live equation is the lesson, it stays on screen, including in Teach. If it currently lives only inside a disclosure, split it from the explanation. On Pearson’s χ² goodness-of-fit the live sum already sits outside “How a Pearson term is built”, so Teach keeps that equation.
 
@@ -113,7 +113,7 @@ Mark these `data-teach="detail"`. They are shown in Learn and hidden in Teach:
 - a citation
 - a connection note and “In the next demo.”
 
-On a Guided Tracks connection page the figure and the Key points are demonstration objects. The note and **In the next demo** are commentary. Key points that are formulae also carry a short verbal gloss and symbol definitions. The formula is bold on its own line, then the gloss, then the symbol definitions when those are a separate sentence. A line that is already verbal stays one line. [`assets/connection-page.js`](../assets/connection-page.js) already marks them that way. A connection step in [`tracks.json`](../tracks.json) is enough. Do not paste the note into a new HTML file. A step may set `closingHeading` when the track ends on a check and that heading should not say “In the next demo”. The heading is still commentary.
+On a Book view connection page the figure and the Key points are demonstration objects. The note and **In the next demo** are commentary. Key points that are formulae also carry a short verbal gloss and symbol definitions. The formula is bold on its own line, then the gloss, then the symbol definitions when those are a separate sentence. A line that is already verbal stays one line. [`assets/connection-page.js`](../assets/connection-page.js) already marks them that way. A connection step in [`tracks.json`](../tracks.json) is enough. Do not paste the note into a new HTML file. A step may set `closingHeading` when the track ends on a check and that heading should not say “In the next demo”. The heading is still commentary.
 
 Trial, on Center and spread only. That track may end with one short visualized self-test after its last demonstration. The check reuses that track’s figures and is drawn with the page’s own SVG, not a new plotting library. The figure, the controls, and the immediate feedback stay in Teach and in Learn. A longer note on why an answer is right or wrong is Learn only. This is not a library-wide rollout.
 

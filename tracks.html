@@ -3,10 +3,10 @@
 <head>
     <script src="assets/notebook.js"></script>
     <script src="assets/teach.js"></script>
-    <title>Guided Tracks - Project Viz</title>
+    <title>Book view - Project Viz</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Guided Tracks through the Project Viz demonstrations." />
+    <meta name="description" content="Book view of the Project Viz demonstrations." />
     <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml" />
     <script>
         (function () {
@@ -51,15 +51,15 @@
             <ul>
                 <li><a href="index.html">Home</a></li>
                 <li><a href="catalog.html">Catalog</a></li>
-                <li><a href="tracks.html" aria-current="page">Guided Tracks</a></li>
+                <li><a href="tracks.html" aria-current="page">Book view</a></li>
                 <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
             </ul>
         </nav>
     </header>
 
     <div class="viz-workspace">
-        <aside class="viz-rail" id="viz-rail" aria-label="Guided Tracks">
-            <h1 id="tracks-heading">Guided Tracks</h1>
+        <aside class="viz-rail" id="viz-rail" aria-label="Book view">
+            <h1 id="tracks-heading">Book view</h1>
             <p class="page-lead">Topics, then a playlist.</p>
             <p id="tracks-missing" class="hub-quiet" hidden>That track was not found.</p>
 
@@ -68,7 +68,7 @@
                     <p class="hub-quiet">Loading tracks…</p>
                 </div>
                 <noscript>
-                    <p class="hub-quiet">Guided tracks need JavaScript.</p>
+                    <p class="hub-quiet">Book view needs JavaScript.</p>
                 </noscript>
             </div>
         </aside>
@@ -161,7 +161,7 @@
                 clearNode(mount);
                 var note = document.createElement("p");
                 note.className = "hub-quiet";
-                note.textContent = "Guided tracks could not be loaded.";
+                note.textContent = "Book view could not be loaded.";
                 var retry = document.createElement("button");
                 retry.type = "button";
                 retry.className = "catalog-retry";

@@ -411,7 +411,7 @@
             nav.appendChild(trackBranch(topic.tracks));
             return nav;
         }
-        nav.appendChild(el("p", "overview-root", "Guided Tracks"));
+        nav.appendChild(el("p", "overview-root", "Book view"));
         var branch = el("ul", "overview-branch");
         topics.forEach(function (item) {
             var li = el("li");
@@ -459,7 +459,7 @@
         }
         currentId = "";
         currentTopicId = topic ? topic.id : "";
-        document.title = topic ? topic.title + " - Guided Tracks" : "Guided Tracks - Project Viz";
+        document.title = topic ? topic.title + " - Book view" : "Book view - Project Viz";
         if (!topics.length) {
             root.appendChild(el("p", "hub-quiet", "No topics yet."));
             hideOverview();
@@ -497,7 +497,7 @@
         placeBack(true, topic ? "Back to " + topic.title : "Back to all topics");
         setLeadVisible(false);
         if (missing) missing.hidden = true;
-        document.title = track.title + " - Guided Tracks";
+        document.title = track.title + " - Book view";
         hideOverview();
         var block = el("div", "track-block");
         block.appendChild(trackPlaylist(track));
@@ -586,7 +586,7 @@
         clear(root);
         hideOverview();
         if (!root) return;
-        root.appendChild(el("p", "hub-quiet", "Guided tracks could not be loaded."));
+        root.appendChild(el("p", "hub-quiet", "Book view could not be loaded."));
         var retry = el("button", "catalog-retry", "Retry");
         retry.type = "button";
         retry.addEventListener("click", function () {

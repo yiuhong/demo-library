@@ -1,8 +1,8 @@
 # Project Viz native shell
 
-Capacitor wraps the current teaching library so it can be installed on Android and iOS. The shell loads the same catalog, Guided Tracks, and demonstrations. It does not rewrite them, and it is not a second copy you edit by hand.
+Capacitor wraps the current teaching library so it can be installed on Android and iOS. The shell loads the same catalog, Book view, and demonstrations. It does not rewrite them, and it is not a second copy you edit by hand.
 
-This folder is not in the catalog, Guided Tracks, or the site navigation. GitHub Pages is unchanged: the published site is still the repository root. Nothing here is a Play Store or App Store listing.
+This folder is not in the catalog, Book view, or the site navigation. GitHub Pages is unchanged: the published site is still the repository root. Nothing here is a Play Store or App Store listing.
 
 ## Application id
 
@@ -96,11 +96,11 @@ On your Mac:
 5. A free Apple ID can install on a phone you register to that account. The free provisioning profile expires after about a week, and you then run from Xcode again. A paid Apple Developer Program membership is required for a lasting device build, TestFlight, or the App Store. This repository does not start either listing.
 6. Connect the iPhone, select it as the run destination, and press Run. Trust the developer certificate on the phone if iOS asks (Settings → General → VPN & Device Management).
 
-The simulator on that Mac does not need a paid account. A device does need the signing step above. The iPhone has no system Back button. Catalog and Guided Tracks use the Back control on the page. Android's system Back walks the WebView history, then leaves the app.
+The simulator on that Mac does not need a paid account. A device does need the signing step above. The iPhone has no system Back button. Catalog and Book view use the Back control on the page. Android's system Back walks the WebView history, then leaves the app.
 
 ## What works offline
 
-The bundled pages are the library: home, catalog, Guided Tracks, cite, licenses, and the demonstration files, plus the pinned plot libraries (D3, Chart.js, jStat, KaTeX and its fonts, Three.js and OrbitControls).
+The bundled pages are the library: home, catalog, Book view, cite, licenses, and the demonstration files, plus the pinned plot libraries (D3, Chart.js, jStat, KaTeX and its fonts, Three.js and OrbitControls).
 
 These still ask the network. The pages open without them. Web fonts fall back to the device sans-serif. The two scripts do not run until the network is there:
 

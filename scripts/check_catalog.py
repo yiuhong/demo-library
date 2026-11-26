@@ -535,7 +535,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             "https://yiuhong.github.io/",
             "About Yiu Hong",
             "Catalog",
-            "Guided Tracks",
+            "Book view",
             "tracks.html",
             ORCID_URL,
             ORCID_LABEL,
@@ -679,7 +679,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                 if needle not in text:
                     problems.append(f"{name}: missing the notebook sheet ({needle})")
         elif "viz-notebook" in text or "assets/notebook.css" in text or "assets/notebook.js" in text:
-            problems.append(f"{name}: notebook sheet stays on Home, Catalog, and Guided Tracks")
+            problems.append(f"{name}: notebook sheet stays on Home, Catalog, and Book view")
         if 'class="viz-topbar"' not in text:
             problems.append(f"{name}: missing the shared horizontal top bar")
         for needle in ('id="sidebar"', "mobile-nav-toggle", 'id="site-nav"', "data-library-nav"):
@@ -688,7 +688,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         current = {
             "index.html": ">Home</a>",
             "catalog.html": ">Catalog</a>",
-            "tracks.html": ">Guided Tracks</a>",
+            "tracks.html": ">Book view</a>",
         }.get(name)
         current_count = text.count('aria-current="page"')
         if current is None:
@@ -812,7 +812,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         if rel not in ("index.html", "catalog.html", "tracks.html") and (
             "viz-notebook" in text or "assets/notebook.css" in text or "assets/notebook.js" in text
         ):
-            problems.append(f"{rel}: notebook sheet stays on Home, Catalog, and Guided Tracks")
+            problems.append(f"{rel}: notebook sheet stays on Home, Catalog, and Book view")
 
     license_text = read_text(ROOT / "LICENSE")
     if license_text is None:
@@ -1297,7 +1297,7 @@ def check_map_page(problems: list[str]) -> None:
     tracks = read_text(ROOT / "tracks.html")
     tracks_js = read_text(ROOT / "assets" / "tracks-page.js")
     if tracks and "Choose a path" in tracks:
-        problems.append("tracks.html: Choose a path does not belong on Guided Tracks")
+        problems.append("tracks.html: Choose a path does not belong in Book view")
     if tracks and "assets/opened.js" in tracks:
         problems.append("tracks.html: do not mark opened boxes")
     if tracks_js and "track-steps" in tracks_js:

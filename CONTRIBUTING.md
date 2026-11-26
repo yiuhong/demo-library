@@ -42,7 +42,7 @@ Apply this when you write a new self-test, and when you next revise an existing 
 
 ## Shell
 
-Home, Catalog, Guided Tracks, Cite & reuse, and Licenses load [`assets/foundation.css`](assets/foundation.css). Do not link a stylesheet or a script from the personal site. The notebook sheet ([`assets/notebook.css`](assets/notebook.css)) is only on Home, Catalog, and Guided Tracks: white paper, black UI ink, a faint blue grid, and a thin muted red margin. Cite & reuse and Licenses stay plain. Statistics pages take a quieter version of that sheet from [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). Do not paint the grid over a plot, a canvas, or a connection note. The public catalog is statistics. Files in `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project and are not part of the public catalog. A neuroscience file in that set stays the dark lab.
+Home, Catalog, Book view, Cite & reuse, and Licenses load [`assets/foundation.css`](assets/foundation.css). Do not link a stylesheet or a script from the personal site. The notebook sheet ([`assets/notebook.css`](assets/notebook.css)) is only on Home, Catalog, and Book view: white paper, black UI ink, a faint blue grid, and a thin muted red margin. Cite & reuse and Licenses stay plain. Statistics pages take a quieter version of that sheet from [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). Do not paint the grid over a plot, a canvas, or a connection note. The public catalog is statistics. Files in `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project and are not part of the public catalog. A neuroscience file in that set stays the dark lab.
 
 ## Range sliders
 
@@ -53,7 +53,7 @@ A new demonstration must:
 - load the shared theme, [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css) or [`assets/neuroscience-demo-theme.css`](assets/neuroscience-demo-theme.css)
 - keep `class="demo-page"` on `body`
 - leave the shared rule alone: under `(max-width: 768px), (pointer: coarse)`, `body.demo-page input[type="range"]` is a 44px hit box (an 8px track and a 28px thumb)
-- load Teach and Learn, and mark the page, as [Teach and Learn](#teach-and-learn) requires. That markup is the standing standard for every new demonstration and every new Guided Tracks connection page.
+- load Teach and Learn, and mark the page, as [Teach and Learn](#teach-and-learn) requires. That markup is the standing standard for every new demonstration and every new Book view connection page.
 - name the textbook passage, classic paper, or other reputable teaching source the lesson is based on, as [Teaching source](#teaching-source) requires. If there is no such source, do not add the page yet. AI may help implement the demonstration. It must not be the origin of the lesson.
 
 Page-specific thumb colors are fine. Do not override that hit box back to a thin track.
@@ -66,7 +66,7 @@ These are general chrome rules, not a strict template. Do not rebuild an existin
 
 The public catalog is statistics. A statistics page loads [`assets/stats-demo-theme.css`](assets/stats-demo-theme.css). Files in `cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project and are not part of the public catalog. Do not add them to `demos.json`. A neuroscience file in that set still loads [`assets/neuroscience-demo-theme.css`](assets/neuroscience-demo-theme.css). A personality or cognitive file may keep its own look. It still needs the embed hook and an embedding contract: when `html` has `viz-embedded`, hide the return link and keep the shell pane free of a page-level horizontal scrollbar. Do not invent a third library-chrome theme. Do not force those pages onto the statistics light sheet or the neuroscience dark lab.
 
-Catalog and Guided Tracks open a demonstration with `embed=shell`. Run the existing hook so that query adds `viz-embedded` on `html`. Fullscreen and iframe sizing in the shell depend on it. Copy the one-liner the other demonstrations already use:
+Catalog and Book view open a demonstration with `embed=shell`. Run the existing hook so that query adds `viz-embedded` on `html`. Fullscreen and iframe sizing in the shell depend on it. Copy the one-liner the other demonstrations already use:
 
 ```html
 <script>if(/[?&]embed=shell(?:&|$)/.test(location.search))document.documentElement.classList.add("viz-embedded");</script>
@@ -99,7 +99,7 @@ A pure explorer may have almost no commentary. Do not invent a note so this list
 
 Teach and Learn are one control for the whole library. Both names are on the control. Learn is the default: the full page, for later review. Teach is the quieter class view. Teach includes only demonstration objects. Learn includes demonstration objects and commentary objects. The choice only changes visibility. Hiding a commentary object lets the figure use the space it leaves. That is ordinary layout after `display: none` in [`assets/teach.css`](assets/teach.css). It does not recompute a result, rewrite teaching text, invent a shorter lesson, reset the simulation, or add a scrollbar inside a panel. Do not write a Teach branch that does any of those. Leave [`assets/teach.css`](assets/teach.css) and [`assets/teach.js`](assets/teach.js) as they are. Do not invent a third visual theme. Each demonstration keeps its own plot and layout.
 
-Catalog and Guided Tracks put the control in the pane bar, beside Fullscreen. A demonstration opened on its own gets the same control in the page top bar, next to Back. [`assets/teach.js`](assets/teach.js) inserts that control. When `html` has `viz-embedded`, the in-page control is hidden, the same way `.demo-back` is hidden, so a visitor inside the shell sees one control.
+Catalog and Book view put the control in the pane bar, beside Fullscreen. A demonstration opened on its own gets the same control in the page top bar, next to Back. [`assets/teach.js`](assets/teach.js) inserts that control. When `html` has `viz-embedded`, the in-page control is hidden, the same way `.demo-back` is hidden, so a visitor inside the shell sees one control.
 
 `?teach=1` opens Teach. `?learn=1` or `?teach=0` opens Learn. `?learn=0` opens Teach. `on` / `off` and `true` / `false` work too, the same tokens as `?notebook=`. If both flags are in the link, the later one wins. The page stores that choice in `localStorage` under `viz-teach` on this origin (`1` is Teach, `0` is Learn), so the shell and a standalone demonstration share it. Teach adds class `viz-teach` on `<html>`. An already-open page follows a change through the `storage` event, without a reload.
 
@@ -120,7 +120,7 @@ Demonstration objects are included in both modes. Mark them `data-teach="essenti
 - the live equation or readout
 - the controls that change the figure
 - a short how-to for using the figure in class, such as “drag the handles” or “slide the correlation”
-- Key points on a Guided Tracks connection page
+- Key points on a Book view connection page
 
 When the live equation is the lesson, it stays on screen, including in Teach. If that equation currently lives only inside a disclosure, split it from the explanation. Learn shows it as well.
 
@@ -140,7 +140,7 @@ Collapsed-by-default is a density tool inside a commentary object. It is not a s
 
 Citations stay in Learn. Do not add a second reference list for Teach. There is no blanket bibliography. Footer, license, and cite-the-library pages do not need a reference list of their own. Footer and license chrome may stay as a thin line. Cite a source only where the teaching depends on one, in the style of a short teaching note next to that teaching, and mark the note `data-teach="detail"`. Do not invent a citation.
 
-This markup is the standing standard, not a one-time pass. A new demonstration is not done until it ships with it. A new Guided Tracks connection page ships with it too. An existing page picks the object list up the next time that page is touched. Do not restyle the current library in order to apply it.
+This markup is the standing standard, not a one-time pass. A new demonstration is not done until it ships with it. A new Book view connection page ships with it too. An existing page picks the object list up the next time that page is touched. Do not restyle the current library in order to apply it.
 
 - Load [`assets/teach.js`](assets/teach.js) and [`assets/teach.css`](assets/teach.css) the same way the demonstrations already do, immediately after the `embed=shell` hook.
 - `data-teach="essential"` on every demonstration object: the figure, canvas, or plot; the live equation or readout; the controls that change the figure; the short how-to; and, on a connection page, the Key points.
@@ -151,7 +151,7 @@ This markup is the standing standard, not a one-time pass. A new demonstration i
 
 [`tracks/connection.html`](tracks/connection.html) is the connection page. [`assets/connection-page.js`](assets/connection-page.js) marks the figure and the Key points formulae essential, and marks the note and **In the next demo** detail. The figure and the Key points are demonstration objects. The note and **In the next demo** are commentary objects. Key points that are formulae also carry a short verbal gloss and symbol definitions. The formula is bold on its own line, then the gloss, then the symbol definitions when those are a separate sentence. A line that is already verbal stays one line. The figure stays a concept illustration, and it stays before **In the next demo**. Do not paste that note into a new HTML file. A connection step in [`tracks.json`](tracks.json) is enough. The same renderer covers a new step. A step may set `closingHeading` when that heading should not say “In the next demo”. The heading is still commentary.
 
-Trial, on Center and spread only. That track may end with one short visualized self-test after its last demonstration. The check is a Guided Tracks step. It is not a catalog card and not a separate test. It reuses that track’s figures. The figure, the controls that change it, and the immediate feedback are demonstration objects. A longer note on why an answer is right or wrong is commentary. A short how-to may stay essential. This is not a library-wide rollout. Do not add a self-test to another track as part of this trial.
+Trial, on Center and spread only. That track may end with one short visualized self-test after its last demonstration. The check is a Book view step. It is not a catalog card and not a separate test. It reuses that track’s figures. The figure, the controls that change it, and the immediate feedback are demonstration objects. A longer note on why an answer is right or wrong is commentary. A short how-to may stay essential. This is not a library-wide rollout. Do not add a self-test to another track as part of this trial.
 
 On Pearson’s χ² goodness-of-fit the live sum already sits outside “How a Pearson term is built”, so Teach keeps that equation and hides the term note. The live sum is a demonstration object. The term-by-term note, including its drawer, is commentary. Where a live equation sits only inside a disclosure, split it from the explanation so it stays on screen in Teach and in Learn.
 
@@ -177,9 +177,9 @@ Which drawing tool to use, which version to load, and how to upgrade one later a
 
 ## Catalog
 
-The public catalog is a statistics teaching collection. Demo cards live in [`demos.json`](demos.json). Concept maps live in [`families.json`](families.json). Guided Tracks live in [`tracks.json`](tracks.json). The README lists the fields.
+The public catalog is a statistics teaching collection. Demo cards live in [`demos.json`](demos.json). Concept maps live in [`families.json`](families.json). Book view lives in [`tracks.json`](tracks.json). The README lists the fields.
 
-`cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project. They are not listed in `demos.json`, and they are not part of the public catalog, Guided Tracks, or the home plates. Do not add those pages to the catalog. Leave the files where they are.
+`cognitive_psychology/`, `neuroscience/`, and `personality_psychology/` remain in the repository for a later project. They are not listed in `demos.json`, and they are not part of the public catalog, Book view, or the home plates. Do not add those pages to the catalog. Leave the files where they are.
 
 Before you open a pull request, run:
 
