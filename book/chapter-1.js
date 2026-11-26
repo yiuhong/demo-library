@@ -15,7 +15,7 @@
         menu.classList.toggle("is-collapsed", !open);
         if (menuShell) menuShell.classList.toggle("is-menu-collapsed", !open);
         menuButton.setAttribute("aria-expanded", open ? "true" : "false");
-        menuButton.textContent = open ? "Hide sections" : "Show sections";
+        menuButton.setAttribute("aria-label", open ? "Hide sections" : "Show sections");
     }
 
     if (menuButton) {

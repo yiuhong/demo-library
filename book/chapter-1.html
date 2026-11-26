@@ -40,7 +40,7 @@
     <p class="book-banner" role="note">Draft preview — not published</p>
     <div class="book-shell">
 <nav class="book-menu" aria-label="Chapter sections">
-<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel">Hide sections</button>
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide sections"><span class="book-menu-arrow" aria-hidden="true"></span></button>
 <div id="book-menu-panel">
 <p class="book-mode-name">Book mode</p>
 <p class="book-menu-chapter"><a href="#describing-data">Chapter 1 · Describing data</a></p>
@@ -77,7 +77,7 @@
         var shell = document.querySelector(".book-shell");
         if (shell) shell.classList.toggle("is-menu-collapsed", !open);
         button.setAttribute("aria-expanded", open ? "true" : "false");
-        button.textContent = open ? "Hide sections" : "Show sections";
+        button.setAttribute("aria-label", open ? "Hide sections" : "Show sections");
     })();
 </script>
     <article class="book-doc" aria-label="Book mode, Chapter 1, Describing data">

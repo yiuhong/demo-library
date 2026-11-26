@@ -29,31 +29,57 @@
 }
 
 .book-menu {
+    position: relative;
     margin: 0;
-    padding: 0.85rem 1rem 0.4rem;
+    padding: 0.5rem 3.4rem 0.4rem 1rem;
+    min-height: 52px;
     border-bottom: 1px solid #000000;
     background: #ffffff;
 }
 
+.book-menu.is-collapsed {
+    padding: 0.35rem 0.35rem 0.35rem 0.6rem;
+}
+
 .book-menu-toggle {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.35rem;
+    z-index: 2;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
+    width: 44px;
+    height: 44px;
     min-width: 44px;
     min-height: 44px;
-    margin: 0 0 0.65rem;
-    padding: 0.4rem 0.95rem;
+    margin: 0;
+    padding: 0;
     border: 1px solid #000000;
     border-radius: 3em;
     background: #ffffff;
     color: #000000;
-    font: inherit;
-    font-size: 0.92rem;
-    font-weight: bold;
-    line-height: 1.2;
     cursor: pointer;
     touch-action: manipulation;
+}
+
+/* Phone: the menu is above the chapter, so the arrow points down to open
+   and up to close. A wide screen overrides this: the menu is on the left,
+   so the arrow points right to open and left to close. */
+.book-menu-arrow {
+    display: block;
+    width: 0.55rem;
+    height: 0.55rem;
+    margin-top: -0.2rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+}
+
+.book-menu:not(.is-collapsed) .book-menu-arrow {
+    margin-top: 0.2rem;
+    transform: rotate(-135deg);
 }
 
 .book-menu-toggle:focus {
@@ -116,6 +142,16 @@
 
 .book-doc {
     padding: 1.25rem 1.15rem 3rem;
+}
+
+.book-doc :is(p, ul, ol, h1, h2, h3, .book-label, .book-subhead) {
+    max-width: 40rem;
+}
+
+.book-figure,
+.book-figure .viz-pane {
+    max-width: none;
+    width: 100%;
 }
 
 .book-doc h1 {
@@ -294,11 +330,25 @@
         overflow: auto;
         border-bottom: 0;
         border-right: 1px solid #000000;
-        padding: 1.1rem 1rem 2rem;
+        padding: 0.5rem 3.4rem 2rem 1rem;
+    }
+
+    .book-menu.is-collapsed {
+        min-width: 52px;
+    }
+
+    .book-menu.is-collapsed .book-menu-arrow {
+        margin-top: 0;
+        transform: rotate(-45deg);
+    }
+
+    .book-menu:not(.is-collapsed) .book-menu-arrow {
+        margin-top: 0;
+        transform: rotate(135deg);
     }
 
     .book-doc {
-        max-width: 48rem;
+        max-width: none;
         padding: 1.6rem 2rem 4rem;
     }
 }
