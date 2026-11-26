@@ -1,7 +1,7 @@
 /*
- * Chapter 1 Book mode. The chapter scrolls. This file does not turn
- * pages. It marks the section in view, and Fullscreen opens the
- * demonstration the reader chose.
+ * Chapter 1 Book mode. The chapter scrolls. A still opens its
+ * demonstration over the screen, and Exit returns to the same place.
+ * This file does not turn pages.
  */
 (function () {
     var menu = document.querySelector(".book-menu");
@@ -112,52 +112,38 @@
         document.body.style.width = "100%";
     }
 
+    /* The place to put back after Back. The browser restores the scroll
+       it stored for the previous history entry, which is not this place
+       once the reader has moved down the chapter. */
+    var restoreY = null;
+
+    function putBack() {
+        if (restoreY == null) return;
+        window.scrollTo(0, restoreY);
+    }
+
     function unlockScroll() {
         if (!scrollLocked) return;
         var y = savedScroll;
         scrollLocked = false;
+        restoreY = y;
         document.body.style.position = "";
         document.body.style.top = "";
         document.body.style.left = "";
         document.body.style.right = "";
         document.body.style.width = "";
-        window.scrollTo(0, y);
+        putBack();
     }
 
-    /* Let a viewport-locked demo size to its content inside the chapter.
-       100vh and min-height: 100vh would otherwise follow the iframe and
-       either crop the page or grow without a stop. */
-    /* Teach stays on, so the longer notes are already hidden. The book
-       embed also drops the page title and the cite strip, which repeat
-       the chapter. The figure, its controls, and the short Teach labels
-       stay, and the page is allowed to grow to that content. */
+    /* The live frame keeps the figure and its controls. The page title,
+       the Back link, and the cite strip repeat the chapter, so they
+       stay out. Teach already hides the longer notes. */
     var BOOK_FIT_CSS = [
-        "html.viz-book, html.viz-book body {",
-        "  height: auto !important;",
-        "  min-height: 0 !important;",
-        "  max-height: none !important;",
-        "  overflow: visible !important;",
-        "}",
-        "html.viz-book body.demo-page {",
-        "  overflow-x: clip !important;",
-        "  overflow-y: visible !important;",
-        "}",
         "html.viz-book h1,",
         "html.viz-book .demo-topbar,",
+        "html.viz-book .demo-back,",
         "html.viz-book .site-oer-strip {",
         "  display: none !important;",
-        "}",
-        "html.viz-book .kde-app .demo-card,",
-        "html.viz-book .kde-app main,",
-        "html.viz-book .kde-app aside {",
-        "  height: auto !important;",
-        "  max-height: none !important;",
-        "  overflow: visible !important;",
-        "}",
-        "html.viz-book .kde-canvas,",
-        "html.viz-book #canvas-top,",
-        "html.viz-book #canvas-bottom {",
-        "  min-height: 220px !important;",
         "}"
     ].join("\n");
 
@@ -179,85 +165,32 @@
         doc.head.appendChild(style);
     }
 
-    function contentHeight(doc) {
-        var body = doc.body;
-        var root = doc.documentElement;
-        return Math.max(
-            body ? body.scrollHeight : 0,
-            body ? body.offsetHeight : 0,
-            root ? root.scrollHeight : 0,
-            root ? root.offsetHeight : 0
-        );
-    }
-
-    function fitFrame(frame) {
-        if (!frame) return;
-        var pane = frame.closest ? frame.closest(".viz-pane") : null;
-        if (!pane) return;
-        if (pane.classList.contains("is-immersive-pane") || activeFullscreen() === pane) return;
-        var doc = frameDocument(frame);
-        if (!doc || !doc.body) return;
-        ensureBookFit(doc);
-        var next = Math.ceil(contentHeight(doc));
-        if (next < 1) return;
-        var current = Math.round(frame.getBoundingClientRect().height);
-        if (Math.abs(current - next) <= 2) return;
-        frame.style.height = next + "px";
-    }
-
     function bindFrame(frame) {
         function ready() {
-            fitFrame(frame);
-            var doc = frameDocument(frame);
-            if (!doc || !doc.body || frame.getAttribute("data-book-fit") === "1") return;
-            frame.setAttribute("data-book-fit", "1");
-            if (window.ResizeObserver) {
-                var observer = new ResizeObserver(function () { fitFrame(frame); });
-                observer.observe(doc.body);
-            }
-            window.setTimeout(function () { fitFrame(frame); }, 400);
+            ensureBookFit(frameDocument(frame));
         }
         frame.addEventListener("load", ready);
         if (frame.contentDocument && frame.contentDocument.readyState === "complete") ready();
     }
 
-    Array.prototype.forEach.call(document.querySelectorAll(".book-figure iframe"), bindFrame);
-    window.addEventListener("resize", function () {
-        Array.prototype.forEach.call(document.querySelectorAll(".book-figure iframe"), fitFrame);
-    });
-
-    function syncPane(pane) {
-        if (!pane) return;
-        var on = activeFullscreen() === pane || pane.classList.contains("is-immersive-pane");
-        var enter = pane.querySelector(".book-fullscreen");
+    function focusExit(pane) {
         var exit = pane.querySelector(".book-exit");
-        if (enter) {
-            enter.hidden = !!on;
-            enter.setAttribute("aria-pressed", on ? "true" : "false");
-        }
-        if (exit) exit.hidden = !on;
-        var frame = pane.querySelector("iframe");
-        if (!frame) return;
-        if (activeFullscreen() !== pane) {
-            if (pane.classList.contains("is-immersive-pane")) frame.style.height = "";
-            else fitFrame(frame);
-            return;
-        }
-        var chrome = pane.querySelector(".viz-pane-chrome");
-        var fill = Math.ceil(pane.clientHeight - (chrome ? chrome.getBoundingClientRect().height : 0));
-        if (fill > 0) frame.style.height = fill + "px";
+        if (exit && exit.focus) exit.focus();
+    }
+
+    function stillButton(pane) {
+        var figure = pane && pane.parentNode;
+        return figure ? figure.querySelector(".book-still") : null;
     }
 
     /* The browser Fullscreen API often refuses a div that holds an iframe
-       in a normal phone tab. The button then fills the screen in the page. */
+       in a normal phone tab. The card then fills the screen in the page. */
     function applyImmersive(pane) {
         if (activeFullscreen() === pane) return;
         lockScroll();
         document.body.classList.add("is-immersive");
         pane.classList.add("is-immersive-pane");
-        syncPane(pane);
-        var exit = pane.querySelector(".book-exit");
-        if (exit && exit.focus) exit.focus();
+        focusExit(pane);
         if (!pane.hasAttribute("data-book-immersive-history")) {
             try {
                 history.pushState({ bookImmersive: 1 }, "", window.location.href);
@@ -272,7 +205,6 @@
         if (pane) {
             pane.removeAttribute("data-book-immersive-history");
             pane.classList.remove("is-immersive-pane");
-            syncPane(pane);
         }
         if (!document.querySelector(".book-figure .viz-pane.is-immersive-pane")) {
             document.body.classList.remove("is-immersive");
@@ -287,10 +219,15 @@
 
     function enterPane(pane) {
         function settled() {
+            /* Exit can win the race against the fullscreen promise. */
+            if (!pane.classList.contains("is-live")) {
+                if (activeFullscreen() === pane) exitFullscreen();
+                return;
+            }
             if (activeFullscreen() === pane) {
                 clearImmersive(pane, true);
                 document.body.classList.remove("is-immersive");
-                syncPane(pane);
+                focusExit(pane);
                 return;
             }
             applyImmersive(pane);
@@ -302,41 +239,86 @@
         });
     }
 
-    function leavePane(pane) {
-        var wasImmersive = pane && pane.classList.contains("is-immersive-pane");
-        if (wasImmersive) clearImmersive(pane, false);
-        exitFullscreen().then(function () { syncPane(pane); }).catch(function () { syncPane(pane); });
+    /* Drop the live frame so a demonstration is not left running, and
+       put the keyboard back on the card that opened it. */
+    function releaseLive(pane, fromPop) {
+        if (!pane || !pane.classList.contains("is-live")) return;
+        var button = stillButton(pane);
+        var immersive = pane.classList.contains("is-immersive-pane");
+        if (immersive) clearImmersive(pane, fromPop);
+        pane.classList.remove("is-live");
+        pane.setAttribute("aria-hidden", "true");
+        pane.setAttribute("inert", "");
+        var frame = pane.querySelector("iframe");
+        if (frame) frame.remove();
+        if (!immersive && activeFullscreen()) exitFullscreen();
+        if (button && button.focus) button.focus({ preventScroll: true });
+    }
+
+    function openStill(button) {
+        var pane = button.parentNode && button.parentNode.querySelector(".viz-pane");
+        if (!pane || pane.classList.contains("is-live")) return;
+        var open = document.querySelector(".book-figure .book-live.is-live");
+        if (open) releaseLive(open, false);
+        var base = button.getAttribute("data-demo");
+        if (!base) return;
+        var teach = document.documentElement.classList.contains("viz-teach");
+        var stage = pane.querySelector(".viz-pane-stage");
+        var frame = document.createElement("iframe");
+        var title = button.querySelector(".book-still-title");
+        frame.title = title ? title.textContent : button.textContent;
+        frame.setAttribute("allow", "fullscreen");
+        frame.setAttribute("allowfullscreen", "");
+        frame.src = base + "?embed=shell&" + (teach ? "teach=1" : "learn=1");
+        stage.appendChild(frame);
+        bindFrame(frame);
+        pane.classList.add("is-live");
+        pane.removeAttribute("aria-hidden");
+        pane.removeAttribute("inert");
+        enterPane(pane);
+    }
+
+    function endIfFullscreenLeft() {
+        var pane = document.querySelector(".book-figure .book-live.is-live");
+        if (!pane) return;
+        if (activeFullscreen() === pane || pane.classList.contains("is-immersive-pane")) return;
+        releaseLive(pane, true);
     }
 
     document.addEventListener("click", function (event) {
-        var enter = event.target.closest && event.target.closest(".book-fullscreen");
+        var still = event.target.closest && event.target.closest(".book-still");
+        if (still) {
+            event.preventDefault();
+            openStill(still);
+            return;
+        }
         var exit = event.target.closest && event.target.closest(".book-exit");
-        if (!enter && !exit) return;
-        var pane = (enter || exit).closest(".viz-pane");
+        if (!exit) return;
+        var pane = exit.closest(".viz-pane");
         if (!pane) return;
         event.preventDefault();
-        if (exit || activeFullscreen() === pane || pane.classList.contains("is-immersive-pane")) leavePane(pane);
-        else enterPane(pane);
+        releaseLive(pane, false);
     });
 
     document.addEventListener("keydown", function (event) {
         if (event.key !== "Escape") return;
         var pane = document.querySelector(".book-figure .viz-pane.is-immersive-pane");
+        if (!pane) pane = document.querySelector(".book-figure .book-live.is-live");
         if (!pane) return;
         event.preventDefault();
-        leavePane(pane);
+        releaseLive(pane, false);
     });
 
     window.addEventListener("popstate", function () {
         var pane = document.querySelector(".book-figure .viz-pane.is-immersive-pane");
-        if (!pane) return;
-        clearImmersive(pane, true);
+        if (pane) releaseLive(pane, true);
+        putBack();
+        window.requestAnimationFrame(function () {
+            putBack();
+            window.setTimeout(putBack, 0);
+        });
     });
 
-    document.addEventListener("fullscreenchange", function () {
-        Array.prototype.forEach.call(document.querySelectorAll(".book-figure .viz-pane"), syncPane);
-    });
-    document.addEventListener("webkitfullscreenchange", function () {
-        Array.prototype.forEach.call(document.querySelectorAll(".book-figure .viz-pane"), syncPane);
-    });
+    document.addEventListener("fullscreenchange", endIfFullscreenLeft);
+    document.addEventListener("webkitfullscreenchange", endIfFullscreenLeft);
 })();
