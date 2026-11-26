@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Book view chapters use the same type size as the rest of the site. Chapter body text follows the 16px root instead of the point sizes on `body`, the chapter title matches the Book view and Catalog heading, and the line height is the site’s reading height. The typeface stays Arial. Home, Catalog, the tracks overview, and the citation version are unchanged.
+
 - The Book view side menu on each chapter is a table of contents for Chapters 1–4. It lists Chapter 1 – Describing data, Chapter 2 – Probability & sampling, Chapter 3 – Comparing means, and Chapter 4 – Association, and under each name the sections, demonstrations, and self-tests. A link in the open chapter stays on the page. A link to another chapter opens that chapter. The open chapter is marked. On a phone the menu is still a flat bar. On a wide screen it is still a full-height column with a slim hide bar on the inner edge. The citation version is unchanged.
 
 - The library now says Book view wherever it used to say Guided Tracks, and Chapter 1 says Book view wherever it used to say Book mode. The name is in the top menu, on Home, on the tracks page, on connection pages, in Chapter 1, and in the docs. Chapter 1 remains the scrolling chapter for Describing data. Other topics remain on the playlist at tracks.html. The citation version is unchanged.
