@@ -536,7 +536,6 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             "About Yiu Hong",
             "Catalog",
             "Book view",
-            "tracks.html",
             ORCID_URL,
             ORCID_LABEL,
             "CHANGELOG.md",
@@ -663,6 +662,8 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
         for needle in required:
             if needle not in text:
                 problems.append(f"{name}: missing {needle}")
+        if not re.search(r'href="book/"[^>]*>Book view</a>', text):
+            problems.append(f"{name}: Book view should open book/")
         # The personal-site homepage menu stays on that site. These pages are the library.
         for needle in (
             "My projects",

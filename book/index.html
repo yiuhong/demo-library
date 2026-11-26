@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Book view - Project Viz</title>
+    <meta name="description" content="A visual library for teaching and learning statistics through interactive demonstrations.">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/foundation.css">
+    <link rel="stylesheet" href="../assets/library-nav.css">
+    <link rel="stylesheet" href="../assets/shell.css">
+    <link rel="stylesheet" href="book.css">
+</head>
+<body class="book-page">
+    <header class="viz-topbar">
+        <nav aria-label="Library">
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../catalog.html">Catalog</a></li>
+                <li><a href="./" aria-current="page">Book view</a></li>
+                <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="book-shell">
+<nav class="book-menu" aria-label="Table of contents">
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide contents"><span class="book-menu-arrow" aria-hidden="true"></span></button>
+<div id="book-menu-panel"></div>
+</nav>
+<script>
+    (function () {
+        var menu = document.querySelector(".book-menu");
+        var button = document.getElementById("book-menu-toggle");
+        var open = window.matchMedia("(min-width: 960px)").matches;
+        if (!menu || !button) return;
+        menu.classList.toggle("is-collapsed", !open);
+        var shell = document.querySelector(".book-shell");
+        if (shell) shell.classList.toggle("is-menu-collapsed", !open);
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+        button.setAttribute("aria-label", open ? "Hide contents" : "Show contents");
+    })();
+</script>
+<script src="book.js"></script>
+    <article class="book-doc" aria-label="Book view">
+<h1>Book view</h1>
+<p>A visual library for teaching and learning statistics through interactive demonstrations.</p>
+<p>Designed for everyone — from absolute beginners and high school students to undergraduates, postgraduates, and researchers.</p>
+<p>Book view is organized as chapters. Each chapter is a scrolling page. In a section, a still opens the demonstration, and a self-test comes at the end.</p>
+    </article>
+    </div>
+</body>
+</html>

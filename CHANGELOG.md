@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Book view opens on an overview at [`book/`](book/index.html). The side menu is the same table of contents as the chapters: Chapter 1 – Describing data, Chapter 2 – Probability & sampling, Chapter 3 – Comparing means, and Chapter 4 – Association, with each section, demonstration, and self-test. The page introduces Book view. A chapter, section, demonstration, or self-test in that menu opens the chapter page. `tracks.html` with no topic and no track opens this overview. `tracks.html?topic=` and `tracks.html?track=` still open the matching chapter. A `tracks.html?demo=` address, including `tracks/connection.html`, still opens in the player. The citation version is unchanged.
+
 - Book view chapters use the same type size as the rest of the site. Chapter body text follows the 16px root instead of the point sizes on `body`, the chapter title matches the Book view and Catalog heading, and the line height is the site’s reading height. The typeface stays Arial. Home, Catalog, the tracks overview, and the citation version are unchanged.
 
 - The Book view side menu on each chapter is a table of contents for Chapters 1–4. It lists Chapter 1 – Describing data, Chapter 2 – Probability & sampling, Chapter 3 – Comparing means, and Chapter 4 – Association, and under each name the sections, demonstrations, and self-tests. A link in the open chapter stays on the page. A link to another chapter opens that chapter. The open chapter is marked. On a phone the menu is still a flat bar. On a wide screen it is still a full-height column with a slim hide bar on the inner edge. The citation version is unchanged.
