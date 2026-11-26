@@ -614,7 +614,7 @@
         }
         /* No API in this window. Waiting on the request leaves the
            button looking dead when the promise never settles. */
-        if (immersiveOnReject() && !fullscreenApiEnabled()) {
+        if (homeScreenWebApp() && !fullscreenApiEnabled()) {
             applyImmersive(true);
             return;
         }
