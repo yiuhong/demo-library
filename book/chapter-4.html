@@ -37,21 +37,9 @@
         </nav>
     </header>
     <div class="book-shell">
-<nav class="book-menu" aria-label="Chapter sections">
-<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide sections"><span class="book-menu-arrow" aria-hidden="true"></span></button>
-<div id="book-menu-panel">
-<p class="book-menu-chapter"><a href="#association">Chapter 4 · Association</a></p>
-<a class="book-section-link" href="#association">Association</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-covariance-and-correlation">Covariance and Correlation</a></li>
-<li><a class="book-demo-link" href="#demo-ols-simple-linear-regression">Ordinary Least Squares (OLS)</a></li>
-<li><a class="book-demo-link" href="#demo-multiple-regression-sst-ssm-sse">Multiple Regression</a></li>
-<li><a class="book-demo-link" href="#demo-multiple-regression-anova-equivalence">Multiple Regression and ANOVA Equivalence</a></li>
-<li><a class="book-demo-link" href="#demo-variance-explained">Variance Explained</a></li>
-<li><a class="book-demo-link" href="#demo-additivity-of-variance">Additivity of Variance &amp; SS</a></li>
-<li><a class="book-selftest-link" href="#self-test-association"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Association</a></li>
-</ul>
-</div>
+<nav class="book-menu" aria-label="Table of contents">
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide contents"><span class="book-menu-arrow" aria-hidden="true"></span></button>
+<div id="book-menu-panel"></div>
 </nav>
 <script>
     (function () {
@@ -63,9 +51,10 @@
         var shell = document.querySelector(".book-shell");
         if (shell) shell.classList.toggle("is-menu-collapsed", !open);
         button.setAttribute("aria-expanded", open ? "true" : "false");
-        button.setAttribute("aria-label", open ? "Hide sections" : "Show sections");
+        button.setAttribute("aria-label", open ? "Hide contents" : "Show contents");
     })();
 </script>
+<script src="book.js"></script>
     <article class="book-doc" aria-label="Book view, Chapter 4, Association">
 <section class="book-section" id="association" data-book-section>
 <h1>Chapter 4 – Association</h1>
@@ -290,6 +279,5 @@
 </section>
     </article>
     </div>
-    <script src="book.js"></script>
 </body>
 </html>

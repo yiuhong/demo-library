@@ -37,32 +37,9 @@
         </nav>
     </header>
     <div class="book-shell">
-<nav class="book-menu" aria-label="Chapter sections">
-<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide sections"><span class="book-menu-arrow" aria-hidden="true"></span></button>
-<div id="book-menu-panel">
-<p class="book-menu-chapter"><a href="#describing-data">Chapter 1 · Describing data</a></p>
-<a class="book-section-link" href="#center-and-spread">Center and spread</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-mean-mode-median-dot-plot">Mean, Median, and Mode</a></li>
-<li><a class="book-demo-link" href="#demo-moments-as-averages">Moments</a></li>
-<li><a class="book-demo-link" href="#demo-bessels-correction-simulation">Bessel&#x27;s Correction</a></li>
-<li><a class="book-selftest-link" href="#self-test-center-and-spread"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Center and spread</a></li>
-</ul>
-<a class="book-section-link" href="#shape-and-pictures">Shape and pictures</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-skewed-distribution">Skewed Distribution</a></li>
-<li><a class="book-demo-link" href="#demo-boxplot-histogram">Boxplot and Histogram</a></li>
-<li><a class="book-demo-link" href="#demo-boxplot-outliers">Boxplot and Outliers</a></li>
-<li><a class="book-demo-link" href="#demo-kde-plots">Kernel Density Estimate (KDE)</a></li>
-<li><a class="book-selftest-link" href="#self-test-shape-and-pictures"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Shape and pictures</a></li>
-</ul>
-<a class="book-section-link" href="#same-summaries-different-graphs">Same summaries, different graphs</a>
-<ul>
-<li><a class="book-demo-link" href="#demo-q-q-plot">Q–Q Plot</a></li>
-<li><a class="book-demo-link" href="#demo-limitations-of-summary-statistics">Limitations of summary statistics</a></li>
-<li><a class="book-selftest-link" href="#self-test-same-summaries-different-graphs"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Same summaries, different graphs</a></li>
-</ul>
-</div>
+<nav class="book-menu" aria-label="Table of contents">
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide contents"><span class="book-menu-arrow" aria-hidden="true"></span></button>
+<div id="book-menu-panel"></div>
 </nav>
 <script>
     (function () {
@@ -74,9 +51,10 @@
         var shell = document.querySelector(".book-shell");
         if (shell) shell.classList.toggle("is-menu-collapsed", !open);
         button.setAttribute("aria-expanded", open ? "true" : "false");
-        button.setAttribute("aria-label", open ? "Hide sections" : "Show sections");
+        button.setAttribute("aria-label", open ? "Hide contents" : "Show contents");
     })();
 </script>
+<script src="book.js"></script>
     <article class="book-doc" aria-label="Book view, Chapter 1, Describing data">
 <header id="describing-data" data-book-section>
 <h1>Chapter 1 – Describing data</h1>
@@ -478,6 +456,5 @@
 </section>
     </article>
     </div>
-    <script src="book.js"></script>
 </body>
 </html>
