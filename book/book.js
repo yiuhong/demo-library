@@ -2,7 +2,9 @@
  * Book view chapters. The chapter scrolls. A still opens its
  * demonstration over the screen, and Exit returns to the same place.
  * This file does not turn pages. The side menu is one table of
- * contents, shared by every chapter.
+ * contents, shared by the overview and every chapter. The overview
+ * lists the four chapter titles. A chapter page expands only the
+ * open chapter.
  */
 (function () {
     var BOOK_CONTENTS = [
@@ -181,6 +183,10 @@
             if (onThisPage) chapterLink.setAttribute("aria-current", "page");
             heading.appendChild(chapterLink);
             block.appendChild(heading);
+            if (!onThisPage) {
+                panel.appendChild(block);
+                return;
+            }
             chapter.sections.forEach(function (section) {
                 var sectionLink = document.createElement("a");
                 sectionLink.className = "book-section-link";

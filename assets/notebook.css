@@ -1,5 +1,5 @@
 /*
- * Notebook sheet for Home, Catalog, and Guided Tracks.
+ * Notebook sheet for Home, Catalog, Guided Tracks, and Book view.
  * Feature: class viz-notebook on <html>.
  *
  * Remove that class to ship the plain shell.
@@ -109,6 +109,65 @@ html.viz-notebook body.viz-home #footer::before {
 
 html.viz-notebook body.viz-home #colophon {
     border-top: 1px solid var(--notebook-margin);
+}
+
+/* Book view uses the same sheet. The top bar already takes the ruler
+ * from .viz-topbar. The side menu is clear so the grid shows, with the
+ * red margin on its left edge. The article is the same paper. A still,
+ * a live demonstration, and a connection note stay plain white. The
+ * 44px hide bar is unchanged. */
+
+html.viz-notebook body.book-page,
+html.viz-notebook body.book-page .book-doc,
+html.viz-notebook body.book-page .book-menu,
+html.viz-notebook body.book-page #book-menu-panel {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+html.viz-notebook body.book-page button.book-menu-toggle {
+    background-color: var(--notebook-paper) !important;
+    background-image: none !important;
+}
+
+html.viz-notebook body.book-page .book-menu::before {
+    content: "";
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--notebook-rule);
+    pointer-events: none;
+    border-right: 1px solid var(--notebook-margin);
+}
+
+html.viz-notebook body.book-page .book-menu.is-collapsed::before {
+    width: 0.65rem;
+}
+
+html.viz-notebook body.book-page #book-menu-panel {
+    padding-left: calc(var(--notebook-rule) + 0.75rem);
+}
+
+html.viz-notebook body.book-page .book-still,
+html.viz-notebook body.book-page .book-still-media,
+html.viz-notebook body.book-page .book-still img,
+html.viz-notebook body.book-page .book-figure .book-live,
+html.viz-notebook body.book-page .book-figure .viz-pane,
+html.viz-notebook body.book-page .book-figure iframe,
+html.viz-notebook body.book-page .connection-note {
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+@media (min-width: 960px) {
+    html.viz-notebook body.book-page .book-menu,
+    html.viz-notebook body.book-page .book-menu.is-collapsed {
+        top: 4rem;
+        height: calc(100dvh - 4rem);
+        max-height: calc(100dvh - 4rem);
+    }
 }
 
 html.viz-notebook body.viz-app .viz-rail {
@@ -282,7 +341,8 @@ html.viz-notebook body.viz-app .viz-pane:-webkit-full-screen .viz-pane-chrome {
     html.viz-notebook .viz-topbar::after,
     html.viz-notebook body.viz-home #wrapper::before,
     html.viz-notebook body.viz-home #footer::before,
-    html.viz-notebook body.viz-app .viz-rail::before {
+    html.viz-notebook body.viz-app .viz-rail::before,
+    html.viz-notebook body.book-page .book-menu::before {
         display: none;
     }
 
