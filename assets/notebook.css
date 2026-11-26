@@ -111,15 +111,26 @@ html.viz-notebook body.viz-home #colophon {
     border-top: 1px solid var(--notebook-margin);
 }
 
-/* Book view uses the same sheet. The top bar already takes the ruler
- * from .viz-topbar. The side menu is clear so the grid shows, with the
- * red margin on its left edge. The article is the same paper. A still,
- * a live demonstration, and a connection note stay plain white. The
- * 44px hide bar is unchanged. */
+/* Book view keeps the sheet on the top bar and the side menu. The
+ * main column is plain paper, so the page grid does not show there.
+ * The menu paints the same grid itself. A still, a live demonstration,
+ * and a connection note stay plain white. The 44px hide bar is unchanged. */
 
+html.viz-notebook:has(body.book-page),
 html.viz-notebook body.book-page,
-html.viz-notebook body.book-page .book-doc,
-html.viz-notebook body.book-page .book-menu,
+html.viz-notebook body.book-page .book-doc {
+    background-color: var(--notebook-paper) !important;
+    background-image: none !important;
+}
+
+html.viz-notebook body.book-page .book-menu {
+    background-color: transparent !important;
+    background-image:
+        linear-gradient(to right, var(--notebook-ink) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--notebook-ink) 1px, transparent 1px) !important;
+    background-size: var(--notebook-cell) var(--notebook-cell);
+}
+
 html.viz-notebook body.book-page #book-menu-panel {
     background-color: transparent !important;
     background-image: none !important;
@@ -332,6 +343,7 @@ html.viz-notebook body.viz-app .viz-pane:-webkit-full-screen .viz-pane-chrome {
 @media (forced-colors: active) {
     html.viz-notebook,
     html.viz-notebook .viz-topbar,
+    html.viz-notebook body.book-page .book-menu,
     html.viz-notebook body.viz-app .viz-pane-stage,
     html.viz-notebook body.viz-app .viz-pane-stage iframe {
         background-image: none !important;
