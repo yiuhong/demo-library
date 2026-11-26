@@ -1,8 +1,8 @@
 /*
- * Chapter 1 Book mode. One scrolling document on a phone and on a
+ * Book view chapters. One scrolling document on a phone and on a
  * wide screen. The side menu jumps to section heads. Each live
  * demonstration sits in the flow at a fixed reading size. It does
- * not fill the viewport unless Fullscreen is used.
+ * not fill the viewport unless the card is opened.
  */
 
 .book-page {
@@ -225,7 +225,7 @@ a.book-selftest {
     margin: 1.6rem 0 0;
     padding: 0.55rem 0.85rem;
     border: 1px solid #000000;
-    border-radius: 0;
+    border-radius: 0 !important;
     background: #ffffff;
     color: #000000;
     font-weight: bold;
@@ -546,4 +546,15 @@ body.book-page.is-immersive .book-menu {
     height: 100%;
     border: 0;
     background: #ffffff;
+}
+
+/* Draft chapters only. Chapter 1 does not use this banner. */
+.book-draft-banner {
+    margin: 0 0 1.25rem;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid #000000;
+    background: #ffffff;
+    color: #000000;
+    font-weight: bold;
+    line-height: 1.35;
 }

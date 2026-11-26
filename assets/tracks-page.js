@@ -3,7 +3,9 @@
  * Topics come from tracks.json. The desktop rail lists All topics and
  * each topic. The right pane draws one tree. All topics shows Guided
  * Tracks and the topics only: no track children on that overview.
- * Choosing a topic zooms that subtree, and the tracks appear there.
+ * Choosing a topic zooms that subtree, and the tracks appear there,
+ * unless the topic or the section already has a chapter page. That
+ * link goes to the chapter.
  * Each topic has a small animated plate on that overview, and again
  * above its own tree. Each track on that tree has its own plate,
  * in the same frame. The topic drawings are not reused as track drawings.
@@ -309,10 +311,16 @@
         button.setAttribute("aria-label", label || "Back to all topics");
     }
 
+    function chapterHref(topicId, trackId) {
+        var book = window.ProjectVizBook;
+        if (!book || typeof book.href !== "function") return "";
+        return book.href(topicId, trackId) || "";
+    }
+
     function topicChoice(id, title, count, current) {
         var item = el("li");
         var link = el("a", "topic-choice");
-        link.href = id ? "tracks.html?topic=" + id : "tracks.html";
+        link.href = chapterHref(id, "") || (id ? "tracks.html?topic=" + id : "tracks.html");
         link.setAttribute("data-topic", id);
         if (current) {
             link.classList.add("is-current");
@@ -327,6 +335,8 @@
     function trackHref(track) {
         var id = safeSlug(track.id);
         if (!id) return "tracks.html";
+        var chapter = chapterHref("", id);
+        if (chapter) return chapter;
         if (currentTopicId) return "tracks.html?topic=" + currentTopicId + "&track=" + id;
         return "tracks.html?track=" + id;
     }
@@ -417,7 +427,7 @@
             var li = el("li");
             var link = overviewNode(
                 "is-topic",
-                "tracks.html?topic=" + item.id,
+                chapterHref(item.id, "") || ("tracks.html?topic=" + item.id),
                 item.title,
                 countLabel(item.tracks.length, "track", "tracks")
             );

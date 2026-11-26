@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Book view · Chapter 3 – Comparing means - Project Viz</title>
+    <meta name="description" content="Book view for Volume 1, Chapter 3, Comparing means.">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/foundation.css">
+    <link rel="stylesheet" href="../assets/library-nav.css">
+    <link rel="stylesheet" href="../assets/shell.css">
+    <link rel="stylesheet" href="../assets/teach.css">
+    <link rel="stylesheet" href="../assets/connection-page.css">
+    <link rel="stylesheet" href="book.css">
+    <script>
+        (function () {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                if (!params.has("teach") && !params.has("learn")) {
+                    params.set("teach", "1");
+                    history.replaceState(null, "", window.location.pathname + "?" + params.toString() + window.location.hash);
+                }
+            } catch (err) {}
+        })();
+    </script>
+    <script src="../assets/teach.js"></script>
+</head>
+<body class="book-page">
+    <header class="viz-topbar">
+        <nav aria-label="Library">
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../catalog.html">Catalog</a></li>
+                <li><a href="../tracks.html">Book view</a></li>
+                <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="book-shell">
+<nav class="book-menu" aria-label="Chapter sections">
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide sections"><span class="book-menu-arrow" aria-hidden="true"></span></button>
+<div id="book-menu-panel">
+<p class="book-menu-chapter"><a href="#comparing-means">Chapter 3 · Comparing means</a></p>
+<a class="book-section-link" href="#t-test">t-test</a>
+<ul>
+<li><a class="book-demo-link" href="#demo-z-distribution-vs-t-distribution">z-Distribution vs t-Distribution</a></li>
+<li><a class="book-demo-link" href="#demo-independent-t-test-simulation">Independent Samples t-Test</a></li>
+<li><a class="book-demo-link" href="#demo-paired-t-test-simulation">Paired Sample t-Test</a></li>
+<li><a class="book-selftest-link" href="#self-test-t-test"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: t-test</a></li>
+</ul>
+<a class="book-section-link" href="#statistical-power">Statistical power</a>
+<ul>
+<li><a class="book-demo-link" href="#demo-statistical-power">Statistical Power</a></li>
+<li><a class="book-demo-link" href="#demo-power-curve">Power Curve</a></li>
+<li><a class="book-selftest-link" href="#self-test-statistical-power"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Statistical power</a></li>
+</ul>
+<a class="book-section-link" href="#anova">ANOVA</a>
+<ul>
+<li><a class="book-demo-link" href="#demo-t-test-to-anova">From t-Test to ANOVA</a></li>
+<li><a class="book-demo-link" href="#demo-paired-t-to-rm-anova">From Paired t-Test to RM-ANOVA</a></li>
+<li><a class="book-demo-link" href="#demo-partitioning-sum-of-squares-anova">Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA</a></li>
+<li><a class="book-demo-link" href="#demo-two-way-anova">Two-Way ANOVA</a></li>
+<li><a class="book-demo-link" href="#demo-mixed-anova-2x2">2×2 Mixed ANOVA</a></li>
+<li><a class="book-demo-link" href="#demo-geometric-anova-regression">Geometric ANOVA Regression</a></li>
+<li><a class="book-demo-link" href="#demo-anova-assumptions">ANOVA Assumptions</a></li>
+<li><a class="book-selftest-link" href="#self-test-anova"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: ANOVA</a></li>
+</ul>
+</div>
+</nav>
+<script>
+    (function () {
+        var menu = document.querySelector(".book-menu");
+        var button = document.getElementById("book-menu-toggle");
+        var open = window.matchMedia("(min-width: 960px)").matches;
+        if (!menu || !button) return;
+        menu.classList.toggle("is-collapsed", !open);
+        var shell = document.querySelector(".book-shell");
+        if (shell) shell.classList.toggle("is-menu-collapsed", !open);
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+        button.setAttribute("aria-label", open ? "Hide sections" : "Show sections");
+    })();
+</script>
+    <article class="book-doc" aria-label="Book view, Chapter 3, Comparing means">
+<header id="comparing-means" data-book-section>
+<h1>Chapter 3 – Comparing means</h1>
+<p class="book-status"><em>Yiu Hong Ko · Volume 1 · aligned with <a href="../index.html">demo-library</a> · as of 26 Nov 2026 HKT</em></p>
+<p>This chapter follows the live topic Comparing means in Project Viz. The sections of this chapter are <a href="#t-test">t-test</a>, <a href="#statistical-power">Statistical power</a>, and <a href="#anova">ANOVA</a>.</p>
+</header>
+<section class="book-section" id="t-test" data-book-section>
+<h2>t-test</h2>
+<p>This path is for comparing two means when the spread is estimated, so the reference curve has heavier tails. By the end you can say whether the scores come from two groups or the same people. A short review then asks ten questions on that comparison. The track ends after the review.</p>
+<section class="book-demo" id="demo-z-distribution-vs-t-distribution" data-book-section>
+<h3>z-Distribution vs t-Distribution</h3>
+<p class="book-subhead">Estimated spread, heavier tails</p>
+<p class="book-label">Why</p>
+<p>When a mean is compared against a known standard deviation, a z curve is the usual reference. In practice that standard deviation is almost always estimated from the same data, and the extra uncertainty shows up as heavier tails than z. When that estimate of the spread comes out small, the statistic is pushed farther into the tail. Those tails are heavier still in a small sample; that wider curve is the t distribution, and it is the reference you will use for the two comparisons that follow.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">z = (X̄ − μ) / (σ / √n)</span><span class="connection-gloss-line">a sample mean compared with a known spread.</span><span class="connection-symbols-line">X̄ is the sample mean, μ the population mean, σ the known standard deviation, and n the sample size.</span></li>
+<li><span class="connection-formula-line">t = (X̄ − μ) / (s / √n)</span><span class="connection-gloss-line">the same comparison when the spread is estimated from the sample, so the tails are heavier.</span><span class="connection-symbols-line">X̄ is the sample mean, μ the comparison value, s the sample standard deviation, and n the sample size.</span></li>
+<li><span class="connection-formula-line">df = n − 1</span><span class="connection-gloss-line">degrees of freedom for this one sample.</span><span class="connection-symbols-line">n is the sample size.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Compare the z curve with the t curve, and see a small estimate of the spread push the statistic farther into the heavier tail.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/z_distribution_vs_t_distribution.html">
+<span class="book-still-media">
+<img src="stills/z-vs-t.png" width="1438" height="1430" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">z-Distribution vs t-Distribution</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="z-Distribution vs t-Distribution" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">z-Distribution vs t-Distribution</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<section class="book-demo" id="demo-independent-t-test-simulation" data-book-section>
+<h3>Independent Samples t-Test</h3>
+<p class="book-subhead">Two groups that do not share people</p>
+<p class="book-label">Why</p>
+<p>One common comparison is two groups that do not share people — each person is in one group only. An independent-samples t-test asks whether the two group means differ by more than you would expect from the spread within the groups, using a t curve whose standard error combines those two spreads.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">t = (X̄₁ − X̄₂) / SE</span><span class="connection-gloss-line">how far the two means stand apart, in standard errors.</span><span class="connection-symbols-line">X̄₁ and X̄₂ are the group means, and SE is the standard error of their difference.</span></li>
+<li><span class="connection-formula-line">SE = √(s<sub>p</sub>² (1/n₁ + 1/n₂))</span><span class="connection-gloss-line">that standard error, from one pooled variance.</span><span class="connection-symbols-line">s<sub>p</sub>² is the pooled variance, and n₁ and n₂ are the two sample sizes.</span></li>
+<li><span class="connection-formula-line">s<sub>p</sub>² = ((n₁ − 1) s₁² + (n₂ − 1) s₂²) / (n₁ + n₂ − 2)</span><span class="connection-gloss-line">the pooled variance, the two group spreads combined.</span><span class="connection-symbols-line">s₁² and s₂² are the group variances, and n₁ and n₂ are the sample sizes.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Compare two groups that do not share people, and see whether their means differ by more than the spread within the groups.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/independent_t_test_simulation.html">
+<span class="book-still-media">
+<img src="stills/independent-t.png" width="2560" height="1094" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Independent Samples t-Test</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Independent Samples t-Test" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Independent Samples t-Test</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>A different design pairs two scores within the same person instead.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-paired-t-test-simulation" data-book-section>
+<h3>Paired Sample t-Test</h3>
+<p class="book-subhead">One difference per person</p>
+<p class="book-label">Why</p>
+<p>In a paired design, the two scores from each person become one difference. That removes person-to-person variation before the mean difference is set against a t curve. The path ends here: the same family of reference curve, and two designs for which scores enter the comparison.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">dᵢ = xᵢ,post − xᵢ,pre</span><span class="connection-gloss-line">one person’s change, later score minus earlier score.</span><span class="connection-symbols-line">xᵢ,post is the later score, and xᵢ,pre is the earlier one.</span></li>
+<li><span class="connection-formula-line">t = d̄ / (s<sub>d</sub> / √n), with μ₀ = 0</span><span class="connection-gloss-line">the mean change set against a t curve, for a hypothesized change of zero.</span><span class="connection-symbols-line">d̄ is the mean difference, s<sub>d</sub> its standard deviation, n how many pairs, and μ₀ that hypothesized mean.</span></li>
+<li><span class="connection-formula-line">df = n − 1</span><span class="connection-gloss-line">degrees of freedom, one less than the number of pairs.</span><span class="connection-symbols-line">n is how many pairs.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Turn each person’s two scores into one difference, and set the mean of those differences against a t curve.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/paired_t_test_simulation.html">
+<span class="book-still-media">
+<img src="stills/paired-t.png" width="2560" height="1192" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Paired Sample t-Test</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Paired Sample t-Test" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Paired Sample t-Test</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<a class="book-selftest" id="self-test-t-test" href="../statistics/t_test_review.html?learn=1"><span class="book-selftest-label"><span class="book-selftest-mark" aria-hidden="true">🔖</span><span class="book-selftest-name">Self-test: t-test</span></span><span class="book-still-arrow" aria-hidden="true"></span></a>
+</section>
+<section class="book-section" id="statistical-power" data-book-section>
+<h2>Statistical power</h2>
+<p>This path is for the chance of detecting a real effect, from the definition to how that chance grows. By the end you can say what power is and what a larger effect or sample does to it. A short review then asks ten questions on that chance. The track ends after the review.</p>
+<section class="book-demo" id="demo-statistical-power" data-book-section>
+<h3>Statistical Power</h3>
+<p class="book-subhead">The chance of detecting a real effect</p>
+<p class="book-label">Why</p>
+<p>A significance cutoff is set under the null, but a real effect shifts the sampling distribution of the test statistic. Power is the chance of detecting an effect that is really there: the share of that alternative distribution that lands beyond the null cutoff.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">power = P(reject H₀ | H₁ true)</span><span class="connection-gloss-line">the chance of detecting an effect that is really there.</span><span class="connection-symbols-line">H₀ is the null, no effect, and H₁ is the alternative, a real effect.</span></li>
+<li><span class="connection-formula-line">α = P(reject H₀ | H₀ true)</span><span class="connection-gloss-line">the chance of a false detection when there is no effect.</span><span class="connection-symbols-line">α is that rate, and H₀ is the null.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>A real effect shifts the sampling distribution, and the demonstration shades the share that lands beyond the null cutoff.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/statistical_power.html">
+<span class="book-still-media">
+<img src="stills/statistical-power.png" width="1514" height="1790" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Statistical Power</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Statistical Power" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Statistical Power</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>Once that definition is clear, the next question is how power changes when the study changes.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-power-curve" data-book-section>
+<h3>Power Curve</h3>
+<p class="book-subhead">Power moves with effect and sample</p>
+<p class="book-label">Why</p>
+<p>Power is not a fixed number; it moves with the study. A larger effect or a larger sample moves the alternative distribution farther past the null cutoff, and more of it counts as a detection.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">power rises with |effect| and with n</span><span class="connection-gloss-line">a larger effect or a larger sample makes a real effect easier to detect.</span><span class="connection-symbols-line">n is the sample size, and |effect| is the size of the effect, ignoring its sign.</span></li>
+<li><span class="connection-formula-line">SE shrinks as 1/√n</span><span class="connection-gloss-line">the standard error gets smaller as the sample grows, in proportion to one over the square root of n.</span><span class="connection-symbols-line">SE is that standard error, and n is the sample size.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>A power curve shows how the chance of detecting a real effect changes with the size of the effect and the size of the sample.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/power_curve.html">
+<span class="book-still-media">
+<img src="stills/power-curve.png" width="1534" height="1180" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Power Curve</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Power Curve" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Power Curve</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<a class="book-selftest" id="self-test-statistical-power" href="../statistics/statistical_power_review.html?learn=1"><span class="book-selftest-label"><span class="book-selftest-mark" aria-hidden="true">🔖</span><span class="book-selftest-name">Self-test: Statistical power</span></span><span class="book-still-arrow" aria-hidden="true"></span></a>
+</section>
+<section class="book-section" id="anova" data-book-section>
+<h2>ANOVA</h2>
+<p>This path is for comparing means, from separate groups to the same people and a split of variation, then that split drawn as a fitted line or plane. By the end you can say where the variation comes from, read the design as one linear model, and say what the usual reading assumes. A short review then asks ten questions on that split. The track ends after the review.</p>
+<section class="book-demo" id="demo-t-test-to-anova" data-book-section>
+<h3>From t-Test to ANOVA</h3>
+<p class="book-subhead">The same question for more means</p>
+<p class="book-label">Why</p>
+<p>With two groups, a t-test asks whether the means differ by more than the scatter inside the groups. ANOVA asks the same kind of question when there may be more than two means: is the variation among group means large relative to the variation left inside groups?</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">F = MS<sub>between</sub> / MS<sub>within</sub></span><span class="connection-gloss-line">variation among the means, relative to variation inside the groups.</span><span class="connection-symbols-line">MS<sub>between</sub> and MS<sub>within</sub> are those mean squares: a sum of squares divided by its degrees of freedom.</span></li>
+<li><span class="connection-formula-line">for two groups, t² = F</span><span class="connection-gloss-line">the squared two-group t equals this F.</span><span class="connection-symbols-line">t is that t statistic, and F is the ratio of the mean squares.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Set a two-group comparison beside one with more means, and see whether the variation among means is large relative to the variation inside groups.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/t_test_to_anova.html">
+<span class="book-still-media">
+<img src="stills/t-to-anova.png" width="2176" height="1074" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">From t-Test to ANOVA</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="From t-Test to ANOVA" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">From t-Test to ANOVA</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>When each person is measured more than once, that inside scatter depends on how their scores move together.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-paired-t-to-rm-anova" data-book-section>
+<h3>From Paired t-Test to RM-ANOVA</h3>
+<p class="book-subhead">Individual differences set aside</p>
+<p class="book-label">Why</p>
+<p>The difference-score standard deviation already has the pre–post correlation built into it. A more positive covariance shrinks s<sub>D</sub>: when scores move together, people who score high at one timepoint tend to score high at the other, so individual change scores stay small — and that smaller s<sub>D</sub> is what feeds Residual. The same positive covariance enlarges SS Subjects, because subject sums of squares track how far each person&#x27;s average sits from the grand mean. Together, SS Subjects and Residual make up within-conditions: the scatter around each timepoint mean. By partitioning out those individual differences, the paired t and repeated-measures ANOVA cut noise that an independent test would leave intact. An independent test treats all of within-conditions as residual.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">s<sub>D</sub>² = s₁² + s₂² − 2 r s₁ s₂</span><span class="connection-gloss-line">the variance of the person-by-person differences.</span><span class="connection-symbols-line">s₁ and s₂ are the standard deviations at the two times, and r is their correlation.</span></li>
+<li><span class="connection-formula-line">Within-conditions = Subjects + Residual</span><span class="connection-gloss-line">scatter around the timepoint means splits into individual differences and what is left.</span></li>
+<li><span class="connection-formula-line">SS Residual = (N − 1) s<sub>D</sub>² / 2</span><span class="connection-gloss-line">the leftover sum of squares after person differences are set aside.</span><span class="connection-symbols-line">N is how many people, and s<sub>D</sub>² is the variance of the differences.</span></li>
+<li><span class="connection-formula-line">for k = 2, t² = F</span><span class="connection-gloss-line">with two timepoints, the squared paired t equals the repeated-measures F.</span><span class="connection-symbols-line">k is how many timepoints, t that paired statistic, and F the ratio of mean squares.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Slide the pre–post correlation and see a positive covariance shrink the difference-score spread, enlarge SS Subjects, and feed the residual.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/paired_t_to_rm_anova.html">
+<span class="book-still-media">
+<img src="stills/paired-to-rm-anova.png" width="2784" height="1160" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">From Paired t-Test to RM-ANOVA</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="From Paired t-Test to RM-ANOVA" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">From Paired t-Test to RM-ANOVA</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<section class="book-demo" id="demo-partitioning-sum-of-squares-anova" data-book-section>
+<h3>Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA</h3>
+<p class="book-subhead">Where the variation comes from</p>
+<p class="book-label">Why</p>
+<p>To compare several means, it helps to say where the variation in the data comes from. With one factor the total splits into a part between groups and a part left inside groups. With two or three factors, and with between-subjects, within-subjects, or mixed designs, that total breaks into more bricks: each main effect, each interaction, and an error term that matches the stratum.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">SS<sub>total</sub> = sum of the atomic bricks</span><span class="connection-gloss-line">the total sum of squares, every piece of variation added together.</span><span class="connection-symbols-line">SS<sub>total</sub> is that total, and a brick is one piece: an effect or its error.</span></li>
+<li>between-subjects: one error term tests every effect</li>
+<li><span class="connection-formula-line">within-subjects: each repeated factor has its own error stratum</span><span class="connection-gloss-line">the error term that belongs to that repeated factor.</span></li>
+<li><span class="connection-formula-line">F = MS<sub>effect</sub> / MS<sub>error</sub> for the matching stratum</span><span class="connection-gloss-line">an effect tested against its own error term.</span><span class="connection-symbols-line">MS<sub>effect</sub> and MS<sub>error</sub> are mean squares: a sum of squares divided by its degrees of freedom.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>The same bricks can be read as a flat linear model, grouped by error stratum, or introduced condition by condition.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/partitioning_sum_of_squares_anova.html">
+<span class="book-still-media">
+<img src="stills/partitioning-ss.png" width="2880" height="3076" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Partitioning Sum of Squares in 1-Way, 2-Way, and 3-Way ANOVA</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step is the 2×2 between-subjects case, two main effects, their interaction, and one error.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-two-way-anova" data-book-section>
+<h3>Two-Way ANOVA</h3>
+<p class="book-subhead">Two factors, and their combination</p>
+<p class="book-label">Why</p>
+<p>Sometimes each observation belongs to a combination of two factors, not one. Two-way ANOVA labels variation with both factors at once: each factor has its own main effect, and the interaction is the pattern that appears only in the combination. The usual reading of these F tests still depends on conditions on the residuals.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">SS<sub>total</sub> = SS<sub>A</sub> + SS<sub>B</sub> + SS<sub>AB</sub> + SS<sub>error</sub></span><span class="connection-gloss-line">the total sum of squares splits into factor A, factor B, their interaction, and error.</span><span class="connection-symbols-line">Each SS is a sum of squares.</span></li>
+<li><span class="connection-formula-line">F<sub>A</sub> = MS<sub>A</sub> / MS<sub>error</sub>, and likewise for B and AB</span><span class="connection-gloss-line">factor A’s mean square divided by the error mean square, and the same for B and the interaction.</span><span class="connection-symbols-line">A mean square is a sum of squares divided by its degrees of freedom.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>See each factor’s main effect, and the interaction that appears only when the two factors are combined.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/two_way_anova.html">
+<span class="book-still-media">
+<img src="stills/two-way-anova.png" width="1624" height="3054" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Two-Way ANOVA</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Two-Way ANOVA" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Two-Way ANOVA</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step is the mixed case, where one factor separates people and the other measures the same people twice.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-mixed-anova-2x2" data-book-section>
+<h3>2×2 Mixed ANOVA</h3>
+<p class="book-subhead">One factor for groups, one for time</p>
+<p class="book-label">Why</p>
+<p>A 2×2 mixed design has one factor that separates people into groups and one factor that measures the same people twice. The group effect is tested against differences between people. The time effect and the group-by-time interaction are tested against how people vary in their change. The same picture can be read as two simple comparisons: the midpoints, and the pre-to-post changes.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">SS<sub>between</sub> = SS<sub>group</sub> + SS<sub>error(between)</sub></span><span class="connection-gloss-line">differences between people split into the group effect and the rest.</span><span class="connection-symbols-line">Each SS is a sum of squares.</span></li>
+<li><span class="connection-formula-line">SS<sub>within</sub> = SS<sub>time</sub> + SS<sub>group×time</sub> + SS<sub>error(within)</sub></span><span class="connection-gloss-line">change within people splits into time, the group-by-time interaction, and the rest.</span><span class="connection-symbols-line">Each SS is a sum of squares.</span></li>
+<li><span class="connection-formula-line">F<sub>group</sub> = MS<sub>group</sub> / MS<sub>error(between)</sub></span><span class="connection-gloss-line">the group effect, tested against differences between people.</span><span class="connection-symbols-line">Each MS is a mean square: a sum of squares divided by its degrees of freedom.</span></li>
+<li><span class="connection-formula-line">F<sub>time</sub> = MS<sub>time</sub> / MS<sub>error(within)</sub></span><span class="connection-gloss-line">the time effect, tested against how people vary in their change.</span><span class="connection-symbols-line">Each MS is a mean square: a sum of squares divided by its degrees of freedom.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>The demonstration separates a group effect, tested between people, from a time effect and a group-by-time interaction, tested against how people vary in their change.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/mixed_anova_2x2.html">
+<span class="book-still-media">
+<img src="stills/mixed-anova.png" width="1472" height="1636" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">2×2 Mixed ANOVA</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="2×2 Mixed ANOVA" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">2×2 Mixed ANOVA</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step draws this design, and the designs before it, as one fitted line or plane.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-geometric-anova-regression" data-book-section>
+<h3>Geometric ANOVA Regression</h3>
+<p class="book-subhead">A plane, a line, or two cohorts</p>
+<p class="book-label">Why</p>
+<p>The splits so far can be read as one linear model: a score, a coded factor, and the part the fit does not explain. A between-subjects design fits one plane across the factor. In the cross-section that plane is one line, and each person’s baseline stays in the residual, so those residual lines are long. A within-subjects design gives each person a line. The baseline is set aside, and the residuals are short. The mixed design nests those lines in two cohorts, and the cohorts need not share a slope.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">between-subjects: Z = b₀ + b₁(Factor 1) + e</span><span class="connection-gloss-line">one line for separate groups.</span><span class="connection-symbols-line">Z is the score, b₀ the intercept, b₁ the slope on the coded factor, and e the residual the line does not explain.</span></li>
+<li><span class="connection-formula-line">within-subjects: Z = (b₀ + u₀) + b₁(Factor 1) + e</span><span class="connection-gloss-line">a line for each person, with that person’s baseline set aside.</span><span class="connection-symbols-line">Z is the score, b₀ a shared intercept, u₀ the person’s own baseline, b₁ the slope, and e the residual.</span></li>
+<li>mixed: two cohorts of lines, and the slopes need not match</li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Choose a design and see a plane for separate groups, a line for each person, or two cohorts whose slopes need not match.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/geometric_anova_regression.html">
+<span class="book-still-media">
+<img src="stills/geometric-anova.png" width="1220" height="896" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Geometric ANOVA Regression</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Geometric ANOVA Regression" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Geometric ANOVA Regression</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The usual reading of these fits still depends on conditions on the residuals.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-anova-assumptions" data-book-section>
+<h3>ANOVA Assumptions</h3>
+<p class="book-subhead">Residuals, spread, and independence</p>
+<p class="book-label">Why</p>
+<p>The usual reading of an F test wants residuals that are roughly normal, groups with similar spread, and observations that are independent of each other. Those are the conditions for the standard interpretation — a check on whether the splits and F ratios can be read in the ordinary way. Breaking one of them moves the Type I error under the null, the power under the alternative, or both.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li>residuals ≈ normal</li>
+<li>group variances similar</li>
+<li>observations independent</li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Step through normality, similar spread, and independence, and see the Type I error, the power, or both move when one breaks.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/anova_assumptions.html">
+<span class="book-still-media">
+<img src="stills/anova-assumptions.png" width="1614" height="1954" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">ANOVA Assumptions</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="ANOVA Assumptions" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">ANOVA Assumptions</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<a class="book-selftest" id="self-test-anova" href="../statistics/anova_review.html?learn=1"><span class="book-selftest-label"><span class="book-selftest-mark" aria-hidden="true">🔖</span><span class="book-selftest-name">Self-test: ANOVA</span></span><span class="book-still-arrow" aria-hidden="true"></span></a>
+</section>
+    </article>
+    </div>
+    <script src="book.js"></script>
+</body>
+</html>

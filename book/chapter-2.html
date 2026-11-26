@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Book view · Chapter 2 – Probability &amp; sampling - Project Viz</title>
+    <meta name="description" content="Book view for Volume 1, Chapter 2, Probability &amp; sampling.">
+    <link rel="icon" href="https://yiuhong.github.io/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/foundation.css">
+    <link rel="stylesheet" href="../assets/library-nav.css">
+    <link rel="stylesheet" href="../assets/shell.css">
+    <link rel="stylesheet" href="../assets/teach.css">
+    <link rel="stylesheet" href="../assets/connection-page.css">
+    <link rel="stylesheet" href="book.css">
+    <script>
+        (function () {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                if (!params.has("teach") && !params.has("learn")) {
+                    params.set("teach", "1");
+                    history.replaceState(null, "", window.location.pathname + "?" + params.toString() + window.location.hash);
+                }
+            } catch (err) {}
+        })();
+    </script>
+    <script src="../assets/teach.js"></script>
+</head>
+<body class="book-page">
+    <header class="viz-topbar">
+        <nav aria-label="Library">
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../catalog.html">Catalog</a></li>
+                <li><a href="../tracks.html">Book view</a></li>
+                <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="book-shell">
+<nav class="book-menu" aria-label="Chapter sections">
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide sections"><span class="book-menu-arrow" aria-hidden="true"></span></button>
+<div id="book-menu-panel">
+<p class="book-menu-chapter"><a href="#probability-and-sampling">Chapter 2 · Probability &amp; sampling</a></p>
+<a class="book-section-link" href="#from-process-to-distribution">From process to distribution</a>
+<ul>
+<li><a class="book-demo-link" href="#demo-stats-conceptual-hierarchy">The 5-Level Conceptual Hierarchy of Statistics</a></li>
+<li><a class="book-demo-link" href="#demo-building-normal-distribution">Building the Normal Distribution</a></li>
+<li><a class="book-demo-link" href="#demo-probability-distributions-map">Probability Distributions Map</a></li>
+<li><a class="book-selftest-link" href="#self-test-from-process-to-distribution"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: From process to distribution</a></li>
+</ul>
+<a class="book-section-link" href="#counts-arrivals-and-the-board">Counts, arrivals, and the board</a>
+<ul>
+<li><a class="book-demo-link" href="#demo-binomial-bernoulli">Binomial Distribution &amp; Bernoulli Process</a></li>
+<li><a class="book-demo-link" href="#demo-poisson-point-process">Poisson Distribution &amp; Poisson Point Process</a></li>
+<li><a class="book-demo-link" href="#demo-galton-board">Galton Board</a></li>
+<li><a class="book-selftest-link" href="#self-test-counts-arrivals-and-the-board"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Counts, arrivals, and the board</a></li>
+</ul>
+<a class="book-section-link" href="#sampling-distributions-and-intervals">Sampling distributions and intervals</a>
+<ul>
+<li><a class="book-demo-link" href="#demo-central-limit-theorem">Central Limit Theorem (CLT)</a></li>
+<li><a class="book-demo-link" href="#demo-horowitz-1974-simulation-CLT">Horowitz (1974) CLT Simulation</a></li>
+<li><a class="book-demo-link" href="#demo-chi-square-distribution">Chi-Square Distribution</a></li>
+<li><a class="book-demo-link" href="#demo-target-analogy-confidence-intervals">Target Analogy of Confidence Intervals</a></li>
+<li><a class="book-selftest-link" href="#self-test-sampling-distributions-and-intervals"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: Sampling distributions and intervals</a></li>
+</ul>
+<a class="book-section-link" href="#from-chi-square-to-goodness-of-fit">From chi-square to goodness-of-fit</a>
+<ul>
+<li><a class="book-demo-link" href="#demo-chi-square-distribution-2">Chi-Square Distribution</a></li>
+<li><a class="book-demo-link" href="#demo-chi-square-squared-distance">Chi-Square as Squared Distance</a></li>
+<li><a class="book-demo-link" href="#demo-binomial-counts-to-chi-square">From Binomial Counts to Chi-Square</a></li>
+<li><a class="book-demo-link" href="#demo-chi-square-goodness-of-fit">Pearson’s χ² Goodness-of-Fit</a></li>
+<li><a class="book-demo-link" href="#demo-chi-square-independence-2x2">χ² Roulette: Goodness-of-Fit vs Independence</a></li>
+<li><a class="book-selftest-link" href="#self-test-from-chi-square-to-goodness-of-fit"><span class="book-selftest-mark" aria-hidden="true">🔖</span> Self-test: From chi-square to goodness-of-fit</a></li>
+</ul>
+</div>
+</nav>
+<script>
+    (function () {
+        var menu = document.querySelector(".book-menu");
+        var button = document.getElementById("book-menu-toggle");
+        var open = window.matchMedia("(min-width: 960px)").matches;
+        if (!menu || !button) return;
+        menu.classList.toggle("is-collapsed", !open);
+        var shell = document.querySelector(".book-shell");
+        if (shell) shell.classList.toggle("is-menu-collapsed", !open);
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+        button.setAttribute("aria-label", open ? "Hide sections" : "Show sections");
+    })();
+</script>
+    <article class="book-doc" aria-label="Book view, Chapter 2, Probability &amp; sampling">
+<header id="probability-and-sampling" data-book-section>
+<h1>Chapter 2 – Probability &amp; sampling</h1>
+<p class="book-status"><em>Yiu Hong Ko · Volume 1 · aligned with <a href="../index.html">demo-library</a> · as of 26 Nov 2026 HKT</em></p>
+<p>This chapter follows the live topic Probability &amp; sampling in Project Viz. The sections of this chapter are <a href="#from-process-to-distribution">From process to distribution</a>, <a href="#counts-arrivals-and-the-board">Counts, arrivals, and the board</a>, <a href="#sampling-distributions-and-intervals">Sampling distributions and intervals</a>, and <a href="#from-chi-square-to-goodness-of-fit">From chi-square to goodness-of-fit</a>.</p>
+</header>
+<section class="book-section" id="from-process-to-distribution" data-book-section>
+<h2>From process to distribution</h2>
+<p>This path is for how a statistical claim is built, from a process to a curve. By the end you can name the levels from a parameter to inference, see what fixes a normal curve, and place that curve among the distributions it connects to. A short review then asks ten questions on that path. The track ends after the review.</p>
+<section class="book-demo" id="demo-stats-conceptual-hierarchy" data-book-section>
+<h3>The 5-Level Conceptual Hierarchy of Statistics</h3>
+<p class="book-subhead">A claim built in levels</p>
+<p class="book-label">Why</p>
+<p>A statistical claim is built in levels. A parameter is a fixed rule of the process. The process produces one outcome. A random variable turns that outcome into a number. The distribution is the pattern of those numbers. Inference uses the sample to say something about the parameter you cannot see.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li>parameter θ fixes the process</li>
+<li><span class="connection-formula-line">X : Ω → ℝ</span><span class="connection-gloss-line">a random variable turns an outcome into a number.</span><span class="connection-symbols-line">X is that number, Ω is the set of outcomes, and ℝ is the real numbers.</span></li>
+<li><span class="connection-formula-line">μ = E[X],  σ² = Var(X)</span><span class="connection-gloss-line">the mean and the variance of X.</span><span class="connection-symbols-line">E[X] is the expected value, the long-run average, and Var(X) is the average squared deviation from it.</span></li>
+<li><span class="connection-formula-line">X̄ ± 1.96 · (s / √M)</span><span class="connection-gloss-line">an interval for the mean from one sample.</span><span class="connection-symbols-line">X̄ is the sample mean, s the sample standard deviation, M how many observations, and 1.96 the normal cutoff for about 95%.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Step through a random walk or coin tosses. Each level updates from the parameter through to the inference.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/stats_conceptual_hierarchy.html">
+<span class="book-still-media">
+<img src="stills/conceptual-hierarchy.png" width="2880" height="2250" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">The 5-Level Conceptual Hierarchy of Statistics</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="The 5-Level Conceptual Hierarchy of Statistics" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">The 5-Level Conceptual Hierarchy of Statistics</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step builds one such distribution, the normal curve, from a center and a spread.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-building-normal-distribution" data-book-section>
+<h3>Building the Normal Distribution</h3>
+<p class="book-subhead">A curve fixed by center and spread</p>
+<p class="book-label">Why</p>
+<p>Many descriptions of data end by asking whether the shape looks like a familiar smooth curve. The normal distribution is one such curve, fixed by a center and a spread. Putting the curve together shows what the model is made of.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">f(x) = (1 / (σ√(2π))) exp(−(x − μ)² / (2σ²))</span><span class="connection-gloss-line">the height of the normal curve at x.</span><span class="connection-symbols-line">x is a point on the axis, μ the center, σ the spread, π is pi, and exp is the exponential.</span></li>
+<li>μ = center</li>
+<li>σ = spread</li>
+</ul>
+<p class="book-label">Try this</p>
+<p>The demonstration puts a normal curve together from a center and a spread.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/building_normal_distribution.html">
+<span class="book-still-media">
+<img src="stills/normal-distribution.png" width="2064" height="1602" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Building the Normal Distribution</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Building the Normal Distribution" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Building the Normal Distribution</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step places that curve among the other distributions it connects to.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-probability-distributions-map" data-book-section>
+<h3>Probability Distributions Map</h3>
+<p class="book-subhead">The normal curve among the others</p>
+<p class="book-label">Why</p>
+<p>The normal curve is one model among many. This map places sixteen common distributions in five neighborhoods and draws three kinds of link: a special case that fixes a parameter, a transformation or a sum, and a limit. Binomial(n, p) with n = 1 is Bernoulli(p). As n grows and np settles on λ, the binomial count approaches Poisson(λ). As n grows, the binomial count also approaches a normal curve, the shape the previous step built. That limit is the de Moivre–Laplace theorem: de Moivre (1738), The doctrine of chances (2nd ed.), and Laplace (1812), Théorie analytique des probabilités.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">Binomial(1, p) = Bernoulli(p)</span><span class="connection-gloss-line">one trial with success chance p is a Bernoulli trial.</span><span class="connection-symbols-line">p is that chance.</span></li>
+<li><span class="connection-formula-line">Binomial(n, p) → Poisson(λ) as n → ∞ and np → λ</span><span class="connection-gloss-line">the binomial count approaches a Poisson count as the trials grow and the mean np settles on λ.</span><span class="connection-symbols-line">n is how many trials, p the success chance, and λ the Poisson mean.</span></li>
+<li><span class="connection-formula-line">Binomial(n, p) → Normal as n → ∞ (de Moivre–Laplace)</span><span class="connection-gloss-line">with many trials the same count approaches a normal curve.</span><span class="connection-symbols-line">n is how many trials, and p is the success chance.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Filter a neighborhood, or select a distribution and read its links: a special case, a transform, or a limit.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/probability_distributions_map.html">
+<span class="book-still-media">
+<img src="stills/distributions-map.png" width="1956" height="1576" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Probability Distributions Map</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Probability Distributions Map" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Probability Distributions Map</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<a class="book-selftest" id="self-test-from-process-to-distribution" href="../statistics/from_process_to_distribution_review.html?learn=1"><span class="book-selftest-label"><span class="book-selftest-mark" aria-hidden="true">🔖</span><span class="book-selftest-name">Self-test: From process to distribution</span></span><span class="book-still-arrow" aria-hidden="true"></span></a>
+</section>
+<section class="book-section" id="counts-arrivals-and-the-board" data-book-section>
+<h2>Counts, arrivals, and the board</h2>
+<p>This path is for counts of coin tosses and of arrivals, and the board that piles those counts into a bell. By the end you can read a binomial count, a Poisson count, and the same kind of sum as bins on a Galton board. A short review then asks ten questions on those counts. The track ends after the review.</p>
+<section class="book-demo" id="demo-binomial-bernoulli" data-book-section>
+<h3>Binomial Distribution &amp; Bernoulli Process</h3>
+<p class="book-subhead">Counting heads in n tosses</p>
+<p class="book-label">Why</p>
+<p>A coin toss is a Bernoulli trial: two outcomes, the same chance of heads every time, and no memory of the tosses before it. The trial and the binomial count are the model in Bernoulli (1713), Ars conjectandi. Count the heads in n tosses and that count is binomial, the sum of those trials. The bars are the exact probabilities.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">Xᵢ ~ Bernoulli(p),  P(Xᵢ = 1) = p</span><span class="connection-gloss-line">one trial.</span><span class="connection-symbols-line">Xᵢ is 1 for a success and 0 otherwise, and p is the chance of success.</span></li>
+<li><span class="connection-formula-line">X = X₁ + … + Xₙ ~ Binomial(n, p)</span><span class="connection-gloss-line">the count of successes in n trials.</span><span class="connection-symbols-line">Each Xᵢ is one trial, n is how many, and p is the chance of success on each.</span></li>
+<li><span class="connection-formula-line">P(X = k) = C(n, k) · pᵏ · (1 − p)ⁿ⁻ᵏ</span><span class="connection-gloss-line">the chance of exactly k successes.</span><span class="connection-symbols-line">C(n, k) is the number of ways to place those k successes in n trials, and p is the chance of one success.</span></li>
+<li><span class="connection-formula-line">μ = np,  σ = √(np(1 − p))</span><span class="connection-gloss-line">the mean and the standard deviation of that count.</span><span class="connection-symbols-line">n is how many trials, and p is the chance of success.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Set the number of coins and the chance of heads, then run many trials. The observed frequencies settle onto the bars.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/binomial_bernoulli.html">
+<span class="book-still-media">
+<img src="stills/binomial-bernoulli.png" width="1740" height="1768" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Binomial Distribution &amp; Bernoulli Process</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Binomial Distribution &amp; Bernoulli Process" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Binomial Distribution &amp; Bernoulli Process</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step counts arrivals in a stretch of time instead of successes in a fixed number of trials.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-poisson-point-process" data-book-section>
+<h3>Poisson Distribution &amp; Poisson Point Process</h3>
+<p class="book-subhead">Arrivals in a stretch of time</p>
+<p class="book-label">Why</p>
+<p>A coin toss fixes the number of trials and counts the successes. A Poisson process fixes a stretch of time and counts arrivals that have no memory of one another. The count distribution is the one in Poisson (1837), Recherches sur la probabilité des jugements en matière criminelle et en matière civile. The waiting time between arrivals is exponential with the same rate, and the count in an interval of length t is Poisson(λt). Chop that interval into many short bins and each bin is nearly a Bernoulli trial. As the bins get finer, the binomial count approaches the Poisson count.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">N(t) ~ Poisson(λt)</span><span class="connection-gloss-line">the number of arrivals in a window of length t.</span><span class="connection-symbols-line">λ is the rate, arrivals per unit of time.</span></li>
+<li><span class="connection-formula-line">P(N(t) = k) = e<sup>−λt</sup> (λt)<sup>k</sup> / k!</span><span class="connection-gloss-line">the chance of exactly k arrivals.</span><span class="connection-symbols-line">λt is the mean count, e is the exponential base, and k! is k factorial: 1 × 2 × … × k, and 0! = 1.</span></li>
+<li><span class="connection-formula-line">μ = λt</span><span class="connection-gloss-line">the mean number of arrivals.</span><span class="connection-symbols-line">λ is the rate per unit of time, and t is the length of the window.</span></li>
+<li><span class="connection-formula-line">Binomial(n, μ/n) → Poisson(μ) as n → ∞</span><span class="connection-gloss-line">split the window into n bins and the binomial count approaches the Poisson count.</span><span class="connection-symbols-line">μ is the mean count, and n is how many bins.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Set the rate and the window and watch the arrivals. The bars are the Poisson probabilities, and a finer binomial count approaches them.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/poisson_point_process.html">
+<span class="book-still-media">
+<img src="stills/poisson.png" width="2800" height="1230" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Poisson Distribution &amp; Poisson Point Process</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Poisson Distribution &amp; Poisson Point Process" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Poisson Distribution &amp; Poisson Point Process</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step writes a binomial count as left and right bounces on a Galton board.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-galton-board" data-book-section>
+<h3>Galton Board</h3>
+<p class="book-subhead">Bounces that pile into a bell</p>
+<p class="book-label">Why</p>
+<p>Each bead on a Galton board takes a left or right bounce at every peg, the same Bernoulli trial as a coin toss. The bin it reaches is the count of right bounces, a binomial sum of independent steps. With more rows, those counts pile up into a bell shape, and the binomial distribution approximates a normal distribution. The board is the quincunx in Galton (1889), Natural inheritance.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">X = X₁ + … + Xₙ ~ Binomial(n, p)</span><span class="connection-gloss-line">the bin is a count of right bounces.</span><span class="connection-symbols-line">Each Xᵢ is one bounce, n is the number of rows, and p is the chance of a right bounce.</span></li>
+<li><span class="connection-formula-line">μ = np,  σ = √(np(1 − p))</span><span class="connection-gloss-line">the mean and the standard deviation of that count of bounces.</span><span class="connection-symbols-line">n is the number of rows, and p is the chance of a right bounce.</span></li>
+<li><span class="connection-formula-line">P(X = k) ≈ (1 / (σ√(2π))) exp(−(k − μ)² / (2σ²))</span><span class="connection-gloss-line">with many rows, the chance of bin k is about this normal height.</span><span class="connection-symbols-line">k is the bin, μ the mean count, σ its spread, π is pi, and exp is the exponential.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Start the flow or drop a burst, and change the rows. Each bead’s bin is its count of right bounces, and more rows pile those counts into a bell.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/galton_board.html">
+<span class="book-still-media">
+<img src="stills/galton-board.png" width="1504" height="1282" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Galton Board</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Galton Board" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Galton Board</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<a class="book-selftest" id="self-test-counts-arrivals-and-the-board" href="../statistics/counts_arrivals_and_the_board_review.html?learn=1"><span class="book-selftest-label"><span class="book-selftest-mark" aria-hidden="true">🔖</span><span class="book-selftest-name">Self-test: Counts, arrivals, and the board</span></span><span class="book-still-arrow" aria-hidden="true"></span></a>
+</section>
+<section class="book-section" id="sampling-distributions-and-intervals" data-book-section>
+<h2>Sampling distributions and intervals</h2>
+<p>This path is for what repeated samples do to a summary. By the end you can see sample means settle toward a normal curve, a chi-square as a sum of squared standard normals, and a confidence interval as long-run coverage, not a chance for one interval. A short review then asks ten questions on those repeated samples. The track ends after the review.</p>
+<section class="book-demo" id="demo-central-limit-theorem" data-book-section>
+<h3>Central Limit Theorem (CLT)</h3>
+<p class="book-subhead">Many means, one curve</p>
+<p class="book-label">Why</p>
+<p>A single sample mean is one summary of one set of numbers. If you imagine drawing many samples of the same size, those means themselves form a distribution. As each sample gets larger, that distribution of means settles toward a normal curve, whatever shape the raw observations had. The central limit theorem is that statement about means. The spread of those means is the standard error, σ / √n, so a larger sample pulls them in tighter.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">X̄ ≈ N(μ, σ²/n) for large n</span><span class="connection-gloss-line">the distribution of the sample mean is about normal.</span><span class="connection-symbols-line">X̄ is that mean, μ and σ the population mean and standard deviation, n the sample size, and N(mean, variance) a normal curve.</span></li>
+<li><span class="connection-formula-line">SE = σ / √n</span><span class="connection-gloss-line">the standard error: how widely those means spread.</span><span class="connection-symbols-line">σ is the population standard deviation, and n is the sample size.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Draw many samples and watch their means settle toward a normal curve. This simulation uses the population standard deviation; with one real sample that spread is estimated by s / √n.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/central_limit_theorem.html">
+<span class="book-still-media">
+<img src="stills/central-limit-theorem.png" width="2304" height="1254" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Central Limit Theorem (CLT)</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Central Limit Theorem (CLT)" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Central Limit Theorem (CLT)</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<section class="book-demo" id="demo-horowitz-1974-simulation-CLT" data-book-section>
+<h3>Horowitz (1974) CLT Simulation</h3>
+<p class="book-subhead">Watching sample means accumulate</p>
+<p class="book-label">Why</p>
+<p>The central limit theorem is easier to trust when you can watch sample means accumulate. Horowitz&#x27;s 1974 classroom simulation draws samples of 10 again and again from about 1,000 scores, roughly N(50, 15.8); the collection of sample means takes on a normal shape. The spread of those means is about σ / √10. Each sample also estimates that spread with s / √n, and the average of those estimates settles near it (Horowitz, 1974, pp. 179–182).</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">X̄ₙ → N(μ, σ²/n) as n grows</span><span class="connection-gloss-line">the distribution of the sample mean approaches a normal curve.</span><span class="connection-symbols-line">X̄ₙ is the mean of n scores, μ and σ the population mean and standard deviation, and n the sample size.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Draw samples of 10 with replacement from about 1,000 scores and watch the means pile up. Each sample’s s / √n estimates the spread of those means.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/horowitz_1974_simulation_CLT.html">
+<span class="book-still-media">
+<img src="stills/horowitz-clt.png" width="2304" height="1212" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Horowitz (1974) CLT Simulation</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Horowitz (1974) CLT Simulation" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Horowitz (1974) CLT Simulation</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>Once means behave like normals, sums of squared standard normals become the next building block.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-chi-square-distribution" data-book-section>
+<h3>Chi-Square Distribution</h3>
+<p class="book-subhead">Squared normals, added up</p>
+<p class="book-label">Why</p>
+<p>Not every sampling story is about a mean. Square independent standard normal draws and add them up; the sum follows a chi-square distribution, the usual sampling model for a variance. The degrees of freedom are how many squares went in: one square spikes at zero, and further squares move the curve to the right. The same page can drop a sum of squared count residuals onto that curve. That mark is still one draw from the sampling distribution, not a test of a model.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">χ²<sub>ν</sub> = Z₁² + … + Z<sub>ν</sub>²</span><span class="connection-gloss-line">a chi-square value is this sum of squared standard normals.</span><span class="connection-symbols-line">ν is how many squares, and each Z is one standard normal.</span></li>
+<li><span class="connection-formula-line">Zᵢ ~ N(0, 1), independent</span><span class="connection-gloss-line">each draw is a standard normal, and the draws are independent.</span><span class="connection-symbols-line">Zᵢ is one draw, and N(0, 1) has mean 0 and variance 1.</span></li>
+<li>ν = number of squared normals</li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Set the degrees of freedom and draw samples of squared standard normals. The counts case places a sum of squared count residuals on the same curve.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/chi_square_distribution.html">
+<span class="book-still-media">
+<img src="stills/chi-square-distribution.png" width="2028" height="1926" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Chi-Square Distribution</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Chi-Square Distribution" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Chi-Square Distribution</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>With sampling distributions for means and for variances in view, you can ask what kind of interval claim a sampling distribution can support.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-target-analogy-confidence-intervals" data-book-section>
+<h3>Target Analogy of Confidence Intervals</h3>
+<p class="book-subhead">A percentage for the procedure</p>
+<p class="book-label">Why</p>
+<p>A confidence interval is a range computed from a sample. In the target analogy the unknown value stays fixed and each interval is a shot, so the stated percentage describes the procedure over many samples — not the chance that this one interval covers that value.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">CI = X̄ ± z* · (σ / √n)</span><span class="connection-gloss-line">an interval around the sample mean.</span><span class="connection-symbols-line">X̄ is that mean, z* the normal cutoff for the stated percentage, σ the population standard deviation, and n the sample size.</span></li>
+<li><span class="connection-formula-line">coverage ≈ 1 − α over repeated samples</span><span class="connection-gloss-line">the share of repeated intervals that hit the fixed value.</span><span class="connection-symbols-line">α is the share that miss.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Generate many intervals aimed at a fixed value, and count how many of them cross it.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/target_analogy_confidence_intervals.html">
+<span class="book-still-media">
+<img src="stills/confidence-intervals.png" width="2784" height="1490" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Target Analogy of Confidence Intervals</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Target Analogy of Confidence Intervals" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Target Analogy of Confidence Intervals</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<a class="book-selftest" id="self-test-sampling-distributions-and-intervals" href="../statistics/sampling_distributions_and_intervals_review.html?learn=1"><span class="book-selftest-label"><span class="book-selftest-mark" aria-hidden="true">🔖</span><span class="book-selftest-name">Self-test: Sampling distributions and intervals</span></span><span class="book-still-arrow" aria-hidden="true"></span></a>
+</section>
+<section class="book-section" id="from-chi-square-to-goodness-of-fit" data-book-section>
+<h2>From chi-square to goodness-of-fit</h2>
+<p>This path is for the chi-square curve, the goodness-of-fit test that uses it, and the same formula read as a test of independence. By the end you can read that curve as a sum of squared standard normals, see the sum as squared distance from a bullseye, follow a count from a z score to Pearson’s statistic, test observed counts against the counts a known model expects, and tell that reading from one whose expected counts come from the sample margins. A short review then asks ten questions on that sum. The track ends after the review.</p>
+<section class="book-demo" id="demo-chi-square-distribution-2" data-book-section>
+<h3>Chi-Square Distribution</h3>
+<p class="book-subhead">A sum of squares, and its curve</p>
+<p class="book-label">Why</p>
+<p>Not every sampling story is about a mean. Square independent standard normal draws and add them up; the sum follows a chi-square distribution, the usual sampling model for a variance. The degrees of freedom are how many squares went in: one square spikes at zero, and further squares move the curve to the right. The same page can drop a sum of squared count residuals onto that curve. That mark is still one draw from the sampling distribution, not a test of a model.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">χ²<sub>ν</sub> = Z₁² + … + Z<sub>ν</sub>²</span><span class="connection-gloss-line">a chi-square value is this sum of squared standard normals.</span><span class="connection-symbols-line">ν is how many squares, and each Z is one standard normal.</span></li>
+<li><span class="connection-formula-line">Zᵢ ~ N(0, 1), independent</span><span class="connection-gloss-line">each draw is a standard normal, and the draws are independent.</span><span class="connection-symbols-line">Zᵢ is one draw, and N(0, 1) has mean 0 and variance 1.</span></li>
+<li>ν = number of squared normals</li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Set the degrees of freedom and draw samples of squared standard normals. The counts case places a sum of squared count residuals on the same curve.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/chi_square_distribution.html">
+<span class="book-still-media">
+<img src="stills/chi-square-distribution.png" width="2028" height="1926" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Chi-Square Distribution</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Chi-Square Distribution" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Chi-Square Distribution</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step draws those squares as distance from a point.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-chi-square-squared-distance" data-book-section>
+<h3>Chi-Square as Squared Distance</h3>
+<p class="book-subhead">Squared distance from a bullseye</p>
+<p class="book-label">Why</p>
+<p>Give each of those normals a spread, and the sum of squares is squared distance from a bullseye. A dart from a Gaussian cloud lands on a rail, a board, or in a chamber. Unequal spreads stretch the cloud, and each axis keeps its own weight: a generalized chi-square. Equal spreads make circles, and the squared distance is one variance times a standard chi-square. Divide each axis by its spread and the squared distance is the standard chi-square from the previous step.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">Q = σ<sub>1</sub>² Z<sub>1</sub>² + … + σ<sub>ν</sub>² Z<sub>ν</sub>²</span><span class="connection-gloss-line">squared distance from the bullseye when each axis has its own spread.</span><span class="connection-symbols-line">Q is that distance, σ<sub>1</sub>² the variance on the first axis, Z<sub>1</sub> a standard normal on that axis, and ν how many axes.</span></li>
+<li><span class="connection-formula-line">equal spreads: Q = σ² χ²<sub>ν</sub></span><span class="connection-gloss-line">when every axis has the same spread, the distance is that variance times a standard chi-square.</span><span class="connection-symbols-line">σ² is the shared variance, and ν is how many axes.</span></li>
+<li><span class="connection-formula-line">divide each axis by its spread: Q = Z<sub>1</sub>² + … + Z<sub>ν</sub>²</span><span class="connection-gloss-line">after scaling each axis by its spread, the distance is a standard chi-square.</span><span class="connection-symbols-line">Each Z is a standard normal, and ν is how many axes.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Throw a Gaussian dart and read its squared distance from the bullseye as a generalized, scaled, or standard chi-square.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/chi_square_squared_distance.html">
+<span class="book-still-media">
+<img src="stills/chi-square-distance.png" width="2296" height="1052" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Chi-Square as Squared Distance</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Chi-Square as Squared Distance" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Chi-Square as Squared Distance</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step starts from counts instead of from a dart.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-binomial-counts-to-chi-square" data-book-section>
+<h3>From Binomial Counts to Chi-Square</h3>
+<p class="book-subhead">A count, a z, then a chi-square</p>
+<p class="book-label">Why</p>
+<p>A category from a coin or a die is a binomial count. The expected count is np, and the central limit theorem approximates that count with a normal curve. Dividing the error by the binomial standard deviation produces a z score. With two categories the errors are opposites, so the squared z equals Pearson’s chi-square and there is 1 degree of freedom. With more categories the counts are tied, so the degrees of freedom are k − 1, and one squared z is not that category’s Pearson cell: the squared z divides by E(1 − p), and the cell divides by E. The cells add to the chi-square. Cochran’s rule asks that every expected count be at least 5 before those curves are trusted. Pearson’s criterion is Pearson (1900), On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. The expected-count check is Cochran (1954), Some methods for strengthening the common χ² tests.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">Eᵢ = n pᵢ</span><span class="connection-gloss-line">the count the model expects in category i.</span><span class="connection-symbols-line">n is how many trials, and pᵢ is the model’s chance for that category.</span></li>
+<li><span class="connection-formula-line">Zᵢ = (Oᵢ − Eᵢ) / √(n pᵢ (1 − pᵢ))</span><span class="connection-gloss-line">that count, scaled into a z score.</span><span class="connection-symbols-line">Oᵢ is the observed count, Eᵢ the expected count, n how many trials, and pᵢ the category’s chance.</span></li>
+<li><span class="connection-formula-line">Pearson cell = (Oᵢ − Eᵢ)² / Eᵢ</span><span class="connection-gloss-line">that category’s contribution to the chi-square.</span><span class="connection-symbols-line">Oᵢ is the observed count, and Eᵢ is the expected count.</span></li>
+<li><span class="connection-formula-line">χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ,   df = k − 1</span><span class="connection-gloss-line">the cells add to a chi-square, with degrees of freedom one less than the categories.</span><span class="connection-symbols-line">Oᵢ is observed, Eᵢ expected, df degrees of freedom, k how many categories, and Σ adds the cells.</span></li>
+<li><span class="connection-formula-line">k = 2: Z² = χ²</span><span class="connection-gloss-line">with two categories, the squared z equals the chi-square.</span><span class="connection-symbols-line">k is how many categories.</span></li>
+<li><span class="connection-formula-line">k &gt; 2: Z² divides by Eᵢ(1 − pᵢ)</span><span class="connection-gloss-line">with more categories the squared z uses the binomial variance, so it is not the Pearson cell.</span><span class="connection-symbols-line">Eᵢ is the expected count, and pᵢ is the category’s chance.</span></li>
+<li><span class="connection-formula-line">Cochran: each Eᵢ ≥ 5</span><span class="connection-gloss-line">trust the normal and chi-square curves when every expected count is at least 5.</span><span class="connection-symbols-line">Eᵢ is the expected count.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Draw a coin or a die, standardize one category, and compare its squared z with the Pearson cell. Repeated draws fill the chi-square histogram.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/binomial_counts_to_chi_square.html">
+<span class="book-still-media">
+<img src="stills/counts-to-chi-square.png" width="2296" height="1734" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">From Binomial Counts to Chi-Square</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="From Binomial Counts to Chi-Square" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">From Binomial Counts to Chi-Square</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step uses the sum as a test of a model.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-chi-square-goodness-of-fit" data-book-section>
+<h3>Pearson’s χ² Goodness-of-Fit</h3>
+<p class="book-subhead">Counts tested against a model</p>
+<p class="book-label">Why</p>
+<p>Pearson’s goodness-of-fit test compares observed counts with the counts a stated model expects. Each category contributes (O − E)² / E, the Pearson cell from the previous step, and the contributions add to a chi-square with k − 1 degrees of freedom. That statistic is one point on the sampling curve from the first step. Past the critical value, the counts are surprising if the model is true. Cochran’s rule still asks that each expected count be at least 5 before that curve is a fair reference. Pearson’s criterion is Pearson (1900), On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. The expected-count check is Cochran (1954), Some methods for strengthening the common χ² tests.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ</span><span class="connection-gloss-line">observed counts against the counts a model expects, added up.</span><span class="connection-symbols-line">Oᵢ is the observed count, Eᵢ the expected count, and Σ adds the categories.</span></li>
+<li><span class="connection-formula-line">Eᵢ = n pᵢ under the model</span><span class="connection-gloss-line">the count the stated model expects.</span><span class="connection-symbols-line">n is the total count, and pᵢ is the model’s chance for category i.</span></li>
+<li><span class="connection-formula-line">df = k − 1</span><span class="connection-gloss-line">degrees of freedom, one less than the number of categories.</span><span class="connection-symbols-line">k is how many categories.</span></li>
+<li><span class="connection-formula-line">a large χ² falls past the critical value</span><span class="connection-gloss-line">the counts are then surprising if the model is true.</span><span class="connection-symbols-line">χ² is the goodness-of-fit statistic.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Spin a wheel, compare the observed counts with the expected counts, and place the chi-square on its sampling curve.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/chi_square_goodness_of_fit.html">
+<span class="book-still-media">
+<img src="stills/goodness-of-fit.png" width="2296" height="2188" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">Pearson’s χ² Goodness-of-Fit</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="Pearson’s χ² Goodness-of-Fit" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">Pearson’s χ² Goodness-of-Fit</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+<div class="book-bridge">
+<p class="book-label">Bridge</p>
+<p>The next step keeps that formula. The same χ² can be read as goodness-of-fit, when the expected counts come from a known model, or as a test of independence, when they come from the sample margins.</p>
+</div>
+</section>
+<section class="book-demo" id="demo-chi-square-independence-2x2" data-book-section>
+<h3>χ² Roulette: Goodness-of-Fit vs Independence</h3>
+<p class="book-subhead">A known model, or the sample margins</p>
+<p class="book-label">Why</p>
+<p>The same chi-square compares each observed count with an expected count. In a goodness-of-fit reading the expected counts come from probabilities stated before the sample. Nothing is estimated from the data, so a 2×2 table has 3 degrees of freedom. A test of independence builds those expected counts from the sample’s own row and column totals. Estimating the two margins spends 2 degrees of freedom, and the same four cells are judged on 1 degree of freedom. The sum does not change its form. What changes is where each expected count comes from.</p>
+<p class="book-label">Key points</p>
+<ul class="connection-formulae">
+<li><span class="connection-formula-line">χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ</span><span class="connection-gloss-line">the same sum of squared gaps.</span><span class="connection-symbols-line">Oᵢ is the observed count, Eᵢ the expected count, and Σ adds the cells.</span></li>
+<li><span class="connection-formula-line">goodness-of-fit: Eᵢ = n pᵢ, and pᵢ is known</span><span class="connection-gloss-line">expected counts from chances stated before the sample.</span><span class="connection-symbols-line">n is the total count, Eᵢ the expected count, and pᵢ that known chance.</span></li>
+<li><span class="connection-formula-line">independence: E = (row total × column total) / n</span><span class="connection-gloss-line">expected counts built from the sample’s own margins.</span><span class="connection-symbols-line">E is the expected count in a cell, and n is the grand total.</span></li>
+<li><span class="connection-formula-line">2×2: df = 3 when pᵢ is known, and df = 1 from the margins</span><span class="connection-gloss-line">four cells, judged on 3 degrees of freedom when the chances are known and on 1 when the margins supply the expected counts.</span><span class="connection-symbols-line">df is degrees of freedom, and pᵢ is a chance stated in advance.</span></li>
+</ul>
+<p class="book-label">Try this</p>
+<p>Switch goodness-of-fit and independence on the same counts, and watch the expected counts, the degrees of freedom, and the curve change together.</p>
+<div class="book-figure">
+<button type="button" class="book-still" data-demo="../statistics/chi_square_independence_2x2.html">
+<span class="book-still-media">
+<img src="stills/chi-square-independence.png" width="2296" height="2568" alt="">
+<span class="book-still-open" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+</span>
+<span class="book-still-title"><span class="book-still-name">χ² Roulette: Goodness-of-Fit vs Independence</span><span class="book-still-arrow" aria-hidden="true"></span></span>
+</button>
+<section class="viz-pane book-live" aria-label="χ² Roulette: Goodness-of-Fit vs Independence" aria-hidden="true" inert>
+<div class="viz-pane-chrome">
+<p class="book-pane-title">χ² Roulette: Goodness-of-Fit vs Independence</p>
+<div class="viz-mode-switch" role="radiogroup" aria-label="Teach or Learn">
+<button type="button" data-viz-teach-choice="teach">Teach</button>
+<button type="button" data-viz-teach-choice="learn">Learn</button>
+</div>
+<button type="button" class="viz-chrome-btn book-exit">Exit</button>
+</div>
+<div class="viz-pane-stage"></div>
+</section>
+</div>
+</section>
+<a class="book-selftest" id="self-test-from-chi-square-to-goodness-of-fit" href="../statistics/from_chi_square_to_goodness_of_fit_review.html?learn=1"><span class="book-selftest-label"><span class="book-selftest-mark" aria-hidden="true">🔖</span><span class="book-selftest-name">Self-test: From chi-square to goodness-of-fit</span></span><span class="book-still-arrow" aria-hidden="true"></span></a>
+</section>
+    </article>
+    </div>
+    <script src="book.js"></script>
+</body>
+</html>

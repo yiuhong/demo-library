@@ -1,5 +1,5 @@
 /*
- * Chapter 1 Book mode. The chapter scrolls. A still opens its
+ * Book view chapters. The chapter scrolls. A still opens its
  * demonstration over the screen, and Exit returns to the same place.
  * This file does not turn pages.
  */

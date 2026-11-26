@@ -24,10 +24,12 @@
  * a second scroller. Exit, Back, and Escape restore the chrome. iPad
  * Safari in a browser tab still uses the Fullscreen API when it is
  * available.
- * On Guided Tracks the desktop rail lists topics and the pane
- * shows the topic tree until a track is open. Choosing a topic zooms
- * that subtree. Back from a demonstration returns to that track, and
- * Back in the rail returns to the focused topic or the full overview.
+ * On Book view the desktop rail lists topics and the pane shows the
+ * topic tree until a track is open. Choosing a topic zooms that
+ * subtree, unless that topic or section already has a chapter page.
+ * Those clicks, and a pasted topic or track address, leave for the
+ * chapter. Back from a demonstration returns to that track, and Back
+ * in the rail returns to the focused topic or the full overview.
  * A phone shows the tree first. On Catalog the desktop rail lists the
  * curriculum groups, and the pane holds every group's cards. Search
  * covers the whole catalog. Back to browse restores the grid. On a
@@ -726,6 +728,51 @@
         }
     }
 
+    /* Keep this list with the head of tracks.html. openTopic and openTrack
+       use it, so a Book view click does not stay on the playlist. */
+    var BOOK_CHAPTERS = {
+        "describing-data": "book/chapter-1.html",
+        "probability-and-sampling": "book/chapter-2.html",
+        "comparing-means": "book/chapter-3.html",
+        "association": "book/chapter-4.html"
+    };
+    var BOOK_SECTIONS = {
+        "center-and-spread": "book/chapter-1.html",
+        "shape-and-pictures": "book/chapter-1.html",
+        "same-summaries-different-graphs": "book/chapter-1.html",
+        "from-process-to-distribution": "book/chapter-2.html",
+        "counts-arrivals-and-the-board": "book/chapter-2.html",
+        "sampling-distributions-and-intervals": "book/chapter-2.html",
+        "from-chi-square-to-goodness-of-fit": "book/chapter-2.html",
+        "t-test": "book/chapter-3.html",
+        "statistical-power": "book/chapter-3.html",
+        "anova": "book/chapter-3.html",
+        "association": "book/chapter-4.html"
+    };
+    var leftForChapter = false;
+
+    function bookChapterHref(topic, track) {
+        if (track && BOOK_SECTIONS[track]) return BOOK_SECTIONS[track] + "#" + track;
+        if (topic && BOOK_CHAPTERS[topic]) return BOOK_CHAPTERS[topic] + "#" + topic;
+        var book = window.ProjectVizBook;
+        if (!book || typeof book.href !== "function") return "";
+        return book.href(topic, track) || "";
+    }
+
+    function isChapterPageHref(href) {
+        return /^book\/chapter-[1-9][0-9]*\.html(?:#|$)/.test(href || "");
+    }
+
+    function leaveForBookChapter() {
+        if (page !== "tracks") return false;
+        if (leftForChapter) return true;
+        var href = bookChapterHref(topicFromLocation(), trackFromLocation());
+        if (!href) return false;
+        leftForChapter = true;
+        window.location.replace(href);
+        return true;
+    }
+
     function topicUrl(id) {
         var url = new URL(window.location.href);
         url.searchParams.delete("track");
@@ -996,6 +1043,11 @@
 
     function openTopic(id) {
         id = safeTrackId(id);
+        var chapter = bookChapterHref(id, "");
+        if (chapter) {
+            window.location.assign(chapter);
+            return;
+        }
         if (id && (!window.ProjectVizTracks || !window.ProjectVizTracks.hasTopic || !window.ProjectVizTracks.hasTopic(id))) return;
         if (!id && !trackFromLocation() && !topicFromLocation() && !currentHref) return;
         if (id && id === topicFromLocation() && !trackFromLocation() && !currentHref) return;
@@ -1015,6 +1067,11 @@
     function openTrack(id) {
         id = safeTrackId(id);
         if (!id) return;
+        var chapter = bookChapterHref("", id);
+        if (chapter) {
+            window.location.assign(chapter);
+            return;
+        }
         var next = trackUrl(id);
         var state = trackState(id, true);
         if (window.location.href !== next.href) history.pushState(state, "", next);
@@ -1156,6 +1213,7 @@
     }
 
     function syncFromLocation() {
+        if (leaveForBookChapter()) return;
         var demo = readDemo();
         var focusChoice = "";
         if (page === "tracks" && !trackFromLocation()) focusChoice = pendingTrackFocus;
@@ -1197,6 +1255,7 @@
         // Same latch rule as the catalog. Tracks paint themselves; this
         // hook attaches history and the open demonstration.
         if (page !== "tracks" || scoped) return;
+        if (leaveForBookChapter()) return;
         if (!window.ProjectVizTracks || !window.ProjectVizTracks.ready || !window.ProjectVizTracks.ready()) return;
         scoped = true;
         var demo = readDemo();
@@ -1262,12 +1321,14 @@
             ? event.target.closest("a.topic-choice, a.overview-node.is-topic")
             : null;
         if (topicLink && inTracksSurface(topicLink)) {
+            if (isChapterPageHref(topicLink.getAttribute("href") || "")) return;
             event.preventDefault();
             openTopic(topicLink.getAttribute("data-topic") || "");
             return;
         }
         var choice = event.target.closest ? event.target.closest("a.overview-node.is-track") : null;
         if (!choice || !inTracksSurface(choice)) return;
+        if (isChapterPageHref(choice.getAttribute("href") || "")) return;
         var chosen = safeTrackId(choice.getAttribute("data-track") || "");
         if (!chosen) return;
         event.preventDefault();
@@ -1368,7 +1429,10 @@
     });
 
     var initial = readDemo();
-    if (initial) openDemo(initial, { mode: "none", focus: isPhone() });
+    if (page === "tracks" && leaveForBookChapter()) {
+        /* The chapter page replaces this playlist, including when a
+           demonstration was named on the same address. */
+    } else if (initial) openDemo(initial, { mode: "none", focus: isPhone() });
     else if (page === "tracks") {
         var openingTrack = trackFromLocation();
         var openingTopic = topicFromLocation();
