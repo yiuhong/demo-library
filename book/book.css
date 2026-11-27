@@ -690,6 +690,21 @@ body.book-page.is-immersive .book-menu {
     background: #ffffff;
 }
 
+/* Home's site footer, at the end of the overview and of each chapter.
+   It stays in the document, so a phone does not keep it on screen
+   under the top bar or against the sticky contents control. An open
+   demonstration is a fixed cover (z-index 60). This footer sits under
+   that cover and is hidden while the cover is up, so the links do not
+   show through it. */
+body.book-page #footer {
+    position: relative;
+    z-index: 0;
+}
+
+body.book-page:has(.book-live.is-live) #footer {
+    visibility: hidden;
+}
+
 /* Draft chapters only. Chapter 1 does not use this banner. */
 .book-draft-banner {
     margin: 0 0 1.25rem;
