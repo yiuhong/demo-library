@@ -31,8 +31,21 @@
 }
 
 .book-shell {
-    display: block;
+    display: flex;
+    flex-direction: column;
     flex: 1 0 auto;
+}
+
+/* The chapter text and the site footer. On a wide chapter this is the
+   right column, so the footer does not run under the contents column.
+   On a phone and on the overview it is the whole page under the top
+   bar. It grows when the page is short, and the footer stays at its
+   end. */
+.book-column {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    min-width: 0;
 }
 
 .book-menu {
@@ -541,7 +554,7 @@ a.book-selftest:focus-visible {
     .book-shell {
         display: grid;
         grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
-        align-items: start;
+        align-items: stretch;
     }
 
     .book-shell.is-menu-collapsed {
@@ -551,7 +564,18 @@ a.book-selftest:focus-visible {
     /* The overview has no side menu. One column, so the introduction
        uses the width instead of leaving the menu's column empty. */
     body.book-overview .book-shell {
-        display: block;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* A short chapter still ends at the bottom of the window. The
+       contents column is already about that tall, and this keeps the
+       footer in the chapter column, in line with the window, rather
+       than under the contents column or below the fold. */
+    body.book-page:not(.book-overview) .book-column {
+        align-self: stretch;
+        min-height: calc(100vh - var(--book-menu-top, 3.25rem));
+        min-height: calc(100dvh - var(--book-menu-top, 3.25rem));
     }
 
     /* The side column and the hide control both run to the bottom of
@@ -701,18 +725,32 @@ body.book-page.is-immersive .book-menu {
 }
 
 /* Home's site footer, at the end of the overview and of each chapter.
-   It stays in normal flow. The column above grows on a short page, so
-   the footer meets the bottom of the window. On a long chapter it
-   follows the chapter wrap and the References list, and it is not on
-   screen until you scroll there. It is not position: sticky or
-   position: fixed, so it does not sit on the sticky contents control
-   or the top bar. An open demonstration is a fixed cover (z-index 60).
-   This footer sits under that cover and is hidden while the cover is
-   up, so the links do not show through it. */
+   It stays in normal flow, inside the chapter column. On a short page
+   that column grows, so the footer meets the bottom of the window. On
+   a wide chapter the footer is only as wide as that column: it does
+   not run under the contents column. On a long chapter it follows the
+   chapter wrap and the References list, and it is not on screen until
+   you scroll there. It is not position: sticky or position: fixed, so
+   it does not sit on the sticky contents control or the top bar. An
+   open demonstration is a fixed cover (z-index 60). This footer sits
+   under that cover and is hidden while the cover is up, so the links
+   do not show through it. */
 body.book-page #footer {
     position: relative;
     z-index: 0;
     flex: 0 0 auto;
+    margin-top: auto;
+}
+
+/* On a wide chapter the footer is in the plain chapter column. The
+   notebook margin already runs down the contents column, so this
+   footer does not paint a second red rule that would start only
+   beside the footer. The overview and a phone keep that rule, because
+   there the footer is the full width of the page. */
+@media (min-width: 960px) {
+    html.viz-notebook body.book-page:not(.book-overview) #footer::before {
+        content: none;
+    }
 }
 
 body.book-page:has(.book-live.is-live) #footer {
