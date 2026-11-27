@@ -95,9 +95,7 @@ html.viz-notebook body.book-page #footer {
     position: relative;
 }
 
-html.viz-notebook body.viz-home #wrapper::before,
-html.viz-notebook body.viz-home #footer::before,
-html.viz-notebook body.book-page #footer::before {
+html.viz-notebook body.viz-home #wrapper::before {
     content: "";
     position: absolute;
     z-index: 2;

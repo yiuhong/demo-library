@@ -1243,3 +1243,88 @@ body.viz-app #footer ul.menu > li {
         display: none !important;
     }
 }
+
+/* Compact footer for the reading pages: Home, Cite & reuse, Licenses,
+   and Book view. Same chrome as the Catalog bar. Catalog and Guided
+   Tracks keep their own rules above.
+   On a wide screen the page is a window-height column: the middle
+   scrolls, and this bar stays on the bottom edge, full width.
+   On a phone the bar stays in normal flow at the end of the page.
+   A short phone page grows so the bar meets the bottom edge, and a
+   long phone page scrolls it away. */
+
+body.viz-home,
+body.viz-doc {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+body.viz-home #wrapper,
+body.viz-doc #wrapper {
+    flex: 1 0 auto;
+    min-width: 0;
+}
+
+body.viz-home #footer.viz-section,
+body.viz-doc #footer.viz-section,
+body.book-page #footer.viz-section {
+    flex: 0 0 auto;
+    margin: 0 !important;
+    margin-top: auto !important;
+    padding: 0 !important;
+    border-top: 1px solid #000000;
+    background: #ffffff !important;
+    color: #000000;
+}
+
+body.viz-home #footer.viz-section > .inner,
+body.viz-doc #footer.viz-section > .inner,
+body.book-page #footer.viz-section > .inner {
+    width: 100% !important;
+    max-width: none;
+    padding: 0.35rem 0.85rem !important;
+}
+
+body.viz-home #footer ul.menu,
+body.viz-doc #footer ul.menu,
+body.book-page #footer ul.menu {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.75rem;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    white-space: normal;
+}
+
+body.viz-home #footer ul.menu > li,
+body.viz-doc #footer ul.menu > li,
+body.book-page #footer ul.menu > li {
+    display: block;
+    max-width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    white-space: normal;
+}
+
+@media (min-width: 960px) {
+    body.viz-home,
+    body.viz-doc {
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    body.viz-home #wrapper,
+    body.viz-doc #wrapper {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+    }
+}
