@@ -605,11 +605,18 @@ a.book-selftest:focus-visible {
         max-height: 100cqh;
     }
 
+    /* The list scrolls inside the column. min-height: 0 lets it shrink
+       to the pane, so the last item is not stuck under the pinned
+       footer. The bottom pad matches the idea of the Catalog rail:
+       when the list is scrolled to the end, that item sits fully
+       above the bar. */
     #book-menu-panel {
         flex: 1 1 auto;
         min-width: 0;
+        min-height: 0;
         overflow: auto;
-        padding: 0.75rem 0.9rem 2rem 1rem;
+        overscroll-behavior: contain;
+        padding: 0.75rem 0.9rem 1.4rem 1rem;
     }
 
     button.book-menu-toggle,
