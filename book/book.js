@@ -468,8 +468,7 @@
             if (frame.contentDocument && frame.contentDocument.readyState === "complete") ready();
         }
 
-        /* The close control is always the word Exit. The section name
-           stays on the self-test back link, not on this button. */
+        /* The close control is always the word Exit. */
         function labelExit(exit) {
             if (!exit) return;
             if (exit.textContent !== "Exit") exit.textContent = "Exit";
