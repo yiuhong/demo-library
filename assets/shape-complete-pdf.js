@@ -331,8 +331,8 @@
     function cardStream(fonts, res, info, palette) {
         /*
          * Measured from the on-screen sheet at the review column width,
-         * without the download control. The score sits with the seal,
-         * a short gap under the date.
+         * without the download control. The stamp sits under the date.
+         * The sheet does not show the score.
          */
         var scale = 1.5;
         var cardW = 240;
@@ -366,12 +366,17 @@
         var yTitle = yFinish + finishLines.length * finishGap + 14;
         var titleGap = 22;
         var yDate = yTitle + Math.max(0, titleLines.length - 1) * titleGap + 34;
-        var yScore = yDate + 46;
         var stampImage = info.stampImage;
         var placeH = stampImage ? stampImage.placeH : 118;
         var placeW = stampImage ? stampImage.placeW : 118;
         var sealCx = cardW / 2;
-        var sealCy = yScore + 24 + placeH / 2;
+        /*
+         * Date baseline to the top of the stamp. Tuned to the sheet
+         * after the score line was removed, so the mark sits under
+         * the date without a spare band.
+         */
+        var stampTop = yDate + 14;
+        var sealCy = stampTop + placeH / 2;
         var cardH = Math.ceil(sealCy + placeH / 2 + 78);
         var pageW = cardW * scale;
         var pageH = cardH * scale;
@@ -380,7 +385,6 @@
         function S(px) { return px * scale; }
         var colors = palette || {};
         var ink = rgb("#241F1A");
-        var soft = rgb(colors.soft || "#5A534C");
         var navy = rgb(colors.date || "#3D4A62");
         var rule = rgb(colors.rule || "#D5E0EE");
         var margin = rgb(colors.margin || "#C96A6A");
@@ -676,21 +680,6 @@
         }
 
 
-        /*
-         * Text rendering mode is graphics state and survives ET.
-         * The stamp word may have been drawn in mode 3 (invisible).
-         * Reset before the score, or 10/10 is invisible too.
-         */
-        ops.push("0 Tr");
-        var scoreText = String(info.score);
-        var scoreSize = 34;
-        var ofSize = 16;
-        var scoreWidth = lineWidth("score", scoreText, scoreSize, -0.03);
-        var ofWidth = lineWidth("score", "/10", ofSize, -0.02);
-        var scoreX = (cardW - scoreWidth - ofWidth) / 2;
-        textAt("score", scoreText, scoreX, yScore, scoreSize, ink, -0.03);
-        textAt("score", "/10", scoreX + scoreWidth, yScore, ofSize, soft, -0.02);
-
         return {
             width: pageW,
             height: pageH,
@@ -818,7 +807,6 @@
         });
         var card = cardStream(fonts, res, {
             date: String(info.date || ""),
-            score: info.score,
             track: info.track,
             stamp: info.stamp || stampMeta.stamp,
             stampImage: stampImage

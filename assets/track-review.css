@@ -36,6 +36,12 @@ body.demo-page {
     margin-bottom: 0;
 }
 
+.demo-topbar > .demo-back {
+    box-sizing: border-box;
+    min-height: 44px;
+    max-width: 100%;
+}
+
 .review-slot {
     display: grid;
     margin: 1rem 0 0;
