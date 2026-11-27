@@ -44,7 +44,8 @@
                         ["selftest", "self-test-same-summaries-different-graphs", "Self-test: Same summaries, different graphs"]
                     ]
                 }
-            ]
+            ],
+            references: "references"
         },
         {
             file: "chapter-2.html",
@@ -94,7 +95,8 @@
                         ["selftest", "self-test-from-chi-square-to-goodness-of-fit", "Self-test: From chi-square to goodness-of-fit"]
                     ]
                 }
-            ]
+            ],
+            references: "references"
         },
         {
             file: "chapter-3.html",
@@ -216,6 +218,13 @@
                 });
                 block.appendChild(list);
             });
+            if (chapter.references) {
+                var refLink = document.createElement("a");
+                refLink.className = "book-section-link";
+                refLink.href = itemHref(chapter.file, chapter.references, true);
+                refLink.textContent = "References";
+                block.appendChild(refLink);
+            }
             panel.appendChild(block);
         });
     }
@@ -252,7 +261,7 @@
             menu.classList.toggle("is-collapsed", !open);
             if (menuShell) menuShell.classList.toggle("is-menu-collapsed", !open);
             menuButton.setAttribute("aria-expanded", open ? "true" : "false");
-            menuButton.setAttribute("aria-label", open ? "Hide contents" : "Show contents");
+            menuButton.setAttribute("aria-label", open ? "Hide table of contents" : "Show table of contents");
             if (open) window.requestAnimationFrame(revealCurrentChapter);
         }
 

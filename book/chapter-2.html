@@ -40,7 +40,7 @@
     </header>
     <div class="book-shell">
 <nav class="book-menu" aria-label="Table of contents">
-<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide contents"><span class="book-menu-arrow" aria-hidden="true"></span></button>
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide table of contents"><span class="book-menu-label">Table of contents</span><span class="book-menu-arrow" aria-hidden="true"></span></button>
 <div id="book-menu-panel"></div>
 </nav>
 <script>
@@ -58,7 +58,7 @@
         var shell = document.querySelector(".book-shell");
         if (shell) shell.classList.toggle("is-menu-collapsed", !open);
         button.setAttribute("aria-expanded", open ? "true" : "false");
-        button.setAttribute("aria-label", open ? "Hide contents" : "Show contents");
+        button.setAttribute("aria-label", open ? "Hide table of contents" : "Show table of contents");
     })();
 </script>
 <script src="book.js"></script>
@@ -642,6 +642,19 @@
 </div>
 </section>
 <a class="book-selftest" id="self-test-from-chi-square-to-goodness-of-fit" href="../statistics/from_chi_square_to_goodness_of_fit_review.html?learn=1"><span class="book-selftest-label"><span class="book-selftest-mark" aria-hidden="true">🔖</span><span class="book-selftest-name">Self-test: From chi-square to goodness-of-fit</span></span><span class="book-still-arrow" aria-hidden="true"></span></a>
+</section>
+<section class="book-references">
+<h2 id="references" data-book-section>References</h2>
+<ul class="book-ref-list">
+<li>Bernoulli (1713). <em>Ars conjectandi</em>.</li>
+<li>Cochran (1954). Some methods for strengthening the common χ² tests. <em>Biometrics, 10</em>, 417–451.</li>
+<li>Galton (1889). <em>Natural inheritance</em>.</li>
+<li>Horowitz, L. M. (1974). <em>Elements of statistics for psychology and education</em>. McGraw-Hill. (pp. 179–182)</li>
+<li>Laplace (1812). <em>Théorie analytique des probabilités</em>.</li>
+<li>de Moivre (1738). <em>The doctrine of chances</em> (2nd ed.).</li>
+<li>Pearson (1900). On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. <em>Philosophical Magazine, Series 5, 50</em>, 157–175.</li>
+<li>Poisson (1837). <em>Recherches sur la probabilité des jugements en matière criminelle et en matière civile</em>.</li>
+</ul>
 </section>
     </article>
     </div>
