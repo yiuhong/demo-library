@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- After an opened Book view demonstration is closed, the chapter contents menu still opens, closes, and jumps to a section. Exit, Back, and Escape still return to the same place in the chapter. The citation version is unchanged.
+
+- The exit control on an opened Book view demonstration says Exit. It does not use the section heading. A self-test back link still reads “←” and the section name, and still opens that section in the chapter. The citation version is unchanged.
+
 - On a chapter page, the contents control shows the words Table of contents. On a phone those words sit in the 44px bar, whether the list is collapsed or open. On a wide screen they sit on the slim bar. The control still starts collapsed under 960px and open on a wide screen, and it still sticks under the top bar. Show contents and Hide contents remain the button names, now “Show table of contents” and “Hide table of contents.” The overview still has no contents menu. The citation version is unchanged.
 
 - Chapter 1 and Chapter 2 end with a References list for the sources cited in that chapter. The list sits after the last section, inside the chapter article. Chapters 1 and 2 add a References entry in the contents menu. Chapter 3, Chapter 4, and the overview have no author-year citation, so they have no list and no References entry. The in-text notes are unchanged. The citation version is unchanged.
