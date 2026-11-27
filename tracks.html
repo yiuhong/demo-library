@@ -18,6 +18,13 @@
             }
             var topic = (params.get("topic") || "").trim();
             var track = (params.get("track") || "").trim();
+            if (!track) {
+                var hash = window.location.hash.replace(/^#/, "");
+                try {
+                    hash = decodeURIComponent(hash);
+                } catch (err) {}
+                if (hash.indexOf("track-") === 0) track = hash.slice(6).trim();
+            }
             var bookChapters = {
                 "describing-data": "book/chapter-1.html",
                 "probability-and-sampling": "book/chapter-2.html",
@@ -51,10 +58,17 @@
                 return;
             }
             var demo = (params.get("demo") || "").trim();
-            if (!demo || demo.length > 300 || /[\s\\]/.test(demo)) return;
-            if (/^[a-z][a-z0-9+.-]*:/i.test(demo) || demo.indexOf("..") !== -1 || demo.charAt(0) === "/") return;
-            if (!/^[a-z0-9_./-]+\.html$/i.test(demo)) return;
-            document.documentElement.classList.add("viz-deep-demo");
+            var demoOk = !!demo && demo.length <= 300 && !/[\s\\]/.test(demo)
+                && !/^[a-z][a-z0-9+.-]*:/i.test(demo)
+                && demo.indexOf("..") === -1
+                && demo.charAt(0) !== "/"
+                && /^[a-z0-9_./-]+\.html$/i.test(demo);
+            if (demoOk) {
+                document.documentElement.classList.add("viz-deep-demo");
+                return;
+            }
+            if (topic || track) return;
+            window.location.replace("book/");
         })();
     </script>
     <link rel="stylesheet" href="assets/foundation.css" />
@@ -73,7 +87,7 @@
             <ul>
                 <li><a href="index.html">Home</a></li>
                 <li><a href="catalog.html">Catalog</a></li>
-                <li><a href="tracks.html" aria-current="page">Book view</a></li>
+                <li><a href="book/" aria-current="page">Book view</a></li>
                 <li><a class="about-yiu" rel="author noopener noreferrer" href="https://yiuhong.github.io/" target="_blank">About Yiu Hong</a></li>
             </ul>
         </nav>

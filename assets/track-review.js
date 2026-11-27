@@ -30,7 +30,7 @@
          */
 
         var PASS = 8;
-        var OPENING_NOTE = "Score 8 or more out of 10 to get a completion card you can download.";
+        var OPENING_NOTE = "Score 8 or more out of 10 to get a bookmark you can download.";
         var MONTHS = [
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
@@ -302,7 +302,7 @@
             var sheet = el("div", { "class": "complete-sheet" });
             addText(sheet, "p", "complete-kicker", "Project Viz");
             addText(sheet, "h3", "complete-title", "Well done!");
-            addText(sheet, "p", "complete-finish", "You have finished the track:");
+            addText(sheet, "p", "complete-finish", "You have finished the section:");
             addText(sheet, "p", "complete-track", TRACK);
             addText(sheet, "p", "complete-date", dateText);
             var row = el("div", { "class": "complete-score-row" });

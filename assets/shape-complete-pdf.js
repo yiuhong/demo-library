@@ -334,9 +334,45 @@
          * without the download control. The score sits with the seal,
          * a short gap under the date.
          */
-        var scale = 1.2;
-        var cardW = CARD_W;
-        var cardH = CARD_H;
+        var scale = 1.5;
+        var cardW = 240;
+        var trackName = info.track || "Shape and pictures";
+        var finishLine = "You have finished the section:";
+        function lineWidth(fontKey, text, sizePx, tracking) {
+            return measure(text, sizePx * scale, fonts[fontKey], tracking || 0) / scale;
+        }
+        function wrap(fontKey, text, sizePx, maxPx, tracking) {
+            var words = String(text).split(" ");
+            var lines = [];
+            var current = "";
+            var i;
+            for (i = 0; i < words.length; i++) {
+                var trial = current ? current + " " + words[i] : words[i];
+                if (current && lineWidth(fontKey, trial, sizePx, tracking) > maxPx) {
+                    lines.push(current);
+                    current = words[i];
+                } else {
+                    current = trial;
+                }
+            }
+            if (current) lines.push(current);
+            return lines.length ? lines : [""];
+        }
+        var contentW = cardW - 36;
+        var finishLines = wrap("text", finishLine, 13, contentW, 0);
+        var titleLines = wrap("display", trackName, 18, contentW, -0.02);
+        var yFinish = 128;
+        var finishGap = 17;
+        var yTitle = yFinish + finishLines.length * finishGap + 14;
+        var titleGap = 22;
+        var yDate = yTitle + Math.max(0, titleLines.length - 1) * titleGap + 34;
+        var yScore = yDate + 46;
+        var stampImage = info.stampImage;
+        var placeH = stampImage ? stampImage.placeH : 118;
+        var placeW = stampImage ? stampImage.placeW : 118;
+        var sealCx = cardW / 2;
+        var sealCy = yScore + 24 + placeH / 2;
+        var cardH = Math.ceil(sealCy + placeH / 2 + 78);
         var pageW = cardW * scale;
         var pageH = cardH * scale;
         function X(px) { return px * scale; }
@@ -352,23 +388,24 @@
         var seal = rgb(colors.seal || "#7A3B3B");
         var ops = [];
 
-        ops.push(paper + " rg");
-        ops.push("0 0 " + num(pageW) + " " + num(pageH) + " re");
-        ops.push("f");
-
-        ops.push(rule + " RG");
-        ops.push(num(S(1)) + " w");
-        ops.push("0 J");
-        var rulePx;
-        for (rulePx = 28; rulePx < cardH; rulePx += 28) {
-            var ruleY = Y(rulePx);
-            ops.push("0 " + num(ruleY) + " m " + num(pageW) + " " + num(ruleY) + " l S");
+        var notch = 48;
+        var shoulder = cardH - notch;
+        function bookmarkPath() {
+            moveTo(0, 0);
+            lineTo(cardW, 0);
+            lineTo(cardW, shoulder);
+            lineTo(cardW / 2, cardH);
+            lineTo(0, shoulder);
+            ops.push("h");
         }
-
+        ops.push(paper + " rg");
+        bookmarkPath();
+        ops.push("f");
         ops.push(margin + " RG");
-        ops.push(num(S(2)) + " w");
-        var marginX = X(42);
-        ops.push(num(marginX) + " 0 m " + num(marginX) + " " + num(pageH) + " l S");
+        ops.push(num(S(1.6)) + " w");
+        ops.push("0 J");
+        bookmarkPath();
+        ops.push("S");
 
         function textAt(fontKey, text, xPx, baselinePx, sizePx, color, tracking, renderMode) {
             var font = fonts[fontKey];
@@ -383,21 +420,29 @@
             if (renderMode != null) ops.push("0 Tr");
         }
 
-        /*
-         * Baselines are the distance from the top of the sheet, tuned
-         * to the same sizes and gaps as the on-screen card.
-         */
-        /*
-         * The track name defaults to Shape and pictures, which is the
-         * call the original page makes. A later track passes its own
-         * title. Every current title fits on this line at the same size.
-         */
-        var trackName = info.track || "Shape and pictures";
-        textAt("caps", "PROJECT VIZ", 58, 35, 13, ink, 0.18);
-        textAt("display", "Well done!", 58, 67, 28, ink, -0.02);
-        textAt("text", "You have finished the track:", 58, 96, 16, ink, 0);
-        textAt("display", trackName, 58, 121, 20, ink, -0.02);
-        textAt("script", info.date, 58, 150, 22, navy, 0);
+        function centerText(fontKey, text, baselinePx, sizePx, color, tracking) {
+            var width = lineWidth(fontKey, text, sizePx, tracking || 0);
+            textAt(fontKey, text, (cardW - width) / 2, baselinePx, sizePx, color, tracking || 0);
+        }
+
+        /* A small hole near the top, then the words stacked down the ribbon. */
+        ops.push("1 1 1 rg");
+        circle(sealCx, 28, 8);
+        ops.push("f");
+        ops.push(margin + " RG");
+        ops.push(num(S(1.6)) + " w");
+        circle(sealCx, 28, 8);
+        ops.push("S");
+
+        centerText("caps", "PROJECT VIZ", 62, 12, ink, 0.16);
+        centerText("display", "Well done!", 98, 26, ink, -0.02);
+        finishLines.forEach(function (line, index) {
+            centerText("text", line, yFinish + index * finishGap, 13, ink, 0);
+        });
+        titleLines.forEach(function (line, index) {
+            centerText("display", line, yTitle + index * titleGap, 18, ink, -0.02);
+        });
+        centerText("script", info.date, yDate, 20, navy, 0);
 
         var stamp = info.stamp || "circle";
         /*
@@ -406,9 +451,7 @@
          * the card edge, and the bottom. COMPLETED is set in a heavy
          * condensed gothic when that face is provided.
          */
-        var sealCx = 498;
-        var sealCy = 208;
-        var sealSize = 116;
+        var sealSize = Math.min(placeW, 130);
         var circleOuter = 58;
         var circleInner = 51;
         var rectHalfW = 70;
@@ -596,10 +639,8 @@
 
         if (info.stampImage) {
             var img = info.stampImage;
-            var placeW = img.placeW;
-            var placeH = img.placeH;
-            var imgCx = img.cx;
-            var imgCy = img.cy;
+            var imgCx = sealCx;
+            var imgCy = sealCy;
             var pdfX = X(imgCx - placeW / 2);
             var pdfY = Y(imgCy + placeH / 2);
             var pdfW = S(placeW);
@@ -642,12 +683,13 @@
          */
         ops.push("0 Tr");
         var scoreText = String(info.score);
-        var scoreSize = 42;
-        var ofSize = 20;
-        var scoreBaseline = 225;
-        textAt("score", scoreText, 58, scoreBaseline, scoreSize, ink, -0.03);
-        var scoreWidth = measure(scoreText, S(scoreSize), fonts.score, -0.03);
-        textAt("score", "/10", 58 + scoreWidth / scale, scoreBaseline, ofSize, soft, -0.02);
+        var scoreSize = 34;
+        var ofSize = 16;
+        var scoreWidth = lineWidth("score", scoreText, scoreSize, -0.03);
+        var ofWidth = lineWidth("score", "/10", ofSize, -0.02);
+        var scoreX = (cardW - scoreWidth - ofWidth) / 2;
+        textAt("score", scoreText, scoreX, yScore, scoreSize, ink, -0.03);
+        textAt("score", "/10", scoreX + scoreWidth, yScore, ofSize, soft, -0.02);
 
         return {
             width: pageW,
@@ -859,8 +901,8 @@
      * here. load() reads it from tracks.json. Place sizes and centres
      * match assets/stamps/stamps.json. The sheet is CARD_W by CARD_H.
      */
-    var CARD_W = 574;
-    var CARD_H = 278;
+    var CARD_W = 240;
+    var CARD_H = 680;
     var PALETTES = {
         "describing-data": {
             paper: "#FBF7EE",

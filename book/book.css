@@ -138,6 +138,10 @@ button.book-menu-toggle {
     box-shadow: inset 3px 0 0 #000000;
 }
 
+.book-toc-chapter:not(.is-current) .book-menu-chapter {
+    margin-bottom: 0;
+}
+
 .book-toc-chapter + .book-toc-chapter {
     margin-top: 0.85rem;
     padding-top: 0.85rem;
