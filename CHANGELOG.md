@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The Book view overview says a score of 8 or more out of 10 on a section self-test earns a collectible bookmark. The citation version is unchanged.
+
 - A self-test’s back control returns to that section in Book view. Center and spread opens [`book/chapter-1.html#center-and-spread`](book/chapter-1.html#center-and-spread). Each of the other ten, including Shape and pictures, opens its own chapter at that section. The label is the section name. It no longer returns to Home. The control is at least 44px tall. The citation version is unchanged.
 
 - A self-test bookmark no longer shows the score. The on-screen bookmark and the one-page PDF still match: Project Viz, Well done!, “You have finished the section:”, the section title, the date, and the completed mark. Download as PDF stays under the bookmark. The results screen still shows the score out of 10. The opening note still reads “Score 8 or more out of 10 to get a bookmark you can download.” Eight or more still shows the bookmark. Seven or fewer still does not. The citation version is unchanged.
