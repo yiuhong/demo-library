@@ -90,12 +90,14 @@ html.viz-notebook .viz-topbar::after {
 }
 
 html.viz-notebook body.viz-home #wrapper,
-html.viz-notebook body.viz-home #footer {
+html.viz-notebook body.viz-home #footer,
+html.viz-notebook body.book-page #footer {
     position: relative;
 }
 
 html.viz-notebook body.viz-home #wrapper::before,
-html.viz-notebook body.viz-home #footer::before {
+html.viz-notebook body.viz-home #footer::before,
+html.viz-notebook body.book-page #footer::before {
     content: "";
     position: absolute;
     z-index: 2;
@@ -282,6 +284,8 @@ html.viz-notebook .sub-category-section {
 
 html.viz-notebook body.viz-home #footer,
 html.viz-notebook body.viz-home #footer .inner,
+html.viz-notebook body.book-page #footer,
+html.viz-notebook body.book-page #footer .inner,
 html.viz-notebook body.viz-app #footer.viz-section,
 html.viz-notebook body.viz-app #footer .inner {
     background-color: var(--notebook-paper) !important;
@@ -361,6 +365,7 @@ html.viz-notebook body.viz-app .viz-pane:-webkit-full-screen .viz-pane-chrome {
     html.viz-notebook .viz-topbar::after,
     html.viz-notebook body.viz-home #wrapper::before,
     html.viz-notebook body.viz-home #footer::before,
+    html.viz-notebook body.book-page #footer::before,
     html.viz-notebook body.viz-app .viz-rail::before,
     html.viz-notebook body.book-page .book-menu::before {
         display: none;

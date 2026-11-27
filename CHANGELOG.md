@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Book view uses the same document-end site footer as Home (cite, the license, and “Spotted a mistake?”). It follows the chapter list on the overview, and on a chapter it follows the chapter wrap (and the References list, where that list is present). It stays in the page, so a chapter shows it after you scroll to the end. An open demonstration does not show it. The citation version is unchanged.
+
 - After an opened Book view demonstration is closed, the chapter contents menu still opens, closes, and jumps to a section. Exit, Back, and Escape still return to the same place in the chapter. The citation version is unchanged.
 
 - A self-test’s back control says Exit. It does not use the section heading and it does not say “← Exit”. Center and spread still opens [`book/chapter-1.html#center-and-spread`](book/chapter-1.html#center-and-spread). Each of the other ten, including Shape and pictures, still opens its own chapter at that section. The control is at least 44px tall. The citation version is unchanged.
