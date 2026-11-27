@@ -40,7 +40,7 @@
     </header>
     <div class="book-shell">
 <nav class="book-menu" aria-label="Table of contents">
-<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide contents"><span class="book-menu-arrow" aria-hidden="true"></span></button>
+<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide table of contents"><span class="book-menu-label">Table of contents</span><span class="book-menu-arrow" aria-hidden="true"></span></button>
 <div id="book-menu-panel"></div>
 </nav>
 <script>
@@ -58,7 +58,7 @@
         var shell = document.querySelector(".book-shell");
         if (shell) shell.classList.toggle("is-menu-collapsed", !open);
         button.setAttribute("aria-expanded", open ? "true" : "false");
-        button.setAttribute("aria-label", open ? "Hide contents" : "Show contents");
+        button.setAttribute("aria-label", open ? "Hide table of contents" : "Show table of contents");
     })();
 </script>
 <script src="book.js"></script>
@@ -460,6 +460,17 @@
 <h2>Chapter wrap</h2>
 <p>You can now look at a dataset and say more than “the average is…”. You can choose among mean, median, and mode; connect higher moments and Bessel’s correction to a fairer sense of spread; name skew when the three averages separate; and read that shape in a histogram, boxplot, KDE, and Q–Q plot, including Tukey fences for unusual points. You also know why matching means, SDs, and correlation (Anscombe / Datasaurus) are not enough without the graph. That descriptive fluency is what honest inference needs next.</p>
 <p>When you are ready, move toward Chapter 2 on probability and sampling: how summaries behave across repeated samples, and why the picture of this sample is only the start of the story. Keep using the live demos as you go — this chapter is a living draft aligned with the demo-library track, not a frozen parallel curriculum.</p>
+</section>
+<section class="book-references">
+<h2 id="references" data-book-section>References</h2>
+<ul class="book-ref-list">
+<li>Anscombe, F. J. (1973). Graphs in statistical analysis. <em>The American Statistician, 27</em>(1), 17–21. https://doi.org/<wbr>10.1080/<wbr>00031305.1973.10478966</li>
+<li>Epanechnikov (1969). <em>Non-parametric estimation of a multivariate probability density</em>.</li>
+<li>Matejka, J., &amp; Fitzmaurice, G. (2017, May). Same stats, different graphs: generating datasets with varied appearance and identical statistics through simulated annealing. In <em>Proceedings of the 2017 CHI conference on human factors in computing systems</em> (pp. 1290–1294).</li>
+<li>Parzen (1962). <em>On estimation of a probability density function and mode</em>.</li>
+<li>Rosenblatt (1956). <em>Remarks on some nonparametric estimates of a density function</em>.</li>
+<li>Tukey (1977). <em>Exploratory data analysis</em>.</li>
+</ul>
 </section>
     </article>
     </div>
