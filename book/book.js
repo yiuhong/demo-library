@@ -374,12 +374,44 @@
 
         /* The place to put back after Back. The browser restores the scroll
            it stored for the previous history entry, which is not this place
-           once the reader has moved down the chapter. */
+           once the reader has moved down the chapter.
+           That restore is only for the traversal that closes the
+           demonstration. A later contents link also updates the session
+           history. Leaving the saved place armed pulls that jump back to
+           where the demonstration was opened, so the menu looks dead. */
         var restoreY = null;
+        var restoreArmed = false;
+        var restoreHash = "";
+        var restoreSerial = 0;
 
         function putBack() {
             if (restoreY == null) return;
             window.scrollTo(0, restoreY);
+        }
+
+        function settleRestore() {
+            if (!restoreArmed) return;
+            var serial = restoreSerial;
+            function go() {
+                if (!restoreArmed || serial !== restoreSerial) return;
+                putBack();
+            }
+            go();
+            window.requestAnimationFrame(function () {
+                go();
+                window.setTimeout(function () {
+                    if (!restoreArmed || serial !== restoreSerial) return;
+                    putBack();
+                    restoreArmed = false;
+                    restoreY = null;
+                }, 0);
+            });
+        }
+
+        function cancelRestore() {
+            restoreArmed = false;
+            restoreY = null;
+            restoreSerial += 1;
         }
 
         function unlockScroll() {
@@ -387,6 +419,9 @@
             var y = savedScroll;
             scrollLocked = false;
             restoreY = y;
+            restoreArmed = true;
+            restoreHash = window.location.hash || "";
+            restoreSerial += 1;
             document.body.style.position = "";
             document.body.style.top = "";
             document.body.style.left = "";
@@ -433,8 +468,15 @@
             if (frame.contentDocument && frame.contentDocument.readyState === "complete") ready();
         }
 
+        /* The close control is always the word Exit. */
+        function labelExit(exit) {
+            if (!exit) return;
+            if (exit.textContent !== "Exit") exit.textContent = "Exit";
+        }
+
         function focusExit(pane) {
             var exit = pane.querySelector(".book-exit");
+            labelExit(exit);
             if (exit && exit.focus) exit.focus();
         }
 
@@ -473,7 +515,9 @@
             if (pushed && !fromPop) {
                 try {
                     history.back();
-                } catch (err) {}
+                } catch (err) {
+                    settleRestore();
+                }
             }
         }
 
@@ -535,6 +579,7 @@
             pane.classList.add("is-live");
             pane.removeAttribute("aria-hidden");
             pane.removeAttribute("inert");
+            labelExit(pane.querySelector(".book-exit"));
             enterPane(pane);
         }
 
@@ -572,11 +617,14 @@
         window.addEventListener("popstate", function () {
             var pane = document.querySelector(".book-figure .viz-pane.is-immersive-pane");
             if (pane) releaseLive(pane, true);
-            putBack();
-            window.requestAnimationFrame(function () {
-                putBack();
-                window.setTimeout(putBack, 0);
-            });
+            if (!restoreArmed) return;
+            /* A contents link moves to another hash. The Back that closed
+               the demonstration does not. */
+            if ((window.location.hash || "") !== restoreHash) {
+                cancelRestore();
+                return;
+            }
+            settleRestore();
         });
 
         document.addEventListener("fullscreenchange", endIfFullscreenLeft);
