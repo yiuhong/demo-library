@@ -1,11 +1,11 @@
 /*
- * High score only. One notebook sheet per Guided Track topic.
+ * High score only. One bookmark per topic.
  * Describing data is the default palette. ShapeCompletePdf.applyCard
- * sets the topic variables from tracks.json. Tracks in a topic share
- * the sheet and the stamp. The track title stays the label.
+ * sets the topic variables from tracks.json. Sections in a topic share
+ * the paper and the stamp. The section title stays the label.
  * The faces are the OFL subsets also embedded in the PDF, plus Anton
- * Regular for the COMPLETED stamp. Download sits on the sheet, not in
- * the action bar. Paths are relative to this file.
+ * Regular for the COMPLETED stamp. Download sits under the bookmark,
+ * not in the action bar. Paths are relative to this file.
  */
 @font-face {
     font-family: "Complete Display";
@@ -61,45 +61,19 @@
     --complete-margin: #C96A6A;
     --complete-date: #3D4A62;
     --complete-soft: #5A534C;
-    --stamp-x: 74.0418%;
-    --stamp-y: 49.2806%;
-    --stamp-w: 23.5192%;
-    --stamp-h: 48.5612%;
     position: relative;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    margin: 0.15rem 0 0.95rem;
-    padding: 0 0 0.85rem;
-    border-radius: 6px;
-    background-color: var(--complete-paper);
-    background-image:
-        linear-gradient(
-            to right,
-            transparent calc(42 / 574 * 100%),
-            var(--complete-margin) calc(42 / 574 * 100%),
-            var(--complete-margin) calc(44 / 574 * 100%),
-            transparent calc(44 / 574 * 100%)
-        ),
-        repeating-linear-gradient(
-            to bottom,
-            transparent 0 calc(1.75rem - 1px),
-            var(--complete-rule) calc(1.75rem - 1px) 1.75rem
-        );
+    align-items: center;
+    width: min(100%, 15.5rem);
+    margin: 0.35rem auto 0.95rem;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    background-image: none;
     color: #241f1a;
-    box-shadow: 0 10px 24px rgba(36, 31, 26, 0.10), 0 1px 3px rgba(36, 31, 26, 0.06);
+    box-shadow: none;
     font-synthesis: none;
-}
-
-.complete-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    opacity: 0.14;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
 }
 
 .complete-card > * {
@@ -108,38 +82,54 @@
 }
 
 /*
- * The sheet matches the PDF card, 574 by 278. The stamp is placed
- * from the same centres. The download sits under that sheet.
+ * A tall bookmark. The PDF uses the same stack: a hole, the words,
+ * the score, the stamp, and a point. The download sits under it.
  */
 .complete-sheet {
     position: relative;
     display: flex;
     flex-direction: column;
+    align-items: center;
     width: 100%;
-    aspect-ratio: 574 / 278;
     box-sizing: border-box;
-    padding:
-        calc(18 / 574 * 100%)
-        calc(18 / 574 * 100%)
-        calc(14 / 574 * 100%)
-        calc(58 / 574 * 100%);
+    margin: 0;
+    padding: 1.7rem 1rem 2.6rem;
+    background-color: var(--complete-paper);
+    background-image: none;
+    text-align: center;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.65rem), 50% 100%, 0 calc(100% - 1.65rem));
+    box-shadow: 0 12px 22px rgba(36, 31, 26, 0.12);
+}
+
+.complete-sheet::before {
+    content: "";
+    position: absolute;
+    top: 0.55rem;
+    left: 50%;
+    width: 0.72rem;
+    height: 0.72rem;
+    transform: translateX(-50%);
+    border: 2px solid var(--complete-margin);
+    border-radius: 50%;
+    background: #ffffff;
+    pointer-events: none;
 }
 
 .demo-page .review .complete-card .complete-kicker {
-    margin: 0 0 0.3rem;
+    margin: 0.35rem 0 0.45rem;
     font-family: "Complete Caps", Georgia, "Times New Roman", serif;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 400;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     line-height: 1.2;
     text-transform: uppercase;
     color: #241f1a;
 }
 
 .demo-page .review .complete-card .complete-title {
-    margin: 0 0 0.35rem;
+    margin: 0 0 0.55rem;
     font-family: "Complete Display", Georgia, "Times New Roman", serif;
-    font-size: 1.75rem;
+    font-size: 1.65rem;
     font-weight: 400;
     letter-spacing: -0.02em;
     line-height: 1.15;
@@ -148,20 +138,21 @@
 
 .demo-page .review .complete-card .complete-finish {
     margin: 0;
+    max-width: 12.5rem;
     font-family: "Complete Text", Georgia, "Times New Roman", serif;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 400;
     line-height: 1.35;
     color: #241f1a;
 }
 
 .demo-page .review .complete-card .complete-track {
-    margin: 0 0 0.3rem;
+    margin: 0.35rem 0 0.15rem;
     font-family: "Complete Display", Georgia, "Times New Roman", serif;
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 400;
     letter-spacing: -0.02em;
-    line-height: 1.2;
+    line-height: 1.25;
     color: #241f1a;
 }
 
@@ -176,16 +167,17 @@
 
 .complete-score-row {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin-top: auto;
+    gap: 0.15rem;
+    width: 100%;
+    margin-top: 0.85rem;
 }
 
 .demo-page .review .complete-card .complete-score {
-    margin: 0;
+    margin: 0.35rem 0 0;
     font-family: "Complete Score", Georgia, "Times New Roman", serif;
-    font-size: 2.6rem;
+    font-size: 2.15rem;
     font-weight: 400;
     letter-spacing: -0.03em;
     line-height: 1;
@@ -201,12 +193,10 @@
 }
 
 .complete-seal {
-    position: absolute;
-    left: var(--stamp-x);
-    top: var(--stamp-y);
-    width: var(--stamp-w);
-    height: var(--stamp-h);
-    margin: 0;
+    position: relative;
+    width: min(7.5rem, 78%);
+    height: auto;
+    margin: 0.55rem 0 0.15rem;
     border: 0;
     pointer-events: none;
     color: transparent;
@@ -215,8 +205,8 @@
 .complete-seal-img {
     display: block;
     width: 100%;
-    height: 100%;
-    object-fit: fill;
+    height: auto;
+    object-fit: contain;
 }
 
 .complete-seal-img:not([src]) {
@@ -239,12 +229,12 @@
 .complete-download {
     appearance: none;
     -webkit-appearance: none;
-    align-self: flex-start;
+    align-self: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-height: 44px;
-    margin: 0.45rem 0 0.15rem calc(58 / 574 * 100%);
+    margin: 0.75rem 0 0.15rem;
     padding: 0.35rem 1.05rem;
     border: 1px solid #241f1a;
     border-radius: 999px;
@@ -274,68 +264,17 @@
     }
 }
 
-@media (max-width: 736px) {
-    .complete-card {
-        background-image:
-            linear-gradient(
-                to right,
-                transparent 1.55rem,
-                var(--complete-margin) 1.55rem,
-                var(--complete-margin) calc(1.55rem + 2px),
-                transparent calc(1.55rem + 2px)
-            ),
-            repeating-linear-gradient(
-                to bottom,
-                transparent 0 calc(1.75rem - 1px),
-                var(--complete-rule) calc(1.75rem - 1px) 1.75rem
-            );
-    }
-
-    .complete-sheet {
-        aspect-ratio: auto;
-        display: block;
-        padding: 0.95rem 0.75rem 0.15rem 2.45rem;
-    }
-
-    .demo-page .review .complete-card .complete-title {
-        font-size: 1.5rem;
-    }
-
-    .complete-score-row {
-        margin-top: 0.9rem;
-    }
-
-    .complete-seal {
-        position: relative;
-        left: auto;
-        top: auto;
-        flex: 0 0 auto;
-        width: 42%;
-        height: auto;
-    }
-
-    .complete-seal-img {
-        height: auto;
-    }
-
-    .demo-page .review .complete-card .complete-score {
-        font-size: 2.15rem;
-    }
-
-    .complete-download {
-        margin-left: 2.45rem;
-    }
-}
-
 @media (forced-colors: active) {
-    .complete-card {
+    .complete-card,
+    .complete-sheet {
         background: Canvas !important;
         background-image: none !important;
         box-shadow: none;
+        clip-path: none;
         border: 1px solid CanvasText;
     }
 
-    .complete-card::before,
+    .complete-sheet::before,
     .complete-seal-img {
         display: none;
     }
