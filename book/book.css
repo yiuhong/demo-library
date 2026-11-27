@@ -197,6 +197,43 @@ button.book-menu-toggle {
     margin-bottom: 0;
 }
 
+.book-doc .book-chapters {
+    margin: 0.35rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.book-doc .book-chapters li {
+    margin: 0;
+}
+
+.book-doc .book-chapters a {
+    display: inline-block;
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 0.62rem 0.15rem;
+    border-bottom: 0;
+    font-size: 1.05em;
+    font-weight: bold;
+    line-height: 1.35;
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-thickness: 1px;
+    text-decoration-color: rgba(0, 0, 0, 0.4);
+    text-underline-offset: 0.15em;
+    touch-action: manipulation;
+}
+
+.book-doc .book-chapters a:focus {
+    outline: none;
+}
+
+.book-doc .book-chapters a:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
 .book-status {
     font-size: 0.95em;
 }
