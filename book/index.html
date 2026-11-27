@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="../assets/notebook.css">
     <link rel="stylesheet" href="book.css">
 </head>
-<body class="book-page">
+<body class="book-page book-overview">
     <header class="viz-topbar">
         <nav aria-label="Library">
             <ul>
@@ -25,24 +25,6 @@
         </nav>
     </header>
     <div class="book-shell">
-<nav class="book-menu" aria-label="Table of contents">
-<button type="button" class="book-menu-toggle" id="book-menu-toggle" aria-expanded="true" aria-controls="book-menu-panel" aria-label="Hide contents"><span class="book-menu-arrow" aria-hidden="true"></span></button>
-<div id="book-menu-panel"></div>
-</nav>
-<script>
-    (function () {
-        var menu = document.querySelector(".book-menu");
-        var button = document.getElementById("book-menu-toggle");
-        var open = window.matchMedia("(min-width: 960px)").matches;
-        if (!menu || !button) return;
-        menu.classList.toggle("is-collapsed", !open);
-        var shell = document.querySelector(".book-shell");
-        if (shell) shell.classList.toggle("is-menu-collapsed", !open);
-        button.setAttribute("aria-expanded", open ? "true" : "false");
-        button.setAttribute("aria-label", open ? "Hide contents" : "Show contents");
-    })();
-</script>
-<script src="book.js"></script>
     <article class="book-doc" aria-label="Book view">
 <h1>Book view</h1>
 <p>Book view is organized as chapters, listed in the table of contents. Interactive demonstrations illustrate key concepts. A self-test comes at the end of each section. Score 8 or more out of 10 to get a collectible bookmark.</p>

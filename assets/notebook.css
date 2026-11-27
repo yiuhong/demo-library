@@ -172,12 +172,20 @@ html.viz-notebook body.book-page .connection-note {
     background-image: none !important;
 }
 
+@media (max-width: 959px) {
+    /* The phone contents bar sits over the chapter while it sticks.
+       Opaque paper keeps the prose from showing through the grid. */
+    html.viz-notebook body.book-page .book-menu {
+        background-color: var(--notebook-paper) !important;
+    }
+}
+
 @media (min-width: 960px) {
     html.viz-notebook body.book-page .book-menu,
     html.viz-notebook body.book-page .book-menu.is-collapsed {
-        top: 4rem;
-        height: calc(100dvh - 4rem);
-        max-height: calc(100dvh - 4rem);
+        top: var(--book-menu-top, 4rem);
+        height: calc(100dvh - var(--book-menu-top, 4rem));
+        max-height: calc(100dvh - var(--book-menu-top, 4rem));
     }
 }
 
