@@ -297,7 +297,7 @@
             });
         }
 
-        function completionCard(n, dateText, live) {
+        function completionCard(dateText) {
             var card = el("article", { "class": "complete-card" });
             var sheet = el("div", { "class": "complete-sheet" });
             addText(sheet, "p", "complete-kicker", "Project Viz");
@@ -306,15 +306,6 @@
             addText(sheet, "p", "complete-track", TRACK);
             addText(sheet, "p", "complete-date", dateText);
             var row = el("div", { "class": "complete-score-row" });
-            var scoreLine = el("p", { "class": "complete-score" });
-            var number = el("span", { "class": "complete-score-n" });
-            number.textContent = String(n);
-            var ofTen = el("span", { "class": "complete-score-of" });
-            ofTen.textContent = "/10";
-            scoreLine.appendChild(number);
-            scoreLine.appendChild(ofTen);
-            if (live) scoreLine.setAttribute("aria-live", "polite");
-            row.appendChild(scoreLine);
             var stamp = el("div", { "class": "complete-seal" });
             var img = el("img", { "class": "complete-seal-img", alt: "", "aria-hidden": "true" });
             stamp.appendChild(img);
@@ -336,24 +327,23 @@
         }
 
         /*
-         * Eight or more shows the card. Seven or fewer keeps the
-         * score line and adds one sentence. The sizer always uses
-         * the card, with the longest date, so the reserved height
-         * covers that sheet.
+         * The score line stays on this step. Eight or more also shows
+         * the bookmark, without that score. Seven or fewer adds one
+         * sentence and does not show the bookmark. The sizer always
+         * uses the bookmark, with the longest date, so the reserved
+         * height covers that sheet.
          */
         function fillScore(parent, lines, live) {
             var n = live ? score() : 10;
             mount(parent, "Next", function (body) {
                 stepHeading(body, "Score", live);
+                var number = addText(body, "p", "score", n + " out of 10");
+                if (live) number.setAttribute("aria-live", "polite");
                 if (n >= PASS) {
                     body.appendChild(completionCard(
-                        n,
-                        live ? attemptDateText() : "30 September 2026",
-                        live
+                        live ? attemptDateText() : "30 September 2026"
                     ));
                 } else {
-                    var number = addText(body, "p", "score", n + " out of 10");
-                    if (live) number.setAttribute("aria-live", "polite");
                     addText(body, "p", "score-encourage", "A good start. Review the answers, then try again.");
                 }
                 addText(body, "h3", "section-heading", "Breakdown");
