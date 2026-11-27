@@ -1,10 +1,11 @@
 /*
  * Book view chapters. The chapter scrolls. A still opens its
  * demonstration over the screen, and Exit returns to the same place.
- * This file does not turn pages. The side menu is one table of
- * contents, shared by the overview and every chapter. The overview
- * lists the four chapter titles. A chapter page expands only the
- * open chapter.
+ * This file does not turn pages. The side menu is the table of
+ * contents on a chapter page, and it stays under the top bar while
+ * the chapter scrolls. The overview lists its four chapter titles
+ * in the page and does not load this file. A chapter page expands
+ * only the open chapter.
  */
 (function () {
     var BOOK_CONTENTS = [
@@ -221,6 +222,22 @@
 
     var contentsPanel = document.getElementById("book-menu-panel");
     if (contentsPanel) renderContents(contentsPanel);
+
+    /* The top bar wraps on a narrow phone and grows with the notebook
+       ruler. The contents bar sticks just under that measured height. */
+    function syncMenuTop() {
+        var topbar = document.querySelector(".viz-topbar");
+        if (!topbar) return;
+        var height = topbar.getBoundingClientRect().height;
+        if (height > 0) document.documentElement.style.setProperty("--book-menu-top", height + "px");
+    }
+
+    syncMenuTop();
+    window.addEventListener("resize", syncMenuTop);
+    if (typeof ResizeObserver === "function") {
+        var menuTopbar = document.querySelector(".viz-topbar");
+        if (menuTopbar) new ResizeObserver(syncMenuTop).observe(menuTopbar);
+    }
 
     function boot() {
         var menu = document.querySelector(".book-menu");

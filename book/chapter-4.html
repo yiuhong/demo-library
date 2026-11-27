@@ -45,6 +45,11 @@
 </nav>
 <script>
     (function () {
+        var topbar = document.querySelector(".viz-topbar");
+        if (topbar) {
+            var topbarHeight = topbar.getBoundingClientRect().height;
+            if (topbarHeight > 0) document.documentElement.style.setProperty("--book-menu-top", topbarHeight + "px");
+        }
         var menu = document.querySelector(".book-menu");
         var button = document.getElementById("book-menu-toggle");
         var open = window.matchMedia("(min-width: 960px)").matches;

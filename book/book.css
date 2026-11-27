@@ -1,8 +1,10 @@
 /*
  * Book view chapters. One scrolling document on a phone and on a
- * wide screen. The side menu is the table of contents. Each live
- * demonstration sits in the flow at a fixed reading size. It does
- * not fill the viewport unless the card is opened.
+ * wide screen. On a chapter the side menu is the table of contents,
+ * and it stays on screen while the chapter scrolls. The overview
+ * has no side menu. Each live demonstration sits in the flow at a
+ * fixed reading size. It does not fill the viewport unless the card
+ * is opened.
  */
 
 .book-page {
@@ -29,6 +31,30 @@
     padding: 0;
     border-bottom: 1px solid #000000;
     background: #ffffff;
+}
+
+/* Phone: the contents bar stays under the top bar while the chapter
+   scrolls. It still starts collapsed. Opening it keeps the 44px
+   control on screen and scrolls the list inside the remaining height,
+   so the bar does not cover the top navigation. */
+@media (max-width: 959px) {
+    .book-menu {
+        position: sticky;
+        top: var(--book-menu-top, 4rem);
+        z-index: 12;
+    }
+
+    .book-menu:not(.is-collapsed) {
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100dvh - var(--book-menu-top, 4rem));
+    }
+
+    .book-menu:not(.is-collapsed) #book-menu-panel {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+    }
 }
 
 #book-menu-panel {
@@ -291,6 +317,18 @@ a.book-selftest {
     touch-action: manipulation;
 }
 
+/* The phone contents bar stays under the top bar. A jump from the
+   menu has to clear both, or the heading sits under the bar. */
+@media (max-width: 959px) {
+    .book-doc [data-book-section],
+    .book-doc h2,
+    .book-doc h3,
+    .book-doc h4,
+    a.book-selftest {
+        scroll-margin-top: calc(var(--book-menu-top, 4rem) + 45px + 0.5rem);
+    }
+}
+
 .book-page a.book-selftest:hover,
 .book-page a.book-selftest:focus,
 .book-page a.book-selftest:focus-visible {
@@ -468,6 +506,12 @@ a.book-selftest:focus-visible {
 
     .book-shell.is-menu-collapsed {
         grid-template-columns: 44px minmax(0, 1fr);
+    }
+
+    /* The overview has no side menu. One column, so the introduction
+       uses the width instead of leaving the menu's column empty. */
+    body.book-overview .book-shell {
+        display: block;
     }
 
     /* The side column and the hide control both run to the bottom of

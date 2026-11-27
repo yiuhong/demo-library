@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The Book view overview no longer has a contents menu. The introduction and the four chapter titles under it are the only table of contents on that page, on a phone and on a wide screen. Chapter pages keep the contents menu. The citation version is unchanged.
+
+- On a chapter, the contents control stays on screen while you read, under the top bar, so you do not have to scroll back to the top to open it. On a phone it still starts collapsed. On a wide screen it still starts open. The citation version is unchanged.
+
 - The Book view overview lists the four chapter titles under the introduction, and each title opens that chapter. On a phone the contents menu still starts closed. The citation version is unchanged.
 
 - The Book view overview says a score of 8 or more out of 10 on a section self-test earns a collectible bookmark. The citation version is unchanged.
