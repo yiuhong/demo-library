@@ -556,6 +556,19 @@ a.book-selftest > .book-still-arrow {
         color: #ffffff;
     }
 
+    /* notebook.css locks this control to paper with !important, so the
+       black fill above never landed and the white words sat on white.
+       The same control is the wide vertical bar and the phone bar. */
+    html.viz-notebook body.book-page button.book-menu-toggle:hover,
+    html.viz-notebook body.book-page button.book-menu-toggle:focus-visible {
+        background-color: #000000 !important;
+        color: #ffffff;
+    }
+
+    html.viz-notebook body.book-page button.book-menu-toggle:focus-visible {
+        outline-color: #ffffff;
+    }
+
     .book-page button.viz-chrome-btn:hover:not(:disabled) {
         background: #000000 !important;
         color: #ffffff !important;

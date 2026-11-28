@@ -51,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Hovering the Book view contents control keeps “Table of contents” readable. The sheet was holding that control on white paper while the hover painted the words white. The hover now fills the control black, and the words and the arrow stay white, whether the contents are open or tucked. On a phone the same fill applies when a pointer can hover. The citation version is unchanged.
+
 - Book view stills for Independent Samples t-Test, Paired Sample t-Test, and the Horowitz sampling demonstration show the sampling histogram after its scale has finished drawing. The citation version is unchanged.
 
 - A Book view Self-test link uses a larger, centered label. The link, the score, and the bookmark are unchanged. The citation version is unchanged.
