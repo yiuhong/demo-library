@@ -171,10 +171,52 @@
         return onThisPage ? hash : file + hash;
     }
 
+    /* The chapter number is the one already in the chapter title.
+       The second number is that section's place in the chapter.
+       One label is used for the contents link and the matching h2. */
+    function chapterNumber(chapter, chapterIndex) {
+        var match = /^Chapter (\d+)/.exec(chapter.title || "");
+        if (match) return match[1];
+        return String(chapterIndex + 1);
+    }
+
+    function sectionNumber(chapter, chapterIndex, sectionIndex) {
+        return chapterNumber(chapter, chapterIndex) + "." + (sectionIndex + 1);
+    }
+
+    function sectionLabel(chapter, chapterIndex, sectionIndex) {
+        var section = chapter.sections[sectionIndex];
+        return sectionNumber(chapter, chapterIndex, sectionIndex) + " " + section.title;
+    }
+
+    /* The section heading is the h2 whose words match the contents
+       title. Chapter 4 keeps "Chapter learning goals" in the same
+       section, so the first h2 is not always the section. */
+    function sectionHeading(section) {
+        var root = document.getElementById(section.id);
+        if (!root) return null;
+        var headings = root.getElementsByTagName("h2");
+        var i;
+        for (i = 0; i < headings.length; i++) {
+            if (headings[i].textContent === section.title) return headings[i];
+        }
+        return null;
+    }
+
+    function numberSectionHeadings() {
+        BOOK_CONTENTS.forEach(function (chapter, chapterIndex) {
+            chapter.sections.forEach(function (section, sectionIndex) {
+                var heading = sectionHeading(section);
+                if (!heading) return;
+                heading.textContent = sectionLabel(chapter, chapterIndex, sectionIndex);
+            });
+        });
+    }
+
     function renderContents(panel) {
         var here = chapterFile();
         panel.textContent = "";
-        BOOK_CONTENTS.forEach(function (chapter) {
+        BOOK_CONTENTS.forEach(function (chapter, chapterIndex) {
             var onThisPage = chapter.file === here;
             var block = document.createElement("div");
             block.className = "book-toc-chapter" + (onThisPage ? " is-current" : "");
@@ -190,11 +232,11 @@
                 panel.appendChild(block);
                 return;
             }
-            chapter.sections.forEach(function (section) {
+            chapter.sections.forEach(function (section, sectionIndex) {
                 var sectionLink = document.createElement("a");
                 sectionLink.className = "book-section-link";
                 sectionLink.href = itemHref(chapter.file, section.id, onThisPage);
-                sectionLink.textContent = section.title;
+                sectionLink.textContent = sectionLabel(chapter, chapterIndex, sectionIndex);
                 block.appendChild(sectionLink);
                 var list = document.createElement("ul");
                 section.items.forEach(function (item) {
@@ -249,6 +291,9 @@
     }
 
     function boot() {
+        /* book.js is above the article, so the headings exist only
+           after the document has loaded. */
+        numberSectionHeadings();
         var menu = document.querySelector(".book-menu");
         var menuButton = document.getElementById("book-menu-toggle");
         var menuPanel = document.getElementById("book-menu-panel");
