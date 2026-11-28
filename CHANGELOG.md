@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The live addresses for this library now use the forthcoming repository name. The public site is https://yiuhong.github.io/project-viz/ and the source is https://github.com/yiuhong/project-viz. Preferred citations, CITATION.cff, the URL fields in site-meta.js, Cite & reuse, Licenses, the home colophon, README, CONTRIBUTING, and the LICENSE notice use those addresses. The Pages folder noted for the native app is `/project-viz/`. The citation version is unchanged.
+
 - Book view Try this sections describe what each demonstration shows and what you can explore in it. In Chapters 1–4 the label stays Try this. Chapter 1 keeps its step lists. Q–Q Plot and Limitations of summary statistics gain a short description of the figure. Thin prompts under the other demonstrations are rewritten where they only said what to do. A few sections that already described the demonstration are unchanged, including Bessel’s correction, the kernel density estimate, the probability distributions map, the Poisson demonstration, From Binomial Counts to Chi-Square, and Multiple Regression and ANOVA Equivalence. Why, Key points, Check your understanding, and What’s next? are unchanged. The citation version is unchanged.
 
 - The front-page About this library line keeps only “Cite a figure, read the source, or follow the license.” The citation version is unchanged.
