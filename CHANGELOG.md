@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Book view demonstration stills stop stretching on a large screen. The card keeps the chapter column on a phone (about 350px), on a tablet (about 730px at 768px), and on a modest two-column laptop (about 860px at 1280px with the contents column open, and about 950px at 1366px). From a wider window the card stops at 60rem, which is 960px at the 16px root, so a 1920px window no longer shows a still about 1500px wide and a 2560px window no longer shows one about 2140px wide. The chapter prose is not capped. The picture keeps its proportion. The citation version is unchanged.
+
 - Book view names the paragraph between demonstrations What’s next? Every Bridge label in Chapters 1–4 is that name, 27 in all, and the Chapter 1 introduction uses it in the same sentence as Why, Try this, and Check your understanding. The short paragraphs in Chapters 2, 3, and 4 are rewritten so each one links the demonstration above to the demonstration below. The paragraph after Pearson’s χ² Goodness-of-Fit already made that link, and Chapter 1’s paragraphs already did, including the longer wrap toward probability and sampling, so those keep their wording. The citation version is unchanged.
 
 - On a wide Catalog, the pane bar stays hidden until a demonstration is open. That bar is the heading Catalog, Teach/Learn, and a disabled Fullscreen control. The top bar and the side menu stay. Once a demonstration is open, the bar shows its title, Teach/Learn, Fullscreen, and Exit. On a phone the pane still appears only after a demonstration is open, and the pane title stays hidden. The citation version is unchanged.
@@ -52,6 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The library now says Book view wherever it used to say Guided Tracks, and Chapter 1 says Book view wherever it used to say Book mode. The name is in the top menu, on Home, on the tracks page, on connection pages, in Chapter 1, and in the docs. Chapter 1 remains the scrolling chapter for Describing data. Other topics remain on the playlist at tracks.html. The citation version is unchanged.
 
 ### Fixed
+
+- Book view stills show the figure rather than the controls around it. Partitioning Sum of Squares is the orthogonal bricks and the one-way tree. Pearson’s χ² goodness-of-fit is the wheel, the count chart, and the χ² curve. χ² roulette is recaptured with a sample of 1000 and shows the wheel, the count table, and the curve. Confidence intervals are the target and the interval plot. The independent-samples t-test, the paired t-test, and the Horowitz sampling demonstration keep the finished histograms and the sample panels, without the Simulate and Reset buttons. Additivity of variance loses the empty band under the figure. ANOVA assumptions loses the Previous and Next bar. The citation version is unchanged.
 
 - Hovering the Book view contents control keeps “Table of contents” readable. The sheet was holding that control on white paper while the hover painted the words white. The hover now fills the control black, and the words and the arrow stay white, whether the contents are open or tucked. On a phone the same fill applies when a pointer can hover. The citation version is unchanged.
 
