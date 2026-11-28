@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The homepage Features list includes Book view immediately after Teach and Learn and before References. The heading links to [`book/`](book/). The sentence reads “Demonstrations are organized into book chapters with self-tests to consolidate your understanding.” The note under the list is removed. Coverage, Interactive figures, Teach and Learn, References, Open source, and the citation version are unchanged.
+
+- On the homepage, Browse the catalog and Open the demo are white with black text and a black border. Hover and keyboard focus fill them black and turn the words white. Book view on the homepage already used that pattern. The shapes, type, and focus outlines stay. The citation version is unchanged.
+
 - Book view numbers each section in the table of contents and on the matching heading, from the chapter and that section’s place in the chapter: 1.1, 1.2, and so on. Chapter titles, Chapter learning goals, intro headings, Chapter wrap, References, demonstration titles, and self-test labels stay unnumbered. The overview still lists only the four chapter titles. The citation version is unchanged.
 
 - The z-distribution vs t-distribution histograms are more solid. Simulated sample means move from fill 0.2 and border 0.4 to fill 0.5 with an opaque group-b stroke. Simulated z bars move from fill 0.2 and border 0.4 to fill 0.45 with an opaque group-a stroke. Simulated t bars move from fill 0.3 and border 0.5 to fill 0.45 with an opaque group-c stroke, so the two overlapping histograms stay the same strength. The three theoretical curves stay stroke-only. The Book chapter still is recaptured in the same 1438×1430 frame. The citation version is unchanged.

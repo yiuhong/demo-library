@@ -69,23 +69,10 @@ a.home-cta {
     text-decoration: none !important;
 }
 
-a.home-cta.is-primary {
-    background: #000000 !important;
-    color: #ffffff !important;
-}
-
 a.home-cta:hover,
-a.home-cta:focus-visible,
-a.home-cta.is-primary:hover,
-a.home-cta.is-primary:focus-visible {
+a.home-cta:focus-visible {
     background: #000000 !important;
     color: #ffffff !important;
-}
-
-a.home-cta.is-primary:hover,
-a.home-cta.is-primary:focus-visible {
-    background: #ffffff !important;
-    color: #000000 !important;
 }
 
 a.home-cta:focus {
@@ -139,8 +126,8 @@ a.home-open {
     padding: 0.45rem 0.95rem;
     border: 1px solid #000000 !important;
     border-radius: 999px;
-    background: #000000 !important;
-    color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
     font-size: 0.78rem;
     font-weight: bold;
     letter-spacing: 0.03em;
@@ -150,8 +137,8 @@ a.home-open {
 
 a.home-open:hover,
 a.home-open:focus-visible {
-    background: #ffffff !important;
-    color: #000000 !important;
+    background: #000000 !important;
+    color: #ffffff !important;
 }
 
 a.home-open:focus {
