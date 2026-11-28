@@ -4,11 +4,11 @@ Thank you for helping Project Viz.
 
 ## Bugs
 
-Report a bug or a teaching error on [GitHub Issues](https://github.com/yiuhong/demo-library/issues). Name the demo page, what you expected, and what happened.
+Report a bug or a teaching error on [GitHub Issues](https://github.com/yiuhong/project-viz/issues). Name the demo page, what you expected, and what happened.
 
 ## Ideas
 
-GitHub Discussions are not enabled for this repository. Suggest an idea on [GitHub Issues](https://github.com/yiuhong/demo-library/issues). Start the title with "Idea:".
+GitHub Discussions are not enabled for this repository. Suggest an idea on [GitHub Issues](https://github.com/yiuhong/project-viz/issues). Start the title with "Idea:".
 
 ## Pull requests
 

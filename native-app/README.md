@@ -110,7 +110,7 @@ These still ask the network. The pages open without them. Web fonts fall back to
 - The Noematachograph photograph on Unsplash
 - About Yiu Hong, GitHub, ORCID, and the Creative Commons license pages
 
-Root-absolute paths such as `/assets/...` are used only in the copied vendor registry. Capacitor serves the bundle at `https://localhost/` on Android and `capacitor://localhost/` on iOS, so those paths resolve inside the app. The published GitHub Pages site stays on relative URLs and the CDN. Do not copy that rewritten registry back to the repository root. Pages is hosted at `/demo-library/`, and a root-absolute path there would miss the project folder.
+Root-absolute paths such as `/assets/...` are used only in the copied vendor registry. Capacitor serves the bundle at `https://localhost/` on Android and `capacitor://localhost/` on iOS, so those paths resolve inside the app. The published GitHub Pages site stays on relative URLs and the CDN. Do not copy that rewritten registry back to the repository root. Pages is hosted at `/project-viz/`, and a root-absolute path there would miss the project folder.
 
 ## What this does not change
 

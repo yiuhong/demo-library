@@ -11,8 +11,8 @@ authors:
     website: "https://yiuhong.github.io/"
 version: "0.1.8"
 date-released: "2026-11-15"
-url: "https://yiuhong.github.io/demo-library/"
-repository-code: "https://github.com/yiuhong/demo-library"
+url: "https://yiuhong.github.io/project-viz/"
+repository-code: "https://github.com/yiuhong/project-viz"
 license: CC-BY-4.0
 keywords:
   - "open educational resources"
@@ -27,4 +27,4 @@ preferred-citation:
       orcid: "https://orcid.org/0000-0003-4436-0166"
   year: 2026
   version: "0.1.8"
-  url: "https://yiuhong.github.io/demo-library/"
+  url: "https://yiuhong.github.io/project-viz/"

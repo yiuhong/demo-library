@@ -536,8 +536,8 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
             "CC BY 4.0",
             "Cite & reuse",
             "Spotted a mistake?",
-            "https://github.com/yiuhong/demo-library/issues",
-            "https://github.com/yiuhong/demo-library",
+            "https://github.com/yiuhong/project-viz/issues",
+            "https://github.com/yiuhong/project-viz",
             "mailto:yiuhong.ko@gmail.com",
             "https://yiuhong.github.io/",
             "About Yiu Hong",
@@ -575,7 +575,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
                     "Copy BibTeX",
                     "Copy credit line",
                     DEMO_CITE_HREF,
-                    f"https://yiuhong.github.io/demo-library/{DEMO_CITE_HREF}",
+                    f"https://yiuhong.github.io/project-viz/{DEMO_CITE_HREF}",
                     "CITATION.cff",
                     "Machine-readable citation",
                     'id="citation-cff"',
@@ -794,7 +794,7 @@ def check_site_chrome(problems: list[str], demo_hrefs: list[str], catalog: objec
     contributing = read_text(ROOT / "CONTRIBUTING.md")
     if contributing is None:
         problems.append("CONTRIBUTING.md: file not found")
-    elif "https://github.com/yiuhong/demo-library/issues" not in contributing:
+    elif "https://github.com/yiuhong/project-viz/issues" not in contributing:
         problems.append("CONTRIBUTING.md: missing the Issues link")
 
     for href in demo_hrefs:
@@ -865,8 +865,8 @@ def check_citation_file(problems: list[str], version: str | None, updated: str |
         "cff-version": "1.2.0",
         "title": CITATION_TITLE,
         "license": "CC-BY-4.0",
-        "url": "https://yiuhong.github.io/demo-library/",
-        "repository-code": "https://github.com/yiuhong/demo-library",
+        "url": "https://yiuhong.github.io/project-viz/",
+        "repository-code": "https://github.com/yiuhong/project-viz",
     }
     if version:
         expected["version"] = version

@@ -1,4 +1,4 @@
-<p><a href="https://yiuhong.github.io/demo-library/"><img src="images/project-viz-wordmark.svg#gh-light-mode-only" alt="Project Viz" width="440"><img src="images/project-viz-wordmark-dark.svg#gh-dark-mode-only" alt="Project Viz" width="440"></a></p>
+<p><a href="https://yiuhong.github.io/project-viz/"><img src="images/project-viz-wordmark.svg#gh-light-mode-only" alt="Project Viz" width="440"><img src="images/project-viz-wordmark-dark.svg#gh-dark-mode-only" alt="Project Viz" width="440"></a></p>
 
 # Project Viz
 
@@ -6,19 +6,19 @@ A visual library for teaching and learning statistics through interactive demons
 
 Designed for everyone — from absolute beginners and high school students to undergraduates, postgraduates, and researchers.
 
-**🌟 [View Project Viz](https://yiuhong.github.io/demo-library/)**
+**🌟 [View Project Viz](https://yiuhong.github.io/project-viz/)**
 
 ## Cite, license, and contact
 
 Teaching text, explanations, and figures are [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source code is [MIT](LICENSE-CODE). [LICENSE](LICENSE) states the split: prose and figures in a page are CC BY 4.0, and the code in that page is MIT. The same split is on [license.html](license.html).
 
-Cite and reuse the library (APA 7, BibTeX, license, and a credit line): [cite.html](https://yiuhong.github.io/demo-library/cite.html).
+Cite and reuse the library (APA 7, BibTeX, license, and a credit line): [cite.html](https://yiuhong.github.io/project-viz/cite.html).
 
 A machine-readable citation is [`CITATION.cff`](CITATION.cff) (Citation File Format 1.2.0). It matches the preferred citation on the cite page: this teaching library, Yiu Hong Ko, the ORCID iD, this version, and the library URL. The file records the work as CC BY 4.0 and notes that source code is MIT.
 
 Yiu Hong Ko · [ORCID 0000-0003-4436-0166](https://orcid.org/0000-0003-4436-0166) · [yiuhong.ko@gmail.com](mailto:yiuhong.ko@gmail.com) · [yiuhong.github.io](https://yiuhong.github.io/)
 
-Mistakes, bugs, and ideas: [GitHub Issues](https://github.com/yiuhong/demo-library/issues). Notes for contributors: [CONTRIBUTING.md](CONTRIBUTING.md). What changed: [CHANGELOG.md](CHANGELOG.md).
+Mistakes, bugs, and ideas: [GitHub Issues](https://github.com/yiuhong/project-viz/issues). Notes for contributors: [CONTRIBUTING.md](CONTRIBUTING.md). What changed: [CHANGELOG.md](CHANGELOG.md).
 
 Version and last-updated date live in [`assets/site-meta.js`](assets/site-meta.js). The current release is **0.1.8** (15 November 2026). Version 0.1.0 was the first versioned release. Bump `version` and `updated` there when the library changes in a way a syllabus should record, set the same version and `date-released` in [`CITATION.cff`](CITATION.cff), and add a changelog entry. The footer and cite page read that file. `index.html`, `catalog.html`, `tracks.html`, `cite.html`, and `license.html` repeat the same version and date for visitors without JavaScript; update that fallback when you bump `site-meta.js`.
 
