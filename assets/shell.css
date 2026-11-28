@@ -399,7 +399,7 @@ button.catalog-retry:disabled {
 
 .viz-rail ul.catalog-chooser > li,
 .viz-rail ul.catalog-demo-list > li {
-    margin: 0 0 0.55rem;
+    margin: 0;
     padding: 0;
     list-style: none;
 }
@@ -412,6 +412,12 @@ button.catalog-retry:disabled {
     content: none !important;
 }
 
+/* Catalog groups and the open-demo list use the same flat rows as the
+   Book view contents column (book/book.css). A row is ink on the sheet,
+   not a card. The current row is a 3px rule. 0.75rem of padding keeps
+   that rule off the words, and a demonstration sits further in.
+   The count on a group, search, and Back to browse stay Catalog's. */
+
 .viz-rail a.catalog-choice {
     display: flex;
     flex-direction: row;
@@ -420,32 +426,25 @@ button.catalog-retry:disabled {
     gap: 0.65rem;
     box-sizing: border-box;
     width: 100%;
-    min-height: 2.75rem;
+    min-height: 44px;
     margin: 0;
-    padding: 0.45rem 0.75rem;
-    border: 1px solid #000000 !important;
-    border-radius: 4px;
-    background: #ffffff !important;
+    padding: 0.35rem 0.2rem 0.35rem 0.75rem;
+    border: 0 !important;
+    border-radius: 0;
+    background: transparent !important;
     box-shadow: none !important;
     color: #000000 !important;
+    font-size: 0.95rem;
     font-weight: bold;
+    line-height: 1.35;
     text-align: left;
     text-decoration: none !important;
     transition: none;
 }
 
 .viz-rail a.catalog-choice.is-current {
-    background: #f6f6f6 !important;
+    background: transparent !important;
     box-shadow: inset 3px 0 0 #000000 !important;
-}
-
-.viz-rail a.catalog-choice:hover,
-.viz-rail a.catalog-choice:focus-visible,
-.viz-rail a.catalog-choice.is-current:hover,
-.viz-rail a.catalog-choice.is-current:focus-visible {
-    background: #000000 !important;
-    color: #ffffff !important;
-    box-shadow: none !important;
 }
 
 .viz-rail a.catalog-choice:focus {
@@ -455,14 +454,17 @@ button.catalog-retry:disabled {
 .viz-rail a.catalog-choice:focus-visible {
     outline: 2px solid #000000;
     outline-offset: 2px;
+    background: #000000 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
 }
 
 .viz-rail .catalog-choice-title {
     flex: 1 1 auto;
     min-width: 0;
-    font-size: 0.92rem;
+    font-size: inherit;
     font-weight: bold;
-    line-height: 1.3;
+    line-height: 1.35;
     color: inherit !important;
 }
 
@@ -478,37 +480,30 @@ button.catalog-retry:disabled {
 }
 
 .viz-rail a.catalog-demo {
-    display: block;
+    display: flex;
+    align-items: center;
     box-sizing: border-box;
     width: 100%;
+    min-height: 44px;
     margin: 0;
-    padding: 0.55rem 0.7rem;
-    border: 1px solid #000000 !important;
-    border-radius: 4px;
-    background: #ffffff !important;
+    padding: 0.35rem 0.2rem 0.35rem 1.45rem;
+    border: 0 !important;
+    border-radius: 0;
+    background: transparent !important;
     box-shadow: none !important;
     color: #000000 !important;
     font-size: 0.92rem;
-    font-weight: bold;
+    font-weight: normal;
     line-height: 1.35;
     text-align: left;
     text-decoration: none !important;
 }
 
 .viz-rail a.catalog-demo.is-current {
-    outline: 2px solid #000000;
-    outline-offset: 2px;
-    background: #f6f6f6 !important;
+    outline: none;
+    background: transparent !important;
+    box-shadow: inset 3px 0 0 #000000 !important;
     color: #000000 !important;
-}
-
-.viz-rail a.catalog-demo:hover,
-.viz-rail a.catalog-demo:focus-visible,
-.viz-rail a.catalog-demo.is-current:hover,
-.viz-rail a.catalog-demo.is-current:focus-visible {
-    background: #000000 !important;
-    color: #ffffff !important;
-    outline-color: #ffffff;
 }
 
 .viz-rail a.catalog-demo:focus {
@@ -518,16 +513,49 @@ button.catalog-retry:disabled {
 .viz-rail a.catalog-demo:focus-visible {
     outline: 2px solid #000000;
     outline-offset: 2px;
+    background: #000000 !important;
+    color: #ffffff !important;
+    box-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .viz-rail a.catalog-choice:hover,
+    .viz-rail a.catalog-choice:focus-visible,
+    .viz-rail a.catalog-choice.is-current:hover,
+    .viz-rail a.catalog-choice.is-current:focus-visible,
+    .viz-rail a.catalog-demo:hover,
+    .viz-rail a.catalog-demo:focus-visible,
+    .viz-rail a.catalog-demo.is-current:hover,
+    .viz-rail a.catalog-demo.is-current:focus-visible {
+        background: #000000 !important;
+        color: #ffffff !important;
+        box-shadow: none !important;
+    }
+}
+
+.viz-rail .catalog-topic.is-compact,
+.viz-rail .catalog-group {
+    margin: 0;
+}
+
+.viz-rail .catalog-topic.is-compact + .catalog-topic.is-compact,
+.viz-rail .catalog-group + .catalog-topic.is-compact,
+.viz-rail .catalog-topic.is-compact + .catalog-group,
+.viz-rail .catalog-group + .catalog-group {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid #000000;
 }
 
 .viz-rail .catalog-topic-title,
 .viz-rail .catalog-group-title {
-    margin: 0.85rem 0 0.4rem;
-    font-size: 0.72rem !important;
+    margin: 0.15rem 0 0.2rem;
+    padding-left: 0.75rem;
+    font-size: 0.95rem !important;
     font-weight: bold;
-    letter-spacing: 0.08em;
-    line-height: 1.3 !important;
-    text-transform: uppercase;
+    letter-spacing: 0;
+    line-height: 1.35 !important;
+    text-transform: none;
 }
 
 .viz-rail .catalog-phone-list a.demo-card {
@@ -1241,6 +1269,44 @@ body.viz-app #footer ul.menu > li {
 @media screen and (min-width: 737px) {
     button.viz-back {
         display: none !important;
+    }
+
+    /* Nothing is open, so this bar only repeats the top nav and the
+       rail. Teach/Learn does not change the grid, and Fullscreen is
+       disabled. The bar returns with the demonstration: its title,
+       Teach/Learn, Fullscreen, and Exit. A phone already hides the
+       pane until then, and this rule stays at the wide breakpoint. */
+    body.viz-app[data-viz-page="catalog"]:not(.is-demo-open) .viz-pane-chrome {
+        display: none;
+    }
+
+    body.viz-app[data-viz-page="catalog"] .viz-rail h1 {
+        margin-bottom: 0.35rem;
+        padding-left: 0.75rem;
+        font-size: 1.05rem !important;
+        font-weight: bold;
+        letter-spacing: 0;
+        line-height: 1.3 !important;
+    }
+
+    body.viz-app[data-viz-page="catalog"] .viz-rail .page-lead {
+        margin-bottom: 0.65rem;
+        padding-left: 0.75rem;
+    }
+}
+
+/* The Book view contents column uses this same measure from 960px
+   (book/book.css). Catalog keeps the narrower percentage rail below
+   that, where the grid still needs the room. */
+@media screen and (min-width: 960px) {
+    body.viz-app[data-viz-page="catalog"] .viz-workspace {
+        grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+    }
+
+    body.viz-app[data-viz-page="catalog"] .viz-rail {
+        padding-top: 0.75rem;
+        padding-right: 0.9rem;
+        padding-bottom: 1.4rem;
     }
 }
 
