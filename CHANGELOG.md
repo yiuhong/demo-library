@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- On a wide Catalog, the pane bar stays hidden until a demonstration is open. That bar is the heading Catalog, Teach/Learn, and a disabled Fullscreen control. The top bar and the side menu stay. Once a demonstration is open, the bar shows its title, Teach/Learn, Fullscreen, and Exit. On a phone the pane still appears only after a demonstration is open, and the pane title stays hidden. The citation version is unchanged.
+
+- The Catalog side menu and the Book view contents column use the same layout. Group and chapter rows are bold, flat, and the same height. A demonstration title is regular weight and indented. A current row is marked with a short ink rule set in from the words. Headings are the same size and weight, in sentence case. In the open Catalog list, and between Book view chapters, a rule separates one group from the next. From 960px the Catalog column uses the same width as the Book view contents column. Catalog still lists groups with their counts, still searches, and still has Back to browse. Book view still marks the open chapter, keeps the contents column on screen, and still scrolls inside that column. The hide control still tucks that column. On a wide screen its label is the same bold size as the Catalog heading. On a phone, Catalog is still the card list, and Book view is still the collapsing contents bar. The citation version is unchanged.
+
 - Home, Book view, Cite & reuse, and Licenses use Catalog’s compact footer (cite, the license, and “Spotted a mistake?”). On a wide screen the bar stays pinned across the bottom of the window, including under the Book view contents column and the chapter. The page between the top bar and that footer scrolls, so the last lines are not covered. On a phone the same compact bar stays in the page: after the last Home section, after the Book overview, or after a chapter’s last section and its References list. A short phone page rests it on the bottom edge. A long phone page shows it when you scroll to the end. An open Book view demonstration still hides it. Catalog and Guided Tracks already pin this bar. The citation version is unchanged.
 
 - Book view uses the same site footer as Home (cite, the license, and “Spotted a mistake?”). On a chapter it follows the chapter wrap (and the References list, where that list is present). An open demonstration does not show it. The citation version is unchanged.
@@ -46,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The library now says Book view wherever it used to say Guided Tracks, and Chapter 1 says Book view wherever it used to say Book mode. The name is in the top menu, on Home, on the tracks page, on connection pages, in Chapter 1, and in the docs. Chapter 1 remains the scrolling chapter for Describing data. Other topics remain on the playlist at tracks.html. The citation version is unchanged.
 
 ### Fixed
+
+- Hovering the Book view contents control keeps “Table of contents” readable. The sheet was holding that control on white paper while the hover painted the words white. The hover now fills the control black, and the words and the arrow stay white, whether the contents are open or tucked. On a phone the same fill applies when a pointer can hover. The citation version is unchanged.
 
 - Book view stills for Independent Samples t-Test, Paired Sample t-Test, and the Horowitz sampling demonstration show the sampling histogram after its scale has finished drawing. The citation version is unchanged.
 

@@ -143,9 +143,15 @@ button.book-menu-toggle {
     display: none;
 }
 
+/* Same type, row, and heading scale as the Catalog rail
+   (assets/shell.css). A chapter or section is a bold 0.95rem row.
+   A demonstration is regular 0.92rem and indented. The current row
+   is a 3px rule; the left padding keeps that rule off the title.
+   The hide bar, the sticky column, and the in-column scroll stay. */
+
 .book-menu-chapter {
-    margin: 0 0 0.75rem;
-    font-size: 1.05em;
+    margin: 0 0 0.2rem;
+    font-size: 0.95rem;
     font-weight: bold;
     line-height: 1.35;
 }
@@ -154,17 +160,19 @@ button.book-menu-toggle {
     display: flex;
     align-items: center;
     min-height: 44px;
-    padding: 0.35rem 0.2rem;
+    padding: 0.35rem 0.2rem 0.35rem 0.75rem;
     border-bottom: 0;
+    font-size: 0.95rem;
     font-weight: bold;
-    line-height: 1.3;
+    line-height: 1.35;
     text-decoration: none;
 }
 
 .book-menu a.book-demo-link,
 .book-menu a.book-selftest-link {
     min-height: 44px;
-    padding-left: 0.9rem;
+    padding-left: 1.45rem;
+    font-size: 0.92rem;
     font-weight: normal;
 }
 
@@ -208,7 +216,7 @@ button.book-menu-toggle {
 
 
 .book-doc h1 {
-    /* The Book view and Catalog rail heading is 1.35rem. */
+    /* The article title. The side menus use a smaller heading. */
     font-size: 1.35rem;
     letter-spacing: -0.02em;
     line-height: 1.25;
@@ -548,6 +556,19 @@ a.book-selftest > .book-still-arrow {
         color: #ffffff;
     }
 
+    /* notebook.css locks this control to paper with !important, so the
+       black fill above never landed and the white words sat on white.
+       The same control is the wide vertical bar and the phone bar. */
+    html.viz-notebook body.book-page button.book-menu-toggle:hover,
+    html.viz-notebook body.book-page button.book-menu-toggle:focus-visible {
+        background-color: #000000 !important;
+        color: #ffffff;
+    }
+
+    html.viz-notebook body.book-page button.book-menu-toggle:focus-visible {
+        outline-color: #ffffff;
+    }
+
     .book-page button.viz-chrome-btn:hover:not(:disabled) {
         background: #000000 !important;
         color: #ffffff !important;
@@ -662,8 +683,9 @@ a.book-selftest > .book-still-arrow {
     .book-menu-label {
         writing-mode: vertical-rl;
         text-orientation: mixed;
-        font-size: 0.95rem;
-        letter-spacing: 0.01em;
+        font-size: 1.05rem;
+        font-weight: bold;
+        letter-spacing: 0;
     }
 
     .book-menu.is-collapsed button.book-menu-toggle {
