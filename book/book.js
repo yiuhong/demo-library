@@ -173,7 +173,10 @@
 
     /* The chapter number is the one already in the chapter title.
        The second number is that section's place in the chapter.
-       One label is used for the contents link and the matching h2. */
+       The third number is that item's place in the section.
+       One section label is used for the contents link and the matching h2.
+       One item label is used for the contents link and the matching
+       demonstration heading or self-test name. */
     function chapterNumber(chapter, chapterIndex) {
         var match = /^Chapter (\d+)/.exec(chapter.title || "");
         if (match) return match[1];
@@ -187,6 +190,15 @@
     function sectionLabel(chapter, chapterIndex, sectionIndex) {
         var section = chapter.sections[sectionIndex];
         return sectionNumber(chapter, chapterIndex, sectionIndex) + " " + section.title;
+    }
+
+    function itemNumber(chapter, chapterIndex, sectionIndex, itemIndex) {
+        return sectionNumber(chapter, chapterIndex, sectionIndex) + "." + (itemIndex + 1);
+    }
+
+    function itemLabel(chapter, chapterIndex, sectionIndex, itemIndex) {
+        var item = chapter.sections[sectionIndex].items[itemIndex];
+        return itemNumber(chapter, chapterIndex, sectionIndex, itemIndex) + " " + item[2];
     }
 
     /* The section heading is the h2 whose words match the contents
@@ -209,6 +221,44 @@
                 var heading = sectionHeading(section);
                 if (!heading) return;
                 heading.textContent = sectionLabel(chapter, chapterIndex, sectionIndex);
+            });
+        });
+    }
+
+    /* The id picks the node, because two demonstrations can share a
+       title. The words are set only when they still match that title,
+       so a still, a subhead, or another heading stays as written. */
+    function itemLabelNode(item) {
+        var root = document.getElementById(item[1]);
+        if (!root) return null;
+        var node = null;
+        if (item[0] === "selftest") {
+            if (root.tagName !== "A" || !root.classList.contains("book-selftest")) return null;
+            var names = root.getElementsByClassName("book-selftest-name");
+            if (names.length) node = names[0];
+        } else {
+            if (root.tagName !== "SECTION" || !root.classList.contains("book-demo")) return null;
+            var headings = root.getElementsByTagName("h3");
+            var i;
+            for (i = 0; i < headings.length; i++) {
+                if (headings[i].textContent === item[2]) {
+                    node = headings[i];
+                    break;
+                }
+            }
+        }
+        if (!node || node.textContent !== item[2]) return null;
+        return node;
+    }
+
+    function numberItemLabels() {
+        BOOK_CONTENTS.forEach(function (chapter, chapterIndex) {
+            chapter.sections.forEach(function (section, sectionIndex) {
+                section.items.forEach(function (item, itemIndex) {
+                    var node = itemLabelNode(item);
+                    if (!node) return;
+                    node.textContent = itemLabel(chapter, chapterIndex, sectionIndex, itemIndex);
+                });
             });
         });
     }
@@ -239,10 +289,11 @@
                 sectionLink.textContent = sectionLabel(chapter, chapterIndex, sectionIndex);
                 block.appendChild(sectionLink);
                 var list = document.createElement("ul");
-                section.items.forEach(function (item) {
+                section.items.forEach(function (item, itemIndex) {
                     var li = document.createElement("li");
                     var link = document.createElement("a");
                     var kind = item[0];
+                    var label = itemLabel(chapter, chapterIndex, sectionIndex, itemIndex);
                     link.className = kind === "selftest" ? "book-selftest-link" : "book-demo-link";
                     link.href = itemHref(chapter.file, item[1], onThisPage);
                     if (kind === "selftest") {
@@ -251,9 +302,9 @@
                         mark.setAttribute("aria-hidden", "true");
                         mark.textContent = "🔖";
                         link.appendChild(mark);
-                        link.appendChild(document.createTextNode(" " + item[2]));
+                        link.appendChild(document.createTextNode(" " + label));
                     } else {
-                        link.textContent = item[2];
+                        link.textContent = label;
                     }
                     li.appendChild(link);
                     list.appendChild(li);
@@ -294,6 +345,7 @@
         /* book.js is above the article, so the headings exist only
            after the document has loaded. */
         numberSectionHeadings();
+        numberItemLabels();
         var menu = document.querySelector(".book-menu");
         var menuButton = document.getElementById("book-menu-toggle");
         var menuPanel = document.getElementById("book-menu-panel");
