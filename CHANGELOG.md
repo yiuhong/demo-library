@@ -47,6 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Book view stills for Independent Samples t-Test, Paired Sample t-Test, and the Horowitz sampling demonstration show the sampling histogram after its scale has finished drawing. The citation version is unchanged.
+
+- A Book view Self-test link uses a larger, centered label. The link, the score, and the bookmark are unchanged. The citation version is unchanged.
+
+- On the Book view contents menu, the line that marks the current page sits a little farther from the title. The citation version is unchanged.
+
 - Choosing a Book view topic or section that already has a chapter opens that chapter. A click on Describing data, Probability & sampling, Comparing means, Association, or one of their sections was staying on the playlist: the shell cancelled the link and only changed the address. The click now loads the chapter page, and so does a pasted or reloaded `tracks.html?topic=` or `tracks.html?track=` address for those ids. Book view with no topic and no section still opens the overview. The citation version is unchanged.
 
 - Catalog keeps Fullscreen on a narrow phone. Book view still hides that control under 479px, because Back, Previous, and Next already fill the bar. Catalog has no Previous or Next, so Fullscreen stays beside Back and Teach / Learn when a demonstration is open. A tap uses the browser Fullscreen API when that request succeeds. When a phone tab refuses it, the demonstration fills the screen in the page. Exit, Escape, or Back leaves that view, and Back from the demonstration still returns to the catalog grid. Back, Teach, Learn, Fullscreen, and Exit share one centered line. The citation version is unchanged.
