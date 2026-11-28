@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yiuhong.github.io/project-viz/sitemap.xml
