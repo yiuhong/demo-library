@@ -14,6 +14,7 @@ Reads ``demos.json``, ``tracks.json``, and ``families.json`` at the repo root:
 * the cite page has cite, license, reuse, credit, accessibility, and report sections, an ORCID link, and a per-demo example whose title matches demos.json
 * CITATION.cff matches the current version, and the cite page links the machine-readable citation
 * CHANGELOG.md and CONTRIBUTING.md are present, and the changelog names the current version
+* robots.txt allows crawling and names sitemap.xml, that sitemap lists the public pages taken from the library pages, demos.json, and tracks.json, and each of those pages carries the shared site-share block. Regenerate with ``python3 scripts/site_visibility.py``
 * connection notes, formulae, and demo descriptions that use ``_`` or ``^`` are a subscript or superscript the connection page can draw, and that page builds ``sub`` / ``sup`` without ``innerHTML``
 * HTML under ``native-app/`` is the Capacitor build copy and is not part of this check
 
@@ -32,6 +33,11 @@ import json
 import re
 import sys
 from pathlib import Path
+
+_SCRIPTS = Path(__file__).resolve().parent
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
+from site_visibility import check_visibility
 
 ROOT = Path(__file__).resolve().parent.parent
 DEMOS_PATH = ROOT / "demos.json"
@@ -85,6 +91,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     check_map_page(problems)
     check_connection_notation(problems)
+    check_visibility(problems)
 
     if problems:
         noun = "problem" if len(problems) == 1 else "problems"
