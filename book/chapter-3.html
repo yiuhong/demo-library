@@ -86,7 +86,7 @@
 <li><span class="connection-formula-line">df = n − 1</span><span class="connection-gloss-line">degrees of freedom for this one sample.</span><span class="connection-symbols-line">n is the sample size.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Compare the z curve with the t curve, and see a small estimate of the spread push the statistic farther into the heavier tail.</p>
+<p>Set the sample size and draw repeated samples from a normal population with a known spread. The z statistic uses that population standard deviation; the t statistic uses the sample standard deviation. Histograms of the two statistics sit on their curves. A smaller sample makes the t curve heavier in the tails, and a sample whose estimated spread comes out small pushes that t farther out.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/z_distribution_vs_t_distribution.html">
 <span class="book-still-media">
@@ -120,7 +120,7 @@
 <li><span class="connection-formula-line">s<sub>p</sub>² = ((n₁ − 1) s₁² + (n₂ − 1) s₂²) / (n₁ + n₂ − 2)</span><span class="connection-gloss-line">the pooled variance, the two group spreads combined.</span><span class="connection-symbols-line">s₁² and s₂² are the group variances, and n₁ and n₂ are the sample sizes.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Compare two groups that do not share people, and see whether their means differ by more than the spread within the groups.</p>
+<p>Draw samples from two groups that do not share people. You can match the groups’ variances and sample sizes, or let them differ. Student’s t pools the two sample variances. Welch’s t keeps a separate variance for each group. The pile on the right is the differences of the sample means.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/independent_t_test_simulation.html">
 <span class="book-still-media">
@@ -158,7 +158,7 @@
 <li><span class="connection-formula-line">df = n − 1</span><span class="connection-gloss-line">degrees of freedom, one less than the number of pairs.</span><span class="connection-symbols-line">n is how many pairs.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Turn each person’s two scores into one difference, and set the mean of those differences against a t curve.</p>
+<p>The page holds a population of 1,000 people, each with a pre-test and a post-test. A draw takes 10 pairs, and the two scores from one person stay linked. Those two scores become one difference. The mean of the differences is set against a t curve, and repeated draws pile those means up.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/paired_t_test_simulation.html">
 <span class="book-still-media">
@@ -196,7 +196,7 @@
 <li><span class="connection-formula-line">α = P(reject H₀ | H₀ true)</span><span class="connection-gloss-line">the chance of a false detection when there is no effect.</span><span class="connection-symbols-line">α is that rate, and H₀ is the null.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>A real effect shifts the sampling distribution, and the demonstration shades the share that lands beyond the null cutoff.</p>
+<p>The null and the alternative are drawn as two sampling distributions of the mean. Move the size of the effect, the spread, the sample size, and the significance cutoff. The shaded share of the alternative that lands beyond the null cutoff is the power: the chance of detecting an effect that is really there.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/statistical_power.html">
 <span class="book-still-media">
@@ -233,7 +233,7 @@
 <li><span class="connection-formula-line">SE shrinks as 1/√n</span><span class="connection-gloss-line">the standard error gets smaller as the sample grows, in proportion to one over the square root of n.</span><span class="connection-symbols-line">SE is that standard error, and n is the sample size.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>A power curve shows how the chance of detecting a real effect changes with the size of the effect and the size of the sample.</p>
+<p>The curve is the power of a two-sided, equal-variance, two-sample t test. Move the total sample size, Cohen’s d, how the sample is split between the groups, and the significance level. The curve shows how the chance of detecting a real effect changes with those choices.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/power_curve.html">
 <span class="book-still-media">
@@ -271,7 +271,7 @@
 <li><span class="connection-formula-line">for two groups, t² = F</span><span class="connection-gloss-line">the squared two-group t equals this F.</span><span class="connection-symbols-line">t is that t statistic, and F is the ratio of the mean squares.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Set a two-group comparison beside one with more means, and see whether the variation among means is large relative to the variation inside groups.</p>
+<p>Two groups are drawn side by side. Move the two means and the spread inside the groups. One part of the picture is the distance among the means; the other is the scatter left inside the groups. For these two equal groups the t test and the ANOVA describe the same gap, and t² equals F.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/t_test_to_anova.html">
 <span class="book-still-media">
@@ -310,7 +310,7 @@
 <li><span class="connection-formula-line">for k = 2, t² = F</span><span class="connection-gloss-line">with two timepoints, the squared paired t equals the repeated-measures F.</span><span class="connection-symbols-line">k is how many timepoints, t that paired statistic, and F the ratio of mean squares.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Slide the pre–post correlation and see a positive covariance shrink the difference-score spread, enlarge SS Subjects, and feed the residual.</p>
+<p>Slide the correlation across time points. Two time points are the paired t; three are the repeated-measures ANOVA. A more positive correlation shrinks the difference-score spread, enlarges the sum of squares for subjects, and feeds the residual.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/paired_t_to_rm_anova.html">
 <span class="book-still-media">
@@ -345,7 +345,7 @@
 <li><span class="connection-formula-line">F = MS<sub>effect</sub> / MS<sub>error</sub> for the matching stratum</span><span class="connection-gloss-line">an effect tested against its own error term.</span><span class="connection-symbols-line">MS<sub>effect</sub> and MS<sub>error</sub> are mean squares: a sum of squares divided by its degrees of freedom.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>The same bricks can be read as a flat linear model, grouped by error stratum, or introduced condition by condition.</p>
+<p>Choose a between-subjects, within-subjects, or mixed design, with one, two, or three factors. The bricks are that design’s sums of squares: each main effect, each interaction, and the error that matches it. The same bricks can be read as a flat linear model, grouped by error stratum, or introduced condition by condition.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/partitioning_sum_of_squares_anova.html">
 <span class="book-still-media">
@@ -382,7 +382,7 @@
 <li><span class="connection-formula-line">F<sub>A</sub> = MS<sub>A</sub> / MS<sub>error</sub>, and likewise for B and AB</span><span class="connection-gloss-line">factor A’s mean square divided by the error mean square, and the same for B and the interaction.</span><span class="connection-symbols-line">A mean square is a sum of squares divided by its degrees of freedom.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>See each factor’s main effect, and the interaction that appears only when the two factors are combined.</p>
+<p>Four cells cross group with gender. Set the four cell means and draw a fresh sample of noise around them. The profile plot draws a line for each level of the second factor. Parallel lines mean the two factors do not interact; lines that are not parallel are the pattern that appears only in the combination.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/two_way_anova.html">
 <span class="book-still-media">
@@ -421,7 +421,7 @@
 <li><span class="connection-formula-line">F<sub>time</sub> = MS<sub>time</sub> / MS<sub>error(within)</sub></span><span class="connection-gloss-line">the time effect, tested against how people vary in their change.</span><span class="connection-symbols-line">Each MS is a mean square: a sum of squares divided by its degrees of freedom.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>The demonstration separates a group effect, tested between people, from a time effect and a group-by-time interaction, tested against how people vary in their change.</p>
+<p>People in two groups are drawn from a first measurement to a second. One reading ignores the groups and keeps a single repeated-measures split. One separates the group effect, tested between people, from the time effect and the group-by-time interaction, tested against how people vary in their change. A third reading turns the same paths into the midpoints and the pre-to-post changes.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/mixed_anova_2x2.html">
 <span class="book-still-media">
@@ -459,7 +459,7 @@
 <li>mixed: two cohorts of lines, and the slopes need not match</li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Choose a design and see a plane for separate groups, a line for each person, or two cohorts whose slopes need not match.</p>
+<p>Five designs share one fitted picture. Choose a design and see a plane for separate groups, a line for each person, or two cohorts whose slopes need not match. The fit is shown in three dimensions and as a flat cross-section. You can change the size of the effect and show or hide the residual lines.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/geometric_anova_regression.html">
 <span class="book-still-media">
@@ -497,7 +497,7 @@
 <li>observations independent</li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Step through normality, similar spread, and independence, and see the Type I error, the power, or both move when one breaks.</p>
+<p>Step through normality of the residuals, similar spread across groups, and independence. Draw samples when the group means are truly equal, and when they differ. The Type I error under the null, the power under a real difference, or both, move when an assumption breaks.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/anova_assumptions.html">
 <span class="book-still-media">

@@ -82,7 +82,7 @@
 <li><span class="connection-formula-line">r = cov(X, Y) / (s<sub>x</sub> s<sub>y</sub>)</span><span class="connection-gloss-line">that shared movement on a scale from −1 to 1.</span><span class="connection-symbols-line">s<sub>x</sub> and s<sub>y</sub> are the two standard deviations.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Drag the points and watch the covariance and the correlation change.</p>
+<p>The figure is a scatter of points you can move, add, or remove. Each point has a rectangle whose sides are its deviations from the two means, and covariance is the average of those areas. A dashed box is one standard deviation wide and one tall. The filled fraction of that box is the size of the correlation. The sign says whether the points rise together or one falls as the other rises.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/covariance_and_correlation.html">
 <span class="book-still-media">
@@ -118,7 +118,7 @@
 <li><span class="connection-formula-line">R² = SSR / SST</span><span class="connection-gloss-line">the share of the total that the line accounts for.</span><span class="connection-symbols-line">SSR is the regression sum of squares, and SST is the total.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Choose the intercept and slope that make the squared vertical gaps as small as they can be, and see the total sum of squares split into the part the line accounts for and the part left over.</p>
+<p>Move the line or the points. The squared vertical gaps are the loss, and a plot over the intercept and the slope shows where that loss is smallest. The total sum of squares splits into the part the least-squares line accounts for and the part left over. Anscombe’s four scatters are here as well, so a line fitted to matching summaries can still meet a curve or a single odd point.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/ols_simple_linear_regression.html">
 <span class="book-still-media">
@@ -155,7 +155,7 @@
 <li><span class="connection-formula-line">R² = SSM / SST</span><span class="connection-gloss-line">the share of the total that the plane accounts for.</span><span class="connection-symbols-line">SSM is the model sum of squares, and SST is the total.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Fit a plane to two predictors and see the total sum of squares split into the part the plane accounts for and the part left as vertical gaps.</p>
+<p>Points and a plane are drawn in three dimensions, with two predictors and an outcome. Set the intercept and the two slopes. The total sum of squares splits into the part the plane accounts for and the vertical gaps left over. The least-squares plane is the setting of the intercept and the two slopes that makes those vertical gaps as small as they can be.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/multiple_regression_sst_ssm_sse.html">
 <span class="book-still-media">
@@ -223,7 +223,7 @@
 <li><span class="connection-formula-line">R² = SS<sub>line</sub> / SS<sub>total</sub></span><span class="connection-gloss-line">the same share: the part a straight line accounts for, over the total.</span><span class="connection-symbols-line">SS<sub>line</sub> is the line’s sum of squares, and SS<sub>total</sub> is the total.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Square a correlation and see that share of variance as the part a straight-line relationship accounts for.</p>
+<p>Move how tightly one variable follows the other. The scatter can show the points, the mean, the fitted values, and the residuals, and it can mark the vertical gaps that make up the total and the part the relationship accounts for. That share is the squared correlation. The same picture can use a continuous predictor or a set of group means.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/variance_explained.html">
 <span class="book-still-media">
@@ -262,7 +262,7 @@
 <li><span class="connection-formula-line">SS(X − Y) = SS(X) + SS(Y) − 2 SP(X, Y)</span><span class="connection-gloss-line">a positive sum of products narrows the difference.</span><span class="connection-symbols-line">SS is a sum of squares, and SP is the sum of products of the paired deviations.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Add or subtract two variables and see a positive correlation widen the sum and narrow the difference.</p>
+<p>Two variables are drawn together, and you choose their sum or their difference. Change the correlation. Contours on the scatter are lines of constant sum or constant difference, and bars show the variance and the sum of squares of the result. A positive correlation widens the sum and narrows the difference.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/additivity_of_variance.html">
 <span class="book-still-media">

@@ -87,7 +87,7 @@
 <li><span class="connection-formula-line">X̄ ± 1.96 · (s / √M)</span><span class="connection-gloss-line">an interval for the mean from one sample.</span><span class="connection-symbols-line">X̄ is the sample mean, s the sample standard deviation, M how many observations, and 1.96 the normal cutoff for about 95%.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Step through a random walk or coin tosses. Each level updates from the parameter through to the inference.</p>
+<p>A random walk and a series of coin tosses are drawn as five levels at once. You see the parameter, the process as it unfolds, the number taken from one outcome, the distribution of those numbers, and the inference that tries to recover the parameter. You can step one outcome at a time, or let the outcomes play.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/stats_conceptual_hierarchy.html">
 <span class="book-still-media">
@@ -125,7 +125,7 @@
 <li>σ = spread</li>
 </ul>
 <p class="book-label">Try this</p>
-<p>The demonstration puts a normal curve together from a center and a spread.</p>
+<p>The normal curve is assembled in stages on one graph. It begins as an exponential that runs away on one side, then as a peak that falls on both sides of the center, then as a smooth bell. Spread and center come in after that, and the last stage holds the area under the curve at 1, however wide or shifted the bell is.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/building_normal_distribution.html">
 <span class="book-still-media">
@@ -203,7 +203,7 @@
 <li><span class="connection-formula-line">μ = np,  σ = √(np(1 − p))</span><span class="connection-gloss-line">the mean and the standard deviation of that count.</span><span class="connection-symbols-line">n is how many trials, and p is the chance of success.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Set the number of coins and the chance of heads, then run many trials. The observed frequencies settle onto the bars.</p>
+<p>Set how many coins there are and the chance of heads. One trial shows that sequence of tosses. Many trials mark how often each number of heads appeared, and those marks settle onto the bars, which are the exact binomial probabilities.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/binomial_bernoulli.html">
 <span class="book-still-media">
@@ -280,7 +280,7 @@
 <li><span class="connection-formula-line">P(X = k) ≈ (1 / (σ√(2π))) exp(−(k − μ)² / (2σ²))</span><span class="connection-gloss-line">with many rows, the chance of bin k is about this normal height.</span><span class="connection-symbols-line">k is the bin, μ the mean count, σ its spread, π is pi, and exp is the exponential.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Start the flow or drop a burst, and change the rows. Each bead’s bin is its count of right bounces, and more rows pile those counts into a bell.</p>
+<p>Beads fall through rows of pegs. You can let them flow or drop a burst, change the number of rows, and change the chance of a right bounce. Each bead’s bin is its count of right bounces. Marks show the exact binomial probabilities, and a normal curve is drawn over the same bins; more rows pull the pile toward that bell.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/galton_board.html">
 <span class="book-still-media">
@@ -318,7 +318,7 @@
 <li><span class="connection-formula-line">SE = σ / √n</span><span class="connection-gloss-line">the standard error: how widely those means spread.</span><span class="connection-symbols-line">σ is the population standard deviation, and n is the sample size.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Draw many samples and watch their means settle toward a normal curve. This simulation uses the population standard deviation; with one real sample that spread is estimated by s / √n.</p>
+<p>Choose the population’s shape — skewed, flat, bell-shaped, or two peaks — and a sample size, then draw many samples. One plot is the population. The other is the pile of sample means, which narrows and settles toward a normal curve as each sample gets larger. This simulation uses the population standard deviation. With one real sample, that spread is estimated by s / √n.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/central_limit_theorem.html">
 <span class="book-still-media">
@@ -350,7 +350,7 @@
 <li><span class="connection-formula-line">X̄ₙ → N(μ, σ²/n) as n grows</span><span class="connection-gloss-line">the distribution of the sample mean approaches a normal curve.</span><span class="connection-symbols-line">X̄ₙ is the mean of n scores, μ and σ the population mean and standard deviation, and n the sample size.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Draw samples of 10 with replacement from about 1,000 scores and watch the means pile up. Each sample’s s / √n estimates the spread of those means.</p>
+<p>About 1,000 scores are on the page, and each draw takes 10 of them with replacement. You see the population, that sample, and the growing pile of sample means. Each sample’s s / √n estimates the spread of those means.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/horowitz_1974_simulation_CLT.html">
 <span class="book-still-media">
@@ -388,7 +388,7 @@
 <li>ν = number of squared normals</li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Set the degrees of freedom and draw samples of squared standard normals. The counts case places a sum of squared count residuals on the same curve.</p>
+<p>Set the degrees of freedom and draw samples. Each draw squares that many standard normals and adds them; the histogram is those sums, set against the chi-square curve. One square piles up near zero, and further squares move the pile to the right. The counts case places a sum of squared count residuals on the same curve.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/chi_square_distribution.html">
 <span class="book-still-media">
@@ -425,7 +425,7 @@
 <li><span class="connection-formula-line">coverage ≈ 1 − α over repeated samples</span><span class="connection-gloss-line">the share of repeated intervals that hit the fixed value.</span><span class="connection-symbols-line">α is the share that miss.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Generate many intervals aimed at a fixed value, and count how many of them cross it.</p>
+<p>The same interval is shown in three pictures. Many samples show where means land around a fixed true value. One sample shows a single interval aimed at that value. A long run counts how many intervals cross it. The shooter’s skill and the stated percentage, about 68%, 95%, or 99.7%, change how wide each interval is.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/target_analogy_confidence_intervals.html">
 <span class="book-still-media">
@@ -464,7 +464,7 @@
 <li>ν = number of squared normals</li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Set the degrees of freedom and draw samples of squared standard normals. The counts case places a sum of squared count residuals on the same curve.</p>
+<p>Set the degrees of freedom and draw samples. Each draw squares that many standard normals and adds them; the histogram is those sums, set against the chi-square curve. One square piles up near zero, and further squares move the pile to the right. The counts case places a sum of squared count residuals on the same curve.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/chi_square_distribution.html">
 <span class="book-still-media">
@@ -502,7 +502,7 @@
 <li><span class="connection-formula-line">divide each axis by its spread: Q = Z<sub>1</sub>² + … + Z<sub>ν</sub>²</span><span class="connection-gloss-line">after scaling each axis by its spread, the distance is a standard chi-square.</span><span class="connection-symbols-line">Each Z is a standard normal, and ν is how many axes.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Throw a Gaussian dart and read its squared distance from the bullseye as a generalized, scaled, or standard chi-square.</p>
+<p>A dart is thrown from a Gaussian cloud at a bullseye, on a rail, a board, or in space. You choose one, two, or three axes, and whether the spreads on those axes match. The squared distance is read as a generalized chi-square, a scaled chi-square, or a standard chi-square, and repeated throws fill out the distribution of that distance.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/chi_square_squared_distance.html">
 <span class="book-still-media">
@@ -583,7 +583,7 @@
 <li><span class="connection-formula-line">a large χ² falls past the critical value</span><span class="connection-gloss-line">the counts are then surprising if the model is true.</span><span class="connection-symbols-line">χ² is the goodness-of-fit statistic.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Spin a wheel, compare the observed counts with the expected counts, and place the chi-square on its sampling curve.</p>
+<p>Spin a wheel and compare the counts you get with the counts a stated model expects. Each category shows its own contribution to the chi-square, and the sum is marked on the sampling curve. The wheel can match the model, or its true chances can differ from the probabilities the test assumes.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/chi_square_goodness_of_fit.html">
 <span class="book-still-media">
@@ -622,7 +622,7 @@
 <li><span class="connection-formula-line">2×2: df = 3 when pᵢ is known, and df = 1 from the margins</span><span class="connection-gloss-line">four cells, judged on 3 degrees of freedom when the chances are known and on 1 when the margins supply the expected counts.</span><span class="connection-symbols-line">df is degrees of freedom, and pᵢ is a chance stated in advance.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<p>Switch goodness-of-fit and independence on the same counts, and watch the expected counts, the degrees of freedom, and the curve change together.</p>
+<p>One set of spins fills a 2×2 table from the wheel. Read those same counts as a goodness-of-fit test, with expected counts taken from probabilities stated in advance, or as a test of independence, with expected counts taken from the sample’s own margins. The expected counts, the degrees of freedom, and the curve change together.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/chi_square_independence_2x2.html">
 <span class="book-still-media">
