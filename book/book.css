@@ -184,6 +184,14 @@ button.book-menu-toggle {
     box-shadow: inset 3px 0 0 #000000;
 }
 
+/* The marker is a 3px inset line. Chapter and section titles only
+   had 0.2rem of padding, so the line sat against the words. Demo
+   links already indent further. */
+.book-menu .book-menu-chapter a[aria-current="page"],
+.book-menu a.book-section-link[aria-current="true"] {
+    padding-left: 0.75rem;
+}
+
 .book-toc-chapter:not(.is-current) .book-menu-chapter {
     margin-bottom: 0;
 }
@@ -336,21 +344,24 @@ button.book-menu-toggle {
 a.book-selftest {
     -webkit-appearance: none;
     appearance: none;
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 0.75rem;
     box-sizing: border-box;
     width: 100%;
     min-height: 44px;
     margin: 1.6rem 0 0;
-    padding: 0.55rem 0.85rem;
+    padding: 0.65rem 2.4rem;
     border: 1px solid #000000;
     border-radius: 0 !important;
     background: #ffffff;
     color: #000000;
+    font-size: 1.35rem;
     font-weight: bold;
     line-height: 1.3;
+    text-align: center;
     text-decoration: none;
     scroll-margin-top: 1rem;
     touch-action: manipulation;
@@ -388,8 +399,15 @@ a.book-selftest:focus-visible {
 .book-selftest-label {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.45rem;
     min-width: 0;
+    text-align: center;
+}
+
+a.book-selftest > .book-still-arrow {
+    position: absolute;
+    right: 0.85rem;
 }
 
 .book-selftest-mark {
