@@ -106,8 +106,8 @@
 </section>
 </div>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
-<p>The next step builds one such distribution, the normal curve, from a center and a spread.</p>
+<p class="book-label">What’s next?</p>
+<p>The hierarchy treats a distribution as the pattern the numbers make, and the interval already uses a normal cutoff. That cutoff comes from one curve, fixed once a center and a spread are named. Those two numbers are what the curve is built from.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-building-normal-distribution" data-book-section>
@@ -144,8 +144,8 @@
 </section>
 </div>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
-<p>The next step places that curve among the other distributions it connects to.</p>
+<p class="book-label">What’s next?</p>
+<p>A center and a spread are enough to draw this one curve. They do not say which other models meet it: a special case that fixes a parameter, a sum or a transformation, or a limit in which a binomial count approaches this same shape.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-probability-distributions-map" data-book-section>
@@ -222,8 +222,8 @@
 </section>
 </div>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
-<p>The next step counts arrivals in a stretch of time instead of successes in a fixed number of trials.</p>
+<p class="book-label">What’s next?</p>
+<p>A binomial count starts from a fixed number of trials, each a Bernoulli toss. A Poisson count fixes a stretch of time instead, and the arrivals have no memory of one another. Short bins turn that stretch back into Bernoulli trials, so a fine binomial count approaches the Poisson probabilities.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-poisson-point-process" data-book-section>
@@ -261,8 +261,8 @@
 </section>
 </div>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
-<p>The next step writes a binomial count as left and right bounces on a Galton board.</p>
+<p class="book-label">What’s next?</p>
+<p>The fine bins showed a binomial count approaching Poisson probabilities. On the board each bounce is one of those Bernoulli trials, and the bin a bead reaches is the count of right bounces. More rows pile those counts into a bell, the binomial sum approaching a normal curve.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-galton-board" data-book-section>
@@ -369,8 +369,8 @@
 </section>
 </div>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
-<p>Once means behave like normals, sums of squared standard normals become the next building block.</p>
+<p class="book-label">What’s next?</p>
+<p>Those sample means settle into a normal shape, and each sample’s s / √n estimates the spread of the means. The spread has its own sampling story. Independent standard normals, squared and added, follow a chi-square curve, and the number of squares is the degrees of freedom.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-chi-square-distribution" data-book-section>
@@ -407,8 +407,8 @@
 </section>
 </div>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
-<p>With sampling distributions for means and for variances in view, you can ask what kind of interval claim a sampling distribution can support.</p>
+<p class="book-label">What’s next?</p>
+<p>The chi-square curve, like the curve of sample means, is what repeated draws produce. A confidence interval is computed from one draw, yet the percentage on it still refers to that repetition: the share of such intervals that cover a value held fixed. Each interval is one shot at that fixed target.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-target-analogy-confidence-intervals" data-book-section>
@@ -483,8 +483,8 @@
 </section>
 </div>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
-<p>The next step draws those squares as distance from a point.</p>
+<p class="book-label">What’s next?</p>
+<p>Each square on that curve comes from a standard normal, so every axis has spread 1. An axis with its own spread turns the sum of squares into squared distance from a bullseye, longer along the wide axis. Dividing each axis by its spread brings the distance back to the standard chi-square.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-chi-square-squared-distance" data-book-section>
@@ -521,8 +521,8 @@
 </section>
 </div>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
-<p>The next step starts from counts instead of from a dart.</p>
+<p class="book-label">What’s next?</p>
+<p>Squared distance started from normals. A count from a coin or a die is turned into one of those normals first: the gap between the observed count and np, divided by the binomial spread, is a z. Squaring that z, and adding across categories, builds the same χ² from counts.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-binomial-counts-to-chi-square" data-book-section>
@@ -563,8 +563,8 @@
 </section>
 </div>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
-<p>The next step uses the sum as a test of a model.</p>
+<p class="book-label">What’s next?</p>
+<p>Repeated draws already drop Σ (O − E)² / E onto the chi-square curve. Goodness-of-fit keeps one of those sums and asks whether it sits past a critical value on the same curve. Past that value, the counts are surprising if the model behind the expected counts is true.</p>
 </div>
 </section>
 <section class="book-demo" id="demo-chi-square-goodness-of-fit" data-book-section>
@@ -602,7 +602,7 @@
 </section>
 </div>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
+<p class="book-label">What’s next?</p>
 <p>The next step keeps that formula. The same χ² can be read as goodness-of-fit, when the expected counts come from a known model, or as a test of independence, when they come from the sample margins.</p>
 </div>
 </section>
