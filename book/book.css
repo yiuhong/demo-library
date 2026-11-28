@@ -429,12 +429,23 @@ a.book-selftest > .book-still-arrow {
     margin: 1.1rem 0 1.4rem;
 }
 
-/* The still is the whole figure, at the column width. Nothing here
-   caps that width. The expand mark and the title arrow are always
-   visible, so the card reads as a control without a hover. */
+/* The still is the whole figure. On a phone, a tablet, and a modest
+   two-column laptop it uses the chapter column, and those widths
+   already read well: about 350px on a phone, about 730px at 768px,
+   and about 860px at 1280px with the 22rem contents column open.
+   From 960px that column stops at 22rem and the chapter has no
+   max-width, so a large monitor was stretching every still with the
+   window: about 1500px at 1920px, about 2140px at 2560px, and wider
+   when the contents are tucked. 60rem is 960px at the 16px root, which
+   is above those smaller widths, so they stay as they are. A wider
+   window stops the card there. The chapter prose is not capped. The
+   picture stays height: auto, so the crop keeps its proportion. The
+   expand mark and the title arrow stay visible, so the card reads as
+   a control without a hover. */
 .book-still {
     display: block;
     width: 100%;
+    max-width: 60rem;
     margin: 0;
     padding: 0;
     border: 1px solid #000000;
@@ -454,6 +465,7 @@ a.book-selftest > .book-still-arrow {
 .book-still img {
     display: block;
     width: 100%;
+    max-width: 100%;
     height: auto;
     background: #ffffff;
 }
