@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The six homepage Features blurbs are now this shorter wording. Coverage reads “From introductory to advanced statistics, for beginners through researchers.” Interactive figures reads “Interact with numbers and see the visuals change.” Teach and Learn reads “Teach with the succinct Teach mode; Learn with the rigorous Learn mode.” Book view reads “Read through the demos as a book with self-tests and collectibles.” References reads “From textbooks, papers, or other sources.” Open source reads “CC BY 4.0, and MIT license.” The headings, the Book view link to [`book/`](book/), the list order, and the citation version are unchanged.
+
 - The homepage Features list includes Book view immediately after Teach and Learn and before References. The heading links to [`book/`](book/). The sentence reads “Demonstrations are organized into book chapters with self-tests to consolidate your understanding.” The note under the list is removed. Coverage, Interactive figures, Teach and Learn, References, Open source, and the citation version are unchanged.
 
 - On the homepage, Browse the catalog and Open the demo are white with black text and a black border. Hover and keyboard focus fill them black and turn the words white. Book view on the homepage already used that pattern. The shapes, type, and focus outlines stay. The citation version is unchanged.
