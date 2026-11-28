@@ -72,7 +72,7 @@
 <h2>Why describe data first?</h2>
 <p>Before you test a hypothesis or build a model, you need a clear picture of the numbers in front of you. Descriptive summaries answer three everyday questions: <em>Where do the values sit?</em> <em>How spread out are they?</em> <em>What shape do they make?</em> Those answers are not busywork. They decide whether a mean is a fair summary, whether a long tail is pulling the story, whether a few extreme scores deserve a second look, and — by the end of the track — why a matching set of summaries can still hide a different graph.</p>
 <p>In psychology and methods courses, the temptation is to jump straight to testing and inference. Hold off for a moment. A careful description of the sample is the foundation for honest claims later: if the shape is skewed, if outliers crowd one side, or if the sample looks nothing like the reference distribution you assumed, later analyses will be shaky even if the software runs cleanly.</p>
-<p>This chapter follows the live topic Describing data in Project Viz, now organized as three sub-paths: Center and spread, Shape and pictures, and Same summaries, different graphs. Work the demos in order. Each section now ends with a 10-question Learn-mode self-test (not a catalog item). Each section below has a short Why, concrete Try this moves, a Bridge to the next idea, and a quick Check your understanding. The sections of this chapter are <a href="#center-and-spread">Center and spread</a>, <a href="#shape-and-pictures">Shape and pictures</a>, and <a href="#same-summaries-different-graphs">Same summaries, different graphs</a>.</p>
+<p>This chapter follows the live topic Describing data in Project Viz, now organized as three sub-paths: Center and spread, Shape and pictures, and Same summaries, different graphs. Work the demos in order. Each section now ends with a 10-question Learn-mode self-test (not a catalog item). Each section below has a short Why, concrete Try this moves, a What’s next? that links to the following idea, and a quick Check your understanding. The sections of this chapter are <a href="#center-and-spread">Center and spread</a>, <a href="#shape-and-pictures">Shape and pictures</a>, and <a href="#same-summaries-different-graphs">Same summaries, different graphs</a>.</p>
 </header>
 <section class="book-section" id="center-and-spread" data-book-section>
 <h2>Center and spread</h2>
@@ -115,7 +115,7 @@
 <p class="book-label">Check your understanding</p>
 <ol><li>For a right-skewed sample of reaction times, which tends to sit farthest into the long tail — mean, median, or mode — and why?</li><li>Name one research situation where the median might be a fairer “typical” value than the mean.</li></ol>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
+<p class="book-label">What’s next?</p>
 <p>When mean, median, and mode disagree, center alone is not enough. The next question is what other kinds of average can capture <strong>spread</strong> and <strong>shape</strong>, not only where the pile sits. That leads to moments.</p>
 </div>
 </section>
@@ -157,7 +157,7 @@
 <p class="book-label">Check your understanding</p>
 <ol><li>In one sentence, what does the second moment measure that the first moment does not?</li><li>Why does it matter that moments built around x̄ treat that mean as “known”?</li></ol>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
+<p class="book-label">What’s next?</p>
 <p>That last point is easy to miss. When the mean is estimated from the sample itself, the usual average of squared deviations is a little too small. Correcting that bias is Bessel’s correction — next.</p>
 </div>
 </section>
@@ -198,7 +198,7 @@
 <p class="book-label">Check your understanding</p>
 <ol><li>Why does dividing by (n) tend to produce a variance estimate that is a little too small?</li><li>In your own words, what does Bessel’s correction buy you when you report sample standard deviation?</li></ol>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
+<p class="book-label">What’s next?</p>
 <p>With a fairer number for spread, you can ask a new question about shape: is the distribution pulled one way rather than balanced? That imbalance is <strong>skew</strong>.</p>
 </div>
 </section>
@@ -244,7 +244,7 @@
 <p class="book-label">Check your understanding</p>
 <ol><li>In a right-skewed distribution, where does the mean typically sit relative to the median?</li><li>Why might reporting only the mean be misleading for a strongly skewed outcome measure?</li></ol>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
+<p class="book-label">What’s next?</p>
 <p>A number for skew is helpful, but the same shape is easier to <em>see</em> in a picture of how values pile up and where the middle of the data sits. Histograms and boxplots are next.</p>
 </div>
 </section>
@@ -285,7 +285,7 @@
 <p class="book-label">Check your understanding</p>
 <ol><li>What does the width of the box (the IQR) tell you that the median alone does not?</li><li>Give one advantage of the histogram and one advantage of the boxplot for the same sample.</li></ol>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
+<p class="book-label">What’s next?</p>
 <p>Reading both displays together also raises a sharper question: how far can a point sit before it looks <em>unusual</em> against the middle of the data? That is the job of fences and outlier rules.</p>
 </div>
 </section>
@@ -326,7 +326,7 @@
 <p class="book-label">Check your understanding</p>
 <ol><li>In words, how is a Tukey fence built from the quartiles and the IQR?</li><li>Why is “outside the fence” a useful alert rather than an automatic reason to delete a score?</li></ol>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
+<p class="book-label">What’s next?</p>
 <p>The histogram’s bars still depend on where the bin edges fall. A smooth curve can follow the same pile without those cuts. That smooth picture is the kernel density estimate.</p>
 </div>
 </section>
@@ -367,7 +367,7 @@
 <p class="book-label">Check your understanding</p>
 <ol><li>What problem with histograms does a KDE try to soften?</li><li>What happens to the density curve if you choose a bandwidth that is much too large?</li></ol>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
+<p class="book-label">What’s next?</p>
 <p>Outliers are one kind of mismatch with a simple shape. Another is whether the <em>whole</em> set of numbers matches a reference distribution — often the normal. Q–Q plots make that comparison visual.</p>
 </div>
 </section>
@@ -411,7 +411,7 @@
 <p class="book-label">Check your understanding</p>
 <ol><li>If points in a normal Q–Q plot bend upward in the right tail, what does that suggest about the sample relative to a normal reference?</li><li>How does a Q–Q plot complement (not replace) a boxplot-and-outlier display?</li></ol>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
+<p class="book-label">What’s next?</p>
 <p>Matching a reference shape is one check. Another is whether summaries of center, spread, and association can still hide very different graphs. Anscombe’s quartet and the Datasaurus dozen make that limitation vivid — next.</p>
 </div>
 </section>
@@ -450,7 +450,7 @@
 <p class="book-label">Check your understanding</p>
 <ol><li>What do Anscombe’s quartet and the Datasaurus dozen hold fixed across panels that the scatter plots do not?</li><li>Why is “same means and correlation” not enough to claim two bivariate samples tell the same story?</li></ol>
 <div class="book-bridge">
-<p class="book-label">Bridge</p>
+<p class="book-label">What’s next?</p>
 <p>You now have a toolkit for describing a sample — centers, moments and corrected spread, skew, pictures (histogram, boxplot, KDE), outlier fences, a check against a reference shape, and a closing reminder that matching summaries are not the same as matching graphs. Chapter 2 turns from description toward probability and sampling — how samples behave when you draw them again and again.</p>
 </div>
 </section>
