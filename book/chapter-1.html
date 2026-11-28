@@ -90,8 +90,8 @@
 <li>mode = most frequent value</li>
 </ul>
 <p class="book-label">Try this</p>
-<ol><li>Open the demo and notice where the three averages sit on the current dot plot.</li><li>Drag one or two points toward a long right-hand tail. Watch which average moves farthest.</li><li>Pull points back into a tight, roughly symmetric clump. Confirm that mean, median, and mode come close again.</li><li>Ask yourself: if you had to report <em>one</em> center for a skewed sample, which average would you defend — and why?</li></ol>
-<p>Move the points and watch which average shifts.</p>
+<ol><li>Notice where the three averages sit on the current dot plot.</li><li>Add dots out in a long right-hand tail, or choose the positively skewed sample. Watch which average moves farthest.</li><li>Take those extra dots away, or return to a roughly symmetric sample. Confirm that mean, median, and mode come close again.</li><li>Ask yourself: if you had to report <em>one</em> center for a skewed sample, which average would you defend — and why?</li></ol>
+<p>The dot plot is one sample, with the mean, the median, and the mode marked on it. Adding or removing a dot, or loading a skewed or a symmetric sample, moves those three averages. They sit close together when the pile is balanced, and they pull apart when a tail stretches one side.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/mean_mode_median_dot_plot.html">
 <span class="book-still-media">
@@ -133,7 +133,7 @@
 </ul>
 <p class="book-label">Try this</p>
 <ol><li>Start with a small sample and note the first, second, and third moments.</li><li>Move one extreme point farther out. Compare how m₂ (spread) and m₃ (skew-related) respond.</li><li>Notice that these calculations treat the sample mean as if it were already known — a quiet assumption that matters once you estimate variance from the same data.</li></ol>
-<p>Change the sample and compare how each moment responds.</p>
+<p>The same points feed four averages: the mean, the average of the squared deviations, and the averages that describe skew and tail weight. You can show or hide each of those on the chart. Moving a point far from the center changes the higher averages more than it changes the mean.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/moments_as_averages.html">
 <span class="book-still-media">
@@ -220,7 +220,7 @@
 </ul>
 <p class="book-label">Try this</p>
 <ol><li>Drag the skew control from near-symmetric toward a strong right skew. Watch mean, median, and mode separate.</li><li>Flip or reverse toward left skew if available, and confirm the mean moves into the long tail again.</li><li>Pause on a moderately skewed shape and decide which average you would quote in a methods section — and what caveat you would add.</li></ol>
-<p>Drag the skew and watch the three averages separate.</p>
+<p>A skew control shapes a density and sets it beside a normal curve. The mean, the median, and the mode are marked, and boxplots and a Q–Q plot update with the shape. You can view the raw scores, or the same scores standardized to a mean of 0 and a variance of 1.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/skewed_distribution.html">
 <span class="book-still-media">
@@ -261,7 +261,7 @@
 </ul>
 <p class="book-label">Try this</p>
 <ol><li>Look at the histogram first: where is the tallest bar, and is there a visible tail?</li><li>Match that picture to the boxplot: locate the median line and the box edges (Q₁, Q₃).</li><li>Trace the whiskers and ask how they relate to the outer values in the histogram.</li><li>Mentally sketch what would change if a few extreme scores appeared on one side.</li></ol>
-<p>Read the pile and the box together on one sample.</p>
+<p>One sample is drawn as a histogram, the pile of values, and as a box, the five-number summary. Handles on the box are the minimum, the first quartile, the median, the third quartile, and the maximum. Moving a handle redraws the pile so that it matches the box.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/boxplot_histogram.html">
 <span class="book-still-media">
@@ -301,8 +301,8 @@
 <li><span class="connection-formula-line">upper fence = Q₃ + 1.5 × IQR</span><span class="connection-gloss-line">a point above this is marked unusual.</span><span class="connection-symbols-line">Q₃ is the third quartile, and IQR is the middle half, Q₃ − Q₁.</span></li>
 </ul>
 <p class="book-label">Try this</p>
-<ol><li>Identify Q₁, the median, Q₃, and the dashed fence lines on the plot.</li><li>Add or move an extreme point and watch whether it falls outside the fences.</li><li>Notice that a point can sit past the whisker tip and still be inside — or outside — the fence rule, depending on the sample.</li><li>Ask: would you drop that point, winsorise it, or keep it and discuss it? (The demo shows the flag; your methods section decides the policy.)</li></ol>
-<p>Add extreme points and watch which ones fall outside the fences.</p>
+<ol><li>Identify Q₁, the median, Q₃, and the dashed fence lines on the plot.</li><li>Switch among a symmetric shape and the two skewed shapes, and watch which points fall outside the fences.</li><li>Hide the points, then the outliers, and see what the box and the whiskers still show.</li><li>Ask: would you drop that point, winsorise it, or keep it and discuss it? (The demo shows the flag; your methods section decides the policy.)</li></ol>
+<p>The same sample size is drawn as a symmetric pile, a left skew, or a right skew. Whiskers stop at the fences, and points past the fences are marked on their own. You can hide the points or the outliers and still read the box.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/boxplot_outliers.html">
 <span class="book-still-media">
@@ -388,6 +388,7 @@
 </ul>
 <p class="book-label">Try this</p>
 <ol><li>Open the demo and compare sample quantiles to the reference line.</li><li>Note where points sit in the middle versus the tails — tails often peel away first.</li><li>Ask what a banana-shaped departure (or an S-curve) would imply about skew or heavy tails relative to the reference.</li><li>Tie it back: if the Q–Q plot looks poor, revisit skew, outliers, and whether a mean-based summary is still your best friend.</li></ol>
+<p>Sample quantiles are plotted against normal quantiles, with a histogram for each axis. Choose a normal sample, a right or left skew, or heavy or light tails. A normal sample sits on the reference line. Skew bends the points, and tails that are heavier or lighter than normal peel away at the ends.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/q_q_plot.html">
 <span class="book-still-media">
@@ -427,6 +428,7 @@
 </ul>
 <p class="book-label">Try this</p>
 <ol><li>Open the demo and switch among Anscombe panels or Datasaurus shapes. Confirm the shared summaries while the scatter changes.</li><li>Drag a point and watch the means, SDs, and correlation move.</li><li>Re-lock the summaries if the controls allow, and see whether a strange picture can return with the same numbers.</li><li>Ask: if a paper reported only those summaries, what would a reader miss about the relationship?</li></ol>
+<p>Anscombe’s quartet and the Datasaurus dozen are scatters that share the same means, standard deviations, and correlation. The picture can be a line, a curve, a stack, a star, or a dinosaur while those summaries stay fixed. Moving a point lets the summaries change, and locking them again can put a strange picture back onto the same numbers.</p>
 <div class="book-figure">
 <button type="button" class="book-still" data-demo="../statistics/limitations_of_summary_statistics.html">
 <span class="book-still-media">
